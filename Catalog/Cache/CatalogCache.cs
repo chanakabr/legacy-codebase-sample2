@@ -8,6 +8,7 @@ using TvinciCache;
 using ApiObjects;
 using KLogMonitor;
 using System.Reflection;
+using Tvinci.Core.DAL;
 
 namespace Catalog.Cache
 {
@@ -18,19 +19,18 @@ namespace Catalog.Cache
         #region Constants
         private static readonly double DEFAULT_TIME_IN_CACHE_MINUTES = 60d; // 1 hours
         private static readonly string DEFAULT_CACHE_NAME = "CatalogCache";
-        protected const string CATALOG_LOG_FILENAME = "CroupCache";
         protected const string CACHE_KEY = "CATALOG";
-        #endregion              
+        #endregion
 
         #region InnerCache properties
-        private static object locker = new object();              
+        private static object locker = new object();
         private ICachingService CacheService = null;
         private readonly double dCacheTT;
         private string sKeyCache = string.Empty;
         #endregion
-        
+
         private static CatalogCache instance = null;
-        
+
 
         private string GetCacheName()
         {
@@ -53,7 +53,7 @@ namespace Catalog.Cache
         {
             this.CacheService = new SingleInMemoryCache(cacheName, cachingTimeMinutes);
         }
-       
+
         private CatalogCache()
         {
             dCacheTT = GetDefaultCacheTimeInMinutes();
@@ -101,7 +101,31 @@ namespace Catalog.Cache
                 return nGroupID;
             }
         }
-            
+
+        public List<Ratio> GetGroupRatios(int groupID)
+        {
+            List<Ratio> ratios = null;
+            try
+            {
+                string sKey = "GroupRatios_" + groupID.ToString();
+                ratios = Get<List<Ratio>>(sKey);
+
+                if (ratios == null || ratios.Count == 0)
+                {
+                    // get from DB
+                    ratios = CatalogDAL.GetGroupRatios(groupID);
+
+                    if (ratios != null && ratios.Count > 0)
+                        Set(sKey, ratios);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while getting group ratios. GID {0}, ex: {1}", groupID, ex);
+            }
+            return ratios;
+        }
+
 
         public object Get(string sKey)
         {
@@ -121,9 +145,9 @@ namespace Catalog.Cache
 
         public bool Set(string sKey, object oValue)
         {
-            return Set(sKey, oValue, dCacheTT);            
+            return Set(sKey, oValue, dCacheTT);
         }
-             
+
         public bool Set(string sKey, object oValue, double dCacheTime)
         {
             sKey = string.Format("{0}{1}", sKeyCache, sKey);

@@ -490,7 +490,6 @@ namespace Catalog
             Picture picObj;
             try
             {
-
                 // use old/new image server
                 if (WS_Utils.IsGroupIDContainedInConfig(groupId, USE_OLD_IMAGE_SERVER_KEY, ';'))
                 {
@@ -547,8 +546,10 @@ namespace Catalog
 
                     if (dtPic != null && dtPic.Rows != null && dtPic.Rows.Count > 0)
                     {
+                        // new images server, migrated user with picture sizes
+
                         // build picture list
-                        for (int i = 0; i < dtPic.Rows.Count; i++) 
+                        for (int i = 0; i < dtPic.Rows.Count; i++)
                         {
                             picObj = new Picture();
 
@@ -585,34 +586,77 @@ namespace Catalog
                     }
                     else
                     {
-                        // sizes are not defined (completely new image server flow)
-                        foreach (var picData in picsData)
+                        // new image server, sizes are not defined -> check if migrated image or new one 
+                        PicData picDataZeroRatio = picsData.FirstOrDefault(x => x.RatioId == 0);
+
+                        if (picDataZeroRatio != null)
                         {
-                            if (picData.RatioId == 0)
-                                continue;
+                            // new image server, sizes are not defined, migrated media/pic => get group ratios
+                            List<Ratio> groupRatios = CatalogCache.Instance().GetGroupRatios(groupId);
+                            if (groupRatios == null || groupRatios.Count == 0)
+                            {
+                                log.ErrorFormat("group ratios were not found. GID {0}", groupId);
+                                return null;
+                            }
 
-                            picObj = new Picture();
+                            // build picture object for each ratio
+                            foreach (var ratio in groupRatios)
+                            {
+                                var picData = picsData.FirstOrDefault(x => x.RatioId == ratio.Id);
+                                if (picData == null)
+                                    picData = picDataZeroRatio;
 
-                            // get ratio string
-                            picObj.ratio = picData.Ratio;
+                                picObj = new Picture();
 
-                            // get picture id: <pic_base_url>_<ratio_id>
-                            int ratioId = picData.RatioId;
-                            picObj.id = string.Format("{0}_{1}", picBaseName, ratioId);
+                                // get ratio string
+                                picObj.ratio = ratio.Name;
 
-                            // get version
-                            picObj.version = picData.Version;
+                                // get picture id: <pic_base_url>_<ratio_id>
+                                picObj.id = string.Format("{0}_{1}", picBaseName, ratio.Id);
 
-                            // build image URL. 
-                            // template: <image_server_url>/p/<partner_id>/entry_id/<image_id>/version/<image_version>
-                            // Example:  http://localhost/ImageServer/Service.svc/GetImage/p/215/entry_id/123/version/10
-                            picObj.m_sURL = string.Format("{0}p/{1}/entry_id/{2}/version/{3}",
-                                imageServerUrl,   // 0 <image_server_url>
-                                groupId,          // 1 <partner_id>
-                                picObj.id,        // 2 <image_id>
-                                picObj.version);  // 3 <image_version>
+                                // get version
+                                picObj.version = picData.Version;
 
-                            lPicObject.Add(picObj);
+                                // build image URL. 
+                                // template: <image_server_url>/p/<partner_id>/entry_id/<image_id>/version/<image_version>
+                                // Example:  http://localhost/ImageServer/Service.svc/GetImage/p/215/entry_id/123/version/10
+                                picObj.m_sURL = string.Format("{0}p/{1}/entry_id/{2}/version/{3}",
+                                    imageServerUrl,   // 0 <image_server_url>
+                                    groupId,          // 1 <partner_id>
+                                    picObj.id,        // 2 <image_id>
+                                    picObj.version);  // 3 <image_version>
+
+                                lPicObject.Add(picObj);
+                            }
+                        }
+                        else
+                        {
+                            // new image server, sizes are not defined, new media/pic
+                            foreach (var picData in picsData)
+                            {
+                                picObj = new Picture();
+
+                                // get ratio string
+                                picObj.ratio = picData.Ratio;
+
+                                // get picture id: <pic_base_url>_<ratio_id>
+                                int ratioId = picData.RatioId;
+                                picObj.id = string.Format("{0}_{1}", picBaseName, ratioId);
+
+                                // get version
+                                picObj.version = picData.Version;
+
+                                // build image URL. 
+                                // template: <image_server_url>/p/<partner_id>/entry_id/<image_id>/version/<image_version>
+                                // Example:  http://localhost/ImageServer/Service.svc/GetImage/p/215/entry_id/123/version/10
+                                picObj.m_sURL = string.Format("{0}p/{1}/entry_id/{2}/version/{3}",
+                                    imageServerUrl,   // 0 <image_server_url>
+                                    groupId,          // 1 <partner_id>
+                                    picObj.id,        // 2 <image_id>
+                                    picObj.version);  // 3 <image_version>
+
+                                lPicObject.Add(picObj);
+                            }
                         }
                     }
                 }

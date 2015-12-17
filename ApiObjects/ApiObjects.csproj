@@ -117,6 +117,7 @@
     <Compile Include="ExternalChannelResponseList.cs" />
     <Compile Include="QueueObjects\ImageUploadData.cs" />
     <Compile Include="QueueObjects\ExportTaskData.cs" />
+    <Compile Include="Ratio.cs" />
     <Compile Include="RecommendationEngineResponse.cs" />
     <Compile Include="RecommendationEngineResponseList.cs" />
     <Compile Include="RecommendationEngineSettinsResponse.cs" />

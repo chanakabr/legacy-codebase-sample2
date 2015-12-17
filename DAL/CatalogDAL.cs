@@ -3729,5 +3729,35 @@ namespace Tvinci.Core.DAL
 
             return picId;
         }
+
+        public static List<Ratio> GetGroupRatios(int groupID)
+        {
+            List<Ratio> ratios = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_GroupPicsRatios");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    ratios = new List<Ratio>();
+                    foreach (DataRow row in ds.Tables[0].Rows)
+                    {
+                        ratios.Add(new Ratio()
+                        {
+                            Id = Utils.GetIntSafeVal(row, "RATIO_ID"),
+                            Name = Utils.GetSafeStr(row, "RATIO")
+                        });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to get group ratios. GID: {0}, ex: {1}", groupID, ex);
+            }
+            return ratios;
+        }
     }
 }
