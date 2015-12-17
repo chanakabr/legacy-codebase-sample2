@@ -3102,19 +3102,20 @@ namespace DAL
             return rowCount;
         }
 
-        public static bool UpdateImageState(int groupId, long rowId, int version)
+        public static int UpdateImageState(int groupId, long rowId, int version)
         {
-            bool result = false;
+            int result = -1;
             try
             {
                 ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("pics");
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("VERSION", "=", version);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
                 updateQuery += " WHERE ";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupId);
-                updateQuery += " AND ";
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", rowId);
+                updateQuery += " AND ";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("VERSION", "<=", version);
 
-                result = updateQuery.Execute();
+                result = updateQuery.ExecuteAffectedRows();
                 updateQuery.Finish();
                 updateQuery = null;
             }
@@ -3126,19 +3127,20 @@ namespace DAL
             return result;
         }
 
-        public static bool UpdateEpgImageState(int groupId, long rowId, int version)
+        public static int UpdateEpgImageState(int groupId, long rowId, int version)
         {
-            bool result = false;
+            int result = -1;
             try
             {
                 ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("EPG_pics");
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("VERSION", "=", version);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
                 updateQuery += " WHERE ";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupId);
-                updateQuery += " AND ";
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", rowId);
+                updateQuery += " AND ";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("VERSION", "<=", version);
 
-                result = updateQuery.Execute();
+                result = updateQuery.ExecuteAffectedRows();
                 updateQuery.Finish();
                 updateQuery = null;
             }

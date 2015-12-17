@@ -130,7 +130,11 @@ namespace ODBCWrapper
             int_Execute();
             string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable);
             if (sConn == "")
+            {
+                log.ErrorFormat("Empty connection string. could not run query. m_sOraStr: {0}", m_sOraStr != null ? m_sOraStr.ToString() : string.Empty);
                 bRet = false;
+            }
+
             using (SqlConnection con = new SqlConnection(sConn))
             {
                 try

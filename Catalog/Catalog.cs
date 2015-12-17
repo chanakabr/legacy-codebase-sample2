@@ -490,10 +490,11 @@ namespace Catalog
             Picture picObj;
             try
             {
-                if (dtPic != null)
+
+                // use old/new image server
+                if (WS_Utils.IsGroupIDContainedInConfig(groupId, USE_OLD_IMAGE_SERVER_KEY, ';'))
                 {
-                    // use old/new image server
-                    if (WS_Utils.IsGroupIDContainedInConfig(groupId, USE_OLD_IMAGE_SERVER_KEY, ';'))
+                    if (dtPic != null && dtPic.Rows != null)
                     {
                         // old image server
                         for (int i = 0; i < dtPic.Rows.Count; i++)
@@ -505,45 +506,49 @@ namespace Catalog
                             lPicObject.Add(picObj);
                         }
                     }
+                }
+                else
+                {
+                    // new image server - get pictures data
+                    List<PicData> picsData = new List<PicData>();
+                    DataRowCollection rows = CatalogDAL.GetPicsData(mediaId);
+                    if (rows == null || rows.Count == 0)
+                        return null;
                     else
                     {
-                        // new image server - get pictures data
-                        List<PicData> picsData = new List<PicData>();
-                        DataRowCollection rows = CatalogDAL.GetPicsData(mediaId);
-                        if (rows == null || rows.Count == 0)
-                            throw new Exception(string.Format("pics data were not found. MID: {0}", mediaId));
-                        else
+                        foreach (DataRow row in rows)
                         {
-                            foreach (DataRow row in rows)
+                            picsData.Add(new PicData()
                             {
-                                picsData.Add(new PicData()
-                                {
-                                    RatioId = Utils.GetIntSafeVal(row, "RATIO_ID"),
-                                    Version = Utils.GetIntSafeVal(row, "VERSION"),
-                                    BaseUrl = Utils.GetStrSafeVal(row, "BASE_URL"),
-                                    PicId = Utils.GetLongSafeVal(row, "ID")
-                                });
-                            }
+                                RatioId = Utils.GetIntSafeVal(row, "RATIO_ID"),
+                                Version = Utils.GetIntSafeVal(row, "VERSION"),
+                                BaseUrl = Utils.GetStrSafeVal(row, "BASE_URL"),
+                                PicId = Utils.GetLongSafeVal(row, "ID"),
+                                Ratio = Utils.GetStrSafeVal(row, "RATIO")
+                            });
                         }
+                    }
 
-                        // build image server URL
-                        var imageServerUrlObj = TVinciShared.PageUtils.GetTableSingleVal("groups", "PICS_REMOTE_BASE_URL", groupId);
-                        string imageServerUrl = string.Empty;
-                        if (imageServerUrlObj == null)
-                            throw new Exception(string.Format("PICS_REMOTE_BASE_URL wasn't found. GID: {0}", groupId));
-                        else
-                        {
-                            imageServerUrl = imageServerUrlObj.ToString();
-                            imageServerUrl = imageServerUrl.EndsWith("/") ? imageServerUrl + "GetImage/" : imageServerUrl + "/GetImage/";
-                        }
+                    // build image server URL
+                    var imageServerUrlObj = TVinciShared.PageUtils.GetTableSingleVal("groups", "PICS_REMOTE_BASE_URL", groupId);
+                    string imageServerUrl = string.Empty;
+                    if (imageServerUrlObj == null)
+                        throw new Exception(string.Format("PICS_REMOTE_BASE_URL wasn't found. GID: {0}", groupId));
+                    else
+                    {
+                        imageServerUrl = imageServerUrlObj.ToString();
+                        imageServerUrl = imageServerUrl.EndsWith("/") ? imageServerUrl + "GetImage/" : imageServerUrl + "/GetImage/";
+                    }
 
-                        // get picture base URL
-                        string picBaseUrl = Path.GetFileNameWithoutExtension(picsData[0].BaseUrl);
-                        if (string.IsNullOrEmpty(picBaseUrl))
-                            throw new Exception("could not retrieve picture base URL");
+                    // get picture base URL
+                    string picBaseName = Path.GetFileNameWithoutExtension(picsData[0].BaseUrl);
+                    if (string.IsNullOrEmpty(picBaseName))
+                        throw new Exception("could not retrieve picture base URL");
 
+                    if (dtPic != null && dtPic.Rows != null && dtPic.Rows.Count > 0)
+                    {
                         // build picture list
-                        for (int i = 0; i < dtPic.Rows.Count; i++)
+                        for (int i = 0; i < dtPic.Rows.Count; i++) 
                         {
                             picObj = new Picture();
 
@@ -555,7 +560,7 @@ namespace Catalog
 
                             // get picture id: <pic_base_url>_<ratio_id>
                             int ratioId = Utils.GetIntSafeVal(dtPic.Rows[i], "RATIO_ID");
-                            picObj.id = string.Format("{0}_{1}", picBaseUrl, ratioId);
+                            picObj.id = string.Format("{0}_{1}", picBaseName, ratioId);
 
                             // get version: if ratio_id exists in pics table => get its version
                             var picdata = picsData.FirstOrDefault(x => x.RatioId == ratioId);
@@ -574,6 +579,38 @@ namespace Catalog
                                 picObj.version,                                // 3 <image_version>
                                 Utils.GetStrSafeVal(dtPic.Rows[i], "WIDTH"),   // 4 <image_width>
                                 Utils.GetStrSafeVal(dtPic.Rows[i], "HEIGHT")); // 5 <image_height>
+
+                            lPicObject.Add(picObj);
+                        }
+                    }
+                    else
+                    {
+                        // sizes are not defined (completely new image server flow)
+                        foreach (var picData in picsData)
+                        {
+                            if (picData.RatioId == 0)
+                                continue;
+
+                            picObj = new Picture();
+
+                            // get ratio string
+                            picObj.ratio = picData.Ratio;
+
+                            // get picture id: <pic_base_url>_<ratio_id>
+                            int ratioId = picData.RatioId;
+                            picObj.id = string.Format("{0}_{1}", picBaseName, ratioId);
+
+                            // get version
+                            picObj.version = picData.Version;
+
+                            // build image URL. 
+                            // template: <image_server_url>/p/<partner_id>/entry_id/<image_id>/version/<image_version>
+                            // Example:  http://localhost/ImageServer/Service.svc/GetImage/p/215/entry_id/123/version/10
+                            picObj.m_sURL = string.Format("{0}p/{1}/entry_id/{2}/version/{3}",
+                                imageServerUrl,   // 0 <image_server_url>
+                                groupId,          // 1 <partner_id>
+                                picObj.id,        // 2 <image_id>
+                                picObj.version);  // 3 <image_version>
 
                             lPicObject.Add(picObj);
                         }
