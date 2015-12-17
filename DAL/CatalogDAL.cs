@@ -3647,5 +3647,87 @@ namespace Tvinci.Core.DAL
             }
             return null;
         }
+
+        public static int GetEpgPicsData(int groupId, string description)
+        {
+            int picId = 0;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_EPGPicsData");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupId", groupId);
+                sp.AddParameter("@Description", description);
+
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    picId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error while trying to get pics data", ex);
+            }
+            return picId;
+        }
+
+        public static int InsertPic(int groupId, string name, string description, string baseUrl, int ratioId, int mediaId)
+        {
+            int picId = 0;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_Pic");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupId", groupId);
+                sp.AddParameter("@Name", name);
+                sp.AddParameter("@Description", description);
+                sp.AddParameter("@BaseUrl", baseUrl);
+                sp.AddParameter("@RatioId", ratioId);
+                sp.AddParameter("@MediaId", mediaId);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    picId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.DebugFormat("ERROR saving InsertPic ex {0} ", ex);
+            }
+
+            return picId;
+        }
+
+        public static int InsertEPGPic(int groupId, string name, string description, string baseUrl)
+        {
+            int picId = 0;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_EPGPic");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupId", groupId);
+                sp.AddParameter("@Name", name);
+                sp.AddParameter("@Description", description);
+                sp.AddParameter("@BaseUrl", baseUrl);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    picId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.DebugFormat("ERROR saving InsertEPGPic ex {0} ", ex);
+            }
+
+            return picId;
+        }
     }
 }

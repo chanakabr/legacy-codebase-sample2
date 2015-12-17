@@ -1,29 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml;
-using TVinciShared;
-using System.Web;
-using System.IO;
-using System.Configuration;
-using System.Xml.Serialization;
-using System.Data;
-using System.Threading;
-using DAL;
-using ApiObjects;
-using System.Reflection;
-using System.ServiceModel.Channels;
-using System.ServiceModel;
+﻿using ApiObjects;
 using ApiObjects.DRM;
-using Newtonsoft.Json;
+using DAL;
 using KLogMonitor;
+using Newtonsoft.Json;
+using QueueWrapper;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.ServiceModel;
+using System.ServiceModel.Channels;
+using System.Text;
+using System.Threading;
+using System.Web;
+using System.Xml;
+using System.Xml.Serialization;
+using Tvinci.Core.DAL;
+using TVinciShared;
 
 namespace TvinciImporter
 {
     public class ImporterImpl
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        protected const string ROUTING_KEY_PROCESS_IMAGE_UPLOAD = "PROCESS_IMAGE_UPLOAD\\{0}";
+
 
         static string m_sLocker = "";
         static protected bool IsNodeExists(ref XmlNode theItem, string sXpath)
@@ -1531,7 +1534,7 @@ namespace TvinciImporter
 
         static protected bool ProcessItem(XmlNode theItem, ref string sCoGuid, ref Int32 nMediaID, ref string sErrorMessage, Int32 nGroupID)
         {
-            log.Debug("TespIngest - Start");
+            log.DebugFormat("ProcessItem - Start groupId {0} ", nGroupID);
             bool bOK = true;
             sErrorMessage = "";
             sCoGuid = GetItemParameterVal(ref theItem, "co_guid");
@@ -1638,7 +1641,14 @@ namespace TvinciImporter
                 UpdateInsertBasicMainLangData(nGroupID, ref nMediaID, nItemType, sCoGuid, sEpgIdentifier, nWatchPerRule, nGeoBlockRule,
                     nPlayersRule, nDeviceRule, dCatalogStartDate, dStartDate, dCatalogEndDate, dFinalEndDate, sThumb, sMainLang, ref theItemName,
                     ref theItemDesc, sIsActive, dCreate, entryId);
-                log.Debug("TespIngest - InserRatiosStart");
+
+                int groupDefaultRatioId = -1;
+
+                if (!WS_Utils.IsGroupIDContainedInConfig(nGroupID, "USE_OLD_IMAGE_SERVER", ';') && !string.IsNullOrEmpty(sThumb))
+                {
+                    groupDefaultRatioId = GetGroupDefaultRatio(nGroupID);
+                }
+
                 if (thePicRatios != null)
                 {
                     int ratiosCount = thePicRatios.Count;
@@ -1659,17 +1669,18 @@ namespace TvinciImporter
                                 ratioID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["id"].ToString());
                             }
                         }
-                        if (ratioID > 0)
+                        selectQuery.Finish();
+                        selectQuery = null;
+
+                        if (ratioID > 0 && groupDefaultRatioId != ratioID)
                         {
                             DownloadPic(picStr, string.Empty, nGroupID, nMediaID, sMainLang, "RATIOPIC", false, ratioID);
                         }
-                        selectQuery.Finish();
-                        selectQuery = null;
-                    }
 
+                    }
                 }
+
                 UpdateInsertBasicSubLangData(nGroupID, nMediaID, sMainLang, ref theItemName, ref theItemDesc);
-                log.Debug("TespIngest - InserMetaStart");
                 UpdateStringMainLangData(nGroupID, nMediaID, sMainLang, ref theStrings);
                 UpdateStringSubLangData(nGroupID, nMediaID, sMainLang, ref theStrings);
 
@@ -1756,10 +1767,25 @@ namespace TvinciImporter
 
         static public Int32 DownloadEPGPic(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, int nChannelID, int ratioID = 0)
         {
+            if (string.IsNullOrEmpty(sThumb))
+            {
+                log.Debug("File download - picture name is empty. nChannelID: " + nChannelID.ToString());
+                return 0;
+            }
+
             string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
             if (!string.IsNullOrEmpty(sUseQueue) && sUseQueue.ToLower().Equals("true"))
             {
-                return DownloadEPGPicToQueue(sThumb, sName, nGroupID, nEPGSchedID, nChannelID, ratioID);
+                // use old/new image server
+                if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, "USE_OLD_IMAGE_SERVER", ';'))
+                {
+                    return DownloadEPGPicToQueue(sThumb, sName, nGroupID, nEPGSchedID, nChannelID, ratioID);
+                }
+                else
+                {
+                    return DownloadEPGPicToImageServer(sThumb, sName, nGroupID, nEPGSchedID, nChannelID, ratioID);
+                }
+
             }
             else
             {
@@ -1870,17 +1896,14 @@ namespace TvinciImporter
 
         static public Int32 DownloadEPGPicToQueue(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, int nChannelID, int ratioID)
         {
-            if (sThumb.Trim() == "")
-                return 0;
-
             //string sBasePath = GetBasePath(nGroupID);
             string sBasePath = ImageUtils.getRemotePicsURL(nGroupID);
-            string sPicName = getPictureFileName(sThumb);
-            Int32 nPicID = 0;
-            string picName = string.Format("{0}_{1}_{2}", nChannelID, ratioID, sPicName);
-            nPicID = DoesEPGPicExists(picName, nGroupID);
+            string picName = string.Empty;
+            int picId = 0;
 
-            if (nPicID == 0)
+            GetEpgPicNameAndId(sThumb, nGroupID, nChannelID, ratioID, out picName, out picId);
+
+            if (picId == 0)
             {
                 string sUploadedFileExt = ImageUtils.GetFileExt(sThumb);
                 string sPicNewName = TVinciShared.ImageUtils.GetDateImageName();
@@ -1888,11 +1911,90 @@ namespace TvinciImporter
 
                 bool bIsUpdateSucceeded = ImageUtils.SendPictureDataToQueue(sThumb, sPicNewName, sBasePath, sPicSizes, nGroupID);
 
-                nPicID = InsertNewEPGPic(sName, picName, sPicNewName + sUploadedFileExt, nGroupID);  //insert with sPicName instead of full path
+                picId = InsertNewEPGPic(sName, picName, sPicNewName + sUploadedFileExt, nGroupID);  //insert with sPicName instead of full path
             }
-            return nPicID;
+            return picId;
         }
 
+        private static int DownloadEPGPicToImageServer(string thumb, string name, int groupID, int epgSchedID, int channelID, int ratioID)
+        {
+            int version = 0;
+            string picName = string.Empty;
+            int picId = 0;
+
+            // in case ratio Id = 0 get default group's ratio
+            if (ratioID <= 0)
+            {
+                ratioID = GetGroupDefaultRatio(groupID);
+            }
+
+            GetEpgPicNameAndId(thumb, groupID, channelID, ratioID, out picName, out picId);
+
+            if (picId == 0)
+            {
+                string sPicNewName = TVinciShared.ImageUtils.GetDateImageName();
+
+                picId = CatalogDAL.InsertEPGPic(groupID, name, picName, sPicNewName);
+
+                if (picId > 0)
+                {
+                    SendImageDataToImageUploadQueue(thumb, groupID, version, picId, sPicNewName, eMediaType.EPG);
+                }
+                else
+                {
+                    log.DebugFormat("Error while creating new EpgPic, thumb {0}", thumb);
+                }
+            }
+            
+            return picId;
+        }
+
+        private static void SendImageDataToImageUploadQueue(string sourcePath, int groupId, int version, int picId, string picNewName, eMediaType mediaType)
+        {
+            try
+            {
+                // generate ImageUploadData and send to Queue 
+                int parentGroupId = DAL.UtilsDal.GetParentGroupID(groupId);
+
+                // build image server URL
+                var imageServerUrlObj = TVinciShared.PageUtils.GetTableSingleVal("groups", "PICS_REMOTE_BASE_URL", groupId);
+                string imageServerUrl = string.Empty;
+                if (imageServerUrlObj == null)
+                    throw new Exception(string.Format("PICS_REMOTE_BASE_URL wasn't found. GID: {0}", groupId));
+                else
+                {
+                    imageServerUrl = imageServerUrlObj.ToString();
+                    imageServerUrl = imageServerUrl.EndsWith("/") ? imageServerUrl + "InsertImage/" : imageServerUrl + "/InsertImage/";
+                }
+
+                ImageUploadData data = new ImageUploadData(parentGroupId, picNewName, version, sourcePath, picId, imageServerUrl, mediaType);
+
+                var queue = new ImageUploadQueue();
+
+                bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_IMAGE_UPLOAD, parentGroupId));
+
+                if (!enqueueSuccessful)
+                {
+                    log.ErrorFormat("Failed enqueue of image upload {0}", data);
+                }
+                else
+                {
+                    log.DebugFormat("image upload: data: {0}", data);
+                }
+            }
+            catch (Exception exc)
+            {
+                log.ErrorFormat("Failed image upload: Exception:{0} ", exc);
+            }
+        }
+
+        private static void GetEpgPicNameAndId(string thumb, int groupID, int channelID, int ratioID, out string picName, out int picId)
+        {
+            picName = getPictureFileName(thumb);
+            picId = 0;
+            picName = string.Format("{0}_{1}_{2}", channelID, ratioID, picName);
+            picId = CatalogDAL.GetEpgPicsData(groupID, picName);
+        }
 
         //this function is not used (old)
         static protected Int32 DownloadEPGPic(string sThumb, string sName, Int32 nGroupID, Int32 nEPGSchedID, string sMainLang)
@@ -2214,13 +2316,26 @@ namespace TvinciImporter
             return nPicID;
         }
 
-
         static public Int32 DownloadPic(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID)
         {
             string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
             if (!string.IsNullOrEmpty(sUseQueue) && sUseQueue.ToLower().Equals("true"))
             {
-                return DownloadPicToQueue(sPic, sMediaName, nGroupID, nMediaID, sMainLang, sPicType, bSetMediaThumb, ratioID);
+                if (string.IsNullOrEmpty(sPic))
+                {
+                    log.Debug("File download - picture name is empty. mediaID: " + nMediaID.ToString());
+                    return 0;
+                }
+
+                // use old/new image server
+                if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, "USE_OLD_IMAGE_SERVER", ';'))
+                {
+                    return DownloadPicToQueue(sPic, sMediaName, nGroupID, nMediaID, sMainLang, sPicType, bSetMediaThumb, ratioID);
+                }
+                else
+                {
+                    return DownloadPicToImageServer(sPic, sMediaName, nGroupID, nMediaID, sMainLang, sPicType, bSetMediaThumb, ratioID);
+                }
             }
             else
             {
@@ -2372,11 +2487,6 @@ namespace TvinciImporter
         {
             int nPicID = 0;
             log.Debug("File downloaded - Start Download Pic: " + " " + sPic + " " + "MediaID: " + nMediaID.ToString() + " RatioID :" + ratioID.ToString());
-            if (sPic.Trim() == "")
-            {
-                log.Debug("File download - picture name is empty. mediaID: " + nMediaID.ToString());
-                return 0;
-            }
 
             //generate PictureData and send to Queue 
             string sPicNewName = getNewUninqueName(ratioID, nMediaID); //the unique name            
@@ -2412,6 +2522,122 @@ namespace TvinciImporter
             }
             return nPicID;
         }
+
+        static public int DownloadPicToImageServer(string pic, string mediaName, int groupId, int mediaId, string mainLang, string picType, bool setMediaThumb, int ratioId)
+        {
+            int version = 0;
+            string baseUrl = string.Empty;
+            int picId = 0;
+            int picRatioId = 0;
+
+            // in case ratio Id = 0 get default group's ratio
+            if (ratioId <= 0)
+            {
+                ratioId = GetGroupDefaultRatio(groupId);
+            }
+
+            //get pic data           
+            if (GetPicData(ratioId, mediaId, out picId, out version, out baseUrl, out picRatioId))
+            {
+                // Get Base Url
+                baseUrl = Path.GetFileNameWithoutExtension(baseUrl);
+
+                // incase row exist --> update  version number
+                if (picRatioId == ratioId)
+                {
+                    version++;
+                }
+                else
+                {
+                    picId = CatalogDAL.InsertPic(groupId, mediaName, pic, baseUrl, ratioId, mediaId);
+                }
+
+            }
+            // pic does not exist -- > create new pic
+            else
+            {
+                baseUrl = TVinciShared.ImageUtils.GetDateImageName();
+                picId = CatalogDAL.InsertPic(groupId, mediaName, pic, baseUrl, ratioId, mediaId);
+            }
+
+            if (picId != 0)
+            {
+                SendImageDataToImageUploadQueue(pic, groupId, version, picId, baseUrl + "_" + ratioId, eMediaType.VOD);
+
+                #region handle pic tags and update the media files
+                IngestionUtils.M2MHandling("ID", "", "", "", "ID", "tags", "pics_tags", "pic_id", "tag_id", "true", mainLang, mediaName, groupId, picId, false);
+                if (setMediaThumb == true)
+                {
+                    ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_PIC_ID", "=", picId);
+                    updateQuery += " where ";
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", mediaId);
+                    updateQuery.Execute();
+                    updateQuery.Finish();
+                    updateQuery = null;
+                }
+                #endregion
+            }
+            return picId;
+        }
+
+        private static bool GetPicData(int ratioID, int mediaID, out int picId, out int version, out string baseUrl, out int picRatioId)
+        {
+            bool result = false;
+            picId = 0;
+            version = 0;
+            baseUrl = string.Empty;
+            picRatioId = 0;
+
+            try
+            {
+                DataRowCollection rows = CatalogDAL.GetPicsData(mediaID, ratioID);
+
+                if (rows != null && rows.Count > 0)
+                {
+                    result = true;
+
+                    foreach (DataRow row in rows)
+                    {
+                        picId = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
+                        version = ODBCWrapper.Utils.GetIntSafeVal(row, "VERSION");
+                        baseUrl = ODBCWrapper.Utils.GetSafeStr(row, "BASE_URL");
+                        picRatioId = ODBCWrapper.Utils.GetIntSafeVal(row, "RATIO_ID");
+                        if (picRatioId == ratioID)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex.Message, ex);
+                result = false;
+            }
+            return result;
+        }
+
+        private static int GetGroupDefaultRatio(int groupId)
+        {
+            int rationId = 0;
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select RATIO_ID from groups (nolock) where";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", groupId);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    rationId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "RATIO_ID", 0);
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return rationId;
+        }
+
 
         private static string getPictureFileName(string sThumb)
         {
@@ -2517,6 +2743,23 @@ namespace TvinciImporter
             {
                 sPicBaseName = TVinciShared.ImageUtils.GetDateImageName(nMediaID);
             }
+            if (string.IsNullOrEmpty(sPicBaseName))
+            {
+                sPicBaseName = TVinciShared.ImageUtils.GetDateImageName();
+            }
+            return sPicBaseName;
+        }
+
+        private static string getNewUninqueName(string baseUrl)
+        {
+            string sPicBaseName = string.Empty;
+
+            if (baseUrl.IndexOf('.') > 0)
+            {
+                sPicBaseName = baseUrl.Substring(0, baseUrl.IndexOf('.'));
+                log.DebugFormat("BaseURL {0}", sPicBaseName);
+            }
+
             if (string.IsNullOrEmpty(sPicBaseName))
             {
                 sPicBaseName = TVinciShared.ImageUtils.GetDateImageName();
@@ -3031,6 +3274,7 @@ namespace TvinciImporter
                 updateQuery = null;
             }
         }
+
 
         static protected Int32 InsertNewPic(string sName, string sRemarks, string sBaseURL, Int32 nGroupID)
         {
@@ -3945,10 +4189,8 @@ namespace TvinciImporter
                 insertQuery.Execute();
                 insertQuery.Finish();
                 insertQuery = null;
-                nMediaID = GetMediaIDByCoGuid(nGroupID, sCoGuid);
-                log.Debug("TespIngest - StartDownloadPic");
-                Int32 nPicID = DownloadPic(sThumb, sName, nGroupID, nMediaID, sMainLang, "THUMBNAIL", true);
-                log.Debug("TespIngest - EndDownloadPic");
+                nMediaID = GetMediaIDByCoGuid(nGroupID, sCoGuid);                
+                Int32 nPicID = DownloadPic(sThumb, sName, nGroupID, nMediaID, sMainLang, "THUMBNAIL", true, 0);
                 if (nPicID != 0)
                 {
                     ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
@@ -3963,7 +4205,7 @@ namespace TvinciImporter
             }
             else
             {
-                Int32 nPicID = DownloadPic(sThumb, sName, nGroupID, nMediaID, sMainLang, "THUMBNAIL", true);
+                Int32 nPicID = DownloadPic(sThumb, sName, nGroupID, nMediaID, sMainLang, "THUMBNAIL", true, 0);
                 ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
                 if (sName != "")
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("NAME", "=", sName);
