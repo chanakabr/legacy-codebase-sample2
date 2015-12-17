@@ -1865,6 +1865,11 @@ namespace Users
                 {
                     response.Code = (int)eResponseStatus.OK;
                     response.Message = eResponseStatus.OK.ToString();
+
+                    // remove user from cache
+                    UsersCache usersCache = UsersCache.Instance();
+                    usersCache.RemoveUser(userId, m_nGroupID);
+
                     return response;
                 }
             }

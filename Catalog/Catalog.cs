@@ -4918,6 +4918,7 @@ namespace Catalog
                                                                                                 request.m_nPageSize,
                                                                                                 request.m_nPageIndex,
                                                                                                 enrichments,
+                                                                                                request.m_sFreeParam,
                                                                                                 out requestId);
                 }
                 catch (KalturaException ex)
@@ -6100,7 +6101,6 @@ namespace Catalog
             }
 
             #region Final Filter Tree
-
 
             // Connect the request's filter query with the channel's tags/metas definitions
 

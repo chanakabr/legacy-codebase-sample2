@@ -32,6 +32,8 @@ namespace Catalog.Request
         public List<Int32> m_nMediaTypes;
         [DataMember]
         public string m_sLanguage = null;
+        [DataMember]
+        public string m_sFreeParam = null;
 
         public MediaRelatedExternalRequest()
             : base()
