@@ -6,6 +6,7 @@ using WebAPI.Api;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.API;
+using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.ObjectsConvertor.Mapping.Utils;
 
@@ -220,7 +221,29 @@ namespace WebAPI.ObjectsConvertor.Mapping
              .ForMember(dest => dest.Permissions, opt => opt.MapFrom(src => ConvertPermissions(src.Permissions)));
 
             #endregion
+
+            #region KSQL Channel
+            Mapper.CreateMap<WebAPI.Models.API.KalturaKSQLChannelProfile, KSQLChannel>()
+               .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+               .ForMember(dest => dest.AssetTypes, opt => opt.MapFrom(src => src.AssetTypes))
+               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+               .ForMember(dest => dest.FilterQuery, opt => opt.MapFrom(src => src.FilterExpression))
+               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+               ;
+
+            Mapper.CreateMap<KSQLChannel, WebAPI.Models.API.KalturaKSQLChannelProfile>()
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+               .ForMember(dest => dest.AssetTypes, opt => opt.MapFrom(src => src.AssetTypes))
+               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+               .ForMember(dest => dest.FilterExpression, opt => opt.MapFrom(src => src.FilterQuery))
+               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+               .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ApiMappings.ConvertOrderObjToOrder(src.Order)))
+               ;
+            #endregion
         }
+
 
         private static List<KalturaPermissionItem> ConvertPermissionItems(PermissionItem[] permissionItems)
         {
@@ -701,6 +724,117 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown bulk export export type");
+            }
+
+            return result;
+        }
+
+        public static OrderObj ConvertOrderToOrderObj(WebAPI.Models.Catalog.KalturaOrder order)
+        {
+            OrderObj result = new OrderObj();
+
+            switch (order)
+            {
+                case WebAPI.Models.Catalog.KalturaOrder.a_to_z:
+                result.m_eOrderBy = OrderBy.NAME;
+                result.m_eOrderDir = OrderDir.ASC;
+                break;
+                case WebAPI.Models.Catalog.KalturaOrder.z_to_a:
+                result.m_eOrderBy = OrderBy.NAME;
+                result.m_eOrderDir = OrderDir.DESC;
+                break;
+                case WebAPI.Models.Catalog.KalturaOrder.views:
+                result.m_eOrderBy = OrderBy.VIEWS;
+                result.m_eOrderDir = OrderDir.DESC;
+                break;
+                case WebAPI.Models.Catalog.KalturaOrder.ratings:
+                result.m_eOrderBy = OrderBy.RATING;
+                result.m_eOrderDir = OrderDir.DESC;
+                break;
+                case WebAPI.Models.Catalog.KalturaOrder.votes:
+                result.m_eOrderBy = OrderBy.VOTES_COUNT;
+                result.m_eOrderDir = OrderDir.DESC;
+                break;
+                case WebAPI.Models.Catalog.KalturaOrder.newest:
+                result.m_eOrderBy = OrderBy.START_DATE;
+                result.m_eOrderDir = OrderDir.DESC;
+                break;
+                case WebAPI.Models.Catalog.KalturaOrder.relevancy:
+                result.m_eOrderBy = OrderBy.RELATED;
+                result.m_eOrderDir = OrderDir.DESC;
+                break;
+                case WebAPI.Models.Catalog.KalturaOrder.oldest_first:
+                result.m_eOrderBy = OrderBy.START_DATE;
+                result.m_eOrderDir = OrderDir.ASC;
+                break;
+            }
+            return result;
+        }
+
+        public static KalturaOrder ConvertOrderObjToOrder(OrderObj orderObj)
+        {
+            KalturaOrder result = KalturaOrder.newest;
+
+            if (orderObj == null)
+            {
+                return result;
+            }
+
+            switch (orderObj.m_eOrderBy)
+            {
+                case OrderBy.VIEWS:
+                {
+                    result = KalturaOrder.views;
+                    break;
+                }
+                case OrderBy.RATING:
+                {
+                    result = KalturaOrder.ratings;
+                    break;
+                }
+                case OrderBy.VOTES_COUNT:
+                {
+                    result = KalturaOrder.votes;
+                    break;
+                }
+                case OrderBy.START_DATE:
+                {
+                    if (orderObj.m_eOrderDir == OrderDir.DESC)
+                    {
+                        result = KalturaOrder.newest;
+                    }
+                    else
+                    {
+                        result = KalturaOrder.oldest_first;
+                    }
+                    break;
+                }
+                case OrderBy.NAME:
+                {
+                    if (orderObj.m_eOrderDir == OrderDir.ASC)
+                    {
+                        result = KalturaOrder.a_to_z;
+                    }
+                    else
+                    {
+                        result = KalturaOrder.z_to_a;
+                    }
+                    break;
+                }
+                case OrderBy.RELATED:
+                {
+                    result = KalturaOrder.relevancy;
+                    break;
+                }
+                case OrderBy.META:
+                case OrderBy.CREATE_DATE:
+                case OrderBy.RECOMMENDATION:
+                case OrderBy.RANDOM:
+                case OrderBy.LIKE_COUNTER:
+                case OrderBy.NONE:
+                case OrderBy.ID:
+                default:
+                break;
             }
 
             return result;
