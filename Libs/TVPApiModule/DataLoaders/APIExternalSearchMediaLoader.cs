@@ -96,7 +96,9 @@ namespace TVPApi
             {
                 Parameters.SetParameter<int>(eParameterType.Retrieve, "DomainID", value);
             }
-        }        
+        }
+
+        public List<string> With { get; set; }
 #endregion
 
         public override List<BaseObject> Execute()

@@ -392,9 +392,24 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get external related media info")]
-        public TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetExternalRelatedMedias(InitializationObject initObj, int assetID, string picSize, int pageSize, int pageIndex, int[] filter_types, string freeParam)
+        public TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetExternalRelatedMedias(InitializationObject initObj, int assetID, string picSize, int pageSize, int pageIndex, int[] filter_types, string freeParam, List<string> with)
         {
             TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId ret = null;
+            HashSet<string> validWithValues = new HashSet<string>() { "images", "stats", "files" };
+
+            // validate with - make sure it contains only "stats" and/or "files"
+            if (with != null)
+            {
+                foreach (var currentValue in with)
+                {
+                    if (!validWithValues.Contains(currentValue))
+                    {
+                        ret = new TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId();
+                        ret.Status = ResponseUtils.ReturnBadRequestStatus(string.Format("Invalid with value: {0}", currentValue));
+                        return ret;
+                    }
+                }
+            }
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetExternalRelatedMedias", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -402,11 +417,14 @@ namespace TVPApiServices
             {
                 try
                 {
-                    ret = MediaHelper.GetExternalRelatedMediaList(initObj, assetID, picSize, pageSize, pageIndex, groupID, filter_types, freeParam);
+                    ret = MediaHelper.GetExternalRelatedMediaList(initObj, assetID, picSize, pageSize, pageIndex, groupID, filter_types, freeParam, with);
                 }
                 catch (Exception ex)
                 {
                     HttpContext.Current.Items["Error"] = ex;
+                    ret.Status = new TVPApiModule.Objects.Responses.Status();
+                    ret.Status.Code = (int)eStatus.Error;
+                    ret.Status.Message = "Error";
                 }
             }
             else
@@ -418,9 +436,24 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get external search media info")]
-        public TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetExternalSearchMedias(InitializationObject initObj, string query, string picSize, int pageSize, int pageIndex, int[] filter_types)
+        public TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetExternalSearchMedias(InitializationObject initObj, string query, string picSize, int pageSize, int pageIndex, int[] filter_types, List<string> with)
         {
             TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId ret = null;
+            HashSet<string> validWithValues = new HashSet<string>() { "images", "stats", "files" };
+
+            // validate with - make sure it contains only "stats" and/or "files"
+            if (with != null)
+            {
+                foreach (var currentValue in with)
+                {
+                    if (!validWithValues.Contains(currentValue))
+                    {
+                        ret = new TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId();
+                        ret.Status = ResponseUtils.ReturnBadRequestStatus(string.Format("Invalid with value: {0}", currentValue));
+                        return ret;
+                    }
+                }
+            }
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetExternalSearchMedias", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -428,11 +461,14 @@ namespace TVPApiServices
             {
                 try
                 {
-                    ret = MediaHelper.GetExternalSearchMediaList(initObj, query, picSize, pageSize, pageIndex, groupID, filter_types);
+                    ret = MediaHelper.GetExternalSearchMediaList(initObj, query, picSize, pageSize, pageIndex, groupID, filter_types, with);
                 }
                 catch (Exception ex)
                 {
                     HttpContext.Current.Items["Error"] = ex;
+                    ret.Status = new TVPApiModule.Objects.Responses.Status();
+                    ret.Status.Code = (int)eStatus.Error;
+                    ret.Status.Message = "Error";
                 }
             }
             else

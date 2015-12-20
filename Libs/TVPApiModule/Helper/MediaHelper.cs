@@ -688,22 +688,22 @@ namespace TVPApi
             return GetMediaList(initObj, account.TVMUser, account.TVMPass, mediaID, picSize, pageSize, pageIndex, groupID, LoaderType.Related, OrderBy.None, reqMediaTypes);
         }
 
-        public static TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetExternalRelatedMediaList(InitializationObject initObj, int mediaID, string picSize, int pageSize, int pageIndex, int groupID, int[] reqMediaTypes = null, string freeParam = null)
+        public static TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetExternalRelatedMediaList(InitializationObject initObj, int mediaID, string picSize, int pageSize, int pageIndex, int groupID, int[] reqMediaTypes = null, string freeParam = null, List<string> with = null)
         {
             TVMAccountType account; ;
             
             account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Parent);
 
-            return GetMediaExternalRelatedList(initObj, account.TVMUser, account.TVMPass, mediaID, picSize, pageSize, pageIndex, groupID, reqMediaTypes, freeParam);
+            return GetMediaExternalRelatedList(initObj, account.TVMUser, account.TVMPass, mediaID, picSize, pageSize, pageIndex, groupID, reqMediaTypes, freeParam, with);
         }
 
-        public static TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetExternalSearchMediaList(InitializationObject initObj, string query, string picSize, int pageSize, int pageIndex, int groupID, int[] reqMediaTypes = null)
+        public static TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetExternalSearchMediaList(InitializationObject initObj, string query, string picSize, int pageSize, int pageIndex, int groupID, int[] reqMediaTypes = null, List<string> with = null)
         {
             TVMAccountType account; ;
 
             account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Parent);
 
-            return GetMediaExternalSearchList(initObj, account.TVMUser, account.TVMPass, query, picSize, pageSize, pageIndex, groupID, OrderBy.None, reqMediaTypes);
+            return GetMediaExternalSearchList(initObj, account.TVMUser, account.TVMPass, query, picSize, pageSize, pageIndex, groupID, OrderBy.None, reqMediaTypes, with);
         }
 
         public static List<Media> GetRelatedMediaList(InitializationObject initObj, int mediaID, int mediaType, string picSize, int pageSize, int pageIndex, int groupID, ref long mediaCount)
@@ -1114,7 +1114,7 @@ namespace TVPApi
         }
 
         public static TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetMediaExternalRelatedList(InitializationObject initObj, string user, string pass, long ID, string picSize, int pageSize, int pageIndex, 
-                                                                                int groupID, int[] reqMediaTypes = null, string freeParam = null)
+                                                                                int groupID, int[] reqMediaTypes = null, string freeParam = null, List<string> with = null)
         {
             List<BaseObject> mediaInfo;
 
@@ -1131,9 +1131,41 @@ namespace TVPApi
                 MediaTypes = reqMediaTypes,
                 Language = initObj.Locale.LocaleLanguage,
                 SiteGuid = initObj.SiteGuid,
-                DomainID = initObj.DomainID
+                DomainID = initObj.DomainID,
+                With = with
             };
             mediaInfo = externalRelatedLoader.Execute();
+
+            bool shouldAddFiles = false;
+            bool shouldAddImages = false;
+            List<AssetStatsResult> mediaAssetsStats = null;
+            Dictionary<string, AssetStatsResult> mediaAssetsStatsDic = new Dictionary<string,AssetStatsResult>();
+
+            if (externalRelatedLoader.With != null)
+            {
+                if (externalRelatedLoader.With.Contains("stats")) // if stats are required - gets the stats from Catalog
+                {
+                    if (mediaInfo != null && mediaInfo.Count > 0)
+                    {
+                        mediaAssetsStats = new TVPPro.SiteManager.CatalogLoaders.AssetStatsLoader(groupID, SiteHelper.GetClientIP(), 0, 0, mediaInfo.Select(m => int.Parse(m.AssetId)).ToList(),
+                            StatsType.MEDIA, DateTime.MinValue, DateTime.MaxValue).Execute() as List<AssetStatsResult>;
+
+                        foreach (var stat in mediaAssetsStats)
+                        {
+                            if (!mediaAssetsStatsDic.ContainsKey(stat.m_nAssetID.ToString()))
+                                mediaAssetsStatsDic.Add(stat.m_nAssetID.ToString(), stat);
+                        }
+                    }                    
+                }
+                if (externalRelatedLoader.With.Contains("files"))
+                {
+                    shouldAddFiles = true;
+                }
+                if (externalRelatedLoader.With.Contains("images")) 
+                {
+                    shouldAddImages = true;
+                }
+            }
 
             long mediaCount;
 
@@ -1146,22 +1178,28 @@ namespace TVPApi
                 List<MediaObj> mediaList = mediaInfo.Cast<MediaObj>().ToList();
 
                 ret.TotalItems = mediaList.Count;
-                ret.Assets = mediaList.Select(m => new AssetInfo(m, false)).ToList();
+                ret.Assets = mediaList.Select(m => new AssetInfo(m,
+                                                                mediaAssetsStatsDic.ContainsKey(m.AssetId) ? mediaAssetsStatsDic[m.AssetId] : null, 
+                                                                shouldAddFiles)).ToList();
+
                 ret.RequestId = externalRelatedLoader.RequestId;
                 ret.Status = new TVPApiModule.Objects.Responses.Status();
                 ret.Status.Code = externalRelatedLoader.Status.Code;
                 ret.Status.Message = externalRelatedLoader.Status.Message;
+                if (!shouldAddImages)
+                    ret.Assets.ForEach(m => m.Images = null);
 
                 return ret;
             }
             catch (Exception ex)
             {
+                throw;
             }
             
             return ret;
         }
 
-        public static TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetMediaExternalSearchList(InitializationObject initObj, string user, string pass, string query, string picSize, int pageSize, int pageIndex, int groupID, OrderBy orderBy, int[] reqMediaTypes = null, List<KeyValue> tagsMetas = null, CutWith cutWith = CutWith.AND)
+        public static TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetMediaExternalSearchList(InitializationObject initObj, string user, string pass, string query, string picSize, int pageSize, int pageIndex, int groupID, OrderBy orderBy, int[] reqMediaTypes = null, List<string> with = null)
         {
             List<BaseObject> mediaInfo;
 
@@ -1178,9 +1216,41 @@ namespace TVPApi
                 MediaTypes = reqMediaTypes,
                 Language = initObj.Locale.LocaleLanguage,
                 SiteGuid = initObj.SiteGuid,
-                DomainID = initObj.DomainID
+                DomainID = initObj.DomainID,
+                With = with
             };
             mediaInfo = externalRelatedLoader.Execute();
+
+            bool shouldAddFiles = false;
+            bool shouldAddImages = false;
+            List<AssetStatsResult> mediaAssetsStats = null;
+            Dictionary<string, AssetStatsResult> mediaAssetsStatsDic = new Dictionary<string,AssetStatsResult>();
+
+            if (externalRelatedLoader.With != null)
+            {
+                if (externalRelatedLoader.With.Contains("stats")) // if stats are required - gets the stats from Catalog
+                {
+                    if (mediaInfo != null && mediaInfo.Count > 0)
+                    {
+                        mediaAssetsStats = new TVPPro.SiteManager.CatalogLoaders.AssetStatsLoader(groupID, SiteHelper.GetClientIP(), 0, 0, mediaInfo.Select(m => int.Parse(m.AssetId)).ToList(),
+                            StatsType.MEDIA, DateTime.MinValue, DateTime.MaxValue).Execute() as List<AssetStatsResult>;
+
+                        foreach (var stat in mediaAssetsStats)
+                        {
+                            if (!mediaAssetsStatsDic.ContainsKey(stat.m_nAssetID.ToString()))
+                                mediaAssetsStatsDic.Add(stat.m_nAssetID.ToString(), stat);
+                        }
+                    }                    
+                }
+                if (externalRelatedLoader.With.Contains("files"))
+                {
+                    shouldAddFiles = true;
+                }
+                if (externalRelatedLoader.With.Contains("images")) 
+                {
+                    shouldAddImages = true;
+                }
+            }
 
             TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId ret = new TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId();
 
@@ -1189,16 +1259,22 @@ namespace TVPApi
                 List<MediaObj> mediaList = mediaInfo.Cast<MediaObj>().ToList();
 
                 ret.TotalItems = mediaList.Count;
-                ret.Assets = mediaList.Select(m => new AssetInfo(m, false)).ToList();
+                ret.Assets = mediaList.Select(m => new AssetInfo(m,
+                                                                mediaAssetsStatsDic.ContainsKey(m.AssetId) ? mediaAssetsStatsDic[m.AssetId] : null, 
+                                                                shouldAddFiles)).ToList();
+
                 ret.RequestId = externalRelatedLoader.RequestId;
                 ret.Status = new TVPApiModule.Objects.Responses.Status();
                 ret.Status.Code = externalRelatedLoader.Status.Code;
                 ret.Status.Message = externalRelatedLoader.Status.Message;
+                if (!shouldAddImages)
+                    ret.Assets.ForEach(m => m.Images = null);
 
                 return ret;
             }
             catch (Exception ex)
             {
+                throw;
             }
 
             return ret;            
