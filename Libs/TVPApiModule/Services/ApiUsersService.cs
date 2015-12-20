@@ -1128,5 +1128,40 @@ namespace TVPApiModule.Services
 
             return clientResponse;
         }
+
+        public ClientResponseStatus SilentLogin(int groupId, string userName, string password, string deviceId, PlatformType platformType, System.Collections.Specialized.NameValueCollection extraParams)
+        {
+            ClientResponseStatus clientResponse = null;
+            TVPPro.SiteManager.TvinciPlatform.Users.UserResponse userResponse = null;
+
+            try
+            {
+                List<KeyValuePair> keyValueList = new List<KeyValuePair>();
+
+                if (extraParams != null)
+                {
+                    foreach (string key in extraParams.Keys)
+                    {
+                        keyValueList.Add(new KeyValuePair() { key = key, value = extraParams[key] });
+                    }
+                }
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    bool isSingleLogin = TVPApi.ConfigManager.GetInstance()
+                                      .GetConfig(groupId, platformType)
+                                      .SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
+
+                    userResponse = m_Module.LogIn(m_wsUserName, m_wsPassword, userName, password, string.Empty, SiteHelper.GetClientIP(), deviceId, isSingleLogin, keyValueList.ToArray());
+                    clientResponse = new ClientResponseStatus(userResponse.resp.Code, userResponse.resp.Message);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : SilentLogin, Error Message: {0}", ex.Message);
+                clientResponse = ResponseUtils.ReturnGeneralErrorClientResponse("Error while calling webservice");
+            }
+
+            return clientResponse;
+        }
     }
 }

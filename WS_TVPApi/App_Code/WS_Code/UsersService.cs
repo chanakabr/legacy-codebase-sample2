@@ -800,5 +800,35 @@ namespace TVPApiServices
         }
 
 
+        [WebMethod(EnableSession = true, Description = "SilentLogin")]
+        [PrivateMethod]
+        public ClientResponseStatus SilentLogin(InitializationObject initObj)
+        {
+            TVPApiModule.Objects.Responses.ClientResponseStatus response = null;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "SilentLogin", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SilentLogin(groupID, string.Empty, string.Empty, initObj.UDID, initObj.Platform, System.Web.HttpContext.Current.Request.Headers);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items["Error"] = ex;
+                    response = new TVPApiModule.Objects.Responses.ClientResponseStatus();
+                    response.Status = ResponseUtils.ReturnGeneralErrorStatus();
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items["Error"] = "Unknown group";
+                response = new TVPApiModule.Objects.Responses.ClientResponseStatus();
+                response.Status = ResponseUtils.ReturnBadCredentialsStatus();
+            }
+
+            return response;
+        }
     }
 }
