@@ -79,16 +79,6 @@ namespace ApiObjects
         /// KSQL filter query - for KSQL channels
         /// </summary>
         [DataMember]
-        public string filterQuery
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// KSQL filter query - for KSQL channels
-        /// </summary>
-        [DataMember]
         public string FilterQuery
         {
             get;
