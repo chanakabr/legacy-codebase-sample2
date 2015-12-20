@@ -151,9 +151,6 @@
     <None Include="Service References\TvinciPlatform.Catalog\Tvinci.Data.Loaders.TvinciPlatform.Catalog.BaseResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Tvinci.Data.Loaders.TvinciPlatform.Catalog.EpgIngestReponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
     <None Include="Service References\TvinciPlatform.Catalog\Tvinci.Data.Loaders.TvinciPlatform.Catalog.EpgProgramResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
