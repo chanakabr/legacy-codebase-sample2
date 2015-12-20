@@ -562,19 +562,7 @@ namespace Users
             }
 
             int nUserDomainID;
-            // Try to get user from cache
-            User user = null;
-            UsersCache usersCache = UsersCache.Instance();
-            user = usersCache.GetUser(nUserID, nGroupID);
-
-            if (user != null)
-            {
-                nUserDomainID = user.m_domianID;
-            }
-            else
-            {
-                nUserDomainID = DAL.DomainDal.DoesUserExistInDomain(nGroupID, nDomainID, nUserID, false);
-            }     
+            nUserDomainID = DAL.DomainDal.DoesUserExistInDomain(nGroupID, nDomainID, nUserID, false);   
 
             if (nUserDomainID <= 0)
             {
@@ -635,6 +623,7 @@ namespace Users
                     oDomainCache.RemoveDomain(nDomainID);
 
                     // remove user from cache
+                    UsersCache usersCache = UsersCache.Instance();
                     usersCache.RemoveUser(nUserID, nGroupID);
 
                 }
