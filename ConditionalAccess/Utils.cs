@@ -3513,7 +3513,7 @@ namespace ConditionalAccess
         internal static void GetAllUserBundles(int nGroupID, int domainID, List<int> lstUserIDs, UserEntitlementsObject.BundleEntitlements userBundleEntitlements)
         {
             DataSet dataSet = ConditionalAccessDAL.Get_AllBundlesInfoByUserIDsOrDomainID(domainID, lstUserIDs, nGroupID);
-            if (dataSet !=null && IsBundlesDataSetValid(dataSet))
+            if (dataSet != null && IsBundlesDataSetValid(dataSet))
             {
                 userBundleEntitlements.EntitledSubscriptions = new Dictionary<string, UserBundlePurchase>();
                 userBundleEntitlements.EntitledCollections = new Dictionary<string, UserBundlePurchase>();
@@ -3612,9 +3612,6 @@ namespace ConditionalAccess
                 sb.Append(string.Format(" domainID: {0}, group_id: {1}", domainID, nGroupID));
                 log.Error("Error - " + sb.ToString());
                 #endregion
-
-                throw new Exception("Error occurred in Get_AllBundlesInfoByUserIDsOrDomainID. Refer to CAS.Utils log file");
-
             }
         }
 
@@ -3646,16 +3643,19 @@ namespace ConditionalAccess
                             }
 
                             // Insert to channelsToSubscriptionMappings
-                            foreach (BundleCodeContainer bundleCode in subscription.m_sCodes)
+                            if (subscription.m_sCodes != null)
                             {
-                                int channelID;
-                                if (int.TryParse(bundleCode.m_sCode, out channelID) && userBundleEntitlements.ChannelsToSubscriptionMappings.ContainsKey(channelID))
+                                foreach (BundleCodeContainer bundleCode in subscription.m_sCodes)
                                 {
-                                    userBundleEntitlements.ChannelsToSubscriptionMappings[channelID].Add(subscription);
-                                }
-                                else if (channelID > 0)
-                                {
-                                    userBundleEntitlements.ChannelsToSubscriptionMappings.Add(channelID, new List<Subscription>() { subscription });
+                                    int channelID;
+                                    if (int.TryParse(bundleCode.m_sCode, out channelID) && userBundleEntitlements.ChannelsToSubscriptionMappings.ContainsKey(channelID))
+                                    {
+                                        userBundleEntitlements.ChannelsToSubscriptionMappings[channelID].Add(subscription);
+                                    }
+                                    else if (channelID > 0)
+                                    {
+                                        userBundleEntitlements.ChannelsToSubscriptionMappings.Add(channelID, new List<Subscription>() { subscription });
+                                    }
                                 }
                             }
 
@@ -3708,16 +3708,19 @@ namespace ConditionalAccess
                                 userBundleEntitlements.CollectionsData.Add(collectionCode, collection);
 
                                 // Insert to channelsToSubscriptionMappings
-                                foreach (BundleCodeContainer bundleCode in collection.m_sCodes)
+                                if (collection.m_sCodes != null)
                                 {
-                                    int channelID;
-                                    if (int.TryParse(bundleCode.m_sCode, out channelID) && userBundleEntitlements.ChannelsToCollectionsMappings.ContainsKey(channelID))
+                                    foreach (BundleCodeContainer bundleCode in collection.m_sCodes)
                                     {
-                                        userBundleEntitlements.ChannelsToCollectionsMappings[channelID].Add(collection);
-                                    }
-                                    else if (channelID > 0)
-                                    {
-                                        userBundleEntitlements.ChannelsToCollectionsMappings.Add(channelID, new List<Collection>() { collection });
+                                        int channelID;
+                                        if (int.TryParse(bundleCode.m_sCode, out channelID) && userBundleEntitlements.ChannelsToCollectionsMappings.ContainsKey(channelID))
+                                        {
+                                            userBundleEntitlements.ChannelsToCollectionsMappings[channelID].Add(collection);
+                                        }
+                                        else if (channelID > 0)
+                                        {
+                                            userBundleEntitlements.ChannelsToCollectionsMappings.Add(channelID, new List<Collection>() { collection });
+                                        }
                                     }
                                 }
 
@@ -3843,21 +3846,27 @@ namespace ConditionalAccess
 
                 foreach (int subsCode in subsToGetFromSubsDictionary.Distinct().ToList())
                 {
-                    foreach (BundleCodeContainer bundleCode in subscriptionsData[subsCode].m_sCodes)
+                    if (subscriptionsData[subsCode].m_sCodes != null)
                     {
-                        int channelID;
-                        if (int.TryParse(bundleCode.m_sCode, out channelID))
-                            channelsToCheck.Add(channelID);
+                        foreach (BundleCodeContainer bundleCode in subscriptionsData[subsCode].m_sCodes)
+                        {                            
+                            int channelID;
+                            if (int.TryParse(bundleCode.m_sCode, out channelID))
+                                channelsToCheck.Add(channelID);
+                        }
                     }
                 }
 
                 foreach (int collCode in collsToGetFromDictionary.Distinct().ToList())
                 {
-                    foreach (BundleCodeContainer bundleCode in collectionsData[collCode].m_sCodes)
+                    if (collectionsData[collCode].m_sCodes != null)
                     {
-                        int channelID;
-                        if (int.TryParse(bundleCode.m_sCode, out channelID))
-                            channelsToCheck.Add(channelID);
+                        foreach (BundleCodeContainer bundleCode in collectionsData[collCode].m_sCodes)
+                        {
+                            int channelID;
+                            if (int.TryParse(bundleCode.m_sCode, out channelID))
+                                channelsToCheck.Add(channelID);
+                        }
                     }
                 }
 
