@@ -51,6 +51,21 @@ namespace TVPPro.SiteManager.CatalogLoaders
         protected virtual object Process()
         {
             string cacheKey = GetLoaderCachekey();
+
+            if (m_oResponse is UnifiedSearchResponse)
+            {
+                UnifiedSearchResponse usr = (m_oResponse as UnifiedSearchResponse);
+                MediaIdsStatusResponse newResp = new MediaIdsStatusResponse()
+                {
+                    ExtensionData = usr.ExtensionData,
+                    m_lObj = usr.m_lObj,
+                    Status = usr.status,
+                    m_nTotalItems = usr.m_nTotalItems,
+                    m_nMediaIds = usr.searchResults.Select(x => new SearchResult() { assetID = int.Parse(x.AssetId), ExtensionData = x.ExtensionData, UpdateDate = x.m_dUpdateDate }).ToList()
+                };
+                m_oResponse = newResp;
+            }
+
             if (m_oResponse != null && ((MediaIdsResponse)m_oResponse).m_nMediaIds != null && ((MediaIdsResponse)m_oResponse).m_nMediaIds.Count > 0)
             {
                 CacheManager.Cache.InsertFailOverResponse(m_oResponse, cacheKey);

@@ -130,6 +130,8 @@
     <Compile Include="CatalogLoaders\EPGProgramsByScidsLoader.cs" />
     <Compile Include="CatalogLoaders\EPGSearchContentLoader.cs" />
     <Compile Include="CatalogLoaders\EPGSearchLoader.cs" />
+    <Compile Include="CatalogLoaders\ExternalRelatedMediaLoader.cs" />
+    <Compile Include="CatalogLoaders\ExternalSearchMediaLoader.cs" />
     <Compile Include="CatalogLoaders\MediaAutoCompleteLoader.cs" />
     <Compile Include="CatalogLoaders\MediaCommentLoader.cs" />
     <Compile Include="CatalogLoaders\MediaCommentsListLoader.cs" />
@@ -140,6 +142,8 @@
     <Compile Include="CatalogLoaders\MediaMarkLoader.cs" />
     <Compile Include="CatalogLoaders\NPVRRetrieveLoader.cs" />
     <Compile Include="CatalogLoaders\NPVRSeriesLoader.cs" />
+    <Compile Include="DataLoaders\ExternalRelatedMoviesLoader.cs" />
+    <Compile Include="DataLoaders\ExternalSearchMoviesLoader.cs" />
     <Compile Include="Helper\CatalogExtensions.cs" />
     <Compile Include="CatalogLoaders\FlashMediaLoader.cs" />
     <Compile Include="CatalogLoaders\MediaCache.cs" />
