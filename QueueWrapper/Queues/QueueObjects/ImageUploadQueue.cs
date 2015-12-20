@@ -12,7 +12,7 @@ namespace QueueWrapper
         public ImageUploadQueue()
             : base()
         {
-            this.Implementation = new RabbitQueue(ConfigType.DefaultConfig, true);
+            this.Implementation = new RabbitQueue(ConfigType.ImageUpload, true);
             storeForRecovery = true;
         }
 
