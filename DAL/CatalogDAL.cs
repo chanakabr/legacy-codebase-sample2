@@ -3675,7 +3675,7 @@ namespace Tvinci.Core.DAL
             throw new NotImplementedException();
         }
 
-        public static KSQLChannel GetKSQLChannelById(int groupID, int channelId)
+        public static KSQLChannel GetKSQLChannelById(int groupID, int channelId, Dictionary<string, string> metas)
         {
             KSQLChannel result = null;
 
@@ -3686,14 +3686,13 @@ namespace Tvinci.Core.DAL
                 DataTable channelsTable = dataSet.Tables[0];
                 DataTable assetTypesTable = dataSet.Tables[1];
 
-                result = CreateKSQLChannelByDataRow(assetTypesTable, channelsTable.Rows[0]);
+                result = CreateKSQLChannelByDataRow(assetTypesTable, channelsTable.Rows[0], metas);
             }
 
             return result;
         }
 
-
-        private static KSQLChannel CreateKSQLChannelByDataRow(DataTable assetTypesTable, DataRow rowData)
+        private static KSQLChannel CreateKSQLChannelByDataRow(DataTable assetTypesTable, DataRow rowData, Dictionary<string, string> metas = null)
         {
             KSQLChannel channel = new KSQLChannel();
 
@@ -3727,25 +3726,30 @@ namespace Tvinci.Core.DAL
 
                 #region Order
 
+                channel.Order = new OrderObj();
+
                 int orderBy = ODBCWrapper.Utils.GetIntSafeVal(rowData["order_by_type"]);
                 int orderDirection = ODBCWrapper.Utils.GetIntSafeVal(rowData["order_by_dir"]) - 1;
 
-                channel.OrderDir =
-                    (ApiObjects.SearchObjects.OrderDir)ApiObjects.SearchObjects.OrderDir.ToObject(typeof(ApiObjects.SearchObjects.OrderDir), orderDirection);
-
-                if (orderBy >= 1 && orderBy <= 30)// all META_STR/META_DOUBLE values
+                // all META_STR/META_DOUBLE values
+                if (orderBy >= 1 && orderBy <= 30)
                 {
                     // get the specific value of the meta
-                    int metaEnum = (orderBy);
-                    string enumName = Enum.GetName(typeof(MetasEnum), metaEnum);
+                    int nMetaEnum = (orderBy);
+                    string enumName = Enum.GetName(typeof(MetasEnum), nMetaEnum);
 
-                    channel.OrderBy = enumName;
+                    if (metas != null && metas.ContainsKey(enumName))
+                    {
+                        channel.Order.m_sOrderValue = metas[enumName];
+                        channel.Order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.META;
+                    }
                 }
                 else
                 {
-                    channel.OrderBy =
-                        ((ApiObjects.SearchObjects.OrderBy)ApiObjects.SearchObjects.OrderBy.ToObject(typeof(ApiObjects.SearchObjects.OrderBy), orderBy)).ToString();
+                    channel.Order.m_eOrderBy = 
+                        (ApiObjects.SearchObjects.OrderBy)ApiObjects.SearchObjects.OrderBy.ToObject(typeof(ApiObjects.SearchObjects.OrderBy), orderBy);
                 }
+        
                 #endregion
 
                 channel.FilterQuery = ODBCWrapper.Utils.ExtractString(rowData, "KSQL_FILTER");
@@ -3766,7 +3770,7 @@ namespace Tvinci.Core.DAL
             return channel;
         }
 
-        public static KSQLChannel InsertKSQLChannel(int groupID, KSQLChannel channel)
+        public static KSQLChannel InsertKSQLChannel(int groupID, KSQLChannel channel, Dictionary<string, string> metas)
         {
             KSQLChannel result = null;
 
@@ -3777,6 +3781,8 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@isActive", channel.IsActive);
             sp.AddParameter("@status", channel.Status);
             sp.AddParameter("@description", channel.Description);
+            sp.AddParameter("@orderBy", (int)channel.Order.m_eOrderBy);
+            sp.AddParameter("@orderDirection", (int)channel.Order.m_eOrderDir);
             sp.AddParameter("@Filter", channel.FilterQuery);
             sp.AddIDListParameter<int>("@AssetTypes", channel.AssetTypes, "Id");
 
@@ -3789,6 +3795,27 @@ namespace Tvinci.Core.DAL
 
             return result;
             
+        }
+
+        public static KSQLChannel UpdateKSQLChannel(int channelId, int groupID, KSQLChannel channel)
+        {
+            KSQLChannel result = null;
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_KSQLChannel");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("channelId", channelId);
+            sp.AddParameter("@groupId", groupID);
+            sp.AddParameter("@name", channel.Name);
+            sp.AddParameter("@isActive", channel.IsActive);
+            sp.AddParameter("@status", channel.Status);
+            sp.AddParameter("@description", channel.Description);
+            sp.AddParameter("@Filter", channel.FilterQuery);
+            sp.AddIDListParameter<int>("@AssetTypes", channel.AssetTypes, "Id");
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            return result;
+
         }
     }
 }

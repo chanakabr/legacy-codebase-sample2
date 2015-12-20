@@ -69,14 +69,17 @@ namespace ApiObjects
         }
         
         [DataMember]
-        public string OrderBy
+        public ApiObjects.SearchObjects.OrderObj Order
         {
             get;
             set;
         }
 
+        /// <summary>
+        /// KSQL filter query - for KSQL channels
+        /// </summary>
         [DataMember]
-        public ApiObjects.SearchObjects.OrderDir OrderDir
+        public string filterQuery
         {
             get;
             set;
