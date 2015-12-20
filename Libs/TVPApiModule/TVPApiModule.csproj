@@ -106,6 +106,9 @@
   <ItemGroup>
     <Compile Include="CatalogLoaders\APIAutocompleteLoader.cs" />
     <Compile Include="CatalogLoaders\APIBundleMediaLoader.cs" />
+    <Compile Include="CatalogLoaders\APIExternalRelatedMediaLoader.cs" />
+    <Compile Include="CatalogLoaders\APIExternalSearchMediaLoader.cs" />
+    <Compile Include="CatalogLoaders\APIUnifiedBundleMediaLoader.cs" />
     <Compile Include="CatalogLoaders\APICategoryLoader.cs" />
     <Compile Include="CatalogLoaders\APIChannelMediaLoader.cs" />
     <Compile Include="CatalogLoaders\APIChannelsListsLoader.cs" />
@@ -136,6 +139,8 @@
     <Compile Include="DataLoaders\APIAutoCompleteLoader.cs" />
     <Compile Include="DataLoaders\APIChannelLoader.cs" />
     <Compile Include="DataLoaders\APICustomAutoCompleteLoader.cs" />
+    <Compile Include="DataLoaders\APIExternalRelatedMediaLoader.cs" />
+    <Compile Include="DataLoaders\APIExternalSearchMediaLoader.cs" />
     <Compile Include="DataLoaders\ApiLastWatchedLoader.cs" />
     <Compile Include="DataLoaders\APIMediaHit.cs" />
     <Compile Include="DataLoaders\APIMediaLoader.cs" />
@@ -223,6 +228,7 @@
     <Compile Include="Objects\Responses\Rules\ParentalRule.cs" />
     <Compile Include="Objects\Responses\Rules\ParentalRulesResponse.cs" />
     <Compile Include="Objects\Responses\Rules\PurchaseSettingsResponse.cs" />
+    <Compile Include="Objects\Responses\UnifiedSearchResponseWithRequestId.cs" />
     <Compile Include="Objects\Responses\WatchHistory.cs" />
     <Compile Include="Objects\Responses\AutocompleteResponse.cs" />
     <Compile Include="Objects\Responses\DeviceFamilyLimitations.cs" />

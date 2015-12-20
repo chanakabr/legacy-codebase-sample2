@@ -1,26 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.ServiceModel;
-using System.Text;
-using TVPApi;
-using TVPPro.SiteManager.Helper;
-using System.Web.Services;
-using TVPApiModule.Services;
-using TVPPro.SiteManager.Context;
-using TVPApiModule.Objects;
-using TVPPro.SiteManager.TvinciPlatform.Domains;
-using TVPPro.SiteManager.TvinciPlatform.Billing;
-using TVPPro.SiteManager.TvinciPlatform.Users;
+﻿using KLogMonitor;
+using System;
+using System.Configuration;
+using System.Reflection;
 using System.Web;
+using System.Web.Services;
+using TVPApi;
 using TVPApiModule.Interfaces;
-using TVPApiModule.Objects.Responses;
 using TVPApiModule.Manager;
 using TVPApiModule.Objects.Authorization;
-using KLogMonitor;
-using System.Reflection;
-using System.Configuration;
+using TVPApiModule.Objects.Responses;
+using TVPApiModule.Services;
+using TVPPro.SiteManager.Helper;
+using TVPPro.SiteManager.TvinciPlatform.Users;
 
 namespace TVPApiServices
 {
@@ -799,6 +790,51 @@ namespace TVPApiServices
             return response;
         }
 
+        [WebMethod(EnableSession = true, Description = "DeleteUser")]
+        [PrivateMethod]
+        public ClientResponseStatus DeleteUser(InitializationObject initObj)
+        {
+            TVPApiModule.Objects.Responses.ClientResponseStatus response = null;
 
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "DeleteUser", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            bool isTokenizationValid = false;
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    // Tokenization: validate siteGuid
+                    if (AuthorizationManager.IsTokenizationEnabled() &&
+                        !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, initObj.SiteGuid, 0, null, groupID, initObj.Platform))
+                    {
+                        return null;
+                    }
+                    
+                    isTokenizationValid = true;
+
+                    response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).DeleteUser(initObj.SiteGuid);
+
+                    if (response.Status.Code == (int)TVPApiModule.Objects.Responses.eStatus.OK && isTokenizationValid )
+                    {
+                        AuthorizationManager.Instance.DeleteAccessToken(initObj.Token);
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items["Error"] = ex;
+                    response = new TVPApiModule.Objects.Responses.ClientResponseStatus();
+                    response.Status = ResponseUtils.ReturnGeneralErrorStatus();
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items["Error"] = "Unknown group";
+                response = new TVPApiModule.Objects.Responses.ClientResponseStatus();
+                response.Status = ResponseUtils.ReturnBadCredentialsStatus();
+            }
+
+            return response;
+        }
     }
 }

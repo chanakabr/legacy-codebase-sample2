@@ -81,5 +81,9 @@ namespace TVPApiServices
 
         [OperationContract]
         TVPApiModule.Objects.Responses.ClientResponseStatus ClearLoginPINs(InitializationObject initObj);
+
+        [OperationContract]
+        TVPApiModule.Objects.Responses.ClientResponseStatus DeleteUser(InitializationObject initObj);
+        
     }
 }
