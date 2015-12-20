@@ -7794,9 +7794,9 @@ namespace ConditionalAccess
                         // create mapper
                         mapper = Utils.GetMediaMapper(m_nGroupID, nMediaFiles, sAPIUsername, sAPIPassword);
                         //Get all user PPV entitlements
-                        Utils.InitializeUsersEntitlements(m_nGroupID, domainID, allUsersInDomain, nMediaFiles, mapper, userEntitlements.userPpvEntitlements);
+                        Utils.InitializeUsersEntitlements(m_nGroupID, allUsersInDomain, nMediaFiles, mapper, userEntitlements.userPpvEntitlements);
                         //Get all user bundle entitlements
-                        Utils.InitializeUsersBundles(sUserGUID, domainID, m_nGroupID, allUsersInDomain, sPricingUsername, sPricingPassword, userEntitlements.userBundleEntitlements);
+                        Utils.InitializeUsersBundles(sUserGUID, m_nGroupID, allUsersInDomain, sPricingUsername, sPricingPassword, userEntitlements.userBundleEntitlements);
                     }
 
                     // set max amount of concurrent tasks
