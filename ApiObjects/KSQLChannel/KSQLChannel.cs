@@ -67,13 +67,6 @@ namespace ApiObjects
             get;
             set;
         }
-
-        [DataMember]
-        public List<string> m_sMedias
-        {
-            get;
-            set;
-        }
         
         [DataMember]
         public string OrderBy
