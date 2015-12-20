@@ -3467,10 +3467,10 @@ namespace ConditionalAccess
             return res;
         }
 
-        internal static void InitializeUsersEntitlements(int m_nGroupID, List<int> allUsersInDomain, int[] nMediaFiles, TvinciAPI.MeidaMaper[] mapper, UserEntitlementsObject.PPVEntitlements userPpvEntitlements)                                
+        internal static void InitializeUsersEntitlements(int m_nGroupID, int domainID, List<int> allUsersInDomain, int[] nMediaFiles, TvinciAPI.MeidaMaper[] mapper, UserEntitlementsObject.PPVEntitlements userPpvEntitlements)                                
         {
             // Get all user entitlements
-            userPpvEntitlements.EntitlementsDictionary = ConditionalAccessDAL.Get_AllUsersEntitlements(allUsersInDomain);
+            userPpvEntitlements.EntitlementsDictionary = ConditionalAccessDAL.Get_AllUsersEntitlements(domainID, allUsersInDomain);
             // Get mappings of mediaFileIDs - MediaIDs
             if (mapper != null && mapper.Length > 0)
             {
@@ -3510,9 +3510,9 @@ namespace ConditionalAccess
             return relatedFileTypes;
         }
 
-        internal static void GetAllUserBundles(int nGroupID, List<int> lstUserIDs, UserEntitlementsObject.BundleEntitlements userBundleEntitlements)
+        internal static void GetAllUserBundles(int nGroupID, int domainID, List<int> lstUserIDs, UserEntitlementsObject.BundleEntitlements userBundleEntitlements)
         {
-            DataSet dataSet = ConditionalAccessDAL.Get_AllBundlesInfoByUserIDsOrDomainID(lstUserIDs, nGroupID);
+            DataSet dataSet = ConditionalAccessDAL.Get_AllBundlesInfoByUserIDsOrDomainID(domainID, lstUserIDs, nGroupID);
             if (IsBundlesDataSetValid(dataSet))
             {
                 userBundleEntitlements.EntitledSubscriptions = new Dictionary<string, UserBundlePurchase>();
@@ -3618,9 +3618,9 @@ namespace ConditionalAccess
             }
         }
 
-        internal static void InitializeUsersBundles(string sUserGUID, int m_nGroupID, List<int> allUsersInDomain, string sPricingUsername, string sPricingPassword, UserEntitlementsObject.BundleEntitlements userBundleEntitlements)
+        internal static void InitializeUsersBundles(string sUserGUID, int domainID, int m_nGroupID, List<int> allUsersInDomain, string sPricingUsername, string sPricingPassword, UserEntitlementsObject.BundleEntitlements userBundleEntitlements)
         {
-            GetAllUserBundles(m_nGroupID, allUsersInDomain, userBundleEntitlements);
+            GetAllUserBundles(m_nGroupID, domainID, allUsersInDomain, userBundleEntitlements);
             userBundleEntitlements.FileTypeIdToSubscriptionMappings = new Dictionary<int, List<Subscription>>();
             userBundleEntitlements.ChannelsToSubscriptionMappings = new Dictionary<int, List<Subscription>>();
             userBundleEntitlements.SubscriptionsData = new Dictionary<int, Subscription>();

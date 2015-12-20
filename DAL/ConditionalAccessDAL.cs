@@ -1987,12 +1987,13 @@ namespace DAL
             return spLastBillingTransactions.ExecuteReturnValue<int>() > 0;
         }
 
-        public static Dictionary<string, EntitlementObject> Get_AllUsersEntitlements(List<int> lstUserIds)
+        public static Dictionary<string, EntitlementObject> Get_AllUsersEntitlements(int domainID, List<int> lstUserIds)
         {
             Dictionary<string, EntitlementObject> allEntitlments = new Dictionary<string, EntitlementObject>();
             DataTable dt = null;
             StoredProcedure spGet_AllUsersEntitlements = new ODBCWrapper.StoredProcedure("Get_AllUsersEntitlements");
-            spGet_AllUsersEntitlements.AddIDListParameter<int>("@UserIDs", lstUserIds, "Id");            
+            spGet_AllUsersEntitlements.AddIDListParameter<int>("@UserIDs", lstUserIds, "Id");
+            spGet_AllUsersEntitlements.AddParameter("@DomainID", domainID);
             dt = spGet_AllUsersEntitlements.Execute();
 
             if (dt != null && dt.Rows.Count > 0)
@@ -2046,11 +2047,12 @@ namespace DAL
             return mappings;
         }
 
-        public static DataSet Get_AllBundlesInfoByUserIDsOrDomainID(List<int> lstUsers, int nGroupID)
+        public static DataSet Get_AllBundlesInfoByUserIDsOrDomainID(int domainID, List<int> lstUsers, int nGroupID)
         {
             StoredProcedure spGet_AllBundlesInfoByUserIDsOrDomainID = new StoredProcedure("Get_AllBundlesInfoByUserIDsOrDomainID");
             spGet_AllBundlesInfoByUserIDsOrDomainID.SetConnectionKey("CONNECTION_STRING");
-            spGet_AllBundlesInfoByUserIDsOrDomainID.AddIDListParameter("@Users", lstUsers, "ID");            
+            spGet_AllBundlesInfoByUserIDsOrDomainID.AddIDListParameter("@Users", lstUsers, "ID");
+            spGet_AllBundlesInfoByUserIDsOrDomainID.AddParameter("@DomainID", domainID);
             spGet_AllBundlesInfoByUserIDsOrDomainID.AddParameter("@Group_id", nGroupID);
 
             return spGet_AllBundlesInfoByUserIDsOrDomainID.ExecuteDataSet();
