@@ -22,6 +22,11 @@ namespace ODBCWrapper
             return Execute(m_sOraStr.ToString());
         }
 
+        public int ExecuteAffectedRows()
+        {
+            return ExecuteAffectedRows(m_sOraStr.ToString());
+        }
+
         ~DirectQuery() { }
 
         public bool SetLockTimeOut(ref SqlConnection con)
@@ -60,7 +65,10 @@ namespace ODBCWrapper
             int_Execute();
             string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable);
             if (sConn == "")
+            {
+                log.ErrorFormat("Empty connection string. could not run query. m_sOraStr: {0}", m_sOraStr != null ? m_sOraStr.ToString() : string.Empty);
                 return false;
+            }
             using (SqlConnection con = new SqlConnection(sConn))
             {
                 oraStr = m_sOraStr.ToString();
@@ -84,6 +92,46 @@ namespace ODBCWrapper
                 }
             }
             return true;
+        }
+
+        protected virtual int ExecuteAffectedRows(string oraStr)
+        {
+            int result = -1;
+            m_sErrorMsg = "";
+            m_sOraStr = new System.Text.StringBuilder(oraStr);
+            int_Execute();
+            string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable);
+            if (sConn == "")
+            {
+                log.ErrorFormat("Empty connection string. could not run query. m_sOraStr: {0}", m_sOraStr != null ? m_sOraStr.ToString() : string.Empty);
+                return -1;
+            }
+            else
+            {
+                using (SqlConnection con = new SqlConnection(sConn))
+                {
+                    oraStr = m_sOraStr.ToString();
+                    try
+                    {
+                        con.Open();
+                        SetLockTimeOut(con);
+                        command.Connection = con;
+
+                        SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
+                        using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table })
+                        {
+                            result = command.ExecuteNonQuery();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        string sMes = "While running : '" + m_sLastExecutedOraStr + "'\r\n Exception occurred: " + ex.Message;
+                        log.Error(sMes, ex);
+                        result = -1;
+                    }
+                }
+            }
+            return result;
         }
 
         public static DirectQuery operator +(DirectQuery p, object sOraStr)

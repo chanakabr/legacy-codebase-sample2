@@ -525,7 +525,7 @@ namespace Users
             }
 
             Utils.SetPassword(sPassword, ref oBasicData, m_nGroupID);
-            u.Initialize(oBasicData, sDynamicData, m_nGroupID);
+            u.InitializeBasicAndDynamicData(oBasicData, sDynamicData);
             
             int nUserID = u.Save(m_nGroupID, !IsActivationNeeded(oBasicData), true);    //u.Save(m_nGroupID);  
 
@@ -1865,6 +1865,11 @@ namespace Users
                 {
                     response.Code = (int)eResponseStatus.OK;
                     response.Message = eResponseStatus.OK.ToString();
+
+                    // remove user from cache
+                    UsersCache usersCache = UsersCache.Instance();
+                    usersCache.RemoveUser(userId, m_nGroupID);
+
                     return response;
                 }
             }

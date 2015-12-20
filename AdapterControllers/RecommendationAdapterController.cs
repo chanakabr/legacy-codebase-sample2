@@ -202,7 +202,7 @@ namespace AdapterControllers
 
         public List<RecommendationResult> GetRelatedRecommendations(int recommendationEngineId, Int32 nMediaID, Int32 nMediaTypeID, Int32 nGroupID, string siteGuid, string deviceId, 
                                                                     string language, int utcOffset, string sUserIP, string sSignature, string sSignString, List<Int32> filterTypeIDs, Int32 nPageSize,
-                                                                    Int32 nPageIndex, Dictionary<string, string> enrichments, out string requestId)
+                                                                    Int32 nPageIndex, Dictionary<string, string> enrichments, string freeParam, out string requestId)
         {
             List<RecommendationResult> searchResults = new List<RecommendationResult>();
 
@@ -246,7 +246,7 @@ namespace AdapterControllers
                 //call Adapter get channel recommendations
                 var adapterResponse = adapterClient.GetRelatedRecommendations(engine.ID,
                     nMediaID, nMediaTypeID, siteGuid, deviceId, language,
-                    enrichmentsList.ToArray(), filterTypeIDs.ToArray(), utcOffset, nPageIndex, nPageSize,
+                    enrichmentsList.ToArray(), freeParam, filterTypeIDs.ToArray(), utcOffset, nPageIndex, nPageSize,
                     unixTimestamp, 
                     System.Convert.ToBase64String(
                         EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
@@ -274,7 +274,7 @@ namespace AdapterControllers
                     //call Adapter get related recommendations - after it is configured
                     adapterResponse = adapterClient.GetRelatedRecommendations(engine.ID,
                         nMediaID, nMediaTypeID, siteGuid, deviceId, language,
-                        enrichmentsList.ToArray(), filterTypeIDs.ToArray(), utcOffset, nPageIndex, nPageSize,
+                        enrichmentsList.ToArray(), freeParam, filterTypeIDs.ToArray(), utcOffset, nPageIndex, nPageSize,
                         unixTimestamp,
                         System.Convert.ToBase64String(
                             EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));

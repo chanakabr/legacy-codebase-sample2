@@ -112,15 +112,20 @@
     <Compile Include="BulkExport\BulkExportTask.cs" />
     <Compile Include="BulkExport\BulkExportTasksResponse.cs" />
     <Compile Include="EntitlementObject.cs" />
+    <Compile Include="KSQLChannel\KSQLChannel.cs" />
+    <Compile Include="KSQLChannel\KSQLChannelResponse.cs" />
+    <Compile Include="KSQLChannel\KSQLChannelResponseList.cs" />
     <Compile Include="MessageQueue.cs" />
-    <Compile Include="ExternalChannelResponse.cs" />
-    <Compile Include="ExternalChannelResponseList.cs" />
+    <Compile Include="ExternalChannel\ExternalChannelResponse.cs" />
+    <Compile Include="ExternalChannel\ExternalChannelResponseList.cs" />
+    <Compile Include="QueueObjects\ImageUploadData.cs" />
     <Compile Include="QueueObjects\ExportTaskData.cs" />
-    <Compile Include="RecommendationEngineResponse.cs" />
-    <Compile Include="RecommendationEngineResponseList.cs" />
-    <Compile Include="RecommendationEngineSettinsResponse.cs" />
-    <Compile Include="OSSAdapterBillingDetailsResponse.cs" />
-    <Compile Include="OSSAdapterResponseList.cs" />
+    <Compile Include="RecommendationEngine\RecommendationEngineResponse.cs" />
+    <Compile Include="RecommendationEngine\RecommendationEngineResponseList.cs" />
+    <Compile Include="RecommendationEngine\RecommendationEngineSettinsResponse.cs" />
+    <Compile Include="OSSAdapter\OSSAdapterBillingDetailsResponse.cs" />
+    <Compile Include="OSSAdapter\OSSAdapterResponseList.cs" />
+    <Compile Include="Ratio.cs" />
     <Compile Include="DRM\CencRequest.cs" />
     <Compile Include="DRM\CencResponse.cs" />
     <Compile Include="ChangedPinMailRequest.cs" />
@@ -163,7 +168,7 @@
     <Compile Include="Epg\xmltv.cs">
       <DependentUpon>xmltv.xsd</DependentUpon>
     </Compile>
-    <Compile Include="ExternalChannel.cs" />
+    <Compile Include="ExternalChannel\ExternalChannel.cs" />
     <Compile Include="ExtraRequestObject.cs" />
     <Compile Include="FileRequestObject.cs" />
     <Compile Include="FileTypeContainer.cs" />
@@ -185,11 +190,11 @@
     <Compile Include="MediaAdObject.cs" />
     <Compile Include="MediaAdSchema.cs" />
     <Compile Include="MediaConcurrencyRule.cs" />
-    <Compile Include="OSSAdapter.cs" />
-    <Compile Include="OSSAdapterBase.cs" />
-    <Compile Include="OSSAdapterSettings.cs" />
-    <Compile Include="OSSAdapterResponse.cs" />
-    <Compile Include="OSSAdapterSettingsResponse.cs" />
+    <Compile Include="OSSAdapter\OSSAdapter.cs" />
+    <Compile Include="OSSAdapter\OSSAdapterBase.cs" />
+    <Compile Include="OSSAdapter\OSSAdapterSettings.cs" />
+    <Compile Include="OSSAdapter\OSSAdapterResponse.cs" />
+    <Compile Include="OSSAdapter\OSSAdapterSettingsResponse.cs" />
     <Compile Include="QueueObjects\BaseCeleryData.cs" />
     <Compile Include="QueueObjects\CeleryIndexBuildingData.cs" />
     <Compile Include="QueueObjects\CeleryIndexingData.cs" />
@@ -218,8 +223,8 @@
     <Compile Include="OneTimeObject.cs" />
     <Compile Include="PageDefinition.cs" />
     <Compile Include="QueueObjects\UpdateCacheData.cs" />
-    <Compile Include="RecommendationEngine.cs" />
-    <Compile Include="RecommendationEngineSettings.cs" />
+    <Compile Include="RecommendationEngine\RecommendationEngine.cs" />
+    <Compile Include="RecommendationEngine\RecommendationEngineSettings.cs" />
     <Compile Include="Response\LongIdsResponse.cs" />
     <Compile Include="Response\IdsResponse.cs" />
     <Compile Include="Response\KalturaException.cs" />

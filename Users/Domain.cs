@@ -562,19 +562,7 @@ namespace Users
             }
 
             int nUserDomainID;
-            // Try to get user from cache
-            User user = null;
-            UsersCache usersCache = UsersCache.Instance();
-            user = usersCache.GetUser(nUserID, nGroupID);
-
-            if (user != null)
-            {
-                nUserDomainID = user.m_domianID;
-            }
-            else
-            {
-                nUserDomainID = DAL.DomainDal.DoesUserExistInDomain(nGroupID, nDomainID, nUserID, false);
-            }     
+            nUserDomainID = DAL.DomainDal.DoesUserExistInDomain(nGroupID, nDomainID, nUserID, false);   
 
             if (nUserDomainID <= 0)
             {
@@ -606,11 +594,11 @@ namespace Users
             }
 
             // Check master and default users
-            KeyValuePair<int, int> masterUserKV = dTypedUserIDs.FirstOrDefault(ut => ut.Value == (int)UserDomainType.Master);
-            KeyValuePair<int, int> defaultUserKV = dTypedUserIDs.FirstOrDefault(ut => ut.Value == (int)UserDomainType.Household);
+            List<int> masterUserKV = dTypedUserIDs.Where(x => x.Value == (int)UserDomainType.Master).Select( y => y.Key).ToList();
+            List<int> defaultUserKV = dTypedUserIDs.Where(x => x.Value == (int)UserDomainType.Household).Select(y => y.Key).ToList();
 
-            if (masterUserKV.Equals(default(KeyValuePair<int, int>)) || masterUserKV.Key <= 0 ||
-                (nUserID == masterUserKV.Key || nUserID == defaultUserKV.Key))
+            //User can be removed in case there is more than 1 master in domain
+            if ((masterUserKV.Contains(nUserID) && masterUserKV.Count == 1) || defaultUserKV.Contains(nUserID))     
             {
                 eRetVal = DomainResponseStatus.UserNotAllowed;
                 return eRetVal;
@@ -635,6 +623,7 @@ namespace Users
                     oDomainCache.RemoveDomain(nDomainID);
 
                     // remove user from cache
+                    UsersCache usersCache = UsersCache.Instance();
                     usersCache.RemoveUser(nUserID, nGroupID);
 
                 }

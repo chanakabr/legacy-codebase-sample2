@@ -224,6 +224,23 @@ namespace Users
         {
             if (m_sSiteGUID != "")
             {
+                //Try Getting user current object so we return the current values on the response
+                int currentUserID;                
+                if (int.TryParse(m_sSiteGUID, out currentUserID))
+                {   
+                    UsersCache usersCache = UsersCache.Instance();
+                    User user = usersCache.GetUser(currentUserID, nGroupID);
+                    if (user != null)
+                    {
+                        m_domianID = user.m_domianID;
+                        m_eSuspendState = user.m_eSuspendState;
+                        m_eUserState = user.m_eUserState;
+                        m_isDomainMaster = user.m_isDomainMaster;
+                        m_nSSOOperatorID = user.m_nSSOOperatorID;                        
+                    }
+                }
+
+                //Update basic and dynamic data
                 if (!string.IsNullOrEmpty(oBasicData.m_sUserName))
                 {
                     m_oBasicData.m_sUserName = oBasicData.m_sUserName;
@@ -390,36 +407,10 @@ namespace Users
             return false;
         }
 
-        public bool Initialize(UserBasicData oBasicData, UserDynamicData oDynamicData, Int32 nGroupID)
-        {
-            try
-            {                                
-                m_oBasicData = oBasicData;
-                m_oDynamicData = oDynamicData;
-                if (!string.IsNullOrEmpty(m_oBasicData.m_sUserName))
-                {
-                    int userID = DAL.UsersDal.GetUserIDByUsername(m_oBasicData.m_sUserName, nGroupID);
-                    if (userID > 0)
-                    {
-                        m_sSiteGUID = userID.ToString();
-                        m_domianID = DAL.UsersDal.GetUserDomainID(m_sSiteGUID, ref m_nSSOOperatorID, ref m_isDomainMaster, ref m_eSuspendState);
-                    }
-                }
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                StringBuilder sb = new StringBuilder("Exception at User.Initialize ");
-                sb.Append(String.Concat(" Basic Data: ", oBasicData.ToString()));
-                sb.Append(String.Concat(" Group ID: ", nGroupID));
-                sb.Append(String.Concat(" Msg: ", ex.Message));
-                sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
-
-                log.Error("Exception - " + sb.ToString(), ex);
-            }
-
-            return false;
+        public void InitializeBasicAndDynamicData(UserBasicData oBasicData, UserDynamicData oDynamicData)
+        {                          
+            m_oBasicData = oBasicData;
+            m_oDynamicData = oDynamicData;
         }        
 
         public bool Initialize(Int32 nUserID, Int32 nGroupID, bool shouldSaveInCache = true)
@@ -572,7 +563,7 @@ namespace Users
 
         public int Save(Int32 nGroupID, bool bIsSetUserActive, bool isRemoveFromCache = true)
         {
-            int nID = (-1);
+            int userID = -1;
 
             try
             {
@@ -585,7 +576,7 @@ namespace Users
 
                     string sActivationToken = bIsSetUserActive ? string.Empty : System.Guid.NewGuid().ToString();
 
-                    int userInserted = DAL.UsersDal.InsertUser(m_oBasicData.m_sUserName,
+                    userID = DAL.UsersDal.InsertUser(m_oBasicData.m_sUserName,
                                                                m_oBasicData.m_sPassword,
                                                                m_oBasicData.m_sSalt,
                                                                m_oBasicData.m_sFirstName,
@@ -602,63 +593,74 @@ namespace Users
                                                                m_oBasicData.m_UserType.ID,
                                                                nGroupID);
 
-                    if (userInserted == 0 || (!m_oBasicData.Save(nID)))
+                    if (userID > 0)
+                    {
+                        m_sSiteGUID = userID.ToString();                        
+                    }
+                    else
                     {
                         return (-1);
                     }
 
-                    if ((m_oDynamicData.m_sUserData != null) && (!m_oDynamicData.Save(nID)))
+                    if (!m_oBasicData.Save(userID))
                     {
                         return (-1);
                     }
 
-                    return userInserted;
-                }
-
-                // Existing user - Update & Remove from cache
-
-                if (isRemoveFromCache)
-                {
-                    UsersCache usersCache = UsersCache.Instance();
-                    usersCache.RemoveUser(nID, nGroupID);
-                }
-
-                nID = int.Parse(m_sSiteGUID);
-                bool saved = m_oBasicData.Save(nID);
-
-                if (!saved) { return (-1); }
-
-                if (m_oDynamicData.m_sUserData != null)
-                {
-                    saved = m_oDynamicData.Save(nID);
-
-                    if (!saved) { return (-2); }
-                }
-
-
-                try
-                {
-                    Notifiers.BaseUsersNotifier t = null;
-                    Notifiers.Utils.GetBaseUsersNotifierImpl(ref t, nGroupID);
-
-                    if (t != null)
+                    else if (m_oDynamicData != null &&  m_oDynamicData.m_sUserData != null && (!m_oDynamicData.Save(userID)))
                     {
-                        t.NotifyChange(m_sSiteGUID);
+                        return (-1);
+                    }
+
+                    return userID;
+                }
+
+                // Existing user - Remove & Update from cache
+                if (int.TryParse(m_sSiteGUID, out userID))
+                {
+                    if (isRemoveFromCache)
+                    {
+                        UsersCache usersCache = UsersCache.Instance();
+                        usersCache.RemoveUser(userID, nGroupID);
+                    }
+
+                    bool saved = m_oBasicData.Save(userID);
+
+                    if (!saved) { return (-1); }
+
+                    if (m_oDynamicData.m_sUserData != null)
+                    {
+                        saved = m_oDynamicData.Save(userID);
+
+                        if (!saved) { return (-2); }
+                    }
+
+
+                    try
+                    {
+                        Notifiers.BaseUsersNotifier t = null;
+                        Notifiers.Utils.GetBaseUsersNotifierImpl(ref t, nGroupID);
+
+                        if (t != null)
+                        {
+                            t.NotifyChange(m_sSiteGUID);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error("exception - " + m_sSiteGUID + " : " + ex.Message, ex);
+
                     }
                 }
-                catch (Exception ex)
-                {
-                    log.Error("exception - " + m_sSiteGUID + " : " + ex.Message, ex);
 
-                }
+                return userID;
 
             }
             catch
             {
                 return (-1);
             }
-
-            return nID;
+            
         }
 
         public bool SaveDynamicData(int nGroupID)

@@ -12465,9 +12465,18 @@ namespace ConditionalAccess
 
         public virtual Entitlements GetUserEntitlements(string siteGuid, eTransactionType type)
         {
-            int userId;
-            int.TryParse(siteGuid, out userId);
-            return GetUsersEntitlements(new List<int>() { userId }, type);
+            int userId, domainID = 0;            
+            TvinciUsers.DomainSuspentionStatus userSuspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
+            if (int.TryParse(siteGuid, out userId) && Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID, ref userSuspendStatus))
+            {
+                return GetUsersEntitlements(new List<int>() { userId }, type);
+            }
+            else
+            {
+                Entitlements response = new Entitlements();
+                response.status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.UserDoesNotExist, ApiObjects.Response.eResponseStatus.UserDoesNotExist.ToString());
+                return response;
+            }
         }
 
         public virtual Entitlements GetDomainEntitlements(int domainId, eTransactionType type)

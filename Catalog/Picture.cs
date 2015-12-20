@@ -10,14 +10,22 @@ namespace Catalog
     public class Picture
     {
         [DataMember]
-        public string m_sSize;
-        [DataMember]
-        public string m_sURL;
-        [DataMember]
-        public string ratio;
+        public string m_sSize = string.Empty;
 
-        public Picture()
-        { }
+        [DataMember]
+        public string m_sURL = string.Empty;
+
+        [DataMember]
+        public string ratio = string.Empty;
+
+        [DataMember]
+        public int version;
+
+        [DataMember]
+        public string id = string.Empty;
+
+        public Picture() { }
+
         public Picture(string sSize, string sURL, string picRatio)
         {
             m_sSize = sSize;

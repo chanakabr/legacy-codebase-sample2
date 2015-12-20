@@ -1083,7 +1083,7 @@ namespace Users
                 }
                 if (dr == null)
                 {
-                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.PinNotExists, "Pin code not exsits");
+                    response.resp = new ApiObjects.Response.Status((int)eResponseStatus.PinNotExists, "Pin code not exists");
                     return response;
                 }
                 // check secret 
@@ -1115,7 +1115,7 @@ namespace Users
             catch (Exception ex)
             {
                 response = new UserResponse();
-                response.resp = new ApiObjects.Response.Status((int)eResponseStatus.PinNotExists, "Pin code not exsits");
+                response.resp = new ApiObjects.Response.Status((int)eResponseStatus.PinNotExists, "Pin code not exists");
                 log.ErrorFormat("SignInWithPIN - Failed ex={0}, PIN={1}, groupID ={2}, ", ex.Message, PIN, m_nGroupID);
             }
             return response;

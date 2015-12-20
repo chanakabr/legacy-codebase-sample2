@@ -20,9 +20,7 @@ namespace Tvinci.Core.DAL
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly string CB_MEDIA_MARK_DESGIN = ODBCWrapper.Utils.GetTcmConfigValue("cb_media_mark_design");
-
         private const int RETRY_LIMIT = 5;
-
 
         public static DataSet Get_MediaDetails(int nGroupID, int nMediaID, string sSiteGuid, bool bOnlyActiveMedia, int nLanguage, string sEndDate, bool bUseStartDate, List<int> lSubGroupTree)
         {
@@ -81,7 +79,7 @@ namespace Tvinci.Core.DAL
 
             return ds;
         }
-        
+
         public static DataTable Get_ChannelBaseData(int nGroupID, int nChannelID)
         {
             ODBCWrapper.StoredProcedure spChannelBaseData = new ODBCWrapper.StoredProcedure("Get_ChannelBaseData");
@@ -1394,7 +1392,13 @@ namespace Tvinci.Core.DAL
 
                     if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(code))
                     {
-                        language = new LanguageObj() { ID = id, Name = name, Code = code, Direction = direction };
+                        language = new LanguageObj()
+                        {
+                            ID = id,
+                            Name = name,
+                            Code = code,
+                            Direction = direction
+                        };
                     }
                 }
             }
@@ -1498,13 +1502,13 @@ namespace Tvinci.Core.DAL
                 {
                     case ePlayType.MEDIA:
                     case ePlayType.NPVR:
-                        dm.devices = dm.devices.Where(x => x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow && x.playType == ePlay.ToString()).ToList();
-                        break;
+                    dm.devices = dm.devices.Where(x => x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow && x.playType == ePlay.ToString()).ToList();
+                    break;
                     case ePlayType.ALL:
-                        dm.devices = dm.devices.Where(x => x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow).ToList();
-                        break;
+                    dm.devices = dm.devices.Where(x => x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow).ToList();
+                    break;
                     default:
-                        break;
+                    break;
                 }
 
                 var res = m_oClient.Cas(Enyim.Caching.Memcached.StoreMode.Set, docKey, JsonConvert.SerializeObject(dm, Formatting.None), marks.Cas);
@@ -1594,31 +1598,31 @@ namespace Tvinci.Core.DAL
                     {
                         case eWatchStatus.Progress:
 
-                            // remove all finished
-                            unFilteredresult.RemoveAll(x => (x.Duration != 0) && (((float)x.Location / (float)x.Duration * 100) >= finishedPercent));
-                            unFilteredresult.ForEach(x => x.IsFinishedWatching = false);
-                            break;
+                        // remove all finished
+                        unFilteredresult.RemoveAll(x => (x.Duration != 0) && (((float)x.Location / (float)x.Duration * 100) >= finishedPercent));
+                        unFilteredresult.ForEach(x => x.IsFinishedWatching = false);
+                        break;
 
                         case eWatchStatus.Done:
 
-                            // remove all in progress
-                            unFilteredresult.RemoveAll(x => (x.Duration != 0) && (((float)x.Location / (float)x.Duration * 100) < finishedPercent));
-                            unFilteredresult.ForEach(x => x.IsFinishedWatching = true);
-                            break;
+                        // remove all in progress
+                        unFilteredresult.RemoveAll(x => (x.Duration != 0) && (((float)x.Location / (float)x.Duration * 100) < finishedPercent));
+                        unFilteredresult.ForEach(x => x.IsFinishedWatching = true);
+                        break;
 
                         case eWatchStatus.All:
 
-                            foreach (var item in unFilteredresult)
-                            {
-                                if ((item.Duration != 0) && (((float)item.Location / (float)item.Duration * 100) >= finishedPercent))
-                                    item.IsFinishedWatching = true;
-                                else
-                                    item.IsFinishedWatching = false;
-                            }
-                            break;
+                        foreach (var item in unFilteredresult)
+                        {
+                            if ((item.Duration != 0) && (((float)item.Location / (float)item.Duration * 100) >= finishedPercent))
+                                item.IsFinishedWatching = true;
+                            else
+                                item.IsFinishedWatching = false;
+                        }
+                        break;
 
                         default:
-                            break;
+                        break;
                     }
 
                     // filter asset types
@@ -1634,15 +1638,15 @@ namespace Tvinci.Core.DAL
                     {
                         case OrderDir.ASC:
 
-                            unFilteredresult = unFilteredresult.OrderBy(x => x.LastWatch).ToList();
-                            break;
+                        unFilteredresult = unFilteredresult.OrderBy(x => x.LastWatch).ToList();
+                        break;
 
                         case OrderDir.DESC:
                         case OrderDir.NONE:
                         default:
 
-                            unFilteredresult = unFilteredresult.OrderByDescending(x => x.LastWatch).ToList();
-                            break;
+                        unFilteredresult = unFilteredresult.OrderByDescending(x => x.LastWatch).ToList();
+                        break;
                     }
 
                     // update total items
@@ -1660,7 +1664,6 @@ namespace Tvinci.Core.DAL
 
             return usersWatchHistory;
         }
-
 
         public static List<UserMediaMark> GetMediaMarksLastDateByUsers(List<int> usersList)
         {
@@ -1687,7 +1690,12 @@ namespace Tvinci.Core.DAL
                         int.TryParse(arrMediasDates[0].ToString(), out nMediaID);
                         DateTime.TryParse(arrMediasDates[1].ToString(), out lastDate);
 
-                        UserMediaMark objUserMediaMark = new UserMediaMark { MediaID = nMediaID, UserID = nUserID, CreatedAt = lastDate };
+                        UserMediaMark objUserMediaMark = new UserMediaMark
+                        {
+                            MediaID = nMediaID,
+                            UserID = nUserID,
+                            CreatedAt = lastDate
+                        };
                         mediasMarksList.Add(objUserMediaMark);
                     }
                 }
@@ -1743,7 +1751,12 @@ namespace Tvinci.Core.DAL
                                 {
                                     int.TryParse(objUserID.ToString(), out nUserID);
                                     DateTime.TryParse(arUserDates[1].ToString(), out lastDate);
-                                    UserMediaMark objUserMediaMark = new UserMediaMark { MediaID = nMediaID, UserID = nUserID, CreatedAt = lastDate };
+                                    UserMediaMark objUserMediaMark = new UserMediaMark
+                                    {
+                                        MediaID = nMediaID,
+                                        UserID = nUserID,
+                                        CreatedAt = lastDate
+                                    };
                                     mediasMarksList.Add(objUserMediaMark);
                                 }
                             }
@@ -1826,7 +1839,6 @@ namespace Tvinci.Core.DAL
             return res;
         }
 
-
         public static Dictionary<int, List<EpgPicture>> GetGroupTreePicEpgUrl(int parentGroupID)
         {
             Dictionary<int, List<EpgPicture>> res = null;
@@ -1884,7 +1896,6 @@ namespace Tvinci.Core.DAL
 
             return res;
         }
-
 
         public static DataTable GetPicEpgURL(int groupID)
         {
@@ -2298,8 +2309,6 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-
-
         public static void UpdateOrInsert_UsersNpvrMark(int nDomainID, int nSiteUserGuid, string sUDID, string sNpvrID, int nGroupID, int nLoactionSec, int fileDuration, string action)
         {
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
@@ -2308,7 +2317,6 @@ namespace Tvinci.Core.DAL
 
             DateTime currentDate = DateTime.UtcNow;
 
-            #region add data to domain
             while (limitRetries >= 0)
             {
 
@@ -2358,9 +2366,7 @@ namespace Tvinci.Core.DAL
                 else
                     break;
             }
-            #endregion
 
-            #region storing this by the npvrID
             limitRetries = RETRY_LIMIT;
             string mmKey = UtilsDal.getUserNpvrMarkDocKey(nSiteUserGuid, sNpvrID);
             while (limitRetries >= 0)
@@ -2412,7 +2418,6 @@ namespace Tvinci.Core.DAL
                 else
                     break;
             }
-            #endregion
         }
 
         public static int GetLastPosition(string NpvrID, int userID)
@@ -2929,8 +2934,6 @@ namespace Tvinci.Core.DAL
             return ds;
         }
 
-        #region RecommendationEngine
-
         public static RecommendationEngine GetRecommendationEngine(int groupID, int engineId, int? isActive = null, int status = 1)
         {
             RecommendationEngine result = null;
@@ -2989,7 +2992,7 @@ namespace Tvinci.Core.DAL
         public static RecommendationEngine GetRecommendationEngineInternalID(int groupID, string externalIdentifier)
         {
             RecommendationEngine result = null;
-            
+
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_RecommendationEngineByExternalD");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupID", groupID);
@@ -3027,7 +3030,7 @@ namespace Tvinci.Core.DAL
             {
                 result = CreateRecommendationEngine(ds.Tables[0].Rows[0]);
             }
-           
+
             return result;
         }
 
@@ -3054,7 +3057,8 @@ namespace Tvinci.Core.DAL
 
         private static DataTable CreateDataTable(List<RecommendationEngineSettings> recommendationEngineSettings)
         {
-            DataTable resultTable = new DataTable("resultTable"); ;
+            DataTable resultTable = new DataTable("resultTable");
+            ;
             try
             {
                 resultTable.Columns.Add("idkey", typeof(string));
@@ -3322,10 +3326,6 @@ namespace Tvinci.Core.DAL
             return result;
         }
 
-        #endregion
-
-        #region External Channel
-
         public static List<ExternalChannel> GetExternalChannel(int groupID, int status = 1, int isActive = 1)
         {
             List<ExternalChannel> res = new List<ExternalChannel>();
@@ -3357,6 +3357,7 @@ namespace Tvinci.Core.DAL
             }
             return res;
         }
+
         public static ExternalChannel GetExternalChannelById(int groupID, int channelId, int status = 1, int? isActive = null)
         {
             ExternalChannel result = null;
@@ -3380,7 +3381,6 @@ namespace Tvinci.Core.DAL
 
             return result;
         }
-
 
         public static ExternalChannel GetExternalChannel(string channelId)
         {
@@ -3430,7 +3430,7 @@ namespace Tvinci.Core.DAL
         public static ExternalChannel GetExternalChannelInternalID(int groupID, string externalIdentifier)
         {
             ExternalChannel result = null;
-            
+
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_ExternalChannelByExternalD");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupID", groupID);
@@ -3537,7 +3537,6 @@ namespace Tvinci.Core.DAL
             return result;
         }
 
-
         public static List<ExternalRecommendationEngineEnrichment> GetAvailableEnrichments()
         {
             List<ExternalRecommendationEngineEnrichment> result = new List<ExternalRecommendationEngineEnrichment>();
@@ -3581,6 +3580,7 @@ namespace Tvinci.Core.DAL
 
             return result;
         }
+
         private static int GetEnrichments(List<ExternalRecommendationEngineEnrichment> list)
         {
             int enrichmentListValue = 0;
@@ -3606,10 +3606,9 @@ namespace Tvinci.Core.DAL
 
             return list;
         }
-        #endregion
 
         public static void GetGroupDefaultParameters(int groupId, out bool isRegionalizationEnabled, out int defaultRegion, out int defaultRecommendationEngine,
-                                                     out int RelatedRecommendationEngine, out int SearchRecommendationEngine, 
+                                                     out int RelatedRecommendationEngine, out int SearchRecommendationEngine,
                                                      out int RelatedRecommendationEngineEnrichments, out int SearchRecommendationEngineEnrichments)
         {
             isRegionalizationEnabled = false;
@@ -3646,6 +3645,312 @@ namespace Tvinci.Core.DAL
             }
         }
 
-       
+        public static bool DeleteKSQLChannel(int groupID, int channelId)
+        {
+            bool result = false;
+
+            try
+            {
+                UpdateQuery updateQuery = new UpdateQuery("CHANNELS");
+
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", 2);
+                updateQuery += " WHERE ";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", channelId);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", 1);
+
+                result = updateQuery.Execute();
+                updateQuery.Finish();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed deleting KSQL Channel {0}", channelId, ex);
+            }
+
+            return result;
+        }
+
+        public static List<KSQLChannel> GetKSQLChannels(int groupID)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static KSQLChannel GetKSQLChannelById(int groupID, int channelId, Dictionary<string, string> metas)
+        {
+            KSQLChannel result = null;
+
+            var dataSet = GetChannelDetails(new List<int>() { channelId });
+
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 1)
+            {
+                DataTable channelsTable = dataSet.Tables[0];
+                DataTable assetTypesTable = dataSet.Tables[1];
+
+                result = CreateKSQLChannelByDataRow(assetTypesTable, channelsTable.Rows[0], metas);
+            }
+
+            return result;
+        }
+
+        private static KSQLChannel CreateKSQLChannelByDataRow(DataTable assetTypesTable, DataRow rowData, Dictionary<string, string> metas = null)
+        {
+            KSQLChannel channel = new KSQLChannel();
+
+            channel.ID = ODBCWrapper.Utils.GetIntSafeVal(rowData["Id"]);
+
+            int channelGroupId = ODBCWrapper.Utils.GetIntSafeVal(rowData["group_id"]);
+            int isActive = ODBCWrapper.Utils.GetIntSafeVal(rowData["is_active"]);
+            int status = ODBCWrapper.Utils.GetIntSafeVal(rowData["status"]);
+            int channelType = ODBCWrapper.Utils.GetIntSafeVal(rowData["channel_type"]);
+
+            // If the channel is in correct status
+            if ((isActive == 1) && (status == 1) && (channelType == 4))
+            {
+                channel.IsActive = isActive;
+                channel.Status = status;
+                channel.GroupID = channelGroupId;
+
+                #region Asset Types
+
+                if (assetTypesTable != null)
+                {
+                    List<DataRow> mediaTypes = assetTypesTable.Select("CHANNEL_ID = " + channel.ID).ToList();
+
+                    foreach (DataRow drMediaType in mediaTypes)
+                    {
+                        channel.AssetTypes.Add(ODBCWrapper.Utils.GetIntSafeVal(drMediaType, "MEDIA_TYPE_ID"));
+                    }
+                }
+
+                #endregion
+
+                #region Order
+
+                channel.Order = new OrderObj();
+
+                int orderBy = ODBCWrapper.Utils.GetIntSafeVal(rowData["order_by_type"]);
+                int orderDirection = ODBCWrapper.Utils.GetIntSafeVal(rowData["order_by_dir"]) - 1;
+
+                // all META_STR/META_DOUBLE values
+                if (orderBy >= 1 && orderBy <= 30)
+                {
+                    // get the specific value of the meta
+                    int nMetaEnum = (orderBy);
+                    string enumName = Enum.GetName(typeof(MetasEnum), nMetaEnum);
+
+                    if (metas != null && metas.ContainsKey(enumName))
+                    {
+                        channel.Order.m_sOrderValue = metas[enumName];
+                        channel.Order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.META;
+                    }
+                }
+                else
+                {
+                    channel.Order.m_eOrderBy =
+                        (ApiObjects.SearchObjects.OrderBy)ApiObjects.SearchObjects.OrderBy.ToObject(typeof(ApiObjects.SearchObjects.OrderBy), orderBy);
+                }
+
+                #endregion
+
+                channel.FilterQuery = ODBCWrapper.Utils.ExtractString(rowData, "KSQL_FILTER");
+
+                BooleanPhraseNode node = null;
+                var parseStatus = BooleanPhraseNode.ParseSearchExpression(channel.FilterQuery, ref node);
+
+                if (parseStatus.Code != 0)
+                {
+                    log.WarnFormat("KSQL channel {0} has invalid KSQL expression: {1}", channel.ID, channel.FilterQuery);
+                }
+            }
+            else
+            {
+                channel = null;
+            }
+
+            return channel;
+        }
+
+        public static KSQLChannel InsertKSQLChannel(int groupID, KSQLChannel channel, Dictionary<string, string> metas)
+        {
+            KSQLChannel result = null;
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_KSQLChannel");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupID);
+            sp.AddParameter("@name", channel.Name);
+            sp.AddParameter("@isActive", channel.IsActive);
+            sp.AddParameter("@status", channel.Status);
+            sp.AddParameter("@description", channel.Description);
+            sp.AddParameter("@orderBy", (int)channel.Order.m_eOrderBy);
+            sp.AddParameter("@orderDirection", (int)channel.Order.m_eOrderDir);
+            sp.AddParameter("@Filter", channel.FilterQuery);
+            sp.AddIDListParameter<int>("@AssetTypes", channel.AssetTypes, "Id");
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
+            {
+                result = CreateKSQLChannelByDataRow(null, ds.Tables[0].Rows[0]);
+            }
+
+            return result;
+        }
+
+        public static KSQLChannel UpdateKSQLChannel(int groupID, KSQLChannel channel, Dictionary<string, string> metas)
+        {
+            KSQLChannel result = null;
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_KSQLChannel");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@channelId", channel.ID);
+            sp.AddParameter("@groupId", groupID);
+            sp.AddParameter("@name", channel.Name);
+            sp.AddParameter("@isActive", channel.IsActive);
+            sp.AddParameter("@status", channel.Status);
+            sp.AddParameter("@description", channel.Description);
+            sp.AddParameter("@Filter", channel.FilterQuery);
+            sp.AddIDListParameter<int>("@AssetTypes", channel.AssetTypes, "Id");
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
+            {
+                result = CreateKSQLChannelByDataRow(null, ds.Tables[0].Rows[0], metas);
+            }
+
+            return result;
+
+        }
+
+        public static DataRowCollection GetPicsData(int mediaId, int? ratioId = null)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PicsData");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@MediaId", mediaId);
+                sp.AddParameter("@RatioId", ratioId);
+
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                    return ds.Tables[0].Rows;
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error while trying to get pics data", ex);
+            }
+            return null;
+        }
+
+        public static int GetEpgPicsData(int groupId, string description)
+        {
+            int picId = 0;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_EPGPicsData");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupId", groupId);
+                sp.AddParameter("@Description", description);
+
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    picId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error while trying to get pics data", ex);
+            }
+            return picId;
+        }
+
+        public static int InsertPic(int groupId, string name, string description, string baseUrl, int ratioId, int mediaId)
+        {
+            int picId = 0;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_Pic");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupId", groupId);
+                sp.AddParameter("@Name", name);
+                sp.AddParameter("@Description", description);
+                sp.AddParameter("@BaseUrl", baseUrl);
+                sp.AddParameter("@RatioId", ratioId);
+                sp.AddParameter("@MediaId", mediaId);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    picId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.DebugFormat("ERROR saving InsertPic ex {0} ", ex);
+            }
+
+            return picId;
+        }
+
+        public static int InsertEPGPic(int groupId, string name, string description, string baseUrl)
+        {
+            int picId = 0;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_EPGPic");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupId", groupId);
+                sp.AddParameter("@Name", name);
+                sp.AddParameter("@Description", description);
+                sp.AddParameter("@BaseUrl", baseUrl);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    picId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.DebugFormat("ERROR saving InsertEPGPic ex {0} ", ex);
+            }
+
+            return picId;
+        }
+
+        public static List<Ratio> GetGroupRatios(int groupID)
+        {
+            List<Ratio> ratios = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_GroupPicsRatios");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    ratios = new List<Ratio>();
+                    foreach (DataRow row in ds.Tables[0].Rows)
+                    {
+                        ratios.Add(new Ratio()
+                        {
+                            Id = Utils.GetIntSafeVal(row, "RATIO_ID"),
+                            Name = Utils.GetSafeStr(row, "RATIO")
+                        });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to get group ratios. GID: {0}, ex: {1}", groupID, ex);
+            }
+            return ratios;
+        }
     }
 }

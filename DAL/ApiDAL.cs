@@ -3101,5 +3101,55 @@ namespace DAL
 
             return rowCount;
         }
+
+        public static int UpdateImageState(int groupId, long rowId, int version)
+        {
+            int result = -1;
+            try
+            {
+                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("pics");
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("VERSION", "=", version);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                updateQuery += " WHERE ";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", rowId);
+                updateQuery += " AND ";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("VERSION", "<=", version);
+
+                result = updateQuery.ExecuteAffectedRows();
+                updateQuery.Finish();
+                updateQuery = null;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to update image state. groupId: {0}, picId: {1}, version: {2}. ex: {3}", groupId, rowId, version, ex);
+            }
+
+            return result;
+        }
+
+        public static int UpdateEpgImageState(int groupId, long rowId, int version)
+        {
+            int result = -1;
+            try
+            {
+                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("EPG_pics");
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("VERSION", "=", version);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                updateQuery += " WHERE ";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", rowId);
+                updateQuery += " AND ";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("VERSION", "<=", version);
+
+                result = updateQuery.ExecuteAffectedRows();
+                updateQuery.Finish();
+                updateQuery = null;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to update EPG image state. groupId: {0}, EPG picId: {1}, version: {2}. ex: {3}", groupId, rowId, version, ex);
+            }
+
+            return result;
+        }
     }
 }
