@@ -92,7 +92,10 @@ namespace ODBCWrapper
             {
                 string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable);
                 if (sConn == "")
+                {
+                    log.ErrorFormat("Empty connection string. could not run query. m_sOraStr: {0}", m_sOraStr != null ? m_sOraStr.ToString() : string.Empty);
                     return null;
+                }
                 int_Execute();
                 using (SqlConnection con = new SqlConnection(sConn))
                 {
@@ -109,7 +112,7 @@ namespace ODBCWrapper
                         {
                             DataTable dataTable = new DataTable(sVirtualTableName);
                             dataTable.BeginLoadData();
-                           adapter.Fill(dataTable);
+                            adapter.Fill(dataTable);
                             dataTable.EndLoadData();
                             m_myDataSet.EnforceConstraints = false;
                             m_myDataSet.Tables.Add(dataTable);

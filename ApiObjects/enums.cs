@@ -386,6 +386,12 @@ namespace ApiObjects
         Users = 3
     }
 
+    public enum eMediaType
+    {
+        VOD = 0,
+        EPG = 1
+    }
+
     [Serializable]
     public enum ePersonalFilter
     {

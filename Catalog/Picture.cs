@@ -10,19 +10,19 @@ namespace Catalog
     public class Picture
     {
         [DataMember]
-        public string m_sSize;
+        public string m_sSize = string.Empty;
 
         [DataMember]
-        public string m_sURL;
+        public string m_sURL = string.Empty;
 
         [DataMember]
-        public string ratio;
+        public string ratio = string.Empty;
 
         [DataMember]
         public int version;
 
         [DataMember]
-        public string id;
+        public string id = string.Empty;
 
         public Picture() { }
 

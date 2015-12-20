@@ -11,6 +11,8 @@ using ApiObjects.Epg;
 using KLogMonitor;
 using System.Reflection;
 using KlogMonitorHelper;
+using TVinciShared;
+using System.IO;
 
 namespace EpgBL
 {
@@ -20,6 +22,7 @@ namespace EpgBL
         protected EpgDal_Couchbase m_oEpgCouchbase;
         private static readonly double EXPIRY_DATE = (Utils.GetDoubleValFromConfig("epg_doc_expiry") > 0) ? Utils.GetDoubleValFromConfig("epg_doc_expiry") : 7;
         private static readonly int DAYSBUFFER = 7;
+        private const string USE_OLD_IMAGE_SERVER_KEY = "USE_OLD_IMAGE_SERVER";
 
         public TvinciEpgBL(int nGroupID)
         {
@@ -614,24 +617,134 @@ namespace EpgBL
         {
             List<string> lIdsStrings = lIds.ConvertAll<string>(x => x.ToString());
 
+            // get EPG programs
             List<EpgCB> lResCB = m_oEpgCouchbase.GetProgram(lIdsStrings);
 
-            List<EPGChannelProgrammeObject> lRes = null;
+            List<EPGChannelProgrammeObject> epgChannelProgram = null;
             if (lResCB != null)
             {
-                lRes = ConvertEpgCBtoEpgProgramm(lResCB.Where(item => item != null && item.ParentGroupID == m_nGroupID));
+                // convert objects
+                epgChannelProgram = ConvertEpgCBtoEpgProgramm(lResCB.Where(item => item != null && item.ParentGroupID == m_nGroupID));
+
                 // get picture sizes from DB
                 Dictionary<int, List<EpgPicture>> pictures = Tvinci.Core.DAL.CatalogDAL.GetGroupTreeMultiPicEpgUrl(m_nGroupID);
 
-                if (pictures != null)
-                {
-                    MutateFullEpgPicURL(lRes, pictures);
-                }
+                MutateFullEpgPicURL(epgChannelProgram, pictures, m_nGroupID);
             }
-            return lRes;
+            return epgChannelProgram;
         }
 
-        private static void MutateFullEpgPicURL(List<EPGChannelProgrammeObject> epgList, Dictionary<int, List<EpgPicture>> pictures)
+        private static void MutateFullEpgPicURL(List<EPGChannelProgrammeObject> epgList, Dictionary<int, List<EpgPicture>> pictures, int groupId)
+        {
+            try
+            {
+                if (WS_Utils.IsGroupIDContainedInConfig(groupId, USE_OLD_IMAGE_SERVER_KEY, ';'))
+                {
+                    // use old image server flow
+                    MutateFullEpgPicURLOldImageServerFlow(epgList, pictures);
+                }
+                else
+                {
+                    // get image server URL
+                    var imageServerUrlObj = TVinciShared.PageUtils.GetTableSingleVal("groups", "PICS_REMOTE_BASE_URL", groupId);
+                    string imageServerUrl = string.Empty;
+                    if (imageServerUrlObj == null)
+                        throw new Exception(string.Format("PICS_REMOTE_BASE_URL wasn't found. GID: {0}", groupId));
+                    else
+                    {
+                        imageServerUrl = imageServerUrlObj.ToString();
+                        imageServerUrl = imageServerUrl.EndsWith("/") ? imageServerUrl + "GetImage/" : imageServerUrl + "/GetImage/";
+                    }
+
+                    EpgPicture pictureItem;
+                    List<EpgPicture> finalEpgPicture = null;
+                    foreach (ApiObjects.EPGChannelProgrammeObject oProgram in epgList)
+                    {
+                        int progGroup = int.Parse(oProgram.GROUP_ID);
+
+
+                        finalEpgPicture = new List<EpgPicture>();
+                        if (oProgram.EPG_PICTURES != null && oProgram.EPG_PICTURES.Count > 0) // work with list of pictures --LUNA version 
+                        {
+                            foreach (EpgPicture pict in oProgram.EPG_PICTURES)
+                            {
+                                // get picture base URL
+                                string picBaseName = Path.GetFileNameWithoutExtension(pict.Url);
+
+                                if (pictures == null || !pictures.ContainsKey(progGroup))
+                                {
+                                    pictureItem = new EpgPicture();
+                                    pictureItem.Ratio = pict.Ratio;
+
+                                    // build image URL. 
+                                    // template: <image_server_url>/p/<partner_id>/entry_id/<image_id>/version/<image_version>
+                                    // Example:  http://localhost/ImageServer/Service.svc/GetImage/p/215/entry_id/123/version/10
+                                    pictureItem.Url = string.Format("{0}p/{1}/entry_id/{2}/version/{3}",
+                                        imageServerUrl,   // 0 <image_server_url>
+                                        groupId,          // 1 <partner_id>
+                                        picBaseName,      // 2 <image_id>
+                                        0);               // 3 <image_version>
+
+                                    finalEpgPicture.Add(pictureItem);
+                                }
+                                else
+                                {
+                                    if (!pictures.ContainsKey(progGroup))
+                                        continue;
+
+                                    List<EpgPicture> ratios = pictures[progGroup].Where(x => x.Ratio == pict.Ratio).ToList();
+
+                                    foreach (EpgPicture ratioItem in ratios)
+                                    {
+                                        pictureItem = new EpgPicture();
+                                        pictureItem.Ratio = pict.Ratio;
+                                        pictureItem.PicHeight = ratioItem.PicHeight;
+                                        pictureItem.PicWidth = ratioItem.PicWidth;
+
+                                        // build image URL. 
+                                        // template: <image_server_url>/p/<partner_id>/entry_id/<image_id>/version/<image_version>/width/<image_width>/height/<image_height>/quality/<image_quality>
+                                        // Example:  http://localhost/ImageServer/Service.svc/GetImage/p/215/entry_id/123/version/10/width/432/height/230/quality/100
+                                        pictureItem.Url = string.Format("{0}p/{1}/entry_id/{2}/version/{3}/width/{4}/height/{5}/quality/100",
+                                            imageServerUrl,       // 0 <image_server_url>
+                                            groupId,              // 1 <partner_id>
+                                            picBaseName,          // 2 <image_id>
+                                            0,                    // 3 <image_version>
+                                            ratioItem.PicWidth,   // 4 <image_width>
+                                            ratioItem.PicHeight); // 5 <image_height>
+
+                                        finalEpgPicture.Add(pictureItem);
+                                    }
+                                }
+                            }
+                        }
+
+                        oProgram.EPG_PICTURES = finalEpgPicture; // Reassignment epg pictures
+
+                        // complete the picURL for back support                
+                        string baseEpgPicUrl = string.Empty;
+                        if (oProgram != null && !string.IsNullOrEmpty(oProgram.PIC_URL) && pictures[progGroup] != null)
+                        {
+                            EpgPicture pict = pictures[progGroup].First();
+                            if (pict != null && !string.IsNullOrEmpty(pict.Url))
+                            {
+                                baseEpgPicUrl = pict.Url;
+                                if (pict.PicHeight != 0 && pict.PicWidth != 0)
+                                {
+                                    oProgram.PIC_URL = oProgram.PIC_URL.Replace(".", string.Format("_{0}X{1}.", pict.PicWidth, pict.PicHeight));
+                                }
+                                oProgram.PIC_URL = string.Format("{0}{1}", baseEpgPicUrl, oProgram.PIC_URL);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("MutateFullEpgPicURL - " + string.Format("Failed ex={0}", ex.Message), ex);
+            }
+        }
+
+        private static void MutateFullEpgPicURLOldImageServerFlow(List<EPGChannelProgrammeObject> epgList, Dictionary<int, List<EpgPicture>> pictures)
         {
             try
             {
@@ -730,7 +843,7 @@ namespace EpgBL
                         Dictionary<int, List<EpgPicture>> pictures = Tvinci.Core.DAL.CatalogDAL.GetGroupTreeMultiPicEpgUrl(m_nGroupID);
                         if (pictures != null)
                         {
-                            MutateFullEpgPicURL(lRes, pictures);
+                            MutateFullEpgPicURL(lRes, pictures, groupID);
                         }
                     }
                 }
