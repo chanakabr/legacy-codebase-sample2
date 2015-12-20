@@ -273,6 +273,16 @@ namespace QueueWrapper
 
                         break;
                     }
+
+                case ConfigType.ImageUpload:
+                    {
+                        routingKey = Utils.GetConfigValue("routingKey");
+                        exchange = Utils.GetConfigValue("ImageUpload.exchange");
+                        queue = Utils.GetConfigValue("queue");
+                        virtualHost = Utils.GetConfigValue("virtualHost");
+                        exchangeType = Utils.GetConfigValue("exchangeType");
+                        break;
+                    }
                 default:
                     break;
             }

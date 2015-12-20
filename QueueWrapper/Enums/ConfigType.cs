@@ -12,6 +12,7 @@ namespace QueueWrapper.Enums
         SocialFeedConfig,
         EPGConfig,
         ProfessionalServicesNotificationsConfig,
-        IndexingDataConfig
+        IndexingDataConfig,
+        ImageUpload
     }
 }
