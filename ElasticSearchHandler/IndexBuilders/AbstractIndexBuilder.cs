@@ -1,6 +1,10 @@
-﻿using ElasticSearch.Common;
+﻿using ApiObjects.Response;
+using ApiObjects.SearchObjects;
+using ElasticSearch.Common;
+using GroupsCacheManager;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;

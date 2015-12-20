@@ -12,6 +12,7 @@ using System.Data;
 using System.Threading.Tasks;
 using KLogMonitor;
 using System.Reflection;
+using ApiObjects.Response;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
@@ -178,40 +179,61 @@ namespace ElasticSearchHandler.IndexBuilders
             {
                 log.Info(string.Format("Start indexing channels. total channels={0}", group.channelIDs.Count));
 
-                MediaSearchObj oSearchObj;
-                string sQueryStr;
-                ESMediaQueryBuilder oQueryParser = new ESMediaQueryBuilder()
-                {
-                    QueryType = eQueryType.EXACT
-                };
-
-                List<KeyValuePair<int, string>> lChannelRequests = new List<KeyValuePair<int, string>>();
+                
+                List<KeyValuePair<int, string>> channelRequests = new List<KeyValuePair<int, string>>();
                 try
                 {
                     List<Channel> allChannels = groupManager.GetChannels(group.channelIDs.ToList(), groupId);
+
+                    ESMediaQueryBuilder mediaQueryParser = new ESMediaQueryBuilder()
+                        {
+                            QueryType = eQueryType.EXACT
+                        };
+                    var unifiedQueryBuilder = new ESUnifiedQueryBuilder(null, groupId);
 
                     foreach (Channel currentChannel in allChannels)
                     {
                         if (currentChannel == null || currentChannel.m_nIsActive != 1)
                             continue;
 
-                        oQueryParser.m_nGroupID = currentChannel.m_nGroupID;
-                        oSearchObj = BuildBaseChannelSearchObject(currentChannel);
-                        oQueryParser.oSearchObject = oSearchObj;
-                        sQueryStr = oQueryParser.BuildSearchQueryString(false);
+                        string channelQuery = string.Empty;
 
-                        lChannelRequests.Add(new KeyValuePair<int, string>(currentChannel.m_nChannelID, sQueryStr));
-
-                        if (lChannelRequests.Count > 50)
+                        if (currentChannel.m_nChannelTypeID == (int)ChannelType.KSQL)
                         {
-                            api.CreateBulkIndexRequest("_percolator", newIndexName, lChannelRequests);
-                            lChannelRequests.Clear();
+                            // If there is at least 1 media type, build its definitions
+                            if (currentChannel.m_nMediaType != null && 
+                                currentChannel.m_nMediaType.Count(type => type != Channel.EPG_ASSET_TYPE) > 0)
+                            {
+                                UnifiedSearchDefinitions definitions = ElasticsearchTasksCommon.Utils.BuildSearchDefinitions(currentChannel, true);
+
+                                unifiedQueryBuilder.SearchDefinitions = definitions;
+                                channelQuery = unifiedQueryBuilder.BuildSearchQueryString();
+                            }
+                        }
+                        else
+                        {
+                            mediaQueryParser.m_nGroupID = currentChannel.m_nGroupID;
+                            MediaSearchObj mediaSearchObject = BuildBaseChannelSearchObject(currentChannel);
+
+                            mediaQueryParser.oSearchObject = mediaSearchObject;
+                            channelQuery = mediaQueryParser.BuildSearchQueryString(false);
+                        }
+
+                        if (!string.IsNullOrEmpty(channelQuery))
+                        {
+                            channelRequests.Add(new KeyValuePair<int, string>(currentChannel.m_nChannelID, channelQuery));
+
+                            if (channelRequests.Count > 50)
+                            {
+                                api.CreateBulkIndexRequest("_percolator", newIndexName, channelRequests);
+                                channelRequests.Clear();
+                            }
                         }
                     }
 
-                    if (lChannelRequests.Count > 0)
+                    if (channelRequests.Count > 0)
                     {
-                        api.CreateBulkIndexRequest("_percolator", newIndexName, lChannelRequests);
+                        api.CreateBulkIndexRequest("_percolator", newIndexName, channelRequests);
                     }
                 }
                 catch (Exception ex)
@@ -625,7 +647,7 @@ namespace ElasticSearchHandler.IndexBuilders
             searchObject.m_bExact = true;
             searchObject.m_eCutWith = channel.m_eCutWith;
             searchObject.m_sMediaTypes = string.Join(";", channel.m_nMediaType.Select(type => type.ToString()));
-            searchObject.m_sPermittedWatchRules = GetPermittedWatchRules(channel.m_nGroupID);
+            searchObject.m_sPermittedWatchRules = ElasticsearchTasksCommon.Utils.GetPermittedWatchRules(channel.m_nGroupID);
             searchObject.m_oOrder = new ApiObjects.SearchObjects.OrderObj();
 
             searchObject.m_bUseStartDate = false;
@@ -635,28 +657,6 @@ namespace ElasticSearchHandler.IndexBuilders
             return searchObject;
         }
 
-        private static string GetPermittedWatchRules(int nGroupId)
-        {
-            DataTable permittedWathRulesDt = Tvinci.Core.DAL.CatalogDAL.GetPermittedWatchRulesByGroupId(nGroupId, null);
-            List<string> lWatchRulesIds = null;
-            if (permittedWathRulesDt != null && permittedWathRulesDt.Rows.Count > 0)
-            {
-                lWatchRulesIds = new List<string>();
-                foreach (DataRow permittedWatchRuleRow in permittedWathRulesDt.Rows)
-                {
-                    lWatchRulesIds.Add(ODBCWrapper.Utils.GetSafeStr(permittedWatchRuleRow["RuleID"]));
-                }
-            }
-
-            string sRules = string.Empty;
-
-            if (lWatchRulesIds != null && lWatchRulesIds.Count > 0)
-            {
-                sRules = string.Join(" ", lWatchRulesIds);
-            }
-
-            return sRules;
-        }
 
         private static void CopySearchValuesToSearchObjects(ref ApiObjects.SearchObjects.MediaSearchObj searchObject,
             ApiObjects.SearchObjects.CutWith cutWith, List<ApiObjects.SearchObjects.SearchValue> channelSearchValues)

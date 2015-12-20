@@ -68,23 +68,39 @@ namespace ElasticSearchHandler.Updaters
             return result;
         }
 
-        private bool DeleteChannel(List<int> lIDs)
+        private bool DeleteChannel(List<int> ids)
         {
-            bool bRes = false;
-            string sIndex = m_nGroupID.ToString();
+            bool result = false;
+            string mediaIndex = m_nGroupID.ToString();
+            string epgIndex = string.Format("{0}_epg", m_nGroupID);
 
-            List<string> aliases = m_oESApi.GetAliases(sIndex);
-            if (aliases != null && aliases.Count > 0)
+            ESDeleteResult deleteResult;
+
+            bool epgExists = m_oESApi.IndexExists(epgIndex);
+
+            List<string> mediaAliases = m_oESApi.GetAliases(mediaIndex);
+            List<string> epgAliases = null;
+
+            if (epgExists)
             {
-                bRes = true;
+                epgAliases = m_oESApi.GetAliases(epgIndex);
+            }
 
-                ESDeleteResult deleteResult;
-                foreach (int nChannelID in lIDs)
+            // If we found aliases to both, or if we don't have EPG at all
+            if (mediaAliases != null && epgAliases != null &&
+                (!epgExists || (mediaAliases.Count > 0 && epgAliases.Count > 0)))
+            {
+                result = true;
+            }
+
+            if (mediaAliases != null && mediaAliases.Count > 0)
+            {
+                foreach (int nChannelID in ids)
                 {
-                    foreach (string index in aliases)
+                    foreach (string index in mediaAliases)
                     {
                         deleteResult = m_oESApi.DeleteDoc(PERCOLATOR, index, nChannelID.ToString());
-                        bRes &= deleteResult.Ok;
+                        result &= deleteResult.Ok;
 
                         if (!deleteResult.Ok)
                         {
@@ -95,10 +111,31 @@ namespace ElasticSearchHandler.Updaters
             }
             else
             {
-                log.Error("Error - " + string.Concat("Could not find indices for alias ", sIndex));
+                log.Error("Error - " + string.Concat("Could not find indices for alias ", mediaIndex));
             }
 
-            return bRes;
+            if (epgAliases != null && epgAliases.Count > 0)
+            {
+                foreach (int channelId in ids)
+                {
+                    foreach (string index in epgAliases)
+                    {
+                        deleteResult = m_oESApi.DeleteDoc(PERCOLATOR, index, channelId.ToString());
+                        result &= deleteResult.Ok;
+
+                        if (!deleteResult.Ok)
+                        {
+                            log.Error("Error - " + string.Concat("Could not delete channel from elasticsearch. ID=", channelId));
+                        }
+                    }
+                }
+            }
+            else
+            {
+                log.Error("Error - " + string.Concat("Could not find indices for alias ", epgIndex));
+            }
+
+            return result;
         }
 
         private bool UpdateChannel(List<int> channelIds)
@@ -112,33 +149,63 @@ namespace ElasticSearchHandler.Updaters
                 return result;
             }
 
-            List<string> aliases = m_oESApi.GetAliases(m_nGroupID.ToString());
+            List<string> mediaAliases = m_oESApi.GetAliases(m_nGroupID.ToString());
+            List<string> epgAliases = m_oESApi.GetAliases(string.Format("{0}_epg", m_nGroupID));
 
-            Channel channel;
-            MediaSearchObj searchObject;
-            ESMediaQueryBuilder queryBuilder;
-            string query;
-
-            if (aliases != null && aliases.Count > 0)
+            if (mediaAliases != null && mediaAliases.Count > 0)
             {
                 foreach (int channelId in channelIds)
                 {
-                    channel = ChannelRepository.GetChannel(channelId, group);
-                    if (channel != null && channel.m_nIsActive == 1)
-                    {
-                        queryBuilder = new ESMediaQueryBuilder()
-                        {
-                            QueryType = eQueryType.EXACT,
-                            m_nGroupID = channel.m_nGroupID
-                        };
-                        searchObject = ElasticsearchTasksCommon.Utils.BuildBaseChannelSearchObject(channel, group.m_nSubGroup);
-                        queryBuilder.oSearchObject = searchObject;
-                        query = queryBuilder.BuildSearchQueryString(false);
+                    Channel channel = ChannelRepository.GetChannel(channelId, group);
 
-                        foreach (string alias in aliases)
+                    if (channel != null && channel.m_nIsActive == 1)
+                    {                        
+                        bool isMedia = false;
+                        bool isEpg = false;
+
+                        string channelQuery = string.Empty;
+
+                        if (channel.m_nChannelTypeID == (int)ChannelType.KSQL)
                         {
-                            result = m_oESApi.AddQueryToPercolator(alias, channel.m_nChannelID.ToString(), ref query);
+                            UnifiedSearchDefinitions definitions = ElasticsearchTasksCommon.Utils.BuildSearchDefinitions(channel, true);
+
+                            isMedia = definitions.shouldSearchMedia;
+                            isEpg = definitions.shouldSearchEpg;
+
+                            var unifiedQueryBuilder = new ESUnifiedQueryBuilder(definitions);
+                            channelQuery = unifiedQueryBuilder.BuildSearchQueryString();
                         }
+                        else
+                        {
+                            isMedia = true;
+                            ESMediaQueryBuilder mediaQueryParser = new ESMediaQueryBuilder()
+                            {
+                                QueryType = eQueryType.EXACT
+                            };
+
+                            mediaQueryParser.m_nGroupID = channel.m_nGroupID;
+                            MediaSearchObj mediaSearchObject = ElasticsearchTasksCommon.Utils.BuildBaseChannelSearchObject(channel, group.m_nSubGroup);
+
+                            mediaQueryParser.oSearchObject = mediaSearchObject;
+                            channelQuery = mediaQueryParser.BuildSearchQueryString(false);
+                        }
+
+                        if (isMedia)
+                        {
+                            foreach (string alias in mediaAliases)
+                            {
+                                result = m_oESApi.AddQueryToPercolator(alias, channel.m_nChannelID.ToString(), ref channelQuery);
+                            }
+                        }
+
+                        if (isEpg)
+                        {
+                            foreach (string alias in epgAliases)
+                            {
+                                result = m_oESApi.AddQueryToPercolator(alias, channel.m_nChannelID.ToString(), ref channelQuery);
+                            }
+                        }
+
                     }
                 }
             }
