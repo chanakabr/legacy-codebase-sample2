@@ -614,7 +614,11 @@ namespace Catalog
                                 picObj.id = string.Format("{0}_{1}", picBaseName, ratio.Id);
 
                                 // get version
-                                picObj.version = 0;
+                                PicData pic = picsData.FirstOrDefault(x => x.RatioId == 0);
+                                if (pic != null)
+                                    picObj.version = pic.Version;
+                                else
+                                    picObj.version = 0;
 
                                 // build image URL. 
                                 // template: <image_server_url>/p/<partner_id>/entry_id/<image_id>/version/<image_version>
