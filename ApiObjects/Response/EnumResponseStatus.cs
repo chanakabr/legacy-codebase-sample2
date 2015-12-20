@@ -112,7 +112,10 @@ namespace ApiObjects.Response
         ExternalChannelHasNoRecommendationEngine = 4014,
         NoRecommendationEngineToUpdate = 4015,
         InactiveExternalChannelEnrichment = 4016,
-
+        IdentifierRequired = 4017,
+        ObjectNotExist = 4018,
+        NoObjectToInsert = 4019,
+        InvalidMediaType = 4020,
 
         // Api 5000 - 5999
         NoPinDefined = 5001,

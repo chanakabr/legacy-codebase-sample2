@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ApiObjects
 {
-    public enum OrderBy
+    public enum OrderDiretion
     {
         Desc = 0,
         Asc = 1
@@ -16,18 +16,18 @@ namespace ApiObjects
         public SearchOrderByObject()
         {
             m_nOrderNum = 0;
-            m_eOrderBy = OrderBy.Asc;
+            m_eOrderBy = OrderDiretion.Asc;
             m_sOrderField = "";
         }
 
-        public void Initialize(string sField, OrderBy eOrderBy, Int32 nOrderNum)
+        public void Initialize(string sField, OrderDiretion eOrderBy, Int32 nOrderNum)
         {
             m_sOrderField = sField;
             m_eOrderBy = eOrderBy;
             m_nOrderNum = nOrderNum;
         }
 
-        public OrderBy m_eOrderBy;
+        public OrderDiretion m_eOrderBy;
         public string m_sOrderField;
         public Int32 m_nOrderNum;
     }

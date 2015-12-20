@@ -3513,7 +3513,7 @@ namespace ConditionalAccess
         internal static void GetAllUserBundles(int nGroupID, int domainID, List<int> lstUserIDs, UserEntitlementsObject.BundleEntitlements userBundleEntitlements)
         {
             DataSet dataSet = ConditionalAccessDAL.Get_AllBundlesInfoByUserIDsOrDomainID(domainID, lstUserIDs, nGroupID);
-            if (IsBundlesDataSetValid(dataSet))
+            if (dataSet !=null && IsBundlesDataSetValid(dataSet))
             {
                 userBundleEntitlements.EntitledSubscriptions = new Dictionary<string, UserBundlePurchase>();
                 userBundleEntitlements.EntitledCollections = new Dictionary<string, UserBundlePurchase>();
@@ -3604,16 +3604,16 @@ namespace ConditionalAccess
                     {
                         sb.Append(String.Concat(lstUserIDs[i], ", "));
                     }
-                }
+                }                
                 else
                 {
                     sb.Append(" User IDs is null or empty. ");
                 }
-
+                sb.Append(string.Format(" domainID: {0}, group_id: {1}", domainID, nGroupID));
                 log.Error("Error - " + sb.ToString());
                 #endregion
 
-                throw new Exception("Error occurred in GetAllUserBundles. Refer to CAS.Utils log file");
+                throw new Exception("Error occurred in Get_AllBundlesInfoByUserIDsOrDomainID. Refer to CAS.Utils log file");
 
             }
         }

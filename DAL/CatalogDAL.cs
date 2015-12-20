@@ -1392,7 +1392,13 @@ namespace Tvinci.Core.DAL
 
                     if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(code))
                     {
-                        language = new LanguageObj() { ID = id, Name = name, Code = code, Direction = direction };
+                        language = new LanguageObj()
+                        {
+                            ID = id,
+                            Name = name,
+                            Code = code,
+                            Direction = direction
+                        };
                     }
                 }
             }
@@ -1496,13 +1502,13 @@ namespace Tvinci.Core.DAL
                 {
                     case ePlayType.MEDIA:
                     case ePlayType.NPVR:
-                        dm.devices = dm.devices.Where(x => x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow && x.playType == ePlay.ToString()).ToList();
-                        break;
+                    dm.devices = dm.devices.Where(x => x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow && x.playType == ePlay.ToString()).ToList();
+                    break;
                     case ePlayType.ALL:
-                        dm.devices = dm.devices.Where(x => x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow).ToList();
-                        break;
+                    dm.devices = dm.devices.Where(x => x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow).ToList();
+                    break;
                     default:
-                        break;
+                    break;
                 }
 
                 var res = m_oClient.Cas(Enyim.Caching.Memcached.StoreMode.Set, docKey, JsonConvert.SerializeObject(dm, Formatting.None), marks.Cas);
@@ -1592,31 +1598,31 @@ namespace Tvinci.Core.DAL
                     {
                         case eWatchStatus.Progress:
 
-                            // remove all finished
-                            unFilteredresult.RemoveAll(x => (x.Duration != 0) && (((float)x.Location / (float)x.Duration * 100) >= finishedPercent));
-                            unFilteredresult.ForEach(x => x.IsFinishedWatching = false);
-                            break;
+                        // remove all finished
+                        unFilteredresult.RemoveAll(x => (x.Duration != 0) && (((float)x.Location / (float)x.Duration * 100) >= finishedPercent));
+                        unFilteredresult.ForEach(x => x.IsFinishedWatching = false);
+                        break;
 
                         case eWatchStatus.Done:
 
-                            // remove all in progress
-                            unFilteredresult.RemoveAll(x => (x.Duration != 0) && (((float)x.Location / (float)x.Duration * 100) < finishedPercent));
-                            unFilteredresult.ForEach(x => x.IsFinishedWatching = true);
-                            break;
+                        // remove all in progress
+                        unFilteredresult.RemoveAll(x => (x.Duration != 0) && (((float)x.Location / (float)x.Duration * 100) < finishedPercent));
+                        unFilteredresult.ForEach(x => x.IsFinishedWatching = true);
+                        break;
 
                         case eWatchStatus.All:
 
-                            foreach (var item in unFilteredresult)
-                            {
-                                if ((item.Duration != 0) && (((float)item.Location / (float)item.Duration * 100) >= finishedPercent))
-                                    item.IsFinishedWatching = true;
-                                else
-                                    item.IsFinishedWatching = false;
-                            }
-                            break;
+                        foreach (var item in unFilteredresult)
+                        {
+                            if ((item.Duration != 0) && (((float)item.Location / (float)item.Duration * 100) >= finishedPercent))
+                                item.IsFinishedWatching = true;
+                            else
+                                item.IsFinishedWatching = false;
+                        }
+                        break;
 
                         default:
-                            break;
+                        break;
                     }
 
                     // filter asset types
@@ -1632,15 +1638,15 @@ namespace Tvinci.Core.DAL
                     {
                         case OrderDir.ASC:
 
-                            unFilteredresult = unFilteredresult.OrderBy(x => x.LastWatch).ToList();
-                            break;
+                        unFilteredresult = unFilteredresult.OrderBy(x => x.LastWatch).ToList();
+                        break;
 
                         case OrderDir.DESC:
                         case OrderDir.NONE:
                         default:
 
-                            unFilteredresult = unFilteredresult.OrderByDescending(x => x.LastWatch).ToList();
-                            break;
+                        unFilteredresult = unFilteredresult.OrderByDescending(x => x.LastWatch).ToList();
+                        break;
                     }
 
                     // update total items
@@ -1684,7 +1690,12 @@ namespace Tvinci.Core.DAL
                         int.TryParse(arrMediasDates[0].ToString(), out nMediaID);
                         DateTime.TryParse(arrMediasDates[1].ToString(), out lastDate);
 
-                        UserMediaMark objUserMediaMark = new UserMediaMark { MediaID = nMediaID, UserID = nUserID, CreatedAt = lastDate };
+                        UserMediaMark objUserMediaMark = new UserMediaMark
+                        {
+                            MediaID = nMediaID,
+                            UserID = nUserID,
+                            CreatedAt = lastDate
+                        };
                         mediasMarksList.Add(objUserMediaMark);
                     }
                 }
@@ -1740,7 +1751,12 @@ namespace Tvinci.Core.DAL
                                 {
                                     int.TryParse(objUserID.ToString(), out nUserID);
                                     DateTime.TryParse(arUserDates[1].ToString(), out lastDate);
-                                    UserMediaMark objUserMediaMark = new UserMediaMark { MediaID = nMediaID, UserID = nUserID, CreatedAt = lastDate };
+                                    UserMediaMark objUserMediaMark = new UserMediaMark
+                                    {
+                                        MediaID = nMediaID,
+                                        UserID = nUserID,
+                                        CreatedAt = lastDate
+                                    };
                                     mediasMarksList.Add(objUserMediaMark);
                                 }
                             }
@@ -3041,7 +3057,8 @@ namespace Tvinci.Core.DAL
 
         private static DataTable CreateDataTable(List<RecommendationEngineSettings> recommendationEngineSettings)
         {
-            DataTable resultTable = new DataTable("resultTable"); ;
+            DataTable resultTable = new DataTable("resultTable");
+            ;
             try
             {
                 resultTable.Columns.Add("idkey", typeof(string));
@@ -3626,6 +3643,182 @@ namespace Tvinci.Core.DAL
                     SearchRecommendationEngineEnrichments = ODBCWrapper.Utils.ExtractInteger(groupRow, "SEARCH_RECOMMENDATION_ENGINE_ENRICHMENTS");
                 }
             }
+        }
+
+        public static bool DeleteKSQLChannel(int groupID, int channelId)
+        {
+            bool result = false;
+
+            try
+            {
+                UpdateQuery updateQuery = new UpdateQuery("CHANNELS");
+
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", 2);
+                updateQuery += " WHERE ";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", channelId);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", 1);
+
+                result = updateQuery.Execute();
+                updateQuery.Finish();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed deleting KSQL Channel {0}", channelId, ex);
+            }
+
+            return result;
+        }
+
+        public static List<KSQLChannel> GetKSQLChannels(int groupID)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static KSQLChannel GetKSQLChannelById(int groupID, int channelId, Dictionary<string, string> metas)
+        {
+            KSQLChannel result = null;
+
+            var dataSet = GetChannelDetails(new List<int>() { channelId });
+
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 1)
+            {
+                DataTable channelsTable = dataSet.Tables[0];
+                DataTable assetTypesTable = dataSet.Tables[1];
+
+                result = CreateKSQLChannelByDataRow(assetTypesTable, channelsTable.Rows[0], metas);
+            }
+
+            return result;
+        }
+
+        private static KSQLChannel CreateKSQLChannelByDataRow(DataTable assetTypesTable, DataRow rowData, Dictionary<string, string> metas = null)
+        {
+            KSQLChannel channel = new KSQLChannel();
+
+            channel.ID = ODBCWrapper.Utils.GetIntSafeVal(rowData["Id"]);
+
+            int channelGroupId = ODBCWrapper.Utils.GetIntSafeVal(rowData["group_id"]);
+            int isActive = ODBCWrapper.Utils.GetIntSafeVal(rowData["is_active"]);
+            int status = ODBCWrapper.Utils.GetIntSafeVal(rowData["status"]);
+            int channelType = ODBCWrapper.Utils.GetIntSafeVal(rowData["channel_type"]);
+
+            // If the channel is in correct status
+            if ((isActive == 1) && (status == 1) && (channelType == 4))
+            {
+                channel.IsActive = isActive;
+                channel.Status = status;
+                channel.GroupID = channelGroupId;
+
+                #region Asset Types
+
+                if (assetTypesTable != null)
+                {
+                    List<DataRow> mediaTypes = assetTypesTable.Select("CHANNEL_ID = " + channel.ID).ToList();
+
+                    foreach (DataRow drMediaType in mediaTypes)
+                    {
+                        channel.AssetTypes.Add(ODBCWrapper.Utils.GetIntSafeVal(drMediaType, "MEDIA_TYPE_ID"));
+                    }
+                }
+
+                #endregion
+
+                #region Order
+
+                channel.Order = new OrderObj();
+
+                int orderBy = ODBCWrapper.Utils.GetIntSafeVal(rowData["order_by_type"]);
+                int orderDirection = ODBCWrapper.Utils.GetIntSafeVal(rowData["order_by_dir"]) - 1;
+
+                // all META_STR/META_DOUBLE values
+                if (orderBy >= 1 && orderBy <= 30)
+                {
+                    // get the specific value of the meta
+                    int nMetaEnum = (orderBy);
+                    string enumName = Enum.GetName(typeof(MetasEnum), nMetaEnum);
+
+                    if (metas != null && metas.ContainsKey(enumName))
+                    {
+                        channel.Order.m_sOrderValue = metas[enumName];
+                        channel.Order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.META;
+                    }
+                }
+                else
+                {
+                    channel.Order.m_eOrderBy =
+                        (ApiObjects.SearchObjects.OrderBy)ApiObjects.SearchObjects.OrderBy.ToObject(typeof(ApiObjects.SearchObjects.OrderBy), orderBy);
+                }
+
+                #endregion
+
+                channel.FilterQuery = ODBCWrapper.Utils.ExtractString(rowData, "KSQL_FILTER");
+
+                BooleanPhraseNode node = null;
+                var parseStatus = BooleanPhraseNode.ParseSearchExpression(channel.FilterQuery, ref node);
+
+                if (parseStatus.Code != 0)
+                {
+                    log.WarnFormat("KSQL channel {0} has invalid KSQL expression: {1}", channel.ID, channel.FilterQuery);
+                }
+            }
+            else
+            {
+                channel = null;
+            }
+
+            return channel;
+        }
+
+        public static KSQLChannel InsertKSQLChannel(int groupID, KSQLChannel channel, Dictionary<string, string> metas)
+        {
+            KSQLChannel result = null;
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_KSQLChannel");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupID);
+            sp.AddParameter("@name", channel.Name);
+            sp.AddParameter("@isActive", channel.IsActive);
+            sp.AddParameter("@status", channel.Status);
+            sp.AddParameter("@description", channel.Description);
+            sp.AddParameter("@orderBy", (int)channel.Order.m_eOrderBy);
+            sp.AddParameter("@orderDirection", (int)channel.Order.m_eOrderDir);
+            sp.AddParameter("@Filter", channel.FilterQuery);
+            sp.AddIDListParameter<int>("@AssetTypes", channel.AssetTypes, "Id");
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
+            {
+                result = CreateKSQLChannelByDataRow(null, ds.Tables[0].Rows[0]);
+            }
+
+            return result;
+        }
+
+        public static KSQLChannel UpdateKSQLChannel(int groupID, KSQLChannel channel, Dictionary<string, string> metas)
+        {
+            KSQLChannel result = null;
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_KSQLChannel");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@channelId", channel.ID);
+            sp.AddParameter("@groupId", groupID);
+            sp.AddParameter("@name", channel.Name);
+            sp.AddParameter("@isActive", channel.IsActive);
+            sp.AddParameter("@status", channel.Status);
+            sp.AddParameter("@description", channel.Description);
+            sp.AddParameter("@Filter", channel.FilterQuery);
+            sp.AddIDListParameter<int>("@AssetTypes", channel.AssetTypes, "Id");
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
+            {
+                result = CreateKSQLChannelByDataRow(null, ds.Tables[0].Rows[0], metas);
+            }
+
+            return result;
+
         }
 
         public static DataRowCollection GetPicsData(int mediaId, int? ratioId = null)

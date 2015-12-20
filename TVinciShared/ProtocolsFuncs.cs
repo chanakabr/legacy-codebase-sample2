@@ -1771,7 +1771,7 @@ namespace TVinciShared
                         sXML.Append("<meta name=\"").Append(ProtocolsFuncs.XMLEncode(sField, true)).Append("\" ");
 
                     sXML.Append(" order_dir=\"");
-                    if (theWSInfoObj.m_sOrderByObjects[i].m_eOrderBy == ApiObjects.OrderBy.Asc)
+                    if (theWSInfoObj.m_sOrderByObjects[i].m_eOrderBy == ApiObjects.OrderDiretion.Asc)
                         sXML.Append("asc");
                     else
                         sXML.Append("desc");
@@ -12977,10 +12977,10 @@ namespace TVinciShared
                 if (theSearchObjects[i] == null)
                     continue;
                 string sOrderNameDir = "";
-                ApiObjects.OrderBy eOrderBy = theSearchObjects[i].m_eOrderBy;
-                if (eOrderBy == ApiObjects.OrderBy.Asc)
+                ApiObjects.OrderDiretion eOrderBy = theSearchObjects[i].m_eOrderBy;
+                if (eOrderBy == ApiObjects.OrderDiretion.Asc)
                     sOrderNameDir = "asc";
-                if (eOrderBy == ApiObjects.OrderBy.Desc)
+                if (eOrderBy == ApiObjects.OrderDiretion.Desc)
                     sOrderNameDir = "desc";
                 Int32 nOrderNum = theSearchObjects[i].m_nOrderNum;
                 string sOrderField = theSearchObjects[i].m_sOrderField;
