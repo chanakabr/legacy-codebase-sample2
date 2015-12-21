@@ -3645,6 +3645,7 @@ namespace Tvinci.Core.DAL
             }
         }
 
+
         public static bool DeleteKSQLChannel(int groupID, int channelId)
         {
             bool result = false;
@@ -3821,7 +3822,8 @@ namespace Tvinci.Core.DAL
 
         }
 
-        public static DataRowCollection GetPicsData(int mediaId, int? ratioId = null)
+        public static DataRowCollection GetPicsData(int mediaId, int? ratioId = null, int? extraStatus = null)
+
         {
             try
             {
@@ -3829,6 +3831,7 @@ namespace Tvinci.Core.DAL
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@MediaId", mediaId);
                 sp.AddParameter("@RatioId", ratioId);
+                sp.AddParameter("@ExtraStatus", extraStatus);
 
                 DataSet ds = sp.ExecuteDataSet();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
