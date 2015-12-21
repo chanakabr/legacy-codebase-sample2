@@ -3699,6 +3699,7 @@ namespace Tvinci.Core.DAL
         private static KSQLChannel CreateKSQLChannelByDataRow(DataTable assetTypesTable, DataRow rowData, Dictionary<string, string> metas = null)
         {
             KSQLChannel channel = new KSQLChannel();
+            channel.AssetTypes = new List<int>();
 
             channel.ID = ODBCWrapper.Utils.GetIntSafeVal(rowData["Id"]);
 
