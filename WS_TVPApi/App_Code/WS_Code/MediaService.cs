@@ -3910,6 +3910,7 @@ namespace TVPApiServices
         public TVPApiModule.Objects.Responses.UnifiedSearchResponse GetExternalAssets(InitializationObject initObj,
             string alias,
             string utc_offset,
+            string free,
             List<string> with, int page_index, int? page_size)
         {
             TVPApiModule.Objects.Responses.UnifiedSearchResponse response = null;
@@ -3983,7 +3984,7 @@ namespace TVPApiServices
                     string deviceType = System.Web.HttpContext.Current.Request.UserAgent;
 
                     response = new APIRecommendationsLoader(groupId, initObj.Platform, SiteHelper.GetClientIP(), (int)page_size, page_index,
-                        initObj.DomainID, initObj.SiteGuid, initObj.Locale.LocaleLanguage, with, initObj.UDID, deviceType, alias, utc_offset, string.Empty, string.Empty)
+                        initObj.DomainID, initObj.SiteGuid, initObj.Locale.LocaleLanguage, with, initObj.UDID, deviceType, alias, utc_offset, string.Empty, string.Empty, free)
                     {
                     }.Execute() as TVPApiModule.Objects.Responses.UnifiedSearchResponse;
                 }

@@ -21,13 +21,15 @@ namespace TVPApiModule.CatalogLoaders
         protected string internalChannelId;
         protected string externalChannelId;
         protected string utcOffset;
+        protected string free;
+
         #endregion
 
         #region Ctor
 
         public APIRecommendationsLoader(int groupId, PlatformType platform, string userIP, int pageSize, int pageIndex, int domainId, string siteGuid, 
             string localeLanguage, List<string> with, string udid, 
-            string deviceType, string externalChannelId, string utcOffset, string filterQuery, string internalChannelId)
+            string deviceType, string externalChannelId, string utcOffset, string filterQuery, string internalChannelId, string free)
             : base(groupId, platform, domainId, userIP, pageSize, pageIndex, new List<int>(), string.Empty, with, null, localeLanguage)
         {
             this.SiteGuid = siteGuid;
@@ -39,6 +41,7 @@ namespace TVPApiModule.CatalogLoaders
             this.internalChannelId = internalChannelId;
             this.utcOffset = utcOffset;
             this.Filter = filterQuery;
+            this.free = free;
         }
 
         #endregion
@@ -65,7 +68,8 @@ namespace TVPApiModule.CatalogLoaders
                 m_sSiteGuid = SiteGuid,
                 m_sUserIP = m_sUserIP,
                 utcOffset = utcOffset,
-                filterQuery = this.Filter
+                filterQuery = this.Filter,
+                free = this.free
             };
         }
 
