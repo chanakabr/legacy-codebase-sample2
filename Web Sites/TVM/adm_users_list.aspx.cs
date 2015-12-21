@@ -201,19 +201,21 @@ public partial class adm_users_list : System.Web.UI.Page
             theTable.AddLinkColumn(linkColumn1);
         }
 
-        if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.REMOVE))
-        {
-            DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_remove.aspx", "Delete", "STATUS=1;STATUS=3");
-            linkColumn.AddQueryStringValue("id", "field=id");
-            linkColumn.AddQueryStringValue("db", "users_connection");
-            linkColumn.AddQueryStringValue("table", "users");
-            linkColumn.AddQueryStringValue("confirm", "true");
-            linkColumn.AddQueryStringValue("main_menu", "14");
-            linkColumn.AddQueryStringValue("sub_menu", "2");
-            linkColumn.AddQueryStringValue("rep_field", "username");
-            linkColumn.AddQueryStringValue("rep_name", "Username");
-            theTable.AddLinkColumn(linkColumn);
-        }
+        // Delete User should not allowed here
+        //----------------------------------------------
+        //if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.REMOVE))
+        //{
+        //    DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_remove.aspx", "Delete", "STATUS=1;STATUS=3");
+        //    linkColumn.AddQueryStringValue("id", "field=id");
+        //    linkColumn.AddQueryStringValue("db", "users_connection");
+        //    linkColumn.AddQueryStringValue("table", "users");
+        //    linkColumn.AddQueryStringValue("confirm", "true");
+        //    linkColumn.AddQueryStringValue("main_menu", "14");
+        //    linkColumn.AddQueryStringValue("sub_menu", "2");
+        //    linkColumn.AddQueryStringValue("rep_field", "username");
+        //    linkColumn.AddQueryStringValue("rep_name", "Username");
+        //    theTable.AddLinkColumn(linkColumn);
+        //}
 
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.PUBLISH))
         {
@@ -229,19 +231,21 @@ public partial class adm_users_list : System.Web.UI.Page
             theTable.AddLinkColumn(linkColumn);
         }
 
-        if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.REMOVE))
-        {
-            DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_confirm.aspx", "Cancel", "STATUS=3;STATUS=4");
-            linkColumn.AddQueryStringValue("id", "field=id");
-            linkColumn.AddQueryStringValue("table", "users");
-            linkColumn.AddQueryStringValue("db", "users_connection");
-            linkColumn.AddQueryStringValue("confirm", "false");
-            linkColumn.AddQueryStringValue("main_menu", "14");
-            linkColumn.AddQueryStringValue("sub_menu", "2");
-            linkColumn.AddQueryStringValue("rep_field", "username");
-            linkColumn.AddQueryStringValue("rep_name", "Username");
-            theTable.AddLinkColumn(linkColumn);
-        }
+        // Delete User should not allowed here
+        //----------------------------------------------
+        //if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.REMOVE))
+        //{
+        //    DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_confirm.aspx", "Cancel", "STATUS=3;STATUS=4");
+        //    linkColumn.AddQueryStringValue("id", "field=id");
+        //    linkColumn.AddQueryStringValue("table", "users");
+        //    linkColumn.AddQueryStringValue("db", "users_connection");
+        //    linkColumn.AddQueryStringValue("confirm", "false");
+        //    linkColumn.AddQueryStringValue("main_menu", "14");
+        //    linkColumn.AddQueryStringValue("sub_menu", "2");
+        //    linkColumn.AddQueryStringValue("rep_field", "username");
+        //    linkColumn.AddQueryStringValue("rep_name", "Username");
+        //    theTable.AddLinkColumn(linkColumn);
+        //}
 
     }
 
