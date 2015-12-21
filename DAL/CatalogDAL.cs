@@ -3685,7 +3685,11 @@ namespace Tvinci.Core.DAL
                 DataTable channelsTable = dataSet.Tables[0];
                 DataTable assetTypesTable = dataSet.Tables[1];
 
-                result = CreateKSQLChannelByDataRow(assetTypesTable, channelsTable.Rows[0], metas);
+                // If there is any row returned
+                if (channelsTable != null && channelsTable.Rows != null && channelsTable.Rows.Count > 0)
+                {
+                    result = CreateKSQLChannelByDataRow(assetTypesTable, channelsTable.Rows[0], metas);
+                }
             }
 
             return result;
