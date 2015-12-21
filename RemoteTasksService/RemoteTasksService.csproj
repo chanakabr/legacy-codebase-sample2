@@ -142,6 +142,10 @@
       <Project>{ead60549-3a6d-455c-abab-b2f29945b97f}</Project>
       <Name>ImageResizeHandler</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ImageUploadHandler\ImageUploadHandler.csproj">
+      <Project>{ccf6860a-ae92-4f4b-8e05-cba885a959d8}</Project>
+      <Name>ImageUploadHandler</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PendingTransactionHandler\PendingTransactionHandler.csproj">
       <Project>{1aae1b8a-483d-423a-97b8-1430098cef46}</Project>
       <Name>PendingTransactionHandler</Name>
