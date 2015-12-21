@@ -1964,7 +1964,7 @@ namespace TvinciImporter
                 else
                 {
                     imageServerUrl = imageServerUrlObj.ToString();
-                    imageServerUrl = imageServerUrl.EndsWith("/") ? imageServerUrl + "InsertImage/" : imageServerUrl + "/InsertImage/";
+                    imageServerUrl = imageServerUrl.EndsWith("/") ? imageServerUrl + "InsertImage" : imageServerUrl + "/InsertImage";
                 }
 
                 ImageUploadData data = new ImageUploadData(parentGroupId, picNewName, version, sourcePath, picId, imageServerUrl, mediaType);
