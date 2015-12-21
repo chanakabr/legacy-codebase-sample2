@@ -290,7 +290,7 @@ namespace TVPApiServices
             List<string> with, int page_index, int? page_size);
 
         [OperationContract]
-        TVPApiModule.Objects.Responses.UnifiedSearchResponse GetExternalAssets(InitializationObject initObj,
+        TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetExternalAssets(InitializationObject initObj,
             string alias,
             string utc_offset,
             string free_param,

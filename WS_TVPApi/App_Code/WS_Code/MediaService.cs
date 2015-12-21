@@ -3907,13 +3907,13 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get assets from an external source")]
-        public TVPApiModule.Objects.Responses.UnifiedSearchResponse GetExternalAssets(InitializationObject initObj,
+        public TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetExternalAssets(InitializationObject initObj,
             string alias,
             string utc_offset,
             string free_param,
             List<string> with, int page_index, int? page_size)
         {
-            TVPApiModule.Objects.Responses.UnifiedSearchResponse response = null;
+            TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId response = null;
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetExternalAssets", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -3933,7 +3933,7 @@ namespace TVPApiServices
                     }
                     else if (page_size < 5)
                     {
-                        response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
+                        response = new TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId();
                         response.Status = ResponseUtils.ReturnBadRequestStatus("page_size range can be between 5 and 20");
                         return response;
                     }
@@ -3951,7 +3951,7 @@ namespace TVPApiServices
                         {
                             if (!validWithValues.Contains(currentValue))
                             {
-                                response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
+                                response = new TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId();
                                 response.Status = ResponseUtils.ReturnBadRequestStatus(string.Format("Invalid with value: {0}", currentValue));
                                 return response;
                             }
@@ -3967,13 +3967,13 @@ namespace TVPApiServices
 
                         if (!double.TryParse(utc_offset, out utcOffsetDouble))
                         {
-                            response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
+                            response = new TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId();
                             response.Status = ResponseUtils.ReturnBadRequestStatus("UTC Offset must be a valid number between -12 and 12");
                             return response;
                         }
                         else if (utcOffsetDouble > 12 || utcOffsetDouble < -12)
                         {
-                            response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
+                            response = new TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId();
                             response.Status = ResponseUtils.ReturnBadRequestStatus("UTC Offset must be a valid number between -12 and 12");
                             return response;
                         }
@@ -3986,19 +3986,19 @@ namespace TVPApiServices
                     response = new APIRecommendationsLoader(groupId, initObj.Platform, SiteHelper.GetClientIP(), (int)page_size, page_index,
                         initObj.DomainID, initObj.SiteGuid, initObj.Locale.LocaleLanguage, with, initObj.UDID, deviceType, alias, utc_offset, string.Empty, string.Empty, free_param)
                     {
-                    }.Execute() as TVPApiModule.Objects.Responses.UnifiedSearchResponse;
+                    }.Execute() as TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId;
                 }
                 catch (Exception ex)
                 {
                     HttpContext.Current.Items["Error"] = ex;
-                    response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
+                    response = new TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId();
                     response.Status = ResponseUtils.ReturnGeneralErrorStatus();
                 }
             }
             else
             {
                 HttpContext.Current.Items["Error"] = "Unknown group";
-                response = new TVPApiModule.Objects.Responses.UnifiedSearchResponse();
+                response = new TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId();
                 response.Status = ResponseUtils.ReturnBadCredentialsStatus();
             }
 
