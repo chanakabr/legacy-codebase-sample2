@@ -18,7 +18,10 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns a KSQL channel by its ID
         /// </summary>
-        /// <remarks>       
+        /// <remarks> 
+        /// Possible status codes:  
+        /// IdentifierRequired = 4017,
+        /// ObjectNotExist = 4018
         /// </remarks>
         [Route("get"), HttpPost]
         [ApiAuthorize]
@@ -45,9 +48,9 @@ namespace WebAPI.Controllers
         /// Delete KSQL channel by its channel id
         /// </summary>
         /// <remarks>
-        /// Possible status codes:   
-        /// 
-        /// 
+        /// Possible status codes:  
+        /// IdentifierRequired = 4017,
+        /// ObjectNotExist = 4018
         /// </remarks>
         /// <param name="channel_id">channel identifier</param>
         [Route("delete"), HttpPost]
@@ -76,7 +79,8 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:     
-        /// 
+        /// NoObjectToInsert = 4019,
+        /// NameRequired = 5005,
         /// </remarks>
         /// <param name="channel">KSQL channel Object</param>
         [Route("add"), HttpPost]
@@ -105,7 +109,9 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:
-        /// 
+        /// ObjectNotExist = 4018,
+        /// NoObjectToInsert = 4019,
+        /// NameRequired = 5005
         /// </remarks>
         /// <param name="channel">KSQL channel Object</param>       
         [Route("update"), HttpPost]
