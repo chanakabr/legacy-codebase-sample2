@@ -318,10 +318,13 @@ namespace WebAPI.Managers.Models
         public static List<KeyValuePair<string, string>> ExtractPayloadData(string payload)
         {
             List<KeyValuePair<string, string>> pairs = new List<KeyValuePair<string, string>>();
-            foreach (var token in payload.Split(new string[] { ";;" }, StringSplitOptions.RemoveEmptyEntries))
+            if (!string.IsNullOrEmpty(payload))
             {
-                var t = token.Split('=');
-                pairs.Add(new KeyValuePair<string, string>(t[0], t[1]));
+                foreach (var token in payload.Split(new string[] { ";;" }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    var t = token.Split('=');
+                    pairs.Add(new KeyValuePair<string, string>(t[0], t[1]));
+                }
             }
 
             return pairs;
