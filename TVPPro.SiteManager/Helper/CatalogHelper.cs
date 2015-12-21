@@ -35,6 +35,7 @@ namespace TVPPro.SiteManager.Helper
             {
                 picSize = picSize == null ? string.Empty : picSize;
 
+                string picUrl = string.Empty;
                 foreach (MediaObj media in medias)
                 {
                     if (media != null)
@@ -45,7 +46,13 @@ namespace TVPPro.SiteManager.Helper
                         oRow.Title = media.m_sName;
                         oRow.Name = media.m_sName;
                         if (!string.IsNullOrEmpty(picSize))
-                            oRow.ImageLink = (from pic in media.m_lPicture where pic.m_sSize.ToLower() == picSize.ToLower() select pic.m_sURL).FirstOrDefault();
+                        {
+                            {
+                                picUrl = (from pic in media.m_lPicture where pic != null && pic.m_sSize.ToLower() == picSize.ToLower() select pic.m_sURL).FirstOrDefault();
+                                if (picUrl != null)
+                                    oRow.ImageLink = picUrl;
+                            }
+                        }
                         oRow.MediaType = media.m_oMediaType.m_sTypeName;
                         oRow.MediaTypeID = media.m_oMediaType.m_nTypeID.ToString();
                         oRow.ItemType = media.m_oMediaType.m_sTypeName;
@@ -206,7 +213,7 @@ namespace TVPPro.SiteManager.Helper
                                 rowPic.ImageId = pic.id;
                                 rowPic.Version = pic.version.ToString();
                                 rowPic.Ratio = pic.ratio;
-                               
+
 
                                 retVal.Pictures.AddPicturesRow(rowPic);
                             }
