@@ -21,7 +21,7 @@ namespace ImageUploadHandler
 
             try
             {
-                log.InfoFormat("Export request. data={0}", data);
+                log.InfoFormat("Image upload request. data={0}", data);
 
                 RemoteImageUploadRequest request = JsonConvert.DeserializeObject<RemoteImageUploadRequest>(data);
 
@@ -38,7 +38,7 @@ namespace ImageUploadHandler
                 };
 
                 // post image
-                result = HttpPost(request.ImageServerUrl, JsonConvert.SerializeObject(imageServerReq));
+                result = HttpPost(request.ImageServerUrl, JsonConvert.SerializeObject(imageServerReq), "application/json");
 
                 // check result
                 if (string.IsNullOrEmpty(result) || result.ToLower() != "true")

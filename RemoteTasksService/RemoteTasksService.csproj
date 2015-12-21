@@ -54,8 +54,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\TvmCore\External\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="ServiceExtensions">
-      <HintPath>..\..\tvmcore\ServiceExtensions\bin\Debug\ServiceExtensions.dll</HintPath>
+    <Reference Include="ServiceExtensions, Version=3.4.0.31202, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\TVMCore\External\ServiceExtensions.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -114,6 +115,14 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\TvmCore\ApiObjects\ApiObjects.csproj">
+      <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
+      <Name>ApiObjects</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TvmCore\TVinciShared\TVinciShared.csproj">
+      <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>
+      <Name>TVinciShared</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ElasticSearchHandler\ElasticSearchHandler.csproj">
       <Project>{338e6394-a9e9-4d5c-8a6a-95797f6c429f}</Project>
       <Name>ElasticSearchHandler</Name>
