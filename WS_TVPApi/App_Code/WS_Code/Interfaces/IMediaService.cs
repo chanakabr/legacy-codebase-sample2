@@ -293,7 +293,7 @@ namespace TVPApiServices
         TVPApiModule.Objects.Responses.UnifiedSearchResponse GetExternalAssets(InitializationObject initObj,
             string alias,
             string utc_offset,
-            string free,
+            string free_param,
             List<string> with, int page_index, int? page_size);
 
         [OperationContract]
