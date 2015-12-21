@@ -72,6 +72,68 @@ namespace TVPApiModule.CatalogLoaders
                 free = this.free
             };
         }
+        
+        /// <summary>
+        /// Correct casting of response object to include request ID
+        /// </summary>
+        /// <returns></returns>
+        public override object Execute()
+        {
+            TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId response = null;
+
+            var baseResult = base.Execute();
+
+            if (baseResult is TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId)
+            {
+                response = baseResult as TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId;
+            }
+            else if (baseResult is TVPApiModule.Objects.Responses.UnifiedSearchResponse)
+            {
+                var unifiedResponse = baseResult as TVPApiModule.Objects.Responses.UnifiedSearchResponse;
+
+                response = new TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId()
+                {
+                    Assets = unifiedResponse.Assets,
+                    RequestId = string.Empty,
+                    Status = unifiedResponse.Status,
+                    TotalItems = unifiedResponse.TotalItems
+                };
+            }
+
+            return response;
+        }
+
+        protected override object Process()
+        {
+            TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId response = null;
+
+            var baseProcess = base.Process();
+
+            if (baseProcess is TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId)
+            {
+                response = baseProcess as TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId;
+            }
+            else if (baseProcess is TVPApiModule.Objects.Responses.UnifiedSearchResponse)
+            {
+                var unifiedResponse = baseProcess as TVPApiModule.Objects.Responses.UnifiedSearchResponse;
+
+                response = new TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId()
+                {
+                    Assets = unifiedResponse.Assets,
+                    RequestId = string.Empty,
+                    Status = unifiedResponse.Status,
+                    TotalItems = unifiedResponse.TotalItems
+                };
+            }
+
+            // If we have request id from catalog response - use it
+            if (m_oResponse is UnifiedSearchExternalResponse)
+            {
+                response.RequestId = (m_oResponse as UnifiedSearchExternalResponse).requestId;
+            }
+
+            return response;
+        }
 
         public override string GetLoaderCachekey()
         {
