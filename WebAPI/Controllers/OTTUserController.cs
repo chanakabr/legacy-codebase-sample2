@@ -471,7 +471,7 @@ namespace WebAPI.Controllers
         /// <param name="partnerId">Partner identifier</param>
         /// <param name="udid">Device UDID</param>
         /// <remarks>        
-        /// UserNotInHousehold = 1005, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
+        /// UserNotInHousehold = 1005, Wrong username or password = 1011, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, User does not exist = 2000
         /// </remarks>        
         [Route("silentLogin"), HttpPost]
