@@ -76,7 +76,7 @@ namespace WebAPI.Models.API
         }
 
         /// <summary>
-        /// Asset types
+        /// Asset types. Media types - taken from group's definition. EPG is -26.
         /// </summary>
         [DataMember(Name = "asset_types")]
         [JsonProperty("asset_types")]

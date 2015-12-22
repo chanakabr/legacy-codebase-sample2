@@ -2197,7 +2197,6 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     WebAPI.Api.KSQLChannel request = Mapper.Map<WebAPI.Api.KSQLChannel>(channel);
-                    request.Order = ApiMappings.ConvertOrderToOrderObj(channel.Order);
                     response = Api.InsertKSQLChannel(group.ApiCredentials.Username, group.ApiCredentials.Password, request);
                 }
             }

@@ -229,7 +229,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.AssetTypes, opt => opt.MapFrom(src => src.AssetTypes))
                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                .ForMember(dest => dest.FilterQuery, opt => opt.MapFrom(src => src.FilterExpression))
-               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => Convert.ToInt32(src.IsActive)))
+               .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ApiMappings.ConvertOrderToOrderObj(src.Order)))
                ;
 
             Mapper.CreateMap<KSQLChannel, WebAPI.Models.API.KalturaKSQLChannelProfile>()
@@ -238,9 +239,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.AssetTypes, opt => opt.MapFrom(src => src.AssetTypes))
                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                .ForMember(dest => dest.FilterExpression, opt => opt.MapFrom(src => src.FilterQuery))
-               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => Convert.ToBoolean(src.IsActive)))
                .ForMember(dest => dest.Order, opt => opt.MapFrom(src => ApiMappings.ConvertOrderObjToOrder(src.Order)))
                ;
+
             #endregion
         }
 
