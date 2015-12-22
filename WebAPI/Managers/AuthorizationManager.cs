@@ -221,7 +221,7 @@ namespace WebAPI.Managers
 
             // 1. get token from cb by id
             string appTokenCbKey = string.Format(group.AppTokenKeyFormat, id);
-            KalturaAppToken appToken = couchbaseClient.GetJson<KalturaAppToken>(appTokenCbKey);
+            AppToken appToken = couchbaseClient.GetJson<AppToken>(appTokenCbKey);
             if (appToken == null)
             {
                 log.ErrorFormat("StartSessionWithAppToken: failed to get AppToken from CB, key = {0}", appTokenCbKey);
@@ -235,7 +235,7 @@ namespace WebAPI.Managers
                 throw new InternalServerErrorException((int)StatusCode.NotActiveAppToken, "application token is not active");
             }
 
-            // 3. calc token hash - ks + token hash using the hash type 
+            // 3. calc token hash - (ks + token) hash using the hash type 
             string cbTokenHash = appToken.CalcHash();
 
             // 4. compare the token hashes
@@ -345,8 +345,10 @@ namespace WebAPI.Managers
             appToken.SessionPrivileges = string.Format("{0}:{1},{2}:{3}", APP_TOKEN_PRIVILEGE_APP_TOKEN, appToken.Token, APP_TOKEN_PRIVILEGE_SESSION_ID, appToken.Token);
 
             // 4. save in CB
+            AppToken cbAppToken = new AppToken(appToken); 
+
             int appTokenExpiryInSeconds = appToken.Expiry - (int)Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow);
-            if (!couchbaseClient.StoreJson(Enyim.Caching.Memcached.StoreMode.Add, appToken.Id, appToken, new TimeSpan(0, 0, appTokenExpiryInSeconds)))
+            if (!couchbaseClient.StoreJson(Enyim.Caching.Memcached.StoreMode.Add, appTokenCbKey, cbAppToken, new TimeSpan(0, 0, appTokenExpiryInSeconds)))
             {
                 log.ErrorFormat("GenerateSession: Failed to store refreshed token");
                 throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.Error, "failed to save application token");
@@ -362,12 +364,14 @@ namespace WebAPI.Managers
             Group group = GroupsManager.GetGroup(groupId);
 
             string appTokenCbKey = string.Format(group.AppTokenKeyFormat, id);
-            response = couchbaseClient.GetJson<KalturaAppToken>(appTokenCbKey);
-            if (response == null)
+            var cbAppToken = couchbaseClient.GetJson<AppToken>(appTokenCbKey);
+            if (cbAppToken == null)
             {
                 log.ErrorFormat("GetAppToken: failed to get AppToken from CB, key = {0}", appTokenCbKey);
                 throw new InternalServerErrorException((int)StatusCode.InvalidAppToken, "Invalid application token");
             }
+
+            response = new KalturaAppToken(cbAppToken);
 
             return response;
         }

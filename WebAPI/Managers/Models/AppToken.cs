@@ -5,22 +5,19 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
-using WebAPI.Managers.Models;
+using WebAPI.Models.General;
 
-namespace WebAPI.Models.General
+namespace WebAPI.Managers.Models
 {
-    /// <summary>
-    /// Application token
-    /// </summary>
-    public class KalturaAppToken : KalturaOTTObject
+    public class AppToken
     {
         /// <summary>
         /// The id of the application token
         /// </summary>
-        [DataMember(Name = "id")]
-        [JsonProperty("id")]
-        [XmlElement(ElementName = "id")]
-        public string Id { get; set; }
+        [DataMember(Name = "app_token_id")]
+        [JsonProperty("app_token_id")]
+        [XmlElement(ElementName = "app_token_id")]
+        public string AppTokenId { get; set; }
 
         /// <summary>
         /// Expiry time of current token (unix timestamp in seconds)
@@ -94,22 +91,59 @@ namespace WebAPI.Models.General
         [XmlElement(ElementName = "sessionUserId")]
         public string SessionUserId { get; set; }
 
-        public KalturaAppToken()
+        public AppToken()
         {
         }
 
-        public KalturaAppToken(AppToken appToken)
+        public AppToken(KalturaAppToken kalturaAppToken)
         {
-            Id = appToken.AppTokenId;
-            Expiry = appToken.Expiry;
-            PartnerId = appToken.PartnerId;
-            SessionDuration = appToken.SessionDuration;
-            HashType = appToken.HashType;
-            SessionPrivileges = appToken.SessionPrivileges;
-            SessionType = appToken.SessionType;
-            Status = appToken.Status;
-            Token = appToken.Token;
-            SessionUserId = appToken.SessionUserId;
+            AppTokenId = kalturaAppToken.Id;
+            Expiry = kalturaAppToken.Expiry;
+            PartnerId = kalturaAppToken.PartnerId;
+            SessionDuration = kalturaAppToken.SessionDuration;
+            HashType = kalturaAppToken.HashType;
+            SessionPrivileges = kalturaAppToken.SessionPrivileges;
+            SessionType = kalturaAppToken.SessionType;
+            Status = kalturaAppToken.Status;
+            Token = kalturaAppToken.Token;
+            SessionUserId = kalturaAppToken.SessionUserId;
+        }
+
+        /// <summary>
+        /// calculates the hash of the ks + token string based on the token hash type
+        /// </summary>
+        /// <returns></returns>
+        internal string CalcHash()
+        {
+            string response = null;
+
+            string stringToHash = KS.GetFromRequest().ToString() + Token;
+
+            switch (HashType)
+            {
+                case KalturaAppTokenHashType.SHA1:
+                    {
+                        byte[] hashed = Utils.EncryptionUtils.HashSHA1(stringToHash);
+                        if (hashed != null && hashed.Length > 0)
+                        {
+                            response = hashed.Aggregate(string.Empty, (x, y) => x + y.ToString("X2").ToLower());
+                        }
+                    }
+                    break;
+                case KalturaAppTokenHashType.SHA256:
+                    response = Utils.EncryptionUtils.HashSHA256(stringToHash);
+                    break;
+                case KalturaAppTokenHashType.SHA512:
+                    response = Utils.EncryptionUtils.HashSHA512(stringToHash);
+                    break;
+                case KalturaAppTokenHashType.MD5:
+                    response = Utils.EncryptionUtils.HashMD5(stringToHash);
+                    break;
+                default:
+                    break;
+            }
+
+            return response;
         }
     }
 }

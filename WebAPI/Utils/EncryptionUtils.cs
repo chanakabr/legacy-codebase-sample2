@@ -111,7 +111,7 @@ namespace WebAPI.Utils
                 using (var sha256 = SHA256Managed.Create())
                 {
                     var hashed = sha256.ComputeHash(Encoding.ASCII.GetBytes(payload));
-                    response = System.Text.Encoding.ASCII.GetString(hashed);
+                    response = hashed.Aggregate(string.Empty, (x, y) => x + y.ToString("X2").ToLower());
                 }
             }
             return response;
@@ -125,7 +125,7 @@ namespace WebAPI.Utils
                 using (var sha512 = SHA512Managed.Create())
                 {
                     var hashed = sha512.ComputeHash(Encoding.ASCII.GetBytes(payload));
-                    response = System.Text.Encoding.ASCII.GetString(hashed);
+                    response = hashed.Aggregate(string.Empty, (x, y) => x + y.ToString("X2").ToLower());
                 }
             }
             return response;
@@ -139,7 +139,7 @@ namespace WebAPI.Utils
                 using (MD5 md5 = MD5.Create())
                 {
                     var hashed = md5.ComputeHash(Encoding.ASCII.GetBytes(payload));
-                    response = System.Text.Encoding.ASCII.GetString(hashed);
+                    response = hashed.Aggregate(string.Empty, (x, y) => x + y.ToString("X2").ToLower());
                 }
             }
             return response;

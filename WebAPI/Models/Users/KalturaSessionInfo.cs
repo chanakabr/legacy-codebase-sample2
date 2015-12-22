@@ -72,6 +72,10 @@ namespace WebAPI.Models.Users
         [XmlElement("udid")]
         public string udid { get; set; }
 
+        public KalturaSessionInfo()
+        {
+        }
+
         public KalturaSessionInfo(KS ks)
         {
             this.ks = ks.ToString();

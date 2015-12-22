@@ -90,6 +90,7 @@ namespace WebAPI.Managers.Models
 
         public KS(string secret, string groupID, string userID, int expiration, KalturaSessionType userType, string data, string privilege, KSVersion ksType)
         {
+            
             int relativeExpiration = (int)SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow) + expiration;
 
             string ks = string.Format(KS_FORMAT, privilege, (int)userType, relativeExpiration, userID, !string.IsNullOrEmpty(data) ? HttpUtility.UrlEncode(data) : string.Empty);
@@ -117,9 +118,14 @@ namespace WebAPI.Managers.Models
             encodedKs = encodedKs.Replace("\n", "");
             encodedKs = encodedKs.Replace("\r", "");
 
-            encryptedValue = encodedKs.ToString();
-
+            this.encryptedValue = encodedKs.ToString();
             this.ksVersion = ksType;
+            this.data = data;
+            this.expiration = DateTime.UtcNow.AddSeconds(expiration);
+            this.groupId = int.Parse(groupID);
+            this.privilege = privilege;
+            this.sessionType = userType;
+            this.userId = userID;
         }
 
         public static KS CreateKSFromEncoded(byte[] encryptedData, int groupId, string secret, string ksVal, KSVersion ksType)
