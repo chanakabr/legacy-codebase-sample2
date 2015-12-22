@@ -3757,6 +3757,8 @@ namespace Tvinci.Core.DAL
                         (ApiObjects.SearchObjects.OrderBy)ApiObjects.SearchObjects.OrderBy.ToObject(typeof(ApiObjects.SearchObjects.OrderBy), orderBy);
                 }
 
+                channel.Order.m_eOrderDir = (OrderDir)orderDirection;
+
                 #endregion
 
                 channel.FilterQuery = ODBCWrapper.Utils.ExtractString(rowData, "KSQL_FILTER");
@@ -3789,7 +3791,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@status", 1);
             sp.AddParameter("@description", channel.Description);
             sp.AddParameter("@orderBy", (int)channel.Order.m_eOrderBy);
-            sp.AddParameter("@orderDirection", (int)channel.Order.m_eOrderDir);
+            sp.AddParameter("@orderDirection", (int)channel.Order.m_eOrderDir + 1);
             sp.AddParameter("@Filter", channel.FilterQuery);
             sp.AddIDListParameter<int>("@AssetTypes", channel.AssetTypes, "Id");
 
