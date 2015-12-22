@@ -3656,8 +3656,9 @@ namespace Tvinci.Core.DAL
 
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", 2);
                 updateQuery += " WHERE ";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", channelId);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", 1);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", channelId);
+                updateQuery += " and ";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
 
                 result = updateQuery.Execute();
                 updateQuery.Finish();
