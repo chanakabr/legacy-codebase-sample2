@@ -3714,6 +3714,8 @@ namespace Tvinci.Core.DAL
                 channel.IsActive = isActive;
                 channel.Status = status;
                 channel.GroupID = channelGroupId;
+                channel.Name = ODBCWrapper.Utils.ExtractString(rowData, "name");
+                channel.Description = ODBCWrapper.Utils.ExtractString(rowData, "description");
 
                 #region Asset Types
 
@@ -3795,7 +3797,14 @@ namespace Tvinci.Core.DAL
 
             if (ds != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
             {
-                result = CreateKSQLChannelByDataRow(null, ds.Tables[0].Rows[0]);
+                DataTable assetTypes = null;
+
+                if (ds.Tables.Count > 1)
+                {
+                    assetTypes = ds.Tables[1];
+                }
+
+                result = CreateKSQLChannelByDataRow(assetTypes, ds.Tables[0].Rows[0], metas);
             }
 
             return result;
@@ -3820,7 +3829,14 @@ namespace Tvinci.Core.DAL
 
             if (ds != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
             {
-                result = CreateKSQLChannelByDataRow(null, ds.Tables[0].Rows[0], metas);
+                DataTable assetTypes = null;
+
+                if (ds.Tables.Count > 1)
+                {
+                    assetTypes = ds.Tables[1];
+                }
+
+                result = CreateKSQLChannelByDataRow(assetTypes, ds.Tables[0].Rows[0], metas);
             }
 
             return result;
