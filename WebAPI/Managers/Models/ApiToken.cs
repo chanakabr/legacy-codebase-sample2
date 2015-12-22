@@ -33,6 +33,9 @@ namespace WebAPI.Managers.Models
         [JsonProperty("is_long_refresh_expiration")]
         public bool IsLongRefreshExpiration { get; set; }
 
+        [JsonProperty("udid")]
+        public string Udid { get; set; }
+
         public ApiToken()
         {
         }
@@ -45,7 +48,7 @@ namespace WebAPI.Managers.Models
             UserId = userId;
             IsAdmin = isAdmin;
             IsLongRefreshExpiration = isLongRefreshExpiration;
-
+            Udid = udid;
             if (isLongRefreshExpiration)
             {
                 RefreshTokenExpiration = Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshExpirationForPinLoginSeconds));

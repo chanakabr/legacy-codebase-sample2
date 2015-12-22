@@ -356,6 +356,7 @@ namespace WebAPI.Managers.Models
                 userId = token.UserId,
                 sessionType = token.IsAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER,
                 expiration = Utils.SerializationUtils.ConvertFromUnixTimestamp(token.AccessTokenExpiration),
+                data = KSUtils.PrepareKSPayload(new WebAPI.Managers.Models.KS.KSData() { UDID = token.Udid })
             };
 
             return ks;
