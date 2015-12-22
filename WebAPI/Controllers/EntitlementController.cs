@@ -14,17 +14,15 @@ namespace WebAPI.Controllers
     public class EntitlementController : ApiController
     {
         /// <summary>
-        /// Immediately cancel a household subscription or PPV or collection 
-        /// Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided.        
+        /// Immediately cancel a subscription, PPV or collection. Cancel is possible only if within cancellation window and content not already consumed
         /// </summary>                
         /// <param name="asset_id">Asset identifier to cancel</param>        
         /// <param name="transaction_type">The transaction type for the cancelation</param>
-        /// <param name="is_force">If 'true', cancels the service regardless of whether the service was used or not</param>
         /// <remarks>Possible status codes: 
         /// Household suspended = 1009, Invalid purchase = 3000, Cancellation window period expired = 3001, Content already consumed = 3005</remarks>
         [Route("cancel"), HttpPost]
-        [ApiAuthorize]
-        public bool Cancel(int asset_id, KalturaTransactionType transaction_type, bool is_force = false)
+        [ApiAuthorize]        
+        public bool Cancel(int asset_id, KalturaTransactionType transaction_type)
         {
             bool response = false;
 
@@ -47,7 +45,53 @@ namespace WebAPI.Controllers
                 }
 
                 // call client
-                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, (int)domain, asset_id, transaction_type, is_force);
+                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, (int)domain, asset_id, transaction_type, false);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            if (response == false)
+            {
+                throw new InternalServerErrorException();
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// Immediately cancel a subscription, PPV or collection. Cancel applies regardless of cancellation window and content consumption status
+        /// </summary>                
+        /// <param name="asset_id">Asset identifier to cancel</param>        
+        /// <param name="transaction_type">The transaction type for the cancelation</param>
+        /// <remarks>Possible status codes: 
+        /// Household suspended = 1009, Invalid purchase = 3000, Cancellation window period expired = 3001, Content already consumed = 3005</remarks>
+        [Route("forceCancel"), HttpPost]
+        [ApiAuthorize]
+        public bool ForceCancel(int asset_id, KalturaTransactionType transaction_type)
+        {
+            bool response = false;
+
+            int groupId = KS.GetFromRequest().GroupId;
+            try
+            {
+
+                // get domain       
+                var domain = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+                // check if the user performing the action is domain master
+                if (domain == 0)
+                {
+                    throw new ForbiddenException();
+                }
+
+                if (asset_id == 0)
+                {
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_id not valid");
+                }
+
+                // call client
+                response = ClientsManager.ConditionalAccessClient().CancelServiceNow(groupId, (int)domain, asset_id, transaction_type, true);
             }
             catch (ClientException ex)
             {
