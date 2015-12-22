@@ -47,10 +47,10 @@ namespace WebAPI.Managers
                         {
                             apiActionPermissionItem = (KalturaApiActionPermissionItem)permissionItem;
                             
-                            // builed the service action key
+                            // build the service action key
                             serviceActionPair = string.Format("{0}_{1}", apiActionPermissionItem.Service, apiActionPermissionItem.Action).ToLower();
 
-                            // if the dictionary already containes the action, try to append the role and /or the users group
+                            // if the dictionary already contains the action, try to append the role and /or the users group
                             if (dictionary.ContainsKey(serviceActionPair))
                             {
                                 if (!dictionary[serviceActionPair].ContainsKey(role.Id))

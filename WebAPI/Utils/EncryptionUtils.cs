@@ -84,5 +84,144 @@ namespace WebAPI.Utils
                 }
             }
         }
+
+        public static byte[] HashSHA1(string payload)
+        {
+            return HashSHA1(Encoding.ASCII.GetBytes(payload));
+        }
+
+        public static byte[] HashSHA1(byte[] payload)
+        {
+            byte[] response = null;
+            if (payload != null)
+            {
+                using (var sha1 = SHA1Managed.Create())
+                {
+                    response = sha1.ComputeHash(payload);
+                }
+            }
+            return response;
+        }
+
+        public static string HashSHA256(string payload)
+        {
+            string response = null;
+            if (!string.IsNullOrEmpty(payload))
+            {
+                using (var sha256 = SHA256Managed.Create())
+                {
+                    var hashed = sha256.ComputeHash(Encoding.ASCII.GetBytes(payload));
+                    response = System.Text.Encoding.ASCII.GetString(hashed);
+                }
+            }
+            return response;
+        }
+
+        public static string HashSHA512(string payload)
+        {
+            string response = null;
+            if (!string.IsNullOrEmpty(payload))
+            {
+                using (var sha512 = SHA512Managed.Create())
+                {
+                    var hashed = sha512.ComputeHash(Encoding.ASCII.GetBytes(payload));
+                    response = System.Text.Encoding.ASCII.GetString(hashed);
+                }
+            }
+            return response;
+        }
+
+        public static string HashMD5(string payload)
+        {
+            string response = null;
+            if (!string.IsNullOrEmpty(payload))
+            {
+                using (MD5 md5 = MD5.Create())
+                {
+                    var hashed = md5.ComputeHash(Encoding.ASCII.GetBytes(payload));
+                    response = System.Text.Encoding.ASCII.GetString(hashed);
+                }
+            }
+            return response;
+        }
+
+        public static byte[] AesEncrypt(string secretForSigning, byte[] text, int blockSize)
+        {
+            // Key
+            byte[] hashedKey = HashSHA1(secretForSigning);
+            byte[] keyBytes = new byte[blockSize];
+            Array.Copy(hashedKey, 0, keyBytes, 0, blockSize);
+
+            //IV
+            byte[] ivBytes = new byte[blockSize];
+
+            // Text
+            int textSize = ((text.Length + blockSize - 1) / blockSize) * blockSize;
+            byte[] textAsBytes = new byte[textSize];
+            Array.Copy(text, 0, textAsBytes, 0, text.Length);
+
+            // Encrypt
+            using (Aes aesAlg = Aes.Create())
+            {
+                aesAlg.Key = keyBytes;
+                aesAlg.IV = ivBytes;
+                aesAlg.Mode = CipherMode.CBC;
+                aesAlg.Padding = PaddingMode.None;
+
+                ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
+
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    using (CryptoStream cst = new CryptoStream(ms, encryptor, CryptoStreamMode.Write))
+                    {
+                        cst.Write(textAsBytes, 0, textSize);
+                        return ms.ToArray();
+                    }
+                }
+            }
+        }
+
+        public static byte[] AesDecrypt(string secretForSigning, byte[] text, int blockSize)
+        {
+            // Key
+            byte[] hashedKey = HashSHA1(secretForSigning);
+            byte[] keyBytes = new byte[blockSize];
+            Array.Copy(hashedKey, 0, keyBytes, 0, blockSize);
+
+            //IV
+            byte[] ivBytes = new byte[blockSize];
+
+            // Text
+            int textSize = ((text.Length + blockSize - 1) / blockSize) * blockSize;
+            byte[] textAsBytes = new byte[textSize];
+            Array.Copy(text, 0, textAsBytes, 0, text.Length);
+
+            // Decrypt
+            using (Aes aesAlg = Aes.Create())
+            {
+                aesAlg.Key = keyBytes;
+                aesAlg.IV = ivBytes;
+                aesAlg.Mode = CipherMode.CBC;
+                aesAlg.Padding = PaddingMode.None;
+
+                ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
+
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    using (CryptoStream cst = new CryptoStream(ms, decryptor, CryptoStreamMode.Write))
+                    {
+                        cst.Write(text, 0, text.Length);
+                        return ms.ToArray();
+                    }
+                }
+            }
+        }
+
+        public static byte[] CreateRandomByteArray(int size)
+        {
+            byte[] b = new byte[size];
+            new Random().NextBytes(b);
+            return b;
+        }
     }
 }

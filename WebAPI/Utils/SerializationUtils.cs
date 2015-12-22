@@ -56,5 +56,10 @@ namespace WebAPI.Utils
             TimeSpan diff = date.ToUniversalTime() - origin;
             return (long)diff.TotalSeconds;
         }
+
+        public static long GetCurrentUtcTimeInUnixTimestamp()
+        {
+            return ConvertToUnixTimestamp(DateTime.UtcNow);
+        }
     }
 }

@@ -78,6 +78,15 @@ namespace WebAPI.Managers.Models
         [JsonProperty("token_key_format")]
         public string TokenKeyFormat { get; set; }
 
+        [JsonProperty("app_token_key_format")]
+        public string AppTokenKeyFormat { get; set; }
+
+        [JsonProperty("app_token_session_max_duration_seconds")]
+        public int AppTokenSessionMaxDurationSeconds { get; set; }
+
+        [JsonProperty("app_token_max_expiry_seconds")]
+        public int AppTokenMaxExpirySeconds { get; set; }
+
         [JsonIgnore]
         public List<Language> Languages { get; set; }
 

@@ -23,16 +23,7 @@ namespace WebAPI.Controllers
         public KalturaSessionInfo Get()
         {
             var ks = KS.GetFromRequest();
-            return new KalturaSessionInfo()
-            {
-                ks = ks.ToString(),
-                expiry = (int)SerializationUtils.ConvertToUnixTimestamp(ks.Expiration),
-                partnerId = ks.GroupId,
-                privileges = ks.Privilege,
-                sessionType = ks.SessionType,
-                userId = ks.UserId,
-                udid = KSUtils.ExtractKSPayload(KS.GetFromRequest()).UDID
-            };
+            return new KalturaSessionInfo(ks);
         }
     }
 }

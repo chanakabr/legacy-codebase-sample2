@@ -40,7 +40,7 @@ namespace WebAPI.Managers.Models
         public ApiToken(string userId, int groupId, string udid, bool isAdmin, Group groupConfig, bool isLongRefreshExpiration)
         {
             string payload = KSUtils.PrepareKSPayload(new WebAPI.Managers.Models.KS.KSData() { UDID = udid });
-            RefreshToken = Guid.NewGuid().ToString().Replace("-", string.Empty);
+            RefreshToken = Utils.Utils.Generate32LengthGuid();
             GroupID = groupId;
             UserId = userId;
             IsAdmin = isAdmin;

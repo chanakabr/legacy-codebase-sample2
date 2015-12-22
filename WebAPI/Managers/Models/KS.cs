@@ -94,17 +94,17 @@ namespace WebAPI.Managers.Models
 
             string ks = string.Format(KS_FORMAT, privilege, (int)userType, relativeExpiration, userID, !string.IsNullOrEmpty(data) ? HttpUtility.UrlEncode(data) : string.Empty);
             byte[] ksBytes = Encoding.ASCII.GetBytes(ks);
-            byte[] randomBytes = createRandomByteArray(BLOCK_SIZE);
+            byte[] randomBytes = Utils.EncryptionUtils.CreateRandomByteArray(BLOCK_SIZE);
             byte[] randWithFields = new byte[ksBytes.Length + randomBytes.Length];
             Array.Copy(randomBytes, 0, randWithFields, 0, randomBytes.Length);
             Array.Copy(ksBytes, 0, randWithFields, randomBytes.Length, ksBytes.Length);
 
-            byte[] signature = hashSHA1(randWithFields);
+            byte[] signature = Utils.EncryptionUtils.HashSHA1(randWithFields);
             byte[] input = new byte[signature.Length + randWithFields.Length];
             Array.Copy(signature, 0, input, 0, signature.Length);
             Array.Copy(randWithFields, 0, input, signature.Length, randWithFields.Length);
 
-            byte[] encryptedFields = aesEncrypt(secret, input);
+            byte[] encryptedFields = Utils.EncryptionUtils.AesEncrypt(secret, input, BLOCK_SIZE);
             string prefix = string.Format("v2|{0}|", groupID);
 
             byte[] output = new byte[encryptedFields.Length + prefix.Length];
@@ -133,7 +133,7 @@ namespace WebAPI.Managers.Models
 
             // decrypt fields
             int fieldsWithRandomIndex = string.Format("v2|{0}|", groupId).Count();
-            byte[] fieldsWithHashBytes = aesDecrypt(secret, encryptedData.Skip(fieldsWithRandomIndex).ToArray());
+            byte[] fieldsWithHashBytes = Utils.EncryptionUtils.AesDecrypt(secret, encryptedData.Skip(fieldsWithRandomIndex).ToArray(), BLOCK_SIZE);
 
             // trim Right 0
             fieldsWithHashBytes = TrimRight(fieldsWithHashBytes);
@@ -142,7 +142,7 @@ namespace WebAPI.Managers.Models
             byte[] hash = fieldsWithHashBytes.Take(SHA1_SIZE).ToArray();
             byte[] fieldsWithRandom = fieldsWithHashBytes.Skip(SHA1_SIZE).ToArray();
 
-            if (System.Text.Encoding.ASCII.GetString(hash) != System.Text.Encoding.ASCII.GetString(hashSHA1(fieldsWithRandom)))
+            if (System.Text.Encoding.ASCII.GetString(hash) != System.Text.Encoding.ASCII.GetString(Utils.EncryptionUtils.HashSHA1(fieldsWithRandom)))
             {
                 throw new UnauthorizedException((int)StatusCode.InvalidKS, "Wrong KS format");
             }
@@ -214,101 +214,14 @@ namespace WebAPI.Managers.Models
             }).Reverse().ToArray();
         }
 
-        private static byte[] aesDecrypt(string secretForSigning, byte[] text)
-        {
-            // Key
-            byte[] hashedKey = hashSHA1(secretForSigning);
-            byte[] keyBytes = new byte[BLOCK_SIZE];
-            Array.Copy(hashedKey, 0, keyBytes, 0, BLOCK_SIZE);
-
-            //IV
-            byte[] ivBytes = new byte[BLOCK_SIZE];
-
-            // Text
-            int textSize = ((text.Length + BLOCK_SIZE - 1) / BLOCK_SIZE) * BLOCK_SIZE;
-            byte[] textAsBytes = new byte[textSize];
-            Array.Copy(text, 0, textAsBytes, 0, text.Length);
-
-            // Decrypt
-            using (Aes aesAlg = Aes.Create())
-            {
-                aesAlg.Key = keyBytes;
-                aesAlg.IV = ivBytes;
-                aesAlg.Mode = CipherMode.CBC;
-                aesAlg.Padding = PaddingMode.None;
-
-                ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
-
-                using (MemoryStream ms = new MemoryStream())
-                {
-                    using (CryptoStream cst = new CryptoStream(ms, decryptor, CryptoStreamMode.Write))
-                    {
-                        cst.Write(text, 0, text.Length);
-                        return ms.ToArray();
-                    }
-                }
-            }
-        }
+        
 
         public override string ToString()
         {
             return encryptedValue;
         }
 
-        private static byte[] hashSHA1(string payload)
-        {
-            return hashSHA1(Encoding.UTF8.GetBytes(payload));
-        }
-
-        private static byte[] hashSHA1(byte[] payload)
-        {
-            var sha1 = SHA1Managed.Create();
-            return sha1.ComputeHash(payload);
-        }
-
-
-        private static byte[] aesEncrypt(string secretForSigning, byte[] text)
-        {
-            // Key
-            byte[] hashedKey = hashSHA1(secretForSigning);
-            byte[] keyBytes = new byte[BLOCK_SIZE];
-            Array.Copy(hashedKey, 0, keyBytes, 0, BLOCK_SIZE);
-
-            //IV
-            byte[] ivBytes = new byte[BLOCK_SIZE];
-
-            // Text
-            int textSize = ((text.Length + BLOCK_SIZE - 1) / BLOCK_SIZE) * BLOCK_SIZE;
-            byte[] textAsBytes = new byte[textSize];
-            Array.Copy(text, 0, textAsBytes, 0, text.Length);
-
-            // Encrypt
-            using (Aes aesAlg = Aes.Create())
-            {
-                aesAlg.Key = keyBytes;
-                aesAlg.IV = ivBytes;
-                aesAlg.Mode = CipherMode.CBC;
-                aesAlg.Padding = PaddingMode.None;
-
-                ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
-
-                using (MemoryStream ms = new MemoryStream())
-                {
-                    using (CryptoStream cst = new CryptoStream(ms, encryptor, CryptoStreamMode.Write))
-                    {
-                        cst.Write(textAsBytes, 0, textSize);
-                        return ms.ToArray();
-                    }
-                }
-            }
-        }
-
-        private byte[] createRandomByteArray(int size)
-        {
-            byte[] b = new byte[size];
-            new Random().NextBytes(b);
-            return b;
-        }
+        
 
         public static string preparePayloadData(List<KeyValuePair<string, string>> pairs)
         {
