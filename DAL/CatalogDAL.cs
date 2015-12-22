@@ -3784,7 +3784,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@groupId", groupID);
             sp.AddParameter("@name", channel.Name);
             sp.AddParameter("@isActive", channel.IsActive);
-            sp.AddParameter("@status", channel.Status);
+            sp.AddParameter("@status", 1);
             sp.AddParameter("@description", channel.Description);
             sp.AddParameter("@orderBy", (int)channel.Order.m_eOrderBy);
             sp.AddParameter("@orderDirection", (int)channel.Order.m_eOrderDir);
