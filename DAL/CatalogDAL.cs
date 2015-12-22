@@ -3822,6 +3822,8 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@isActive", channel.IsActive);
             sp.AddParameter("@description", channel.Description);
             sp.AddParameter("@Filter", channel.FilterQuery);
+            sp.AddParameter("@orderBy", (int)channel.Order.m_eOrderBy);
+            sp.AddParameter("@orderDirection", (int)channel.Order.m_eOrderDir);
             sp.AddIDListParameter<int>("@AssetTypes", channel.AssetTypes, "Id");
 
             DataSet ds = sp.ExecuteDataSet();
