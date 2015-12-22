@@ -3820,7 +3820,6 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@groupId", groupID);
             sp.AddParameter("@name", channel.Name);
             sp.AddParameter("@isActive", channel.IsActive);
-            sp.AddParameter("@status", channel.Status);
             sp.AddParameter("@description", channel.Description);
             sp.AddParameter("@Filter", channel.FilterQuery);
             sp.AddIDListParameter<int>("@AssetTypes", channel.AssetTypes, "Id");
