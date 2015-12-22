@@ -2216,7 +2216,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.Status.Code, response.Status.Message);
             }
 
-            profile = Mapper.Map<Models.API.KalturaKSQLChannelProfile>(response);
+            profile = Mapper.Map<Models.API.KalturaKSQLChannelProfile>(response.Channel);
             return profile;
         }
 
@@ -2232,7 +2232,6 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     WebAPI.Api.KSQLChannel request = Mapper.Map<WebAPI.Api.KSQLChannel>(channel);
-                    request.Order = ApiMappings.ConvertOrderToOrderObj(channel.Order);
                     response = Api.SetKSQLChannel(group.ApiCredentials.Username, group.ApiCredentials.Password, request);
                 }
             }
@@ -2252,7 +2251,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.Status.Code, response.Status.Message);
             }
 
-            profile = Mapper.Map<KalturaKSQLChannelProfile>(response);
+            profile = Mapper.Map<KalturaKSQLChannelProfile>(response.Channel);
             return profile;
         }
 
