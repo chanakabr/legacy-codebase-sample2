@@ -3645,7 +3645,12 @@ namespace Tvinci.Core.DAL
             }
         }
 
-
+        /// <summary>
+        /// Performs an update query that deletes a given KSQL channel
+        /// </summary>
+        /// <param name="groupID"></param>
+        /// <param name="channelId"></param>
+        /// <returns></returns>
         public static bool DeleteKSQLChannel(int groupID, int channelId)
         {
             bool result = false;
@@ -3710,7 +3715,7 @@ namespace Tvinci.Core.DAL
             int channelType = ODBCWrapper.Utils.GetIntSafeVal(rowData["channel_type"]);
 
             // If the channel is in correct status
-            if ((isActive == 1) && (status == 1) && (channelType == 4))
+            if ((status == 1) && (channelType == 4))
             {
                 channel.IsActive = isActive;
                 channel.Status = status;
