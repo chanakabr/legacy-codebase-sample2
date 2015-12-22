@@ -120,7 +120,7 @@ namespace TVPApiModule.Manager
             return groupConfig;
         }
 
-        public APIToken GenerateAccessToken(string siteGuid, int groupId, bool isAdmin, bool isSTB)
+        public APIToken GenerateAccessToken(string siteGuid, int groupId, bool isAdmin, bool isSTB, string udid)
         {
             if (string.IsNullOrEmpty(siteGuid))
             {
@@ -139,7 +139,7 @@ namespace TVPApiModule.Manager
             }
 
             // generate access token and refresh token pair
-            APIToken apiToken = new APIToken(siteGuid, groupId, isAdmin, groupConfig, isSTB);
+            APIToken apiToken = new APIToken(siteGuid, groupId, isAdmin, groupConfig, isSTB, udid);
             RefreshToken refreshToken = new RefreshToken(apiToken);
 
             // try store access token doc in CB, will return false if the same token already exists
@@ -161,14 +161,14 @@ namespace TVPApiModule.Manager
             return apiToken;
         }
 
-        public void AddTokenToHeadersForValidNotAdminUser(TVPApiModule.Services.ApiUsersService.LogInResponseData signInResponse, int groupId)
+        public void AddTokenToHeadersForValidNotAdminUser(TVPApiModule.Services.ApiUsersService.LogInResponseData signInResponse, int groupId, string udid)
         {
             if (HttpContext.Current.Items.Contains("tokenization") && signInResponse.UserData != null &&
                 (signInResponse.LoginStatus == ResponseStatus.OK || signInResponse.LoginStatus == ResponseStatus.UserNotActivated || signInResponse.LoginStatus == ResponseStatus.DeviceNotRegistered ||
                 signInResponse.LoginStatus == ResponseStatus.UserNotMasterApproved || signInResponse.LoginStatus == ResponseStatus.UserNotIndDomain || signInResponse.LoginStatus == ResponseStatus.UserWithNoDomain ||
                 signInResponse.LoginStatus == ResponseStatus.UserSuspended))
             {
-                var token = AuthorizationManager.Instance.GenerateAccessToken(signInResponse.SiteGuid, groupId, false, false);
+                var token = AuthorizationManager.Instance.GenerateAccessToken(signInResponse.SiteGuid, groupId, false, false, udid);
                 if (token != null)
                 {
                     HttpContext.Current.Response.Headers.Add("access_token", string.Format("{0}|{1}", token.AccessToken, token.AccessTokenExpiration));
