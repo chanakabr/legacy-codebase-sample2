@@ -34,10 +34,7 @@ namespace WebAPI.Controllers
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <param name="language">Language code</param>
-        /// <remarks>Possible status codes: 
-        /// External Channel reference type: ExternalChannelHasNoRecommendationEngine = 4014, AdapterAppFailure = 6012, AdapterUrlRequired = 5013,
-        /// BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, 
-        /// RecommendationEngineNotExist = 4007, ExternalChannelNotExist = 4011</remarks>
+        /// <remarks></remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize(true)]
         public KalturaAssetInfoListResponse List(KalturaAssetInfoFilter filter, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null,
@@ -493,18 +490,17 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Returns media or EPG assets. Filters by media identifiers or by channel identifier or by EPG internal or external identifier or external channel identifier.
+        /// Returns assets that belong to a channel
         /// </summary>
-        /// <param name="filter">Filtering the assets request. Possible additional object types: KalturaExternalChannelFilter</param>
+        /// <param name="id">Channel identifier</param>
         /// <param name="order_by">Ordering the channel</param>
         /// <param name="pager">Paging the request</param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <param name="language">Language code</param>
         /// <remarks>Possible status codes: 
-        /// External Channel reference type: ExternalChannelHasNoRecommendationEngine = 4014, AdapterAppFailure = 6012, AdapterUrlRequired = 5013,
         /// BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, 
-        /// RecommendationEngineNotExist = 4007, ExternalChannelNotExist = 4011</remarks>
+        /// </remarks>
         [Route("channel"), HttpPost]
         [ApiAuthorize(true)]
         public KalturaAssetInfoListResponse Channel(int id, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null,
@@ -543,6 +539,21 @@ namespace WebAPI.Controllers
         }
 
 
+        /// <summary>
+        /// Returns assets as defined by an external channel (3rd party recommendations)
+        /// </summary>
+        /// <param name="id">External channel's identifier</param>
+        /// <param name="order_by">Ordering the assets</param>
+        /// <param name="pager">Paging the request</param>
+        /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
+        /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
+        /// <param name="language">Language code</param>
+        /// <param name="utc_offset">UTC offset for request's enrichment</param>
+        /// <param name="free_param">Suplimentry data that the client can provide the external recommnedation engine</param>
+        /// <remarks>Possible status codes: 
+        /// External Channel reference type: ExternalChannelHasNoRecommendationEngine = 4014, AdapterAppFailure = 6012, AdapterUrlRequired = 5013,
+        /// BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, 
+        /// RecommendationEngineNotExist = 4007, ExternalChannelNotExist = 4011</remarks>
         [Route("externalChannel"), HttpPost]
         [ApiAuthorize(true)]
         public KalturaAssetInfoListResponse ExternalChannel(int id, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null,
