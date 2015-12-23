@@ -2062,7 +2062,7 @@ namespace DAL
             return roleIds; 
         }
 
-        public static int Insert_UserRole(int groupId, string userId, long roleId)
+        public static int Insert_UserRole(int groupId, string userId, long roleId, bool isSingle)
         {
             int rowCount;
 
@@ -2072,6 +2072,7 @@ namespace DAL
                 sp.AddParameter("@user_id", userId);
                 sp.AddParameter("@group_id", groupId);
                 sp.AddParameter("@role_id", roleId);
+                sp.AddParameter("@is_single", isSingle ? 1 : 0);
                 rowCount = sp.ExecuteReturnValue<int>();
 
             }

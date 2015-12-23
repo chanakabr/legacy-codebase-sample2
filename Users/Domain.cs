@@ -903,7 +903,7 @@ namespace Users
             if (eDomainResponseStatus == DomainResponseStatus.OK && DAL.UsersDal.IsUserDomainMaster(nGroupID, nUserID))
             {
                 if (long.TryParse(Utils.GetTcmConfigValue("master_role_id"), out roleId))
-                    DAL.UsersDal.Insert_UserRole(nGroupID, nUserID.ToString(), roleId);
+                    DAL.UsersDal.Insert_UserRole(nGroupID, nUserID.ToString(), roleId, true);
             }
 
             return eDomainResponseStatus;

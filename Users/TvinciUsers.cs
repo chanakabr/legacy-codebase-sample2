@@ -545,7 +545,7 @@ namespace Users
 
                 if (roleId != 0)
                 {
-                    DAL.UsersDal.Insert_UserRole(m_nGroupID, nUserID.ToString(), roleId);
+                    DAL.UsersDal.Insert_UserRole(m_nGroupID, nUserID.ToString(), roleId, true);
                 }
                 else
                 {
