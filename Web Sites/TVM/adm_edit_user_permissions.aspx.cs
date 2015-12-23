@@ -13,8 +13,7 @@ public partial class adm_edit_user_permissions : System.Web.UI.Page
 {
     
     protected string m_sMenu;
-    protected string m_sSubMenu;    
-    public int testIndex;
+    protected string m_sSubMenu;
 
     protected void Page_Load(object sender, EventArgs e)
     {
