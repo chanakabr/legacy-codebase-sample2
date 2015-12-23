@@ -723,11 +723,13 @@ namespace Tvinci.Core.DAL
         }
 
 
-        public static DataSet GetChannelDetails(List<int> nChannelId)
+        public static DataSet GetChannelDetails(List<int> nChannelId, bool alsoInactive = false)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetChannelDetails");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddIDListParameter<int>("@ChannelsID", nChannelId, "Id");
+            sp.AddParameter("alsoInactive", Convert.ToInt32(alsoInactive));
+
             DataSet ds = sp.ExecuteDataSet();
             return ds;
         }
@@ -3685,7 +3687,7 @@ namespace Tvinci.Core.DAL
         {
             KSQLChannel result = null;
 
-            var dataSet = GetChannelDetails(new List<int>() { channelId });
+            var dataSet = GetChannelDetails(new List<int>() { channelId }, true);
 
             if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 1)
             {
@@ -3831,7 +3833,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@description", channel.Description);
             sp.AddParameter("@Filter", channel.FilterQuery);
             sp.AddParameter("@orderBy", (int)channel.Order.m_eOrderBy);
-            sp.AddParameter("@orderDirection", (int)channel.Order.m_eOrderDir);
+            sp.AddParameter("@orderDirection", (int)channel.Order.m_eOrderDir + 1);
             sp.AddIDListParameter<int>("@AssetTypes", channel.AssetTypes, "Id");
 
             DataSet ds = sp.ExecuteDataSet();
@@ -3852,7 +3854,7 @@ namespace Tvinci.Core.DAL
 
         }
 
-        public static DataRowCollection GetPicsData(int mediaId, int? ratioId = null, int? extraStatus = null)
+        public static DataRowCollection GetPicsTableData(int mediaId, int? ratioId = null, int? extraStatus = null)
 
         {
             try

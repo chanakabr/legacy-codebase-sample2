@@ -2597,7 +2597,7 @@ namespace TvinciImporter
 
             try
             {
-                DataRowCollection rows = CatalogDAL.GetPicsData(mediaID, ratioID, 0);
+                DataRowCollection rows = CatalogDAL.GetPicsTableData(mediaID, ratioID, 0);
 
                 if (rows != null && rows.Count > 0)
                 {
