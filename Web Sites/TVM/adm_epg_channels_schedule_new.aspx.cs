@@ -49,7 +49,7 @@ public partial class adm_epg_channels_schedule_new : System.Web.UI.Page
                 Dictionary<int, string> metasDic = getMetaTag(true);
                 int nGroupID = LoginManager.GetLoginGroupID();
                 int nParentGroupID = DAL.UtilsDal.GetParentGroupID(nGroupID);
-                TvinciEpgBL epgBLTvinci = new TvinciEpgBL(nParentGroupID);  //assuming this is a Tvinci user - the TVM does not support editing of yes Epg
+                TvinciEpgBL epgBLTvinci = new TvinciEpgBL(nParentGroupID);  //assuming this is a Kaltura user - the TVM does not support editing of yes Epg
                               
                 EpgCB epg = epgBLTvinci.GetEpgCB((ulong)epgID);
                 CouchBaseManipulator.DoTheWork(ref epg, metasDic, tagsDic); //update the data of the Epg from the page
@@ -298,7 +298,7 @@ public partial class adm_epg_channels_schedule_new : System.Web.UI.Page
 
         //Retrieving the EpgCB or generating one if needed        
         int nParentGroupID = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
-        TvinciEpgBL epgBL = new TvinciEpgBL(nParentGroupID);  //assuming this is a Tvinci user - the TVM does not support editing of yes Epg      
+        TvinciEpgBL epgBL = new TvinciEpgBL(nParentGroupID);  //assuming this is a Kaltura user - the TVM does not support editing of yes Epg      
         EpgCB epg = epgBL.GetEpgCB(ulong.Parse(t.ToString()));       
         if (epg == null)
             epg = new EpgCB();      

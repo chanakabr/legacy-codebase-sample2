@@ -37,7 +37,7 @@ public partial class adm_notofication_tag_type_values : System.Web.UI.Page
                 //Save the tags in notification_parameters table at MessageBox DB
                 nID = Session["nID"].ToString();
                 
-                //get all tagsids from Tvinci DB
+                //get all tagsids from Kaltura DB
                 System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;
 
                 List<string> tagIds = null;

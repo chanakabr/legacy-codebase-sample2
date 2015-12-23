@@ -717,7 +717,7 @@ public partial class temp : System.Web.UI.Page
                 else if (DoesRemotePicExists(sTnRemotePic) == false)
                 {
                     ////TVinciShared.DBManipulator.UploadPicToGroup(sTnPic, sPicsFTP, sPicsFTPUN, sPicsFTPPass);
-                    Response.Write(sTnPic + " uploaded OK (was on tvinci not on server)<br/>");
+                    Response.Write(sTnPic + " uploaded OK (was on Kaltura not on server)<br/>");
                 }
                 else
                 {
@@ -731,7 +731,7 @@ public partial class temp : System.Web.UI.Page
                 else if (DoesRemotePicExists(sBaseRemotePic) == false)
                 {
                     ////TVinciShared.DBManipulator.UploadPicToGroup(sBasePic, sPicsFTP, sPicsFTPUN, sPicsFTPPass);
-                    Response.Write(sTnPic + " uploaded OK (was on tvinci not on server)<br/>");
+                    Response.Write(sTnPic + " uploaded OK (was on Kaltura not on server)<br/>");
                 }
                 else
                 {
@@ -766,7 +766,7 @@ public partial class temp : System.Web.UI.Page
                             else if (DoesRemotePicExists(sPicRemoteURL) == false)
                             {
                                 ////TVinciShared.DBManipulator.UploadPicToGroup(sTmpImage1, sPicsFTP, sPicsFTPUN, sPicsFTPPass);
-                                Response.Write(sTmpImage1 + " uploaded OK (was on tvinci not on server)<br/>");
+                                Response.Write(sTmpImage1 + " uploaded OK (was on Kaltura not on server)<br/>");
                             }
                             else
                             {
@@ -1049,7 +1049,7 @@ public partial class temp : System.Web.UI.Page
                     else if (System.IO.File.Exists(sTmpImage1) == true && DoesRemotePicExists(sPicRemoteURL) == false)
                     {
                         //TVinciShared.DBManipulator.UploadPicToGroup(sTmpImage1, sPicsFTP, sPicsFTPUN, sPicsFTPPass);
-                        Response.Write(sUploadedFile + " uploaded OK (was on tvinci not on server)<br/>");
+                        Response.Write(sUploadedFile + " uploaded OK (was on Kaltura not on server)<br/>");
                     }
                     else
                     {
@@ -1134,7 +1134,7 @@ public partial class temp : System.Web.UI.Page
                     else if (System.IO.File.Exists(sTmpImage1) == true && DoesRemotePicExists(sPicRemoteURL) == false)
                     {
                         //TVinciShared.DBManipulator.UploadPicToGroup(sTmpImage1, sPicsFTP, sPicsFTPUN, sPicsFTPPass);
-                        Response.Write(sUploadedFile + " uploaded OK (was on tvinci not on server)<br/>");
+                        Response.Write(sUploadedFile + " uploaded OK (was on Kaltura not on server)<br/>");
                     }
                     else
                     {
@@ -1219,7 +1219,7 @@ public partial class temp : System.Web.UI.Page
                     else if (System.IO.File.Exists(sTmpImage1) == true && DoesRemotePicExists(sPicRemoteURL) == false)
                     {
                         //TVinciShared.DBManipulator.UploadPicToGroup(sTmpImage1, sPicsFTP, sPicsFTPUN, sPicsFTPPass);
-                        Response.Write(sUploadedFile + " uploaded OK (was on tvinci not on server)<br/>");
+                        Response.Write(sUploadedFile + " uploaded OK (was on Kaltura not on server)<br/>");
                     }
                     else
                     {

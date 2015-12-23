@@ -136,7 +136,7 @@
             </tr>
         </table>
     </form>
-    <table width=980px align=center cellpadding=0 cellspacing=0 dir=rtl height=100%><tr height=100%><td align=left width=100% nowrap height=100% valign=bottom><div class=rights style="height: 100%; vertical-align: bottom;">Powered by <a href='http://www.tvinci.com' target=_blank>Tvinci</a></div></td></tr></table>
+    <table width=980px align=center cellpadding=0 cellspacing=0 dir=rtl height=100%><tr height=100%><td align=left width=100% nowrap height=100% valign=bottom><div class=rights style="height: 100%; vertical-align: bottom;">Powered by <a href='http://www.kaltura.com' target=_blank>Tvinci</a></div></td></tr></table>
     
 </body>
 </html>

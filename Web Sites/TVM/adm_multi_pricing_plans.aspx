@@ -1,4 +1,4 @@
-ο»Ώ<%@ Page Language="C#" AutoEventWireup="true" CodeFile="adm_multi_pricing_plans.aspx.cs" Inherits="adm_multi_pricing_plans" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="adm_multi_pricing_plans.aspx.cs" Inherits="adm_multi_pricing_plans" %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -111,7 +111,7 @@
 																<td class="space01">&nbsp;</td>
 																<td nowrap="nowrap" width="100%">&nbsp;</td>
 																<td>
-																	<a class="btn2" onclick="GetPageTable('',1);" href="javascript:void(0);">Χ—Χ¤Χ©</a>
+																	<a class="btn2" onclick="GetPageTable('',1);" href="javascript:void(0);">ητω</a>
 															    </td>
 															</tr>
 														</table>
@@ -138,7 +138,7 @@
 	<table>
 		<tr>
 			<td>
-				<div class="rights"> Copyright Β© 2009 Tvinci Ltd. All rights reserved. | +972 3 609 8070  | &nbsp;<a style="color:#0080ff;" tabindex="2000" href="mailto:info@tvinci.com">Contact Us</a></div></td><td ><img src="images/admin-footerLogo.png" alt="TVINCI" />
+				<div class="rights"> Copyright © 2006 Kaltura Ltd. All rights reserved. | +972 3 609 8070  | &nbsp;<a style="color:#0080ff;" tabindex="2000" href="mailto:info@tvinci.com">Contact Us</a></div></td><td ><img src="images/admin-footerLogo.png" alt="TVINCI" />
 			</td>
 		</tr>
 	</table>
