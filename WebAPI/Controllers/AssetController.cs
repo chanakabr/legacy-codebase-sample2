@@ -581,15 +581,18 @@ namespace WebAPI.Controllers
 
                 var convertedWith = with.Select(x => x.type).ToList();
 
-                double utcOffsetDouble;
+                if (!string.IsNullOrEmpty(utc_offset))
+                {
+                    double utcOffsetDouble;
 
-                if (!double.TryParse(utc_offset, out utcOffsetDouble))
-                {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "UTC Offset must be a valid number between -12 and 12");
-                }
-                else if (utcOffsetDouble > 12 || utcOffsetDouble < -12)
-                {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "UTC Offset must be a valid number between -12 and 12");
+                    if (!double.TryParse(utc_offset, out utcOffsetDouble))
+                    {
+                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "UTC Offset must be a valid number between -12 and 12");
+                    }
+                    else if (utcOffsetDouble > 12 || utcOffsetDouble < -12)
+                    {
+                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "UTC Offset must be a valid number between -12 and 12");
+                    }
                 }
 
                 string deviceType = System.Web.HttpContext.Current.Request.UserAgent;
