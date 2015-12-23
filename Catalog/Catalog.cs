@@ -4724,7 +4724,7 @@ namespace Catalog
 
             // Adapter will respond with a collection of media assets ID with Kaltura terminology
             List<RecommendationResult> recommendations =
-                RecommendationAdapterController.GetInstance().GetChannelRecommendations(externalChannel, enrichments, out requestId);
+                RecommendationAdapterController.GetInstance().GetChannelRecommendations(externalChannel, enrichments, request.free, out requestId);
 
             if (recommendations == null)
             {

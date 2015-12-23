@@ -723,11 +723,13 @@ namespace Tvinci.Core.DAL
         }
 
 
-        public static DataSet GetChannelDetails(List<int> nChannelId)
+        public static DataSet GetChannelDetails(List<int> nChannelId, bool alsoInactive = false)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetChannelDetails");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddIDListParameter<int>("@ChannelsID", nChannelId, "Id");
+            sp.AddParameter("alsoInactive", Convert.ToInt32(alsoInactive));
+
             DataSet ds = sp.ExecuteDataSet();
             return ds;
         }
@@ -3645,7 +3647,12 @@ namespace Tvinci.Core.DAL
             }
         }
 
-
+        /// <summary>
+        /// Performs an update query that deletes a given KSQL channel
+        /// </summary>
+        /// <param name="groupID"></param>
+        /// <param name="channelId"></param>
+        /// <returns></returns>
         public static bool DeleteKSQLChannel(int groupID, int channelId)
         {
             bool result = false;
@@ -3656,8 +3663,9 @@ namespace Tvinci.Core.DAL
 
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", 2);
                 updateQuery += " WHERE ";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", channelId);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", 1);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", channelId);
+                updateQuery += " and ";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
 
                 result = updateQuery.Execute();
                 updateQuery.Finish();
@@ -3679,7 +3687,7 @@ namespace Tvinci.Core.DAL
         {
             KSQLChannel result = null;
 
-            var dataSet = GetChannelDetails(new List<int>() { channelId });
+            var dataSet = GetChannelDetails(new List<int>() { channelId }, true);
 
             if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 1)
             {
@@ -3699,6 +3707,7 @@ namespace Tvinci.Core.DAL
         private static KSQLChannel CreateKSQLChannelByDataRow(DataTable assetTypesTable, DataRow rowData, Dictionary<string, string> metas = null)
         {
             KSQLChannel channel = new KSQLChannel();
+            channel.AssetTypes = new List<int>();
 
             channel.ID = ODBCWrapper.Utils.GetIntSafeVal(rowData["Id"]);
 
@@ -3708,11 +3717,13 @@ namespace Tvinci.Core.DAL
             int channelType = ODBCWrapper.Utils.GetIntSafeVal(rowData["channel_type"]);
 
             // If the channel is in correct status
-            if ((isActive == 1) && (status == 1) && (channelType == 4))
+            if ((status == 1) && (channelType == 4))
             {
                 channel.IsActive = isActive;
                 channel.Status = status;
                 channel.GroupID = channelGroupId;
+                channel.Name = ODBCWrapper.Utils.ExtractString(rowData, "name");
+                channel.Description = ODBCWrapper.Utils.ExtractString(rowData, "description");
 
                 #region Asset Types
 
@@ -3754,6 +3765,8 @@ namespace Tvinci.Core.DAL
                         (ApiObjects.SearchObjects.OrderBy)ApiObjects.SearchObjects.OrderBy.ToObject(typeof(ApiObjects.SearchObjects.OrderBy), orderBy);
                 }
 
+                channel.Order.m_eOrderDir = (OrderDir)orderDirection;
+
                 #endregion
 
                 channel.FilterQuery = ODBCWrapper.Utils.ExtractString(rowData, "KSQL_FILTER");
@@ -3783,10 +3796,10 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@groupId", groupID);
             sp.AddParameter("@name", channel.Name);
             sp.AddParameter("@isActive", channel.IsActive);
-            sp.AddParameter("@status", channel.Status);
+            sp.AddParameter("@status", 1);
             sp.AddParameter("@description", channel.Description);
             sp.AddParameter("@orderBy", (int)channel.Order.m_eOrderBy);
-            sp.AddParameter("@orderDirection", (int)channel.Order.m_eOrderDir);
+            sp.AddParameter("@orderDirection", (int)channel.Order.m_eOrderDir + 1);
             sp.AddParameter("@Filter", channel.FilterQuery);
             sp.AddIDListParameter<int>("@AssetTypes", channel.AssetTypes, "Id");
 
@@ -3794,7 +3807,14 @@ namespace Tvinci.Core.DAL
 
             if (ds != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
             {
-                result = CreateKSQLChannelByDataRow(null, ds.Tables[0].Rows[0]);
+                DataTable assetTypes = null;
+
+                if (ds.Tables.Count > 1)
+                {
+                    assetTypes = ds.Tables[1];
+                }
+
+                result = CreateKSQLChannelByDataRow(assetTypes, ds.Tables[0].Rows[0], metas);
             }
 
             return result;
@@ -3810,16 +3830,24 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@groupId", groupID);
             sp.AddParameter("@name", channel.Name);
             sp.AddParameter("@isActive", channel.IsActive);
-            sp.AddParameter("@status", channel.Status);
             sp.AddParameter("@description", channel.Description);
             sp.AddParameter("@Filter", channel.FilterQuery);
+            sp.AddParameter("@orderBy", (int)channel.Order.m_eOrderBy);
+            sp.AddParameter("@orderDirection", (int)channel.Order.m_eOrderDir + 1);
             sp.AddIDListParameter<int>("@AssetTypes", channel.AssetTypes, "Id");
 
             DataSet ds = sp.ExecuteDataSet();
 
             if (ds != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
             {
-                result = CreateKSQLChannelByDataRow(null, ds.Tables[0].Rows[0], metas);
+                DataTable assetTypes = null;
+
+                if (ds.Tables.Count > 1)
+                {
+                    assetTypes = ds.Tables[1];
+                }
+
+                result = CreateKSQLChannelByDataRow(assetTypes, ds.Tables[0].Rows[0], metas);
             }
 
             return result;

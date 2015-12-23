@@ -11,6 +11,9 @@ namespace ApiObjects
     {
         public int ID { get; set; }
         public string Name { get; set; }
+        /// <summary>
+        /// 3 Letters code of language
+        /// </summary>
         public string Code { get; set; }
         public string Direction { get; set; }
         public bool IsDefault { get; set; }

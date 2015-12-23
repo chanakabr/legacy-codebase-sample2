@@ -82,7 +82,8 @@ namespace AdapterControllers
 
         #region Public Methods
         
-        public List<RecommendationResult> GetChannelRecommendations(ExternalChannel externalChannel, Dictionary<string, string> enrichments, out string requestId)
+        public List<RecommendationResult> GetChannelRecommendations(ExternalChannel externalChannel, 
+            Dictionary<string, string> enrichments, string free, out string requestId)
         {
             List<RecommendationResult> searchResults = new List<RecommendationResult>();
 
@@ -129,6 +130,7 @@ namespace AdapterControllers
                 var adapterResponse = adapterClient.GetChannelRecommendations(engine.ID,
                     externalChannel.ExternalIdentifier,
                     enrichmentsList.ToArray(),
+                    free,
                     unixTimestamp,
                     System.Convert.ToBase64String(
                         EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
@@ -157,6 +159,7 @@ namespace AdapterControllers
                     adapterResponse = adapterClient.GetChannelRecommendations(engine.ID,
                         externalChannel.ExternalIdentifier,
                         enrichmentsList.ToArray(),
+                        free,
                         unixTimestamp,
                         System.Convert.ToBase64String(
                             EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));

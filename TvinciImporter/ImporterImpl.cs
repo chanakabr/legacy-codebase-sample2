@@ -1945,7 +1945,7 @@ namespace TvinciImporter
                     log.DebugFormat("Error while creating new EpgPic, thumb {0}", thumb);
                 }
             }
-            
+
             return picId;
         }
 
@@ -1965,6 +1965,12 @@ namespace TvinciImporter
                 {
                     imageServerUrl = imageServerUrlObj.ToString();
                     imageServerUrl = imageServerUrl.EndsWith("/") ? imageServerUrl + "InsertImage" : imageServerUrl + "/InsertImage";
+                }
+
+                if (sourcePath.ToLower().Trim().StartsWith("http://") == false &&
+                sourcePath.ToLower().Trim().StartsWith("https://") == false)
+                {
+                    sourcePath = ImageUtils.getRemotePicsURL(groupId) + sourcePath;
                 }
 
                 ImageUploadData data = new ImageUploadData(parentGroupId, picNewName, version, sourcePath, picId, imageServerUrl, mediaType);
@@ -4189,7 +4195,7 @@ namespace TvinciImporter
                 insertQuery.Execute();
                 insertQuery.Finish();
                 insertQuery = null;
-                nMediaID = GetMediaIDByCoGuid(nGroupID, sCoGuid);                
+                nMediaID = GetMediaIDByCoGuid(nGroupID, sCoGuid);
                 Int32 nPicID = DownloadPic(sThumb, sName, nGroupID, nMediaID, sMainLang, "THUMBNAIL", true, 0);
                 if (nPicID != 0)
                 {
