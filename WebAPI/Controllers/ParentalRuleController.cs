@@ -18,7 +18,8 @@ namespace WebAPI.Controllers
     public class ParentalRuleController : ApiController 
     {
         /// <summary>
-        /// Return the parental rules that applies to the user or a household. Can include rules that have been associated in account, household, or user level.        
+        /// Return the parental rules that applies for the user or household. Can include rules that have been associated in account, household, or user level.
+        /// Association level is also specified in the response.
         /// </summary>
         /// <param name="filter">Filter</param>
         /// <remarks>
@@ -63,7 +64,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Enabled a parental rule for a specific user or household    
+        /// Enable a parental rules for a user  
         /// </summary>
         /// <param name="by">Reference type to filter by</param>
         /// <remarks>Possible status codes: 
@@ -102,7 +103,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Disables a parental rule for a specific user or household     
+        /// Disable a parental rules for a user  
         /// </summary>
         /// <param name="by">Reference type to filter by</param>
         /// <remarks>Possible status codes: 
@@ -142,7 +143,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Disables the partner's default rule for this household        
+        /// Disable a default parental rules for a user    
         /// </summary>
         /// <remarks>
         /// Possible status codes: Bad, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,

@@ -177,7 +177,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Get a household’s billing account identifier (charge ID) in a given payment gateway 
+        /// Get a household’s billing account identifier (charge ID) for a given payment gateway
         /// </summary>
         /// <remarks>
         /// Possible status codes: Payment gateway not exist for group = 6008, External idntifier is required = 6016, Charge id not set to household = 6026

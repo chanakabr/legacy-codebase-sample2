@@ -17,7 +17,7 @@ namespace WebAPI.Controllers
     public class PinController : ApiController
     {
         /// <summary>
-        /// Retrieve the parental or purchase PIN that applies for the user or the household.        
+        /// Retrieve the parental or purchase PIN that applies for the household or user. Includes specification of where the PIN was defined at – account, household or user  level
         /// </summary>
         /// <param name="type">The PIN type to retrieve</param>
         /// <param name="by">Reference type to filter by</param>
@@ -133,7 +133,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Validate that a given parental or purchase PIN for a user is valid.        
+        /// Validate a purchase or parental PIN for a user.
         /// </summary>
         /// <param name="type">The PIN type to retrieve</param>
         /// <remarks>Possible status codes: 

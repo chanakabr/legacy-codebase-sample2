@@ -147,7 +147,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// login with facebook token.
+        /// Login via Facebook credentials
         /// </summary>        
         /// <param name="partnerId">Partner identifier</param>
         /// <param name="token">Facebook token</param>
@@ -403,7 +403,7 @@ namespace WebAPI.Controllers
             return new KalturaOTTUserListResponse() { Users = response, TotalCount = response.Count };
         }
 
-        /// <summary>Edit user details.        
+        /// <summary>Update user information      
         /// </summary>
         /// <param name="user"> UserData Object (include basic and dynamic data)</param>
         /// <remarks>         User suspended = 2001, User does not exist = 2000

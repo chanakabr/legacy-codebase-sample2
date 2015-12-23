@@ -15,7 +15,7 @@ namespace WebAPI.Controllers
     public class UserLoginPinController : ApiController
     {
         /// <summary>
-        /// Generates a temporarily PIN that can allow a user to log-in.
+        /// Generate a time and usage expiry login-PIN that can allow a single login per PIN. If an active login-PIN already exists. Calling this API again for same user will add another login-PIN 
         /// </summary>        
         /// <param name="secret">Additional security parameter for optional enhanced security</param>
         /// <remarks>Possible status codes: User doesn't exist = 2000, User suspended = 2001
@@ -42,7 +42,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Set a temporarily PIN that can allow a user to log-in.        
+        /// Set a time and usage expiry login-PIN that can allow a single login per PIN. If an active login-PIN already exists. Calling this API again for same user will add another login-PIN 
         /// </summary>
         /// <param name="pin_code">Device Identifier</param>
         /// <param name="secret">Additional security parameter to validate the login</param>
@@ -74,7 +74,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Immediately deletes all pre set login pin codes for the user.
+        /// Immediately expire all active login-PINs for a user
         /// </summary>
         /// <remarks></remarks>
         [Route("deleteAll"), HttpPost]

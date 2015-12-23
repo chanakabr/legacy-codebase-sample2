@@ -16,7 +16,7 @@ namespace WebAPI.Controllers
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         /// <summary>
-        /// Returns payment gateway for household
+        /// Get a list of all configured Payment Gateways providers available for the partner
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
@@ -53,7 +53,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Returns selected payment gateway for household
+        /// Get the Payment Gateway provider configured for the household, or the default payment gateway provider is a provider is not configutd for the household
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
@@ -90,7 +90,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Insert new payment gateway for household
+        /// Set a Payment Gateway provider for the household. It also clear the Charge ID.
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
