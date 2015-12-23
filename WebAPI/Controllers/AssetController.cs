@@ -26,18 +26,15 @@ namespace WebAPI.Controllers
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         /// <summary>
-        /// Returns media or EPG assets. Filters by media identifiers or by channel identifier or by EPG internal or external identifier or external channel identifier.
+        /// Returns media or EPG assets. Filters by media identifiers or by EPG internal or external identifier.
         /// </summary>
-        /// <param name="filter">Filtering the assets request. Possible additional object types: KalturaExternalChannelFilter</param>
-        /// <param name="order_by">Ordering the channel</param>
+        /// <param name="filter">Filtering the assets request</param>
+        /// <param name="order_by">Ordering the assets</param>
         /// <param name="pager">Paging the request</param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <param name="language">Language code</param>
-        /// <remarks>Possible status codes: 
-        /// External Channel reference type: ExternalChannelHasNoRecommendationEngine = 4014, AdapterAppFailure = 6012, AdapterUrlRequired = 5013,
-        /// BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, 
-        /// RecommendationEngineNotExist = 4007, ExternalChannelNotExist = 4011</remarks>
+        /// <remarks></remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize(true)]
         public KalturaAssetInfoListResponse List(KalturaAssetInfoFilter filter, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null,
@@ -90,24 +87,6 @@ namespace WebAPI.Controllers
                                 throw new NotFoundException();
                         }
                         break;
-                    case KalturaCatalogReferenceBy.channel:
-                        {
-                            int channelID;
-                            if (!int.TryParse(filter.IDs.First().value, out channelID))
-                            {
-                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id must be numeric when type is channel");
-                            }
-
-                            var withList = with.Select(x => x.type).ToList();
-                            response = ClientsManager.CatalogClient().GetChannelAssets(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
-                                pager.PageIndex, pager.PageSize, withList, channelID, order_by, string.Empty);
-
-                            //response = ClientsManager.CatalogClient().GetChannelMedia(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
-                            //    pager.PageIndex, pager.PageSize, channelID, order_by, with.Select(x => x.type).ToList(),
-                            //    filter.FilterTags == null ? null : filter.FilterTags.Select(x => new KeyValue() { m_sKey = x.Key, m_sValue = x.Value.value }).ToList(),
-                            //    filter.cutWith);
-                        }
-                        break;
                     case KalturaCatalogReferenceBy.epg_internal:
                         {
                             try
@@ -142,39 +121,6 @@ namespace WebAPI.Controllers
                             }
                         }
                         break;
-                    case KalturaCatalogReferenceBy.external_channel:
-                        {
-                            if (filter.IDs.Count != 1)
-                            {
-                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Must have only 1 ID when type is external channel");
-                            }
-
-                            string externalChannelId = filter.IDs.First().value;
-
-                            var convertedWith = with.Select(x => x.type).ToList();
-
-                            KalturaExternalChannelFilter convertedFilter = filter as KalturaExternalChannelFilter;
-
-                            string utcOffset = convertedFilter.UtcOffset;
-
-                            double utcOffsetDouble;
-
-                            if (!double.TryParse(utcOffset, out utcOffsetDouble))
-                            {
-                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "UTC Offset must be a valid number between -12 and 12");
-                            }
-                            else if (utcOffsetDouble > 12 || utcOffsetDouble < -12)
-                            {
-                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "UTC Offset must be a valid number between -12 and 12");
-                            }
-
-                            string deviceType = System.Web.HttpContext.Current.Request.UserAgent;
-
-                            response = ClientsManager.CatalogClient().GetExternalChannelAssets(groupId, externalChannelId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
-                                language, pager.PageIndex, pager.PageSize, order_by, convertedWith, deviceType, convertedFilter.UtcOffset);
-
-                            break;
-                        }
                     default:
                         throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Not implemented");
                 }
@@ -534,6 +480,125 @@ namespace WebAPI.Controllers
 
                 response = ClientsManager.CatalogClient().GetSearchMediaExternal(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
                     language, pager.PageIndex, pager.PageSize, query, filter_type_ids.Select(x => x.value).ToList(), utcOffset, with.Select(x => x.type).ToList());
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Returns assets that belong to a channel
+        /// </summary>
+        /// <param name="id">Channel identifier</param>
+        /// <param name="order_by">Ordering the channel</param>
+        /// <param name="pager">Paging the request</param>
+        /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
+        /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
+        /// <param name="language">Language code</param>
+        /// <remarks>Possible status codes: 
+        /// BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, 
+        /// </remarks>
+        [Route("channel"), HttpPost]
+        [ApiAuthorize(true)]
+        public KalturaAssetInfoListResponse Channel(int id, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null,
+            KalturaFilterPager pager = null, string language = null)
+        {
+            KalturaAssetInfoListResponse response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+            string udid = KSUtils.ExtractKSPayload().UDID;
+
+            if (pager == null)
+                pager = new KalturaFilterPager();
+
+            if (with == null)
+                with = new List<KalturaCatalogWithHolder>();
+
+            if (id <= 0)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id must be positive");
+            }
+
+            try
+            {
+                string userID = KS.GetFromRequest().UserId;
+
+                var withList = with.Select(x => x.type).ToList();
+                response = ClientsManager.CatalogClient().GetChannelAssets(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
+                    pager.PageIndex, pager.PageSize, withList, id, order_by, string.Empty);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+
+        /// <summary>
+        /// Returns assets as defined by an external channel (3rd party recommendations)
+        /// </summary>
+        /// <param name="id">External channel's identifier</param>
+        /// <param name="order_by">Ordering the assets</param>
+        /// <param name="pager">Paging the request</param>
+        /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
+        /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
+        /// <param name="language">Language code</param>
+        /// <param name="utc_offset">UTC offset for request's enrichment</param>
+        /// <param name="free_param">Suplimentry data that the client can provide the external recommnedation engine</param>
+        /// <remarks>Possible status codes: 
+        /// External Channel reference type: ExternalChannelHasNoRecommendationEngine = 4014, AdapterAppFailure = 6012, AdapterUrlRequired = 5013,
+        /// BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, 
+        /// RecommendationEngineNotExist = 4007, ExternalChannelNotExist = 4011</remarks>
+        [Route("externalChannel"), HttpPost]
+        [ApiAuthorize(true)]
+        public KalturaAssetInfoListResponse ExternalChannel(int id, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null,
+            KalturaFilterPager pager = null, string language = null, string utc_offset = null, string free_param = null)
+        {
+            KalturaAssetInfoListResponse response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+            string udid = KSUtils.ExtractKSPayload().UDID;
+
+            if (pager == null)
+                pager = new KalturaFilterPager();
+
+            if (with == null)
+                with = new List<KalturaCatalogWithHolder>();
+
+            if (id <= 0)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id must be positive");
+            }
+
+            try
+            {
+                string userID = KS.GetFromRequest().UserId;
+
+                var convertedWith = with.Select(x => x.type).ToList();
+
+                if (!string.IsNullOrEmpty(utc_offset))
+                {
+                    double utcOffsetDouble;
+
+                    if (!double.TryParse(utc_offset, out utcOffsetDouble))
+                    {
+                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "UTC Offset must be a valid number between -12 and 12");
+                    }
+                    else if (utcOffsetDouble > 12 || utcOffsetDouble < -12)
+                    {
+                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "UTC Offset must be a valid number between -12 and 12");
+                    }
+                }
+
+                string deviceType = System.Web.HttpContext.Current.Request.UserAgent;
+
+                response = ClientsManager.CatalogClient().GetExternalChannelAssets(groupId, id.ToString(), userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
+                    language, pager.PageIndex, pager.PageSize, order_by, convertedWith, deviceType, utc_offset, free_param);
             }
             catch (ClientException ex)
             {
