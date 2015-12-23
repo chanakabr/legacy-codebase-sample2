@@ -509,15 +509,15 @@ namespace Catalog
                 else
                 {
                     // new image server - get pictures data
-                    List<PicData> picsData = new List<PicData>();
-                    DataRowCollection rows = CatalogDAL.GetPicsData(mediaId);
+                    List<PicData> picsTableData = new List<PicData>();
+                    DataRowCollection rows = CatalogDAL.GetPicsTableData(mediaId);
                     if (rows == null || rows.Count == 0)
                         return null;
                     else
                     {
                         foreach (DataRow row in rows)
                         {
-                            picsData.Add(new PicData()
+                            picsTableData.Add(new PicData()
                             {
                                 RatioId = Utils.GetIntSafeVal(row, "RATIO_ID"),
                                 Version = Utils.GetIntSafeVal(row, "VERSION"),
@@ -528,6 +528,12 @@ namespace Catalog
                             });
                         }
                     }
+
+                    // check if migrated image or new one 
+                    bool isMigratedImage = false;
+                    PicData picDataZeroRatio = picsTableData.FirstOrDefault(x => x.RatioId == 0);
+                    if (picDataZeroRatio != null)
+                        isMigratedImage = true;
 
                     // build image server URL
                     var imageServerUrlObj = TVinciShared.PageUtils.GetTableSingleVal("groups", "IMAGE_SERVER_URL", groupId);
@@ -541,7 +547,7 @@ namespace Catalog
                     }
 
                     // get picture base URL
-                    string picBaseName = Path.GetFileNameWithoutExtension(picsData[0].BaseUrl);
+                    string picBaseName = Path.GetFileNameWithoutExtension(picsTableData[0].BaseUrl);
                     if (string.IsNullOrEmpty(picBaseName))
                         throw new Exception("could not retrieve picture base URL");
 
@@ -549,11 +555,23 @@ namespace Catalog
                         dtPic.Rows != null &&
                         dtPic.Rows.Count > 0)
                     {
-                        // new images server, migrated user with picture sizes
-
-                        // build picture list
+                        // new images server with picture sizes
                         for (int i = 0; i < dtPic.Rows.Count; i++)
                         {
+                            // ratio ID
+                            int ratioId = Utils.GetIntSafeVal(dtPic.Rows[i], "RATIO_ID");
+                            var picsRowData = picsTableData.FirstOrDefault(x => x.RatioId == ratioId);
+
+                            if (!isMigratedImage)
+                            {
+                                // new image (not migrated)
+                                if (picsRowData == null)
+                                {
+                                    // data doesn't exists in pictures table 
+                                    continue;
+                                }
+                            }
+
                             picObj = new Picture();
 
                             // get size string: <width>X<height>
@@ -563,13 +581,11 @@ namespace Catalog
                             picObj.ratio = Utils.GetStrSafeVal(dtPic.Rows[i], "RATIO");
 
                             // get picture id: <pic_base_url>_<ratio_id>
-                            int ratioId = Utils.GetIntSafeVal(dtPic.Rows[i], "RATIO_ID");
                             picObj.id = string.Format("{0}_{1}", picBaseName, ratioId);
 
                             // get version: if ratio_id exists in pictures table => get its version
-                            var picdata = picsData.FirstOrDefault(x => x.RatioId == ratioId);
-                            if (picdata != null)
-                                picObj.version = picdata.Version;
+                            if (picsRowData != null)
+                                picObj.version = picsRowData.Version;
                             else
                                 picObj.version = 0;
 
@@ -589,10 +605,8 @@ namespace Catalog
                     }
                     else
                     {
-                        // new image server, sizes are not defined -> check if migrated image or new one 
-                        PicData picDataZeroRatio = picsData.FirstOrDefault(x => x.RatioId == 0);
-
-                        if (picDataZeroRatio != null)
+                        // sizes are not defined
+                        if (isMigratedImage)
                         {
                             // new image server, sizes are not defined, migrated media/picture => get group ratios
                             List<Ratio> groupRatios = CatalogCache.Instance().GetGroupRatios(picDataZeroRatio.GroupId);
@@ -614,7 +628,7 @@ namespace Catalog
                                 picObj.id = string.Format("{0}_{1}", picBaseName, ratio.Id);
 
                                 // get version
-                                PicData pic = picsData.FirstOrDefault(x => x.RatioId == 0);
+                                PicData pic = picsTableData.FirstOrDefault(x => x.RatioId == 0);
                                 if (pic != null)
                                     picObj.version = pic.Version;
                                 else
@@ -634,8 +648,8 @@ namespace Catalog
                         }
                         else
                         {
-                            // new image server, sizes are not defined, new media/picture
-                            foreach (var picData in picsData)
+                            // new image server, sizes are not defined, new image
+                            foreach (var picData in picsTableData)
                             {
                                 picObj = new Picture();
 

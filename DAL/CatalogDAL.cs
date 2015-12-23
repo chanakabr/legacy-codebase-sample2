@@ -3826,7 +3826,7 @@ namespace Tvinci.Core.DAL
 
         }
 
-        public static DataRowCollection GetPicsData(int mediaId, int? ratioId = null, int? extraStatus = null)
+        public static DataRowCollection GetPicsTableData(int mediaId, int? ratioId = null, int? extraStatus = null)
 
         {
             try
