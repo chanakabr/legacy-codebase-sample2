@@ -881,7 +881,8 @@ namespace WebAPI.Clients
                 },
                 m_sSiteGuid = siteGuid,
                 m_sUserIP = Utils.Utils.GetClientIP(),
-                utcOffset = utcOffset
+                utcOffset = utcOffset,
+                free = freeParam
             };
 
             // build failover cache key
