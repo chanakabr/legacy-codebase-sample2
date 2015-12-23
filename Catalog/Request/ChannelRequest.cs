@@ -284,6 +284,11 @@ namespace Catalog.Request
         {
             if (oOrderObj.m_eOrderBy.Equals(OrderBy.ID))
             {
+                if (channel.m_lManualMedias == null)
+                {
+                    channel.m_lManualMedias = new List<GroupsCacheManager.ManualMedia>();
+                }
+
                 IEnumerable<int> ids;
                 if (oOrderObj.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC)
                 {

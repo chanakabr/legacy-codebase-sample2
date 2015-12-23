@@ -310,6 +310,8 @@ namespace GroupsCacheManager
                 channel.m_lChannelTags = new List<SearchValue>();
             }
 
+            channel.m_lManualMedias = new List<ManualMedia>();
+
             channel.m_nChannelID = ODBCWrapper.Utils.GetIntSafeVal(rowData["Id"]);
 
             int channelGroupId = ODBCWrapper.Utils.GetIntSafeVal(rowData["group_id"]);

@@ -6053,6 +6053,7 @@ namespace Catalog
                         break;
                 }
 
+                // If there is at least one tag
                 if (channel.m_lChannelTags != null && channel.m_lChannelTags.Count > 0)
                 {
                     List<BooleanPhraseNode> channelTagsNodes = new List<BooleanPhraseNode>();
@@ -6065,19 +6066,19 @@ namespace Catalog
                             switch (channel.m_eCutWith)
                             {
                                 case CutWith.WCF_ONLY_DEFAULT_VALUE:
-                                    break;
+                                break;
                                 case CutWith.OR:
-                                    {
-                                        innerCutType = eCutType.Or;
-                                        break;
-                                    }
-                                case CutWith.AND:
-                                    {
-                                        innerCutType = eCutType.And;
-                                        break;
-                                    }
-                                default:
+                                {
+                                    innerCutType = eCutType.Or;
                                     break;
+                                }
+                                case CutWith.AND:
+                                {
+                                    innerCutType = eCutType.And;
+                                    break;
+                                }
+                                default:
+                                break;
                             }
 
                             string key = searchValue.m_sKey.ToLower();
@@ -6112,6 +6113,12 @@ namespace Catalog
                     }
 
                     initialTree = new BooleanPhrase(channelTagsNodes, cutType);
+                }
+                else
+                {
+                    // if there are no tags:
+                    // filter everything out
+                    initialTree = new BooleanLeaf("media_Id", 0);
                 }
 
                 #endregion
