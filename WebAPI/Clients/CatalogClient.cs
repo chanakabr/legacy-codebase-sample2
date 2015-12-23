@@ -847,7 +847,7 @@ namespace WebAPI.Clients
         public KalturaAssetInfoListResponse GetExternalChannelAssets(int groupId, string channelId, 
             string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
             KalturaOrder? orderBy, List<KalturaCatalogWith> with,
-            string deviceType = null, string utcOffset = null)
+            string deviceType = null, string utcOffset = null, string freeParam = null)
         {
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
