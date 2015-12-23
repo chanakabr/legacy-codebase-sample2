@@ -70,7 +70,9 @@ public partial class adm_channels_media : System.Web.UI.Page
 
     public void GetHeader()
     {
-        Response.Write(PageUtils.GetPreHeader() + ":" + PageUtils.GetTableSingleVal("channels", "NAME", int.Parse(Session["channel_id"].ToString())).ToString() + ": Media List");
+        Response.Write(PageUtils.GetPreHeader() + ":" + 
+            PageUtils.GetTableSingleVal("channels", "NAME", int.Parse(Session["channel_id"].ToString())).ToString() + 
+            ": Assets List");
     }
 
     protected void GetMainMenu()
@@ -119,6 +121,13 @@ public partial class adm_channels_media : System.Web.UI.Page
 
         string mediaQuery = string.Empty;
         string epgQuery = string.Empty;
+
+        // If there are no assets at all - simulate like we have 1 media with ID 0,
+        // so that the table's query will work and not throw an exception
+        if (string.IsNullOrEmpty(mediaIds) && string.IsNullOrEmpty(epgIds))
+        {
+            mediaIds = "0";
+        }
 
         // Build media query - if we have any media IDs
         if (!string.IsNullOrEmpty(mediaIds))
