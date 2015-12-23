@@ -135,7 +135,7 @@
                     <div class="rights">Copyright © 2006 Kaltura Ltd. All rights reserved. | +972 3 609 8070  | &nbsp;<a style="color: #0080ff;" tabindex="2000" href="mailto:info@tvinci.com">Contact Us</a></div>
                 </td>
                 <td>
-                    <img src="images/admin-footerLogo.png" alt="TVINCI" />
+                    <img src="images/admin-footerLogo.png" alt="Kaltura" />
                 </td>
             </tr>
         </table>

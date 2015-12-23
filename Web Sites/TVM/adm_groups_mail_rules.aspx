@@ -152,7 +152,7 @@
                             tabindex="2000" href="mailto:info@tvinci.com">Contact Us</a></div>
                 </td>
                 <td>
-                    <img src="images/admin-footerLogo.png" alt="TVINCI" />
+                    <img src="images/admin-footerLogo.png" alt="Kaltura" />
                 </td>
             </tr>
         </table>
