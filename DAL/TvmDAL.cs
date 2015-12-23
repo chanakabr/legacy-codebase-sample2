@@ -527,7 +527,7 @@ namespace DAL
         private const string GET_USERS_QUERY = "select distinct id, username from accounts where status=1  order by username";
         private const string USER_ALLOWED_PERMISSION_QUERY = "select distinct menu_id, menu_text, menu_href from admin_accounts_permissions ap join admin_menu menu on (menu.ID=ap.menu_id) where ap.status=1 and account_id = {0} order by menu_id";
         private const string USER_NOT_ALLOWED_PERMISSION_QUERY = "select distinct menu.id menu_id, menu_text, menu_href from admin_menu menu left join admin_accounts_permissions ap  on (menu.ID=ap.menu_id) where menu.id not in (select distinct menu_id from admin_accounts_permissions where status=1 and account_id = {0}) order by menu_id";
-        private const string GET_USER_SPECIFIC_MENU_STATUS_QUERY = "select top(1) status from admin_accounts_permissions where account_id={0} and menu_id={1} and status=1 order by status desc";
+        private const string GET_USER_SPECIFIC_MENU_STATUS_QUERY = "select top(1) status from admin_accounts_permissions where account_id={0} and menu_id={1} order by status desc";
         private const string GET_GROUPS_QUERY = "select distinct moto_text from accounts where (moto_text is not null or moto_text<>'') and status=1 and is_active=1 order by moto_text";
         private const string GET_USERS_IN_GROUP_QUERY = "select distinct id, username from accounts where moto_text='{0}' and status=1 and is_active=1 order by username";
         private const string GET_USERS_NOT_IN_GROUP_QUERY = "select distinct id, username from accounts where (moto_text is null or moto_text<>'{0}') and status=1 and is_active=1 order by username";
@@ -1074,8 +1074,9 @@ namespace DAL
                 selectQuery = new DataSetSelectQuery();
                 selectQuery += string.Format(GET_USER_SPECIFIC_MENU_STATUS_QUERY, userID, menuID);
                 selectQuery.SetCachedSec(0);
+                DataTable dt = selectQuery.Execute("userSpecificStatusQuery", true);
 
-                if (selectQuery.Execute("userSpecificStatusQuery", true) != null)
+                if (dt != null && dt.Rows.Count > 0)
                 {
                     returnValue = Utils.GetIntSafeVal(selectQuery.Table("userSpecificStatusQuery").Rows[0], "status");                    
                 }
