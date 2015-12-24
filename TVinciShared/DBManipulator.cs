@@ -2032,10 +2032,10 @@ namespace TVinciShared
                 int parentGroupId = DAL.UtilsDal.GetParentGroupID(groupId);
 
                 // build image server URL
-                var imageServerUrlObj = TVinciShared.PageUtils.GetTableSingleVal("groups", "PICS_REMOTE_BASE_URL", groupId);
+                var imageServerUrlObj = TVinciShared.PageUtils.GetTableSingleVal("groups", "IMAGE_SERVER_URL", groupId);
                 string imageServerUrl = string.Empty;
                 if (imageServerUrlObj == null)
-                    throw new Exception(string.Format("PICS_REMOTE_BASE_URL wasn't found. GID: {0}", groupId));
+                    throw new Exception(string.Format("IMAGE_SERVER_URL wasn't found. GID: {0}", groupId));
                 else
                 {
                     imageServerUrl = imageServerUrlObj.ToString();
