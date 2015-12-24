@@ -6124,6 +6124,11 @@ namespace Catalog
                 #endregion
             }
 
+            if (initialTree != null)
+            {
+                Catalog.UpdateNodeTreeFields(request, ref initialTree, definitions, group);
+            }
+
             #region Final Filter Tree
 
             // Connect the request's filter query with the channel's tags/metas definitions
