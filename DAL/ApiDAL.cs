@@ -2793,11 +2793,16 @@ namespace DAL
         public static List<Role> GetRoles(int groupId, List<long> roleIds)
         {
             List<Role> roles = new List<Role>();
+
+            // roles permission dictionary holds a dictionary of permissions for each role - dictionary<role id, <permission id, permission>>
             Dictionary<long, Dictionary<long, Permission>> rolesPermissions = new Dictionary<long, Dictionary<long, Permission>>();
+            
+            // permissions permission items dictionary holds a dictionary of permission items for each permission - dictionary<permission id, <permission item id, permission item>>
             Dictionary<long, Dictionary<long, PermissionItem>> permissionPermissionItems = new Dictionary<long, Dictionary<long, PermissionItem>>();
 
             try
             {
+                // get the roles, permissions, permission items tables 
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_Roles");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@group_id", groupId);
@@ -2813,25 +2818,32 @@ namespace DAL
 
                     Role role;
 
+                    // build permission permission items dictionary
                     permissionPermissionItems = BuildPermissionItems(permissionItemsTable);
 
+                    // build roles permissions dictionary
                     rolesPermissions = BuildPermissions(groupId, permissionPermissionItems, permissionsTable);
 
+                    // build roles
                     if (rolesTable != null && rolesTable.Rows != null && rolesTable.Rows.Count > 0)
                     {
                         foreach (DataRow rolesRow in rolesTable.Rows)
                         {
+                            // create new role
                             role = new Role()
                             {
                                 Id = ODBCWrapper.Utils.GetLongSafeVal(rolesRow, "ID"),
                                 Name = ODBCWrapper.Utils.GetSafeStr(rolesRow, "NAME"),
                             };
 
+                            // add permissions for role if exists
                             if (rolesPermissions != null && rolesPermissions.ContainsKey(role.Id) && rolesPermissions[role.Id] != null)
                             {
                                 role.Permissions = rolesPermissions[role.Id].Values.ToList();
-                                roles.Add(role);
                             }
+                            
+                            // add role
+                            roles.Add(role);
                         }
                     }
                 }
@@ -2864,11 +2876,13 @@ namespace DAL
                     permissionType = (ePermissionType)ODBCWrapper.Utils.GetIntSafeVal(permissionItemsRow, "TYPE");
                     retrievedGroupId = ODBCWrapper.Utils.GetIntSafeVal(permissionItemsRow, "GROUP_ID");
 
+                    // if the role - permission connection is overridden by another group - get the exclusion status of the connection
                     if (groupId != 0)
                     {
                         isExcluded = ODBCWrapper.Utils.GetIntSafeVal(permissionItemsRow, "IS_EXCLUDED") == 1 ? true : false;
                     }
 
+                    // build the permission object depending on the type
                     switch (permissionType)
                     {
                         case ePermissionType.Normal:
@@ -2896,15 +2910,18 @@ namespace DAL
 
                         roleId = ODBCWrapper.Utils.GetLongSafeVal(permissionItemsRow, "ROLE_ID");
 
+                        // add the connection and the permission to the role - permission dictionary 
+                        // if the role is not yet in the dictionary add it
                         if (!rolesPermissions.ContainsKey(roleId))
                         {
                             rolesPermissions.Add(roleId, new Dictionary<long, Permission>());
                         }
-
+                        // if the connection should be excluded for this group - remove it from the dictionary
                         if (isExcluded && rolesPermissions[roleId].ContainsKey(permission.Id))
                         {
                             rolesPermissions[roleId].Remove(permission.Id);
                         }
+                        // add it
                         else if (!rolesPermissions[roleId].ContainsKey(permission.Id))
                         {
                             rolesPermissions[roleId].Add(permission.Id, permission);
@@ -2919,26 +2936,29 @@ namespace DAL
         private static Dictionary<long, Dictionary<long, PermissionItem>> BuildPermissionItems(DataTable permissionItemsTable)
         {
             Dictionary<long, Dictionary<long, PermissionItem>> permissionPermissionItems = new Dictionary<long, Dictionary<long, PermissionItem>>();
-            PermissionItem permissionItem;
-            long permissionId;
-            int groupId;
-            ePermissionItemType permissionItemType;
-            bool isExcluded;
-
 
             if (permissionItemsTable != null && permissionItemsTable.Rows != null && permissionItemsTable.Rows.Count > 0)
             {
+                PermissionItem permissionItem;
+                long permissionId;
+                int groupId;
+                ePermissionItemType permissionItemType;
+                bool isExcluded;
+            
                 foreach (DataRow permissionsRow in permissionItemsTable.Rows)
                 {
                     isExcluded = false;
+                    
                     permissionItemType = (ePermissionItemType)ODBCWrapper.Utils.GetIntSafeVal(permissionsRow, "TYPE");
                     groupId = ODBCWrapper.Utils.GetIntSafeVal(permissionsRow, "GROUP_ID");
 
+                    // if the permission - permission item connection is overridden by another group - get the exclusion status of the connection
                     if (groupId != 0)
                     {
                         isExcluded = ODBCWrapper.Utils.GetIntSafeVal(permissionsRow, "IS_EXCLUDED") == 1 ? true : false;
                     }
 
+                    // build the permission item object depending on the type
                     switch (permissionItemType)
                     {
                         case ePermissionItemType.Action:
@@ -2964,15 +2984,19 @@ namespace DAL
 
                         permissionId = ODBCWrapper.Utils.GetLongSafeVal(permissionsRow, "PERMISSION_ID");
 
+                        // add the connection and the permission item to the permission - permission items dictionary 
+                        // if the permission is not yet in the dictionary add it
                         if (!permissionPermissionItems.ContainsKey(permissionId))
                         {
                             permissionPermissionItems.Add(permissionId, new Dictionary<long, PermissionItem>());
                         }
 
+                        // if the connection should be excluded for this group - remove it from the dictionary
                         if (isExcluded && permissionPermissionItems[permissionId].ContainsKey(permissionItem.Id))
                         {
                             permissionPermissionItems[permissionId].Remove(permissionItem.Id);
                         }
+                        // add it
                         else if (!permissionPermissionItems[permissionId].ContainsKey(permissionItem.Id))
                         {
                             permissionPermissionItems[permissionId].Add(permissionItem.Id, permissionItem);
