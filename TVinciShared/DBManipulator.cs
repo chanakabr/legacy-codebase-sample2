@@ -1602,8 +1602,8 @@ namespace TVinciShared
                                 sUseQueue = sUseQueue.ToLower();
                                 if (sUseQueue.Equals("true"))
                                 {
-                                     log.DebugFormat("downloadPicWithQueue");
-                                    
+                                    log.DebugFormat("downloadPicWithQueue");
+
                                     int mediaID = 0;
                                     if (HttpContext.Current.Session["media_id"] != null)
                                     {
@@ -1685,7 +1685,7 @@ namespace TVinciShared
                                     }
                                     else
                                     {
-                                         DownloadPicToImageServer(mediaID, nGroupID, nCounter, ref sPicBaseName, sBasePath, ref sUploadedFile, ref sUploadedFileExt, theFile, sDirectory, selectedRatioVal, bIsImage);
+                                        DownloadPicToImageServer(mediaID, nGroupID, nCounter, ref sPicBaseName, sBasePath, ref sUploadedFile, ref sUploadedFileExt, theFile, sDirectory, selectedRatioVal, bIsImage);
                                     }
                                 }
                                 else
@@ -1890,7 +1890,7 @@ namespace TVinciShared
             return nID;
         }
 
-        private static int DownloadPicToImageServer(int mediaID, int groupID, int counter, ref string mediaName, string baseUrl, ref string uploadedFile, 
+        private static int DownloadPicToImageServer(int mediaID, int groupID, int counter, ref string mediaName, string baseUrl, ref string uploadedFile,
             ref string uploadedFileExt, HttpPostedFile theFile, string directory, string selectedRatio, bool isImage)
         {
             int picId = 0;
@@ -1919,7 +1919,7 @@ namespace TVinciShared
                 Directory.CreateDirectory(baseUrl + "/" + directory + "/" + groupID.ToString());
             }
 
-            
+
             string localImageUrlSuffix = "/" + directory + "/" + groupID.ToString() + "/" + mediaName + uploadedFileExt;
             string sTmpImage = baseUrl + localImageUrlSuffix;
             theFile.SaveAs(sTmpImage);
@@ -1931,10 +1931,10 @@ namespace TVinciShared
                 ratioId = GetGroupDefaultRatio(groupID);
             }
 
-            //get pic data           
-            if (GetPicData(ratioId, mediaID, out picId, out version, out baseUrl, out picRatioId))
+            // get picture data           
+            if (mediaID > 0 && GetPicData(ratioId, mediaID, out picId, out version, out baseUrl, out picRatioId))
             {
-                // Get Base Url
+                // get Base URL
                 baseUrl = Path.GetFileNameWithoutExtension(baseUrl);
 
                 // incase row exist --> update  version number
@@ -1948,7 +1948,7 @@ namespace TVinciShared
                 }
 
             }
-            // pic does not exist -- > create new pic
+            // picture does not exist -- > create new picture
             else
             {
                 baseUrl = TVinciShared.ImageUtils.GetDateImageName();
@@ -1975,7 +1975,7 @@ namespace TVinciShared
 
             try
             {
-                DataRowCollection rows = CatalogDAL.GetPicsData(mediaID, ratioID, 0);
+                DataRowCollection rows = CatalogDAL.GetPicsTableData(mediaID, ratioID, 0);
 
                 if (rows != null && rows.Count > 0)
                 {
@@ -2039,7 +2039,7 @@ namespace TVinciShared
                 else
                 {
                     imageServerUrl = imageServerUrlObj.ToString();
-                    imageServerUrl = imageServerUrl.EndsWith("/") ? imageServerUrl + "InsertImage/" : imageServerUrl + "/InsertImage/";
+                    imageServerUrl = imageServerUrl.EndsWith("/") ? imageServerUrl + "InsertImage" : imageServerUrl + "/InsertImage";
                 }
 
                 if (sourcePath.ToLower().Trim().StartsWith("http://") == false && sourcePath.ToLower().Trim().StartsWith("https://") == false)

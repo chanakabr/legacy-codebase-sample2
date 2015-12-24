@@ -2543,7 +2543,7 @@ namespace TvinciImporter
             }
 
             //get pic data           
-            if (GetPicData(ratioId, mediaId, out picId, out version, out baseUrl, out picRatioId))
+            if (mediaId > 0 && GetPicData(ratioId, mediaId, out picId, out version, out baseUrl, out picRatioId))
             {
                 // Get Base Url
                 baseUrl = Path.GetFileNameWithoutExtension(baseUrl);
