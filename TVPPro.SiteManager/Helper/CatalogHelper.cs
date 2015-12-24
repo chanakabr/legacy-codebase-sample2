@@ -45,7 +45,7 @@ namespace TVPPro.SiteManager.Helper
                         oRow.ID = media.AssetId;
                         oRow.Title = media.m_sName;
                         oRow.Name = media.m_sName;
-                        if (!string.IsNullOrEmpty(picSize) && media.m_lPicture != null)
+                        if ((!string.IsNullOrEmpty(picSize)) && media.m_lPicture != null)
                         {
                             {
                                 picUrl = (from pic in media.m_lPicture
