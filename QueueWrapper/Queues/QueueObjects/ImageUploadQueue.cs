@@ -13,7 +13,6 @@ namespace QueueWrapper
             : base()
         {
             this.Implementation = new RabbitQueue(ConfigType.ImageUpload, true);
-            storeForRecovery = true;
         }
 
         public override bool Enqueue(ApiObjects.QueueObject record, string sRouteKey)
