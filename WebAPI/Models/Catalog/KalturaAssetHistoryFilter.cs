@@ -9,7 +9,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-    public class KalturaAssetViewFilter : KalturaOTTObject
+    public class KalturaAssetHistoryFilter : KalturaOTTObject
     {
         /// <summary>
         /// List of asset types to search within. The list is a string separated be comma.

@@ -834,7 +834,7 @@
     <Compile Include="Controllers\RecommendationProfileController.cs" />
     <Compile Include="Controllers\SessionController.cs" />
     <Compile Include="Controllers\UserAssetRuleController.cs" />
-    <Compile Include="Controllers\AssetViewController.cs" />
+    <Compile Include="Controllers\AssetHistoryController.cs" />
     <Compile Include="Controllers\HouseholdDeviceController.cs" />
     <Compile Include="Controllers\LastPositionController.cs" />
     <Compile Include="Controllers\PurchaseSettingsController.cs" />
@@ -893,7 +893,7 @@
     <Compile Include="Models\Catalog\KalturaEPGChannelAssets.cs" />
     <Compile Include="Models\Catalog\KalturaEpgChannelFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAssetReferenceType.cs" />
-    <Compile Include="Models\Catalog\KalturaAssetViewFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetHistoryFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAssetInfoFilter.cs" />
     <Compile Include="Models\Catalog\KalturaCatalogReferenceBy.cs" />
     <Compile Include="Models\Catalog\KalturaLastPositionAssetType.cs" />
