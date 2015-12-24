@@ -715,6 +715,11 @@ namespace Users
                 if (UsersDal.DeleteUser(GroupId, userId))
                 {
                     response.Code = (int)eResponseStatus.OK;
+                    response.Message = eResponseStatus.OK.ToString();
+
+                    // remove user from cache
+                    UsersCache usersCache = UsersCache.Instance();
+                    usersCache.RemoveUser(userId, GroupId);
                     return response;
                 }
             }
