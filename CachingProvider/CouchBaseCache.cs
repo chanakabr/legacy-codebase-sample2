@@ -64,16 +64,24 @@ namespace CachingProvider
 
         private void HandleStatusCode(int? statusCode)
         {
-            switch (statusCode)
+            if (statusCode != null)
             {
-                case 146:
+                if (statusCode.Value != 0)
                 {
-                    m_Client = CouchbaseManager.CouchbaseManager.RefreshInstance(bucket);
+                    log.ErrorFormat("Error while executing action on CB. Status code = {0}", statusCode.Value);
+                }
 
+                switch (statusCode)
+                {
+                    case 146:
+                    {
+                        m_Client = CouchbaseManager.CouchbaseManager.RefreshInstance(bucket);
+
+                        break;
+                    }
+                    default:
                     break;
                 }
-                default:
-                break;
             }
         }
 
