@@ -33,8 +33,26 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().GetItemFromList(groupId, filter.usersIDs.Select(x => x.value).ToList(), 
-                    filter.ListType, filter.AssetType);
+                switch (filter.By)
+                {
+                    case KalturaEntityReferenceBy.user:
+                        response = ClientsManager.UsersClient().GetItemFromList(groupId, new List<string>() { KS.GetFromRequest().UserId}, filter.ListType, filter.AssetType);
+                        break;
+                    case KalturaEntityReferenceBy.household:
+                        List<string> householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId);
+                        if (householdUserIds != null && householdUserIds.Count > 0)
+                        {
+                            response = ClientsManager.UsersClient().GetItemFromList(groupId, householdUserIds, filter.ListType, filter.AssetType);
+                        }
+                        else
+                        {
+                            throw new ClientException((int)WebAPI.Managers.Models.StatusCode.HouseholdInvalid, "Household not found");
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                
             }
             catch (ClientException ex)
             {

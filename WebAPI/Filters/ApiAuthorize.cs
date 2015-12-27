@@ -71,9 +71,12 @@ namespace WebAPI.Controllers
             
             // allowed group users (additional user_id) handling:
             // get user_id additional parameter
-            var extraUserId = HttpContext.Current.Items["user_id"];
-            string userId = extraUserId != null ? extraUserId.ToString() : null;
-
+            string userId = null;
+            if (HttpContext.Current.Items.Contains("user_id"))
+            {
+                var extraUserId = HttpContext.Current.Items["user_id"];
+                userId = extraUserId != null ? extraUserId.ToString() : null;
+            }
             // if exists and is in the allowed group users list - override the user id in ks (HOUSEHOLD_WILDCARD = everyone in the domain is allowed, PARTNER_WILDCARD = everyone in the group is allowed)
             if (!string.IsNullOrEmpty(userId))
             {

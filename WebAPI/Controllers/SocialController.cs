@@ -24,6 +24,7 @@ namespace WebAPI.Controllers
         /// <param name="type">Social network type</param>
         /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001</remarks>
         [Route("getByToken"), HttpPost]
+        [ApiAuthorize]
         public KalturaSocialResponse GetByToken(int partnerId, string token, KalturaSocialNetwork type)
         {
             KalturaSocialResponse response = new KalturaSocialResponse();            
@@ -61,6 +62,7 @@ namespace WebAPI.Controllers
         /// <param name="subscribe_newsletter">Subscribes to newsletter</param>
         /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
         [Route("register"), HttpPost]
+        [ApiAuthorize]
         public KalturaSocialResponse Register(int partnerId, string token, bool should_create_domain, bool subscribe_newsletter, KalturaSocialNetwork type)
         {
             KalturaSocialResponse response = new KalturaSocialResponse();
