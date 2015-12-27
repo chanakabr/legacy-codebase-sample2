@@ -213,7 +213,6 @@ namespace GroupsCacheManager
                             {
                                 group = baseModule.result as Group;
                             }
-
                             else
                             {
                                 Group tempGroup = Utils.BuildGroup(nGroupID, true);

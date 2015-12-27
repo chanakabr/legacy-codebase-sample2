@@ -4,11 +4,11 @@ using System.Data.Linq;
 using System.Text;
 using System.Threading;
 using System.Configuration;
-using Couchbase;
-using Couchbase.Configuration;
 using KLogMonitor;
 using System.Reflection;
-
+using Couchbase.Management;
+using Couchbase;
+using Couchbase.Configuration;
 
 namespace CouchbaseManager
 {
@@ -19,12 +19,11 @@ namespace CouchbaseManager
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static volatile Dictionary<string, CouchbaseClient> m_CouchbaseInstances = new Dictionary<string, CouchbaseClient>();
         private static object syncObj = new object();
-        private static ReaderWriterLockSlim m_oSyncLock = new ReaderWriterLockSlim();
+        private static ReaderWriterLockSlim m_oSyncLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
         public static CouchbaseClient GetInstance(eCouchbaseBucket eBucket)
         {
             CouchbaseClient tempClient = null;
-
 
             if (!m_CouchbaseInstances.ContainsKey(eBucket.ToString()))
             {
@@ -97,6 +96,41 @@ namespace CouchbaseManager
             }
 
             return oRes;
+        }
+
+        /// <summary>
+        /// Recreates an instance in case of failure
+        /// </summary>
+        /// <param name="eBucket"></param>
+        /// <returns></returns>
+        public static CouchbaseClient RefreshInstance(eCouchbaseBucket eBucket)
+        {
+            if (m_CouchbaseInstances.ContainsKey(eBucket.ToString()))
+            {
+                if (m_oSyncLock.TryEnterWriteLock(1000))
+                {
+                    try
+                    {
+                        if (m_CouchbaseInstances.ContainsKey(eBucket.ToString()))
+                        {
+                            var client = m_CouchbaseInstances[eBucket.ToString()];
+                            client.Dispose();
+
+                            m_CouchbaseInstances.Remove(eBucket.ToString());
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error("", ex);
+                    }
+                    finally
+                    {
+                        m_oSyncLock.ExitWriteLock();
+                    }
+                }
+            }
+
+            return GetInstance(eBucket);
         }
     }
 }
