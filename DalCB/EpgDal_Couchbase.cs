@@ -43,7 +43,6 @@ namespace DalCB
             return m_oClient.Increment(sKey, 1, 1);
         }
 
-        //This method uses StoreMode.Add, hence can only be used for new documents.
         public bool InsertProgram(string sDocID, object epg, DateTime? dtExpiresAt)
         {
             bool bRes = false;
@@ -52,8 +51,8 @@ namespace DalCB
             {
                 try
                 {
-                    bRes = (dtExpiresAt.HasValue) ? m_oClient.StoreJson(Enyim.Caching.Memcached.StoreMode.Add, sDocID, epg, dtExpiresAt.Value) :
-                                                   m_oClient.StoreJson(Enyim.Caching.Memcached.StoreMode.Add, sDocID, epg);
+                    bRes = (dtExpiresAt.HasValue) ? m_oClient.StoreJson(Enyim.Caching.Memcached.StoreMode.Set, sDocID, epg, dtExpiresAt.Value) :
+                                                   m_oClient.StoreJson(Enyim.Caching.Memcached.StoreMode.Set, sDocID, epg);
                 }
                 catch (Exception ex)
                 {
