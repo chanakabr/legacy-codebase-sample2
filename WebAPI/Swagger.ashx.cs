@@ -66,10 +66,10 @@ namespace WebAPI
                             if (method == null)
                                 continue;
 
-                            if (method.GetCustomAttribute<ApiAuthorizeAttribute>() != null && method.GetCustomAttribute<ApiAuthorizeAttribute>().allowAnonymous)
-                            {
-                                k.First.post.summary.Value = string.Format("{0} ({1})", k.First.post.summary.Value, "Available Anonymously");
-                            }
+                            //if (method.GetCustomAttribute<ApiAuthorizeAttribute>() != null && method.GetCustomAttribute<ApiAuthorizeAttribute>().allowAnonymous)
+                            //{
+                            //    k.First.post.summary.Value = string.Format("{0} ({1})", k.First.post.summary.Value, "Available Anonymously");
+                            //}
                         }
 
                         var defs = d.definitions;
