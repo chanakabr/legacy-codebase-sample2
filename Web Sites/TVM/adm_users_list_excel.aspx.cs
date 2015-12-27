@@ -111,7 +111,7 @@ public partial class adm_users_list_excel : System.Web.UI.Page
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
             selectQuery.SetCachedSec(0);
-            selectQuery += "SELECT  count (id) as numOfIDs  from  users u (nolock) WHERE IS_ACTIVE=1 AND STATUS=1 AND ";
+            selectQuery += "SELECT  count (id) as numOfIDs  from  users u (nolock) WHERE IS_ACTIVE=1 AND STATUS=1 AND USERNAME NOT LIKE '%{Household}%' AND ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", LoginManager.GetLoginGroupID());
 
             if (selectQuery.Execute("query", true) != null)
@@ -158,7 +158,7 @@ public partial class adm_users_list_excel : System.Web.UI.Page
             selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
             selectQuery.SetCachedSec(0);
 
-            selectQuery += "SELECT  count (id) as numOfIDs  from  users u (nolock) WHERE IS_ACTIVE=1 AND STATUS=1 AND ";
+            selectQuery += "SELECT  count (id) as numOfIDs  from  users u (nolock) WHERE IS_ACTIVE=1 AND STATUS=1 AND USERNAME NOT LIKE '%{Household}%' AND ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", LoginManager.GetLoginGroupID());
 
             if (selectQuery.Execute("query", true) != null)
