@@ -70,17 +70,11 @@ namespace WebAPI.Controllers
           
             try
             {
-                // get domain       
-                var domain = HouseholdUtils.GetHouseholdIDByKS(groupId);
-
-                // check if the user performing the action is domain master
-                if (domain == 0)
-                {
-                    throw new ForbiddenException();
-                }
+                // get domain id       
+                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
                 // call client
-                return ClientsManager.DomainsClient().AddUserToDomain(groupId, (int)domain, user_id_to_add, KS.GetFromRequest().UserId, is_master);
+                return ClientsManager.DomainsClient().AddUserToDomain(groupId, (int)domainId, user_id_to_add, KS.GetFromRequest().UserId, is_master);
             }
             catch (ClientException ex)
             {

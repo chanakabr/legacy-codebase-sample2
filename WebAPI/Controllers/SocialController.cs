@@ -22,7 +22,7 @@ namespace WebAPI.Controllers
         /// <param name="partnerId">Partner identifier</param>
         /// <param name="token">Social token</param>
         /// <param name="type">Social network type</param>
-        /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
+        /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001</remarks>
         [Route("getByToken"), HttpPost]
         public KalturaSocialResponse GetByToken(int partnerId, string token, KalturaSocialNetwork type)
         {
@@ -60,7 +60,7 @@ namespace WebAPI.Controllers
         /// <param name="should_create_domain">New domain is created upon registration</param>
         /// <param name="subscribe_newsletter">Subscribes to newsletter</param>
         /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
-        [Route("register"), HttpPost]        
+        [Route("register"), HttpPost]
         public KalturaSocialResponse Register(int partnerId, string token, bool should_create_domain, bool subscribe_newsletter, KalturaSocialNetwork type)
         {
             KalturaSocialResponse response = new KalturaSocialResponse();
@@ -115,7 +115,8 @@ namespace WebAPI.Controllers
         /// <param name="type">Social network type</param>
         /// <param name="partnerId">Partner identifier</param>
         /// <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
-        [Route("merge"), HttpPost]        
+        [Route("merge"), HttpPost]
+        [ApiAuthorize]
         public KalturaSocialResponse Merge(int partnerId, string token, string username, string password, string social_id, KalturaSocialNetwork type)
         {
             KalturaSocialResponse response = new KalturaSocialResponse();
@@ -188,6 +189,7 @@ namespace WebAPI.Controllers
         /// <param name="partnerId">Partner identifier</param>
         /// <returns></returns>
         [Route("config"), HttpPost]
+        [ApiAuthorize]
         public KalturaSocialConfig Config(int partnerId, KalturaSocialNetwork type)
         {
             KalturaSocialConfig response = null;            

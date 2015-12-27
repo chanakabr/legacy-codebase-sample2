@@ -21,7 +21,7 @@ namespace WebAPI.Controllers
         /// <param name="language">Language Code</param>        
         /// <remarks></remarks>
         [Route("get"), HttpPost]
-        [ApiAuthorize(true)]
+        [ApiAuthorize]
         public KalturaChannel Get(int id, string language = null)
         {
             KalturaChannel response = null;

@@ -22,7 +22,6 @@ namespace WebAPI.Controllers
         [Flags]
         public enum eRole { /* Placeholder */ }
         public eRole Role { get; set; }
-        public bool allowAnonymous { get; private set; }
         
         private bool silent;
         
@@ -31,10 +30,9 @@ namespace WebAPI.Controllers
         private const string PARTNER_WILDCARD = "partner*";
         private const string HOUSEHOLD_WILDCARD = "household*";
 
-        public ApiAuthorizeAttribute(bool AllowAnonymous = false, bool Silent = false)
+        public ApiAuthorizeAttribute(bool Silent = false)
             : base()
         {
-            allowAnonymous = AllowAnonymous;
             silent = Silent;
         }
 

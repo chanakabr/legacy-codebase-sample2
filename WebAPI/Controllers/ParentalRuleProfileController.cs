@@ -25,7 +25,7 @@ namespace WebAPI.Controllers
         /// <returns>The parental rules defined for the account</returns>
         /// <remarks></remarks>
         [Route("list"), HttpPost]
-        [ApiAuthorize(true)]
+        [ApiAuthorize]
         public KalturaParentalRuleListResponse List()
         {
             List<KalturaParentalRule> response = null;

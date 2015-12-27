@@ -22,7 +22,7 @@ namespace WebAPI.Controllers
         ///    </remarks>
         /// <param name="code">Coupon code</param>
         [Route("get"), HttpPost]
-        [ApiAuthorize(true)]
+        [ApiAuthorize]
         public KalturaCoupon Get(string code)
         {
             KalturaCoupon coupon = null;

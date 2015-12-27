@@ -21,8 +21,8 @@ namespace WebAPI.Controllers
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. Possible values: "users_base_info", "users_full_info"</param>
         /// <remarks>Possible status codes: 
         /// Household does not exist = 1006, Household user failed = 1007</remarks>        
-        [ApiAuthorize(AllowAnonymous: false)]
         [Route("get"), HttpPost]
+        [ApiAuthorize]
         public KalturaHousehold Get(int id, List<KalturaHouseholdWithHolder> with = null)
         {
             var ks = KS.GetFromRequest();
@@ -140,7 +140,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:         
-        /// Payment gateway not exist = 6008, Payment gateway charge id required = 6009, External idntifier required = 6016, Error saving paymentgateway household = 6017, 
+        /// Payment gateway not exist = 6008, Payment gateway charge id required = 6009, External identifier required = 6016, Error saving payment gateway household = 6017, 
         /// Charge id already set to household payment gateway = 6025
         /// </remarks>        
         /// <param name="pg_id">External identifier for the payment gateway  </param>
@@ -155,17 +155,11 @@ namespace WebAPI.Controllers
 
             try
             {
-                // get domain       
-                var domain = HouseholdUtils.GetHouseholdIDByKS(groupId);
-
-                // check if the user performing the action is domain master
-                if (domain == 0)
-                {
-                    throw new ForbiddenException();
-                }
+                // get domain id      
+                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
                 // call client
-                response = ClientsManager.BillingClient().SetHouseholdChargeID(groupId, pg_id, (int)domain, charge_id);
+                response = ClientsManager.BillingClient().SetHouseholdChargeID(groupId, pg_id, (int)domainId, charge_id);
             }
             catch (ClientException ex)
             {
@@ -180,7 +174,7 @@ namespace WebAPI.Controllers
         /// Get a household’s billing account identifier (charge ID) for a given payment gateway
         /// </summary>
         /// <remarks>
-        /// Possible status codes: Payment gateway not exist for group = 6008, External idntifier is required = 6016, Charge id not set to household = 6026
+        /// Possible status codes: Payment gateway not exist for group = 6008, External identifier is required = 6016, Charge id not set to household = 6026
         /// </remarks>        
         /// <param name="pg_id">External identifier for the payment gateway  </param>        
         [Route("getChargeID"), HttpPost]
@@ -193,17 +187,11 @@ namespace WebAPI.Controllers
 
             try
             {
-                // get domain       
-                var domain = HouseholdUtils.GetHouseholdIDByKS(groupId);
-
-                // check if the user performing the action is domain master
-                if (domain == 0)
-                {
-                    throw new ForbiddenException();
-                }
+                // get domain id       
+                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
                 // call client
-                chargeId = ClientsManager.BillingClient().GetHouseholdChargeID(groupId, pg_id, (int)domain);
+                chargeId = ClientsManager.BillingClient().GetHouseholdChargeID(groupId, pg_id, (int)domainId);
             }
             catch (ClientException ex)
             {

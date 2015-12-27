@@ -19,7 +19,7 @@ namespace WebAPI.Controllers
         /// Parses KS
         /// </summary>
         [Route("get"), HttpPost]
-        [ApiAuthorize(true)]
+        [ApiAuthorize]
         public KalturaSessionInfo Get()
         {
             var ks = KS.GetFromRequest();

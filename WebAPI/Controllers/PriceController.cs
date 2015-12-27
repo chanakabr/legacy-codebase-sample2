@@ -25,7 +25,7 @@ namespace WebAPI.Controllers
         /// <param name="language">Language code</param>
         /// <remarks></remarks>
         [Route("list"), HttpPost]
-        [ApiAuthorize(true)]
+        [ApiAuthorize]
         public KalturaProductsPriceListResponse List(KalturaPricesFilter filter, string coupon_code = null, string language = null)
         {
             List<KalturaProductPrice> productPrices = null;

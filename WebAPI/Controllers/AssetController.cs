@@ -36,7 +36,7 @@ namespace WebAPI.Controllers
         /// <param name="language">Language code</param>
         /// <remarks></remarks>
         [Route("list"), HttpPost]
-        [ApiAuthorize(true)]
+        [ApiAuthorize]
         public KalturaAssetInfoListResponse List(KalturaAssetInfoFilter filter, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null,
             KalturaFilterPager pager = null, string language = null)
         {
@@ -143,7 +143,7 @@ namespace WebAPI.Controllers
         /// <param name="language">Language code</param>        
         /// <remarks></remarks>
         [Route("get"), HttpPost]
-        [ApiAuthorize(true)]
+        [ApiAuthorize]
         public KalturaAssetInfo Get(string id, KalturaAssetReferenceType type, List<KalturaCatalogWithHolder> with = null, string language = null)
         {
             KalturaAssetInfo response = null;
@@ -249,7 +249,7 @@ namespace WebAPI.Controllers
         /// <param name="pager">Page size and index</param>
         /// <remarks>Possible status codes: Bad search request = 4002, Missing index = 4003, SyntaxError = 4004, InvalidSearchField = 4005</remarks>
         [Route("search"), HttpPost]
-        [ApiAuthorize(true)]
+        [ApiAuthorize]
         public KalturaAssetInfoListResponse Search(KalturaOrder? order_by, List<KalturaIntegerValue> filter_types = null, string filter = null,
             List<KalturaCatalogWithHolder> with = null, string language = null, KalturaFilterPager pager = null)
         {
@@ -303,7 +303,7 @@ namespace WebAPI.Controllers
         /// <param name="language">Language Code</param>
         /// <remarks>Possible status codes: Missing index = 4003</remarks>
         [Route("autocomplete"), HttpPost]
-        [ApiAuthorize(true)]
+        [ApiAuthorize]
         public KalturaSlimAssetInfoWrapper Autocomplete(string query, List<KalturaCatalogWithHolder> with = null, List<KalturaIntegerValue> filter_types = null,
             KalturaOrder? order_by = null, int? size = null, string language = null)
         {
@@ -350,7 +350,7 @@ namespace WebAPI.Controllers
         /// <param name="language">Language code</param>        
         /// <remarks></remarks>
         [Route("related"), HttpPost]
-        [ApiAuthorize(true)]
+        [ApiAuthorize]
         public KalturaAssetInfoListResponse Related(int media_id, string filter = null, KalturaFilterPager pager = null, List<KalturaIntegerValue> filter_types = null,
             List<KalturaCatalogWithHolder> with = null, string language = null)
         {
@@ -402,7 +402,7 @@ namespace WebAPI.Controllers
         /// /// <param name="utcOffset">UTC Offset</param>        
         /// <remarks></remarks>
         [Route("relatedExternal"), HttpPost]
-        [ApiAuthorize(true)]
+        [ApiAuthorize]
         public KalturaAssetInfoListResponse RelatedExternal(int media_id, KalturaFilterPager pager = null, List<KalturaIntegerValue> filter_type_ids = null, int utcOffset = 0,
             List<KalturaCatalogWithHolder> with = null, string language = null, string freeParam = null)
         {
@@ -455,7 +455,7 @@ namespace WebAPI.Controllers
         /// /// /// <param name="utcOffset">UTC Offset</param>  
         /// <remarks></remarks>
         [Route("searchExternal"), HttpPost]
-        [ApiAuthorize(true)]
+        [ApiAuthorize]
         public KalturaAssetInfoListResponse searchExternal(string query, KalturaFilterPager pager = null, List<KalturaIntegerValue> filter_type_ids = null, int utcOffset = 0,
             List<KalturaCatalogWithHolder> with = null, string language = null)
         {
@@ -502,7 +502,7 @@ namespace WebAPI.Controllers
         /// BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, 
         /// </remarks>
         [Route("channel"), HttpPost]
-        [ApiAuthorize(true)]
+        [ApiAuthorize]
         public KalturaAssetInfoListResponse Channel(int id, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null,
             KalturaFilterPager pager = null, string language = null)
         {
@@ -555,7 +555,7 @@ namespace WebAPI.Controllers
         /// BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, 
         /// RecommendationEngineNotExist = 4007, ExternalChannelNotExist = 4011</remarks>
         [Route("externalChannel"), HttpPost]
-        [ApiAuthorize(true)]
+        [ApiAuthorize]
         public KalturaAssetInfoListResponse ExternalChannel(int id, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null,
             KalturaFilterPager pager = null, string language = null, string utc_offset = null, string free_param = null)
         {

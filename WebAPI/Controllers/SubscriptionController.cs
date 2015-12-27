@@ -31,7 +31,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes:      
         ///   </remarks>
         [Route("list"), HttpPost]
-        [ApiAuthorize(true)]
+        [ApiAuthorize]
         public List<KalturaSubscription> List(KalturaSubscriptionsFilter filter, string language = null)
         {
             List<KalturaSubscription> subscruptions = null;
