@@ -13,6 +13,5 @@ namespace WebAPI.Models.General
     {
         DISABLED = 1,	
         ACTIVE = 2,		
-        DELETED = 3,		
     }
 }
