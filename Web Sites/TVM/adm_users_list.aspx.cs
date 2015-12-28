@@ -147,7 +147,8 @@ public partial class adm_users_list : System.Web.UI.Page
         theTable.AddOnOffField("Open Ticket", "users~~|~~HANDLING_STATUS~~|~~id~~|~~Open~~|~~Close");
         theTable.AddOrderByColumn("Last Name", "u.LAST_NAME");
         theTable.AddOrderByColumn("First Name", "u.FIRST_NAME");
-        theTable.AddActivationField("users");
+        // remove On/Off
+        //theTable.AddActivationField("users");
         theTable.AddHiddenField("is_active");
         theTable.AddHiddenField("password");
 
