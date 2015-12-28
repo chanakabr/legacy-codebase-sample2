@@ -16,13 +16,13 @@ namespace WebAPI.Controllers
     public class CouponController : ApiController
     {
         /// <summary>
-        /// Returns the details and status of the received coupon code
+        /// Returns information about a coupon
         /// </summary>
         /// <remarks>Possible status codes: Coupon not valid = 3020
         ///    </remarks>
         /// <param name="code">Coupon code</param>
         [Route("get"), HttpPost]
-        [ApiAuthorize(true)]
+        [ApiAuthorize]
         public KalturaCoupon Get(string code)
         {
             KalturaCoupon coupon = null;

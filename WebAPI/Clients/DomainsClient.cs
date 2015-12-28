@@ -11,6 +11,7 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Domains;
 using WebAPI.Models.General;
+using WebAPI.Models.Users;
 using WebAPI.Utils;
 
 namespace WebAPI.Clients
@@ -73,6 +74,49 @@ namespace WebAPI.Clients
             result = Mapper.Map<KalturaHousehold>(response.Domain);
 
             return result;
+        }
+
+        internal void EnrichHouseHold(List<KalturaHouseholdWithHolder> with, KalturaHousehold household, int groupId)
+        {
+            // get users ids lists
+            var userIds = household.Users != null ? household.Users.Select(u => u.Id) : new List<string>();
+            var masterUserIds = household.MasterUsers != null ? household.MasterUsers.Select(u => u.Id) : new List<string>();
+            var defaultUserIds = household.DefaultUsers != null ? household.DefaultUsers.Select(u => u.Id) : new List<string>();
+            var pendingUserIds = household.PendingUsers != null ? household.PendingUsers.Select(u => u.Id) : new List<string>();
+
+            // merge all user ids to one list
+            List<string> allUserIds = new List<string>();
+            allUserIds.AddRange(userIds);
+            allUserIds.AddRange(masterUserIds);
+            allUserIds.AddRange(defaultUserIds);
+            allUserIds.AddRange(pendingUserIds);
+            allUserIds = allUserIds.Distinct().ToList();
+
+
+            //get users
+            List<KalturaOTTUser> users = null;
+            if (allUserIds.Count > 0)
+            {
+                users = ClientsManager.UsersClient().GetUsersData(groupId, allUserIds);
+            }
+
+            if (users != null)
+            {
+                if (with.Where(x => x.type == KalturaHouseholdWith.users_base_info).FirstOrDefault() != null)
+                {
+                    household.Users = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => userIds.Contains(u.Id)));
+                    household.MasterUsers = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => masterUserIds.Contains(u.Id)));
+                    household.DefaultUsers = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => defaultUserIds.Contains(u.Id)));
+                    household.PendingUsers = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => pendingUserIds.Contains(u.Id)));
+                }
+                if (with.Where(x => x.type == KalturaHouseholdWith.users_full_info).FirstOrDefault() != null)
+                {
+                    household.Users = Mapper.Map<List<KalturaOTTUser>>(users.Where(u => userIds.Contains(u.Id))).Select(usr => (KalturaBaseOTTUser)usr).ToList();
+                    household.MasterUsers = Mapper.Map<List<KalturaOTTUser>>(users.Where(u => masterUserIds.Contains(u.Id))).Select(usr => (KalturaBaseOTTUser)usr).ToList();
+                    household.DefaultUsers = Mapper.Map<List<KalturaOTTUser>>(users.Where(u => defaultUserIds.Contains(u.Id))).Select(usr => (KalturaBaseOTTUser)usr).ToList();
+                    household.PendingUsers = Mapper.Map<List<KalturaOTTUser>>(users.Where(u => pendingUserIds.Contains(u.Id))).Select(usr => (KalturaBaseOTTUser)usr).ToList();
+                }
+            }
         }
 
         internal KalturaHousehold AddDomain(int groupId, string domainName, string domainDescription, string masterUserId)

@@ -17,13 +17,12 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns the household model       
         /// </summary>        
-        /// <param name="id">Household identifier</param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. Possible values: "users_base_info", "users_full_info"</param>
         /// <remarks>Possible status codes: 
         /// Household does not exist = 1006, Household user failed = 1007</remarks>        
-        [ApiAuthorize(AllowAnonymous: false)]
         [Route("get"), HttpPost]
-        public KalturaHousehold Get(int id, List<KalturaHouseholdWithHolder> with = null)
+        [ApiAuthorize]
+        public KalturaHousehold Get(List<KalturaHouseholdWithHolder> with = null)
         {
             var ks = KS.GetFromRequest();
             KalturaHousehold response = null;
@@ -31,9 +30,6 @@ namespace WebAPI.Controllers
             int groupId = KS.GetFromRequest().GroupId;
 
             var user = ClientsManager.UsersClient().GetUsersData(groupId, new List<string>() { ks.UserId });
-
-            if (user.First().HouseholdID != id)
-                throw new ForbiddenException((int)WebAPI.Managers.Models.StatusCode.ServiceForbidden, "Households mismatch");
 
             if (with == null)
                 with = new List<KalturaHouseholdWithHolder>();
@@ -45,45 +41,49 @@ namespace WebAPI.Controllers
 
                 if (with != null && with.Where(x => x.type == KalturaHouseholdWith.users_base_info || x.type == KalturaHouseholdWith.users_full_info).Count() > 0)
                 {
-                    // get users ids lists
-                    var userIds = response.Users != null ? response.Users.Select(u => u.Id) : new List<string>();
-                    var masterUserIds = response.MasterUsers != null ? response.MasterUsers.Select(u => u.Id) : new List<string>();
-                    var defaultUserIds = response.DefaultUsers != null ? response.DefaultUsers.Select(u => u.Id) : new List<string>();
-                    var pendingUserIds = response.PendingUsers != null ? response.PendingUsers.Select(u => u.Id) : new List<string>();
+                    ClientsManager.DomainsClient().EnrichHouseHold(with, response, groupId);
+                }
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
 
-                    // merge all user ids to one list
-                    List<string> allUserIds = new List<string>();
-                    allUserIds.AddRange(userIds);
-                    allUserIds.AddRange(masterUserIds);
-                    allUserIds.AddRange(defaultUserIds);
-                    allUserIds.AddRange(pendingUserIds);
-                    allUserIds = allUserIds.Distinct().ToList();
+            if (response == null)
+            {
+                throw new InternalServerErrorException();
+            }
 
+            return response;
+        }
 
-                    //get users
-                    List<KalturaOTTUser> users = null;
-                    if (allUserIds.Count > 0)
-                    {
-                        users = ClientsManager.UsersClient().GetUsersData(groupId, allUserIds);
-                    }
+        /// <summary>
+        /// Returns the household model       
+        /// </summary>        
+        /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. Possible values: "users_base_info", "users_full_info"</param>
+        /// <param name="household_id">Household to get</param>
+        /// <remarks>Possible status codes: 
+        /// Household does not exist = 1006, Household user failed = 1007</remarks>                
+        [Route("getByOperator"), HttpPost]
+        [ApiAuthorize]
+        public KalturaHousehold GetByOperator(int household_id, List<KalturaHouseholdWithHolder> with = null)
+        {
+            var ks = KS.GetFromRequest();
+            KalturaHousehold response = null;
 
-                    if (users != null)
-                    {
-                        if (with.Where(x => x.type == KalturaHouseholdWith.users_base_info).FirstOrDefault() != null)
-                        {
-                            response.Users = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => userIds.Contains(u.Id)));
-                            response.MasterUsers = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => masterUserIds.Contains(u.Id)));
-                            response.DefaultUsers = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => defaultUserIds.Contains(u.Id)));
-                            response.PendingUsers = Mapper.Map<List<KalturaBaseOTTUser>>(users.Where(u => pendingUserIds.Contains(u.Id)));
-                        }
-                        if (with.Where(x => x.type == KalturaHouseholdWith.users_full_info).FirstOrDefault() != null)
-                        {
-                            response.Users = Mapper.Map<List<KalturaOTTUser>>(users.Where(u => userIds.Contains(u.Id))).Select(usr => (KalturaBaseOTTUser)usr).ToList();
-                            response.MasterUsers = Mapper.Map<List<KalturaOTTUser>>(users.Where(u => masterUserIds.Contains(u.Id))).Select(usr => (KalturaBaseOTTUser)usr).ToList();
-                            response.DefaultUsers = Mapper.Map<List<KalturaOTTUser>>(users.Where(u => defaultUserIds.Contains(u.Id))).Select(usr => (KalturaBaseOTTUser)usr).ToList();
-                            response.PendingUsers = Mapper.Map<List<KalturaOTTUser>>(users.Where(u => pendingUserIds.Contains(u.Id))).Select(usr => (KalturaBaseOTTUser)usr).ToList();
-                        }
-                    }
+            int groupId = KS.GetFromRequest().GroupId;
+
+            if (with == null)
+                with = new List<KalturaHouseholdWithHolder>();
+
+            try
+            {
+                // call client
+                response = ClientsManager.DomainsClient().GetDomainInfo(groupId, household_id);
+
+                if (with != null && with.Where(x => x.type == KalturaHouseholdWith.users_base_info || x.type == KalturaHouseholdWith.users_full_info).Count() > 0)
+                {
+                    ClientsManager.DomainsClient().EnrichHouseHold(with, response, groupId);
                 }
             }
             catch (ClientException ex)
@@ -140,7 +140,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:         
-        /// Payment gateway not exist = 6008, Payment gateway charge id required = 6009, External idntifier required = 6016, Error saving paymentgateway household = 6017, 
+        /// Payment gateway not exist = 6008, Payment gateway charge id required = 6009, External identifier required = 6016, Error saving payment gateway household = 6017, 
         /// Charge id already set to household payment gateway = 6025
         /// </remarks>        
         /// <param name="pg_id">External identifier for the payment gateway  </param>
@@ -155,17 +155,11 @@ namespace WebAPI.Controllers
 
             try
             {
-                // get domain       
-                var domain = HouseholdUtils.GetHouseholdIDByKS(groupId);
-
-                // check if the user performing the action is domain master
-                if (domain == 0)
-                {
-                    throw new ForbiddenException();
-                }
+                // get domain id      
+                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
                 // call client
-                response = ClientsManager.BillingClient().SetHouseholdChargeID(groupId, pg_id, (int)domain, charge_id);
+                response = ClientsManager.BillingClient().SetHouseholdChargeID(groupId, pg_id, (int)domainId, charge_id);
             }
             catch (ClientException ex)
             {
@@ -177,10 +171,10 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Get a household’s billing account identifier (charge ID) in a given payment gateway 
+        /// Get a household’s billing account identifier (charge ID) for a given payment gateway
         /// </summary>
         /// <remarks>
-        /// Possible status codes: Payment gateway not exist for group = 6008, External idntifier is required = 6016, Charge id not set to household = 6026
+        /// Possible status codes: Payment gateway not exist for group = 6008, External identifier is required = 6016, Charge id not set to household = 6026
         /// </remarks>        
         /// <param name="pg_id">External identifier for the payment gateway  </param>        
         [Route("getChargeID"), HttpPost]
@@ -193,17 +187,11 @@ namespace WebAPI.Controllers
 
             try
             {
-                // get domain       
-                var domain = HouseholdUtils.GetHouseholdIDByKS(groupId);
-
-                // check if the user performing the action is domain master
-                if (domain == 0)
-                {
-                    throw new ForbiddenException();
-                }
+                // get domain id       
+                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
                 // call client
-                chargeId = ClientsManager.BillingClient().GetHouseholdChargeID(groupId, pg_id, (int)domain);
+                chargeId = ClientsManager.BillingClient().GetHouseholdChargeID(groupId, pg_id, (int)domainId);
             }
             catch (ClientException ex)
             {

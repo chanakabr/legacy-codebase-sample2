@@ -28,7 +28,7 @@ namespace WebAPI.Controllers
         /// "objectType": "KalturaBillingPartnerConfig"}
         /// </param>        
         [Route("update"), HttpPost]
-        [ApiAuthorize(true)]
+        [ApiAuthorize]
         public bool Update(KalturaPartnerConfiguration configuration)
         {
             bool response = false;

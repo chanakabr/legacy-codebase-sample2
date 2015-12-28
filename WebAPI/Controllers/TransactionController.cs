@@ -15,7 +15,7 @@ namespace WebAPI.Controllers
     public class TransactionController : ApiController
     {
         /// <summary>
-        /// Charge a user’s household for specific content utilizing the household’s pre-assigned payment gateway. Online, one-time charge only of various content types. Upon successful charge entitlements to use the requested content are granted.
+        /// Purchase specific product or subscription utilizing the household’s pre-assigned payment gateway. Upon successful charge entitlements to use the requested product or subscription are granted.
         /// </summary>
         /// <param name="price">Net sum to charge – as a one-time transaction. Price must match the previously provided price for the specified content. </param>
         /// <param name="currency">Identifier for paying currency, according to ISO 4217</param>
@@ -69,7 +69,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Updates a pending transaction state (can be called only from a payment gateway adapter application, makes validation using signature and shared secret).
+        /// Updates a pending purchase transaction state.
         /// </summary>
         /// <param name="payment_gateway_id">Payment gateway identifier</param>
         /// <param name="adapter_transaction_state">Payment gateway adapter application state for the transaction to update. 
@@ -104,9 +104,9 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Verifies PPV/Subscription/Collection client purchase (such as InApp) and entitles the user.
         /// </summary>
-        /// <param name="content_id">Identifier for the content. Relevant only if Product type = PPV. Verified to match the purchase details represented by the purchase_receipt</param>
-        /// <param name="product_id">Identifier for the product package from which this content is offered. Verified to match the purchase details represented by the purchase_receipt</param>        
-        /// <param name="product_type">Product package type. Possible values: PPV, Subscription, Collection. Verified to match the purchase details represented by the purchase_receipt</param>
+        /// <param name="content_id">Identifier for the content. Relevent only if Product type = PPV. Verified to match the purchase details represented by the purchase_token</param>
+        /// <param name="product_id">Identifier for the product package from which this content is offered. Verified to match the purchase details represented by the purchase_token </param>        
+        /// <param name="product_type">Product package type. Possible values: PPV, Subscription, Collection. Verified to match the purchase details represented by the purchase_token </param>
         /// <param name="purchase_receipt">A unique identifier that was provided by the In-App billing service to validate the purchase</param>
         /// <param name="payment_gateway_name">The payment gateway name for the In-App billing service to be used. Possible values: Google/Apple</param>
         /// <remarks>Possible status codes: 

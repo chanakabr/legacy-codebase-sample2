@@ -28,8 +28,6 @@ namespace WebAPI.Controllers
 
             try
             {
-                string userID = KS.GetFromRequest().UserId;
-
                 // call client
                 return ClientsManager.DomainsClient().RemoveDeviceFromDomain(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
             }
@@ -63,8 +61,6 @@ namespace WebAPI.Controllers
 
             try
             {
-                string userID = KS.GetFromRequest().UserId;
-
                 // call client
                 device = ClientsManager.DomainsClient().RegisterDeviceByPin(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), device_name, pin);
             }
@@ -93,8 +89,6 @@ namespace WebAPI.Controllers
 
             try
             {
-                string userID = KS.GetFromRequest().UserId;
-
                 // call client
                 household = ClientsManager.DomainsClient().AddDeviceToDomain(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), device_name, udid, device_brand_id);
             }

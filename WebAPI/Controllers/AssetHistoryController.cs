@@ -16,8 +16,8 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/assetView/action")]
-    public class AssetViewController : ApiController
+    [RoutePrefix("_service/AssetHistory/action")]
+    public class AssetHistoryController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -31,7 +31,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaWatchHistoryAssetWrapper List(KalturaAssetViewFilter filter = null, KalturaFilterPager pager = null, string language = null)
+        public KalturaWatchHistoryAssetWrapper List(KalturaAssetHistoryFilter filter = null, KalturaFilterPager pager = null, string language = null)
         {
             KalturaWatchHistoryAssetWrapper response = null;
             int groupId = KS.GetFromRequest().GroupId;
@@ -57,7 +57,7 @@ namespace WebAPI.Controllers
 
             if (filter == null)
             {
-                filter = new KalturaAssetViewFilter();
+                filter = new KalturaAssetHistoryFilter();
             }
 
             // validate and convert filter status

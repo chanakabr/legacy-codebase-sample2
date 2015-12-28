@@ -16,7 +16,7 @@ namespace WebAPI.Controllers
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         /// <summary>
-        /// Returns payment gateway for household
+        /// Get a list of all configured Payment Gateways providers available for the partner
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
@@ -30,19 +30,13 @@ namespace WebAPI.Controllers
 
             int groupId = KS.GetFromRequest().GroupId;
 
-            // get domain       
-            var domain = HouseholdUtils.GetHouseholdIDByKS(groupId);
-
-            // check if the user performing the action is domain master
-            if (domain == 0)
-            {
-                throw new ForbiddenException();
-            }
+            // get domain id      
+            var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().GetHouseholdPaymentGateways(groupId, KS.GetFromRequest().UserId, domain);
+                response = ClientsManager.BillingClient().GetHouseholdPaymentGateways(groupId, KS.GetFromRequest().UserId, domainId);
             }
             catch (ClientException ex)
             {
@@ -53,7 +47,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Returns selected payment gateway for household
+        /// Get the Payment Gateway provider configured for the household, or the default payment gateway provider is a provider is not configured for the household
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
@@ -67,19 +61,13 @@ namespace WebAPI.Controllers
 
             int groupId = KS.GetFromRequest().GroupId;
 
-            // get domain       
-            var domain = HouseholdUtils.GetHouseholdIDByKS(groupId);
-
-            // check if the user performing the action is domain master
-            if (domain == 0)
-            {
-                throw new ForbiddenException();
-            }
-
+            // get domain id      
+            var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+            
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().GetSelectedHouseholdPaymentGateway(groupId, domain);
+                response = ClientsManager.BillingClient().GetSelectedHouseholdPaymentGateway(groupId, domainId);
             }
             catch (ClientException ex)
             {
@@ -90,7 +78,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Insert new payment gateway for household
+        /// Set a Payment Gateway provider for the household. It also clear the Charge ID.
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
@@ -110,17 +98,11 @@ namespace WebAPI.Controllers
             {
                 string userID = KS.GetFromRequest().UserId;
 
-                // get domain       
-                var domain = ClientsManager.DomainsClient().GetDomainByUser(groupId, userID);
+                // get domain id      
+                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
                 
-                // check if the user performing the action is domain master
-                if (domain == null || domain.MasterUsers == null || domain.MasterUsers.Where(u => u.Id == userID).FirstOrDefault() == null)
-                {
-                    throw new ForbiddenException();
-                }
-
                 // call client
-                response = ClientsManager.BillingClient().SetHouseholdPaymentGateway(groupId, payment_gateway_id, userID, domain.Id);
+                response = ClientsManager.BillingClient().SetHouseholdPaymentGateway(groupId, payment_gateway_id, userID, domainId);
             }
             catch (ClientException ex)
             {
@@ -150,17 +132,11 @@ namespace WebAPI.Controllers
             {
                 string userID = KS.GetFromRequest().UserId;
 
-                // get domain       
-                var domain = ClientsManager.DomainsClient().GetDomainByUser(groupId, userID);
-                
-                // check if the user performing the action is domain master
-                if (domain == null || domain.MasterUsers == null || domain.MasterUsers.Where(u => u.Id == userID).FirstOrDefault() == null)
-                {
-                    throw new ForbiddenException();
-                }
+                // get domain id        
+                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
                 // call client
-                response = ClientsManager.BillingClient().DeleteHouseholdPaymentGateway(groupId, payment_gateway_id, userID, domain.Id);
+                response = ClientsManager.BillingClient().DeleteHouseholdPaymentGateway(groupId, payment_gateway_id, userID, domainId);
             }
             catch (ClientException ex)
             {

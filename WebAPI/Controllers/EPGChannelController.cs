@@ -29,7 +29,7 @@ namespace WebAPI.Controllers
         /// <param name="language">Language code</param>        
         /// <remarks></remarks>
         [Route("list"), HttpPost]
-        [ApiAuthorize(true)]
+        [ApiAuthorize]
         public KalturaEPGChannelAssetsListResponse List(KalturaEpgChannelFilter filter, List<KalturaCatalogWithHolder> with = null, string language = null)
         {
             List<KalturaEPGChannelAssets> response = null;

@@ -119,7 +119,7 @@ namespace WebAPI.Controllers
         /// <param name="udid">Device UDID</param>
         /// <returns></returns>
         [Route("refreshSession"), HttpPost]
-        [ApiAuthorize(true, true)]
+        [ApiAuthorize(true)]
         public KalturaLoginSession RefreshSession(string refresh_token, string udid = null)
         {
             KalturaLoginSession response = null;
@@ -147,7 +147,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// login with facebook token.
+        /// Login via Facebook credentials
         /// </summary>        
         /// <param name="partnerId">Partner identifier</param>
         /// <param name="token">Facebook token</param>
@@ -403,7 +403,7 @@ namespace WebAPI.Controllers
             return new KalturaOTTUserListResponse() { Users = response, TotalCount = response.Count };
         }
 
-        /// <summary>Edit user details.        
+        /// <summary>Update user information      
         /// </summary>
         /// <param name="user"> UserData Object (include basic and dynamic data)</param>
         /// <remarks>         User suspended = 2001, User does not exist = 2000
@@ -505,19 +505,13 @@ namespace WebAPI.Controllers
         /// Household suspended = 1009, Limitation period = 1014,  User does not exist = 2000, Default user cannot be deleted = 2030, Exclusive master user cannot be deleted = 2031
         /// </remarks>        
         [Route("delete"), HttpPost]
+        [ApiAuthorize]
         public bool Delete()
         {
             bool response = false;
 
             int groupId = KS.GetFromRequest().GroupId;
-            string user = KS.GetFromRequest().UserId;
-
-            int userId = 0;
-
-            if (!int.TryParse(user, out userId))
-            {
-                throw new ForbiddenException();
-            }
+            int userId = int.Parse(KS.GetFromRequest().UserId);
 
             try
             {

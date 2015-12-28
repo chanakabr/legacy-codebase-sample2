@@ -18,11 +18,10 @@ namespace WebAPI.Models.Users
         /// <summary>
         /// Users identifiers
         /// </summary>
-        [DataMember(Name = "user_ids")]
-        [JsonProperty("user_ids")]
-        [XmlArray(ElementName = "user_ids", IsNullable = true)]
-        [XmlArrayItem(ElementName = "item")]
-        public List<KalturaStringValue> usersIDs { get; set; }
+        [DataMember(Name = "by")]
+        [JsonProperty("by")]
+        [XmlElement(ElementName = "by")]
+        public KalturaEntityReferenceBy By { get; set; }
 
         /// <summary>
         /// The requested list type

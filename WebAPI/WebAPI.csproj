@@ -243,6 +243,9 @@
     <None Include="Service References\Catalog\Service5.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\Catalog\Service56.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\Catalog\Service57.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -286,9 +289,6 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\Catalog\Service7.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service70.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\Catalog\Service8.xsd">
@@ -342,17 +342,11 @@
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
     <Content Include="Service References\Notifications\NotificationService1.disco" />
+    <Content Include="Swagger.ashx" />
     <Content Include="Web References\Api\AdminAccountUserResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Swagger.ashx" />
-    <None Include="Web References\Api\api.disco" />
-    <Content Include="Web References\Api\GenericRuleResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\StatusErrorCodesResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
+    <Content Include="Web References\Api\api.disco" />
     <Content Include="Web References\Billing\AdyenBillingDetail.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -365,11 +359,74 @@
     <Content Include="Web References\Billing\InAppBillingResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Api\BulkExportTasksResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
+    <Content Include="Web References\Api\api.wsdl" />
+    <Content Include="Web References\Api\BulkExportTaskResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Api\ParentalRulesTagsResponse.datasource">
+    <Content Include="Web References\Api\BulkExportTasksResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\CategoryObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\ChannelObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\DeviceAvailabiltyRule.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\EPGChannelObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\EPGChannelProgrammeObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\ExternalChannelResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\ExternalChannelResponseList.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\FileTypeContainer.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\GenericRuleResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\GenericWriteResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\GroupInfo.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\GroupOperator.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\GroupRule.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\KSQLChannelResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\KSQLChannelResponseList.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\LanguageObj.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\MediaConcurrencyRule.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\MediaInfoStructObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\MediaMarkObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\MeidaMaper.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\OSSAdapterBillingDetailsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\Api\OSSAdapterResponse.datasource">
@@ -381,7 +438,25 @@
     <Content Include="Web References\Api\OSSAdapterSettingsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Api\ExternalChannelResponse.datasource">
+    <Content Include="Web References\Api\ParentalRulesResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\ParentalRulesTagsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\PermissionResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\PermissionsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\PinResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\PurchaseSettingsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\RateMediaObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\Api\RecommendationEngineResponse.datasource">
@@ -393,28 +468,35 @@
     <Content Include="Web References\Api\RecommendationEnginesResponseList.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Api\ExternalChannelResponseList.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
+    <Content Include="Web References\Api\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
     </Content>
-    <Content Include="Web References\Api\BulkExportTaskResponse1.datasource">
+    <Content Include="Web References\Api\RegionsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\Api\RolesResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Api\KSQLChannelResponse.datasource">
+    <Content Include="Web References\Api\Scheduling.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Api\KSQLChannelResponseList.datasource">
+    <Content Include="Web References\Api\Status.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Api\PermissionResponse.datasource">
+    <Content Include="Web References\Api\StatusErrorCodesResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Api\PermissionsResponse.datasource">
+    <Content Include="Web References\Api\TagResponseObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\Api\UnifiedSearchResult.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\UserIMRequestObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\UserStatus.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <None Include="Web References\Billing\module.disco" />
@@ -446,70 +528,6 @@
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\ConditionalAccess\BillingStatusResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <None Include="Web References\Api\api.wsdl" />
-    <Content Include="Web References\Api\CategoryObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\ChannelObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\DeviceAvailabiltyRule.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\EPGChannelObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\EPGChannelProgrammeObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\FileTypeContainer.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\GenericWriteResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\GroupInfo.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\GroupOperator.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\GroupRule.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\LanguageObj.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\MediaConcurrencyRule.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\MediaInfoStructObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\MediaMarkObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\MeidaMaper.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\RateMediaObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\RegionsResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\Scheduling.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\TagResponseObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\UserIMRequestObject.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\UserStatus.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\ConditionalAccess\MediaFileItemPricesContainerResponse.datasource">
@@ -548,15 +566,6 @@
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\Billing\UpdatePendingResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\OSSAdapterResponse1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\OSSAdapterSettingsResponse1.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\OSSAdapterBillingDetailsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <None Include="Web References\ConditionalAccess\module.disco" />
@@ -754,24 +763,8 @@
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
-    <Content Include="Web References\Api\ParentalRulesResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\PinResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\PurchaseSettingsResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <None Include="Web References\Api\Reference.map">
-      <Generator>MSDiscoCodeGenerator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
     <Content Include="Service References\Notifications\WebAPI.Notifications.NotificationMessage.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Web References\Api\Status.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\Pricing\Subscription.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -842,7 +835,7 @@
     <Compile Include="Controllers\RecommendationProfileController.cs" />
     <Compile Include="Controllers\SessionController.cs" />
     <Compile Include="Controllers\UserAssetRuleController.cs" />
-    <Compile Include="Controllers\AssetViewController.cs" />
+    <Compile Include="Controllers\AssetHistoryController.cs" />
     <Compile Include="Controllers\HouseholdDeviceController.cs" />
     <Compile Include="Controllers\LastPositionController.cs" />
     <Compile Include="Controllers\PurchaseSettingsController.cs" />
@@ -902,7 +895,7 @@
     <Compile Include="Models\Catalog\KalturaEPGChannelAssets.cs" />
     <Compile Include="Models\Catalog\KalturaEpgChannelFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAssetReferenceType.cs" />
-    <Compile Include="Models\Catalog\KalturaAssetViewFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetHistoryFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAssetInfoFilter.cs" />
     <Compile Include="Models\Catalog\KalturaCatalogReferenceBy.cs" />
     <Compile Include="Models\Catalog\KalturaLastPositionAssetType.cs" />
@@ -1183,6 +1176,17 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
+    <WebReferenceUrl Include="http://localhost/ws_api/api.asmx">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\Api\</RelPath>
+      <UpdateFromURL>http://localhost/ws_api/api.asmx</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>WebAPI_Api_API</CachedSettingsPropName>
+    </WebReferenceUrl>
     <WebReferenceUrl Include="http://localhost/WS_Billing/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\Billing\</RelPath>
@@ -1193,17 +1197,6 @@
       </CachedDynamicPropName>
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>WebAPI_Billing_module</CachedSettingsPropName>
-    </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost:82/ws_api/api.asmx">
-      <UrlBehavior>Dynamic</UrlBehavior>
-      <RelPath>Web References\Api\</RelPath>
-      <UpdateFromURL>http://localhost:82/ws_api/api.asmx</UpdateFromURL>
-      <ServiceLocationURL>
-      </ServiceLocationURL>
-      <CachedDynamicPropName>
-      </CachedDynamicPropName>
-      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
-      <CachedSettingsPropName>WebAPI_Api_API</CachedSettingsPropName>
     </WebReferenceUrl>
     <WebReferenceUrl Include="http://192.168.192.146/webservices/cas/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>

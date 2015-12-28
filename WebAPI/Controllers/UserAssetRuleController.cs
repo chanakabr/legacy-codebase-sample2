@@ -17,7 +17,7 @@ namespace WebAPI.Controllers
     public class UserAssetRuleController : ApiController
     {
         /// <summary>
-        /// Retrieve all the rules (parental, geo, device or user-type) that applies for this user and media.        
+        /// Retrieve all the rules (parental, geo, device or user-type) that applies for this user and asset.        
         /// </summary>
         /// <remarks>Possible status codes: 
         /// User does not exist = 2000, User with no household = 2024, User suspended = 2001, User not in household = 1005, Household does not exist = 1006</remarks>

@@ -44,5 +44,49 @@ namespace WebAPI.Utils
 
             return domain.Id;
         }
+
+        public static List<string> GetHouseholdUserIds(int groupID, bool withPending = false)
+        {
+            var ks = KS.GetFromRequest();
+
+            if (ks == null)
+                return null;
+
+            string userID = ks.UserId;
+
+            if (userID == "0")
+                return null;
+
+            KalturaHousehold domain = null;
+
+            try
+            {
+                domain = ClientsManager.DomainsClient().GetDomainByUser(groupID, userID);
+            }
+            catch (ClientException ex)
+            {
+                log.Error("GetHouseholdIDByKS: got ClientException for GetDomainByUser", ex);
+                domain = null;
+            }
+
+            if (domain == null)
+                return null;
+
+            List<string> userIds = new List<string>();
+            
+            if (domain.DefaultUsers != null && domain.DefaultUsers.Count > 0)
+                userIds.AddRange(domain.DefaultUsers.Select(u => u.Id));
+
+            if (domain.MasterUsers != null && domain.MasterUsers.Count > 0)
+                userIds.AddRange(domain.MasterUsers.Select(u => u.Id));
+
+            if (domain.Users != null && domain.Users.Count > 0)
+                userIds.AddRange(domain.Users.Select(u => u.Id));
+
+            if (withPending && domain.PendingUsers != null && domain.PendingUsers.Count > 0)
+                userIds.AddRange(domain.PendingUsers.Select(u => u.Id));
+
+            return userIds;
+        }
     }
 }

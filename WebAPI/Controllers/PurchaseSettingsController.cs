@@ -17,7 +17,8 @@ namespace WebAPI.Controllers
     public class PurchaseSettingsController : ApiController
     {
         /// <summary>
-        /// Retrieve the purchase settings that applies for the household or a user        
+        /// Retrieve the purchase settings.
+        /// Includes specification of where these settings were defined – account, household or user        
         /// </summary>
         /// <param name="by">Reference type to filter by</param>
         /// <remarks>
@@ -59,7 +60,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Set the purchase settings that applies for the household.        
+        /// Set a purchase PIN for the household or user        
         /// </summary>
         /// <remarks>Possible status codes: 
         /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001,

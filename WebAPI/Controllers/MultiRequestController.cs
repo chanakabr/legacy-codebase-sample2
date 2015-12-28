@@ -21,6 +21,7 @@ namespace WebAPI.Controllers
 {
     [RoutePrefix("multirequest")]
     [ApiExplorerSettings(IgnoreApi = true)]
+    [ApiAuthorize]
     public class MultiRequestController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
