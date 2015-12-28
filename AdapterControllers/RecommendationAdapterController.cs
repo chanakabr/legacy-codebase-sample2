@@ -126,14 +126,19 @@ namespace AdapterControllers
                     engine.ID,
                     enrichmentsString);
 
-                //call Adapter get channel recommendations
-                var adapterResponse = adapterClient.GetChannelRecommendations(engine.ID,
-                    externalChannel.ExternalIdentifier,
-                    enrichmentsList.ToArray(),
-                    free,
-                    unixTimestamp,
-                    System.Convert.ToBase64String(
-                        EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
+                var adapterResponse = new RecommendationEngineAdapter.RecommendationsResult();
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    //call Adapter get channel recommendations
+                    adapterResponse = adapterClient.GetChannelRecommendations(engine.ID,
+                        externalChannel.ExternalIdentifier,
+                        enrichmentsList.ToArray(),
+                        free,
+                        unixTimestamp,
+                        System.Convert.ToBase64String(
+                            EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
+                }
 
                 requestId = adapterResponse.RequestId;
 
@@ -155,14 +160,17 @@ namespace AdapterControllers
 
                     configurationSynchronizer.DoAction(key, parameters);
 
-                    //call Adapter get recommendations - after it is configured
-                    adapterResponse = adapterClient.GetChannelRecommendations(engine.ID,
-                        externalChannel.ExternalIdentifier,
-                        enrichmentsList.ToArray(),
-                        free,
-                        unixTimestamp,
-                        System.Convert.ToBase64String(
-                            EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                    {
+                        //call Adapter get recommendations - after it is configured
+                        adapterResponse = adapterClient.GetChannelRecommendations(engine.ID,
+                            externalChannel.ExternalIdentifier,
+                            enrichmentsList.ToArray(),
+                            free,
+                            unixTimestamp,
+                            System.Convert.ToBase64String(
+                                EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
+                    }
 
                     requestId = adapterResponse.RequestId;
 
@@ -244,15 +252,20 @@ namespace AdapterControllers
                 string enrichmentsString = string.Join(";", enrichmentsList.Select(item => string.Concat("Key: ", item.Key, ", Value: ", item.Value)));
 
                 log.DebugFormat("Sending related request to recommendation engine adapter. media ID = {0}, engine = {1}, user ID = {2}, device ID = {3}, language = {4}, utcOffset = {5}, page index = {6}, page size = {7}, enrichments = {8}",
-                    nMediaID, engine.ID, siteGuid, deviceId, language, utcOffset,nPageIndex, nPageSize, enrichmentsString);
+                    nMediaID, engine.ID, siteGuid, deviceId, language, utcOffset, nPageIndex, nPageSize, enrichmentsString);
 
-                //call Adapter get channel recommendations
-                var adapterResponse = adapterClient.GetRelatedRecommendations(engine.ID,
-                    nMediaID, nMediaTypeID, siteGuid, deviceId, language,
-                    enrichmentsList.ToArray(), freeParam, filterTypeIDs.ToArray(), utcOffset, nPageIndex, nPageSize,
-                    unixTimestamp, 
-                    System.Convert.ToBase64String(
-                        EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
+                var adapterResponse = new RecommendationEngineAdapter.RecommendationsResult();
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    //call Adapter get channel recommendations
+                    adapterResponse = adapterClient.GetRelatedRecommendations(engine.ID,
+                        nMediaID, nMediaTypeID, siteGuid, deviceId, language,
+                        enrichmentsList.ToArray(), freeParam, filterTypeIDs.ToArray(), utcOffset, nPageIndex, nPageSize,
+                        unixTimestamp,
+                        System.Convert.ToBase64String(
+                            EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
+                }
 
                 requestId = adapterResponse.RequestId;
 
@@ -274,13 +287,16 @@ namespace AdapterControllers
 
                     configurationSynchronizer.DoAction(key, parameters);
 
-                    //call Adapter get related recommendations - after it is configured
-                    adapterResponse = adapterClient.GetRelatedRecommendations(engine.ID,
-                        nMediaID, nMediaTypeID, siteGuid, deviceId, language,
-                        enrichmentsList.ToArray(), freeParam, filterTypeIDs.ToArray(), utcOffset, nPageIndex, nPageSize,
-                        unixTimestamp,
-                        System.Convert.ToBase64String(
-                            EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                    {
+                        //call Adapter get related recommendations - after it is configured
+                        adapterResponse = adapterClient.GetRelatedRecommendations(engine.ID,
+                            nMediaID, nMediaTypeID, siteGuid, deviceId, language,
+                            enrichmentsList.ToArray(), freeParam, filterTypeIDs.ToArray(), utcOffset, nPageIndex, nPageSize,
+                            unixTimestamp,
+                            System.Convert.ToBase64String(
+                                EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
+                    }
 
                     requestId = adapterResponse.RequestId;
 
@@ -360,13 +376,18 @@ namespace AdapterControllers
                 log.DebugFormat("Sending search request to recommendation engine adapter. query = {0}, engine = {1}, user ID = {2}, device ID = {3}, language = {4}, utcOffset = {5}, page index = {6}, page size = {7}, enrichments = {8}",
                     query, engine.ID, siteGuid, deviceId, language, utcOffset, nPageIndex, nPageSize, enrichmentsString);
 
-                //call Adapter get channel recommendations
-                var adapterResponse = adapterClient.GetSearchRecommendations(engine.ID,
-                    query, siteGuid, deviceId, language,
-                    enrichmentsList.ToArray(), filterTypeIDs.ToArray(), utcOffset, nPageIndex, nPageSize,
-                    unixTimestamp,
-                    System.Convert.ToBase64String(
-                        EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
+                var adapterResponse = new RecommendationEngineAdapter.RecommendationsResult();
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    //call Adapter get channel recommendations
+                    adapterResponse = adapterClient.GetSearchRecommendations(engine.ID,
+                        query, siteGuid, deviceId, language,
+                        enrichmentsList.ToArray(), filterTypeIDs.ToArray(), utcOffset, nPageIndex, nPageSize,
+                        unixTimestamp,
+                        System.Convert.ToBase64String(
+                            EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
+                }
 
                 requestId = adapterResponse.RequestId;
 
@@ -388,14 +409,16 @@ namespace AdapterControllers
 
                     configurationSynchronizer.DoAction(key, parameters);
 
-                    //call Adapter get Search recommendations - after it is configured
-                    adapterResponse = adapterClient.GetSearchRecommendations(engine.ID,
-                        query, siteGuid, deviceId, language,
-                        enrichmentsList.ToArray(), filterTypeIDs.ToArray(), utcOffset, nPageIndex, nPageSize,
-                        unixTimestamp,
-                        System.Convert.ToBase64String(
-                            EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
-
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                    {
+                        //call Adapter get Search recommendations - after it is configured
+                        adapterResponse = adapterClient.GetSearchRecommendations(engine.ID,
+                            query, siteGuid, deviceId, language,
+                            enrichmentsList.ToArray(), filterTypeIDs.ToArray(), utcOffset, nPageIndex, nPageSize,
+                            unixTimestamp,
+                            System.Convert.ToBase64String(
+                                EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
+                    }
                     requestId = adapterResponse.RequestId;
 
                     LogAdapterResponse(adapterResponse, "GetSearchRecommendation");
