@@ -18,9 +18,9 @@ namespace WebAPI.Controllers
     public class SessionController : ApiController
     {
         /// <summary>
-        /// <param name="ks_to_parse">Additional KS to parse, if not passed the user's KS will be parsed</param>
         /// Parses KS
         /// </summary>
+        /// <param name="ks_to_parse">Additional KS to parse, if not passed the user's KS will be parsed</param>
         [Route("get"), HttpPost]
         [ApiAuthorize]
         public KalturaSessionInfo Get(string ks_to_parse = null)
