@@ -13,6 +13,7 @@ using GroupsCacheManager;
 using KLogMonitor;
 using System.Reflection;
 using ApiObjects.Response;
+using Tvinci.Core.DAL;
 
 namespace ElasticsearchTasksCommon
 {
@@ -99,11 +100,7 @@ namespace ElasticsearchTasksCommon
                 Catalog.Utils.BuildMediaFromDataSet(ref mediaTranslations, ref medias, group, dataSet);
 
                 // get media update dates
-                storedProcedure = new ODBCWrapper.StoredProcedure("Get_MediaUpdateDate");
-                storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
-                storedProcedure.AddIDListParameter("@MediaID", new List<int>() { mediaID }, "ID");
-                storedProcedure.AddIDListParameter("@SubGroupTree", group.m_nSubGroup, "ID");
-                DataSet updateDates = storedProcedure.ExecuteDataSet();
+                DataTable updateDates = CatalogDAL.Get_MediaUpdateDate(new List<int>() { mediaID });
 
                 OverrideMediaUpdateDates(ref mediaTranslations, updateDates);
             }
@@ -115,24 +112,21 @@ namespace ElasticsearchTasksCommon
             return mediaTranslations;
         }
 
-        private static void OverrideMediaUpdateDates(ref Dictionary<int, Dictionary<int, Media>> translatedMedias, DataSet dataSet)
+        private static void OverrideMediaUpdateDates(ref Dictionary<int, Dictionary<int, Media>> translatedMedias, DataTable dataTable)
         {
-            if (dataSet != null && dataSet.Tables.Count > 0)
+            if (dataTable != null && dataTable.Rows.Count > 0)
             {
-                if (dataSet.Tables[0].Rows.Count > 0)
+                int id;
+                foreach (DataRow row in dataTable.Rows)
                 {
-                    int id;
-                    foreach (DataRow row in dataSet.Tables[0].Rows)
+                    id = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
+                    if (translatedMedias.ContainsKey(id) && translatedMedias[id] != null && !string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(row, "update_date")))
                     {
-                        id = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
-                        if (translatedMedias.ContainsKey(id) && translatedMedias[id] != null && !string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(row, "update_date")))
+                        DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(row, "update_date");
+                        foreach (var media in translatedMedias[id].Values)
                         {
-                            DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(row, "update_date");
-                            foreach (var media in translatedMedias[id].Values)
-                            {
-                                if (media != null)
-                                    media.m_sUpdateDate = dt.ToString("yyyyMMddHHmmss");
-                            }
+                            if (media != null)
+                                media.m_sUpdateDate = dt.ToString("yyyyMMddHHmmss");
                         }
                     }
                 }
