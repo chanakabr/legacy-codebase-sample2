@@ -92,7 +92,7 @@ namespace ElasticSearch.Searcher
         /// Builds the request body for Elasticsearch search action
         /// </summary>
         /// <returns></returns>
-        public virtual string BuildSearchQueryString()
+        public virtual string BuildSearchQueryString(bool bAddDeviceRuleID = true, bool bAddActive = true)
         {
             this.ReturnFields = DEFAULT_RETURN_FIELDS.ToList();
             this.ReturnFields.AddRange(this.SearchDefinitions.extraReturnFields.Select(field => string.Format("\"{0}\"", field)));
@@ -131,7 +131,7 @@ namespace ElasticSearch.Searcher
             BaseFilterCompositeType filterRoot;
             IESTerm queryTerm;
 
-            BuildInnerFilterAndQuery(out filterRoot, out queryTerm);
+            BuildInnerFilterAndQuery(out filterRoot, out queryTerm, bAddDeviceRuleID, bAddActive);
 
             QueryFilter filterPart = new QueryFilter()
             {
@@ -187,7 +187,7 @@ namespace ElasticSearch.Searcher
             return fullQuery;
         }
 
-        public void BuildInnerFilterAndQuery(out BaseFilterCompositeType filterPart, out IESTerm queryTerm)
+        public void BuildInnerFilterAndQuery(out BaseFilterCompositeType filterPart, out IESTerm queryTerm, bool bAddDeviceRuleID = true, bool bAddActive = true)
         {
             ESPrefix epgPrefixTerm = new ESPrefix()
             {
@@ -240,14 +240,16 @@ namespace ElasticSearch.Searcher
                 Value = this.SearchDefinitions.groupId.ToString()
             };
 
-            ESTerm isActiveTerm = new ESTerm(true)
+            if (bAddActive)
             {
-                Key = "is_active",
-                Value = "1"
-            };
-
-            globalFilter.AddChild(isActiveTerm);
-
+                ESTerm isActiveTerm = new ESTerm(true)
+                {
+                    Key = "is_active",
+                    Value = "1"
+                };
+            
+                globalFilter.AddChild(isActiveTerm);
+            }
             // If specific assets should return, filter their IDs.
             // Add an IN Clause (Terms) to the matching filter (media, EPG etc.)
             if (this.SearchDefinitions.specificAssets != null)
@@ -433,7 +435,8 @@ namespace ElasticSearch.Searcher
 
                 deviceRulesTerms.Value.Add("0");
 
-                if (this.SearchDefinitions.deviceRuleId != null &&
+                if (bAddDeviceRuleID &&
+                    this.SearchDefinitions.deviceRuleId != null &&
                     this.SearchDefinitions.deviceRuleId.Length > 0)
                 {
 

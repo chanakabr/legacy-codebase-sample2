@@ -37,11 +37,14 @@ namespace Catalog.Request
         [DataMember]
         public Int32 m_nChannelID;
         [DataMember]
+        public bool m_bAddDeviceRuleID;
+        [DataMember]
         public ApiObjects.SearchObjects.OrderObj m_oOrderObj;
 
         public ChannelRequest()
             : base()
         {
+            m_bAddDeviceRuleID = true;
         }
 
         public ChannelRequest(Int32 nChannelID, Int32 nGroupID, Int32 nPageSize, Int32 nPageIndex, string sUserIP, Filter oFilter, string sSignature, string sSignString, ApiObjects.SearchObjects.OrderObj oOrderObj)
@@ -49,6 +52,7 @@ namespace Catalog.Request
         {
             m_nChannelID = nChannelID;
             m_oOrderObj = oOrderObj;
+            m_bAddDeviceRuleID = true;
         }
 
         public ChannelRequest(ChannelRequest c)
@@ -56,6 +60,7 @@ namespace Catalog.Request
         {
             m_nChannelID = c.m_nChannelID;
             m_oOrderObj = c.m_oOrderObj;
+            m_bAddDeviceRuleID = c.m_bAddDeviceRuleID;
         }
 
         public BaseResponse GetResponse(BaseRequest oBaseRequest)
@@ -102,6 +107,8 @@ namespace Catalog.Request
                     }
 
                     channelSearchObject = GetSearchObject(channel, request, group.m_nParentGroupID, group.GetGroupDefaultLanguage(), group.m_sPermittedWatchRules);
+
+                    channelSearchObject.m_bUseDeviceRuleId = request.m_bAddDeviceRuleID;
 
                     List<int> medias = new List<int>();
                     int nPageIndex = 0;

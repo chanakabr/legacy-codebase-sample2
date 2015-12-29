@@ -71,7 +71,7 @@ namespace Catalog
 
             queryParser.QueryType = (oSearch.m_bExact) ? eQueryType.EXACT : eQueryType.BOOLEAN;
 
-            string sQuery = queryParser.BuildSearchQueryString();
+            string sQuery = queryParser.BuildSearchQueryString(oSearch.m_bUseDeviceRuleId, oSearch.m_bUseActive);
 
             if (!string.IsNullOrEmpty(sQuery))
             {
@@ -1198,7 +1198,7 @@ namespace Catalog
                 parentGroupId = unifiedSearchDefinitions.groupId;
             }
 
-            string requestBody = queryParser.BuildSearchQueryString();
+            string requestBody = queryParser.BuildSearchQueryString(unifiedSearchDefinitions.shouldAddDeviceRuleID, unifiedSearchDefinitions.shouldAddActive);
 
             if (!string.IsNullOrEmpty(requestBody))
             {
