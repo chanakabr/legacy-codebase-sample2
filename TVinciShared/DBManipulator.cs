@@ -1453,7 +1453,7 @@ namespace TVinciShared
                         sVal = sVal.Replace("\r\n", "<br\\>");
                         bValid = validateParam("string", sVal, -1, -1);
                         if (bFirst == false)
-                            selectQuery += "and";
+                            selectQuery += "and"; 
                         else
                             selectQuery += "where";
                         selectQuery += ODBCWrapper.Parameter.NEW_PARAM(sFieldName, "=", DBStrEncode(sVal.ToString()));
