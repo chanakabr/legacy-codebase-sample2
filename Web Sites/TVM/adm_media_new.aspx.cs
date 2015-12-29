@@ -331,11 +331,11 @@ public partial class adm_media_new : System.Web.UI.Page
             Session["error_msg"] = "";
             return Session["last_page_html"].ToString();
         }
-        object t = null; ;
+        object mediaId = null; ;
         if (Session["media_id"] != null && Session["media_id"].ToString() != "" && int.Parse(Session["media_id"].ToString()) != 0)
-            t = Session["media_id"];
+            mediaId = Session["media_id"];
         string sBack = "adm_media.aspx?search_save=1";
-        DBRecordWebEditor theRecord = new DBRecordWebEditor("media", "adm_table_pager", sBack, "", "ID", t, sBack, "");
+        DBRecordWebEditor theRecord = new DBRecordWebEditor("media", "adm_table_pager", sBack, "", "ID", mediaId, sBack, "");
 
         DataRecordShortTextField dr_name = new DataRecordShortTextField("ltr", true, 60, 128);
         dr_name.Initialize("Name", "adm_table_header_nbg", "FormInput", "NAME", true);
@@ -375,9 +375,24 @@ public partial class adm_media_new : System.Web.UI.Page
         dr_epg_guid.Initialize("EPG Guid(connection to the EPG)", "adm_table_header_nbg", "FormInput", "EPG_IDENTIFIER", false);
         theRecord.AddRecord(dr_epg_guid);
 
-        DataRecordOnePicBrowserField dr_pic = new DataRecordOnePicBrowserField("media");
-        dr_pic.Initialize("Thumb", "adm_table_header_nbg", "FormInput", "MEDIA_PIC_ID", false);
-        theRecord.AddRecord(dr_pic);
+        // if media is not new - upload pic is allowed
+        if (mediaId != null && !string.IsNullOrEmpty(mediaId.ToString()))
+        {
+            bool isDownloadPicWithImageServer = false;
+            string imageUrl = string.Empty;
+            int picId = 0;
+
+            if (PageUtils.IsDownloadPicWithImageServer())
+            {
+                isDownloadPicWithImageServer = true;
+                int groupId = LoginManager.GetLoginGroupID();
+                imageUrl = GetPicImageUrlByRatio(out picId);
+            }
+
+            DataRecordOnePicBrowserField dr_pic = new DataRecordOnePicBrowserField("media", isDownloadPicWithImageServer, imageUrl, picId);
+            dr_pic.Initialize("Thumb", "adm_table_header_nbg", "FormInput", "MEDIA_PIC_ID", false);
+            theRecord.AddRecord(dr_pic);
+        }
 
         DataRecordRadioField dr_type = new DataRecordRadioField("media_types", "NAME", "id", "", null);
         string sQuery = "select name as txt,id as id from media_types where status=1 and group_id " + PageUtils.GetParentsGroupsStr(LoginManager.GetLoginGroupID()) + " order by ORDER_NUM";
@@ -449,5 +464,34 @@ public partial class adm_media_new : System.Web.UI.Page
         string sTable = theRecord.GetTableHTML("adm_media_new.aspx?submited=1");
 
         return sTable;
+    }
+
+    private string GetPicImageUrlByRatio(out int picId)
+    {
+        string imageUrl = string.Empty;
+        string baseUrl = string.Empty;
+        int ratioId = 0;
+        int version = 0;
+        picId = 0;
+        int groupId = LoginManager.GetLoginGroupID();
+        object mediaId = Session["media_id"];
+
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery += "select p.RATIO_ID, p.BASE_URL, p.ID, p.version from pics p left join media m on m.MEDIA_PIC_ID = p.ID where p.STATUS = 1 and m.id = " + mediaId.ToString();
+
+        if (selectQuery.Execute("query", true) != null && selectQuery.Table("query").DefaultView != null && selectQuery.Table("query").DefaultView.Count > 0)
+        {
+            baseUrl = ODBCWrapper.Utils.GetSafeStr(selectQuery.Table("query").DefaultView[0].Row["BASE_URL"]);
+            ratioId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["RATIO_ID"]);
+            picId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["ID"]);
+            version = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["version"]);
+            int parentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);
+
+            imageUrl = PageUtils.BuildVodUrl(parentGroupID, baseUrl, ratioId, version);
+
+        }
+
+
+        return imageUrl;
     }
 }

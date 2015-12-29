@@ -32,15 +32,29 @@ public partial class adm_utils : System.Web.UI.Page
     public string ChangePic(string sObjectID, string sPicsIds)
     {
         Int32 nGroupID = LoginManager.GetLoginGroupID();
-        object oBasePicsURL = PageUtils.GetTableSingleVal("groups", "PICS_REMOTE_BASE_URL", nGroupID);
         string sBasePicsURL = "";
-        if (oBasePicsURL != DBNull.Value && oBasePicsURL != null)
-            sBasePicsURL = oBasePicsURL.ToString();
-        if (sBasePicsURL == "")
-            sBasePicsURL = "pics";
-        else if (sBasePicsURL.ToLower().Trim().StartsWith("http://") == false &&
-            sBasePicsURL.ToLower().Trim().StartsWith("https://") == false)
-            sBasePicsURL = "http://" + sBasePicsURL;
+
+
+
+        if (PageUtils.IsDownloadPicWithImageServer())
+        {
+            if (Session["Pic_Image_Url"] != null)
+            {
+                sBasePicsURL = Session["Pic_Image_Url"].ToString();
+                Session["Pic_Image_Url"] = null; 
+            }
+        }
+        else
+        {
+            object oBasePicsURL = PageUtils.GetTableSingleVal("groups", "PICS_REMOTE_BASE_URL", nGroupID);
+            if (oBasePicsURL != DBNull.Value && oBasePicsURL != null)
+                sBasePicsURL = oBasePicsURL.ToString();
+            if (sBasePicsURL == "")
+                sBasePicsURL = "pics";
+            else if (sBasePicsURL.ToLower().Trim().StartsWith("http://") == false &&
+                sBasePicsURL.ToLower().Trim().StartsWith("https://") == false)
+                sBasePicsURL = "http://" + sBasePicsURL;
+        }
 
         string sRet = sObjectID + "~|~";
         string[] sSplit = sPicsIds.Split(';');
@@ -322,7 +336,7 @@ public partial class adm_utils : System.Web.UI.Page
 
         return sRet;
     }
-    
+
     public string ChangeActiveStateRow(string sTable, string sID, string sStatus)
     {
         return ChangeActiveStateRow(sTable, sID, sStatus, "");
