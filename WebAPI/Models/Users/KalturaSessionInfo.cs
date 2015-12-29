@@ -5,7 +5,9 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Models;
 using WebAPI.Models.General;
+using WebAPI.Utils;
 
 namespace WebAPI.Models.Users
 {
@@ -69,5 +71,20 @@ namespace WebAPI.Models.Users
         [JsonProperty(PropertyName = "udid")]
         [XmlElement("udid")]
         public string udid { get; set; }
+
+        public KalturaSessionInfo()
+        {
+        }
+
+        public KalturaSessionInfo(KS ks)
+        {
+            this.ks = ks.ToString();
+            this.expiry = (int)SerializationUtils.ConvertToUnixTimestamp(ks.Expiration);
+            this.partnerId = ks.GroupId;
+            this.privileges = ks.Privilege;
+            this.sessionType = ks.SessionType;
+            this.userId = ks.UserId;
+            this.udid = KSUtils.ExtractKSPayload(KS.GetFromRequest()).UDID;
+        }
     }
 }

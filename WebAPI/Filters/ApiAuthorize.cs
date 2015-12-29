@@ -25,7 +25,6 @@ namespace WebAPI.Controllers
         
         private bool silent;
         
-        // TODO: get from configuration
         private const long ANONYMOUS_ROLE_ID = 0;
         private const string PARTNER_WILDCARD = "partner*";
         private const string HOUSEHOLD_WILDCARD = "household*";

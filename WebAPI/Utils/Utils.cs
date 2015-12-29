@@ -46,5 +46,10 @@ namespace WebAPI.Utils
 
             return ip.Trim();
         }
+
+        public static string Generate32LengthGuid()
+        {
+            return Guid.NewGuid().ToString("N");
+        }
     }
 }

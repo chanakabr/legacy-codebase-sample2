@@ -82,6 +82,11 @@ namespace WebAPI.Managers.Models
         ExpiredKS = 500016,
         InvalidRefreshToken = 500017,
         AbstractParameter = 500018,
-        InvalidPaging = 500019         
+        InvalidPaging = 500019,
+        InvalidAppToken = 50020, 
+        ExpiredAppToken = 50021,
+        InvalidAppTokenHash = 50022,
+        NotActiveAppToken = 50023
+
     }
 }

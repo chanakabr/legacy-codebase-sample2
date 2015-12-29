@@ -6,7 +6,7 @@ using WebAPI.Models.Partner;
 namespace WebAPI.Models.Partner
 {
     /// <summary>
-    /// partaner billing configuration
+    /// Partner billing configuration
     /// </summary>
     public class KalturaBillingPartnerConfig : KalturaPartnerConfiguration
     {

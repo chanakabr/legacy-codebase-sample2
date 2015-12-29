@@ -148,6 +148,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="bin\WebAPI.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Global.asax" />
     <Content Include="log4net.config">
       <SubType>Designer</SubType>
@@ -240,7 +243,46 @@
     <None Include="Service References\Catalog\Service4.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\Catalog\Service43.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service44.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service45.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service46.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service47.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service48.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service49.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\Catalog\Service5.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service50.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service51.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service52.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service53.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service54.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Catalog\Service55.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\Catalog\Service56.xsd">
@@ -249,43 +291,7 @@
     <None Include="Service References\Catalog\Service57.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\Catalog\Service58.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service59.xsd">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Service References\Catalog\Service6.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service60.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service61.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service62.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service63.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service64.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service65.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service66.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service67.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service68.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service69.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\Catalog\Service7.xsd">
@@ -299,7 +305,7 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\Catalog\Service2.disco" />
-    <Content Include="Service References\Catalog\Service5.disco" />
+    <Content Include="Service References\Catalog\Service4.disco" />
     <Content Include="Service References\Catalog\WebAPI.Catalog.BaseResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
@@ -819,6 +825,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
+    <Compile Include="Controllers\AppTokenController.cs" />
     <Compile Include="Controllers\AssetController.cs" />
     <Compile Include="Controllers\ExportTaskController.cs" />
     <Compile Include="Controllers\ExternalChannelProfileController.cs" />
@@ -868,6 +875,7 @@
     <Compile Include="Filters\VoidActionFilter.cs" />
     <Compile Include="Managers\AuthorizationManager.cs" />
     <Compile Include="Managers\Models\ApiToken.cs" />
+    <Compile Include="Managers\Models\AppToken.cs" />
     <Compile Include="Managers\Models\KSUtils.cs" />
     <Compile Include="Managers\RolesManager.cs" />
     <Compile Include="Models\API\KalturaPermissionsFilter.cs" />
@@ -911,6 +919,9 @@
     <Compile Include="Models\ConditionalAccess\KalturaEntitlementsFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPricesFilter.cs" />
     <Compile Include="Models\General\KalturaApiActionPermissionItem.cs" />
+    <Compile Include="Models\General\KalturaAppToken.cs" />
+    <Compile Include="Models\General\KalturaAppTokenHashType.cs" />
+    <Compile Include="Models\General\KalturaAppTokenStatus.cs" />
     <Compile Include="Models\General\KalturaGroupPermission.cs" />
     <Compile Include="Models\General\KalturaLongValue.cs" />
     <Compile Include="Models\General\KalturaBaseResponseProfile.cs" />

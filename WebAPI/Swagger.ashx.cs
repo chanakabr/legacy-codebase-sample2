@@ -85,7 +85,7 @@ namespace WebAPI
                             }
                         }
 
-                        json = Newtonsoft.Json.JsonConvert.SerializeObject(d).Replace("_service/", "api/service/");
+                        json = Newtonsoft.Json.JsonConvert.SerializeObject(d).Replace("_service/", "api_v3/service/");
 
                         context.Response.ContentType = "application/json";
                         context.Response.Write(json);
