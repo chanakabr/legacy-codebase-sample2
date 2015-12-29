@@ -54,6 +54,8 @@ namespace ApiObjects.SearchObjects
         public bool m_bExact;
         public bool m_bUseFinalEndDate;
         public bool m_bUseStartDate;
+        public bool m_bUseActive;
+        public bool m_bUseDeviceRuleId;
         
         public string m_sName;
         public string m_sDescription;

@@ -1320,6 +1320,12 @@ namespace Catalog
 
             HashSet<string> searchKeys = new HashSet<string>();
 
+            if (originalKey.StartsWith("tags."))
+                originalKey = originalKey.Substring(5);
+
+            if (originalKey.StartsWith("metas."))
+                originalKey = originalKey.Substring(6);
+
             foreach (string tag in group.m_oGroupTags.Values)
             {
                 if (tag.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
@@ -2241,6 +2247,7 @@ namespace Catalog
                 searchObject.m_bUseStartDate = request.m_oFilter.m_bUseStartDate;
                 searchObject.m_bUseFinalEndDate = request.m_oFilter.m_bUseFinalDate;
                 searchObject.m_nUserTypeID = request.m_oFilter.m_nUserTypeID;
+                searchObject.m_bUseActive = request.m_oFilter.m_bOnlyActiveMedia;                
             }
 
             CopySearchValuesToSearchObjects(ref searchObject, channel.m_eCutWith, channel.m_lChannelTags);
@@ -5930,6 +5937,8 @@ namespace Catalog
             definitions.pageIndex = request.m_nPageIndex;
             definitions.pageSize = request.m_nPageSize;
 
+            definitions.shouldAddActive = request.m_oFilter != null ? request.m_oFilter.m_bOnlyActiveMedia : true;
+
             #endregion
 
             #region Device Rules
@@ -5943,6 +5952,7 @@ namespace Catalog
 
             definitions.deviceRuleId = deviceRules;
 
+            definitions.shouldAddDeviceRuleID = request.m_bAddDeviceRuleID;
             #endregion
 
             #region Media Types, Permitted Watch Rules, Language

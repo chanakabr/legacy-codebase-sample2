@@ -18,6 +18,8 @@ namespace Catalog.Request
 
         [DataMember]
         public ApiObjects.SearchObjects.OrderObj order;
+        [DataMember]
+        public bool m_bAddDeviceRuleID;
 
         #endregion
 
@@ -29,6 +31,7 @@ namespace Catalog.Request
         {
             this.filterQuery = filterQuery;
             this.order = order;
+            m_bAddDeviceRuleID = true;
         }
 
         #endregion

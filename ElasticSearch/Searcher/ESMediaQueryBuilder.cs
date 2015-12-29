@@ -230,7 +230,7 @@ namespace ElasticSearch.Searcher
             return query;
         }
 
-        public virtual string BuildSearchQueryString(bool bAddDeviceRuleID = true)
+        public virtual string BuildSearchQueryString(bool bAddDeviceRuleID = true, bool bAddActive = true)
         {
             string sResult = string.Empty;
 
@@ -391,7 +391,10 @@ namespace ElasticSearch.Searcher
             oGroupWPComposite.AddChild(permittedWatcFilter);
 
             filterParent.AddChild(oGroupWPComposite);
-            filterParent.AddChild(isActiveTerm);
+            
+            if (bAddActive)
+                filterParent.AddChild(isActiveTerm);
+
             filterParent.AddChild(startDateRange);
             filterParent.AddChild(endDateRange);
             filterParent.AddChild(mediaTerm);
