@@ -1956,16 +1956,10 @@ namespace TvinciImporter
                 // generate ImageUploadData and send to Queue 
                 int parentGroupId = DAL.UtilsDal.GetParentGroupID(groupId);
 
-                // build image server URL
-                var imageServerUrlObj = TVinciShared.PageUtils.GetTableSingleVal("groups", "IMAGE_SERVER_URL", groupId);
-                string imageServerUrl = string.Empty;
-                if (imageServerUrlObj == null)
+                // get image server URL
+                string imageServerUrl = ImageUtils.GetImageServerUrl(groupId);
+                if (string.IsNullOrEmpty(imageServerUrl))
                     throw new Exception(string.Format("IMAGE_SERVER_URL wasn't found. GID: {0}", groupId));
-                else
-                {
-                    imageServerUrl = imageServerUrlObj.ToString();
-                    imageServerUrl = imageServerUrl.EndsWith("/") ? imageServerUrl + "InsertImage" : imageServerUrl + "/InsertImage";
-                }
 
                 if (sourcePath.ToLower().Trim().StartsWith("http://") == false &&
                 sourcePath.ToLower().Trim().StartsWith("https://") == false)

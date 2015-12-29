@@ -645,23 +645,11 @@ namespace EpgBL
                 }
                 else
                 {
-                    // get image server URL
-                    var imageServerUrlObj = TVinciShared.PageUtils.GetTableSingleVal("groups", "IMAGE_SERVER_URL", groupId);
-                    string imageServerUrl = string.Empty;
-                    if (imageServerUrlObj == null)
-                        throw new Exception(string.Format("IMAGE_SERVER_URL wasn't found. GID: {0}", groupId));
-                    else
-                    {
-                        imageServerUrl = imageServerUrlObj.ToString();
-                        imageServerUrl = imageServerUrl.EndsWith("/") ? imageServerUrl + "GetImage/" : imageServerUrl + "/GetImage/";
-                    }
-
                     EpgPicture pictureItem;
                     List<EpgPicture> finalEpgPicture = null;
                     foreach (ApiObjects.EPGChannelProgrammeObject oProgram in epgList)
                     {
                         int progGroup = int.Parse(oProgram.GROUP_ID);
-
 
                         finalEpgPicture = new List<EpgPicture>();
                         if (oProgram.EPG_PICTURES != null && oProgram.EPG_PICTURES.Count > 0) // work with list of pictures --LUNA version 
@@ -679,11 +667,7 @@ namespace EpgBL
                                     // build image URL. 
                                     // template: <image_server_url>/p/<partner_id>/entry_id/<image_id>/version/<image_version>
                                     // Example:  http://localhost/ImageServer/Service.svc/GetImage/p/215/entry_id/123/version/10
-                                    pictureItem.Url = string.Format("{0}p/{1}/entry_id/{2}/version/{3}",
-                                        imageServerUrl,   // 0 <image_server_url>
-                                        groupId,          // 1 <partner_id>
-                                        picBaseName,      // 2 <image_id>
-                                        0);               // 3 <image_version>
+                                    pictureItem.Url = ImageUtils.BuildImageUrl(groupId, picBaseName, 0, 0, 0, 100, true);
 
                                     finalEpgPicture.Add(pictureItem);
                                 }
@@ -704,13 +688,7 @@ namespace EpgBL
                                         // build image URL. 
                                         // template: <image_server_url>/p/<partner_id>/entry_id/<image_id>/version/<image_version>/width/<image_width>/height/<image_height>/quality/<image_quality>
                                         // Example:  http://localhost/ImageServer/Service.svc/GetImage/p/215/entry_id/123/version/10/width/432/height/230/quality/100
-                                        pictureItem.Url = string.Format("{0}p/{1}/entry_id/{2}/version/{3}/width/{4}/height/{5}/quality/100",
-                                            imageServerUrl,       // 0 <image_server_url>
-                                            groupId,              // 1 <partner_id>
-                                            picBaseName,          // 2 <image_id>
-                                            0,                    // 3 <image_version>
-                                            ratioItem.PicWidth,   // 4 <image_width>
-                                            ratioItem.PicHeight); // 5 <image_height>
+                                        pictureItem.Url = ImageUtils.BuildImageUrl(groupId, picBaseName, 0, ratioItem.PicWidth, ratioItem.PicHeight, 100);
 
                                         finalEpgPicture.Add(pictureItem);
                                     }

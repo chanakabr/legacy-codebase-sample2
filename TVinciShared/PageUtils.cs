@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using DAL;
 using KLogMonitor;
 using System.Reflection;
+using System.IO;
 
 namespace TVinciShared
 {
@@ -1593,6 +1594,36 @@ namespace TVinciShared
             return groups;
         }
 
+        public static string BuildEpgUrl(int groupId, string baseUrl, int version = 0, int width = 0, int height = 0, int quality = 100)
+        {
+            string url = string.Empty;
 
+            string imageId = Path.GetFileNameWithoutExtension(baseUrl);
+            if (string.IsNullOrEmpty(imageId))
+            {
+                log.Error("Image ID is empty");
+                return url;
+            }
+
+            url = ImageUtils.BuildImageUrl(groupId, imageId, version, width, height, quality);
+            return url;
+        }
+
+        public static string BuildVodUrl(int groupId, string baseUrl, int ratioId, int version = 0, int width = 0, int height = 0, int quality = 100)
+        {
+            string url = string.Empty;
+
+            string imageId = Path.GetFileNameWithoutExtension(baseUrl);
+            if (string.IsNullOrEmpty(imageId))
+            {
+                log.Error("Image ID is empty");
+                return url;
+            }
+            else
+                imageId += "_" + ratioId;
+
+            url = ImageUtils.BuildImageUrl(groupId, imageId, version, width, height, quality);
+            return url;
+        }
     }
 }

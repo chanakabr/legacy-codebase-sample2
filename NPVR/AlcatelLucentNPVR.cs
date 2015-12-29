@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using KLogMonitor;
 using System.Reflection;
 using Tvinci.Core.DAL;
+using TVinciShared;
 
 
 namespace NPVR
@@ -77,6 +78,7 @@ namespace NPVR
         private static readonly string ALU_SEASON_NUMBER = "seasonNumber";
         private static readonly string ALU_RATING = "rating";
 
+        private const string USE_OLD_IMAGE_SERVER_KEY = "USE_OLD_IMAGE_SERVER";
 
         private int groupID;
 
@@ -934,12 +936,15 @@ namespace NPVR
             {
                 Dictionary<int, List<EpgPicture>> picGroupTree = CatalogDAL.GetGroupTreeMultiPicEpgUrl(groupID);
 
+                // get ratio map
+                // List<Ratio> groupRatios = CatalogCache.Instance().GetGroupRatios(picDataZeroRatio.GroupId);
+
                 // choose the higher domain number  ( not the Parent domain) 
                 int epgGroupId = groupID;
 
                 if (picGroupTree != null & picGroupTree.Keys.Count > 0)
                 {
-                    epgGroupId  = picGroupTree.Keys.Max();
+                    epgGroupId = picGroupTree.Keys.Max();
                     log.Debug("NPVRPics " + string.Format("picGroupTree[{0}] count {1}", epgGroupId, picGroupTree[epgGroupId].Count));
                 }
 
@@ -1031,14 +1036,17 @@ namespace NPVR
 
                     obj.PIC_URL = entry.Thumbnail;
 
-                    if (!string.IsNullOrEmpty(entry.Thumbnail) && picGroupTree != null && picGroupTree.Count > 0)
+                    if (!string.IsNullOrEmpty(entry.Thumbnail))
                     {
-                        
+
                         if (!entry.Thumbnail.ToLower().StartsWith("http://"))
                         {
-                            if (picGroupTree.ContainsKey(epgGroupId))
+
+                            Dictionary<int, KeyValuePair<string, string>> ratioDictionary = SetRatioList(entry.Thumbnail);
+
+                            if (picGroupTree != null && picGroupTree.Count > 0 && picGroupTree.ContainsKey(epgGroupId))
                             {
-                                SetEpgPictures(SetRatioList(entry.Thumbnail), obj, picGroupTree[epgGroupId]);
+                                SetEpgPictures(ratioDictionary, obj, picGroupTree[epgGroupId]);
                                 if (obj.EPG_PICTURES.Count > 0)
                                 {
                                     obj.PIC_URL = obj.EPG_PICTURES[0].Url;
@@ -1046,11 +1054,33 @@ namespace NPVR
                             }
                             else
                             {
-                                log.Debug("NPVRPics - " + string.Format("picGroupTree[{0}]: not exists", epgGroupId));
+                                if (!WS_Utils.IsGroupIDContainedInConfig(groupID, USE_OLD_IMAGE_SERVER_KEY, ';'))
+                                {
+                                    string imageServerUrl = ImageUtils.GetImageServerUrl(epgGroupId);
+                                    if (string.IsNullOrEmpty(imageServerUrl))
+                                    {
+                                        log.Error(string.Format("IMAGE_SERVER_URL wasn't found. GID: {0}", epgGroupId));
+                                        return null;
+                                    }
+
+                                    // use new image server flow
+                                    foreach (var item in ratioDictionary)
+                                    {
+                                        obj.EPG_PICTURES.Add(new EpgPicture()
+                                        {
+                                            PicHeight = 0,
+                                            PicID = 0,
+                                            PicWidth = 0,
+                                            Ratio = "",
+                                            RatioId = item.Key,
+                                            Url = ImageUtils.BuildImageUrl(groupID, item.Value.Key)
+                                        });
+                                    }
+                                }
                             }
                         }
-
                     }
+
 
                     obj.GROUP_ID = groupID.ToString();
                     obj.IS_ACTIVE = "true";
@@ -1087,7 +1117,20 @@ namespace NPVR
                     urlStr.Append(string.Format("_{0}X{1}.", pic.PicWidth, pic.PicHeight));
                     urlStr.Append(ratioDic[pic.RatioId].Value);
 
-                    log.Debug ("SetEpgPictures " + string.Format("RatioId= {0} Name= {1}", pic.RatioId, ratioDic[pic.RatioId].Key));                    
+                    log.Debug("SetEpgPictures " + string.Format("RatioId= {0} Name= {1}", pic.RatioId, ratioDic[pic.RatioId].Key));
+
+
+                    string url = string.Empty;
+                    if (WS_Utils.IsGroupIDContainedInConfig(groupID, USE_OLD_IMAGE_SERVER_KEY, ';'))
+                    {
+                        // use old image server flow
+                        url = urlStr.ToString();
+                    }
+                    else
+                    {
+                        // use new image server flow
+                        url = ImageUtils.BuildImageUrl(groupID, ratioDic[pic.RatioId].Key, 0, pic.PicWidth, pic.PicHeight, 100, false);
+                    }
 
                     obj.EPG_PICTURES.Add(new EpgPicture()
                     {
@@ -1096,7 +1139,7 @@ namespace NPVR
                         PicWidth = pic.PicWidth,
                         Ratio = pic.Ratio,
                         RatioId = pic.RatioId,
-                        Url = urlStr.ToString()
+                        Url = url
                     });
                 }
             }
@@ -1104,15 +1147,15 @@ namespace NPVR
 
         private Dictionary<int, KeyValuePair<string, string>> SetRatioList(string thumbnail)
         {
-            log.Debug("SetRatioList "+  string.Format("thumbnail={0}", thumbnail));
+            log.Debug("SetRatioList " + string.Format("thumbnail={0}", thumbnail));
 
             string sep = ";";
             var pics = thumbnail.Split(sep.ToCharArray());   //sample of thumbnail-->  [rationid]=[basepic].[suffix];;
             var list = new Dictionary<int, KeyValuePair<string, string>>();
-            
+
             foreach (string pic in pics)
             {
-                log.Debug("SetRatioList "+ string.Format("pic={0}", pic));
+                log.Debug("SetRatioList " + string.Format("pic={0}", pic));
                 if (!string.IsNullOrEmpty(pic))
                 {
                     var internalStr = pic.Split((new char[] { '=', '.' }));
