@@ -363,32 +363,20 @@ namespace WebAPI.Controllers
         /// <param name="filter">Filter object to filter relevant users in the account</param>
         /// <remarks></remarks>
         /// <remarks></remarks>        
-        [Route("list"), HttpPost]
+        [Route("get"), HttpPost]
         [ApiAuthorize]
-        public KalturaOTTUserListResponse List(KalturaOTTUserFilter filter)
+        public KalturaOTTUserListResponse Get()
         {
             List<KalturaOTTUser> response = null;
-
-            List<string> usersIds;
-            try
-            {
-                usersIds = filter.UserIDs.Select(x => x.value).Distinct().ToList();
-            }
-            catch
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "each user id must be int");
-            }
-            if (usersIds == null || usersIds.Count == 0)
-            {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "no user id in list");
-            }
-
+            
+            string userId = KS.GetFromRequest().UserId;
+            
             int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().GetUsersData(groupId, usersIds);
+                response = ClientsManager.UsersClient().GetUsersData(groupId, new List<string>() { userId });
             }
             catch (ClientException ex)
             {
