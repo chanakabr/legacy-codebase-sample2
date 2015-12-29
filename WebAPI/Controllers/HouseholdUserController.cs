@@ -60,7 +60,7 @@ namespace WebAPI.Controllers
         /// <param name="user_id_to_add">The identifier of the user to add</param>
         /// <param name="is_master">True if the new user should be added as master user</param>
         /// <remarks>Possible status codes: 
-        /// Household suspended = 1009, No users in household = 1017, Action user not master = 1021, Invalid user = 1026, User Already In household = 1029
+        /// Household suspended = 1009, Invalid user = 1026, User Already In household = 1029
         /// </remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
@@ -91,7 +91,7 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household to add the user to</param>
         /// <param name="is_master">True if the new user should be added as master user</param>
         /// <remarks>Possible status codes: 
-        /// Household suspended = 1009, No users in household = 1017, Invalid user = 1026, User Already In household = 1029
+        /// Household suspended = 1009, Invalid user = 1026, User Already In household = 1029
         /// </remarks>
         [Route("addByOperator"), HttpPost]
         [ApiAuthorize]
