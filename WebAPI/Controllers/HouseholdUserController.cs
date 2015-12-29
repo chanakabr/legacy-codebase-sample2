@@ -91,7 +91,7 @@ namespace WebAPI.Controllers
         /// <param name="household_id">Household to add the user to</param>
         /// <param name="is_master">True if the new user should be added as master user</param>
         /// <remarks>Possible status codes: 
-        /// Household suspended = 1009, No users in household = 1017, Action user not master = 1021, Invalid user = 1026, User Already In household = 1029
+        /// Household suspended = 1009, No users in household = 1017, Invalid user = 1026, User Already In household = 1029
         /// </remarks>
         [Route("addByOperator"), HttpPost]
         [ApiAuthorize]
@@ -101,8 +101,15 @@ namespace WebAPI.Controllers
 
             try
             {
+                // get domain master id
+                string masterId = "";
+                var domain = ClientsManager.DomainsClient().GetDomainInfo(groupId, household_id);
+                // check if the user performing the action is domain master
+                if (domain.MasterUsers.FirstOrDefault() != null)
+                    masterId = domain.MasterUsers.FirstOrDefault().Id;
+
                 // call client
-                return ClientsManager.DomainsClient().AddUserToDomain(groupId, household_id, user_id_to_add, KS.GetFromRequest().UserId, is_master);
+                return ClientsManager.DomainsClient().AddUserToDomain(groupId, household_id, user_id_to_add, masterId, is_master);
             }
             catch (ClientException ex)
             {
