@@ -161,7 +161,7 @@ namespace TVinciShared
         //protected void ConvertObjToStr(ref object obj)
         //{
         //    m_sStartValue = "";
-            
+
         //    {
         //        if (this.GetFieldType() == "date")
         //        {
@@ -201,7 +201,7 @@ namespace TVinciShared
         public virtual void SetValue(string sTable, string sIndexFieldName, object oIndexFieldVal)
         {
             if (m_bStartValue == true || m_sFieldName == "")
-                return; 
+                return;
             if (CachingManager.CachingManager.Exist("SetValue_" + sTable + "_" + sIndexFieldName + "_" + oIndexFieldVal.ToString() + "_" + m_sConnectionKey) == true)
             {
                 DataTable dt = ((DataTable)(CachingManager.CachingManager.GetCachedData("SetValue_" + sTable + "_" + sIndexFieldName + "_" + oIndexFieldVal.ToString() + "_" + m_sConnectionKey)));
@@ -265,7 +265,7 @@ namespace TVinciShared
 
 
 
-     
+
     }
 
     public class DataRecordShortTextField : BaseDataRecordField
@@ -306,7 +306,7 @@ namespace TVinciShared
 
         public override string GetFieldHtml(long nID)
         {
-            StringBuilder sTmp = new StringBuilder(); 
+            StringBuilder sTmp = new StringBuilder();
             sTmp.Append("<tr>");
             sTmp.Append("<td class='" + m_sHeaderCss + "' nowrap>");
             if (m_bMust == true)
@@ -326,7 +326,7 @@ namespace TVinciShared
         public string GetInnerFieldHtml(long nID)
         {
             StringBuilder sTmp = new StringBuilder();
-            sTmp.Append("<input tabindex=\"").Append((nID+1).ToString()).Append("\" class='").Append(m_sInputCss).Append("' name='").Append(nID.ToString()).Append("_val' type='");
+            sTmp.Append("<input tabindex=\"").Append((nID + 1).ToString()).Append("\" class='").Append(m_sInputCss).Append("' name='").Append(nID.ToString()).Append("_val' type='");
             if (m_bIsPass == false)
                 sTmp.Append("text' ");
             else
@@ -338,11 +338,11 @@ namespace TVinciShared
             sTmp.Append("maxlength=").Append(m_nMaxLength.ToString()).Append(" ");
             m_sStartValue = HttpContext.Current.Server.HtmlDecode(m_sStartValue).Replace("\"", "''");
             if (m_sStartValue != "")
-                sTmp .Append("value=\"").Append(m_sStartValue.ToString()).Append("\" ");
+                sTmp.Append("value=\"").Append(m_sStartValue.ToString()).Append("\" ");
             sTmp.Append("/>");
-            sTmp.Append("<input tabindex=\"2000\" tabindex=\"").Append((nID+1).ToString()).Append("\" type='hidden' name='").Append(nID.ToString()).Append("_type' value='string'/>");
-            sTmp.Append("<input tabindex=\"2000\" tabindex=\"").Append((nID+1).ToString()).Append("\" type='hidden' name='").Append(nID.ToString()).Append("_must' value='").Append(m_bMust.ToString()).Append("'/>");
-            sTmp.Append("<input tabindex=\"2000\" tabindex=\"").Append((nID+1).ToString()).Append("\" type='hidden' name='").Append(nID.ToString()).Append("_field' value='").Append(m_sFieldName).Append("'/>");
+            sTmp.Append("<input tabindex=\"2000\" tabindex=\"").Append((nID + 1).ToString()).Append("\" type='hidden' name='").Append(nID.ToString()).Append("_type' value='string'/>");
+            sTmp.Append("<input tabindex=\"2000\" tabindex=\"").Append((nID + 1).ToString()).Append("\" type='hidden' name='").Append(nID.ToString()).Append("_must' value='").Append(m_bMust.ToString()).Append("'/>");
+            sTmp.Append("<input tabindex=\"2000\" tabindex=\"").Append((nID + 1).ToString()).Append("\" type='hidden' name='").Append(nID.ToString()).Append("_field' value='").Append(m_sFieldName).Append("'/>");
             if (m_extID > 0)
             {
                 sTmp.Append("<input tabindex=\"2000\" tabindex=\"").Append((nID + 1).ToString()).Append("\" type='hidden' name='").Append(nID.ToString()).Append("_ext' value='").Append(m_extID).Append("'/>");
@@ -608,7 +608,7 @@ namespace TVinciShared
                 sBasePicsURL.ToLower().Trim().StartsWith("https://") == false)
                 sBasePicsURL = "http://" + sBasePicsURL;
 
-            string sLocalImage = GetLocalTNImage(); 
+            string sLocalImage = GetLocalTNImage();
             string sRet = "";
             if (sLocalImage != "")
                 sRet = sBasePicsURL + "/" + sLocalImage;
@@ -835,7 +835,7 @@ namespace TVinciShared
             GetCDNData(ref sCDNImpl, ref nCDNID, ref sCDNNotidyURL, 0);
         }
 
-        public void GetCDNData(ref string sCDNImpl, ref Int32 nCDNID, ref string sCDNNotidyURL , Int32 nCacheSecs)
+        public void GetCDNData(ref string sCDNImpl, ref Int32 nCDNID, ref string sCDNNotidyURL, Int32 nCacheSecs)
         {
             sCDNImpl = "normal";
             string sSuplierField = "vid_t." + m_sPreField + "STREAMING_SUPLIER_ID";
@@ -907,7 +907,7 @@ namespace TVinciShared
             return GetStreamCompCode(0);
         }
 
-        protected string GetStreamCompCode(Int32 nCacheSec) 
+        protected string GetStreamCompCode(Int32 nCacheSec)
         {
             string sCodeField = m_sPreField + "STREAMING_CODE";
             object sCode = "";
@@ -1059,7 +1059,7 @@ namespace TVinciShared
             return GetFLVSrc(nGroupID, 0);
         }
 
-        public string GetFLVSrc(Int32 nGroupID , Int32 nCacheSec)
+        public string GetFLVSrc(Int32 nGroupID, Int32 nCacheSec)
         {
             string sStreamID = GetStreamCompCode(nCacheSec);
             string sBaseURL = GetStreamBaseURLForPlayer(nCacheSec);
@@ -1070,7 +1070,7 @@ namespace TVinciShared
             {
                 if (nGroupID != 0)
                 {
-                    object oGroupCD = ODBCWrapper.Utils.GetTableSingleVal("groups", "GROUP_COUNTRY_CODE", nGroupID , 86400);
+                    object oGroupCD = ODBCWrapper.Utils.GetTableSingleVal("groups", "GROUP_COUNTRY_CODE", nGroupID, 86400);
                     if (oGroupCD != null && oGroupCD != DBNull.Value)
                         sRet = sRet.Replace("!--COUNTRY_CD--", oGroupCD.ToString().Trim().ToLower());
                     if (sRet.IndexOf("!--tick_time--") != -1)
@@ -1113,11 +1113,11 @@ namespace TVinciShared
             string sRet = "";
             //if (m_nMediaType == 1)
             //{
-                //sRet = "<IFRAME SRC=\"admin_player.aspx?player_type=video&size=big&cdn_type=" + sCDNType + "&flv=" + HttpContext.Current.Server.UrlEncode(GetFLVSrc()) + "&autoplay=false";
-                sRet = "<IFRAME SRC=\"admin_player.aspx?player_type=video&size=big&media_file_id=" + m_nID.ToString() + "&autoplay=false";
-                sRet += "\" WIDTH=\"480\" HEIGHT=\"400\" FRAMEBORDER=\"0\"></IFRAME>";
-                if (sStreamID != "")
-                    return sRet;
+            //sRet = "<IFRAME SRC=\"admin_player.aspx?player_type=video&size=big&cdn_type=" + sCDNType + "&flv=" + HttpContext.Current.Server.UrlEncode(GetFLVSrc()) + "&autoplay=false";
+            sRet = "<IFRAME SRC=\"admin_player.aspx?player_type=video&size=big&media_file_id=" + m_nID.ToString() + "&autoplay=false";
+            sRet += "\" WIDTH=\"480\" HEIGHT=\"400\" FRAMEBORDER=\"0\"></IFRAME>";
+            if (sStreamID != "")
+                return sRet;
             //}
             return "";
         }
@@ -1133,11 +1133,11 @@ namespace TVinciShared
             string sRet = "";
             //if (m_nMediaType == 1)
             //{
-                //sRet = "<IFRAME SRC=\"admin_player.aspx?player_type=video&size=small&cdn_type=" + sCDNType + "&flv=" + HttpContext.Current.Server.UrlEncode(GetFLVSrc()) + "&autoplay=false";
-                sRet = "<IFRAME SRC=\"admin_player.aspx?player_type=video&size=small&media_file_id=" + m_nID.ToString() + "&autoplay=false";
-                sRet += "\" WIDTH=\"200\" HEIGHT=\"200\" FRAMEBORDER=\"0\"></IFRAME>";
-                if (sStreamID != "")
-                    return sRet;
+            //sRet = "<IFRAME SRC=\"admin_player.aspx?player_type=video&size=small&cdn_type=" + sCDNType + "&flv=" + HttpContext.Current.Server.UrlEncode(GetFLVSrc()) + "&autoplay=false";
+            sRet = "<IFRAME SRC=\"admin_player.aspx?player_type=video&size=small&media_file_id=" + m_nID.ToString() + "&autoplay=false";
+            sRet += "\" WIDTH=\"200\" HEIGHT=\"200\" FRAMEBORDER=\"0\"></IFRAME>";
+            if (sStreamID != "")
+                return sRet;
             //}
             return "";
         }
@@ -1325,7 +1325,7 @@ namespace TVinciShared
         DataRecordCheckBoxField m_checkBoxField;
         DataRecordBoolField m_boolField;
         string m_sCheckTitle;
-        public DataRecordCutWithBoolField(ref DataRecordCheckBoxField checkBoxField, ref DataRecordBoolField boolField , string sCheckTitle)
+        public DataRecordCutWithBoolField(ref DataRecordCheckBoxField checkBoxField, ref DataRecordBoolField boolField, string sCheckTitle)
             : base()
         {
             m_checkBoxField = checkBoxField;
@@ -1361,7 +1361,7 @@ namespace TVinciShared
                 sTmp += "<span class=\"red\">*&nbsp;&nbsp;</span>";
             sTmp += m_sFieldHeader;
             sTmp += "</td>";
-            
+
             sTmp += "<td class=\"align1\"> ";
 
             sTmp += m_boolField.GetInnerFieldHtml(nID + 1);
@@ -1388,8 +1388,8 @@ namespace TVinciShared
         public string GetInnerFieldHtml(long nID)
         {
             string sTmp = "";
-            
-            sTmp += "<input tabindex=\"" + (nID+1).ToString() + "\" class='" + m_sInputCss + "' name='" + nID.ToString() + "_val' type='checkbox' ";
+
+            sTmp += "<input tabindex=\"" + (nID + 1).ToString() + "\" class='" + m_sInputCss + "' name='" + nID.ToString() + "_val' type='checkbox' ";
             if (m_bEnabled == false)
                 sTmp += "disabled ";
             if (m_sStartValue == "1")
@@ -1401,7 +1401,7 @@ namespace TVinciShared
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_type' value='checkbox'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_must' value='" + m_bMust.ToString() + "'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_field' value='" + m_sFieldName + "'/>";
-            
+
             return sTmp;
         }
 
@@ -1435,21 +1435,21 @@ namespace TVinciShared
         public string GetInnerFieldHtml(long nID)
         {
             string sTmp = "";
-            sTmp += "<input tabindex=\"" + (nID+1).ToString() + "\" type='radio' name='" + nID.ToString() + "_val' value='0' class='" + m_sHeaderCss + "'";
-            if (m_sStartValue == "0" )
+            sTmp += "<input tabindex=\"" + (nID + 1).ToString() + "\" type='radio' name='" + nID.ToString() + "_val' value='0' class='" + m_sHeaderCss + "'";
+            if (m_sStartValue == "0")
             {
                 sTmp += " checked ";
             }
             else
             {
                 if (m_sStartValue == "" && (m_nDefault == 0 || m_nDefault == -1))
-               {
+                {
                     sTmp += " checked ";
-               }
+                }
             }
             sTmp += "><span class='FormInputnbg'>No</span>";
 
-            sTmp += "<input  tabindex=\"" + (nID+1).ToString() + "\" type='radio' name='" + nID.ToString() + "_val' value='1' class='" + m_sHeaderCss + "'";
+            sTmp += "<input  tabindex=\"" + (nID + 1).ToString() + "\" type='radio' name='" + nID.ToString() + "_val' value='1' class='" + m_sHeaderCss + "'";
             if (m_sStartValue == "1")
             {
                 sTmp += " checked ";
@@ -1458,7 +1458,7 @@ namespace TVinciShared
             {
                 if (m_sStartValue == "" && m_nDefault == 1)
                 {
-                     sTmp += " checked ";
+                    sTmp += " checked ";
                 }
             }
             sTmp += "><span class='FormInputnbg'>Yes</span>";
@@ -1521,7 +1521,7 @@ namespace TVinciShared
             sTmp += "</td>";
             //sTmp += "<td width=10px nowrap></td>";
             sTmp += "<td class=\"align1\">";
-            sTmp += "<input tabindex=\"" + (nID+1).ToString() + "\" class='" + m_sInputCss + "' name='" + nID.ToString() + "_val' type='";
+            sTmp += "<input tabindex=\"" + (nID + 1).ToString() + "\" class='" + m_sInputCss + "' name='" + nID.ToString() + "_val' type='";
             if (m_bEnabled == true)
                 sTmp += "text' ";
             else
@@ -1561,7 +1561,7 @@ namespace TVinciShared
         public string GetInnerFieldHtml(long nID)
         {
             string sTmp = "";
-            sTmp += "<input tabindex=\"" + (nID+1).ToString() + "\" class='" + m_sInputCss + "' name='" + nID.ToString() + "_val' type='";
+            sTmp += "<input tabindex=\"" + (nID + 1).ToString() + "\" class='" + m_sInputCss + "' name='" + nID.ToString() + "_val' type='";
             if (m_bEnabled == true)
                 sTmp += "text' ";
             else
@@ -1628,7 +1628,7 @@ namespace TVinciShared
             sTmp += "</td>";
             //sTmp += "<td width=10px nowrap></td>";
             sTmp += "<td class=\"align1\">";
-            sTmp += "<input tabindex=\"" + (nID+1).ToString() + "\" class='" + m_sInputCss + "' name='" + nID.ToString() + "_val' type='";
+            sTmp += "<input tabindex=\"" + (nID + 1).ToString() + "\" class='" + m_sInputCss + "' name='" + nID.ToString() + "_val' type='";
             sTmp += "hidden' ";
             sTmp += "dir='ltr' ";
             sTmp += "size=" + m_nWidth.ToString() + " ";
@@ -1754,7 +1754,7 @@ namespace TVinciShared
                 sTmp += "</td></tr>";
             }
             sTmp += "<tr><td colspan=2 class=\"align1\">";
-            sTmp += "<input tabindex=\"" + (nID+1).ToString() + "\" class='FormInput' name='" + nID.ToString() + "_val' type='";
+            sTmp += "<input tabindex=\"" + (nID + 1).ToString() + "\" class='FormInput' name='" + nID.ToString() + "_val' type='";
             sTmp += "hidden' ";
             sTmp += "dir='ltr' ";
             sTmp += "size=30 ";
@@ -1916,7 +1916,7 @@ namespace TVinciShared
                 sTmp += "</td></tr>";
             }
             sTmp += "<tr><td colspan=2 align=right   width=100% nowrap>";
-            sTmp += "<input tabindex=\"" + (nID+1).ToString() + "\" class='" + m_sInputCss + "' name='" + nID.ToString() + "_val' type='";
+            sTmp += "<input tabindex=\"" + (nID + 1).ToString() + "\" class='" + m_sInputCss + "' name='" + nID.ToString() + "_val' type='";
             sTmp += "hidden' ";
             sTmp += "dir='ltr' ";
             sTmp += "size=30 ";
@@ -2134,7 +2134,7 @@ namespace TVinciShared
                 string sGroups = PageUtils.GetParentsGroupsStr(nGroupID);
                 selectQuery += " and (";
                 selectQuery += "group_id " + sGroups;
-                
+
                 //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
                 selectQuery += " or group_id is null or group_id=0)  ";
                 if (m_sExtraWhere != "")
@@ -2202,7 +2202,7 @@ namespace TVinciShared
             sTmp += "<td  class=\"align1\" >";
 
             //sTmp += "<textarea type='html' class='FormInput' name='" + nID.ToString() + "_val' id='" + m_sMiddleTable + "_coll' onkeyup='return tagKeyPress(\"" + m_sCollectionTable + "\" , \"" + m_sMiddleTable + "\" , \"" + m_sFieldName + "\" , \"" + m_sCollCss + "\");' ";
-            sTmp += "<textarea tabindex=\"" + (nID+1).ToString() + "\" class=\"FormInput\" id=\"" + m_sFieldHeader + "_coll\"  dir=\"" + m_sDir + "\" onkeyup='return tagKeyPress(\"" + m_sCollectionTable + "\" , \"" + m_sMiddleTable + "\" , \"" + m_sFieldName + "\" , \"" + m_sCollCss + "\" , \"" + m_sExtraWhere + "\" , \"" + m_sFieldHeader + "\" , \"" + m_sConnectionKey + "\");' name=\"" + nID.ToString() + "_val\" rows=\"3\" cols=\"" + m_nWidth.ToString() + "\" type=\"html\">";
+            sTmp += "<textarea tabindex=\"" + (nID + 1).ToString() + "\" class=\"FormInput\" id=\"" + m_sFieldHeader + "_coll\"  dir=\"" + m_sDir + "\" onkeyup='return tagKeyPress(\"" + m_sCollectionTable + "\" , \"" + m_sMiddleTable + "\" , \"" + m_sFieldName + "\" , \"" + m_sCollCss + "\" , \"" + m_sExtraWhere + "\" , \"" + m_sFieldHeader + "\" , \"" + m_sConnectionKey + "\");' name=\"" + nID.ToString() + "_val\" rows=\"3\" cols=\"" + m_nWidth.ToString() + "\" type=\"html\">";
             sTmp += m_sStartValue.ToString() + "</textarea>";
 
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_must' value='" + m_bMust.ToString() + "'/>";
@@ -2234,7 +2234,7 @@ namespace TVinciShared
                     sExtraFieldName = splited[0].ToString();
                     sExtraFieldVal = splited[1].ToString();
                     if (sExtraFieldVal.StartsWith("'") == true)
-                    { 
+                    {
                         sExtraFieldType = "string";
                         sExtraFieldVal = sExtraFieldVal.Substring(1, sExtraFieldVal.Length - 2);
                     }
@@ -2304,7 +2304,7 @@ namespace TVinciShared
             Int32 nGroupID = LoginManager.GetLoginGroupID();
             string sTmp = "<tr>";
             sTmp += "<td class='" + m_sHeaderCss + "' nowrap>";
-            
+
             sTmp += "<span class=\"red\">*&nbsp;&nbsp;</span>";
             sTmp += m_sFieldHeader;
             sTmp += "</td>";
@@ -2320,7 +2320,7 @@ namespace TVinciShared
                 }
                 catch
                 {
-                }           
+                }
             }
             sTmp += "<tr><td colspan=\"3\" id=\"" + nID.ToString() + "_media_type\">";
             sTmp += "</td></tr>";
@@ -2346,14 +2346,17 @@ namespace TVinciShared
             return sTmp;
         }
 
-}
+    }
 
     public class DataRecordOnePicBrowserField : BaseDataRecordField
     {
         private string m_lastPage;
         private string m_epgIdentifier;
         private int m_channelID;
-       
+        private int picId;
+        private bool IsNewPicSelector;
+        private string ImageUrl;
+
         public DataRecordOnePicBrowserField()
             : base()
         {
@@ -2375,6 +2378,14 @@ namespace TVinciShared
             m_channelID = channelID;
         }
 
+        public DataRecordOnePicBrowserField(string lastPage, bool isNewPicSelector, string imageUrl, int picId)
+        {
+            this.m_lastPage = lastPage;
+            this.IsNewPicSelector = isNewPicSelector;
+            this.ImageUrl = imageUrl;
+            this.picId = picId;
+        }
+
         protected string getLastPageName()
         {
             return m_lastPage;
@@ -2385,16 +2396,24 @@ namespace TVinciShared
             Int32 nGroupID = LoginManager.GetLoginGroupID();
             string sTmp = "<tr>";
             sTmp += "<td class='" + m_sHeaderCss + "' nowrap>";
-            object oBasePicsURL = PageUtils.GetTableSingleVal("groups", "PICS_REMOTE_BASE_URL", nGroupID);
-            string sBasePicsURL = "";
-            if (oBasePicsURL != DBNull.Value && oBasePicsURL != null)
-                sBasePicsURL = oBasePicsURL.ToString();
-            if (sBasePicsURL == "")
-                sBasePicsURL = "pics";
-            else if (sBasePicsURL.ToLower().Trim().StartsWith("http://") == false &&
-                sBasePicsURL.ToLower().Trim().StartsWith("https://") == false)
-                sBasePicsURL = "http://" + sBasePicsURL;
 
+            string sBasePicsURL = "";
+
+            if (IsNewPicSelector)
+            {
+                sBasePicsURL = ImageUrl;
+            }
+            else
+            {
+                object oBasePicsURL = PageUtils.GetTableSingleVal("groups", "PICS_REMOTE_BASE_URL", nGroupID);
+                if (oBasePicsURL != DBNull.Value && oBasePicsURL != null)
+                    sBasePicsURL = oBasePicsURL.ToString();
+                if (sBasePicsURL == "")
+                    sBasePicsURL = "pics";
+                else if (sBasePicsURL.ToLower().Trim().StartsWith("http://") == false &&
+                    sBasePicsURL.ToLower().Trim().StartsWith("https://") == false)
+                    sBasePicsURL = "http://" + sBasePicsURL;
+            }
 
             if (m_bMust == true)
                 sTmp += "<span class=\"red\">*&nbsp;&nbsp;</span>";
@@ -2417,7 +2436,7 @@ namespace TVinciShared
                 {
                 }
 
-                if (nPicID > 0)
+                if (nPicID > 0 || !string.IsNullOrEmpty(ImageUrl))
                 {
                     object oPic = PageUtils.GetTableSingleVal("pics", "BASE_URL", int.Parse(sPicID));
                     if (oPic != DBNull.Value && oPic != null)
@@ -2472,11 +2491,17 @@ namespace TVinciShared
             if (m_sStartValue != "")
                 sTmp += "value='" + m_sStartValue.ToString() + "' ";
 
-            sTmp += "/><a tabindex=\"" + (nID + 1).ToString() + "\" class=\"btn_browse\" onclick=\"OpenPicBrowser('" + nID.ToString() + "_val' , 1, '" + m_lastPage + "');\" href=\"javascript:void(0);\"></a>";
-                sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_type' value='int'/>";
-                sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_must' value='" + m_bMust.ToString() + "'/>";
-                sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_field' value='" + m_sFieldName + "'/>";
-           
+            string onClickMethod = "OpenPicBrowser";
+            if (IsNewPicSelector)
+            {
+                onClickMethod = "OpenPicUploaderBrowser";
+            }
+
+            sTmp += "/><a tabindex=\"" + (nID + 1).ToString() + "\" class=\"btn_browse\" onclick=\"" + onClickMethod + "('" + nID.ToString() + "_val' , 1, '" + m_lastPage + "');\" href=\"javascript:void(0);\"></a>";
+            sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_type' value='int'/>";
+            sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_must' value='" + m_bMust.ToString() + "'/>";
+            sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_field' value='" + m_sFieldName + "'/>";
+
             sTmp += "</td>";
             sTmp += "</tr>";
             sTmp += "</table></td></tr>";
@@ -2573,7 +2598,7 @@ namespace TVinciShared
             sTmp += "maxlength=8 ";
             if (m_sStartValue != "")
                 sTmp += "value='" + m_sStartValue.ToString() + "' ";
-            sTmp += "/><a tabindex=\"" + (nID + 1).ToString() + "\" class=\"btn_browse\" onclick=\"OpenPicBrowserEpg('" + nID.ToString() + "_val' , 1, '" + m_lastPage +"','"+ m_epgIdentifier+ "','"+m_channelID +"');\" href=\"javascript:void(0);\"></a>";
+            sTmp += "/><a tabindex=\"" + (nID + 1).ToString() + "\" class=\"btn_browse\" onclick=\"OpenPicBrowserEpg('" + nID.ToString() + "_val' , 1, '" + m_lastPage + "','" + m_epgIdentifier + "','" + m_channelID + "');\" href=\"javascript:void(0);\"></a>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_type' value='int'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_must' value='" + m_bMust.ToString() + "'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_field' value='" + m_sFieldName + "'/>";
@@ -2719,7 +2744,7 @@ namespace TVinciShared
             sTmp += "</td>";
             //sTmp += "<td width=10px nowrap></td>";
             sTmp += "<td class=\"align1\">";
-            sTmp += "<textarea  tabindex=\"" + (nID+1).ToString() + "\" type='html' class='" + m_sInputCss + "' id='" + nID.ToString() + "_val' name='" + nID.ToString() + "_val' ";
+            sTmp += "<textarea  tabindex=\"" + (nID + 1).ToString() + "\" type='html' class='" + m_sInputCss + "' id='" + nID.ToString() + "_val' name='" + nID.ToString() + "_val' ";
             if (m_bEnabled == false)
                 sTmp += "disabled ";
             sTmp += "dir='" + m_sDir + "' ";
@@ -2828,7 +2853,7 @@ namespace TVinciShared
         public string GetSelectsHtml(long nID)
         {
             string sTmp = "";
-            sTmp += "<select  tabindex=\"" + (nID+1).ToString() + "\" ";
+            sTmp += "<select  tabindex=\"" + (nID + 1).ToString() + "\" ";
             if (m_bEnabled == false)
                 sTmp += "disabled ";
             sTmp += "id='selector" + nID.ToString() + "'";
@@ -2919,7 +2944,7 @@ namespace TVinciShared
             }
             else
             {
-                Int32 nCount = m_dtQueryDT.DefaultView.Count;;
+                Int32 nCount = m_dtQueryDT.DefaultView.Count; ;
                 if (nCount == 0)
                     sTmp += "<option width=" + m_nWidth.ToString() + "  value='' selected>" + m_sNoSelectStr + "</option>";
                 else
@@ -3055,7 +3080,7 @@ namespace TVinciShared
                 if (m_sQueryString == "")
                 {
                     selectQuery += "select " + m_sTextField + " as txt," + m_sValueField + " from " + m_sRefTable;
-                    
+
                     if (m_sWhereField != "")
                     {
                         selectQuery += " where ";
@@ -3086,12 +3111,12 @@ namespace TVinciShared
                 {
                     Int32 nCount = selectQuery.Table("query").DefaultView.Count;
                     if (nCount == 0)
-                        sTmp += "<input  tabindex=\"" + (nID+1).ToString() + "\" value='0' type='radio' name='" + nID.ToString() + "_val' class='" + m_sHeaderCss + "'>---";
+                        sTmp += "<input  tabindex=\"" + (nID + 1).ToString() + "\" value='0' type='radio' name='" + nID.ToString() + "_val' class='" + m_sHeaderCss + "'>---";
                     for (int i = 0; i < nCount; i++)
                     {
                         string sText = selectQuery.Table("query").DefaultView[i].Row["txt"].ToString();
                         string sVal = selectQuery.Table("query").DefaultView[i].Row[m_sValueField].ToString();
-                        sTmp += "<input  tabindex=\"" + (nID+1).ToString() + "\" type='radio' name='" + nID.ToString() + "_val' value='" + sVal + "' class='" + m_sHeaderCss + "'";
+                        sTmp += "<input  tabindex=\"" + (nID + 1).ToString() + "\" type='radio' name='" + nID.ToString() + "_val' value='" + sVal + "' class='" + m_sHeaderCss + "'";
                         if (sVal == m_sStartValue || (m_sStartValue == "" && i == m_nDefault) || (m_sStartValue == "" && sText == m_sDefaultVal))
                         {
                             sTmp += " checked ";
@@ -3106,12 +3131,12 @@ namespace TVinciShared
             {
                 Int32 nCount = m_dtQueryDT.DefaultView.Count;
                 if (nCount == 0)
-                    sTmp += "<input tabindex=\"" + (nID+1).ToString() + "\" value='0' type='radio' name='" + nID.ToString() + "_val' class='" + m_sHeaderCss + "'>---";
+                    sTmp += "<input tabindex=\"" + (nID + 1).ToString() + "\" value='0' type='radio' name='" + nID.ToString() + "_val' class='" + m_sHeaderCss + "'>---";
                 for (int i = 0; i < nCount; i++)
                 {
                     string sText = m_dtQueryDT.DefaultView[i].Row["txt"].ToString();
                     string sVal = m_dtQueryDT.DefaultView[i].Row[m_sValueField].ToString();
-                    sTmp += "<input tabindex=\"" + (nID+1).ToString() + "\" type='radio' name='" + nID.ToString() + "_val' value='" + sVal + "' class='" + m_sHeaderCss + "'";
+                    sTmp += "<input tabindex=\"" + (nID + 1).ToString() + "\" type='radio' name='" + nID.ToString() + "_val' value='" + sVal + "' class='" + m_sHeaderCss + "'";
                     if (sVal == m_sStartValue || (m_sStartValue == "" && i == m_nDefault) || (m_sStartValue == "" && sText == m_sDefaultVal))
                     {
                         sTmp += " checked ";
@@ -3166,7 +3191,7 @@ namespace TVinciShared
 
             string sTmp = "";
 
-            sTmp += "<input  tabindex=\"" + (nID+1).ToString() + "\" tabindex=\"" + (nID+1).ToString() + "\" class='" + m_sInputCss + "' name='" + nID.ToString() + "_val' type='text' ";
+            sTmp += "<input  tabindex=\"" + (nID + 1).ToString() + "\" tabindex=\"" + (nID + 1).ToString() + "\" class='" + m_sInputCss + "' name='" + nID.ToString() + "_val' type='text' ";
             sTmp += "dir='ltr' ";
             sTmp += "size=2 ";
             sTmp += "maxlength=2 ";
@@ -3183,7 +3208,7 @@ namespace TVinciShared
             if (m_sStartValue != "")
                 sRefStartVal = m_sStartValue.Split(':')[1].ToString();
 
-            sTmp += "<input tabindex=\"" + (nID+1).ToString() + "\" tabindex=\"" + (nID+1).ToString() + "\" class='" + m_sInputCss + "' name='" + nID.ToString() + "_val2' type='text' ";
+            sTmp += "<input tabindex=\"" + (nID + 1).ToString() + "\" tabindex=\"" + (nID + 1).ToString() + "\" class='" + m_sInputCss + "' name='" + nID.ToString() + "_val2' type='text' ";
             sTmp += "dir='ltr' ";
             sTmp += "size=2 ";
             sTmp += "maxlength=2 ";
@@ -3302,7 +3327,7 @@ namespace TVinciShared
                 }
             }
             sTmp += "</br>";
-            sTmp += "<input tabindex=\"" + (nID+1).ToString() + "\" class='" + m_sInputCss + "' name='" + nID.ToString() + "_val' type='file' ";
+            sTmp += "<input tabindex=\"" + (nID + 1).ToString() + "\" class='" + m_sInputCss + "' name='" + nID.ToString() + "_val' type='file' ";
             sTmp += "size=" + m_nWidth.ToString() + " ";
             m_sStartValue = HttpContext.Current.Server.HtmlDecode(m_sStartValue).Replace("\"", "''");
             if (m_sStartValue != "")
@@ -3335,7 +3360,7 @@ namespace TVinciShared
                 {
                     sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + sRatioName + "' value='" + ((PicDimension)(iter.Current)).m_ratio.ToString() + "'/>";
                 }
-                
+
                 nIterCount++;
             }
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_picDim' value='" + m_bIsPic.ToString() + "'/>";
@@ -3371,7 +3396,7 @@ namespace TVinciShared
             sTmp += "</td>";
             //sTmp += "<td width=10px nowrap></td>";
             sTmp += "<td class=\"align1\">";
-            sTmp += "<textarea tabindex=\"" + (nID+1).ToString() + "\" class='" + m_sInputCss + "' id='" + nID.ToString() + "_val' name='" + nID.ToString() + "_val' ";
+            sTmp += "<textarea tabindex=\"" + (nID + 1).ToString() + "\" class='" + m_sInputCss + "' id='" + nID.ToString() + "_val' name='" + nID.ToString() + "_val' ";
             if (m_bEnabled == false)
                 sTmp += "disabled ";
             sTmp += "dir='" + m_sDir + "' ";
@@ -3411,7 +3436,7 @@ namespace TVinciShared
             sTmp += "</td>";
             //sTmp += "<td width=10px nowrap></td>";
             sTmp += "<td class=\"align1\" id=td_selector" + nID.ToString() + ">";
-            sTmp += "<input tabindex=\"" + (nID+1).ToString() + "\" class='" + m_sInputCss + "' id='Date_" + nID.ToString() + "' name='" + nID.ToString() + "_val' ";
+            sTmp += "<input tabindex=\"" + (nID + 1).ToString() + "\" class='" + m_sInputCss + "' id='Date_" + nID.ToString() + "' name='" + nID.ToString() + "_val' ";
             if (m_bEnabled == true)
                 sTmp += "type='text' ";
             else
@@ -3475,7 +3500,7 @@ namespace TVinciShared
         {
             string sTmp = "";
 
-            sTmp += "<input tabindex=\"" + (nID+1).ToString() + "\" class='" + m_sInputCss + "' name='" + nID.ToString() + "_valHour' type='text' ";
+            sTmp += "<input tabindex=\"" + (nID + 1).ToString() + "\" class='" + m_sInputCss + "' name='" + nID.ToString() + "_valHour' type='text' ";
             sTmp += "dir='ltr' ";
             sTmp += "size=2 ";
             sTmp += "maxlength=2 ";
@@ -3489,7 +3514,7 @@ namespace TVinciShared
 
             sTmp += " : ";
 
-            sTmp += "<input tabindex=\"" + (nID+1).ToString() + "\" class='" + m_sInputCss + "' name='" + nID.ToString() + "_valMin' type='text' ";
+            sTmp += "<input tabindex=\"" + (nID + 1).ToString() + "\" class='" + m_sInputCss + "' name='" + nID.ToString() + "_valMin' type='text' ";
             sTmp += "dir='ltr' ";
             sTmp += "size=2 ";
             sTmp += "maxlength=2 ";
@@ -3533,7 +3558,7 @@ namespace TVinciShared
             //sTmp += "<td width=10px nowrap></td>";
             sTmp += "<td class=\"align1\" id=td_selector" + nID.ToString() + ">";
 
-            sTmp += "<input tabindex=\"" + (nID+1).ToString() + "\" class='" + m_sInputCss + "' id='Date_" + nID.ToString() + "' name='" + nID.ToString() + "_val' ";
+            sTmp += "<input tabindex=\"" + (nID + 1).ToString() + "\" class='" + m_sInputCss + "' id='Date_" + nID.ToString() + "' name='" + nID.ToString() + "_val' ";
             if (m_bEnabled == true)
                 sTmp += "type='text' ";
             else
@@ -3586,7 +3611,7 @@ namespace TVinciShared
             if (m_bMust == true)
                 sTmp += "<span class=\"red\">*&nbsp;&nbsp;</span>";
             if (m_bEnabled == true)
-                sTmp += m_sFieldHeader; 
+                sTmp += m_sFieldHeader;
             sTmp += "</td>";
             //sTmp += "<td width=10px nowrap></td>";
             sTmp += "<td class=\"align1\">";
@@ -3730,12 +3755,12 @@ namespace TVinciShared
         public void AddRecord(BaseDataRecordField theColumn)
         {
             if (theColumn.GetConnectionKey() == "")
-                AddRecord(theColumn , m_sConnectionKey);
+                AddRecord(theColumn, m_sConnectionKey);
             else
                 AddRecord(theColumn, theColumn.GetConnectionKey());
         }
 
-        public void AddRecord(BaseDataRecordField theColumn , string sConnectionKey)
+        public void AddRecord(BaseDataRecordField theColumn, string sConnectionKey)
         {
             m_Records.Add(m_Records.Count.ToString(), theColumn);
             theColumn.SetConnectionKey(sConnectionKey);
@@ -3769,7 +3794,7 @@ namespace TVinciShared
             return GetTableHTMLFooter(sThePage, true);
         }*/
 
-        public string GetTableHTMLFooter(string sThePage, bool bRemoveConfirm , Int32 nRows)
+        public string GetTableHTMLFooter(string sThePage, bool bRemoveConfirm, Int32 nRows)
         {
             if (nRows < 10)
                 return "";
@@ -3816,7 +3841,7 @@ namespace TVinciShared
             return sTable;
         }
 
-        public string GetTableHTMLInner(Int32 nStart, Int32 nEnd , ref Int32 nRows)
+        public string GetTableHTMLInner(Int32 nStart, Int32 nEnd, ref Int32 nRows)
         {
             if (nStart < 0)
                 nStart = 0;
@@ -3831,7 +3856,7 @@ namespace TVinciShared
                 Int32 nToAdd = 1;
                 if (m_oFieldIndexValue != null)
                     ((BaseDataRecordField)(m_Records[i.ToString()])).SetValue(m_sDBTableName, m_sFieldIndexName, m_oFieldIndexValue);
-                sTable.Append(((BaseDataRecordField)(m_Records[i.ToString()])).GetFieldHtml(nC , ref nToAdd));
+                sTable.Append(((BaseDataRecordField)(m_Records[i.ToString()])).GetFieldHtml(nC, ref nToAdd));
                 sTable.Append("<tr><td width=100% nowrap class=horizon_line_space colspan=3></td></tr>");
                 nC += nToAdd;
             }
@@ -3860,7 +3885,7 @@ namespace TVinciShared
             return sTable;
         }
 
-       
+
         public string GetTableHTMLCB(string thePage, bool bRemoveConfirm, object epg)
         {
             string sTable = GetTableHTMLHeader();
@@ -3872,7 +3897,7 @@ namespace TVinciShared
             return sTable;
         }
 
-       
+
         public string GetTableHTMLInnerCB(Int32 nStart, Int32 nEnd, object epg, ref Int32 nRows)
         {
             if (nStart < 0)

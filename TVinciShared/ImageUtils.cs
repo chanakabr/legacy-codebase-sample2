@@ -651,5 +651,65 @@ namespace TVinciShared
 
             //return retVal;
         }
+
+        public static string GetImageServerUrl(int groupId)
+        {
+            string imageServerUrl = string.Empty;
+            var imageServerUrlObj = PageUtils.GetTableSingleVal("groups", "IMAGE_SERVER_URL", groupId);
+            if (imageServerUrlObj == null)
+                log.ErrorFormat(string.Format("IMAGE_SERVER_URL wasn't found. GID: {0}", groupId));
+            else
+            {
+                imageServerUrl = imageServerUrlObj.ToString();
+                imageServerUrl = imageServerUrl.EndsWith("/") ? imageServerUrl + "GetImage/" : imageServerUrl + "/GetImage/";
+            }
+            return imageServerUrl;
+        }
+
+        public static string BuildImageUrl(int groupId, string imageId, int version = 0, int width = 0, int height = 0, int quality = 100, bool isDynamic = false)
+        {
+            string imageServerUrl = string.Empty;
+
+            if (groupId == 0)
+            {
+                log.Error(string.Format("Illegal group ID. GID: {0}", groupId));
+                return imageServerUrl;
+            }
+
+            if (string.IsNullOrEmpty(imageId))
+            {
+                log.Error(string.Format("Illegal imageId. GID: {0}", groupId));
+                return imageServerUrl;
+            }
+
+            imageServerUrl = ImageUtils.GetImageServerUrl(groupId);
+            if (string.IsNullOrEmpty(imageServerUrl))
+            {
+                log.Error(string.Format("IMAGE_SERVER_URL wasn't found. GID: {0}", groupId));
+                return imageServerUrl;
+            }
+
+            if (isDynamic)
+            {
+                imageServerUrl = string.Format("{0}p/{1}/entry_id/{2}/version/{3}",
+                                              imageServerUrl,        // 0 <image_server_url>
+                                              groupId,               // 1 <partner_id>
+                                              imageId,               // 2 <image_id>
+                                              version);              // 3 <image_version>
+            }
+            else
+            {
+                imageServerUrl = string.Format("{0}p/{1}/entry_id/{2}/version/{3}/width/{4}/height/{5}/quality/{6}",
+                                           imageServerUrl,       // 0 <image_server_url>
+                                           groupId,              // 1 <partner_id>
+                                           imageId,              // 2 <image_id>
+                                           version,              // 3 <image_version>
+                                           width,                // 4 <image_width>
+                                           height,               // 5 <image_height>
+                                           quality);             // 6 <quality>
+            }
+
+            return imageServerUrl;
+        }
     }
 }
