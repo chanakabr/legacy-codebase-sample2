@@ -2915,7 +2915,7 @@ namespace Tvinci.Core.DAL
                         {
                             epgRatios.Add(new Ratio()
                             {
-                                Id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ratio_id"),
+                                Id = ODBCWrapper.Utils.GetIntSafeVal(dr, "id"),
                                 Name = ODBCWrapper.Utils.GetSafeStr(dr, "ratio")
                             });
                         }
