@@ -701,7 +701,7 @@ namespace TVinciShared
             {
                 imageServerUrl = string.Format("{0}p/{1}/entry_id/{2}/version/{3}/width/{4}/height/{5}/quality/{6}",
                                            imageServerUrl,       // 0 <image_server_url>
-                                           groupId,               // 1 <partner_id>
+                                           groupId,              // 1 <partner_id>
                                            imageId,              // 2 <image_id>
                                            version,              // 3 <image_version>
                                            width,                // 4 <image_width>

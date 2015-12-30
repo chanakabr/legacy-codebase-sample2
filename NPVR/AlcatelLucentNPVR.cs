@@ -934,10 +934,8 @@ namespace NPVR
             List<RecordedEPGChannelProgrammeObject> res = new List<RecordedEPGChannelProgrammeObject>(aluResponse.EntriesLength);
             if (aluResponse != null && aluResponse.entries != null && aluResponse.entries.Count > 0)
             {
-                Dictionary<int, List<EpgPicture>> picGroupTree = CatalogDAL.GetGroupTreeMultiPicEpgUrl(groupID);
-
-                // get ratio map
-                // List<Ratio> groupRatios = CatalogCache.Instance().GetGroupRatios(picDataZeroRatio.GroupId);
+                List<Ratio> epgRatios = new List<Ratio>();
+                Dictionary<int, List<EpgPicture>> picGroupTree = CatalogDAL.GetGroupTreeMultiPicEpgUrl(groupID, ref epgRatios);
 
                 // choose the higher domain number  ( not the Parent domain) 
                 int epgGroupId = groupID;
@@ -1054,15 +1052,11 @@ namespace NPVR
                             }
                             else
                             {
-                                if (!WS_Utils.IsGroupIDContainedInConfig(groupID, USE_OLD_IMAGE_SERVER_KEY, ';'))
+                                // no sizes defined
+                                if (!WS_Utils.IsGroupIDContainedInConfig(groupID, USE_OLD_IMAGE_SERVER_KEY, ';') &&
+                                    epgRatios != null &&
+                                    epgRatios.Count > 0)
                                 {
-                                    string imageServerUrl = ImageUtils.GetImageServerUrl(epgGroupId);
-                                    if (string.IsNullOrEmpty(imageServerUrl))
-                                    {
-                                        log.Error(string.Format("IMAGE_SERVER_URL wasn't found. GID: {0}", epgGroupId));
-                                        return null;
-                                    }
-
                                     // use new image server flow
                                     foreach (var item in ratioDictionary)
                                     {
@@ -1071,7 +1065,7 @@ namespace NPVR
                                             PicHeight = 0,
                                             PicID = 0,
                                             PicWidth = 0,
-                                            Ratio = "",
+                                            Ratio = epgRatios.Where(x => x.Id == item.Key).First().Name,
                                             RatioId = item.Key,
                                             Url = ImageUtils.BuildImageUrl(groupID, item.Value.Key)
                                         });

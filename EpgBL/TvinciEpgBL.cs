@@ -627,7 +627,8 @@ namespace EpgBL
                 epgChannelProgram = ConvertEpgCBtoEpgProgramm(lResCB.Where(item => item != null && item.ParentGroupID == m_nGroupID));
 
                 // get picture sizes from DB
-                Dictionary<int, List<EpgPicture>> pictures = Tvinci.Core.DAL.CatalogDAL.GetGroupTreeMultiPicEpgUrl(m_nGroupID);
+                List<Ratio> epgRatios = new List<Ratio>();
+                Dictionary<int, List<EpgPicture>> pictures = Tvinci.Core.DAL.CatalogDAL.GetGroupTreeMultiPicEpgUrl(m_nGroupID, ref epgRatios);
 
                 MutateFullEpgPicURL(epgChannelProgram, pictures, m_nGroupID);
             }
@@ -818,7 +819,8 @@ namespace EpgBL
                     {
                         lRes = ConvertEpgCBtoEpgProgramm(lResCB.Where(item => item != null && item.ParentGroupID == m_nGroupID));
 
-                        Dictionary<int, List<EpgPicture>> pictures = Tvinci.Core.DAL.CatalogDAL.GetGroupTreeMultiPicEpgUrl(m_nGroupID);
+                        List<Ratio> epgRatios = new List<Ratio>();
+                        Dictionary<int, List<EpgPicture>> pictures = Tvinci.Core.DAL.CatalogDAL.GetGroupTreeMultiPicEpgUrl(m_nGroupID, ref epgRatios);
                         if (pictures != null)
                         {
                             MutateFullEpgPicURL(lRes, pictures, groupID);
