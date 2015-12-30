@@ -4355,6 +4355,64 @@ namespace Catalog
             return CatalogDAL.GetLastPosition(NpvrID, userID);
         }
 
+        /*This method return all last position (desc order by create date) by domain and \ or user_id 
+         * if userType is household and user is default - return all last positions of all users in domain by assetID (BY MEDIA ID)         
+         else return last position of user_id (incase userType is not household or last position of user_id and default_user (incase userType is household) */
+        internal static AssetPositionResponseInfo GetAssetLastPosition(string assetID, eAssetTypes assetType, int userID, bool isDefaultUser, List<int> users, List<int> defaultUsers, int domainID)
+        {
+            AssetPositionResponseInfo response = null;
+
+            // Build list of users that we want to get their last position
+            List<int> usersToGetLastPosition = new List<int>();
+            usersToGetLastPosition.AddRange(defaultUsers);
+            if (isDefaultUser)
+            {
+                usersToGetLastPosition.AddRange(users);
+            }
+            else
+            {
+                usersToGetLastPosition.Add(userID);
+            }
+
+            // get last positions from catalog DAL
+            DomainMediaMark domainMediaMark = CatalogDAL.GetAssetLastPosition(assetID, assetType, users, domainID);
+            if (domainMediaMark == null || domainMediaMark.devices == null)
+            {
+                return response;
+            }
+
+            List<LastPosition> lastPositions = new List<LastPosition>();                        
+            List<UserMediaMark> usersMediaMark = domainMediaMark.devices.OrderByDescending(x => x.CreatedAt).Where(x => x.UserID != userID).ToList();
+
+            if (usersMediaMark != null)
+            {                
+                foreach (UserMediaMark userMediaMark in usersMediaMark)
+                {
+                    eUserType userType;
+                    if (defaultUsers.Contains(userMediaMark.UserID))
+                    {
+                        userType = eUserType.HOUSEHOLD;
+                    }
+                    else
+                    {
+                        userType = eUserType.PERSONAL;                        
+                    }
+
+                    if (!lastPositions.Where(x => x.m_nUserID == userMediaMark.UserID).Any())
+                    {
+                        lastPositions.Add(new LastPosition(userMediaMark.UserID, userType, userMediaMark.Location));                        
+                    }                    
+                }
+            }
+
+            if (lastPositions.Count > 0)
+            {
+                response = new AssetPositionResponseInfo(assetType, assetID, lastPositions);
+            }
+
+            return response;
+        }
+
         /*This method return all last position (desc order by create date) by domain and user_id 
          if userid is default - return all last positions of all users in domain by mediaid
          else return last position of default user + user_id */

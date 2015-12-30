@@ -124,6 +124,9 @@
     <Compile Include="AdProvider.cs" />
     <Compile Include="BaseObject.cs" />
     <Compile Include="PicData.cs" />
+    <Compile Include="Request\AssetsPositionRequest.cs" />
+    <Compile Include="Request\AssetsPositionRequestData.cs" />
+    <Compile Include="Response\AssetsPositionResponse.cs" />
     <Compile Include="Request\AssetStatsRequest.cs" />
     <Compile Include="Request\BundleMediaRequest.cs" />
     <Compile Include="Request\ExternalChannelRequest.cs" />
