@@ -18,7 +18,7 @@ namespace Catalog.Request
         [ServiceKnownType(typeof(PWWAWProtocolRequest))]
         [ServiceKnownType(typeof(PersonalLastWatchedRequest))]
         [ServiceKnownType(typeof(PersonalLasDeviceRequest))]
-
+        [ServiceKnownType(typeof(AssetsPositionRequest))]
         [ServiceKnownType(typeof(PersonalRecommendedRequest))]
         [ServiceKnownType(typeof(CommentsListRequest))]
         [ServiceKnownType(typeof(PWLALProtocolRequest))]

@@ -4350,18 +4350,17 @@ namespace Catalog
             }
 
             // get last positions from catalog DAL
-            DomainMediaMark domainMediaMark = CatalogDAL.GetAssetLastPosition(assetID, assetType, users, domainID);
+            DomainMediaMark domainMediaMark = CatalogDAL.GetAssetLastPosition(assetID, assetType, usersToGetLastPosition, domainID);
             if (domainMediaMark == null || domainMediaMark.devices == null)
             {
                 return response;
             }
 
-            List<LastPosition> lastPositions = new List<LastPosition>();                        
-            List<UserMediaMark> usersMediaMark = domainMediaMark.devices.OrderByDescending(x => x.CreatedAt).Where(x => x.UserID != userID).ToList();
+            List<LastPosition> lastPositions = new List<LastPosition>();            
 
-            if (usersMediaMark != null)
-            {                
-                foreach (UserMediaMark userMediaMark in usersMediaMark)
+            if (domainMediaMark.devices != null)
+            {
+                foreach (UserMediaMark userMediaMark in domainMediaMark.devices)
                 {
                     eUserType userType;
                     if (defaultUsers.Contains(userMediaMark.UserID))
@@ -4382,7 +4381,7 @@ namespace Catalog
 
             if (lastPositions.Count > 0)
             {
-                response = new AssetPositionResponseInfo(assetType, assetID, lastPositions);
+                response = new AssetPositionResponseInfo(assetType, assetID, lastPositions);                
             }
 
             return response;

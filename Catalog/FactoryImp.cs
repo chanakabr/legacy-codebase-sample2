@@ -193,6 +193,10 @@ namespace Catalog
             {
                 return (DomainLastPositionRequest)m_oBaseRequest;
             }
+            if (m_oBaseRequest is AssetsPositionRequest)
+            {
+                return (AssetsPositionRequest)m_oBaseRequest;
+            }
             if (m_oBaseRequest is EpgProgramDetailsRequest)
             {
                 return (EpgProgramDetailsRequest) m_oBaseRequest;

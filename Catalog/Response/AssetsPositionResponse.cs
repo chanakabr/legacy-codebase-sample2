@@ -8,7 +8,7 @@ using Catalog.Response;
 using ApiObjects;
 
 
-namespace Catalog.Request
+namespace Catalog.Response
 {
     [DataContract]
     public class AssetsPositionResponse : BaseResponse

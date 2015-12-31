@@ -75,6 +75,8 @@ namespace Catalog.Request
                 {
                     response.Status = new Status((int)eResponseStatus.Error, "Request Is Null");
                 }
+
+                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());                
                 return response;
             }
             catch (Exception ex)
