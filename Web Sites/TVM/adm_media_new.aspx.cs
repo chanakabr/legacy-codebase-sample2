@@ -44,6 +44,9 @@ public partial class adm_media_new : System.Web.UI.Page
 
                 if (nID > 0) //if record was save , update record in Lucene , create Notification Requests
                 {
+                    //if record was saved , update media record with Pic Id
+                    UpdateMediaWithPicId(nID);
+
                     // Update record in Catalog (see the flow inside Update Index
                     int nGroupId = LoginManager.GetLoginGroupID();
                     bool result = false;
@@ -99,6 +102,26 @@ public partial class adm_media_new : System.Web.UI.Page
             }
             else
                 Session["media_id"] = 0;
+        }
+    }
+
+    private void UpdateMediaWithPicId(Int32 nID)
+    {
+
+        if (Session[string.Format("Media_{0}_Pic_Id", nID)] != null)
+        {
+
+            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
+            updateQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("media_pic_id", "=", Session[string.Format("Media_{0}_Pic_Id", nID)]);
+            updateQuery += "WHERE";
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nID);
+
+            updateQuery.Execute();
+            updateQuery.Finish();
+
+            Session[string.Format("Media_{0}_Pic_Id", nID)] = null;
         }
     }
 
@@ -390,7 +413,7 @@ public partial class adm_media_new : System.Web.UI.Page
             }
 
             DataRecordOnePicBrowserField dr_pic = new DataRecordOnePicBrowserField("media", isDownloadPicWithImageServer, imageUrl, picId);
-            dr_pic.Initialize("Thumb", "adm_table_header_nbg", "FormInput", "MEDIA_PIC_ID", false);
+            dr_pic.Initialize("Thumb", "adm_table_header_nbg", "FormInput", "MEDIA_PIC_ID", false);           
             theRecord.AddRecord(dr_pic);
         }
 
@@ -477,10 +500,11 @@ public partial class adm_media_new : System.Web.UI.Page
         object mediaId = Session["media_id"];
 
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        selectQuery += "select p.RATIO_ID, p.BASE_URL, p.ID, p.version from pics p left join media m on m.MEDIA_PIC_ID = p.ID where p.STATUS = 1 and m.id = " + mediaId.ToString();
+        selectQuery += "select p.RATIO_ID, p.BASE_URL, p.ID, p.version from pics p left join media m on m.MEDIA_PIC_ID = p.ID where p.STATUS in (0, 1) and m.id = " + mediaId.ToString();
 
         if (selectQuery.Execute("query", true) != null && selectQuery.Table("query").DefaultView != null && selectQuery.Table("query").DefaultView.Count > 0)
         {
+
             baseUrl = ODBCWrapper.Utils.GetSafeStr(selectQuery.Table("query").DefaultView[0].Row["BASE_URL"]);
             ratioId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["RATIO_ID"]);
             picId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["ID"]);

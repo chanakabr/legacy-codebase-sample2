@@ -374,6 +374,7 @@ public partial class adm_media : System.Web.UI.Page
         theTable.AddEditorRemarks("media");
         theTable.AddHiddenField("EDITOR_REMARKS");
         theTable.AddHiddenField("is_active");
+        theTable.AddHiddenField("pic_Id");
         theTable.AddOnOffField("Ads Controller", "media~~|~~PLAYER_CONTROL_ADS~~|~~id~~|~~Player~~|~~Owner");
         //string sNotifyURL = "";
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.PUBLISH) &&
