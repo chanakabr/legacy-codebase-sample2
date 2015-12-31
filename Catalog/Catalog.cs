@@ -4333,9 +4333,9 @@ namespace Catalog
         /*This method return all last position (desc order by create date) by domain and \ or user_id 
          * if userType is household and user is default - return all last positions of all users in domain by assetID (BY MEDIA ID)         
          else return last position of user_id (incase userType is not household or last position of user_id and default_user (incase userType is household) */
-        internal static AssetPositionResponseInfo GetAssetLastPosition(string assetID, eAssetTypes assetType, int userID, bool isDefaultUser, List<int> users, List<int> defaultUsers, int domainID)
+        internal static AssetPositionsInfo GetAssetLastPosition(string assetID, eAssetTypes assetType, int userID, bool isDefaultUser, List<int> users, List<int> defaultUsers)
         {
-            AssetPositionResponseInfo response = null;
+            AssetPositionsInfo response = null;
 
             // Build list of users that we want to get their last position
             List<int> usersToGetLastPosition = new List<int>();
@@ -4350,7 +4350,7 @@ namespace Catalog
             }
 
             // get last positions from catalog DAL
-            DomainMediaMark domainMediaMark = CatalogDAL.GetAssetLastPosition(assetID, assetType, usersToGetLastPosition, domainID);
+            DomainMediaMark domainMediaMark = CatalogDAL.GetAssetLastPosition(assetID, assetType, usersToGetLastPosition);
             if (domainMediaMark == null || domainMediaMark.devices == null)
             {
                 return response;
@@ -4381,7 +4381,7 @@ namespace Catalog
 
             if (lastPositions.Count > 0)
             {
-                response = new AssetPositionResponseInfo(assetType, assetID, lastPositions);                
+                response = new AssetPositionsInfo(assetType, assetID, lastPositions);                
             }
 
             return response;
@@ -4684,6 +4684,53 @@ namespace Catalog
             return res;
         }
 
+        internal static WS_Domains.Domain GetDomain(int domainID, int groupID)
+        {
+            WS_Domains.Domain domain = null;
+            if (domainID <= 0 || groupID <= 0)
+            {
+                return domain;
+            }
+
+            try
+            {
+                string sWSUsername = string.Empty;
+                string sWSPassword = string.Empty;
+                string sWSUrl = string.Empty;                
+
+                //get username + password from wsCache
+                Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, groupID, ApiObjects.eWSModules.DOMAINS);
+                if (oCredentials != null)
+                {
+                    sWSUsername = oCredentials.m_sUsername;
+                    sWSPassword = oCredentials.m_sPassword;
+                }
+
+                if (sWSUsername.Length == 0 || sWSPassword.Length == 0)
+                {
+                    throw new Exception(string.Format("No WS_Domains login parameters were extracted from DB. domainID={0}, groupID={1}", domainID, groupID));
+                }
+
+                // get domain info - to have the users list in domain + default users in domain
+                using (WS_Domains.module domains = new WS_Domains.module())
+                {
+                    sWSUrl = Utils.GetWSURL("ws_domains");
+                    if (sWSUrl.Length > 0)
+                        domains.Url = sWSUrl;
+                    var domainRes = domains.GetDomainInfo(sWSUsername, sWSPassword, domainID);
+                    if (domainRes != null)
+                    {
+                        domain = domainRes.Domain;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("ProccessAssetLastPositionRequest - " + string.Format("Failed ex={0}, domainID={1}, groupdID={2}", ex.Message, domainID, groupID), ex);                
+            }
+
+            return domain;
+        }
 
         internal static void BuildEpgUrlPicture(ref List<EPGChannelProgrammeObject> retList, int groupID)
         {

@@ -15,7 +15,7 @@ namespace Catalog.Response
     {
 
         [DataMember]
-        public List<AssetPositionResponseInfo> AssetsPositions;
+        public List<AssetPositionsInfo> AssetsPositions;
 
         [DataMember]
         public Status Status;
@@ -27,7 +27,7 @@ namespace Catalog.Response
     }
 
     [DataContract]
-    public class AssetPositionResponseInfo
+    public class AssetPositionsInfo
     {
         [DataMember]
         public eAssetTypes AssetType;
@@ -38,11 +38,11 @@ namespace Catalog.Response
         [DataMember]
         public List<LastPosition> LastPositions;
 
-        public AssetPositionResponseInfo()
+        public AssetPositionsInfo()
         {
         }
 
-        public AssetPositionResponseInfo(eAssetTypes assetType, string assetID, List<LastPosition> lastPositions)
+        public AssetPositionsInfo(eAssetTypes assetType, string assetID, List<LastPosition> lastPositions)
         {
             AssetType = assetType;
             AssetID = assetID;

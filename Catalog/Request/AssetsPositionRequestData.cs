@@ -33,15 +33,11 @@ namespace Catalog.Request
         [DataMember]
         public string AssetID;
 
-        [DataMember]
-        public eUserType UserType;
-
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder("AssetLastPositionInfo object - ");
             sb.Append(string.Concat("AssetType :", AssetType));
-            sb.Append(string.Concat("AssetID :", AssetID));
-            sb.Append(string.Concat("UserType :", UserType));
+            sb.Append(string.Concat("AssetID :", AssetID));            
             return sb.ToString();
         }
     }

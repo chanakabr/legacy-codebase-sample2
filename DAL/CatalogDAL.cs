@@ -2518,10 +2518,9 @@ namespace Tvinci.Core.DAL
             return res;
         }
 
-        public static DomainMediaMark GetAssetLastPosition(string assetID, eAssetTypes assetType, List<int> users, int domainID)
+        public static DomainMediaMark GetAssetLastPosition(string assetID, eAssetTypes assetType, List<int> users)
         {
-            DomainMediaMark dmmResponse = new DomainMediaMark();
-            dmmResponse.domainID = domainID;
+            DomainMediaMark dmmResponse = new DomainMediaMark();            
 
             CouchbaseClient client = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
             //Create users keys according to asset type

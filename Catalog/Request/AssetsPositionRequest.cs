@@ -20,6 +20,9 @@ namespace Catalog.Request
         [DataMember]
         public AssetsPositionRequestData Data { get; set; }
 
+        [DataMember]
+        public eUserType UserType;
+
         public AssetsPositionRequest()
             : base()
         {
@@ -46,34 +49,70 @@ namespace Catalog.Request
                     request = (AssetsPositionRequest)baseRequest;
                     if (request != null && request.Data != null)
                     {
-                        response.AssetsPositions = new List<AssetPositionResponseInfo>();
-                        foreach (AssetPositionRequestInfo asset in request.Data.Assets)
+                        response.AssetsPositions = new List<AssetPositionsInfo>();
+                        List<int> users = null;
+                        List<int> defaultUsers = null;
+                        bool isDefaultUser = false;                        
+                        int userDomainID = 0;
+                        int userID;
+                        WS_Domains.Domain domain = null;
+                        if (Catalog.IsUserValid(request.m_sSiteGuid, request.m_nGroupID, ref userDomainID) && int.TryParse(request.m_sSiteGuid, out userID))
                         {
-                            AssetPositionResponseInfo assetPositionResponseInfo = null;
-                            int userID;
-                            if (asset.AssetType != eAssetTypes.UNKNOWN && int.TryParse(request.m_sSiteGuid, out userID) )
-                            {                    
-                                assetPositionResponseInfo = ProccessAssetLastPositionRequest(userID, request.domainId, request.m_nGroupID, asset.AssetType, asset.AssetID, asset.UserType);
+                            if(userDomainID == request.domainId)
+                            {
+                                domain = Catalog.GetDomain(request.domainId, request.m_nGroupID);
+                                if(domain != null)
+                                { 
+                                    // Get users list, default users list and check if user is in default users list
+                                    GetUsersInfo(userID, domain, UserType, ref users, ref defaultUsers, ref isDefaultUser);
+
+                                    foreach (AssetPositionRequestInfo asset in request.Data.Assets)
+                                    {
+                                        AssetPositionsInfo assetPositionResponseInfo = null;
+
+                                        if (asset.AssetType != eAssetTypes.UNKNOWN)
+                                        {
+                                            assetPositionResponseInfo = Catalog.GetAssetLastPosition(asset.AssetID, asset.AssetType, userID, isDefaultUser, users, defaultUsers);
+                                        }
+                                        else
+                                        {
+                                            response.Status = new Status((int)eResponseStatus.InvalidAssetType, "Invalid Asset Type");
+                                            return response;
+                                        }
+                                        if (assetPositionResponseInfo != null)
+                                        {
+                                            response.AssetsPositions.Add(assetPositionResponseInfo);
+                                        }
+                                    }                                
+                                }
+                                else
+                                {
+                                    response.Status = new Status((int)eResponseStatus.Error, "Invalid Parameters In Request");
+                                    return response;
+                                }                            
                             }
                             else
                             {
-                                response.Status = new Status((int)eResponseStatus.InvalidAssetType, "Invalid Asset Type");
-                                return response;  
+                                response.Status = new Status((int)eResponseStatus.UserNotExistsInDomain, eResponseStatus.UserNotExistsInDomain.ToString());
+                                return response;
                             }
-                                if(assetPositionResponseInfo != null)
-                                {
-                                    response.AssetsPositions.Add(assetPositionResponseInfo);
-                                }
+                        }
+                        else
+                        {
+                            response.Status = new Status((int)eResponseStatus.InvalidUser, eResponseStatus.InvalidUser.ToString());
+                            return response;
                         }
                     }
                     else
                     {
                         response.Status = new Status((int)eResponseStatus.Error, "Request Is Null");
+                        return response;
                     }
                 }
                 else
                 {
                     response.Status = new Status((int)eResponseStatus.Error, "Request Is Null");
+                    return response;
                 }
 
                 response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());                
@@ -81,90 +120,48 @@ namespace Catalog.Request
             }
             catch (Exception ex)
             {
-                log.Error("AssetsPositionRequest.GetResponse", ex);
+                log.Error("AssetsPositionRequest.GetResponse - " + string.Format("Failed ex={0}, userID={1}, domainID={2}", ex.Message, baseRequest.m_sSiteGuid, baseRequest.domainId), ex);  
                 throw ex;
             }
         }
 
-        private AssetPositionResponseInfo ProccessAssetLastPositionRequest(int userID, int domainID, int groupID, eAssetTypes assetType, string assetID, eUserType assetUserType)
+        private void GetUsersInfo(int userID, WS_Domains.Domain domain,  eUserType assetUserType, ref List<int> users, ref List<int> defaultUsers, ref bool isDefaultUser)
         {
-            AssetPositionResponseInfo assetPositionResponseInfo = null;
-            try
-            {                
-                if (assetID == "0" || userID == 0 || domainID == 0 || groupID == 0)
-                {
-                    return assetPositionResponseInfo;
-                }
-
-                bool isDefaultUser = false; // set false for default , if this user_id return from domains as DeafultUsers change it to true
-                List<int> defaultUsers = new List<int>();
-                List<int> users = new List<int>();
-
-                if (assetUserType == eUserType.HOUSEHOLD)
-                {
-                    string sWSUsername = string.Empty;
-                    string sWSPassword = string.Empty;
-                    string sWSUrl = string.Empty;
-                    WS_Domains.Domain domainsResp = null;                    
-
-                    //get username + password from wsCache
-                    Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, groupID, ApiObjects.eWSModules.DOMAINS);
-                    if (oCredentials != null)
-                    {
-                        sWSUsername = oCredentials.m_sUsername;
-                        sWSPassword = oCredentials.m_sPassword;
-                    }
-
-                    if (sWSUsername.Length == 0 || sWSPassword.Length == 0)
-                    {
-                        throw new Exception(string.Format("No WS_Domains login parameters were extracted from DB. user={0}, groupid={1}", userID, groupID));
-                    }
-
-                    // get domain info - to have the users list in domain + default users in domain
-                    using (WS_Domains.module domains = new WS_Domains.module())
-                    {
-                        sWSUrl = Utils.GetWSURL("ws_domains");
-                        if (sWSUrl.Length > 0)
-                            domains.Url = sWSUrl;
-                        var domainRes = domains.GetDomainInfo(sWSUsername, sWSPassword, domainID);
-                        if (domainRes != null)
-                        {
-                            domainsResp = domainRes.Domain;
-                        }
-                        else
-                        {
-                            return assetPositionResponseInfo;
-                        }
-                    }
-
-                    if (domainsResp != null)
-                    {
-                        users = domainsResp.m_UsersIDs.ToList();
-                        defaultUsers = domainsResp.m_DefaultUsersIDs.ToList();
-                        if (defaultUsers != null && defaultUsers.Count > 0)
-                        {
-                            isDefaultUser = defaultUsers.Contains(userID);
-                        }
-                    }                    
-                }
-
-                assetPositionResponseInfo = Catalog.GetAssetLastPosition(assetID, assetType, userID, isDefaultUser, users, defaultUsers, domainId);
-            }
-            catch (Exception ex)
+            users = new List<int>();
+            defaultUsers = new List<int>();
+            if (domain.m_DefaultUsersIDs != null && domain.m_DefaultUsersIDs.Length > 0)
             {
-                log.Error("ProccessMediaLastPositionRequest - " + string.Format("Failed ex={0}, userID={1}, domainID={2}, groupdID={3}, assetID={4}, assetUserType={5}",
-                          ex.Message, userID, domainID, groupID, assetID, assetUserType), ex);     
+                defaultUsers = domain.m_DefaultUsersIDs.ToList();
+                isDefaultUser = defaultUsers.Contains(userID);
+            }
+            if (domain.m_UsersIDs != null && domain.m_UsersIDs.Length > 0)
+            {
+                users = domain.m_UsersIDs.ToList();
             }
             
-            return assetPositionResponseInfo;
+            // if userType is PERSONAL we only want the specific user position
+            if (assetUserType == eUserType.PERSONAL)
+            {
+                users.Clear();
+                defaultUsers.Clear();
+                if (isDefaultUser)
+                {
+                    defaultUsers.Add(userID);
+                }
+                else
+                {
+                    users.Add(userID);
+                }
+            }
         }
 
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder(base.ToString());
+            sb.Append(string.Concat("UserType :", UserType));
             if (Data != null)
             {
-                sb.Append(Data.ToString());
+                sb.Append(string.Concat("Data :", Data.ToString()));                      
             }
             else
             {
