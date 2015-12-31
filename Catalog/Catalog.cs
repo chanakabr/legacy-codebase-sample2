@@ -4926,7 +4926,7 @@ namespace Catalog
                 int mediaTypeID = Catalog.GetMediaTypeID(request.m_nMediaID);
                 if (mediaTypeID == 0)
                 {
-                    status.Message = "Media doesn’t exist";
+                    status.Message = "Media doesn't exist";
                     status.Code = (int)eResponseStatus.BadSearchRequest;
                     return status;
                 }
