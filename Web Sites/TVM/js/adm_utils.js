@@ -596,6 +596,13 @@ function OpenPicBrowser(theID, maxPics, lastPage, epgIdentifier) {
     popUp(theURL, 'PicSelector');
 }
 
+function OpenPicUploaderBrowser(theID, maxPics, lastPage, epgIdentifier) {
+     
+    theVal = window.document.getElementsByName(theID)[0].value;
+
+    theURL = "adm_pic_popup_uploader.aspx?pics_ids=" + theVal + "&theID=" + theID + "&maxPics=" + maxPics + "&lastPage=" + lastPage;// + "&epgIdentifier=" + epgIdentifier;
+    popUp(theURL, 'PicSelector');
+}
 
 function OpenCommentsFilterBrowser() {
     

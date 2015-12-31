@@ -285,7 +285,7 @@ public partial class adm_media : System.Web.UI.Page
         theTable += "select q.editor_remarks,q.is_active,q.status as 'status1',q.s_id as 'MID',p.base_url as 'Pic',q.NAME as 'Name', ISNULL(q.catalog_start_date,q.start_date) as 'Catalog Start Date'  ,q.start_date as 'Start Date',q.end_date as 'Catalog End Date',q.description as 'Description',q.PLAYER_CONTROL_ADS as 'Ads Controller'";
         InsertStrMetaToTable(ref theTable, nGroupID, true);
         InsertDoubleMetaToTable(ref theTable, nGroupID, true);
-        theTable += ",q.CO_GUID as 'Outer GUID',q.EPG_IDENTIFIER as 'EPG GUID',q.s_id as 'id',q.s_desc as 'Status' from (select distinct m.is_active,m.is_active as 'q_ia'";
+        theTable += ",q.CO_GUID as 'Outer GUID',q.EPG_IDENTIFIER as 'EPG GUID',q.s_id as 'id',q.s_desc as 'Status', pic_id from (select distinct m.is_active,m.is_active as 'q_ia'";
         InsertStrMetaToTable(ref theTable, nGroupID, false);
         InsertDoubleMetaToTable(ref theTable, nGroupID, false);
         theTable += ",m.editor_remarks,m.MEDIA_PIC_ID as 'pic_id',m.PLAYER_CONTROL_ADS,m.CO_GUID,m.EPG_IDENTIFIER,m.status,m.NAME as 'NAME',m.DESCRIPTION as 'Description',m.id as 's_id',lcs.description as 's_desc',CONVERT(VARCHAR(10),m.CATALOG_START_DATE, 104) as 'Catalog_Start_Date',CONVERT(VARCHAR(10),m.START_DATE, 104) as 'Start_Date',CONVERT(VARCHAR(10),m.End_DATE, 104) as 'End_Date',CONVERT(VARCHAR(10),m.Final_End_DATE, 104) as 'Final_End_Date'  from media m,lu_content_status lcs";
@@ -374,6 +374,7 @@ public partial class adm_media : System.Web.UI.Page
         theTable.AddEditorRemarks("media");
         theTable.AddHiddenField("EDITOR_REMARKS");
         theTable.AddHiddenField("is_active");
+        theTable.AddHiddenField("pic_Id");
         theTable.AddOnOffField("Ads Controller", "media~~|~~PLAYER_CONTROL_ADS~~|~~id~~|~~Player~~|~~Owner");
         //string sNotifyURL = "";
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.PUBLISH) &&
