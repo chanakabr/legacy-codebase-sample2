@@ -59,9 +59,16 @@ public partial class adm_channels : System.Web.UI.Page
 		sButton += "adm_channels_new.aspx?channel_type=2";
 		sortedMenu[1] = sButton;
 
-		sButton = "Add KSQL.Channel|adm_ksql_channel_new.aspx";
+        int groupId = LoginManager.GetLoginGroupID();
+        int parentGroupId = DAL.UtilsDal.GetParentGroupID(groupId);
 
-		sortedMenu[2] = sButton;
+        // add KSQL button only if we are in parent group
+        if (groupId == parentGroupId)
+        {
+            sButton = "Add KSQL.Channel|adm_ksql_channel_new.aspx";
+
+            sortedMenu[2] = sButton;
+        }
 
 		return sortedMenu;
 	}

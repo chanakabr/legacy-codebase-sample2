@@ -95,7 +95,6 @@ public partial class adm_external_channels : System.Web.UI.Page
     protected void FillTheTableEditor(ref DBTableWebEditor theTable, string sOrderBy)
     {
         string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
-        //string.Format("{0}_external_channel_{1}_{2}", version, parentGroupId, channelId)
 
         Int32 groupId = LoginManager.GetLoginGroupID();
         theTable += "SELECT ec.ID, ec.Name, ec.EXTERNAL_IDENTIFIER AS 'External Identifier', ec.FILTER_EXPRESSION as 'Filter Expression', ";
