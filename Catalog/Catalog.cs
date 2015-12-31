@@ -5384,6 +5384,11 @@ namespace Catalog
 
             groupManager.GetGroupAndChannel(channelId, parentGroupID, ref group, ref channel);
 
+            if (channel == null)
+            {
+                return new Status((int)eResponseStatus.ObjectNotExist, string.Format("Channel with identifier {0} does not exist for group {1}", parentGroupID, channelId));
+            }
+
             // Build search object
             UnifiedSearchDefinitions unifiedSearchDefinitions = BuildInternalChannelSearchObject(channel, request, group);
 
