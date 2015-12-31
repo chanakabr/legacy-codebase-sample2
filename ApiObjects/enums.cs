@@ -6,6 +6,12 @@ using System.Text;
 
 namespace ApiObjects
 {
+    public enum eHttpRequestType
+    {
+        Post,
+        Get
+    }
+
     public enum UserStatus
     {
         NotRelevant = 0,

@@ -1188,19 +1188,38 @@ namespace TVinciShared
                         }
                         if (sFileName != "" && sFileName != "-")
                         {
-                            sTable.Append("<td ><img src='" + sBP);
-                            if (sBP.EndsWith("=") == false)
-                                sTable.Append("/");
-                            Random random = new Random();
-                            int randomInt = random.Next();
-                            sTable.Append(sFileName + "_tn");
+                            if (PageUtils.IsDownloadPicWithImageServer())
+                            {
+                                sTable.Append("<td>");
 
-                            if (sBP.EndsWith("=") == false)
-                                sTable.Append(sFileExt);
-                            sTable.Append("?");
-                            sTable.Append(randomInt.ToString());
+                                if (m_theDataTable.Columns.Contains("pic_id"))
+                                {
+                                    object picId = m_theDataTable.DefaultView[pageIndx].Row["pic_id"];
+                                    if (picId != DBNull.Value && picId != null)
+                                    {
+                                        sTable.Append("<img src='" + PageUtils.GetPicImageUrlByRatio(int.Parse(picId.ToString()), 90, 65));
+                                        sTable.Append("'/>");
+                                    }
+                                }
+                                sTable.Append("</td>");
+                            }
 
-                            sTable.Append("'/></td>");
+                            else
+                            {
+                                sTable.Append("<td ><img src='" + sBP);
+                                if (sBP.EndsWith("=") == false)
+                                    sTable.Append("/");
+                                Random random = new Random();
+                                int randomInt = random.Next();
+                                sTable.Append(sFileName + "_tn");
+
+                                if (sBP.EndsWith("=") == false)
+                                    sTable.Append(sFileExt);
+                                sTable.Append("?");
+                                sTable.Append(randomInt.ToString());
+
+                                sTable.Append("'/></td>");
+                            }
                         }
                         else
                         {
@@ -1492,7 +1511,7 @@ namespace TVinciShared
                         string pageParam = string.IsNullOrEmpty(m_sPage) ? "" : ", '" + m_sPage + "'";
                         if (nActive == 1)
                         {
-                            sTable.Append("<b>On</b> / <a href=\"javascript: ChangeActiveStateRow('" + m_sActivationTable + "'," + nID.ToString() + ",0,'" + m_sConnectionKey + "'" + pageParam +");\" ");
+                            sTable.Append("<b>On</b> / <a href=\"javascript: ChangeActiveStateRow('" + m_sActivationTable + "'," + nID.ToString() + ",0,'" + m_sConnectionKey + "'" + pageParam + ");\" ");
                             sTable.Append(" class='adm_table_link_div' >");
                             sTable.Append("Off");
                             sTable.Append("</a>");

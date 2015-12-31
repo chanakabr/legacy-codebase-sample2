@@ -581,17 +581,6 @@ namespace Catalog
                     if (picDataZeroRatio != null)
                         isMigratedImage = true;
 
-                    // build image server URL
-                    var imageServerUrlObj = TVinciShared.PageUtils.GetTableSingleVal("groups", "IMAGE_SERVER_URL", groupId);
-                    string imageServerUrl = string.Empty;
-                    if (imageServerUrlObj == null)
-                        throw new Exception(string.Format("IMAGE_SERVER_URL wasn't found. GID: {0}", groupId));
-                    else
-                    {
-                        imageServerUrl = imageServerUrlObj.ToString();
-                        imageServerUrl = imageServerUrl.EndsWith("/") ? imageServerUrl + "GetImage/" : imageServerUrl + "/GetImage/";
-                    }
-
                     // get picture base URL
                     string picBaseName = Path.GetFileNameWithoutExtension(picsTableData[0].BaseUrl);
                     if (string.IsNullOrEmpty(picBaseName))
@@ -638,13 +627,7 @@ namespace Catalog
                             // build image URL. 
                             // template: <image_server_url>/p/<partner_id>/entry_id/<image_id>/version/<image_version>/width/<image_width>/height/<image_height>/quality/<image_quality>
                             // Example:  http://localhost/ImageServer/Service.svc/GetImage/p/215/entry_id/123/version/10/width/432/height/230/quality/100
-                            picObj.m_sURL = string.Format("{0}p/{1}/entry_id/{2}/version/{3}/width/{4}/height/{5}/quality/100",
-                                imageServerUrl,                                // 0 <image_server_url>
-                                groupId,                                       // 1 <partner_id>
-                                picObj.id,                                     // 2 <image_id>
-                                picObj.version,                                // 3 <image_version>
-                                Utils.GetStrSafeVal(dtPic.Rows[i], "WIDTH"),   // 4 <image_width>
-                                Utils.GetStrSafeVal(dtPic.Rows[i], "HEIGHT")); // 5 <image_height>
+                            picObj.m_sURL = ImageUtils.BuildImageUrl(groupId, picObj.id, picObj.version, Utils.GetIntSafeVal(dtPic.Rows[i], "WIDTH"), Utils.GetIntSafeVal(dtPic.Rows[i], "HEIGHT"), 100);
 
                             lPicObject.Add(picObj);
                         }
@@ -683,11 +666,7 @@ namespace Catalog
                                 // build image URL. 
                                 // template: <image_server_url>/p/<partner_id>/entry_id/<image_id>/version/<image_version>
                                 // Example:  http://localhost/ImageServer/Service.svc/GetImage/p/215/entry_id/123/version/10
-                                picObj.m_sURL = string.Format("{0}p/{1}/entry_id/{2}/version/{3}",
-                                    imageServerUrl,   // 0 <image_server_url>
-                                    groupId,          // 1 <partner_id>
-                                    picObj.id,        // 2 <image_id>
-                                    picObj.version);  // 3 <image_version>
+                                picObj.m_sURL = ImageUtils.BuildImageUrl(groupId, picObj.id, picObj.version, 0, 0, 100, true);
 
                                 lPicObject.Add(picObj);
                             }
@@ -712,11 +691,7 @@ namespace Catalog
                                 // build image URL. 
                                 // template: <image_server_url>/p/<partner_id>/entry_id/<image_id>/version/<image_version>
                                 // Example:  http://localhost/ImageServer/Service.svc/GetImage/p/215/entry_id/123/version/10
-                                picObj.m_sURL = string.Format("{0}p/{1}/entry_id/{2}/version/{3}",
-                                    imageServerUrl,   // 0 <image_server_url>
-                                    groupId,          // 1 <partner_id>
-                                    picObj.id,        // 2 <image_id>
-                                    picObj.version);  // 3 <image_version>
+                                picObj.m_sURL = ImageUtils.BuildImageUrl(groupId, picObj.id, picObj.version, 0, 0, 100, true);
 
                                 lPicObject.Add(picObj);
                             }
@@ -5355,6 +5330,11 @@ namespace Catalog
 
             groupManager.GetGroupAndChannel(channelId, parentGroupID, ref group, ref channel);
 
+            if (channel == null)
+            {
+                return new Status((int)eResponseStatus.ObjectNotExist, string.Format("Channel with identifier {0} does not exist for group {1}", parentGroupID, channelId));
+            }
+
             // Build search object
             UnifiedSearchDefinitions unifiedSearchDefinitions = BuildInternalChannelSearchObject(channel, request, group);
 
@@ -6125,19 +6105,19 @@ namespace Catalog
                             switch (channel.m_eCutWith)
                             {
                                 case CutWith.WCF_ONLY_DEFAULT_VALUE:
-                                break;
+                                    break;
                                 case CutWith.OR:
-                                {
-                                    innerCutType = eCutType.Or;
-                                    break;
-                                }
+                                    {
+                                        innerCutType = eCutType.Or;
+                                        break;
+                                    }
                                 case CutWith.AND:
-                                {
-                                    innerCutType = eCutType.And;
-                                    break;
-                                }
+                                    {
+                                        innerCutType = eCutType.And;
+                                        break;
+                                    }
                                 default:
-                                break;
+                                    break;
                             }
 
                             string key = searchValue.m_sKey.ToLower();

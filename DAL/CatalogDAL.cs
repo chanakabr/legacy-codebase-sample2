@@ -1504,13 +1504,13 @@ namespace Tvinci.Core.DAL
                 {
                     case ePlayType.MEDIA:
                     case ePlayType.NPVR:
-                    dm.devices = dm.devices.Where(x => x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow && x.playType == ePlay.ToString()).ToList();
-                    break;
+                        dm.devices = dm.devices.Where(x => x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow && x.playType == ePlay.ToString()).ToList();
+                        break;
                     case ePlayType.ALL:
-                    dm.devices = dm.devices.Where(x => x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow).ToList();
-                    break;
+                        dm.devices = dm.devices.Where(x => x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow).ToList();
+                        break;
                     default:
-                    break;
+                        break;
                 }
 
                 var res = m_oClient.Cas(Enyim.Caching.Memcached.StoreMode.Set, docKey, JsonConvert.SerializeObject(dm, Formatting.None), marks.Cas);
@@ -1600,31 +1600,31 @@ namespace Tvinci.Core.DAL
                     {
                         case eWatchStatus.Progress:
 
-                        // remove all finished
-                        unFilteredresult.RemoveAll(x => (x.Duration != 0) && (((float)x.Location / (float)x.Duration * 100) >= finishedPercent));
-                        unFilteredresult.ForEach(x => x.IsFinishedWatching = false);
-                        break;
+                            // remove all finished
+                            unFilteredresult.RemoveAll(x => (x.Duration != 0) && (((float)x.Location / (float)x.Duration * 100) >= finishedPercent));
+                            unFilteredresult.ForEach(x => x.IsFinishedWatching = false);
+                            break;
 
                         case eWatchStatus.Done:
 
-                        // remove all in progress
-                        unFilteredresult.RemoveAll(x => (x.Duration != 0) && (((float)x.Location / (float)x.Duration * 100) < finishedPercent));
-                        unFilteredresult.ForEach(x => x.IsFinishedWatching = true);
-                        break;
+                            // remove all in progress
+                            unFilteredresult.RemoveAll(x => (x.Duration != 0) && (((float)x.Location / (float)x.Duration * 100) < finishedPercent));
+                            unFilteredresult.ForEach(x => x.IsFinishedWatching = true);
+                            break;
 
                         case eWatchStatus.All:
 
-                        foreach (var item in unFilteredresult)
-                        {
-                            if ((item.Duration != 0) && (((float)item.Location / (float)item.Duration * 100) >= finishedPercent))
-                                item.IsFinishedWatching = true;
-                            else
-                                item.IsFinishedWatching = false;
-                        }
-                        break;
+                            foreach (var item in unFilteredresult)
+                            {
+                                if ((item.Duration != 0) && (((float)item.Location / (float)item.Duration * 100) >= finishedPercent))
+                                    item.IsFinishedWatching = true;
+                                else
+                                    item.IsFinishedWatching = false;
+                            }
+                            break;
 
                         default:
-                        break;
+                            break;
                     }
 
                     // filter asset types
@@ -1640,15 +1640,15 @@ namespace Tvinci.Core.DAL
                     {
                         case OrderDir.ASC:
 
-                        unFilteredresult = unFilteredresult.OrderBy(x => x.LastWatch).ToList();
-                        break;
+                            unFilteredresult = unFilteredresult.OrderBy(x => x.LastWatch).ToList();
+                            break;
 
                         case OrderDir.DESC:
                         case OrderDir.NONE:
                         default:
 
-                        unFilteredresult = unFilteredresult.OrderByDescending(x => x.LastWatch).ToList();
-                        break;
+                            unFilteredresult = unFilteredresult.OrderByDescending(x => x.LastWatch).ToList();
+                            break;
                     }
 
                     // update total items
@@ -2923,7 +2923,7 @@ namespace Tvinci.Core.DAL
             return epgIdentifiers;
         }
 
-        public static Dictionary<int, List<EpgPicture>> GetGroupTreeMultiPicEpgUrl(int parentGroupID)
+        public static Dictionary<int, List<EpgPicture>> GetGroupTreeMultiPicEpgUrl(int parentGroupID, ref List<Ratio> epgRatios)
         {
             Dictionary<int, List<EpgPicture>> res = null;
 
@@ -3011,6 +3011,22 @@ namespace Tvinci.Core.DAL
                                     }
                                 }
                             }
+                        }
+                    }
+
+                    if (ds.Tables.Count > 2)
+                    {
+                        epgRatios = new List<Ratio>();
+
+                        // epg ratio table
+                        DataTable epgRatioTable = ds.Tables[2];
+                        foreach (DataRow dr in epgRatioTable.Rows)
+                        {
+                            epgRatios.Add(new Ratio()
+                            {
+                                Id = ODBCWrapper.Utils.GetIntSafeVal(dr, "id"),
+                                Name = ODBCWrapper.Utils.GetSafeStr(dr, "ratio")
+                            });
                         }
                     }
                 }
@@ -3964,7 +3980,6 @@ namespace Tvinci.Core.DAL
         }
 
         public static DataRowCollection GetPicsTableData(int mediaId, int? ratioId = null, int? extraStatus = null)
-
         {
             try
             {

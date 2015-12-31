@@ -1642,6 +1642,22 @@ namespace TvinciImporter
                     nPlayersRule, nDeviceRule, dCatalogStartDate, dStartDate, dCatalogEndDate, dFinalEndDate, sThumb, sMainLang, ref theItemName,
                     ref theItemDesc, sIsActive, dCreate, entryId);
 
+                if (!string.IsNullOrEmpty(sThumb))
+                {
+                    string sName = GetMultiLangValue(sMainLang, ref theItemName);
+                    Int32 nPicID = DownloadPic(sThumb, sName, nGroupID, nMediaID, sMainLang, "THUMBNAIL", true, 0);
+                    if (nPicID != 0)
+                    {
+                        ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_PIC_ID", "=", nPicID);
+                        updateQuery += " where ";
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nMediaID);
+                        updateQuery.Execute();
+                        updateQuery.Finish();
+                        updateQuery = null;
+                    }
+                }
+
                 int groupDefaultRatioId = -1;
 
                 if (!WS_Utils.IsGroupIDContainedInConfig(nGroupID, "USE_OLD_IMAGE_SERVER", ';') && !string.IsNullOrEmpty(sThumb))
@@ -1956,16 +1972,10 @@ namespace TvinciImporter
                 // generate ImageUploadData and send to Queue 
                 int parentGroupId = DAL.UtilsDal.GetParentGroupID(groupId);
 
-                // build image server URL
-                var imageServerUrlObj = TVinciShared.PageUtils.GetTableSingleVal("groups", "IMAGE_SERVER_URL", groupId);
-                string imageServerUrl = string.Empty;
-                if (imageServerUrlObj == null)
+                // get image server URL
+                string imageServerUrl = ImageUtils.GetImageServerUrl(groupId, eHttpRequestType.Post);
+                if (string.IsNullOrEmpty(imageServerUrl))
                     throw new Exception(string.Format("IMAGE_SERVER_URL wasn't found. GID: {0}", groupId));
-                else
-                {
-                    imageServerUrl = imageServerUrlObj.ToString();
-                    imageServerUrl = imageServerUrl.EndsWith("/") ? imageServerUrl + "InsertImage" : imageServerUrl + "/InsertImage";
-                }
 
                 if (sourcePath.ToLower().Trim().StartsWith("http://") == false &&
                 sourcePath.ToLower().Trim().StartsWith("https://") == false)
@@ -2624,13 +2634,14 @@ namespace TvinciImporter
             return result;
         }
 
-        private static int GetGroupDefaultRatio(int groupId)
+        public static int GetGroupDefaultRatio(int groupId)
         {
             int rationId = 0;
 
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select RATIO_ID from groups (nolock) where";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", groupId);
+            selectQuery.SetCachedSec(120);
             if (selectQuery.Execute("query", true) != null)
             {
                 Int32 nCount = selectQuery.Table("query").DefaultView.Count;
@@ -4196,22 +4207,11 @@ namespace TvinciImporter
                 insertQuery.Finish();
                 insertQuery = null;
                 nMediaID = GetMediaIDByCoGuid(nGroupID, sCoGuid);
-                Int32 nPicID = DownloadPic(sThumb, sName, nGroupID, nMediaID, sMainLang, "THUMBNAIL", true, 0);
-                if (nPicID != 0)
-                {
-                    ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_PIC_ID", "=", nPicID);
-                    updateQuery += " where ";
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nMediaID);
-                    updateQuery.Execute();
-                    updateQuery.Finish();
-                    updateQuery = null;
-                }
+                
 
             }
             else
             {
-                Int32 nPicID = DownloadPic(sThumb, sName, nGroupID, nMediaID, sMainLang, "THUMBNAIL", true, 0);
                 ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
                 if (sName != "")
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("NAME", "=", sName);
@@ -4231,8 +4231,6 @@ namespace TvinciImporter
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("device_rule_id", "=", nDeviceRule);
                 if (nItemType != 0)
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_TYPE_ID", "=", nItemType);
-                if (nPicID != 0)
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_PIC_ID", "=", nPicID);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("CATALOG_START_DATE", "=", dCatalogStartDate);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", dStartDate);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", dCatalogEndDate);

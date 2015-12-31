@@ -1453,7 +1453,7 @@ namespace TVinciShared
                         sVal = sVal.Replace("\r\n", "<br\\>");
                         bValid = validateParam("string", sVal, -1, -1);
                         if (bFirst == false)
-                            selectQuery += "and";
+                            selectQuery += "and"; 
                         else
                             selectQuery += "where";
                         selectQuery += ODBCWrapper.Parameter.NEW_PARAM(sFieldName, "=", DBStrEncode(sVal.ToString()));
@@ -2031,16 +2031,10 @@ namespace TVinciShared
                 // generate ImageUploadData and send to Queue 
                 int parentGroupId = DAL.UtilsDal.GetParentGroupID(groupId);
 
-                // build image server URL
-                var imageServerUrlObj = TVinciShared.PageUtils.GetTableSingleVal("groups", "IMAGE_SERVER_URL", groupId);
-                string imageServerUrl = string.Empty;
-                if (imageServerUrlObj == null)
+                // get image server URL
+                string imageServerUrl = ImageUtils.GetImageServerUrl(groupId, eHttpRequestType.Post);
+                if (string.IsNullOrEmpty(imageServerUrl))
                     throw new Exception(string.Format("IMAGE_SERVER_URL wasn't found. GID: {0}", groupId));
-                else
-                {
-                    imageServerUrl = imageServerUrlObj.ToString();
-                    imageServerUrl = imageServerUrl.EndsWith("/") ? imageServerUrl + "InsertImage" : imageServerUrl + "/InsertImage";
-                }
 
                 if (sourcePath.ToLower().Trim().StartsWith("http://") == false && sourcePath.ToLower().Trim().StartsWith("https://") == false)
                 {
