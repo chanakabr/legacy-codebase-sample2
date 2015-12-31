@@ -652,7 +652,7 @@ namespace TVinciShared
             //return retVal;
         }
 
-        public static string GetImageServerUrl(int groupId)
+        public static string GetImageServerUrl(int groupId, eHttpRequestType httpRequestType)
         {
             string imageServerUrl = string.Empty;
             var imageServerUrlObj = PageUtils.GetTableSingleVal("groups", "IMAGE_SERVER_URL", groupId);
@@ -661,10 +661,23 @@ namespace TVinciShared
             else
             {
                 imageServerUrl = imageServerUrlObj.ToString();
-                imageServerUrl = imageServerUrl.EndsWith("/") ? imageServerUrl + "GetImage/" : imageServerUrl + "/GetImage/";
+                switch (httpRequestType)
+                {
+                    case eHttpRequestType.Post:
+                        imageServerUrl = imageServerUrl.EndsWith("/") ? imageServerUrl + "InsertImage" : imageServerUrl + "/InsertImage";
+                        break;
+                    case eHttpRequestType.Get:
+                        imageServerUrl = imageServerUrl.EndsWith("/") ? imageServerUrl + "GetImage/" : imageServerUrl + "/GetImage/";
+                        break;
+                    default:
+                        break;
+                }
+
             }
             return imageServerUrl;
         }
+
+       
 
         public static string BuildImageUrl(int groupId, string imageId, int version = 0, int width = 0, int height = 0, int quality = 100, bool isDynamic = false)
         {
@@ -682,7 +695,7 @@ namespace TVinciShared
                 return imageServerUrl;
             }
 
-            imageServerUrl = ImageUtils.GetImageServerUrl(groupId);
+            imageServerUrl = ImageUtils.GetImageServerUrl(groupId, eHttpRequestType.Get);
             if (string.IsNullOrEmpty(imageServerUrl))
             {
                 log.Error(string.Format("IMAGE_SERVER_URL wasn't found. GID: {0}", groupId));
