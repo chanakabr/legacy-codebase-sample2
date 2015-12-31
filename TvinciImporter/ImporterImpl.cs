@@ -1973,7 +1973,7 @@ namespace TvinciImporter
                 int parentGroupId = DAL.UtilsDal.GetParentGroupID(groupId);
 
                 // get image server URL
-                string imageServerUrl = ImageUtils.GetImageServerUrl(groupId);
+                string imageServerUrl = ImageUtils.GetImageServerUrl(groupId, eHttpRequestType.Post);
                 if (string.IsNullOrEmpty(imageServerUrl))
                     throw new Exception(string.Format("IMAGE_SERVER_URL wasn't found. GID: {0}", groupId));
 
@@ -2641,6 +2641,7 @@ namespace TvinciImporter
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select RATIO_ID from groups (nolock) where";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", groupId);
+            selectQuery.SetCachedSec(120);
             if (selectQuery.Execute("query", true) != null)
             {
                 Int32 nCount = selectQuery.Table("query").DefaultView.Count;
