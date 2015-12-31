@@ -129,6 +129,7 @@
     <Compile Include="Request\ExternalChannelRequest.cs" />
     <Compile Include="Request\InternalChannelRequest.cs" />
     <Compile Include="Request\BaseChannelRequest.cs" />
+    <Compile Include="Request\MediaBookmarkData.cs" />
     <Compile Include="Request\MediaRelatedExternalRequest.cs" />
     <Compile Include="Request\MediaSearchExternalRequest.cs" />
     <Compile Include="Response\AssetStatsResponse.cs" />

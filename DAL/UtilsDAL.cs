@@ -685,5 +685,10 @@ namespace DAL
             return string.Format("u{0}_n{1}", nSiteUserGuid, sNpvrID);
 
         }
+
+        internal static string getUserEpgMarkDocKey(int nSiteUserGuid, int nNpvrID)
+        {
+            return string.Format("u{0}_epg{1}", nSiteUserGuid, nNpvrID);
+        }
     }
 }

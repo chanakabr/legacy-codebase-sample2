@@ -35,6 +35,8 @@ namespace Catalog.Request
         public int m_nTotalBitRate;
         [DataMember]
         public int m_nCurrentBitRate;
+        [DataMember]
+        public bool m_bIsEpg;
         
         public string m_sMediaTypeId;
 
@@ -57,6 +59,7 @@ namespace Catalog.Request
             sb.Append(String.Concat(" Avg Bitrate: ", m_nAvgBitRate));
             sb.Append(String.Concat(" Total Bitrate: ", m_nTotalBitRate));
             sb.Append(String.Concat(" Current Bitrate: ", m_nCurrentBitRate));
+            sb.Append(String.Concat(" Is Media EPG: ", m_bIsEpg));
 
             return sb.ToString();
         }

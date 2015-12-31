@@ -2141,7 +2141,7 @@ namespace Catalog
         }
 
 
-        public static void UpdateFollowMe(int nGroupID, int nMediaID, string sSiteGUID, int nPlayTime, string sUDID, int duration, string assetAction, int mediaTypeId, int nDomainID = 0, string sNpvrID = default(string), ePlayType eNPVR = ePlayType.MEDIA)
+        public static void UpdateFollowMe(int nGroupID, int nMediaID, string sSiteGUID, int nPlayTime, string sUDID, int duration, string assetAction, int mediaTypeId, int nDomainID = 0, string sNpvrID = default(string), ePlayType ePlayType = ePlayType.MEDIA)
         {
             int opID = 0;
             bool isMaster = false;
@@ -2154,13 +2154,16 @@ namespace Catalog
 
             if (nDomainID > 0)
             {
-                switch (eNPVR)
+                switch (ePlayType)
                 {
                     case ePlayType.MEDIA:
                         CatalogDAL.UpdateOrInsert_UsersMediaMark(nDomainID, int.Parse(sSiteGUID), sUDID, nMediaID, nGroupID, nPlayTime, duration, assetAction, mediaTypeId);
                         break;
                     case ePlayType.NPVR:
                         CatalogDAL.UpdateOrInsert_UsersNpvrMark(nDomainID, int.Parse(sSiteGUID), sUDID, sNpvrID, nGroupID, nPlayTime, duration, assetAction);
+                        break;
+                    case ePlayType.EPG:
+                        CatalogDAL.UpdateOrInsert_UsersEpgMark(nDomainID, int.Parse(sSiteGUID), sUDID, nMediaID, nGroupID, nPlayTime, duration, assetAction);
                         break;
                     default:
                         break;
@@ -4951,7 +4954,7 @@ namespace Catalog
                 int mediaTypeID = Catalog.GetMediaTypeID(request.m_nMediaID);
                 if (mediaTypeID == 0)
                 {
-                    status.Message = "Media doesn’t exist";
+                    status.Message = "Media doesn't exist";
                     status.Code = (int)eResponseStatus.BadSearchRequest;
                     return status;
                 }

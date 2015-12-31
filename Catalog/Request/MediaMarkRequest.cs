@@ -15,6 +15,8 @@ using System.Threading.Tasks;
 using ApiObjects;
 using Catalog.Response;
 using KLogMonitor;
+using EpgBL;
+using ApiObjects.Response;
 
 namespace Catalog.Request
 {
@@ -46,9 +48,10 @@ namespace Catalog.Request
 
         public BaseResponse GetResponse(BaseRequest oBaseRequest)
         {
+            MediaMarkResponse oMediaMarkResponse = null;
+
             try
-            {
-                MediaMarkResponse oMediaMarkResponse = null;
+            {                
                 MediaMarkRequest oMediaMarkRequest = null;
 
                 CheckSignature(oBaseRequest);
@@ -58,21 +61,22 @@ namespace Catalog.Request
                     oMediaMarkRequest = oBaseRequest as MediaMarkRequest;
 
                     bool bNpvr = string.IsNullOrEmpty(oMediaMarkRequest.m_oMediaPlayRequestData.m_sNpvrID) ? false : true;
+                    bool bEpg = oMediaMarkRequest.m_oMediaPlayRequestData.m_bIsEpg;
 
-                    if (!bNpvr) // Media MArk
+                    if (!bNpvr && !bEpg) // Media MArk
                     {
                         oMediaMarkResponse = ProcessMediaMarkRequest(oMediaMarkRequest);
                     }
-                    else // Npvr Mark
+                    else // EPG or Npvr Mark
                     {
-                        oMediaMarkResponse = ProcessNpvrMarkRequest(oMediaMarkRequest);
+                        oMediaMarkResponse = ProcessNpvrEpgMarkRequest(oMediaMarkRequest);
                     }
                 }
                 else
                 {
                     oMediaMarkResponse = new MediaMarkResponse();
                     oMediaMarkResponse.m_sDescription = Catalog.GetMediaPlayResponse(MediaPlayResponse.OK);
-
+                    oMediaMarkResponse.status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
 
                 return oMediaMarkResponse;
@@ -80,13 +84,17 @@ namespace Catalog.Request
             catch (Exception ex)
             {
                 log.Error(String.Concat("MediaMarkRequest.GetResponse. ", oBaseRequest.ToString()), ex);
-                throw ex;
+
+                oMediaMarkResponse.m_sStatus = "ERROR"; 
+                oMediaMarkResponse.status = new Status((int)eResponseStatus.Error, ex.ToString());
+                return oMediaMarkResponse;
             }
         }
 
-        private MediaMarkResponse ProcessNpvrMarkRequest(MediaMarkRequest oMediaMarkRequest)
+        private MediaMarkResponse ProcessNpvrEpgMarkRequest(MediaMarkRequest oMediaMarkRequest)
         {
             MediaMarkResponse oMediaMarkResponse = new MediaMarkResponse();
+            bool bEpg = oMediaMarkRequest.m_oMediaPlayRequestData.m_bIsEpg;
 
             int nActionID = 0;
             int nPlay = 0;
@@ -107,9 +115,26 @@ namespace Catalog.Request
 
             MediaPlayActions mediaMarkAction;
 
+            if (this.m_oMediaPlayRequestData.m_bIsEpg)
+            {
+                BaseEpgBL epgBL = EpgBL.Utils.GetInstance(this.m_nGroupID);
+                List<EpgCB> lEpgProg = epgBL.GetEpgs(new List<string>(){this.m_oMediaPlayRequestData.m_nMediaID.ToString()});
+                if (lEpgProg != null && lEpgProg.Count > 0)
+                    fileDuration = Convert.ToInt32((lEpgProg.First().EndDate - lEpgProg.First().StartDate).TotalSeconds);
+
+                if (fileDuration == 0)
+                {
+                    oMediaMarkResponse.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.ERROR);
+                    oMediaMarkResponse.m_sDescription = "Program doesn't exist";
+                    oMediaMarkResponse.status = new Status((int)eResponseStatus.BadSearchRequest, "Program doesn't exist");
+                    return oMediaMarkResponse;
+                }
+            }
+
             Int32.TryParse(this.m_oMediaPlayRequestData.m_sMediaDuration, out nMediaDuration);
 
             oMediaMarkResponse.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.MEDIA_MARK);
+            oMediaMarkResponse.status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
             if (this.m_oFilter != null)
             {
@@ -124,13 +149,14 @@ namespace Catalog.Request
                 {
                     oMediaMarkResponse.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.ERROR);
                     oMediaMarkResponse.m_sDescription = "Anonymous User Can't watch nPVR";
+                    oMediaMarkResponse.status = new Status((int)eResponseStatus.UserNotAllowed, "Anonymous User Can't watch nPVR");
                 }
                 else
                 {
                     bool isError = false;
                     bool isConcurrent = false; // for future use
-                    HandleNpvrPlayAction(mediaMarkAction, nCountryID, nPlatform, ref nActionID, ref nPlay, ref nStop, ref nPause, ref nFinish, ref nFull, ref nExitFull, ref nSendToFriend, ref nLoad,
-                                          ref nFirstPlay, ref isConcurrent, ref isError, ref nSwhoosh, ref fileDuration);
+                    HandleNpvrEpgPlayAction(mediaMarkAction, nCountryID, nPlatform, ref nActionID, ref nPlay, ref nStop, ref nPause, ref nFinish, ref nFull, ref nExitFull, ref nSendToFriend, ref nLoad,
+                                          ref nFirstPlay, ref isConcurrent, ref isError, ref nSwhoosh, ref fileDuration, bEpg);
                 }
             }
             return oMediaMarkResponse;
@@ -138,8 +164,9 @@ namespace Catalog.Request
 
 
         /* no concurrency check for NPVR play , only UpdateFollowMe */
-        private void HandleNpvrPlayAction(MediaPlayActions mediaMarkAction, int nCountryID, int nPlatform, ref int nActionID, ref int nPlay, ref int nStop, ref int nPause,
-            ref int nFinish, ref int nFull, ref int nExitFull, ref int nSendToFriend, ref int nLoad, ref int nFirstPlay, ref bool isConcurrent, ref bool isError, ref int nSwoosh, ref int fileDuration)
+        private void HandleNpvrEpgPlayAction(MediaPlayActions mediaMarkAction, int nCountryID, int nPlatform, ref int nActionID, ref int nPlay, ref int nStop, ref int nPause,
+            ref int nFinish, ref int nFull, ref int nExitFull, ref int nSendToFriend, ref int nLoad, ref int nFirstPlay, ref bool isConcurrent, 
+            ref bool isError, ref int nSwoosh, ref int fileDuration, bool bEpg)
         {
             if (!string.IsNullOrEmpty(this.m_oMediaPlayRequestData.m_sNpvrID))
             {
@@ -147,6 +174,8 @@ namespace Catalog.Request
             }
 
             int nDomainID = 0;
+            ePlayType playType = bEpg ? ePlayType.EPG : ePlayType.NPVR;
+            int assetType = bEpg ? (int)eAssetTypes.EPG : (int)eAssetTypes.NPVR;
 
             switch (mediaMarkAction)
             {
@@ -164,30 +193,27 @@ namespace Catalog.Request
                     {
                         nPlay = 1;
                         Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID,
-                           fileDuration, mediaMarkAction.ToString(), (int)eAssetTypes.NPVR, nDomainID, this.m_oMediaPlayRequestData.m_sNpvrID, ePlayType.NPVR);
+                            fileDuration, mediaMarkAction.ToString(), assetType, nDomainID, this.m_oMediaPlayRequestData.m_sNpvrID, playType);
                         break;
                     }
                 case MediaPlayActions.STOP:
                     {
                         nStop = 1;
                         Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID,
-                            fileDuration, mediaMarkAction.ToString(), (int)eAssetTypes.NPVR, nDomainID, this.m_oMediaPlayRequestData.m_sNpvrID, ePlayType.NPVR);
+                            fileDuration, mediaMarkAction.ToString(), assetType, nDomainID, this.m_oMediaPlayRequestData.m_sNpvrID, playType);
                         break;
                     }
                 case MediaPlayActions.PAUSE:
                     {
                         nPause = 1;
-                        if (!string.IsNullOrEmpty(this.m_oMediaPlayRequestData.m_sNpvrID))
-                        {
-                            Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID,
-                                fileDuration, mediaMarkAction.ToString(), (int)eAssetTypes.NPVR, nDomainID, this.m_oMediaPlayRequestData.m_sNpvrID, ePlayType.NPVR);
-                        }
+                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID,
+                            fileDuration, mediaMarkAction.ToString(), assetType, nDomainID, this.m_oMediaPlayRequestData.m_sNpvrID, playType);
                         break;
                     }
                 case MediaPlayActions.FINISH:
                     {
                         nFinish = 1;
-                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, 0, this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), (int)eAssetTypes.NPVR, nDomainID, this.m_oMediaPlayRequestData.m_sNpvrID, ePlayType.NPVR);
+                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, 0, this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), assetType, nDomainID, this.m_oMediaPlayRequestData.m_sNpvrID, playType);
                         break;
                     }
                 case MediaPlayActions.FULL_SCREEN:
@@ -213,8 +239,8 @@ namespace Catalog.Request
                 case MediaPlayActions.FIRST_PLAY:
                     {
                         nFirstPlay = 1;
-                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), (int)eAssetTypes.NPVR,
-                            nDomainID, this.m_oMediaPlayRequestData.m_sNpvrID, ePlayType.NPVR);
+                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), assetType,
+                            nDomainID, this.m_oMediaPlayRequestData.m_sNpvrID, playType);
                         break;
                     }
                 case MediaPlayActions.BITRATE_CHANGE:
@@ -228,7 +254,7 @@ namespace Catalog.Request
                     {
                         nSwoosh = 1;
                         Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_nMediaID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(),
-                           (int)eAssetTypes.NPVR, nDomainID, this.m_oMediaPlayRequestData.m_sNpvrID, ePlayType.NPVR);
+                           assetType, nDomainID, this.m_oMediaPlayRequestData.m_sNpvrID, playType);
                         break;
                     }
             }
@@ -273,6 +299,7 @@ namespace Catalog.Request
 
 
             oMediaMarkResponse.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.MEDIA_MARK);
+            oMediaMarkResponse.status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
             if (this.m_oFilter != null)
             {
@@ -299,7 +326,7 @@ namespace Catalog.Request
                     {
                         isTerminateRequest = true;
                         oMediaMarkResponse.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.CONCURRENT);
-
+                        oMediaMarkResponse.status = new Status((int)eResponseStatus.ConcurrencyLimitation, "Concurrent play");
                     }
                     else
                     {
@@ -343,6 +370,7 @@ namespace Catalog.Request
                 else
                 {
                     oMediaMarkResponse.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.ACTION_NOT_RECOGNIZED);
+                    oMediaMarkResponse.status = new Status((int)eResponseStatus.BadSearchRequest, "Action not recognized");
                 }
             }
 
