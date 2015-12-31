@@ -2641,6 +2641,7 @@ namespace TvinciImporter
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select RATIO_ID from groups (nolock) where";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", groupId);
+            selectQuery.SetCachedSec(120);
             if (selectQuery.Execute("query", true) != null)
             {
                 Int32 nCount = selectQuery.Table("query").DefaultView.Count;
