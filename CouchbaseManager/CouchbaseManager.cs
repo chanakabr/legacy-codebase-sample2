@@ -98,5 +98,39 @@ namespace CouchbaseManager
 
             return oRes;
         }
+
+        /// <summary>
+        /// Recreates an instance in case of failure
+        /// </summary>
+        /// <param name="eBucket"></param>
+        /// <returns></returns>
+        public static CouchbaseClient RefreshInstance(eCouchbaseBucket eBucket)
+        {
+            if (m_CouchbaseInstances.ContainsKey(eBucket.ToString()))
+            {
+                if (m_oSyncLock.TryEnterWriteLock(1000))
+                {
+                    try
+                    {
+                        if (m_CouchbaseInstances.ContainsKey(eBucket.ToString()))
+                        {
+                            var client = m_CouchbaseInstances[eBucket.ToString()];
+                            client.Dispose();
+
+                            m_CouchbaseInstances.Remove(eBucket.ToString());
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                    }
+                    finally
+                    {
+                        m_oSyncLock.ExitWriteLock();
+                    }
+                }
+            }
+
+            return GetInstance(eBucket);
+        }
     }
 }
