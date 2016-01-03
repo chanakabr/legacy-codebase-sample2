@@ -57,11 +57,6 @@ namespace CachingProvider
             return cache;
         }
 
-        public override bool Add(string sKey, BaseModuleCache oValue, double nMinuteOffset)
-        {
-            return m_Client.Store(Enyim.Caching.Memcached.StoreMode.Add, sKey, oValue.result, DateTime.UtcNow.AddMinutes(nMinuteOffset));
-        }
-
         private void HandleStatusCode(int? statusCode)
         {
             if (statusCode != null)
@@ -83,6 +78,34 @@ namespace CachingProvider
                     break;
                 }
             }
+        }
+
+        public override bool Add(string sKey, BaseModuleCache oValue, double nMinuteOffset)
+        {
+            bool result = false;
+
+            var executeStore = m_Client.ExecuteStore(Enyim.Caching.Memcached.StoreMode.Add, sKey, oValue.result, DateTime.UtcNow.AddMinutes(nMinuteOffset));
+
+            if (executeStore != null)
+            {
+                if (executeStore.Exception != null)
+                {
+                    throw executeStore.Exception;
+                }
+
+                if (executeStore.StatusCode == 0)
+                {
+                    result = executeStore.Success;
+                }
+                else
+                {
+                    HandleStatusCode(executeStore.StatusCode);
+
+                    result = m_Client.Store(Enyim.Caching.Memcached.StoreMode.Add, sKey, oValue.result, DateTime.UtcNow.AddMinutes(nMinuteOffset));
+                }
+            }
+
+            return result;
         }
 
         public override bool Set(string sKey, BaseModuleCache oValue, double nMinuteOffset)
@@ -456,7 +479,7 @@ namespace CachingProvider
             return result;
 
         }
-        
+
         public override bool SetWithVersion<T>(string key, BaseModuleCache oValue)
         {
             bool result = false;
@@ -494,7 +517,7 @@ namespace CachingProvider
             }
             catch (Exception ex)
             {
-                log.Error("AddWithVersion", ex);
+                log.Error("SetWithVersion", ex);
                 result = false;
             }
 

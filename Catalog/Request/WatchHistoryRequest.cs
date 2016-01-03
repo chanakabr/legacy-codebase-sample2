@@ -72,7 +72,7 @@ namespace Catalog.Request
 
                 // get results
                 int totalItems = 0;
-                List<WatchHistory> res = CatalogDAL.GetUserWatchHistory(m_sSiteGuid, AssetTypes, new List<int>() { (int)eAssetTypes.NPVR }, FilterStatus, NumOfDays,
+                List<WatchHistory> res = CatalogDAL.GetUserWatchHistory(m_sSiteGuid, AssetTypes, new List<int>() { (int)eAssetTypes.NPVR, (int)eAssetTypes.EPG }, FilterStatus, NumOfDays,
                     OrderDir, m_nPageIndex, m_nPageSize, finishedPercentThreshold, out totalItems);
 
                 // convert to client response
@@ -93,12 +93,11 @@ namespace Catalog.Request
 
                     switch (item.AssetTypeId)
                     {
-                        case (int)eAssetTypes.EPG:
-                        case (int)eAssetTypes.NPVR:
-                            userWatchHistory.AssetType = (eAssetTypes)item.AssetTypeId;
+                        case (int)eAssetTypes.MEDIA:
+                            userWatchHistory.AssetType = eAssetTypes.MEDIA;
                             break;
                         default:
-                            userWatchHistory.AssetType = eAssetTypes.MEDIA;
+                            userWatchHistory.AssetType = (eAssetTypes)item.AssetTypeId;
                             break;
                     }
                     response.result.Add(userWatchHistory);

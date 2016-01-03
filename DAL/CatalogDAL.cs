@@ -5,6 +5,7 @@ using System.Data;
 using ODBCWrapper;
 using ApiObjects;
 using ApiObjects.MediaMarks;
+using Couchbase;
 using CouchbaseManager;
 using System.Threading;
 using Newtonsoft.Json;
@@ -2624,6 +2625,72 @@ namespace Tvinci.Core.DAL
             }
 
             return res;
+        }
+
+        public static DomainMediaMark GetAssetLastPosition(string assetID, eAssetTypes assetType, List<int> users)
+        {
+            DomainMediaMark dmmResponse = new DomainMediaMark();            
+
+            CouchbaseClient client = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+            //Create users keys according to asset type
+            List<string> userKeys = new List<string>();
+            string userDocKey = string.Empty;
+            switch (assetType)
+            {
+                case eAssetTypes.EPG:
+                    foreach (int userID in users)
+                    {
+                        userDocKey = UtilsDal.getUserEpgMarkDocKey(userID, assetID);
+                        userKeys.Add(userDocKey);
+                    }
+                    break;
+                case eAssetTypes.NPVR:
+                    foreach (int userID in users)
+                    {
+                        userDocKey = UtilsDal.getUserNpvrMarkDocKey(userID, assetID);
+                        userKeys.Add(userDocKey);
+                    }
+                    break;
+                case eAssetTypes.MEDIA:
+                    int mediaID;
+                    if(int.TryParse(assetID, out mediaID))
+                    {
+                        foreach (int userID in users)
+                        {
+                            userDocKey = UtilsDal.getUserMediaMarkDocKey(userID, mediaID);
+                            userKeys.Add(userDocKey);
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            // get all documents from CB
+            IDictionary<string, object> usersData = client.Get(userKeys);
+            List<UserMediaMark> usersMediaMark = new List<UserMediaMark>();
+
+            if (usersData == null)
+                return null;
+
+            if (usersData != null && usersData.Count > 0)
+            {
+                MediaMarkLog mediaMarkLog;
+                foreach (KeyValuePair<string, object> userData in usersData)
+                {
+                    if (userData.Value != null && !string.IsNullOrEmpty(userData.Value as string))
+                    {
+                        mediaMarkLog = JsonConvert.DeserializeObject<MediaMarkLog>(userData.Value.ToString());
+                        if (mediaMarkLog != null && mediaMarkLog.LastMark != null)
+                        {
+                            usersMediaMark.Add(mediaMarkLog.LastMark);
+                        }
+                    }
+                }
+            }
+
+            dmmResponse.devices = usersMediaMark;
+            return dmmResponse;
         }
 
         public static DomainMediaMark GetDomainLastPosition(int media_id, List<int> usersKey, int domain_id)
