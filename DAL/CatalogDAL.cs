@@ -2481,7 +2481,7 @@ namespace Tvinci.Core.DAL
             }
 
             limitRetries = RETRY_LIMIT;
-            string mmKey = UtilsDal.getUserEpgMarkDocKey(nSiteUserGuid, nAssetID);
+            string mmKey = UtilsDal.getUserEpgMarkDocKey(nSiteUserGuid, nAssetID.ToString());
             while (limitRetries >= 0)
             {
                 var data = m_oClient.GetWithCas<string>(mmKey);
