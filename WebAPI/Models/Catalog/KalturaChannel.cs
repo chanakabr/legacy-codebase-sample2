@@ -32,12 +32,26 @@ namespace WebAPI.Models.Catalog
         public List<KalturaMediaImage> Images { get; set; }
 
         /// <summary>
-        /// Media types in the channel 
+        /// Asset types in the channel.
+        /// -26 is EPG
         /// </summary>
-        [DataMember(Name = "media_types")]
-        [JsonProperty(PropertyName = "media_types")]
-        [XmlArray(ElementName = "media_types", IsNullable = true)]
+        [DataMember(Name = "asset_types")]
+        [JsonProperty(PropertyName = "asset_types")]
+        [XmlArray(ElementName = "asset_types", IsNullable = true)]
         [XmlArrayItem("item")]
-        public List<KalturaIntegerValue> MediaTypes { get; set; }
+        public List<KalturaIntegerValue> AssetTypes { get; set; }
+
+        /// <summary>
+        /// Filter expression
+        /// </summary>
+        [DataMember(Name = "filter_expression")]
+        [JsonProperty("filter_expression")]
+        [XmlElement(ElementName = "filter_expression")]
+        public string FilterExpression
+        {
+            get;
+            set;
+        }
+
     }
 }

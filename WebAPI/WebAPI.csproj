@@ -829,7 +829,6 @@
     <Compile Include="Controllers\AssetController.cs" />
     <Compile Include="Controllers\ExportTaskController.cs" />
     <Compile Include="Controllers\ExternalChannelProfileController.cs" />
-    <Compile Include="Controllers\KSQLChannelProfileController.cs" />
     <Compile Include="Controllers\PartnerConfigurationController.cs">
       <SubType>Code</SubType>
     </Compile>
