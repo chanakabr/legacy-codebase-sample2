@@ -689,15 +689,26 @@ namespace ConditionalAccess
                 bool isPPVUsageModuleExists = (thePPVModule != null && thePPVModule.m_oUsageModule != null);
 
                 // get PPV end date
+                DateTime startDate = entitlementDate;
                 DateTime endDate = entitlementDate;
+
+                if (response != null && response.StartDateSeconds > 0)
+                {
+                    // received start date form transaction - calculate end date accordingly
+                    startDate = TVinciShared.DateUtils.UnixTimeStampToDateTime(response.StartDateSeconds);
+                }
+
                 if (isPPVUsageModuleExists)
                 {
-                    endDate = Utils.GetEndDateTime(entitlementDate, thePPVModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle);
+                    endDate = Utils.GetEndDateTime(startDate, thePPVModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle);
 
                     if (response != null)
                     {
-                        response.EndDateSeconds = (long)endDate.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
-                        response.StartDateSeconds = (long)entitlementDate.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                        if (response.EndDateSeconds == 0)
+                            response.EndDateSeconds = (long)endDate.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+
+                        if (response.StartDateSeconds == 0)
+                            response.StartDateSeconds = (long)entitlementDate.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
                     }
                 }
 
@@ -706,7 +717,7 @@ namespace ConditionalAccess
 
                 // grant entitlement
                 purchaseId = ConditionalAccessDAL.Insert_NewPPVPurchase(m_nGroupID, contentId, siteguid, price, currency, maxNumOfViews,
-                                                                        customData, subscriptionCode, billingTransactionId, entitlementDate, endDate,
+                                                                        customData, subscriptionCode, billingTransactionId, startDate, endDate,
                                                                         entitlementDate, country, string.Empty, deviceName, houseHoldId, billingGuid);
                 if (purchaseId < 1)
                 {
@@ -792,7 +803,7 @@ namespace ConditionalAccess
                 }
 
                 ApiDAL.Update_PurchaseIDInBillingTransactions(billingTransactionId, purchaseId);
-                 
+
             }
             catch (Exception ex)
             {
