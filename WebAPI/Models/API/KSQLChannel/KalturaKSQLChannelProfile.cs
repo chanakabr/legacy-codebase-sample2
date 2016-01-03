@@ -100,35 +100,4 @@ namespace WebAPI.Models.API
             set;
         }
     }
-
-    //[DataContract]
-    //public enum OrderBy
-    //{
-    //    [EnumMember]
-    //    ID = 0,
-    //    [EnumMember]
-    //    VIEWS = -7,
-    //    [EnumMember]
-    //    RATING = -8,
-    //    [EnumMember]
-    //    VOTES_COUNT = -80,
-    //    [EnumMember]
-    //    LIKE_COUNTER = -9,
-    //    [EnumMember]
-    //    START_DATE = -10,
-    //    [EnumMember]
-    //    NAME = -11,
-    //    [EnumMember]
-    //    CREATE_DATE = -12,
-    //    [EnumMember]
-    //    META = 100,
-    //    [EnumMember]
-    //    RANDOM = -6,
-    //    [EnumMember]
-    //    RELATED = 31,
-    //    [EnumMember]
-    //    NONE = 101,
-    //    [EnumMember]
-    //    RECOMMENDATION = -13
-    //}
 }

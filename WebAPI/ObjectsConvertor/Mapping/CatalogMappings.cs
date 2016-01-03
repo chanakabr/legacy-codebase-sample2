@@ -110,14 +110,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<channelObj, WebAPI.Models.Catalog.KalturaChannel>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nChannelID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sTitle))
-                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.m_lPic));
+                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.m_lPic))
+                ;
 
 
             //Channel (Catalog) to Channel
             Mapper.CreateMap<WebAPI.Catalog.Channel, WebAPI.Models.Catalog.KalturaChannel>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nChannelID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sName))
-                .ForMember(dest => dest.MediaTypes, opt => opt.MapFrom(src => src.m_nMediaType));
+                .ForMember(dest => dest.AssetTypes, opt => opt.MapFrom(src => src.m_nMediaType))
+                .ForMember(dest => dest.FilterExpression, opt => opt.MapFrom(src => src.filterQuery))
+                ;
 
             //CategoryResponse to Category
             Mapper.CreateMap<CategoryResponse, WebAPI.Models.Catalog.KalturaOTTCategory>()
