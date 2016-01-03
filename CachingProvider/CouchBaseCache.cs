@@ -14,10 +14,12 @@ namespace CachingProvider
     {
          #region C'tor
         CouchbaseClient m_Client;
+        eCouchbaseBucket bucket = eCouchbaseBucket.DEFAULT;
             
         private CouchBaseCache(eCouchbaseBucket eCacheName)
         {
             m_Client = CouchbaseManager.CouchbaseManager.GetInstance(eCacheName);
+            bucket = eCacheName;
 
             if (m_Client == null)
                 throw new Exception("Unable to create out of process cache instance");
@@ -47,68 +49,272 @@ namespace CachingProvider
             return cache;
         }
 
+        private void HandleStatusCode(int? statusCode)
+        {
+            if (statusCode != null)
+            {
+                if (statusCode.Value != 0)
+                {
+                    Logger.Logger.Log("StatusCode", string.Format("Error while executing action on CB. Status code = {0}", statusCode.Value), "CachingProvider");
+                }
+
+                switch (statusCode)
+                {
+                    case 146:
+                    {
+                        m_Client = CouchbaseManager.CouchbaseManager.RefreshInstance(bucket);
+
+                        break;
+                    }
+                    default:
+                    break;
+                }
+            }
+        }
+
         public override bool Add(string sKey, BaseModuleCache oValue, double nMinuteOffset)
         {
-            return m_Client.Store(Enyim.Caching.Memcached.StoreMode.Add, sKey, oValue.result, DateTime.UtcNow.AddMinutes(nMinuteOffset));
+            bool result = false;
+
+            var executeStore = m_Client.ExecuteStore(Enyim.Caching.Memcached.StoreMode.Add, sKey, oValue.result, DateTime.UtcNow.AddMinutes(nMinuteOffset));
+
+            if (executeStore != null)
+            {
+                if (executeStore.Exception != null)
+                {
+                    throw executeStore.Exception;
+                }
+
+                if (executeStore.StatusCode == 0)
+                {
+                    result = executeStore.Success;
+                }
+                else
+                {
+                    HandleStatusCode(executeStore.StatusCode);
+
+                    result = m_Client.Store(Enyim.Caching.Memcached.StoreMode.Add, sKey, oValue.result, DateTime.UtcNow.AddMinutes(nMinuteOffset));
+                }
+            }
+
+            return result;
         }
 
         public override bool Set(string sKey, BaseModuleCache oValue, double nMinuteOffset)
         {
-            return m_Client.Store(Enyim.Caching.Memcached.StoreMode.Set, sKey, oValue.result, DateTime.UtcNow.AddMinutes(nMinuteOffset));
+            bool result = false;
+
+            var executeStore = m_Client.ExecuteStore(Enyim.Caching.Memcached.StoreMode.Set, sKey, oValue.result, DateTime.UtcNow.AddMinutes(nMinuteOffset));
+
+            if (executeStore != null)
+            {
+                if (executeStore.Exception != null)
+                {
+                    throw executeStore.Exception;
+                }
+
+                if (executeStore.StatusCode == 0)
+                {
+                    result = executeStore.Success;
+                }
+                else
+                {
+                    HandleStatusCode(executeStore.StatusCode);
+
+                    result = m_Client.Store(Enyim.Caching.Memcached.StoreMode.Set, sKey, oValue.result, DateTime.UtcNow.AddMinutes(nMinuteOffset));
+                }
+            }
+
+            return result;
         }
 
-        public override bool Add(string sKey, BaseModuleCache oValue)
+        public override bool Add(string key, BaseModuleCache oValue)
         {
-            return m_Client.Store(Enyim.Caching.Memcached.StoreMode.Add, sKey, oValue.result);
+            bool result = false;
+
+            var executeStore = m_Client.ExecuteStore(Enyim.Caching.Memcached.StoreMode.Add, key, oValue.result);
+
+            if (executeStore != null)
+            {
+                if (executeStore.Exception != null)
+                {
+                    throw executeStore.Exception;
+                }
+
+                if (executeStore.StatusCode == 0)
+                {
+                    result = executeStore.Success;
+                }
+                else
+                {
+                    HandleStatusCode(executeStore.StatusCode);
+
+                    result = m_Client.Store(Enyim.Caching.Memcached.StoreMode.Add, key, oValue.result);
+                }
+            }
+
+            return result;
         }
 
         public override bool Set(string sKey, BaseModuleCache oValue)
         {
-            return m_Client.Store(Enyim.Caching.Memcached.StoreMode.Set, sKey, oValue.result);
+            bool result = false;
+
+            var executeStore = m_Client.ExecuteStore(Enyim.Caching.Memcached.StoreMode.Set, sKey, oValue.result);
+
+            if (executeStore != null)
+            {
+                if (executeStore.Exception != null)
+                {
+                    throw executeStore.Exception;
+                }
+
+                if (executeStore.StatusCode == 0)
+                {
+                    result = executeStore.Success;
+                }
+                else
+                {
+                    HandleStatusCode(executeStore.StatusCode);
+
+                    result = m_Client.Store(Enyim.Caching.Memcached.StoreMode.Set, sKey, oValue.result);
+                }
+            }
+
+            return result;
         }
 
-        public override BaseModuleCache Get(string sKey)
+        public override BaseModuleCache Get(string key)
         {
             BaseModuleCache baseModule = new BaseModuleCache();
 
             try
             {
-                baseModule.result = m_Client.Get(sKey);
+                var executeGet = m_Client.ExecuteGet(key);
+                baseModule.result = executeGet.Value;
+
+                if (executeGet != null)
+                {
+                    if (executeGet.Exception != null)
+                    {
+                        throw executeGet.Exception;
+                    }
+
+                    if (executeGet.StatusCode == 0)
+                    {
+                        baseModule.result = executeGet.Value;
+                    }
+                    else
+                    {
+                        int? statusCode = executeGet.StatusCode;
+                        HandleStatusCode(statusCode);
+
+                        baseModule.result = m_Client.Get(key);
+                    }
+                }
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("CouchBaseCache", string.Format("Failed Get with key = {0}, error = {1}, ST = {2}", sKey, ex.Message, ex.StackTrace), "GroupsCache");
+                Logger.Logger.Log("CouchBaseCache", string.Format("Failed Get with key = {0}, error = {1}, ST = {2}", key, ex.Message, ex.StackTrace), "GroupsCache");
             }
 
             return baseModule;
         }
-        
-        public override T Get<T>(string sKey)
+
+        public override T Get<T>(string key)
         {
-            return m_Client.Get<T>(sKey);         
+            T result = default(T);
+
+            var executeGet = m_Client.ExecuteGet<T>(key);
+
+            if (executeGet != null)
+            {
+                if (executeGet.Exception != null)
+                {
+                    throw executeGet.Exception;
+                }
+
+                if (executeGet.StatusCode == 0)
+                {
+                    result = executeGet.Value;
+                }
+                else
+                {
+                    int? statusCode = executeGet.StatusCode;
+                    HandleStatusCode(statusCode);
+
+                    result = m_Client.Get<T>(key);
+                }
+            }
+
+            return result;
         }
-        
-        public override BaseModuleCache Remove(string sKey)
+
+        public override BaseModuleCache Remove(string key)
         {
             BaseModuleCache baseModule = new BaseModuleCache();
-            baseModule.result =  m_Client.Remove(sKey);
+
+            var executeRemove = m_Client.ExecuteRemove(key);
+            baseModule.result = executeRemove.Success;
+
+            if (executeRemove != null)
+            {
+                if (executeRemove.Exception != null)
+                {
+                    throw executeRemove.Exception;
+                }
+
+                if (executeRemove.StatusCode == 0)
+                {
+                    baseModule.result = executeRemove.Success;
+                }
+                else
+                {
+                    int? statusCode = executeRemove.StatusCode;
+                    HandleStatusCode(statusCode);
+
+                    baseModule.result = m_Client.Remove(key);
+                }
+            }
+
             return baseModule;
         }
 
-        public override BaseModuleCache GetWithVersion<T>(string sKey)
+        public override BaseModuleCache GetWithVersion<T>(string key)
         {
             VersionModuleCache baseModule = new VersionModuleCache();
             CasResult<T> oRes = default(CasResult<T>);
 
             try
             {
-                oRes = m_Client.GetWithCas<T>(sKey);
-                
-                if (oRes.StatusCode == 0)
+                var executeGet = m_Client.ExecuteGet<T>(key);
+
+                if (executeGet != null)
                 {
-                    baseModule.result = oRes.Result;
-                    baseModule.version = oRes.Cas.ToString();
-                }                
+                    if (executeGet.Exception != null)
+                    {
+                        throw executeGet.Exception;
+                    }
+
+                    if (executeGet.StatusCode == 0)
+                    {
+                        baseModule.result = executeGet.Value;
+                        baseModule.version = executeGet.Cas.ToString();
+                    }
+                    else
+                    {
+                        int? statusCode = executeGet.StatusCode;
+                        HandleStatusCode(statusCode);
+
+                        oRes = m_Client.GetWithCas<T>(key);
+
+                        if (oRes.StatusCode == 0)
+                        {
+                            baseModule.result = oRes.Result;
+                            baseModule.version = oRes.Cas.ToString();
+                        }
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -120,131 +326,288 @@ namespace CachingProvider
             return baseModule; 
         }
 
-        // Add - insert the value + key to cache only if the key dosen't exsits already
-        //(does nothing (returns false) if there is already a value for that key )
+        /// <summary>
+        /// Add - insert the value + key to cache only if the key doesn't exists already
+        /// (does nothing (returns false) if there is already a value for that key )
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sKey"></param>
+        /// <param name="oValue"></param>
+        /// <param name="nMinuteOffset"></param>
+        /// <returns></returns>
         public override bool AddWithVersion<T>(string sKey, BaseModuleCache oValue, double nMinuteOffset)
         {
-            bool bRes = false;
+            bool result = false;
+
             try
             {
                 VersionModuleCache baseModule = (VersionModuleCache)oValue;
                 ulong cas = 0;
-                bool bCas = ulong.TryParse(baseModule.version, out cas);                
-               
+                bool parse = ulong.TryParse(baseModule.version, out cas);
+
                 DateTime dtExpiresAt = DateTime.UtcNow.AddMinutes(nMinuteOffset);
 
-                CasResult<bool> casRes = m_Client.Cas(Enyim.Caching.Memcached.StoreMode.Add, sKey, baseModule.result, dtExpiresAt, cas);
+                var executeCas = m_Client.ExecuteCas(Enyim.Caching.Memcached.StoreMode.Add, sKey, baseModule.result, dtExpiresAt, cas);
 
-                if (casRes.StatusCode == 0)
+                if (executeCas != null)
                 {
-                    bRes = casRes.Result;
+                    if (executeCas.Exception != null)
+                    {
+                        throw executeCas.Exception;
+                    }
+
+                    if (executeCas.StatusCode == 0)
+                    {
+                        result = executeCas.Success;
+                    }
+                    else
+                    {
+                        HandleStatusCode(executeCas.StatusCode);
+
+                        CasResult<bool> casRes = m_Client.Cas(Enyim.Caching.Memcached.StoreMode.Add, sKey, baseModule.result, dtExpiresAt, cas);
+
+                        if (casRes.StatusCode == 0)
+                        {
+                            result = casRes.Result;
+                        }
+                    }
                 }
-                return bRes;
             }
             catch (Exception ex)
             {
                 Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true);
                 log.Message = string.Format("AddWithVersion: ex={0} in {1}", ex.Message, ex.StackTrace);
                 log.Error(log.Message, false);
-                return false;
+                result = false;
             }
+
+            return result;
         }
-        public override bool AddWithVersion<T>(string sKey, BaseModuleCache oValue)
+
+
+        public override bool AddWithVersion<T>(string key, BaseModuleCache oValue)
         {
-            bool bRes = false;
+            bool result = false;
             try
             {
                 VersionModuleCache baseModule = (VersionModuleCache)oValue;
                 ulong cas = 0;
                 bool bCas = ulong.TryParse(baseModule.version, out cas);
-               
-                CasResult<bool> casRes = m_Client.Cas(Enyim.Caching.Memcached.StoreMode.Add, sKey, baseModule.result, cas);
 
-                if (casRes.StatusCode == 0)
+                var executeCas = m_Client.ExecuteCas(Enyim.Caching.Memcached.StoreMode.Add, key, baseModule.result, cas);
+
+                if (executeCas != null)
                 {
-                    bRes = casRes.Result;
+                    if (executeCas.Exception != null)
+                    {
+                        throw executeCas.Exception;
+                    }
+
+                    if (executeCas.StatusCode == 0)
+                    {
+                        result = executeCas.Success;
+                    }
+                    else
+                    {
+                        HandleStatusCode(executeCas.StatusCode);
+
+                        CasResult<bool> casRes = m_Client.Cas(Enyim.Caching.Memcached.StoreMode.Add, key, baseModule.result, cas);
+
+                        if (casRes.StatusCode == 0)
+                        {
+                            result = casRes.Result;
+                        }
+                    }
                 }
-                return bRes;
             }
             catch (Exception ex)
             {
                 Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true);
                 log.Message = string.Format("AddWithVersion: ex={0} in {1}", ex.Message, ex.StackTrace);
                 log.Error(log.Message, false);
-                return false;
+                result = false;
             }
+
+            return result;
         }
 
-        public override bool SetWithVersion<T>(string sKey, BaseModuleCache oValue, double nMinuteOffset)
+
+        public override bool SetWithVersion<T>(string key, BaseModuleCache oValue, double nMinuteOffset)
         {
-            bool bRes = false;
+            bool result = false;
+
             try
             {
                 VersionModuleCache baseModule = (VersionModuleCache)oValue;
                 ulong cas = 0;
-                bool bCas = ulong.TryParse(baseModule.version, out cas);
-                
+                bool parse = ulong.TryParse(baseModule.version, out cas);
+
                 DateTime dtExpiresAt = DateTime.UtcNow.AddMinutes(nMinuteOffset);
 
-                CasResult<bool> casRes = m_Client.Cas(Enyim.Caching.Memcached.StoreMode.Set, sKey, baseModule.result, dtExpiresAt, cas);
+                var executeCas = m_Client.ExecuteCas(Enyim.Caching.Memcached.StoreMode.Set, key, baseModule.result, dtExpiresAt, cas);
 
-                if (casRes.StatusCode == 0)
+                if (executeCas != null)
                 {
-                    bRes = casRes.Result;
+                    if (executeCas.Exception != null)
+                    {
+                        throw executeCas.Exception;
+                    }
+
+                    if (executeCas.StatusCode == 0)
+                    {
+                        result = executeCas.Success;
+                    }
+                    else
+                    {
+                        HandleStatusCode(executeCas.StatusCode);
+
+                        CasResult<bool> casRes = m_Client.Cas(Enyim.Caching.Memcached.StoreMode.Set, key, baseModule.result, dtExpiresAt, cas);
+
+                        if (casRes.StatusCode == 0)
+                        {
+                            result = casRes.Result;
+                        }
+                    }
                 }
-                return bRes;
             }
             catch (Exception ex)
             {
                 Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true);
                 log.Message = string.Format("AddWithVersion: ex={0} in {1}", ex.Message, ex.StackTrace);
                 log.Error(log.Message, false);
-                return false;
+                result = false;
             }
+
+            return result;
         }
-        public override bool SetWithVersion<T>(string sKey, BaseModuleCache oValue)
+
+        public override bool SetWithVersion<T>(string key, BaseModuleCache oValue)
         {
-            bool bRes = false;
+            bool result = false;
             try
             {
                 VersionModuleCache baseModule = (VersionModuleCache)oValue;
                 ulong cas = 0;
                 bool bCas = ulong.TryParse(baseModule.version, out cas);
-              
-                CasResult<bool> casRes = m_Client.Cas(Enyim.Caching.Memcached.StoreMode.Set, sKey, baseModule.result, cas);
 
-                if (casRes.StatusCode == 0)
+                var executeCas = m_Client.ExecuteCas(Enyim.Caching.Memcached.StoreMode.Set, key, baseModule.result, cas);
+
+                if (executeCas != null)
                 {
-                    bRes = casRes.Result;
+                    if (executeCas.Exception != null)
+                    {
+                        throw executeCas.Exception;
+                    }
+
+                    if (executeCas.StatusCode == 0)
+                    {
+                        result = executeCas.Success;
+                    }
+                    else
+                    {
+                        HandleStatusCode(executeCas.StatusCode);
+
+                        CasResult<bool> casRes = m_Client.Cas(Enyim.Caching.Memcached.StoreMode.Set, key, baseModule.result, cas);
+
+                        if (casRes.StatusCode == 0)
+                        {
+                            result = casRes.Result;
+                        }
+                    }
                 }
-                return bRes;
             }
             catch (Exception ex)
             {
                 Logger.BaseLog log = new Logger.BaseLog(eLogType.CodeLog, DateTime.UtcNow, true);
                 log.Message = string.Format("AddWithVersion: ex={0} in {1}", ex.Message, ex.StackTrace);
                 log.Error(log.Message, false);
-                return false;
+                result = false;
             }
+
+            return result;
         }
 
         public override IDictionary<string, object> GetValues(List<string> keys)
         {
+            IDictionary<string, object> result = null;
             try
             {
-                IDictionary<string, object> dRes = m_Client.Get(keys);
-                return dRes;
+                result = m_Client.Get(keys);
+
+                var executeGet = m_Client.ExecuteGet(keys);
+
+                if (executeGet != null)
+                {
+                    int? statusCode = 0;
+                    foreach (var item in executeGet)
+                    {
+                        if (item.Value.Exception != null)
+                        {
+                            throw item.Value.Exception;
+                        }
+
+                        if (item.Value.StatusCode != 0)
+                        {
+                            statusCode = item.Value.StatusCode;
+                            break;
+                        }
+                    }
+
+                    if (statusCode == 0)
+                    {
+                        // if successfull - build dictionary based on execution result
+                        result = new Dictionary<string, object>();
+
+                        foreach (var item in executeGet)
+                        {
+                            result.Add(item.Key, item.Value.Value);
+                        }
+                    }
+                    else
+                    {
+                        // Otherwise, recreate connection and try again
+                        HandleStatusCode(statusCode);
+
+                        result = m_Client.Get(keys);
+                    }
+                }
             }
             catch (Exception ex)
             {
-                return null;
+                Logger.Logger.Log("Couchbase", "Error while getting keys from CB: " + ex.ToString(), "CachingProvider");
             }
+
+            return result;
         }
 
         public override bool SetJson<T>(string sKey, T obj, double dCacheTT)
         {
+            bool result = false;
+
             var json = ObjectToJson<T>(obj);
-            return m_Client.Store(Enyim.Caching.Memcached.StoreMode.Set, sKey, json, DateTime.UtcNow.AddMinutes(dCacheTT));
+
+            var executeStore = m_Client.ExecuteStore(Enyim.Caching.Memcached.StoreMode.Set, sKey, json, DateTime.UtcNow.AddMinutes(dCacheTT));
+
+            if (executeStore != null)
+            {
+                if (executeStore.Exception != null)
+                {
+                    throw executeStore.Exception;
+                }
+
+                if (executeStore.StatusCode == 0)
+                {
+                    result = executeStore.Success;
+                }
+                else
+                {
+                    HandleStatusCode(executeStore.StatusCode);
+
+                    result = m_Client.Store(Enyim.Caching.Memcached.StoreMode.Set, sKey, json, DateTime.UtcNow.AddMinutes(dCacheTT));
+                }
+            }
+
+            return result;
         }
 
         public override bool GetJsonAsT<T>(string sKey, out T res)
@@ -258,6 +621,7 @@ namespace CachingProvider
             res = default(T);
             return false;
         }
+
 
         private static string ObjectToJson<T>(T obj)
         {
