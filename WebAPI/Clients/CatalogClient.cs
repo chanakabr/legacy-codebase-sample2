@@ -804,9 +804,9 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaLastPositionListResponse GetDomainLastPosition(int groupId, string siteGuid, int domainId, string udid, int? mediaId, string npvrId = null)
+        public KalturaAssetsPositionsResponse GetDomainLastPosition(int groupId, string siteGuid, int domainId, string udid, int? mediaId, string npvrId = null)
         {
-            List<KalturaLastPosition> result = null;
+            List<KalturaAssetPositions> result = null;
             DomainLastPositionRequest request = new DomainLastPositionRequest()
             {
                 m_sSignature = Signature,
@@ -839,9 +839,46 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            result = Mapper.Map<List<KalturaLastPosition>>(response.m_lPositions);
+            result = Mapper.Map<List<KalturaAssetPositions>>(response.m_lPositions);
 
-            return new KalturaLastPositionListResponse() { LastPositions = result, TotalCount = result.Count };
+            return new KalturaAssetsPositionsResponse() { AssetsPositions = result, TotalCount = result.Count };
+        }
+
+        public KalturaAssetsPositionsResponse GetAssetsPositions(string siteGuid, int groupId, int domainId, string udid, eUserType userType, List<AssetPositionRequestInfo> assets)
+        {
+            List<KalturaAssetPositions> result = null;
+            AssetsPositionRequest request = new AssetsPositionRequest()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_sSiteGuid = siteGuid,
+                m_nGroupID = groupId,
+                m_sUserIP = Utils.Utils.GetClientIP(),
+                domainId = domainId,
+                m_oFilter = new Filter()
+                {
+                    m_sDeviceId = udid
+                },
+                Data = new AssetsPositionRequestData()
+                {
+                    Assets = assets
+                }
+            };
+
+            AssetsPositionResponse response = null;
+            if (!CatalogUtils.GetBaseResponse(CatalogClientModule, request, out response) || response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            result = Mapper.Map<List<KalturaAssetPositions>>(response.AssetsPositions);
+
+            return new KalturaAssetsPositionsResponse() { AssetsPositions = result, TotalCount = result.Count };
+
         }
 
         public KalturaAssetInfoListResponse GetExternalChannelAssets(int groupId, string channelId, 

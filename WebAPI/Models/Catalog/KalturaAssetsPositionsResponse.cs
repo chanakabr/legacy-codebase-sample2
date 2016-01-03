@@ -14,20 +14,20 @@ namespace WebAPI.Models.Catalog
     /// </summary>
     [DataContract(Name = "LastPosition", Namespace = "")]
     [XmlRoot("LastPosition")]
-    public class KalturaLastPositionListResponse : KalturaListResponse
+    public class KalturaAssetsPositionsResponse : KalturaListResponse
     {
         [DataMember(Name = "objects")]
         [JsonProperty("objects")]
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
-        public List<KalturaLastPosition> LastPositions { get; set; }
+        public List<KalturaAssetPositions> AssetsPositions { get; set; }
     }
 
     /// <summary>
     /// Representing the last position in a media or nPVR asset until which a user watched   
     /// </summary>
     [Serializable]
-    public class KalturaLastPosition : KalturaOTTObject
+    public class KalturaAssetPositions : KalturaOTTObject
     {
         /// <summary>
         ///User identifier

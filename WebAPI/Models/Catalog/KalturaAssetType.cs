@@ -5,9 +5,10 @@ using System.Text;
 
 namespace WebAPI.Models.Catalog
 {
-    public enum KalturaLastPositionAssetType
+    public enum KalturaAssetType
     {
         media,
-        recording
+        recording,
+        epg
     }
 }

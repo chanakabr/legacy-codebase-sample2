@@ -10,28 +10,22 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
+
     /// <summary>
-    /// Filtering last position requests
+    /// Filtering Assets requests
     /// </summary>
     [Serializable]
-    public class KalturaLastPositionFilter : KalturaOTTObject
+    public class KalturaSlimAssetsFilter : KalturaOTTObject
     {
+
         /// <summary>
         /// Assets identifier
         /// </summary>
-        [DataMember(Name = "ids")]
-        [JsonProperty(PropertyName = "ids")]
+        [DataMember(Name = "Assets")]
+        [JsonProperty(PropertyName = "Assets")]
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
-        public List<KalturaStringValue> Ids { get; set; }
-
-        /// <summary>
-        /// Assets type
-        /// </summary>
-        [DataMember(Name = "type")]
-        [JsonProperty(PropertyName = "type")]
-        [XmlElement(ElementName = "type")]
-        public KalturaLastPositionAssetType Type { get; set; }
+        public List<KalturaSlimAsset> Assets { get; set; }
 
         /// <summary>
         /// Reference type to filter by
