@@ -680,10 +680,15 @@ namespace DAL
         }
 
 
-        internal static string getUserNpvrMarkDocKey(int nSiteUserGuid, string sNpvrID)
+        public static string getUserNpvrMarkDocKey(int nSiteUserGuid, string sNpvrID)
         {
             return string.Format("u{0}_n{1}", nSiteUserGuid, sNpvrID);
 
+        }
+
+        public static string getUserEpgMarkDocKey(int userID, string epgID)
+        {
+            return string.Format("u{0}_epg{1}", userID, epgID);
         }
     }
 }

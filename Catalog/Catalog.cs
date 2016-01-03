@@ -4330,6 +4330,63 @@ namespace Catalog
             return CatalogDAL.GetLastPosition(NpvrID, userID);
         }
 
+        /*This method return all last position (desc order by create date) by domain and \ or user_id 
+         * if userType is household and user is default - return all last positions of all users in domain by assetID (BY MEDIA ID)         
+         else return last position of user_id (incase userType is not household or last position of user_id and default_user (incase userType is household) */
+        internal static AssetPositionsInfo GetAssetLastPosition(string assetID, eAssetTypes assetType, int userID, bool isDefaultUser, List<int> users, List<int> defaultUsers)
+        {
+            AssetPositionsInfo response = null;
+
+            // Build list of users that we want to get their last position
+            List<int> usersToGetLastPosition = new List<int>();
+            usersToGetLastPosition.AddRange(defaultUsers);
+            if (isDefaultUser)
+            {
+                usersToGetLastPosition.AddRange(users);
+            }
+            else
+            {
+                usersToGetLastPosition.Add(userID);
+            }
+
+            // get last positions from catalog DAL
+            DomainMediaMark domainMediaMark = CatalogDAL.GetAssetLastPosition(assetID, assetType, usersToGetLastPosition);
+            if (domainMediaMark == null || domainMediaMark.devices == null)
+            {
+                return response;
+            }
+
+            List<LastPosition> lastPositions = new List<LastPosition>();            
+
+            if (domainMediaMark.devices != null)
+            {
+                foreach (UserMediaMark userMediaMark in domainMediaMark.devices)
+                {
+                    eUserType userType;
+                    if (defaultUsers.Contains(userMediaMark.UserID))
+                    {
+                        userType = eUserType.HOUSEHOLD;
+                    }
+                    else
+                    {
+                        userType = eUserType.PERSONAL;                        
+                    }
+
+                    if (!lastPositions.Where(x => x.m_nUserID == userMediaMark.UserID).Any())
+                    {
+                        lastPositions.Add(new LastPosition(userMediaMark.UserID, userType, userMediaMark.Location));                        
+                    }                    
+                }
+            }
+
+            if (lastPositions.Count > 0)
+            {
+                response = new AssetPositionsInfo(assetType, assetID, lastPositions);                
+            }
+
+            return response;
+        }
+
         /*This method return all last position (desc order by create date) by domain and user_id 
          if userid is default - return all last positions of all users in domain by mediaid
          else return last position of default user + user_id */
@@ -4627,6 +4684,51 @@ namespace Catalog
             return res;
         }
 
+        internal static WS_Domains.DomainResponse GetDomain(int domainID, int groupID)
+        {
+            WS_Domains.DomainResponse domainResponse = null;
+            if (domainID <= 0 || groupID <= 0)
+            {
+                return domainResponse;
+            }
+
+            try
+            {
+                string sWSUsername = string.Empty;
+                string sWSPassword = string.Empty;
+                string sWSUrl = string.Empty;                
+
+                //get username + password from wsCache
+                Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, groupID, ApiObjects.eWSModules.DOMAINS);
+                if (oCredentials != null)
+                {
+                    sWSUsername = oCredentials.m_sUsername;
+                    sWSPassword = oCredentials.m_sPassword;
+                }
+                sWSUrl = Utils.GetWSURL("ws_domains");
+                if (string.IsNullOrEmpty(sWSUsername) || string.IsNullOrEmpty(sWSPassword) || string.IsNullOrEmpty(sWSUrl))
+                {
+                    throw new Exception(string.Format("No WS_Domains login parameters were extracted from DB. domainID={0}, groupID={1}", domainID, groupID));
+                }
+
+                // get domain info - to have the users list in domain + default users in domain
+                using (WS_Domains.module domains = new WS_Domains.module())
+                {
+                    domains.Url = sWSUrl;
+                    var domainRes = domains.GetDomainInfo(sWSUsername, sWSPassword, domainID);
+                    if (domainRes != null)
+                    {
+                        domainResponse = domainRes;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("GetDomain - " + string.Format("Failed ex={0}, domainID={1}, groupdID={2}", ex.Message, domainID, groupID), ex);                
+            }
+
+            return domainResponse;
+        }
 
         internal static void BuildEpgUrlPicture(ref List<EPGChannelProgrammeObject> retList, int groupID)
         {
@@ -4926,7 +5028,7 @@ namespace Catalog
                 int mediaTypeID = Catalog.GetMediaTypeID(request.m_nMediaID);
                 if (mediaTypeID == 0)
                 {
-                    status.Message = "Media doesn’t exist";
+                    status.Message = "Media doesn't exist";
                     status.Code = (int)eResponseStatus.BadSearchRequest;
                     return status;
                 }
