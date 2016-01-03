@@ -57,6 +57,29 @@ namespace CachingProvider
             return cache;
         }
 
+        private void HandleStatusCode(int? statusCode)
+        {
+            if (statusCode != null)
+            {
+                if (statusCode.Value != 0)
+                {
+                    log.ErrorFormat("Error while executing action on CB. Status code = {0}", statusCode.Value);
+                }
+
+                switch (statusCode)
+                {
+                    case 146:
+                    {
+                        m_Client = CouchbaseManager.CouchbaseManager.RefreshInstance(bucket);
+
+                        break;
+                    }
+                    default:
+                    break;
+                }
+            }
+        }
+
         public override bool Add(string sKey, BaseModuleCache oValue, double nMinuteOffset)
         {
             bool result = false;
@@ -83,29 +106,6 @@ namespace CachingProvider
             }
 
             return result;
-        }
-
-        private void HandleStatusCode(int? statusCode)
-        {
-            if (statusCode != null)
-            {
-                if (statusCode.Value != 0)
-                {
-                    log.ErrorFormat("Error while executing action on CB. Status code = {0}", statusCode.Value);
-                }
-
-                switch (statusCode)
-                {
-                    case 146:
-                    {
-                        m_Client = CouchbaseManager.CouchbaseManager.RefreshInstance(bucket);
-
-                        break;
-                    }
-                    default:
-                    break;
-                }
-            }
         }
 
         public override bool Set(string sKey, BaseModuleCache oValue, double nMinuteOffset)
