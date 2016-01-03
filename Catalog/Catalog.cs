@@ -4684,12 +4684,12 @@ namespace Catalog
             return res;
         }
 
-        internal static WS_Domains.Domain GetDomain(int domainID, int groupID)
+        internal static WS_Domains.DomainResponse GetDomain(int domainID, int groupID)
         {
-            WS_Domains.Domain domain = null;
+            WS_Domains.DomainResponse domainResponse = null;
             if (domainID <= 0 || groupID <= 0)
             {
-                return domain;
+                return domainResponse;
             }
 
             try
@@ -4705,8 +4705,8 @@ namespace Catalog
                     sWSUsername = oCredentials.m_sUsername;
                     sWSPassword = oCredentials.m_sPassword;
                 }
-
-                if (sWSUsername.Length == 0 || sWSPassword.Length == 0)
+                sWSUrl = Utils.GetWSURL("ws_domains");
+                if (string.IsNullOrEmpty(sWSUsername) || string.IsNullOrEmpty(sWSPassword) || string.IsNullOrEmpty(sWSUrl))
                 {
                     throw new Exception(string.Format("No WS_Domains login parameters were extracted from DB. domainID={0}, groupID={1}", domainID, groupID));
                 }
@@ -4714,22 +4714,20 @@ namespace Catalog
                 // get domain info - to have the users list in domain + default users in domain
                 using (WS_Domains.module domains = new WS_Domains.module())
                 {
-                    sWSUrl = Utils.GetWSURL("ws_domains");
-                    if (sWSUrl.Length > 0)
-                        domains.Url = sWSUrl;
+                    domains.Url = sWSUrl;
                     var domainRes = domains.GetDomainInfo(sWSUsername, sWSPassword, domainID);
                     if (domainRes != null)
                     {
-                        domain = domainRes.Domain;
+                        domainResponse = domainRes;
                     }
                 }
             }
             catch (Exception ex)
             {
-                log.Error("ProccessAssetLastPositionRequest - " + string.Format("Failed ex={0}, domainID={1}, groupdID={2}", ex.Message, domainID, groupID), ex);                
+                log.Error("GetDomain - " + string.Format("Failed ex={0}, domainID={1}, groupdID={2}", ex.Message, domainID, groupID), ex);                
             }
 
-            return domain;
+            return domainResponse;
         }
 
         internal static void BuildEpgUrlPicture(ref List<EPGChannelProgrammeObject> retList, int groupID)

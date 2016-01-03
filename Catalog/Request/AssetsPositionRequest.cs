@@ -55,16 +55,16 @@ namespace Catalog.Request
                         bool isDefaultUser = false;                        
                         int userDomainID = 0;
                         int userID;
-                        WS_Domains.Domain domain = null;
+                        WS_Domains.DomainResponse domainResponse = null;
                         if (Catalog.IsUserValid(request.m_sSiteGuid, request.m_nGroupID, ref userDomainID) && int.TryParse(request.m_sSiteGuid, out userID))
                         {
                             if(userDomainID == request.domainId)
                             {
-                                domain = Catalog.GetDomain(request.domainId, request.m_nGroupID);
-                                if(domain != null)
+                                domainResponse = Catalog.GetDomain(request.domainId, request.m_nGroupID);
+                                if (domainResponse != null && domainResponse.Status != null &&  domainResponse.Status.Code == (int)eResponseStatus.OK)
                                 { 
                                     // Get users list, default users list and check if user is in default users list
-                                    GetUsersInfo(userID, domain, UserType, ref users, ref defaultUsers, ref isDefaultUser);
+                                    GetUsersInfo(userID, domainResponse.Domain, UserType, ref users, ref defaultUsers, ref isDefaultUser);
 
                                     foreach (AssetPositionRequestInfo asset in request.Data.Assets)
                                     {
