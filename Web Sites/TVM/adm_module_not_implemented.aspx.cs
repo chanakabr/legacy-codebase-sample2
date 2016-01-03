@@ -41,6 +41,6 @@ public partial class adm_module_not_implemented : System.Web.UI.Page
 
     public void GetHeader()
     {
-        Response.Write(PageUtils.GetPreHeader() + ": Module is not implemented by Tvinci");
+        Response.Write(PageUtils.GetPreHeader() + ": Module is not implemented by Kaltura");
     }
 }

@@ -91,7 +91,7 @@
 								<!-- content -->
 								<tr>
 									<td id="page_content">
-									    Module is not implemented by Tvinci
+									    Module is not implemented by Kaltura
 									</td>
 								</tr>
 							</table>
