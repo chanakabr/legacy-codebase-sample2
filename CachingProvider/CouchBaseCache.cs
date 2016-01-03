@@ -479,7 +479,7 @@ namespace CachingProvider
             return result;
 
         }
-        
+
         public override bool SetWithVersion<T>(string key, BaseModuleCache oValue)
         {
             bool result = false;
@@ -517,7 +517,7 @@ namespace CachingProvider
             }
             catch (Exception ex)
             {
-                log.Error("AddWithVersion", ex);
+                log.Error("SetWithVersion", ex);
                 result = false;
             }
 
