@@ -1799,7 +1799,7 @@ namespace TvinciImporter
                 }
                 else
                 {
-                    return DownloadEPGPicToImageServer(sThumb, sName, nGroupID, nEPGSchedID, nChannelID, ratioID);
+                    return DownloadEPGPicToImageServer(sThumb, sName, nGroupID, nChannelID, ratioID);
                 }
 
             }
@@ -1932,11 +1932,22 @@ namespace TvinciImporter
             return picId;
         }
 
-        private static int DownloadEPGPicToImageServer(string thumb, string name, int groupID, int epgSchedID, int channelID, int ratioID)
+        public static int DownloadEPGPicToImageServer(string thumb, string name, int groupID, int channelID, int ratioID, bool isAsync = true)
         {
             int version = 0;
             string picName = string.Empty;
             int picId = 0;
+
+            //check if thumb Url exist
+            string checkImageUrl = WS_Utils.GetTcmConfigValue("CheckImageUrl");            
+            if (!string.IsNullOrEmpty(checkImageUrl) && checkImageUrl.ToLower().Equals("true"))
+            {
+                if (!ImageUtils.IsUrlExists(thumb))
+                {
+                    log.ErrorFormat("DownloadPicToImageServer thumb Uri not valid: {0} ", thumb);
+                    return picId;
+                }
+            }
 
             // in case ratio Id = 0 get default group's ratio
             if (ratioID <= 0)
@@ -1954,7 +1965,31 @@ namespace TvinciImporter
 
                 if (picId > 0)
                 {
-                    SendImageDataToImageUploadQueue(thumb, groupID, version, picId, sPicNewName, eMediaType.EPG);
+
+                    if (isAsync)
+                    {
+                        SendImageDataToImageUploadQueue(thumb, groupID, version, picId, sPicNewName, eMediaType.EPG);
+                    }
+                    else
+                    {
+                        int parentGroupId = DAL.UtilsDal.GetParentGroupID(groupID);
+                        ImageServerUploadRequest imageServerReq = new ImageServerUploadRequest() { GroupId = parentGroupId, Id = sPicNewName, SourcePath = thumb, Version = version };
+
+                        // post image
+                        string result = Utils.HttpPost(ImageUtils.GetImageServerUrl(groupID, eHttpRequestType.Post), JsonConvert.SerializeObject(imageServerReq), "application/json");
+
+                        // check result
+                        if (string.IsNullOrEmpty(result) || result.ToLower() != "true")
+                        {
+                            ImageUtils.UpdateImageState(groupID, picId, version, eMediaType.EPG, eTableStatus.Failed);
+                            picId = 0;
+                        }
+                        else if (result.ToLower() == "true")
+                        {
+                            ImageUtils.UpdateImageState(groupID, picId, version, eMediaType.EPG, eTableStatus.OK);
+                            log.DebugFormat("post image success. picId {0} ", picId);
+                        }
+                    }
                 }
                 else
                 {
@@ -2350,7 +2385,7 @@ namespace TvinciImporter
                 }
                 else
                 {
-                    return DownloadPicToImageServer(sPic, sMediaName, nGroupID, nMediaID, sMainLang, sPicType, bSetMediaThumb, ratioID);
+                    return DownloadPicToImageServer(sPic, sMediaName, nGroupID, nMediaID, sMainLang, bSetMediaThumb, ratioID);
                 }
             }
             else
@@ -2539,12 +2574,23 @@ namespace TvinciImporter
             return nPicID;
         }
 
-        static public int DownloadPicToImageServer(string pic, string mediaName, int groupId, int mediaId, string mainLang, string picType, bool setMediaThumb, int ratioId)
+        static public int DownloadPicToImageServer(string pic, string mediaName, int groupId, int mediaId, string mainLang, bool setMediaThumb, int ratioId, bool isAsync = true)
         {
             int version = 0;
             string baseUrl = string.Empty;
             int picId = 0;
             int picRatioId = 0;
+
+            //check if pic Url exist
+            string checkImageUrl = WS_Utils.GetTcmConfigValue("CheckImageUrl");
+            if (!string.IsNullOrEmpty(checkImageUrl) && checkImageUrl.ToLower().Equals("true"))
+            {
+                if (!ImageUtils.IsUrlExists(pic))
+                {
+                    log.ErrorFormat("DownloadPicToImageServer pic url not valid: {0} ", pic);
+                    return picId;
+                }
+            }
 
             // in case ratio Id = 0 get default group's ratio
             if (ratioId <= 0)
@@ -2567,10 +2613,8 @@ namespace TvinciImporter
                 {
                     picId = CatalogDAL.InsertPic(groupId, mediaName, pic, baseUrl, ratioId, mediaId);
                 }
-
             }
-            // pic does not exist -- > create new pic
-            else
+            else // pic does not exist -- > create new pic
             {
                 baseUrl = TVinciShared.ImageUtils.GetDateImageName();
                 picId = CatalogDAL.InsertPic(groupId, mediaName, pic, baseUrl, ratioId, mediaId);
@@ -2578,22 +2622,49 @@ namespace TvinciImporter
 
             if (picId != 0)
             {
-                SendImageDataToImageUploadQueue(pic, groupId, version, picId, baseUrl + "_" + ratioId, eMediaType.VOD);
-
-                #region handle pic tags and update the media files
-                IngestionUtils.M2MHandling("ID", "", "", "", "ID", "tags", "pics_tags", "pic_id", "tag_id", "true", mainLang, mediaName, groupId, picId, false);
-                if (setMediaThumb == true)
+                if (isAsync)
                 {
-                    ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_PIC_ID", "=", picId);
-                    updateQuery += " where ";
-                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", mediaId);
-                    updateQuery.Execute();
-                    updateQuery.Finish();
-                    updateQuery = null;
+                    SendImageDataToImageUploadQueue(pic, groupId, version, picId, baseUrl + "_" + ratioId, eMediaType.VOD);
                 }
-                #endregion
+                else
+                {
+                    int parentGroupId = DAL.UtilsDal.GetParentGroupID(groupId);
+                    ImageServerUploadRequest imageServerReq = new ImageServerUploadRequest() { GroupId = parentGroupId, Id = baseUrl + "_" + ratioId, SourcePath = pic, Version = version };
+
+                    // post image
+                    string result = Utils.HttpPost(ImageUtils.GetImageServerUrl(groupId, eHttpRequestType.Post), JsonConvert.SerializeObject(imageServerReq), "application/json");
+
+                    // check result
+                    if (string.IsNullOrEmpty(result) || result.ToLower() != "true")
+                    {
+                        ImageUtils.UpdateImageState(groupId, picId, version, eMediaType.VOD, eTableStatus.Failed);
+                        picId = 0;
+                    }
+                    else if (result.ToLower() == "true")
+                    {
+                        ImageUtils.UpdateImageState(groupId, picId, version, eMediaType.VOD, eTableStatus.OK);
+                        log.DebugFormat("post image success. picId {0} ", picId);
+                    }
+                }
+                
+                if (picId > 0)
+                {
+                    #region handle pic tags and update the media files
+                    IngestionUtils.M2MHandling("ID", "", "", "", "ID", "tags", "pics_tags", "pic_id", "tag_id", "true", mainLang, mediaName, groupId, picId, false);
+                    if (setMediaThumb == true)
+                    {
+                        ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_PIC_ID", "=", picId);
+                        updateQuery += " where ";
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", mediaId);
+                        updateQuery.Execute();
+                        updateQuery.Finish();
+                        updateQuery = null;
+                    }
+                    #endregion
+                }
             }
+
             return picId;
         }
 
@@ -4207,7 +4278,7 @@ namespace TvinciImporter
                 insertQuery.Finish();
                 insertQuery = null;
                 nMediaID = GetMediaIDByCoGuid(nGroupID, sCoGuid);
-                
+
 
             }
             else

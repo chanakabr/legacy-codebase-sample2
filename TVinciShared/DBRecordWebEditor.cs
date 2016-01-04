@@ -2354,7 +2354,7 @@ namespace TVinciShared
         private string m_epgIdentifier;
         private int m_channelID;
         private int picId;
-        private bool IsNewPicSelector;
+        private bool isDownloadPicWithImageServer;
         private string ImageUrl;
 
         public DataRecordOnePicBrowserField()
@@ -2378,10 +2378,28 @@ namespace TVinciShared
             m_channelID = channelID;
         }
 
+        public DataRecordOnePicBrowserField(string lastPage, string epgIdentifier, int channelID, bool isDownloadPicWithImageServer, string imageUrl, int picId)
+            : base()
+        {
+            m_lastPage = lastPage;
+            m_epgIdentifier = epgIdentifier;
+            m_channelID = channelID;
+            this.isDownloadPicWithImageServer = isDownloadPicWithImageServer;
+            this.ImageUrl = imageUrl;
+            this.picId = picId;
+        }
+
         public DataRecordOnePicBrowserField(string lastPage, bool isNewPicSelector, string imageUrl, int picId)
         {
             this.m_lastPage = lastPage;
-            this.IsNewPicSelector = isNewPicSelector;
+            this.isDownloadPicWithImageServer = isNewPicSelector;
+            this.ImageUrl = imageUrl;
+            this.picId = picId;
+        }
+
+        public DataRecordOnePicBrowserField(bool isDownloadPicWithImageServer, string imageUrl, int picId)
+        {
+            this.isDownloadPicWithImageServer = isDownloadPicWithImageServer;
             this.ImageUrl = imageUrl;
             this.picId = picId;
         }
@@ -2399,7 +2417,7 @@ namespace TVinciShared
 
             string sBasePicsURL = "";
 
-            if (IsNewPicSelector)
+            if (isDownloadPicWithImageServer && !string.IsNullOrEmpty(ImageUrl))
             {
                 sBasePicsURL = ImageUrl;
             }
@@ -2492,7 +2510,7 @@ namespace TVinciShared
                 sTmp += "value='" + m_sStartValue.ToString() + "' ";
 
             string onClickMethod = "OpenPicBrowser";
-            if (IsNewPicSelector)
+            if (isDownloadPicWithImageServer)
             {
                 onClickMethod = "OpenPicUploaderBrowser";
             }
@@ -2511,15 +2529,24 @@ namespace TVinciShared
         public string GetFieldHtmlCB(long nID)
         {
             Int32 nGroupID = LoginManager.GetLoginGroupID();
-            object oBasePicsURL = PageUtils.GetTableSingleVal("groups", "PICS_REMOTE_BASE_URL", nGroupID);
+
             string sBasePicsURL = "";
-            if (oBasePicsURL != DBNull.Value && oBasePicsURL != null)
-                sBasePicsURL = oBasePicsURL.ToString();
-            if (sBasePicsURL == "")
-                sBasePicsURL = "pics";
-            else if (sBasePicsURL.ToLower().Trim().StartsWith("http://") == false &&
-                sBasePicsURL.ToLower().Trim().StartsWith("https://") == false)
-                sBasePicsURL = "http://" + sBasePicsURL;
+
+            if (isDownloadPicWithImageServer && !string.IsNullOrEmpty(ImageUrl))
+            {
+                sBasePicsURL = ImageUrl;
+            }
+            else
+            {
+                object oBasePicsURL = PageUtils.GetTableSingleVal("groups", "PICS_REMOTE_BASE_URL", nGroupID);
+                if (oBasePicsURL != DBNull.Value && oBasePicsURL != null)
+                    sBasePicsURL = oBasePicsURL.ToString();
+                if (sBasePicsURL == "")
+                    sBasePicsURL = "pics";
+                else if (sBasePicsURL.ToLower().Trim().StartsWith("http://") == false &&
+                    sBasePicsURL.ToLower().Trim().StartsWith("https://") == false)
+                    sBasePicsURL = "http://" + sBasePicsURL;
+            }
 
             string sTmp = "<tr>";
             sTmp += "<td class='" + m_sHeaderCss + "' nowrap>";
@@ -2598,7 +2625,14 @@ namespace TVinciShared
             sTmp += "maxlength=8 ";
             if (m_sStartValue != "")
                 sTmp += "value='" + m_sStartValue.ToString() + "' ";
-            sTmp += "/><a tabindex=\"" + (nID + 1).ToString() + "\" class=\"btn_browse\" onclick=\"OpenPicBrowserEpg('" + nID.ToString() + "_val' , 1, '" + m_lastPage + "','" + m_epgIdentifier + "','" + m_channelID + "');\" href=\"javascript:void(0);\"></a>";
+
+            string onClickMethod = "OpenPicBrowserEpg";
+            if (isDownloadPicWithImageServer)
+            {
+                onClickMethod = "OpenPicUploaderBrowserEPG";
+            }
+            
+            sTmp += "/><a tabindex=\"" + (nID + 1).ToString() + "\" class=\"btn_browse\" onclick=\"" + onClickMethod + "('" + nID.ToString() + "_val' , 1, '" + m_lastPage + "','" + m_epgIdentifier + "','" + m_channelID + "');\" href=\"javascript:void(0);\"></a>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_type' value='int'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_must' value='" + m_bMust.ToString() + "'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_field' value='" + m_sFieldName + "'/>";

@@ -86,6 +86,7 @@ namespace TVinciShared
                     epgPicture = new ApiObjects.Epg.EpgPicture();
                     epgPicture.Url = ODBCWrapper.Utils.GetSafeStr(dr, "BASE_URL");
                     epgPicture.Ratio = ODBCWrapper.Utils.GetSafeStr(dr, "ratio");
+                    epgPicture.PicID = ODBCWrapper.Utils.GetIntSafeVal(dr, "pic_Id");
 
                     if (!epg.pictures.Exists(x => x.Ratio == epgPicture.Ratio))
                     {

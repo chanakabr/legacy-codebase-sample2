@@ -3153,6 +3153,7 @@ namespace DAL
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", (int)eTableStatus.Pending);
                 }
 
+                updateQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
                 result = updateQuery.ExecuteAffectedRows();
             }
             catch (Exception ex)
@@ -3196,6 +3197,7 @@ namespace DAL
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", (int)eTableStatus.Pending);
                 }
 
+                updateQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
                 result = updateQuery.ExecuteAffectedRows();
             }
             catch (Exception ex)
