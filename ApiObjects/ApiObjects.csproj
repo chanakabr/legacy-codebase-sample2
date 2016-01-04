@@ -118,6 +118,7 @@
     <Compile Include="MessageQueue.cs" />
     <Compile Include="ExternalChannel\ExternalChannelResponse.cs" />
     <Compile Include="ExternalChannel\ExternalChannelResponseList.cs" />
+    <Compile Include="OSSAdapter\OSSAdapterEntitlementsResponse.cs" />
     <Compile Include="QueueObjects\ImageUploadData.cs" />
     <Compile Include="QueueObjects\ExportTaskData.cs" />
     <Compile Include="RecommendationEngine\RecommendationEngineResponse.cs" />
