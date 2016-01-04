@@ -80,5 +80,28 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        [Route("set"), HttpPost]
+        [ApiAuthorize(true)]
+        public bool Set(string assetId, eAssetTypes assetType, long fileId, KalturaPlayerAssetData PlayerAssetData)
+        {
+            bool response = false;
+
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                string udid = KSUtils.ExtractKSPayload().UDID;
+                int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+                string siteGuid = KS.GetFromRequest().UserId;
+                response = ClientsManager.CatalogClient().SetBookmark(groupId, siteGuid, householdId, udid, assetId, assetType, fileId, PlayerAssetData);
+            }
+
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
     }
 }
