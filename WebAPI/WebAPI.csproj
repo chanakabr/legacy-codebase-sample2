@@ -867,6 +867,7 @@
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
     <Compile Include="Controllers\AppTokenController.cs" />
     <Compile Include="Controllers\AssetController.cs" />
+    <Compile Include="Controllers\BookmarkController.cs" />
     <Compile Include="Controllers\ExportTaskController.cs" />
     <Compile Include="Controllers\ExternalChannelProfileController.cs" />
     <Compile Include="Controllers\PartnerConfigurationController.cs">
@@ -936,6 +937,7 @@
     <Compile Include="Models\API\KSQLChannel\KalturaKSQLChannelProfile.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGateway.cs" />
     <Compile Include="Models\Billing\KalturaHouseholdPaymentGatewaySelectedBy.cs" />
+    <Compile Include="Models\Catalog\KalturaPlayerAssetData.cs" />
     <Compile Include="Models\Catalog\KalturaSlimAssetsFilter.cs" />
     <Compile Include="Models\Catalog\KalturaEPGChannelAssetsListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaEPGChannelAssets.cs" />
