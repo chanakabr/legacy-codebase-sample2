@@ -2796,7 +2796,7 @@ namespace DAL
 
             // roles permission dictionary holds a dictionary of permissions for each role - dictionary<role id, <permission id, permission>>
             Dictionary<long, Dictionary<long, Permission>> rolesPermissions = new Dictionary<long, Dictionary<long, Permission>>();
-            
+
             // permissions permission items dictionary holds a dictionary of permission items for each permission - dictionary<permission id, <permission item id, permission item>>
             Dictionary<long, Dictionary<long, PermissionItem>> permissionPermissionItems = new Dictionary<long, Dictionary<long, PermissionItem>>();
 
@@ -2841,7 +2841,7 @@ namespace DAL
                             {
                                 role.Permissions = rolesPermissions[role.Id].Values.ToList();
                             }
-                            
+
                             // add role
                             roles.Add(role);
                         }
@@ -2944,11 +2944,11 @@ namespace DAL
                 int groupId;
                 ePermissionItemType permissionItemType;
                 bool isExcluded;
-            
+
                 foreach (DataRow permissionsRow in permissionItemsTable.Rows)
                 {
                     isExcluded = false;
-                    
+
                     permissionItemType = (ePermissionItemType)ODBCWrapper.Utils.GetIntSafeVal(permissionsRow, "TYPE");
                     groupId = ODBCWrapper.Utils.GetIntSafeVal(permissionsRow, "GROUP_ID");
 
@@ -3126,51 +3126,86 @@ namespace DAL
             return rowCount;
         }
 
-        public static int UpdateImageState(int groupId, long rowId, int version)
+        public static int UpdateImageState(int groupId, long rowId, int version, eTableStatus status)
         {
             int result = -1;
+            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("pics");
             try
             {
-                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("pics");
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("VERSION", "=", version);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
-                updateQuery += " WHERE ";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", rowId);
-                updateQuery += " AND ";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("VERSION", "<=", version);
+                if (status == eTableStatus.OK)
+                {
+                    // update image upload success only if current version is lower then updated version
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("VERSION", "=", version);
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", (int)status);
+                    updateQuery += " WHERE ";
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", rowId);
+                    updateQuery += " AND ";
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("VERSION", "<=", version);
+                }
+
+                if (status == eTableStatus.Failed)
+                {
+                    // update image upload failed only if current status is "Pending"
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", (int)status);
+                    updateQuery += " WHERE ";
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", rowId);
+                    updateQuery += " AND ";
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", (int)eTableStatus.Pending);
+                }
 
                 result = updateQuery.ExecuteAffectedRows();
-                updateQuery.Finish();
-                updateQuery = null;
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("Error while trying to update image state. groupId: {0}, picId: {1}, version: {2}. ex: {3}", groupId, rowId, version, ex);
             }
+            finally
+            {
+                updateQuery.Finish();
+                updateQuery = null;
+            }
 
             return result;
         }
 
-        public static int UpdateEpgImageState(int groupId, long rowId, int version)
+        public static int UpdateEpgImageState(int groupId, long rowId, int version, eTableStatus status)
         {
             int result = -1;
+            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("EPG_pics");
+            
             try
             {
-                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("EPG_pics");
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("VERSION", "=", version);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
-                updateQuery += " WHERE ";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", rowId);
-                updateQuery += " AND ";
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("VERSION", "<=", version);
+                if (status == eTableStatus.OK)
+                {
+                    // update image upload success only if current version is lower then updated version
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("VERSION", "=", version);
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", (int)status);
+                    updateQuery += " WHERE ";
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", rowId);
+                    updateQuery += " AND ";
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("VERSION", "<=", version);
+                }
+
+                if (status == eTableStatus.Failed)
+                {
+                    // update image upload failed only if current status is "Pending"
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", (int)status);
+                    updateQuery += " WHERE ";
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", rowId);
+                    updateQuery += " AND ";
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", (int)eTableStatus.Pending);
+                }
 
                 result = updateQuery.ExecuteAffectedRows();
-                updateQuery.Finish();
-                updateQuery = null;
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("Error while trying to update EPG image state. groupId: {0}, EPG picId: {1}, version: {2}. ex: {3}", groupId, rowId, version, ex);
+            }
+            finally
+            {
+                updateQuery.Finish();
+                updateQuery = null;
             }
 
             return result;

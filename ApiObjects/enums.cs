@@ -370,6 +370,19 @@ namespace ApiObjects
     }
 
     [Serializable]
+    public enum eTableStatus
+    {
+        [EnumMember]
+        Pending = 0,
+
+        [EnumMember]
+        OK = 1,
+
+        [EnumMember]
+        Failed = 2
+    }
+
+    [Serializable]
     public enum eHouseholdPaymentGatewaySelectedBy
     {
         [EnumMember]
@@ -479,5 +492,5 @@ namespace ApiObjects
         META10_BOOL = 40
     }
 
-    
+
 }
