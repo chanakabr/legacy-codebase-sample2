@@ -140,7 +140,7 @@ namespace Catalog.Request
             // check action
             if (!Enum.TryParse(m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out mediaMarkAction))
             {
-                oMediaMarkResponse.status = new Status((int)eResponseStatus.BadSearchRequest, "Action doesn't exist");
+                oMediaMarkResponse.status = new Status((int)eResponseStatus.BadSearchRequest, "Action not recognized");
                 return oMediaMarkResponse;
             }
 
