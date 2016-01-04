@@ -73,6 +73,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
                     m_sMediaDuration = MediaDuration,
                     m_sSiteGuid = SiteGuid,
                     m_sUDID = UDID,
+                    m_eAssetType = string.IsNullOrEmpty(NPVRID) ? eAssetTypes.MEDIA : eAssetTypes.NPVR,
                 },
                 m_sSiteGuid = SiteGuid
             };
