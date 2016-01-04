@@ -1369,12 +1369,21 @@ namespace TVPApiServices
             string sRet = string.Empty;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "MediaMark", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            action action;
 
             if (groupID > 0)
             {
                 try
                 {
-                    action action = (action)Enum.Parse(typeof(action), PlayerAssetData.action, true);
+                    try
+                    {
+                        action = (action)Enum.Parse(typeof(action), PlayerAssetData.action, true);
+                    }
+                    catch
+                    {
+                        return "Action not recognized";
+                    }
+
                     long mediaId = 0;
                     string npvrId = "";
 
