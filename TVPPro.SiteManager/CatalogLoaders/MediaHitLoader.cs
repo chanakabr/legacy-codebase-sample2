@@ -67,13 +67,12 @@ namespace TVPPro.SiteManager.CatalogLoaders
                     m_nCurrentBitRate = CurrentBitRate,
                     m_nLoc = Location,
                     m_nMediaFileID = MediaFileID,
-                    m_nMediaID = MediaID,
+                    m_sAssetID = string.IsNullOrEmpty(NPVRID) ? MediaID.ToString() : NPVRID,
                     m_nTotalBitRate = TotalBitRate,
                     m_sAction = Action,
                     m_sMediaDuration = MediaDuration,
                     m_sSiteGuid = SiteGuid,
                     m_sUDID = UDID,
-                    m_sNpvrID = NPVRID,
                 },
                 m_sSiteGuid = SiteGuid
             };
