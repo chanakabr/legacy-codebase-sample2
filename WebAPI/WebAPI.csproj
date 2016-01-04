@@ -339,6 +339,9 @@
     <None Include="Service References\Catalog\Service71.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\Catalog\Service72.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\Catalog\Service8.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -991,6 +994,7 @@
     <Compile Include="Models\General\KalturaStringValueArray.cs" />
     <Compile Include="Models\API\KalturaUserRole.cs" />
     <Compile Include="Models\General\KalturaValue.cs" />
+    <Compile Include="Models\KalturaPlayerAssetData.cs" />
     <Compile Include="Models\Partner\KalturaBillingPartnerConfiguration.cs">
       <SubType>Code</SubType>
     </Compile>

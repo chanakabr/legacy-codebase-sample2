@@ -925,5 +925,54 @@ namespace WebAPI.Clients
 
             return result;
         }
+
+        internal bool SetBookmark(int groupId, string siteGuid, int householdId, string udid, string assetId, eAssetTypes assetType, long fileId, KalturaPlayerAssetData PlayerAssetData)
+        {
+            int t;
+
+            if (assetType != eAssetTypes.NPVR)                
+                if (string.IsNullOrEmpty(assetId) || !int.TryParse(assetId, out t))
+                    throw new ClientException((int)StatusCode.BadRequest, "Asset type is not a number");
+
+            // build request
+            MediaMarkRequest request = new MediaMarkRequest()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                domainId = householdId,
+                m_nGroupID = groupId,
+                m_sSiteGuid = siteGuid,
+                m_oMediaPlayRequestData = new MediaPlayRequestData()
+                {
+                    m_eAssetType = assetType,
+                    m_nLoc = PlayerAssetData.location,
+                    m_nMediaFileID = (int)fileId,
+                    m_sAssetID = assetId,
+                    m_sAction = PlayerAssetData.action,
+                    m_sSiteGuid = siteGuid,
+                    m_sUDID = udid,
+                    m_nAvgBitRate = PlayerAssetData.averageBitRate,
+                    m_nCurrentBitRate = PlayerAssetData.currentBitRate,
+                    m_nTotalBitRate = PlayerAssetData.totalBitRate
+                }
+            };
+            
+            // fire search request
+            MediaMarkResponse response = new MediaMarkResponse();
+
+            if (!CatalogUtils.GetBaseResponse<MediaMarkResponse>(CatalogClientModule, request, out response))
+            {
+                // general error
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.status.Code != (int)StatusCode.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(response.status.Code, response.status.Message);
+            }
+
+            return true;
+        }
     }
 }
