@@ -17,12 +17,6 @@ namespace Catalog.Response
     public class MediaMarkResponse : BaseResponse
     {
         [DataMember]
-        public string m_sStatus;
-
-        [DataMember]
-        public string m_sDescription;
-
-        [DataMember]
         public Status status;
 
         public MediaMarkResponse()

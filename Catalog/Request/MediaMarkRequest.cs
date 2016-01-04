@@ -67,8 +67,6 @@ namespace Catalog.Request
                         int t;
                         if (!int.TryParse(m_oMediaPlayRequestData.m_sAssetID, out t))
                         {
-                            oMediaMarkResponse.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.ERROR);
-                            oMediaMarkResponse.m_sDescription = "Media id not a number";
                             oMediaMarkResponse.status = new Status((int)eResponseStatus.BadSearchRequest, "Asset id is not a number");
                             return oMediaMarkResponse;
                         }
@@ -85,14 +83,12 @@ namespace Catalog.Request
                     else
                     {
                         oMediaMarkResponse = new MediaMarkResponse();
-                        oMediaMarkResponse.m_sStatus = "Error";
-                        oMediaMarkResponse.m_sDescription = "invalid asset type";
+                        oMediaMarkResponse.status = new Status((int)eResponseStatus.BadSearchRequest, "invalid asset type");
                     }
                 }
                 else
                 {
                     oMediaMarkResponse = new MediaMarkResponse();
-                    oMediaMarkResponse.m_sDescription = Catalog.GetMediaPlayResponse(MediaPlayResponse.OK);
                     oMediaMarkResponse.status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
 
@@ -102,8 +98,7 @@ namespace Catalog.Request
             {
                 log.Error(String.Concat("MediaMarkRequest.GetResponse. ", oBaseRequest.ToString()), ex);
 
-                oMediaMarkResponse.m_sStatus = "ERROR"; 
-                oMediaMarkResponse.status = new Status((int)eResponseStatus.Error, ex.ToString());
+                oMediaMarkResponse.status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 return oMediaMarkResponse;
             }
         }
@@ -122,10 +117,7 @@ namespace Catalog.Request
             int nExitFull = 0;
             int nSendToFriend = 0;
             int nLoad = 0;
-            int nFirstPlay = 0;
-            int nMediaDuration = 0;
-            DateTime dNow = DateTime.UtcNow;
-            string sSessionID = string.Empty;
+            int nFirstPlay = 0;            
             int nPlatform = 0;
             int nSwhoosh = 0;
             int fileDuration = 0;
@@ -138,19 +130,27 @@ namespace Catalog.Request
                 List<EpgCB> lEpgProg = epgBL.GetEpgs(new List<string>(){this.m_oMediaPlayRequestData.m_sAssetID});
                 if (lEpgProg != null && lEpgProg.Count > 0)
                     fileDuration = Convert.ToInt32((lEpgProg.First().EndDate - lEpgProg.First().StartDate).TotalSeconds);
-
-                if (fileDuration == 0)
+                else
                 {
-                    oMediaMarkResponse.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.ERROR);
-                    oMediaMarkResponse.m_sDescription = "Program doesn't exist";
                     oMediaMarkResponse.status = new Status((int)eResponseStatus.BadSearchRequest, "Program doesn't exist");
                     return oMediaMarkResponse;
                 }
             }
 
-            Int32.TryParse(this.m_oMediaPlayRequestData.m_sMediaDuration, out nMediaDuration);
+            // check action
+            if (!Enum.TryParse(m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out mediaMarkAction))
+            {
+                oMediaMarkResponse.status = new Status((int)eResponseStatus.BadSearchRequest, "Action doesn't exist");
+                return oMediaMarkResponse;
+            }
 
-            oMediaMarkResponse.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.MEDIA_MARK);
+            // check anonymous user
+            if (Catalog.IsAnonymousUser(m_oMediaPlayRequestData.m_sSiteGuid))
+            {                
+                oMediaMarkResponse.status = new Status((int)eResponseStatus.UserNotAllowed, "Anonymous User Can't watch nPVR");
+                return oMediaMarkResponse;
+            }
+
             oMediaMarkResponse.status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
             if (this.m_oFilter != null)
@@ -159,23 +159,11 @@ namespace Catalog.Request
             }
             int nCountryID = 0;
 
+            bool isError = false;
+            bool isConcurrent = false; // for future use
+            HandleNpvrEpgPlayAction(mediaMarkAction, nCountryID, nPlatform, ref nActionID, ref nPlay, ref nStop, ref nPause, ref nFinish, ref nFull, ref nExitFull, ref nSendToFriend, ref nLoad,
+                                    ref nFirstPlay, ref isConcurrent, ref isError, ref nSwhoosh, ref fileDuration, assetType);
 
-            if (Enum.TryParse(m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out mediaMarkAction))
-            {
-                if (Catalog.IsAnonymousUser(m_oMediaPlayRequestData.m_sSiteGuid))
-                {
-                    oMediaMarkResponse.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.ERROR);
-                    oMediaMarkResponse.m_sDescription = "Anonymous User Can't watch nPVR";
-                    oMediaMarkResponse.status = new Status((int)eResponseStatus.UserNotAllowed, "Anonymous User Can't watch nPVR");
-                }
-                else
-                {
-                    bool isError = false;
-                    bool isConcurrent = false; // for future use
-                    HandleNpvrEpgPlayAction(mediaMarkAction, nCountryID, nPlatform, ref nActionID, ref nPlay, ref nStop, ref nPause, ref nFinish, ref nFull, ref nExitFull, ref nSendToFriend, ref nLoad,
-                                          ref nFirstPlay, ref isConcurrent, ref isError, ref nSwhoosh, ref fileDuration, assetType);
-                }
-            }
             return oMediaMarkResponse;
         }
 
@@ -310,8 +298,6 @@ namespace Catalog.Request
 
             Int32.TryParse(this.m_oMediaPlayRequestData.m_sMediaDuration, out nMediaDuration);
 
-
-            oMediaMarkResponse.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.MEDIA_MARK);
             oMediaMarkResponse.status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
             if (this.m_oFilter != null)
@@ -338,8 +324,7 @@ namespace Catalog.Request
                     if (isConcurrent)
                     {
                         isTerminateRequest = true;
-                        oMediaMarkResponse.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.CONCURRENT);
-                        oMediaMarkResponse.status = new Status((int)eResponseStatus.ConcurrencyLimitation, "Concurrent play");
+                        oMediaMarkResponse.status = new Status((int)eResponseStatus.ConcurrencyLimitation, "Concurrent play limitation");
                     }
                     else
                     {
@@ -382,7 +367,6 @@ namespace Catalog.Request
                 }
                 else
                 {
-                    oMediaMarkResponse.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.ACTION_NOT_RECOGNIZED);
                     oMediaMarkResponse.status = new Status((int)eResponseStatus.BadSearchRequest, "Action not recognized");
                 }
             }
