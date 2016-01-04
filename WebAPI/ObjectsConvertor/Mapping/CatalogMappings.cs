@@ -131,18 +131,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Channels, opt => opt.MapFrom(src => src.m_oChannels))
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.m_lPics));
 
-            //AssetBookmarks to KalturaSlimAssetResponse
+            //AssetBookmarks to KalturaAssetBookmarks
             Mapper.CreateMap<AssetBookmarks, WebAPI.Models.Catalog.KalturaAssetBookmarks>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetID))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.AssetType))                
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertAssetType(src.AssetType)))                
                 .ForMember(dest => dest.Bookmarks, opt => opt.MapFrom(src => src.Bookmarks));
 
-            //Bookmark to KalturaAssetPositionInfo
+            //Bookmark to KalturaAssetBookmark
             Mapper.CreateMap<Bookmark, WebAPI.Models.Catalog.KalturaAssetBookmark>()
                 .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User))
                 .ForMember(dest => dest.Position, opt => opt.MapFrom(src => src.Location))
                 .ForMember(dest => dest.PositionOwner, opt => opt.MapFrom(src => ConvertPositionOwner(src.UserType)));
 
+            //User to KalturaBaseOTTUser
             Mapper.CreateMap<User, WebAPI.Models.Users.KalturaBaseOTTUser>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_sSiteGUIDField))
                 .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.m_oBasicDataField.m_sUserNameField))
@@ -150,7 +151,29 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.m_oBasicDataField.m_sLastNameField));
         }
 
-        // eUserType KalturaPositionOwner 
+        //eAssetTypes to KalturaAssetType
+        public static KalturaAssetType ConvertAssetType(eAssetTypes assetType)
+        {
+            KalturaAssetType result;
+            switch (assetType)
+            {
+                case eAssetTypes.EPG:
+                    result = KalturaAssetType.epg;
+                    break;
+                case eAssetTypes.NPVR:
+                    result = KalturaAssetType.recording;
+                    break;
+                case eAssetTypes.MEDIA:
+                    result = KalturaAssetType.media;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown Asset Type");
+            }
+
+            return result;
+        }
+
+        // eUserType to KalturaPositionOwner 
         public static KalturaPositionOwner ConvertPositionOwner(eUserType userType)
         {
             KalturaPositionOwner result;
@@ -165,6 +188,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown position owner");
             }
+
             return result;
         }        
 
