@@ -844,5 +844,48 @@ namespace TVinciShared
             return res;
         }
 
+        public static int GetGroupDefaultRatio(int groupId)
+        {
+            int rationId = 0;
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+            selectQuery += "select RATIO_ID from groups (nolock) where";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", groupId);
+            selectQuery.SetCachedSec(120);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    rationId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "RATIO_ID", 0);
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return rationId;
+        }
+
+        public static int GetGroupDefaultEpgRatio(int groupId)
+        {
+            int rationId = 0;
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+            selectQuery += "select ISNULL( EPG_RATIO_ID, RATIO_ID) as 'RATIO_ID' from groups (nolock) where ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", groupId);
+            selectQuery.SetCachedSec(120);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    rationId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "RATIO_ID", 0);
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return rationId;
+        }
     }
 }
