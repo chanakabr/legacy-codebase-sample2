@@ -113,6 +113,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseClass\BaseUrlShortenHelper.cs" />
+    <Compile Include="CatalogLoaders\AssetLastPositionLoader.cs" />
     <Compile Include="CatalogLoaders\AssetStatsLoader.cs" />
     <Compile Include="CatalogLoaders\BundleContainingMediaLoader.cs" />
     <Compile Include="CatalogLoaders\BundleMediaLoader.cs" />
@@ -386,6 +387,7 @@
     <Compile Include="Manager\SiteManager.cs" />
     <Compile Include="Manager\TechnicalManager.cs" />
     <Compile Include="Manager\TextLocalization.cs" />
+    <Compile Include="Objects\AssetPositionObject.cs" />
     <Compile Include="Objects\EPGComment.cs" />
     <Compile Include="Objects\EPGMultiChannelProgrammeObject.cs" />
     <Compile Include="Objects\MediaCorpAddressEntity.cs" />
