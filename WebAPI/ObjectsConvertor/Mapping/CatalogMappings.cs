@@ -142,6 +142,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User))
                 .ForMember(dest => dest.Position, opt => opt.MapFrom(src => src.Location))
                 .ForMember(dest => dest.PositionOwner, opt => opt.MapFrom(src => ConvertPositionOwner(src.UserType)));
+
+            Mapper.CreateMap<User, WebAPI.Models.Users.KalturaBaseOTTUser>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_sSiteGUIDField))
+                .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.m_oBasicDataField.m_sUserNameField))
+                .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.m_oBasicDataField.m_sFirstNameField))
+                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.m_oBasicDataField.m_sLastNameField));
         }
 
         // eUserType KalturaPositionOwner 
