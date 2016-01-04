@@ -131,7 +131,7 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "API", "Web Sites\API\", "{1
 		Release.AspNetCompiler.ForceOverwrite = "true"
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
-		VWDPort = "61529"
+		VWDPort = "50119"
 	EndProjectSection
 EndProject
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "Tester", "Web Sites\Tester\", "{F4633894-6DB2-49A3-978A-1B8DA3CF9548}"
@@ -152,7 +152,7 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "Tester", "Web Sites\Tester\
 		Release.AspNetCompiler.ForceOverwrite = "true"
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
-		VWDPort = "64028"
+		VWDPort = "50127"
 	EndProjectSection
 EndProject
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "TVM", "Web Sites\TVM\", "{24730FDA-3784-44BE-8C1B-C27443B2DBC9}"
@@ -173,7 +173,7 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "TVM", "Web Sites\TVM\", "{2
 		Release.AspNetCompiler.ForceOverwrite = "true"
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
-		VWDPort = "62156"
+		VWDPort = "50112"
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "M1Feeder", "Feeders\M1Feeder\M1Feeder.csproj", "{827388AE-BE7F-49DD-9995-669CD52284D8}"

@@ -588,6 +588,14 @@ function OpenPicBrowserEpg(theID, maxPics, lastPage, epgIdentifier, channelID) {
     popUp(theURL, 'PicSelector');
 }
 
+function OpenPicUploaderBrowserEPG(theID, maxPics, lastPage, epgIdentifier, channelID) {
+
+    theVal = window.document.getElementsByName(theID)[0].value;
+
+    theURL = "adm_pic_popup_uploader.aspx?pics_ids=" + theVal + "&theID=" + theID + "&maxPics=" + maxPics + "&lastPage=" + lastPage + "&epgIdentifier=" + epgIdentifier + "&channelID=" + channelID;
+    popUp(theURL, 'PicSelector');
+}
+
 function OpenPicBrowser(theID, maxPics, lastPage, epgIdentifier) {
   
     theVal = window.document.getElementsByName(theID)[0].value;

@@ -34,9 +34,7 @@ public partial class adm_utils : System.Web.UI.Page
         Int32 nGroupID = LoginManager.GetLoginGroupID();
         string sBasePicsURL = "";
 
-
-
-        if (PageUtils.IsDownloadPicWithImageServer())
+        if (ImageUtils.IsDownloadPicWithImageServer())
         {
             if (Session["Pic_Image_Url"] != null)
             {

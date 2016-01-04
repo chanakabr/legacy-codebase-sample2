@@ -405,7 +405,7 @@ public partial class adm_media_new : System.Web.UI.Page
             string imageUrl = string.Empty;
             int picId = 0;
 
-            if (PageUtils.IsDownloadPicWithImageServer())
+            if (ImageUtils.IsDownloadPicWithImageServer())
             {
                 isDownloadPicWithImageServer = true;
                 int groupId = LoginManager.GetLoginGroupID();
@@ -421,6 +421,7 @@ public partial class adm_media_new : System.Web.UI.Page
         string sQuery = "select name as txt,id as id from media_types where status=1 and group_id " + PageUtils.GetParentsGroupsStr(LoginManager.GetLoginGroupID()) + " order by ORDER_NUM";
         dr_type.SetSelectsQuery(sQuery);
         dr_type.Initialize("Media type", "adm_table_header_nbg", "FormInput", "MEDIA_TYPE_ID", true);
+        dr_type.SetDefault(1);
         theRecord.AddRecord(dr_type);
 
         string sDefWP = "";
@@ -512,9 +513,7 @@ public partial class adm_media_new : System.Web.UI.Page
             int parentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);
 
             imageUrl = PageUtils.BuildVodUrl(parentGroupID, baseUrl, ratioId, version);
-
         }
-
 
         return imageUrl;
     }
