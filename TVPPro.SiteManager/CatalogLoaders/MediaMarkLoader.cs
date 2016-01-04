@@ -117,8 +117,8 @@ namespace TVPPro.SiteManager.CatalogLoaders
                             GroupID, m_sUserIP, SiteGuid, UDID, MediaID, MediaFileID, AvgBitRate, CurrentBitRate, Location, TotalBitRate, Action, MediaDuration);
                         break;
                     case "Tvinci.Data.Loaders.TvinciPlatform.Catalog.MediaMarkResponse":
-                        MediaMarkResponse mediaMarkResponse = obj as MediaMarkResponse;
-                        sText.AppendFormat("MediaHitResponse: Status = {0}, ", mediaMarkResponse.status);
+                        MediaMarkResponse mediaMarkResponse = obj as MediaMarkResponse;                        
+                        sText.AppendFormat("MediaHitResponse: Status = {0}, ", mediaMarkResponse.status.Message);
                         break;
                     default:
                         break;
