@@ -15,6 +15,7 @@ using WebAPI.ObjectsConvertor;
 using WebAPI.Utils;
 using WebAPI.Models.General;
 using WebAPI.Managers.Models;
+using WebAPI.Models.Users;
 
 namespace WebAPI.Clients
 {
@@ -802,52 +803,12 @@ namespace WebAPI.Clients
             }
 
             return result;
-        }
+        }        
 
-        public KalturaAssetsPositionsResponse GetDomainLastPosition(int groupId, string siteGuid, int domainId, string udid, int? mediaId, string npvrId = null)
+        public KalturaAssetsBookmarksResponse GetAssetsBookmarks(string siteGuid, int groupId, int domainId, string udid, List<AssetBookmarkRequest> assets)
         {
-            List<KalturaAssetPositions> result = null;
-            DomainLastPositionRequest request = new DomainLastPositionRequest()
-            {
-                m_sSignature = Signature,
-                m_sSignString = SignString,
-                m_sSiteGuid = siteGuid,
-                m_nGroupID = groupId,
-                m_sUserIP = Utils.Utils.GetClientIP(),
-                domainId = domainId,
-                m_nDomainID = domainId,
-                m_oFilter = new Filter()
-                {
-                    m_sDeviceId = udid
-                },
-                data = new MediaLastPositionRequestData()
-                {
-                    m_nMediaID = mediaId.HasValue ? mediaId.Value : 0,
-                    m_sNpvrID = npvrId,
-                    m_sSiteGuid = siteGuid,
-                    m_sUDID = udid
-                }
-            };
-
-            DomainLastPositionResponse response = null;
-            if (!CatalogUtils.GetBaseResponse(CatalogClientModule, request, out response) || response == null || response.Status == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-            if (response.Status.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException(response.Status.Code, response.Status.Message);
-            }
-
-            result = Mapper.Map<List<KalturaAssetPositions>>(response.m_lPositions);
-
-            return new KalturaAssetsPositionsResponse() { AssetsPositions = result, TotalCount = result.Count };
-        }
-
-        public KalturaAssetsPositionsResponse GetAssetsPositions(string siteGuid, int groupId, int domainId, string udid, eUserType userType, List<AssetPositionRequestInfo> assets)
-        {
-            List<KalturaAssetPositions> result = null;
-            AssetsPositionRequest request = new AssetsPositionRequest()
+            List<KalturaAssetBookmarks> result = null;
+            AssetsBookmarksRequest request = new AssetsBookmarksRequest()
             {
                 m_sSignature = Signature,
                 m_sSignString = SignString,
@@ -859,13 +820,13 @@ namespace WebAPI.Clients
                 {
                     m_sDeviceId = udid
                 },
-                Data = new AssetsPositionRequestData()
+                Data = new AssetsBookmarksRequestData()
                 {
                     Assets = assets
                 }
             };
 
-            AssetsPositionResponse response = null;
+            AssetsBookmarksResponse response = null;
             if (!CatalogUtils.GetBaseResponse(CatalogClientModule, request, out response) || response == null || response.Status == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
@@ -874,10 +835,10 @@ namespace WebAPI.Clients
             {
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
+            
+            result = Mapper.Map<List<KalturaAssetBookmarks>>(response.AssetsBookmarks);
 
-            result = Mapper.Map<List<KalturaAssetPositions>>(response.AssetsPositions);
-
-            return new KalturaAssetsPositionsResponse() { AssetsPositions = result, TotalCount = result.Count };
+            return new KalturaAssetsBookmarksResponse() { AssetsBookmarks = result, TotalCount = result.Count };
 
         }
 

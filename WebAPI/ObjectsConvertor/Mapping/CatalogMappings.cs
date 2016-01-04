@@ -131,11 +131,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Channels, opt => opt.MapFrom(src => src.m_oChannels))
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.m_lPics));
 
-            //LastPosition to KalturaUserLastPosition
-            Mapper.CreateMap<LastPosition, WebAPI.Models.Catalog.KalturaAssetPositions>()
-                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.m_nUserID))
-                .ForMember(dest => dest.Position, opt => opt.MapFrom(src => src.m_nLocation))
-                .ForMember(dest => dest.PositionOwner, opt => opt.MapFrom(src => ConvertPositionOwner(src.m_eUserType)));
+            //AssetBookmarks to KalturaSlimAssetResponse
+            Mapper.CreateMap<AssetBookmarks, WebAPI.Models.Catalog.KalturaAssetBookmarks>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetID))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.AssetType))                
+                .ForMember(dest => dest.Bookmarks, opt => opt.MapFrom(src => src.Bookmarks));
+
+            //Bookmark to KalturaAssetPositionInfo
+            Mapper.CreateMap<Bookmark, WebAPI.Models.Catalog.KalturaAssetBookmark>()
+                .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User))
+                .ForMember(dest => dest.Position, opt => opt.MapFrom(src => src.Location))
+                .ForMember(dest => dest.PositionOwner, opt => opt.MapFrom(src => ConvertPositionOwner(src.UserType)));
         }
 
         // eUserType KalturaPositionOwner 
@@ -154,7 +160,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     throw new ClientException((int)StatusCode.Error, "Unknown position owner");
             }
             return result;
-        }
+        }        
 
         private static int GetPictureWidth(string size)
         {

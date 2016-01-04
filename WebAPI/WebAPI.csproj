@@ -336,6 +336,9 @@
     <None Include="Service References\Catalog\Service70.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\Catalog\Service71.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\Catalog\Service8.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -867,7 +870,6 @@
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
     <Compile Include="Controllers\AppTokenController.cs" />
     <Compile Include="Controllers\AssetController.cs" />
-    <Compile Include="Controllers\BookmarkController.cs" />
     <Compile Include="Controllers\ExportTaskController.cs" />
     <Compile Include="Controllers\ExternalChannelProfileController.cs" />
     <Compile Include="Controllers\PartnerConfigurationController.cs">
@@ -883,7 +885,7 @@
     <Compile Include="Controllers\UserAssetRuleController.cs" />
     <Compile Include="Controllers\AssetHistoryController.cs" />
     <Compile Include="Controllers\HouseholdDeviceController.cs" />
-    <Compile Include="Controllers\LastPositionController.cs" />
+    <Compile Include="Controllers\BookmarkController.cs" />
     <Compile Include="Controllers\PurchaseSettingsController.cs" />
     <Compile Include="Controllers\HouseholdUserController.cs" />
     <Compile Include="Controllers\PriceController.cs" />
@@ -937,8 +939,8 @@
     <Compile Include="Models\API\KSQLChannel\KalturaKSQLChannelProfile.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGateway.cs" />
     <Compile Include="Models\Billing\KalturaHouseholdPaymentGatewaySelectedBy.cs" />
-    <Compile Include="Models\Catalog\KalturaPlayerAssetData.cs" />
-    <Compile Include="Models\Catalog\KalturaSlimAssetsFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetBookmark.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetsBookmarksFilter.cs" />
     <Compile Include="Models\Catalog\KalturaEPGChannelAssetsListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaEPGChannelAssets.cs" />
     <Compile Include="Models\Catalog\KalturaEpgChannelFilter.cs" />
@@ -953,7 +955,7 @@
     <Compile Include="Models\Billing\KalturaPaymentGatewayBaseProfile.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGatewayProfile.cs" />
     <Compile Include="Models\API\KalturaParentalRuleListResponse.cs" />
-    <Compile Include="Models\Catalog\KalturaAssetsPositionsResponse.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetsBookmarksResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingAction.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingItemsType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingResponse.cs" />

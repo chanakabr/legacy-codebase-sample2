@@ -15,7 +15,7 @@ namespace WebAPI.Models.Catalog
     /// Filtering Assets requests
     /// </summary>
     [Serializable]
-    public class KalturaSlimAssetsFilter : KalturaOTTObject
+    public class KalturaAssetsBookmarksFilter : KalturaOTTObject
     {
 
         /// <summary>
@@ -26,13 +26,5 @@ namespace WebAPI.Models.Catalog
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
         public List<KalturaSlimAsset> Assets { get; set; }
-
-        /// <summary>
-        /// Reference type to filter by
-        /// </summary>
-        [DataMember(Name = "by")]
-        [JsonProperty("by")]
-        [XmlElement(ElementName = "by")]
-        public KalturaEntityReferenceBy By { get; set; }
     }
 }
