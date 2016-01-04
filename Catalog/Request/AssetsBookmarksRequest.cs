@@ -13,23 +13,20 @@ using KLogMonitor;
 namespace Catalog.Request
 {
     [DataContract]
-    public class AssetsPositionRequest : BaseRequest, IRequestImp
+    public class AssetsBookmarksRequest : BaseRequest, IRequestImp
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         [DataMember]
-        public AssetsPositionRequestData Data { get; set; }
+        public AssetsBookmarksRequestData Data { get; set; }
 
-        [DataMember]
-        public eUserType UserType;
-
-        public AssetsPositionRequest()
+        public AssetsBookmarksRequest()
             : base()
         {
 
         }
 
-        public AssetsPositionRequest(AssetsPositionRequest request)
+        public AssetsBookmarksRequest(AssetsBookmarksRequest request)
             : base (request.m_nPageSize, request.m_nPageIndex, request.m_sUserIP, request.m_nGroupID, request.m_oFilter, request.m_sSignature, request.m_sSignString)
         {
             Data = request.Data;
@@ -39,17 +36,17 @@ namespace Catalog.Request
         {
             try
             {
-                AssetsPositionRequest request = null;
+                AssetsBookmarksRequest request = null;
                 AssetsPositionResponse response = new AssetsPositionResponse();
 
                 CheckSignature(baseRequest);
 
                 if (baseRequest != null)
                 {
-                    request = (AssetsPositionRequest)baseRequest;
+                    request = (AssetsBookmarksRequest)baseRequest;
                     if (request != null && request.Data != null)
                     {
-                        response.AssetsPositions = new List<AssetPositionsInfo>();
+                        response.AssetsBookmarks = new List<AssetBookmarks>();
                         List<int> users = null;
                         List<int> defaultUsers = null;
                         bool isDefaultUser = false;                        
@@ -64,15 +61,18 @@ namespace Catalog.Request
                                 if (domainResponse != null && domainResponse.Status != null &&  domainResponse.Status.Code == (int)eResponseStatus.OK)
                                 { 
                                     // Get users list, default users list and check if user is in default users list
-                                    GetUsersInfo(userID, domainResponse.Domain, UserType, ref users, ref defaultUsers, ref isDefaultUser);
-
-                                    foreach (AssetPositionRequestInfo asset in request.Data.Assets)
+                                    GetUsersInfo(userID, domainResponse.Domain, ref users, ref defaultUsers, ref isDefaultUser);
+                                    List<int> usersToGet = new List<int>();
+                                    usersToGet.AddRange(users);
+                                    usersToGet.AddRange(defaultUsers);
+                                    Dictionary<string, ws_users.User> usersDictionary = Catalog.GetUsers(request.m_nGroupID, usersToGet);
+                                    foreach (AssetBookmarkRequest asset in request.Data.Assets)
                                     {
-                                        AssetPositionsInfo assetPositionResponseInfo = null;
+                                        AssetBookmarks assetPositionResponseInfo = null;
 
                                         if (asset.AssetType != eAssetTypes.UNKNOWN)
                                         {
-                                            assetPositionResponseInfo = Catalog.GetAssetLastPosition(asset.AssetID, asset.AssetType, userID, isDefaultUser, users, defaultUsers);
+                                            assetPositionResponseInfo = Catalog.GetAssetLastPosition(asset.AssetID, asset.AssetType, userID, isDefaultUser, users, defaultUsers, usersDictionary);
                                         }
                                         else
                                         {
@@ -81,7 +81,7 @@ namespace Catalog.Request
                                         }
                                         if (assetPositionResponseInfo != null)
                                         {
-                                            response.AssetsPositions.Add(assetPositionResponseInfo);
+                                            response.AssetsBookmarks.Add(assetPositionResponseInfo);
                                         }
                                     }                                
                                 }
@@ -125,28 +125,21 @@ namespace Catalog.Request
             }
         }
 
-        private void GetUsersInfo(int userID, WS_Domains.Domain domain,  eUserType assetUserType, ref List<int> users, ref List<int> defaultUsers, ref bool isDefaultUser)
+        private void GetUsersInfo(int userID, WS_Domains.Domain domain, ref List<int> users, ref List<int> defaultUsers, ref bool isDefaultUser)
         {
             users = new List<int>();
-            defaultUsers = new List<int>();
+            defaultUsers = new List<int>();            
             if (domain.m_DefaultUsersIDs != null && domain.m_DefaultUsersIDs.Length > 0)
             {
                 defaultUsers = domain.m_DefaultUsersIDs.ToList();
                 isDefaultUser = defaultUsers.Contains(userID);
             }
+                
             if (domain.m_UsersIDs != null && domain.m_UsersIDs.Length > 0)
             {
-                users = domain.m_UsersIDs.ToList();
-            }
-            
-            // if userType is PERSONAL we only want the specific user position
-            if (assetUserType == eUserType.PERSONAL)
-            {
-                users.Clear();
-                defaultUsers.Clear();
                 if (isDefaultUser)
                 {
-                    defaultUsers.Add(userID);
+                    users = domain.m_UsersIDs.ToList();
                 }
                 else
                 {
@@ -157,8 +150,7 @@ namespace Catalog.Request
 
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder(base.ToString());
-            sb.Append(string.Concat("UserType :", UserType));
+            StringBuilder sb = new StringBuilder(base.ToString());            
             if (Data != null)
             {
                 sb.Append(string.Concat("Data :", Data.ToString()));                      

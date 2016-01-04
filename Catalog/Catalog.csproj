@@ -124,8 +124,8 @@
     <Compile Include="AdProvider.cs" />
     <Compile Include="BaseObject.cs" />
     <Compile Include="PicData.cs" />
-    <Compile Include="Request\AssetsPositionRequest.cs" />
-    <Compile Include="Request\AssetsPositionRequestData.cs" />
+    <Compile Include="Request\AssetsBookmarksRequest.cs" />
+    <Compile Include="Request\AssetsBookmarksRequestData.cs" />
     <Compile Include="Response\AssetsPositionResponse.cs" />
     <Compile Include="Request\AssetStatsRequest.cs" />
     <Compile Include="Request\BundleMediaRequest.cs" />
@@ -173,7 +173,6 @@
     <Compile Include="Response\CrowdsourceResponse.cs" />
     <Compile Include="Crowdsourcing.cs" />
     <Compile Include="DoesMediaBelongToChannels.cs" />
-    <Compile Include="Request\DomainLastPositionRequest.cs" />
     <Compile Include="Response\DomainLastPositionResponse.cs" />
     <Compile Include="Request\EpgAutoCompleteRequest.cs" />
     <Compile Include="Response\EpgAutoCompleteResponse.cs" />

@@ -7,7 +7,6 @@ using ApiObjects.Response;
 using Catalog.Response;
 using ApiObjects;
 
-
 namespace Catalog.Response
 {
     [DataContract]
@@ -15,7 +14,7 @@ namespace Catalog.Response
     {
 
         [DataMember]
-        public List<AssetPositionsInfo> AssetsPositions;
+        public List<AssetBookmarks> AssetsBookmarks;
 
         [DataMember]
         public Status Status;
@@ -27,7 +26,7 @@ namespace Catalog.Response
     }
 
     [DataContract]
-    public class AssetPositionsInfo
+    public class AssetBookmarks
     {
         [DataMember]
         public eAssetTypes AssetType;
@@ -36,17 +35,41 @@ namespace Catalog.Response
         public string AssetID;
 
         [DataMember]
-        public List<LastPosition> LastPositions;
+        public List<Bookmark> Bookmarks;
 
-        public AssetPositionsInfo()
+        public AssetBookmarks()
         {
         }
 
-        public AssetPositionsInfo(eAssetTypes assetType, string assetID, List<LastPosition> lastPositions)
+        public AssetBookmarks(eAssetTypes assetType, string assetID, List<Bookmark> bookmarks)
         {
             AssetType = assetType;
             AssetID = assetID;
-            LastPositions = lastPositions;
+            Bookmarks = bookmarks;
+        }
+    }
+
+    [DataContract]
+    public class Bookmark
+    {
+        [DataMember]
+        public ws_users.User User;
+
+        [DataMember]
+        public eUserType UserType;
+
+        [DataMember]
+        public int Location;
+
+        public Bookmark()
+        {
+        }
+
+        public Bookmark(ws_users.User user, eUserType userType, int location)
+        {
+            this.User = user;
+            this.UserType = userType;
+            this.Location = location;
         }
     }
 
