@@ -1345,8 +1345,50 @@ namespace TVPApiServices
                 try
                 {
                     //ConnectionHelper.InitServiceConfigs(groupID, initObj.Platform);
+                    eAssetTypes assetType = string.IsNullOrEmpty(NPVRID) ? eAssetTypes.MEDIA : eAssetTypes.NPVR;
+                    sRet = ActionHelper.MediaMark(initObj, groupID, initObj.Platform, Action, iMediaID, iFileID, iLocation, NPVRID, assetType, 0, 0, 0);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items["Error"] = ex;
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items["Error"] = "Unknown group";
+            }
 
-                    sRet = ActionHelper.MediaMark(initObj, groupID, initObj.Platform, Action, mediaType, iMediaID, iFileID, iLocation, NPVRID);
+            return sRet;
+        }
+
+        [WebMethod(EnableSession = true, Description = "Mark player status")]
+        [PrivateMethod]
+        public string AssetBookmark(InitializationObject initObj, string assetID, eAssetTypes assetType, long fileID, PlayerAssetData PlayerAssetData)
+        {
+            string sRet = string.Empty;
+
+            int groupID = ConnectionHelper.GetGroupID("tvpapi", "MediaMark", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupID > 0)
+            {
+                try
+                {
+                    action action = (action)Enum.Parse(typeof(action), PlayerAssetData.action, true);
+                    long mediaId = 0;
+                    string npvrId = "";
+
+                    if (assetType == eAssetTypes.NPVR)
+                        npvrId = assetID;
+                    else
+                    {
+                        if (!long.TryParse(assetID, out mediaId))
+                        {
+                            return "Asset id is not a number";
+                        }
+                    }
+
+                    sRet = ActionHelper.MediaMark(initObj, groupID, initObj.Platform, action, mediaId, fileID, PlayerAssetData.location, npvrId, assetType, 
+                        PlayerAssetData.averageBitRate, PlayerAssetData.currentBitRate, PlayerAssetData.totalBitRate);
                 }
                 catch (Exception ex)
                 {

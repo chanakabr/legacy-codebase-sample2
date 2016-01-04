@@ -11,6 +11,7 @@ using TVPApiModule.DataLoaders;
 using System.Configuration;
 using TVPPro.SiteManager.DataLoaders;
 using Tvinci.Data.TVMDataLoader.Protocols.SendToFriend;
+using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 
 /// <summary>
 /// Summary description for ActionHelper
@@ -88,9 +89,9 @@ namespace TVPApi
             return retVal;
         }
 
-        public static string MediaMark(InitializationObject initObj, int groupID, PlatformType platform, action Action, int mediaType, long iMediaID, long iFileID, int iLocation, string npvrID)
+        public static string MediaMark(InitializationObject initObj, int groupID, PlatformType platform, action Action, long iMediaID, long iFileID, int iLocation, string npvrID, eAssetTypes assetType = eAssetTypes.UNKNOWN, int avgBitRate = 0, int currentBitRate = 0, int totalBitRate = 0)
         {
-            return new TVPPro.SiteManager.CatalogLoaders.MediaMarkLoader(groupID, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, (int)iMediaID, (int)iFileID, npvrID, 0, 0, iLocation, 0, Action.ToString(), string.Empty, string.Empty, string.Empty, string.Empty)
+            return new TVPPro.SiteManager.CatalogLoaders.MediaMarkLoader(groupID, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, (int)iMediaID, (int)iFileID, npvrID, avgBitRate, currentBitRate, iLocation, totalBitRate, Action.ToString(), string.Empty, string.Empty, string.Empty, string.Empty, assetType)
             {
                 Platform = platform.ToString()
             }.Execute() as string;

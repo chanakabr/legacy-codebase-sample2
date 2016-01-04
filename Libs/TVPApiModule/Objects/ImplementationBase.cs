@@ -61,7 +61,7 @@ namespace TVPApiModule.Objects
 
         public virtual string MediaMark(action eAction, int nMediaType, int nMediaID, int nFileID, string sNPVRID, int nLocationID)
         {
-            return ActionHelper.MediaMark(_initObj, _nGroupID, _initObj.Platform, eAction, nMediaType, nMediaID, nFileID, nLocationID, sNPVRID);
+            return ActionHelper.MediaMark(_initObj, _nGroupID, _initObj.Platform, eAction, nMediaID, nFileID, nLocationID, sNPVRID);
         }
 
         public virtual bool IsItemPurchased(int iFileID, string sUserGuid)
