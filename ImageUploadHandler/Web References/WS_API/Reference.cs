@@ -27,8 +27,11 @@ namespace ImageUploadHandler.WS_API {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Web.Services.WebServiceBindingAttribute(Name="APISoap", Namespace="http://api.tvinci.com/")]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(BaseObject))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(BaseCacheObject))]
     public partial class API : System.Web.Services.Protocols.SoapHttpClientProtocol {
+        
+        private System.Threading.SendOrPostCallback ValidatePurchasePINOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetParentalMediaRulesOperationCompleted;
         
@@ -182,6 +185,8 @@ namespace ImageUploadHandler.WS_API {
         
         private System.Threading.SendOrPostCallback GetChannelsAssetsIDsOperationCompleted;
         
+        private System.Threading.SendOrPostCallback GetChannelAssetsOperationCompleted;
+        
         private System.Threading.SendOrPostCallback GetAvailableFileTypesOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetChannelMediaIDsOperationCompleted;
@@ -296,8 +301,6 @@ namespace ImageUploadHandler.WS_API {
         
         private System.Threading.SendOrPostCallback ValidateParentalPINOperationCompleted;
         
-        private System.Threading.SendOrPostCallback ValidatePurchasePINOperationCompleted;
-        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -335,6 +338,9 @@ namespace ImageUploadHandler.WS_API {
                 this.useDefaultCredentialsSetExplicitly = true;
             }
         }
+        
+        /// <remarks/>
+        public event ValidatePurchasePINCompletedEventHandler ValidatePurchasePINCompleted;
         
         /// <remarks/>
         public event GetParentalMediaRulesCompletedEventHandler GetParentalMediaRulesCompleted;
@@ -565,6 +571,9 @@ namespace ImageUploadHandler.WS_API {
         public event GetChannelsAssetsIDsCompletedEventHandler GetChannelsAssetsIDsCompleted;
         
         /// <remarks/>
+        public event GetChannelAssetsCompletedEventHandler GetChannelAssetsCompleted;
+        
+        /// <remarks/>
         public event GetAvailableFileTypesCompletedEventHandler GetAvailableFileTypesCompleted;
         
         /// <remarks/>
@@ -736,7 +745,41 @@ namespace ImageUploadHandler.WS_API {
         public event ValidateParentalPINCompletedEventHandler ValidateParentalPINCompleted;
         
         /// <remarks/>
-        public event ValidatePurchasePINCompletedEventHandler ValidatePurchasePINCompleted;
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/ValidatePurchasePIN", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status ValidatePurchasePIN(string userName, string password, string siteGuid, string pin, int domainId) {
+            object[] results = this.Invoke("ValidatePurchasePIN", new object[] {
+                        userName,
+                        password,
+                        siteGuid,
+                        pin,
+                        domainId});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void ValidatePurchasePINAsync(string userName, string password, string siteGuid, string pin, int domainId) {
+            this.ValidatePurchasePINAsync(userName, password, siteGuid, pin, domainId, null);
+        }
+        
+        /// <remarks/>
+        public void ValidatePurchasePINAsync(string userName, string password, string siteGuid, string pin, int domainId, object userState) {
+            if ((this.ValidatePurchasePINOperationCompleted == null)) {
+                this.ValidatePurchasePINOperationCompleted = new System.Threading.SendOrPostCallback(this.OnValidatePurchasePINOperationCompleted);
+            }
+            this.InvokeAsync("ValidatePurchasePIN", new object[] {
+                        userName,
+                        password,
+                        siteGuid,
+                        pin,
+                        domainId}, this.ValidatePurchasePINOperationCompleted, userState);
+        }
+        
+        private void OnValidatePurchasePINOperationCompleted(object arg) {
+            if ((this.ValidatePurchasePINCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.ValidatePurchasePINCompleted(this, new ValidatePurchasePINCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetParentalMediaRules", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -2404,24 +2447,24 @@ namespace ImageUploadHandler.WS_API {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/UpdateImageState", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public bool UpdateImageState(string sWSUserName, string sWSPassword, long rowId, int version, eMediaType mediaType, eState state) {
+        public bool UpdateImageState(string sWSUserName, string sWSPassword, long rowId, int version, eMediaType mediaType, eTableStatus status) {
             object[] results = this.Invoke("UpdateImageState", new object[] {
                         sWSUserName,
                         sWSPassword,
                         rowId,
                         version,
                         mediaType,
-                        state});
+                        status});
             return ((bool)(results[0]));
         }
         
         /// <remarks/>
-        public void UpdateImageStateAsync(string sWSUserName, string sWSPassword, long rowId, int version, eMediaType mediaType, eState state) {
-            this.UpdateImageStateAsync(sWSUserName, sWSPassword, rowId, version, mediaType, state, null);
+        public void UpdateImageStateAsync(string sWSUserName, string sWSPassword, long rowId, int version, eMediaType mediaType, eTableStatus status) {
+            this.UpdateImageStateAsync(sWSUserName, sWSPassword, rowId, version, mediaType, status, null);
         }
         
         /// <remarks/>
-        public void UpdateImageStateAsync(string sWSUserName, string sWSPassword, long rowId, int version, eMediaType mediaType, eState state, object userState) {
+        public void UpdateImageStateAsync(string sWSUserName, string sWSPassword, long rowId, int version, eMediaType mediaType, eTableStatus status, object userState) {
             if ((this.UpdateImageStateOperationCompleted == null)) {
                 this.UpdateImageStateOperationCompleted = new System.Threading.SendOrPostCallback(this.OnUpdateImageStateOperationCompleted);
             }
@@ -2431,7 +2474,7 @@ namespace ImageUploadHandler.WS_API {
                         rowId,
                         version,
                         mediaType,
-                        state}, this.UpdateImageStateOperationCompleted, userState);
+                        status}, this.UpdateImageStateOperationCompleted, userState);
         }
         
         private void OnUpdateImageStateOperationCompleted(object arg) {
@@ -3441,6 +3484,39 @@ namespace ImageUploadHandler.WS_API {
             if ((this.GetChannelsAssetsIDsCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.GetChannelsAssetsIDsCompleted(this, new GetChannelsAssetsIDsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetChannelAssets", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public UnifiedSearchResult[] GetChannelAssets(string username, string password, int channelId) {
+            object[] results = this.Invoke("GetChannelAssets", new object[] {
+                        username,
+                        password,
+                        channelId});
+            return ((UnifiedSearchResult[])(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetChannelAssetsAsync(string username, string password, int channelId) {
+            this.GetChannelAssetsAsync(username, password, channelId, null);
+        }
+        
+        /// <remarks/>
+        public void GetChannelAssetsAsync(string username, string password, int channelId, object userState) {
+            if ((this.GetChannelAssetsOperationCompleted == null)) {
+                this.GetChannelAssetsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetChannelAssetsOperationCompleted);
+            }
+            this.InvokeAsync("GetChannelAssets", new object[] {
+                        username,
+                        password,
+                        channelId}, this.GetChannelAssetsOperationCompleted, userState);
+        }
+        
+        private void OnGetChannelAssetsOperationCompleted(object arg) {
+            if ((this.GetChannelAssetsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetChannelAssetsCompleted(this, new GetChannelAssetsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -5470,43 +5546,6 @@ namespace ImageUploadHandler.WS_API {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/ValidatePurchasePIN", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status ValidatePurchasePIN(string userName, string password, string siteGuid, string pin, int domainId) {
-            object[] results = this.Invoke("ValidatePurchasePIN", new object[] {
-                        userName,
-                        password,
-                        siteGuid,
-                        pin,
-                        domainId});
-            return ((Status)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void ValidatePurchasePINAsync(string userName, string password, string siteGuid, string pin, int domainId) {
-            this.ValidatePurchasePINAsync(userName, password, siteGuid, pin, domainId, null);
-        }
-        
-        /// <remarks/>
-        public void ValidatePurchasePINAsync(string userName, string password, string siteGuid, string pin, int domainId, object userState) {
-            if ((this.ValidatePurchasePINOperationCompleted == null)) {
-                this.ValidatePurchasePINOperationCompleted = new System.Threading.SendOrPostCallback(this.OnValidatePurchasePINOperationCompleted);
-            }
-            this.InvokeAsync("ValidatePurchasePIN", new object[] {
-                        userName,
-                        password,
-                        siteGuid,
-                        pin,
-                        domainId}, this.ValidatePurchasePINOperationCompleted, userState);
-        }
-        
-        private void OnValidatePurchasePINOperationCompleted(object arg) {
-            if ((this.ValidatePurchasePINCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.ValidatePurchasePINCompleted(this, new ValidatePurchasePINCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -5522,39 +5561,6 @@ namespace ImageUploadHandler.WS_API {
                 return true;
             }
             return false;
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class ParentalRulesResponse {
-        
-        private Status statusField;
-        
-        private ParentalRule[] rulesField;
-        
-        /// <remarks/>
-        public Status status {
-            get {
-                return this.statusField;
-            }
-            set {
-                this.statusField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public ParentalRule[] rules {
-            get {
-                return this.rulesField;
-            }
-            set {
-                this.rulesField = value;
-            }
         }
     }
     
@@ -7209,21 +7215,21 @@ namespace ImageUploadHandler.WS_API {
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ChangePasswordMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CinepolisRenewalFailMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseFailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PreviewModuleCancelOrRefundRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseWithPreviewModuleRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseFailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(AddUserMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CinepolisPurchaseMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(WelcomeMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(ForgotPasswordMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(SendPasswordMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(ChangedPinMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(AddUserMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(WelcomeMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(AddDeviceMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(EmailNotificationRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(SendAdminTokenRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ChangePasswordMailRequest))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -7407,27 +7413,6 @@ namespace ImageUploadHandler.WS_API {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class ChangePasswordMailRequest : MailRequestObj {
-        
-        private string m_sTokenField;
-        
-        /// <remarks/>
-        public string m_sToken {
-            get {
-                return this.m_sTokenField;
-            }
-            set {
-                this.m_sTokenField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class CinepolisRenewalFailMailRequest : MailRequestObj {
         
         private string m_sPurchaseDateField;
@@ -7456,9 +7441,9 @@ namespace ImageUploadHandler.WS_API {
     }
     
     /// <remarks/>
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseFailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PreviewModuleCancelOrRefundRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseWithPreviewModuleRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseFailRequest))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -7617,6 +7602,15 @@ namespace ImageUploadHandler.WS_API {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class PurchaseFailRequest : PurchaseMailRequest {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class PreviewModuleCancelOrRefundRequest : PurchaseMailRequest {
     }
     
@@ -7647,7 +7641,55 @@ namespace ImageUploadHandler.WS_API {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class PurchaseFailRequest : PurchaseMailRequest {
+    public partial class AddUserMailRequest : MailRequestObj {
+        
+        private string m_sTokenField;
+        
+        private string m_sMasterUsernameField;
+        
+        private string m_sNewUsernameField;
+        
+        private string m_sNewFirstNameField;
+        
+        /// <remarks/>
+        public string m_sToken {
+            get {
+                return this.m_sTokenField;
+            }
+            set {
+                this.m_sTokenField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sMasterUsername {
+            get {
+                return this.m_sMasterUsernameField;
+            }
+            set {
+                this.m_sMasterUsernameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sNewUsername {
+            get {
+                return this.m_sNewUsernameField;
+            }
+            set {
+                this.m_sNewUsernameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sNewFirstName {
+            get {
+                return this.m_sNewFirstNameField;
+            }
+            set {
+                this.m_sNewFirstNameField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -7703,51 +7745,6 @@ namespace ImageUploadHandler.WS_API {
             }
             set {
                 this.m_sUsernameField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class WelcomeMailRequest : MailRequestObj {
-        
-        private string m_sTokenField;
-        
-        private string m_sUsernameField;
-        
-        private string m_sPasswordField;
-        
-        /// <remarks/>
-        public string m_sToken {
-            get {
-                return this.m_sTokenField;
-            }
-            set {
-                this.m_sTokenField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sUsername {
-            get {
-                return this.m_sUsernameField;
-            }
-            set {
-                this.m_sUsernameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sPassword {
-            get {
-                return this.m_sPasswordField;
-            }
-            set {
-                this.m_sPasswordField = value;
             }
         }
     }
@@ -7869,15 +7866,13 @@ namespace ImageUploadHandler.WS_API {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class AddUserMailRequest : MailRequestObj {
+    public partial class WelcomeMailRequest : MailRequestObj {
         
         private string m_sTokenField;
         
-        private string m_sMasterUsernameField;
+        private string m_sUsernameField;
         
-        private string m_sNewUsernameField;
-        
-        private string m_sNewFirstNameField;
+        private string m_sPasswordField;
         
         /// <remarks/>
         public string m_sToken {
@@ -7890,32 +7885,22 @@ namespace ImageUploadHandler.WS_API {
         }
         
         /// <remarks/>
-        public string m_sMasterUsername {
+        public string m_sUsername {
             get {
-                return this.m_sMasterUsernameField;
+                return this.m_sUsernameField;
             }
             set {
-                this.m_sMasterUsernameField = value;
+                this.m_sUsernameField = value;
             }
         }
         
         /// <remarks/>
-        public string m_sNewUsername {
+        public string m_sPassword {
             get {
-                return this.m_sNewUsernameField;
+                return this.m_sPasswordField;
             }
             set {
-                this.m_sNewUsernameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sNewFirstName {
-            get {
-                return this.m_sNewFirstNameField;
-            }
-            set {
-                this.m_sNewFirstNameField = value;
+                this.m_sPasswordField = value;
             }
         }
     }
@@ -8159,6 +8144,27 @@ namespace ImageUploadHandler.WS_API {
             }
             set {
                 this.m_sDurationField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class ChangePasswordMailRequest : MailRequestObj {
+        
+        private string m_sTokenField;
+        
+        /// <remarks/>
+        public string m_sToken {
+            get {
+                return this.m_sTokenField;
+            }
+            set {
+                this.m_sTokenField = value;
             }
         }
     }
@@ -8444,6 +8450,101 @@ namespace ImageUploadHandler.WS_API {
                 this.m_nMediaIDField = value;
             }
         }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class ExtensionDataObject {
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(UnifiedSearchResult))]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class BaseObject {
+        
+        private ExtensionDataObject extensionDataField;
+        
+        private string assetIdField;
+        
+        private eAssetTypes assetTypeField;
+        
+        private System.DateTime m_dUpdateDateField;
+        
+        /// <remarks/>
+        public ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string AssetId {
+            get {
+                return this.assetIdField;
+            }
+            set {
+                this.assetIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public eAssetTypes AssetType {
+            get {
+                return this.assetTypeField;
+            }
+            set {
+                this.assetTypeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime m_dUpdateDate {
+            get {
+                return this.m_dUpdateDateField;
+            }
+            set {
+                this.m_dUpdateDateField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public enum eAssetTypes {
+        
+        /// <remarks/>
+        UNKNOWN,
+        
+        /// <remarks/>
+        EPG,
+        
+        /// <remarks/>
+        NPVR,
+        
+        /// <remarks/>
+        MEDIA,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class UnifiedSearchResult : BaseObject {
     }
     
     /// <remarks/>
@@ -9649,14 +9750,14 @@ namespace ImageUploadHandler.WS_API {
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class SearchOrderByObject {
         
-        private OrderBy m_eOrderByField;
+        private OrderDiretion m_eOrderByField;
         
         private string m_sOrderFieldField;
         
         private int m_nOrderNumField;
         
         /// <remarks/>
-        public OrderBy m_eOrderBy {
+        public OrderDiretion m_eOrderBy {
             get {
                 return this.m_eOrderByField;
             }
@@ -9690,7 +9791,7 @@ namespace ImageUploadHandler.WS_API {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public enum OrderBy {
+    public enum OrderDiretion {
         
         /// <remarks/>
         Desc,
@@ -12665,6 +12766,39 @@ namespace ImageUploadHandler.WS_API {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class ParentalRulesResponse {
+        
+        private Status statusField;
+        
+        private ParentalRule[] rulesField;
+        
+        /// <remarks/>
+        public Status status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public ParentalRule[] rules {
+            get {
+                return this.rulesField;
+            }
+            set {
+                this.rulesField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public enum ePermissionType {
         
@@ -12692,13 +12826,13 @@ namespace ImageUploadHandler.WS_API {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public enum eState {
-        
-        /// <remarks/>
-        OK,
+    public enum eTableStatus {
         
         /// <remarks/>
         Pending,
+        
+        /// <remarks/>
+        OK,
         
         /// <remarks/>
         Failed,
@@ -12781,6 +12915,32 @@ namespace ImageUploadHandler.WS_API {
         
         /// <remarks/>
         Subscription,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void ValidatePurchasePINCompletedEventHandler(object sender, ValidatePurchasePINCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class ValidatePurchasePINCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal ValidatePurchasePINCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
     }
     
     /// <remarks/>
@@ -14793,6 +14953,32 @@ namespace ImageUploadHandler.WS_API {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetChannelAssetsCompletedEventHandler(object sender, GetChannelAssetsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetChannelAssetsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetChannelAssetsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public UnifiedSearchResult[] Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((UnifiedSearchResult[])(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
     public delegate void GetAvailableFileTypesCompletedEventHandler(object sender, GetAvailableFileTypesCompletedEventArgs e);
     
     /// <remarks/>
@@ -16260,32 +16446,6 @@ namespace ImageUploadHandler.WS_API {
         private object[] results;
         
         internal ValidateParentalPINCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public Status Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((Status)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void ValidatePurchasePINCompletedEventHandler(object sender, ValidatePurchasePINCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class ValidatePurchasePINCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal ValidatePurchasePINCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }

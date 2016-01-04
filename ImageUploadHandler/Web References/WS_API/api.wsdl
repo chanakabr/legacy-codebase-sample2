@@ -2,6 +2,30 @@
 <wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://api.tvinci.com/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:s1="http://api.tvinci.com/AbstractTypes" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://api.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://api.tvinci.com/">
+      <s:element name="ValidatePurchasePIN">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pin" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ValidatePurchasePINResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ValidatePurchasePINResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="Status">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Code" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="GetParentalMediaRules">
         <s:complexType>
           <s:sequence>
@@ -24,12 +48,6 @@
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="status" type="tns:Status" />
           <s:element minOccurs="0" maxOccurs="1" name="rules" type="tns:ArrayOfParentalRule" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="Status">
-        <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="Code" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="ArrayOfParentalRule">
@@ -1229,7 +1247,7 @@
             <s:element minOccurs="1" maxOccurs="1" name="rowId" type="s:long" />
             <s:element minOccurs="1" maxOccurs="1" name="version" type="s:int" />
             <s:element minOccurs="1" maxOccurs="1" name="mediaType" type="tns:eMediaType" />
-            <s:element minOccurs="1" maxOccurs="1" name="state" type="tns:eState" />
+            <s:element minOccurs="1" maxOccurs="1" name="status" type="tns:eTableStatus" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -1239,10 +1257,10 @@
           <s:enumeration value="EPG" />
         </s:restriction>
       </s:simpleType>
-      <s:simpleType name="eState">
+      <s:simpleType name="eTableStatus">
         <s:restriction base="s:string">
-          <s:enumeration value="OK" />
           <s:enumeration value="Pending" />
+          <s:enumeration value="OK" />
           <s:enumeration value="Failed" />
         </s:restriction>
       </s:simpleType>
@@ -1713,12 +1731,12 @@
       </s:complexType>
       <s:complexType name="SearchOrderByObject">
         <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="m_eOrderBy" type="tns:OrderBy" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_eOrderBy" type="tns:OrderDiretion" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sOrderField" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="m_nOrderNum" type="s:int" />
         </s:sequence>
       </s:complexType>
-      <s:simpleType name="OrderBy">
+      <s:simpleType name="OrderDiretion">
         <s:restriction base="s:string">
           <s:enumeration value="Desc" />
           <s:enumeration value="Asc" />
@@ -2228,6 +2246,49 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="GetChannelAssets">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="channelId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetChannelAssetsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetChannelAssetsResult" type="tns:ArrayOfUnifiedSearchResult" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfUnifiedSearchResult">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="UnifiedSearchResult" nillable="true" type="tns:UnifiedSearchResult" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="UnifiedSearchResult">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:BaseObject" />
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="BaseObject">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ExtensionData" type="tns:ExtensionDataObject" />
+          <s:element minOccurs="0" maxOccurs="1" name="AssetId" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="AssetType" type="tns:eAssetTypes" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_dUpdateDate" type="s:dateTime" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ExtensionDataObject" />
+      <s:simpleType name="eAssetTypes">
+        <s:restriction base="s:string">
+          <s:enumeration value="UNKNOWN" />
+          <s:enumeration value="EPG" />
+          <s:enumeration value="NPVR" />
+          <s:enumeration value="MEDIA" />
+        </s:restriction>
+      </s:simpleType>
       <s:element name="GetAvailableFileTypes">
         <s:complexType>
           <s:sequence>
@@ -2558,6 +2619,15 @@
           <s:enumeration value="AddDeviceToDomain" />
         </s:restriction>
       </s:simpleType>
+      <s:complexType name="ChangePasswordMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
       <s:complexType name="SendAdminTokenRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
@@ -2611,14 +2681,13 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="AddUserMailRequest">
+      <s:complexType name="WelcomeMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewFirstName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPassword" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -2654,17 +2723,6 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="WelcomeMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPassword" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="CinepolisPurchaseMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
@@ -2673,6 +2731,18 @@
               <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sPrice" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="AddUserMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewFirstName" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -2697,11 +2767,6 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="PurchaseFailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:PurchaseMailRequest" />
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="PurchaseWithPreviewModuleRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:PurchaseMailRequest">
@@ -2716,21 +2781,17 @@
           <s:extension base="tns:PurchaseMailRequest" />
         </s:complexContent>
       </s:complexType>
+      <s:complexType name="PurchaseFailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:PurchaseMailRequest" />
+        </s:complexContent>
+      </s:complexType>
       <s:complexType name="CinepolisRenewalFailMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="ChangePasswordMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -3765,26 +3826,8 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="ValidatePurchasePIN">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="pin" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:int" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="ValidatePurchasePINResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="ValidatePurchasePINResult" type="tns:Status" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="ParentalRulesResponse" nillable="true" type="tns:ParentalRulesResponse" />
       <s:element name="Status" nillable="true" type="tns:Status" />
+      <s:element name="ParentalRulesResponse" nillable="true" type="tns:ParentalRulesResponse" />
       <s:element name="GenericRuleResponse" nillable="true" type="tns:GenericRuleResponse" />
       <s:element name="ParentalRulesTagsResponse" nillable="true" type="tns:ParentalRulesTagsResponse" />
       <s:element name="boolean" type="s:boolean" />
@@ -3802,6 +3845,7 @@
       <s:element name="AdminAccountUserResponse" nillable="true" type="tns:AdminAccountUserResponse" />
       <s:element name="string" nillable="true" type="s:string" />
       <s:element name="ArrayOfInt" nillable="true" type="tns:ArrayOfInt" />
+      <s:element name="ArrayOfUnifiedSearchResult" nillable="true" type="tns:ArrayOfUnifiedSearchResult" />
       <s:element name="ArrayOfFileTypeContainer" nillable="true" type="tns:ArrayOfFileTypeContainer" />
       <s:element name="ArrayOfMeidaMaper" nillable="true" type="tns:ArrayOfMeidaMaper" />
       <s:element name="ArrayOfGroupInfo" nillable="true" type="tns:ArrayOfGroupInfo" />
@@ -3831,6 +3875,12 @@
       </s:complexType>
     </s:schema>
   </wsdl:types>
+  <wsdl:message name="ValidatePurchasePINSoapIn">
+    <wsdl:part name="parameters" element="tns:ValidatePurchasePIN" />
+  </wsdl:message>
+  <wsdl:message name="ValidatePurchasePINSoapOut">
+    <wsdl:part name="parameters" element="tns:ValidatePurchasePINResponse" />
+  </wsdl:message>
   <wsdl:message name="GetParentalMediaRulesSoapIn">
     <wsdl:part name="parameters" element="tns:GetParentalMediaRules" />
   </wsdl:message>
@@ -4287,6 +4337,12 @@
   <wsdl:message name="GetChannelsAssetsIDsSoapOut">
     <wsdl:part name="parameters" element="tns:GetChannelsAssetsIDsResponse" />
   </wsdl:message>
+  <wsdl:message name="GetChannelAssetsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetChannelAssets" />
+  </wsdl:message>
+  <wsdl:message name="GetChannelAssetsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetChannelAssetsResponse" />
+  </wsdl:message>
   <wsdl:message name="GetAvailableFileTypesSoapIn">
     <wsdl:part name="parameters" element="tns:GetAvailableFileTypes" />
   </wsdl:message>
@@ -4629,11 +4685,15 @@
   <wsdl:message name="ValidateParentalPINSoapOut">
     <wsdl:part name="parameters" element="tns:ValidateParentalPINResponse" />
   </wsdl:message>
-  <wsdl:message name="ValidatePurchasePINSoapIn">
-    <wsdl:part name="parameters" element="tns:ValidatePurchasePIN" />
+  <wsdl:message name="ValidatePurchasePINHttpPostIn">
+    <wsdl:part name="userName" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+    <wsdl:part name="pin" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
   </wsdl:message>
-  <wsdl:message name="ValidatePurchasePINSoapOut">
-    <wsdl:part name="parameters" element="tns:ValidatePurchasePINResponse" />
+  <wsdl:message name="ValidatePurchasePINHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
   <wsdl:message name="GetParentalMediaRulesHttpPostIn">
     <wsdl:part name="userName" type="s:string" />
@@ -4884,7 +4944,7 @@
     <wsdl:part name="rowId" type="s:string" />
     <wsdl:part name="version" type="s:string" />
     <wsdl:part name="mediaType" type="s:string" />
-    <wsdl:part name="state" type="s:string" />
+    <wsdl:part name="status" type="s:string" />
   </wsdl:message>
   <wsdl:message name="UpdateImageStateHttpPostOut">
     <wsdl:part name="Body" element="tns:boolean" />
@@ -4973,6 +5033,14 @@
   </wsdl:message>
   <wsdl:message name="GetChannelsAssetsIDsHttpPostOut">
     <wsdl:part name="Body" element="tns:ArrayOfInt" />
+  </wsdl:message>
+  <wsdl:message name="GetChannelAssetsHttpPostIn">
+    <wsdl:part name="username" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+    <wsdl:part name="channelId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetChannelAssetsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfUnifiedSearchResult" />
   </wsdl:message>
   <wsdl:message name="GetAvailableFileTypesHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -5440,17 +5508,11 @@
   <wsdl:message name="ValidateParentalPINHttpPostOut">
     <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
-  <wsdl:message name="ValidatePurchasePINHttpPostIn">
-    <wsdl:part name="userName" type="s:string" />
-    <wsdl:part name="password" type="s:string" />
-    <wsdl:part name="siteGuid" type="s:string" />
-    <wsdl:part name="pin" type="s:string" />
-    <wsdl:part name="domainId" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="ValidatePurchasePINHttpPostOut">
-    <wsdl:part name="Body" element="tns:Status" />
-  </wsdl:message>
   <wsdl:portType name="APISoap">
+    <wsdl:operation name="ValidatePurchasePIN">
+      <wsdl:input message="tns:ValidatePurchasePINSoapIn" />
+      <wsdl:output message="tns:ValidatePurchasePINSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetParentalMediaRules">
       <wsdl:input message="tns:GetParentalMediaRulesSoapIn" />
       <wsdl:output message="tns:GetParentalMediaRulesSoapOut" />
@@ -5755,6 +5817,10 @@
       <wsdl:input message="tns:GetChannelsAssetsIDsSoapIn" />
       <wsdl:output message="tns:GetChannelsAssetsIDsSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetChannelAssets">
+      <wsdl:input message="tns:GetChannelAssetsSoapIn" />
+      <wsdl:output message="tns:GetChannelAssetsSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetAvailableFileTypes">
       <wsdl:input message="tns:GetAvailableFileTypesSoapIn" />
       <wsdl:output message="tns:GetAvailableFileTypesSoapOut" />
@@ -5983,12 +6049,12 @@
       <wsdl:input message="tns:ValidateParentalPINSoapIn" />
       <wsdl:output message="tns:ValidateParentalPINSoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="ValidatePurchasePIN">
-      <wsdl:input message="tns:ValidatePurchasePINSoapIn" />
-      <wsdl:output message="tns:ValidatePurchasePINSoapOut" />
-    </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="APIHttpPost">
+    <wsdl:operation name="ValidatePurchasePIN">
+      <wsdl:input message="tns:ValidatePurchasePINHttpPostIn" />
+      <wsdl:output message="tns:ValidatePurchasePINHttpPostOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetParentalMediaRules">
       <wsdl:input message="tns:GetParentalMediaRulesHttpPostIn" />
       <wsdl:output message="tns:GetParentalMediaRulesHttpPostOut" />
@@ -6144,6 +6210,10 @@
     <wsdl:operation name="GetChannelsAssetsIDs">
       <wsdl:input message="tns:GetChannelsAssetsIDsHttpPostIn" />
       <wsdl:output message="tns:GetChannelsAssetsIDsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetChannelAssets">
+      <wsdl:input message="tns:GetChannelAssetsHttpPostIn" />
+      <wsdl:output message="tns:GetChannelAssetsHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="GetAvailableFileTypes">
       <wsdl:input message="tns:GetAvailableFileTypesHttpPostIn" />
@@ -6345,13 +6415,18 @@
       <wsdl:input message="tns:ValidateParentalPINHttpPostIn" />
       <wsdl:output message="tns:ValidateParentalPINHttpPostOut" />
     </wsdl:operation>
-    <wsdl:operation name="ValidatePurchasePIN">
-      <wsdl:input message="tns:ValidatePurchasePINHttpPostIn" />
-      <wsdl:output message="tns:ValidatePurchasePINHttpPostOut" />
-    </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="APISoap" type="tns:APISoap">
     <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="ValidatePurchasePIN">
+      <soap:operation soapAction="http://api.tvinci.com/ValidatePurchasePIN" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetParentalMediaRules">
       <soap:operation soapAction="http://api.tvinci.com/GetParentalMediaRules" style="document" />
       <wsdl:input>
@@ -7036,6 +7111,15 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetChannelAssets">
+      <soap:operation soapAction="http://api.tvinci.com/GetChannelAssets" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetAvailableFileTypes">
       <soap:operation soapAction="http://api.tvinci.com/GetAvailableFileTypes" style="document" />
       <wsdl:input>
@@ -7549,18 +7633,18 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="ValidatePurchasePIN">
-      <soap:operation soapAction="http://api.tvinci.com/ValidatePurchasePIN" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="APISoap12" type="tns:APISoap">
     <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="ValidatePurchasePIN">
+      <soap12:operation soapAction="http://api.tvinci.com/ValidatePurchasePIN" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetParentalMediaRules">
       <soap12:operation soapAction="http://api.tvinci.com/GetParentalMediaRules" style="document" />
       <wsdl:input>
@@ -8245,6 +8329,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetChannelAssets">
+      <soap12:operation soapAction="http://api.tvinci.com/GetChannelAssets" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetAvailableFileTypes">
       <soap12:operation soapAction="http://api.tvinci.com/GetAvailableFileTypes" style="document" />
       <wsdl:input>
@@ -8758,18 +8851,18 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="ValidatePurchasePIN">
-      <soap12:operation soapAction="http://api.tvinci.com/ValidatePurchasePIN" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="APIHttpPost" type="tns:APIHttpPost">
     <http:binding verb="POST" />
+    <wsdl:operation name="ValidatePurchasePIN">
+      <http:operation location="/ValidatePurchasePIN" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetParentalMediaRules">
       <http:operation location="/GetParentalMediaRules" />
       <wsdl:input>
@@ -9114,6 +9207,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetChannelsAssetsIDs">
       <http:operation location="/GetChannelsAssetsIDs" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetChannelAssets">
+      <http:operation location="/GetChannelAssets" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
@@ -9564,15 +9666,6 @@
     </wsdl:operation>
     <wsdl:operation name="ValidateParentalPIN">
       <http:operation location="/ValidateParentalPIN" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="ValidatePurchasePIN">
-      <http:operation location="/ValidatePurchasePIN" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>

@@ -42,37 +42,18 @@ namespace ImageUploadHandler
 
                 // check result
                 if (string.IsNullOrEmpty(result) || result.ToLower() != "true")
+                {
+                    // update image status
+                    UpdateImageStatus(request, eTableStatus.Failed);
+
                     throw new Exception(string.Format("error inserting image. data: {0}", data));
+                }
                 else
                 {
                     log.DebugFormat("post image success. {0}", data);
 
-                    // post success - update ws_api
-                    string url = WS_Utils.GetTcmConfigValue("WS_API");
-                    string username = string.Empty;
-                    string password = string.Empty;
-                    TasksCommon.RemoteTasksUtils.GetCredentials(request.GroupId, ref username, ref password, ApiObjects.eWSModules.API);
-
-                    // update catalog
-                    using (API apiClient = new API())
-                    {
-                        if (!string.IsNullOrEmpty(url))
-                            apiClient.Url = url;
-
-                        bool success = apiClient.UpdateImageState(username, password, request.RowId, request.Version, (eMediaType)request.MediaType, eState.OK);
-                        log.DebugFormat("update image state success. RowId: {0}, Version {1}, MediaType: {2}, State: {3}",
-                            request.RowId,                                  // {0}
-                            request.Version,                                // {1}
-                            ((eMediaType)request.MediaType).ToString(),     // {2}
-                            eState.OK.ToString());                          // {3}
-
-                        if (!success)
-                            throw new Exception(string.Format("Error while updating image status. RowId: {0}, Version {1}, MediaType: {2}, State: {3}",
-                            request.RowId,                                  // {0}
-                            request.Version,                                // {1}
-                            ((eMediaType)request.MediaType).ToString(),     // {2}
-                            eState.OK.ToString()));                         // {3}
-                    }
+                    // update image status
+                    UpdateImageStatus(request, eTableStatus.OK);
                 }
             }
             catch (Exception ex)
@@ -81,6 +62,36 @@ namespace ImageUploadHandler
             }
 
             return result;
+        }
+
+        private static void UpdateImageStatus(RemoteImageUploadRequest request, eTableStatus status)
+        {
+            // post success - update ws_api
+            string url = WS_Utils.GetTcmConfigValue("WS_API");
+            string username = string.Empty;
+            string password = string.Empty;
+            TasksCommon.RemoteTasksUtils.GetCredentials(request.GroupId, ref username, ref password, ApiObjects.eWSModules.API);
+
+            // update catalog
+            using (API apiClient = new API())
+            {
+                if (!string.IsNullOrEmpty(url))
+                    apiClient.Url = url;
+
+                bool success = apiClient.UpdateImageState(username, password, request.RowId, request.Version, (eMediaType)request.MediaType, status);
+                log.DebugFormat("update image state success. RowId: {0}, Version {1}, MediaType: {2}, State: {3}",
+                    request.RowId,                              // {0}
+                    request.Version,                            // {1}
+                    ((eMediaType)request.MediaType).ToString(), // {2}
+                    status.ToString());                         // {3}
+
+                if (!success)
+                    throw new Exception(string.Format("Error while updating image status. RowId: {0}, Version {1}, MediaType: {2}, State: {3}",
+                    request.RowId,                              // {0}
+                    request.Version,                            // {1}
+                    ((eMediaType)request.MediaType).ToString(), // {2}
+                    status.ToString()));                        // {3}
+            }
         }
 
         private string HttpPost(string uri, string parameters, string contentType = null)
