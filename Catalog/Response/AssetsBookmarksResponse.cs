@@ -73,4 +73,28 @@ namespace Catalog.Response
         }
     }
 
+    [DataContract]
+    public class LastPosition
+    {
+        [DataMember]
+        public int m_nUserID;
+
+        [DataMember]
+        public eUserType m_eUserType;
+
+        [DataMember]
+        public int m_nLocation;
+
+        public LastPosition()
+        {
+        }
+
+        public LastPosition(int nUserID, eUserType eUserType, int nLocation)
+        {
+            this.m_nUserID = nUserID;
+            this.m_eUserType = eUserType;
+            this.m_nLocation = nLocation;
+        }
+    }
+
 }
