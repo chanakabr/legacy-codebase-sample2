@@ -56,13 +56,12 @@ namespace Catalog.Request
                 if (oBaseRequest != null)
                 {
                     oMediaHitRequest = oBaseRequest as MediaHitRequest;
-                    bool bNpvr = string.IsNullOrEmpty(oMediaHitRequest.m_oMediaPlayRequestData.m_sNpvrID) ? false : true;
-
-                    if (!bNpvr) // Media
+                    
+                    if (oMediaHitRequest.m_oMediaPlayRequestData.m_eAssetType == eAssetTypes.MEDIA) // Media
                     {
                         oMediaHitResponse = ProcessMediaHitRequest(oMediaHitRequest);
                     }
-                    else //Npvr
+                    else if (oMediaHitRequest.m_oMediaPlayRequestData.m_eAssetType == eAssetTypes.NPVR) //Npvr
                     {
                         oMediaHitResponse = ProcessNpvrHitRequest(oMediaHitRequest);
                     }
@@ -116,6 +115,17 @@ namespace Catalog.Request
             int nSiteGuid;
             int.TryParse(m_oMediaPlayRequestData.m_sSiteGuid, out nSiteGuid);
 
+            if (m_oMediaPlayRequestData.m_eAssetType == eAssetTypes.MEDIA || m_oMediaPlayRequestData.m_eAssetType == eAssetTypes.EPG)
+            {
+                int t;
+                if (!int.TryParse(m_oMediaPlayRequestData.m_sAssetID, out t))
+                {
+                    oMediaHitResponse.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.ERROR);
+                    oMediaHitResponse.m_sDescription = "Media id not a number";
+                    return oMediaHitResponse;
+                }
+            }
+
             //anonymous user - can't play npvr
             if (Catalog.IsAnonymousUser(m_oMediaPlayRequestData.m_sSiteGuid))
             {
@@ -126,8 +136,8 @@ namespace Catalog.Request
             {
                 if (!resultParse || action != MediaPlayActions.BITRATE_CHANGE)
                 {
-                    Catalog.UpdateFollowMe(m_nGroupID, m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_sSiteGuid, nPlayTime, m_oMediaPlayRequestData.m_sUDID, fileDuration, MediaPlayResponse.HIT.ToString(), (int)eAssetTypes.NPVR, 0,
-                        oMediaHitRequest.m_oMediaPlayRequestData.m_sNpvrID, ApiObjects.ePlayType.NPVR);
+                    Catalog.UpdateFollowMe(m_nGroupID, m_oMediaPlayRequestData.m_sAssetID, m_oMediaPlayRequestData.m_sSiteGuid, nPlayTime, m_oMediaPlayRequestData.m_sUDID, fileDuration, 
+                        MediaPlayResponse.HIT.ToString(), (int)eAssetTypes.NPVR, 0, ApiObjects.ePlayType.NPVR);
                 }
 
                 oMediaHitResponse.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.HIT);
@@ -168,6 +178,7 @@ namespace Catalog.Request
             int nCountryID = 0;
             int nSiteGuid;
             int fileDuration = 0;
+            int mediaId = int.Parse(m_oMediaPlayRequestData.m_sAssetID);
 
             MediaPlayActions action;
 
@@ -179,7 +190,7 @@ namespace Catalog.Request
             if (this.m_oFilter != null)
                 int.TryParse(m_oFilter.m_sPlatform, out nPlatform);
 
-            if (!Catalog.GetMediaMarkHitInitialData(m_oMediaPlayRequestData.m_sSiteGuid, m_sUserIP, m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID,
+            if (!Catalog.GetMediaMarkHitInitialData(m_oMediaPlayRequestData.m_sSiteGuid, m_sUserIP, mediaId, m_oMediaPlayRequestData.m_nMediaFileID,
                 ref nCountryID, ref nOwnerGroupID, ref nCDNID, ref nQualityID, ref nFormatID, ref nMediaTypeID, ref nBillingTypeID, ref fileDuration))
             {
                 throw new Exception(String.Concat("Failed to bring initial data from DB. Req: ", ToString()));
@@ -191,27 +202,27 @@ namespace Catalog.Request
             //non-anonymous user
             if (nSiteGuid != 0)
             {
-                CatalogDAL.Insert_MediaMarkHitActionData(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, m_oMediaPlayRequestData.m_nMediaID,
+                CatalogDAL.Insert_MediaMarkHitActionData(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, mediaId,
                     m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID, nMediaDuration, nCountryID, nPlayerID, nFirstPlay, nPlay, nLoad,
                     nPause, nStop, nFull, nExitFull, nSendToFriend, nPlayTime, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser, nPlatform,
                     m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID, nSwhoosh, 0);
 
                 if (!resultParse || action != MediaPlayActions.BITRATE_CHANGE)
-                    Catalog.UpdateFollowMe(m_nGroupID, m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_sSiteGuid, nPlayTime, m_oMediaPlayRequestData.m_sUDID, fileDuration, action.ToString(), nMediaTypeID, domainId);
+                    Catalog.UpdateFollowMe(m_nGroupID, m_oMediaPlayRequestData.m_sAssetID, m_oMediaPlayRequestData.m_sSiteGuid, nPlayTime, m_oMediaPlayRequestData.m_sUDID, fileDuration, action.ToString(), nMediaTypeID, domainId);
 
                 if (m_oMediaPlayRequestData.m_nAvgBitRate > 0)
                 {
                     int siteGuid = 0;
                     int status = 1;
                     int.TryParse(m_oMediaPlayRequestData.m_sSiteGuid, out siteGuid);
-                    CatalogDAL.Insert_NewMediaFileVideoQuality(nWatcherID, siteGuid, sSessionID, m_oMediaPlayRequestData.m_nMediaID, m_oMediaPlayRequestData.m_nMediaFileID,
+                    CatalogDAL.Insert_NewMediaFileVideoQuality(nWatcherID, siteGuid, sSessionID, mediaId, m_oMediaPlayRequestData.m_nMediaFileID,
                                                                m_oMediaPlayRequestData.m_nAvgBitRate, m_oMediaPlayRequestData.m_nCurrentBitRate, m_oMediaPlayRequestData.m_nTotalBitRate,
                                                                nPlayTime, nBrowser, nPlatform, nCountryID, status, m_nGroupID);
                 }
             }
             //if this is not a bit rate change, log for mediahit for statistics
             if (!resultParse || action != MediaPlayActions.BITRATE_CHANGE)
-                Task.Factory.StartNew(() => WriteLiveViews(mediaHitRequest.m_nGroupID, mediaHitRequest.m_oMediaPlayRequestData.m_nMediaID, nMediaTypeID, nPlayTime));
+                Task.Factory.StartNew(() => WriteLiveViews(mediaHitRequest.m_nGroupID, mediaId, nMediaTypeID, nPlayTime));
 
             oMediaHitResponse.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.HIT);
             return oMediaHitResponse;
