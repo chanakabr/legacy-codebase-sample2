@@ -210,7 +210,9 @@
     <Compile Include="Objects\External.cs" />
     <Compile Include="Objects\ORCARecommendations\LiveRecommendation.cs" />
     <Compile Include="Objects\ORCARecommendations\VideoRecommendation.cs" />
+    <Compile Include="Objects\Requests\SlimAssetRequest.cs" />
     <Compile Include="Objects\Responses\AdminUserResponse.cs" />
+    <Compile Include="Objects\Responses\AssetsBookmarksResponse.cs" />
     <Compile Include="Objects\Responses\Billing\PaymentGatewayChargeIdResponse.cs" />
     <Compile Include="Objects\Responses\ConditionalAccess\DomainsBillingTransactionsResponse.cs" />
     <Compile Include="Objects\Responses\ConditionalAccess\TransactionResponse.cs">
@@ -219,6 +221,7 @@
     <Compile Include="Objects\Responses\ConditionalAccess\TransactionResult.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Objects\Responses\DomainLastPositionResponse.cs" />
     <Compile Include="Objects\Responses\NpvrRecordAsset.cs" />
     <Compile Include="Objects\Responses\AssetInfo.cs" />
     <Compile Include="Objects\Responses\Rules\GenericRule.cs" />

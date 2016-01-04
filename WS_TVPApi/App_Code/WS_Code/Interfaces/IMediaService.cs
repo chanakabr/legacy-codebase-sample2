@@ -14,6 +14,7 @@ using TVPPro.SiteManager.TvinciPlatform.ConditionalAccess;
 using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPPro.SiteManager.Objects;
 using TVPApiModule.Objects.Responses;
+using TVPApiModule.Objects.Requests;
 
 namespace TVPApiServices
 {
@@ -112,6 +113,9 @@ namespace TVPApiServices
 
         [OperationContract]
         List<Media> GetMediasInfo(InitializationObject initObj, long[] MediaID, int mediaType, string picSize, bool withDynamic);
+
+        [OperationContract]
+        TVPApiModule.Objects.Responses.AssetsBookmarksResponse GetAssetsBookmarks(InitializationObject initObj, List<SlimAssetRequest> assets);
 
         [OperationContract]
         string[] GetPrepaidBalance(InitializationObject initObj, string couponCode);

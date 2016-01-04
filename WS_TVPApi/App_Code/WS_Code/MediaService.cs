@@ -33,6 +33,7 @@ using TVPApiModule.Objects.Responses;
 using TVPApiModule.Objects.Authorization;
 using KLogMonitor;
 using System.Reflection;
+using TVPApiModule.Objects.Requests;
 
 namespace TVPApiServices
 {
@@ -1437,14 +1438,64 @@ namespace TVPApiServices
         public MediaMarkObject GetMediaMark(InitializationObject initObj, int iMediaID, string npvrID)
         {
             MediaMarkObject mediaMark = null;
-
+            eAssetTypes requestType;
+            string assetRequestID;
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaMark", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
             if (groupID > 0)
             {
                 try
                 {
-                    mediaMark = new MediaLastPositionLoader(groupID, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, iMediaID, npvrID).Execute() as MediaMarkObject;
+                    AssetBookmarkRequest AssetsToGet;
+                    // npvrID is empty then we get media by iMediaID
+                    if (string.IsNullOrEmpty(npvrID))
+                    {
+                        requestType = eAssetTypes.MEDIA;
+                        assetRequestID = iMediaID.ToString();
+                        AssetsToGet = new AssetBookmarkRequest() { AssetID = assetRequestID, AssetType = requestType };
+                    }
+                    // npvrId is not empty then we get NPVR by npvrID
+                    else
+                    {
+                        requestType = eAssetTypes.NPVR;
+                        assetRequestID = npvrID;
+                        AssetsToGet = new AssetBookmarkRequest() { AssetID = assetRequestID, AssetType = eAssetTypes.NPVR };
+                    }
+                    var res = new AssetsBookmarksLoader(groupID, initObj.SiteGuid, SiteHelper.GetClientIP(), initObj.UDID, new List<AssetBookmarkRequest>() { AssetsToGet })
+                    {
+                        DomainId = initObj.DomainID,
+                        Platform = initObj.Platform.ToString()
+                    }.Execute() as Tvinci.Data.Loaders.TvinciPlatform.Catalog.AssetsBookmarksResponse;
+
+                    Bookmark usersBookmark = null;
+                    bool isBookmarkFound = false;
+                    if (res != null)
+                    {
+                        foreach (AssetBookmarks assetBookmark in res.AssetsBookmarks)
+                        {
+                            if (requestType == assetBookmark.AssetType && assetRequestID == assetBookmark.AssetID)
+                            {
+                                usersBookmark = assetBookmark.Bookmarks.FirstOrDefault(user => user.User.m_sSiteGUIDField == initObj.SiteGuid);
+                                if (usersBookmark != null)
+                                {
+                                    isBookmarkFound = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    mediaMark = new MediaMarkObject() { nGroupID = groupID, nMediaID = int.Parse(assetRequestID), sDeviceID = initObj.UDID, 
+                                                        sSiteGUID = initObj.SiteGuid, sDeviceName = string.Empty };
+                    if (isBookmarkFound)
+                    {
+                        mediaMark.nLocationSec = usersBookmark.Location;
+                        mediaMark.eStatus = MediaMarkObjectStatus.OK;
+                    }
+                    else
+                    {
+                        mediaMark.nLocationSec = 0;
+                        mediaMark.eStatus = MediaMarkObjectStatus.FAILED;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -3349,7 +3400,66 @@ namespace TVPApiServices
 
         #endregion
 
-        [WebMethod(EnableSession = true, Description = "Get EPG Channel Program by Dates")]
+        [WebMethod(EnableSession = true, Description = "Get Assets Bookmarks By AssetID and AssetType")]
+        [PrivateMethod]
+        public TVPApiModule.Objects.Responses.AssetsBookmarksResponse GetAssetsBookmarks(InitializationObject initObj, List<SlimAssetRequest> assets)
+        {
+            TVPApiModule.Objects.Responses.AssetsBookmarksResponse sRet = null;
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetAssetsBookmarks", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            if (groupId > 0)
+            {
+                // Tokenization: validate domain
+                if (AuthorizationManager.IsTokenizationEnabled() &&
+                    !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, groupId, initObj.Platform))
+                {
+                    return null;
+                }
+                try
+                {
+                    List<AssetBookmarkRequest> assetsToSend = new List<AssetBookmarkRequest>();
+                    foreach (SlimAssetRequest asset in assets)
+                    {
+                        AssetBookmarkRequest assetToAdd = new AssetBookmarkRequest();
+                        assetToAdd.AssetID = asset.AssetID;
+                        switch (asset.AssetType)
+                        {
+                            case AssetTypes.EPG:
+                                assetToAdd.AssetType = eAssetTypes.EPG;
+                                break;
+                            case AssetTypes.Media:
+                                assetToAdd.AssetType = eAssetTypes.MEDIA;
+                                break;
+                            case AssetTypes.NPVR:
+                                assetToAdd.AssetType = eAssetTypes.NPVR;
+                                break;
+                            default:
+                                assetToAdd.AssetType = eAssetTypes.UNKNOWN;
+                                break;
+                        }
+                        assetsToSend.Add(assetToAdd);
+                    }
+                    var res = new AssetsBookmarksLoader(groupId, initObj.SiteGuid, SiteHelper.GetClientIP(), initObj.UDID, assetsToSend)
+                    {
+                        DomainId = initObj.DomainID,
+                        Platform = initObj.Platform.ToString()
+                    }.Execute() as Tvinci.Data.Loaders.TvinciPlatform.Catalog.AssetsBookmarksResponse;
+
+                    sRet = new TVPApiModule.Objects.Responses.AssetsBookmarksResponse(res.AssetsBookmarks, res.Status.Code, res.Status.Message, res.m_nTotalItems);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items["Error"] = ex;
+                }
+            }
+            else
+                HttpContext.Current.Items["Error"] = "Unknown group";
+
+            return sRet;
+        }        
+
+        [WebMethod(EnableSession = true, Description = "Get Domain Media Assets")]
         [PrivateMethod]
         public DomainLastPositionResponse GetDomainLastPosition(InitializationObject initObj, int mediaID)
         {
@@ -3367,17 +3477,27 @@ namespace TVPApiServices
                 }
                 try
                 {
-                    var res = new DomainLastPositionLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, mediaID)
+                    AssetBookmarkRequest mediaAssets = new AssetBookmarkRequest() { AssetID = mediaID.ToString(), AssetType = eAssetTypes.MEDIA };
+                    var res = new AssetsBookmarksLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, new List<AssetBookmarkRequest>() { mediaAssets })
                     {
-                        DomainID = initObj.DomainID,
+                        DomainId = initObj.DomainID,
                         Platform = initObj.Platform.ToString()
-                    }.Execute() as Tvinci.Data.Loaders.TvinciPlatform.Catalog.DomainLastPositionResponse;
+                    }.Execute() as Tvinci.Data.Loaders.TvinciPlatform.Catalog.AssetsBookmarksResponse;
+
+                    List<LastPosition> mediaBookmarks = new List<LastPosition>();
+                    foreach (AssetBookmarks assetBookmark in res.AssetsBookmarks)
+                    {
+                        foreach (Bookmark bookmark in assetBookmark.Bookmarks)
+                        {
+                            mediaBookmarks.Add(new LastPosition(bookmark));
+                        }
+                    }
 
                     sRet = new DomainLastPositionResponse()
                     {
-                        m_lPositions = res.m_lPositions,
-                        m_sDescription = res.m_sDescription,
-                        m_sStatus = res.m_sStatus
+                        m_lPositions = mediaBookmarks,
+                        m_sDescription = res.Status.Message,
+                        m_sStatus = res.Status.Code.ToString()
                     };
                 }
                 catch (Exception ex)

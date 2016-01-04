@@ -15,7 +15,6 @@ using TVPApiModule.Objects;
 using TVPApiModule.Helper;
 using System.Web.UI;
 using System.Web;
-using TVPApiModule.Objects;
 using TVPApiModule.Manager;
 using TVPApiModule.Objects.Authorization;
 using TVPApiModule.Objects.Responses;
