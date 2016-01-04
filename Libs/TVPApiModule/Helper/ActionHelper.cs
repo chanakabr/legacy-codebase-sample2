@@ -91,10 +91,28 @@ namespace TVPApi
 
         public static string MediaMark(InitializationObject initObj, int groupID, PlatformType platform, action Action, long iMediaID, long iFileID, int iLocation, string npvrID, eAssetTypes assetType = eAssetTypes.UNKNOWN, int avgBitRate = 0, int currentBitRate = 0, int totalBitRate = 0)
         {
-            return new TVPPro.SiteManager.CatalogLoaders.MediaMarkLoader(groupID, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, (int)iMediaID, (int)iFileID, npvrID, avgBitRate, currentBitRate, iLocation, totalBitRate, Action.ToString(), string.Empty, string.Empty, string.Empty, string.Empty, assetType)
+            Tvinci.Data.Loaders.TvinciPlatform.Catalog.Status status = new TVPPro.SiteManager.CatalogLoaders.MediaMarkLoader(groupID, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, (int)iMediaID, (int)iFileID, npvrID, avgBitRate, currentBitRate, iLocation, totalBitRate, Action.ToString(), string.Empty, string.Empty, string.Empty, string.Empty, assetType)
             {
                 Platform = platform.ToString()
-            }.Execute() as string;
+            }.Execute() as Tvinci.Data.Loaders.TvinciPlatform.Catalog.Status;
+
+            switch (status.Code)
+            {
+                // ok
+                case 0:
+                    return "media_mark";
+
+                // ConcurrencyLimitation
+                case 4001:
+                    return "Concurrent";
+                
+                // BadSearchRequest
+                case 4002:
+                    return status.Message;
+
+                default:
+                    return "Error";
+            }
         }
 
         public static string MediaMark(InitializationObject initObj, int groupID, PlatformType platform, action Action, FileHolder fileParams, int iLocation, string npvrID)
