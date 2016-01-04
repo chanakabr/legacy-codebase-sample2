@@ -453,7 +453,7 @@ public partial class adm_epg_channels_schedule_new : System.Web.UI.Page
         bool isInsert = UpdateEpgMultiPictures(groupId, epgIdentifier, channelId, ratioId, picId);
 
         // update epg_channels_schedule only if ratio Is the group default ratio
-        if (isInsert && ratioId == TvinciImporter.ImporterImpl.GetGroupDefaultRatio(groupId))
+        if (isInsert && ratioId == ImageUtils.GetGroupDefaultEpgRatio(groupId))
         {
             ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("epg_channels_schedule");
             updateQuery.SetConnectionKey("MAIN_CONNECTION_STRING");

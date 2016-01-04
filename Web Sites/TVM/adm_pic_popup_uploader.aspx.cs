@@ -47,16 +47,20 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
 
     private void PopulateRatioList()
     {
+        int selectedIndex = 0;
+
         rdbRatio.DataValueField = "id";
         rdbRatio.DataTextField = "txt";
-        rdbRatio.DataSource = GetRatioData();
+        rdbRatio.DataSource = GetRatioData(out selectedIndex);
         rdbRatio.DataBind();
         // This will select the radio with value 1
-        rdbRatio.SelectedIndex = 0;
+        rdbRatio.SelectedValue = selectedIndex.ToString();
     }
 
-    private DataView GetRatioData()
+    private DataView GetRatioData(out int selectedIndex)
     {
+        selectedIndex = 0;
+        int groupId = LoginManager.GetLoginGroupID();
         DataView data = new DataView();
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
 
@@ -69,17 +73,20 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
                     log.Error("Pic_popup_uploader - Confirm failed. Id");
                     return data;
                 }
-                break;
             case MediaType.Vod:
                 {
-                    selectQuery += "select lur.ratio as 'txt', g.ratio_id as 'id' from groups g, lu_pics_ratios lur where g.ratio_id = lur.id and g.id = " + LoginManager.GetLoginGroupID().ToString() + " UNION " +
-                        "select lur.ratio as 'txt', gr.ratio_id as 'id' from group_ratios gr, lu_pics_ratios lur where gr.ratio_id = lur.id and gr.status = 1 and gr.group_id = " + LoginManager.GetLoginGroupID().ToString();
+                    selectQuery += "select lur.ratio as 'txt', g.ratio_id as 'id' from groups g, lu_pics_ratios lur where g.ratio_id = lur.id and g.id = " + groupId.ToString() + " UNION " +
+                        "select lur.ratio as 'txt', gr.ratio_id as 'id' from group_ratios gr, lu_pics_ratios lur where gr.ratio_id = lur.id and gr.status = 1 and gr.group_id = " + groupId.ToString();
+
+                    selectedIndex = ImageUtils.GetGroupDefaultRatio(groupId);
                 }
                 break;
             case MediaType.EpgProgram:
                 {
-                    selectQuery += "select lur.ratio as 'txt', g.ratio_id as 'id' from groups g, lu_pics_epg_ratios lur where g.ratio_id = lur.id and g.id = " + LoginManager.GetLoginGroupID().ToString() + " UNION " +
-                        "select lur.ratio as 'txt', gr.ratio_id as 'id' from group_epg_ratios gr, lu_pics_epg_ratios lur where gr.ratio_id = lur.id and gr.group_id = " + LoginManager.GetLoginGroupID().ToString();
+                    selectQuery += "select lur.ratio as 'txt', g.ratio_id as 'id' from groups g, lu_pics_epg_ratios lur where g.ratio_id = lur.id and g.id = " + groupId.ToString() + " UNION " +
+                        "select lur.ratio as 'txt', gr.ratio_id as 'id' from group_epg_ratios gr, lu_pics_epg_ratios lur where gr.ratio_id = lur.id and gr.group_id = " + groupId.ToString();
+                    
+                    selectedIndex = ImageUtils.GetGroupDefaultEpgRatio(groupId);
                 }
                 break;
             default:
@@ -149,7 +156,7 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
         if (id > 0)
         {
             // setMediaThumb only if the ratio is the group default ratio
-            bool setMediaThumb = ratioId == TvinciImporter.ImporterImpl.GetGroupDefaultRatio(groupID);
+            bool setMediaThumb = ratioId == ImageUtils.GetGroupDefaultRatio(groupID);
 
             switch (picMediaType)
             {
@@ -158,6 +165,9 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
                     break;
                 case MediaType.Vod:
                     {
+                        // setMediaThumb only if the ratio is the group default ratio
+                        setMediaThumb = ratioId == ImageUtils.GetGroupDefaultRatio(groupID);
+
                         picId = TvinciImporter.ImporterImpl.DownloadPicToImageServer(picLink, name, groupID, id, "eng", setMediaThumb, ratioId, false);
 
                         if (picId > 0)
@@ -182,6 +192,9 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
                             //Session is saved in order updating Epg_Channel table at Epg_Channel_new.aspx
                             Session[string.Format("Epg_Channel_Schedule_{0}_Pic_Id", Session["epgIdentifier"].ToString())] = picId;
                             Session[string.Format("Epg_Pic_Id_{0}_Pic_Ratio", picId)] = ratioId;
+
+                            // setMediaThumb only if the ratio is the group default ratio
+                            setMediaThumb = ratioId == ImageUtils.GetGroupDefaultEpgRatio(groupID);
 
                             if (setMediaThumb)
                             {
