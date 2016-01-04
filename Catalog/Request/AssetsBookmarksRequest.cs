@@ -37,7 +37,7 @@ namespace Catalog.Request
             try
             {
                 AssetsBookmarksRequest request = null;
-                AssetsPositionResponse response = new AssetsPositionResponse();
+                AssetsBookmarksResponse response = new AssetsBookmarksResponse();
 
                 CheckSignature(baseRequest);
 

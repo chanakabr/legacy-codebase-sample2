@@ -10,7 +10,7 @@ using ApiObjects;
 namespace Catalog.Response
 {
     [DataContract]
-    public class AssetsPositionResponse : BaseResponse
+    public class AssetsBookmarksResponse : BaseResponse
     {
 
         [DataMember]
@@ -19,7 +19,7 @@ namespace Catalog.Response
         [DataMember]
         public Status Status;
 
-        public AssetsPositionResponse()
+        public AssetsBookmarksResponse()
         {
             Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
         }

@@ -8,7 +8,7 @@ namespace Catalog.Response
 {
     
     [DataContract]    
-    [KnownType(typeof(AssetsPositionResponse))]
+    [KnownType(typeof(AssetsBookmarksResponse))]
     [KnownType(typeof(ChannelResponse))]
     [KnownType(typeof(MediaIdsResponse))]
     [KnownType(typeof(MediaResponse))]

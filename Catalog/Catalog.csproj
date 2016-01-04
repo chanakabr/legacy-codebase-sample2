@@ -126,7 +126,7 @@
     <Compile Include="PicData.cs" />
     <Compile Include="Request\AssetsBookmarksRequest.cs" />
     <Compile Include="Request\AssetsBookmarksRequestData.cs" />
-    <Compile Include="Response\AssetsPositionResponse.cs" />
+    <Compile Include="Response\AssetsBookmarksResponse.cs" />
     <Compile Include="Request\AssetStatsRequest.cs" />
     <Compile Include="Request\BundleMediaRequest.cs" />
     <Compile Include="Request\ExternalChannelRequest.cs" />

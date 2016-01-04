@@ -51,7 +51,7 @@ namespace Catalog.Request
     [KnownType(typeof(BuzzMeterRequest))]
     [KnownType(typeof(MediaLastPositionRequest))]
     [KnownType(typeof(MediaLastPositionResponse))]
-    [KnownType(typeof(AssetsPositionResponse))]
+    [KnownType(typeof(AssetsBookmarksResponse))]
     [KnownType(typeof(CategoryRequest))]
     [KnownType(typeof(BaseChannelRequest))]
     [KnownType(typeof(InternalChannelRequest))]
