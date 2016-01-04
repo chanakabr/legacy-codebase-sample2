@@ -530,7 +530,7 @@ namespace TVPApiModule.Objects
                             UserResponseObject userResponseObject = usersService.GetUserData(_initObj.SiteGuid);
                             if (userResponseObject != null && userResponseObject.m_user != null && userResponseObject.m_user.m_oDynamicData != null && userResponseObject.m_user.m_oDynamicData.m_sUserData != null)
                             {
-                                UserDynamicDataContainer dynamicData = userResponseObject.m_user.m_oDynamicData.m_sUserData.Where(x => x.m_sDataType == "AccountUuid").FirstOrDefault();
+                                TVPPro.SiteManager.TvinciPlatform.Users.UserDynamicDataContainer dynamicData = userResponseObject.m_user.m_oDynamicData.m_sUserData.Where(x => x.m_sDataType == "AccountUuid").FirstOrDefault();
                                 if (dynamicData != null)
                                 {
                                     string sAccountUuid = dynamicData.m_sValue;
