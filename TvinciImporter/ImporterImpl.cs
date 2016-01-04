@@ -1662,7 +1662,7 @@ namespace TvinciImporter
 
                 if (!WS_Utils.IsGroupIDContainedInConfig(nGroupID, "USE_OLD_IMAGE_SERVER", ';') && !string.IsNullOrEmpty(sThumb))
                 {
-                    groupDefaultRatioId = GetGroupDefaultRatio(nGroupID);
+                    groupDefaultRatioId = ImageUtils.GetGroupDefaultRatio(nGroupID);
                 }
 
                 if (thePicRatios != null)
@@ -1952,7 +1952,7 @@ namespace TvinciImporter
             // in case ratio Id = 0 get default group's ratio
             if (ratioID <= 0)
             {
-                ratioID = GetGroupDefaultRatio(groupID);
+                ratioID = ImageUtils.GetGroupDefaultEpgRatio(groupID);
             }
 
             GetEpgPicNameAndId(thumb, groupID, channelID, ratioID, out picName, out picId);
@@ -2595,7 +2595,7 @@ namespace TvinciImporter
             // in case ratio Id = 0 get default group's ratio
             if (ratioId <= 0)
             {
-                ratioId = GetGroupDefaultRatio(groupId);
+                ratioId = ImageUtils.GetGroupDefaultRatio(groupId);
             }
 
             //get pic data           
@@ -2705,26 +2705,7 @@ namespace TvinciImporter
             return result;
         }
 
-        public static int GetGroupDefaultRatio(int groupId)
-        {
-            int rationId = 0;
-
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select RATIO_ID from groups (nolock) where";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", groupId);
-            selectQuery.SetCachedSec(120);
-            if (selectQuery.Execute("query", true) != null)
-            {
-                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                if (nCount > 0)
-                {
-                    rationId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "RATIO_ID", 0);
-                }
-            }
-            selectQuery.Finish();
-            selectQuery = null;
-            return rationId;
-        }
+       
 
 
         private static string getPictureFileName(string sThumb)
