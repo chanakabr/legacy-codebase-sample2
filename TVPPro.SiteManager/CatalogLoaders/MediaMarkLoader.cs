@@ -31,10 +31,10 @@ namespace TVPPro.SiteManager.CatalogLoaders
         public string ErrorMessage { get; set; }
         public string MediaCDN { get; set; }
         public string NPVRID { get; set; }
-
+        public eAssetTypes AssetType { get; set; }
 
         #region Constructors
-        public MediaMarkLoader(int groupID, string userIP, string siteGuid, string udid, int mediaID, int mediaFileID, string npvrID, int avgBitRate, int currentBitRate, int location, int totalBitRate, string action, string mediaDuration, string errorCode, string errorMessage, string mediaCDN)
+        public MediaMarkLoader(int groupID, string userIP, string siteGuid, string udid, int mediaID, int mediaFileID, string npvrID, int avgBitRate, int currentBitRate, int location, int totalBitRate, string action, string mediaDuration, string errorCode, string errorMessage, string mediaCDN, eAssetTypes assetType = eAssetTypes.UNKNOWN)
             : base(groupID, userIP, 0, 0)
         {
             AvgBitRate = avgBitRate;
@@ -51,6 +51,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
             ErrorMessage = errorMessage;
             MediaCDN = mediaCDN;
             NPVRID = npvrID;
+            AssetType = assetType;
         }
 
         public MediaMarkLoader(string userName, string userIP, string siteGuid, string udid, int mediaID, int mediaFileID, string npvrID, int avgBitRate, int currentBitRate, int location, int totalBitRate, string action, string mediaDuration, string errorCode, string errorMessage, string mediaCDN)
@@ -75,13 +76,13 @@ namespace TVPPro.SiteManager.CatalogLoaders
                     m_nCurrentBitRate = CurrentBitRate,
                     m_nLoc = Location,
                     m_nMediaFileID = MediaFileID,
-                    m_nMediaID = MediaID,
+                    m_sAssetID = string.IsNullOrEmpty(NPVRID) ? MediaID.ToString() : NPVRID,
                     m_nTotalBitRate = TotalBitRate,
                     m_sAction = Action,
                     m_sMediaDuration = MediaDuration,
                     m_sSiteGuid = SiteGuid,
                     m_sUDID = UDID,
-                    m_sNpvrID = NPVRID
+                    m_eAssetType = AssetType
                 },
                 m_sErrorCode = ErrorCode,
                 m_sErrorMessage = ErrorMessage,

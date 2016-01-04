@@ -395,6 +395,7 @@
     <Compile Include="Objects\MediaCorpWalkupEntity.cs" />
     <Compile Include="Objects\MediaMarkObject.cs" />
     <Compile Include="Objects\ORCAGalleryResponse.cs" />
+    <Compile Include="Objects\PlayerAssetData.cs" />
     <Compile Include="Objects\RatedMediaEntity.cs" />
     <Compile Include="Objects\RSSEntity.cs" />
     <Compile Include="Objects\VoteCycleEntity.cs" />
