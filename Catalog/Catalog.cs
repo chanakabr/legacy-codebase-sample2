@@ -4336,9 +4336,9 @@ namespace Catalog
         /*This method return all last position (desc order by create date) by domain and \ or user_id 
          * if userType is household and user is default - return all last positions of all users in domain by assetID (BY MEDIA ID)         
          else return last position of user_id (incase userType is not household or last position of user_id and default_user (incase userType is household) */
-        internal static AssetPositionsInfo GetAssetLastPosition(string assetID, eAssetTypes assetType, int userID, bool isDefaultUser, List<int> users, List<int> defaultUsers)
+        internal static AssetBookmarks GetAssetLastPosition(string assetID, eAssetTypes assetType, int userID, bool isDefaultUser, List<int> users, List<int> defaultUsers, Dictionary<string, ws_users.User> usersDictionary)
         {
-            AssetPositionsInfo response = null;
+            AssetBookmarks response = null;
 
             // Build list of users that we want to get their last position
             List<int> usersToGetLastPosition = new List<int>();
@@ -4359,7 +4359,7 @@ namespace Catalog
                 return response;
             }
 
-            List<LastPosition> lastPositions = new List<LastPosition>();            
+            List<Bookmark> bookmarks = new List<Bookmark>();            
 
             if (domainMediaMark.devices != null)
             {
@@ -4375,145 +4375,19 @@ namespace Catalog
                         userType = eUserType.PERSONAL;                        
                     }
 
-                    if (!lastPositions.Where(x => x.m_nUserID == userMediaMark.UserID).Any())
+                    if (!bookmarks.Where(x => x.User.m_sSiteGUID == userMediaMark.UserID.ToString()).Any())
                     {
-                        lastPositions.Add(new LastPosition(userMediaMark.UserID, userType, userMediaMark.Location));                        
+                        bookmarks.Add(new Bookmark(usersDictionary[userMediaMark.UserID.ToString()], userType, userMediaMark.Location));                        
                     }                    
                 }
             }
 
-            if (lastPositions.Count > 0)
+            if (bookmarks.Count > 0)
             {
-                response = new AssetPositionsInfo(assetType, assetID, lastPositions);                
+                response = new AssetBookmarks(assetType, assetID, bookmarks);                
             }
 
             return response;
-        }
-
-        /*This method return all last position (desc order by create date) by domain and user_id 
-         if userid is default - return all last positions of all users in domain by mediaid
-         else return last position of default user + user_id */
-        internal static DomainLastPositionResponse GetLastDomainPosition(int user_id, int media_id, int domain_id, int group_id, string sUDID)
-        {
-            DomainLastPositionResponse res = new DomainLastPositionResponse();
-            if (media_id == 0 || user_id == 0 || domain_id == 0 || group_id == 0)
-                return res;
-
-            string sWSUsername = string.Empty;
-            string sWSPassword = string.Empty;
-            string sWSUrl = string.Empty;
-            WS_Domains.Domain domainsResp = null;
-
-            List<int> lDeafultUsers = null;
-            List<int> lUsers = null;
-            bool bDefaultUser = false; // set false for default , if this user_id return from domains as DeafultUsers change it to true
-            List<LastPosition> lUserMedia = new List<LastPosition>();
-            List<int> usersKey = new List<int>(); // list that contains all users that need to be return from CB for the media 
-
-            //get username + password from wsCache
-            Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, group_id, ApiObjects.eWSModules.DOMAINS);
-            if (oCredentials != null)
-            {
-                sWSUsername = oCredentials.m_sUsername;
-                sWSPassword = oCredentials.m_sPassword;
-            }
-
-            if (sWSUsername.Length == 0 || sWSPassword.Length == 0)
-            {
-                throw new Exception(string.Format("No WS_Domains login parameters were extracted from DB. user={0}, udid={1}, groupid={3}", user_id, sUDID, group_id));
-            }
-
-            // get domain info - to have the users list in domain + default users in domain
-            using (WS_Domains.module domains = new WS_Domains.module())
-            {
-                sWSUrl = Utils.GetWSURL("ws_domains");
-                if (sWSUrl.Length > 0)
-                    domains.Url = sWSUrl;
-                var domainRes = domains.GetDomainInfo(sWSUsername, sWSPassword, domain_id);
-                if (domainRes != null)
-                {
-                    domainsResp = domainRes.Domain;
-                }
-                else
-                {
-                    res.Status = new Status((int)eResponseStatus.DomainNotExists, "Domain does not exist");
-                }
-            }
-
-            if (domainsResp != null)
-            {
-                lUsers = domainsResp.m_UsersIDs.ToList();
-                lDeafultUsers = domainsResp.m_DefaultUsersIDs.ToList();
-                if (lDeafultUsers != null)
-                {
-                    bDefaultUser = lDeafultUsers.Contains(user_id);
-                }
-            }
-            // Build list of users that we'll send to CB
-            if (bDefaultUser)
-            {
-                usersKey.AddRange(lUsers);
-                usersKey.AddRange(lDeafultUsers);
-            }
-            else
-            {
-                usersKey.AddRange(lDeafultUsers);
-                usersKey.Add(user_id);
-            }
-
-            // get last position from domain by media_id - from DAL 
-            DomainMediaMark MediaMark = CatalogDAL.GetDomainLastPosition(media_id, usersKey, domain_id);
-
-            if (MediaMark == null || MediaMark.devices == null)
-            {
-                res.m_sStatus = "NO DATA";
-                res.m_sDescription = string.Format("no data found for this domain={0} and media={1}", domain_id, media_id);
-                return res;
-            }
-            UserMediaMark umm = new UserMediaMark();
-            List<UserMediaMark> lumm = new List<UserMediaMark>();
-            LastPosition ulp = null;
-
-            // get the user_id first 
-
-            lumm = MediaMark.devices.OrderByDescending(x => x.CreatedAt).Where(x => x.UserID != user_id).ToList();
-            foreach (UserMediaMark item in lumm)
-            {
-                if (lDeafultUsers.Contains(item.UserID))
-                {
-                    ulp = new LastPosition(item.UserID, eUserType.HOUSEHOLD, item.Location);
-                }
-                else
-                {
-                    ulp = new LastPosition(item.UserID, eUserType.PERSONAL, item.Location);
-                }
-
-                if (!lUserMedia.Where(x => x.m_nUserID == item.UserID).Any())
-                {
-                    lUserMedia.Add(ulp);
-                }
-                ulp = null;
-            }
-
-            //get position of specific user
-            umm = MediaMark.devices.OrderByDescending(x => x.CreatedAt).Where(x => x.UserID == user_id && x.MediaID == media_id).FirstOrDefault();
-            if (umm != null)
-            {
-                if (lDeafultUsers.Contains(user_id))
-                {
-                    ulp = new LastPosition(user_id, eUserType.HOUSEHOLD, umm.Location);
-                }
-                else
-                {
-                    ulp = new LastPosition(user_id, eUserType.PERSONAL, umm.Location);
-                }
-
-                lUserMedia.Insert(0, ulp); // add the userid in the first position in the list
-            }
-            res.m_sStatus = "OK";
-            res.m_lPositions = lUserMedia;
-            res.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-            return res;
         }
 
         internal static NPVRSeriesResponse GetSeriesRecordings(int groupID, NPVRSeriesRequest request)
@@ -4731,6 +4605,40 @@ namespace Catalog
             }
 
             return domainResponse;
+        }
+
+        internal static Dictionary<string, ws_users.User> GetUsers(int groupID, List<int> users)
+        {            
+            Dictionary<string, ws_users.User> usersDictionary = new Dictionary<string, ws_users.User>();
+            ws_users.UsersResponse usersResponse = null;
+            Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, groupID, ApiObjects.eWSModules.USERS);
+            string url = Utils.GetWSURL("users_ws");
+
+            if (string.IsNullOrEmpty(oCredentials.m_sUsername) || string.IsNullOrEmpty(oCredentials.m_sPassword) || string.IsNullOrEmpty(url))
+            {
+                return usersDictionary;
+            }
+
+            using (ws_users.UsersService u = new ws_users.UsersService())
+            {
+                u.Url = url;
+                usersResponse = u.GetUsers(oCredentials.m_sUsername, oCredentials.m_sPassword, users.Select(i => i.ToString()).ToArray(), string.Empty);                                                                
+            }
+            if (usersResponse != null && usersResponse.resp != null && usersResponse.resp.Code == (int)ws_users.ResponseStatus.OK && usersResponse.users != null)
+            {
+                foreach (ws_users.UserResponseObject user in usersResponse.users)
+                {
+                    if (user != null && user.m_RespStatus == ws_users.ResponseStatus.OK)
+                    {
+                        if(!usersDictionary.ContainsKey(user.m_user.m_sSiteGUID))
+                        {
+                            usersDictionary.Add(user.m_user.m_sSiteGUID, user.m_user);
+                        }
+                    }
+                }
+            }
+
+            return usersDictionary;
         }
 
         internal static void BuildEpgUrlPicture(ref List<EPGChannelProgrammeObject> retList, int groupID)

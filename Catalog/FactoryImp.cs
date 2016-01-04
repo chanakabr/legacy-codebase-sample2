@@ -189,13 +189,9 @@ namespace Catalog
             {
                 return (CategoryRequest) m_oBaseRequest;
             }
-            if (m_oBaseRequest is DomainLastPositionRequest)
+            if (m_oBaseRequest is AssetsBookmarksRequest)
             {
-                return (DomainLastPositionRequest)m_oBaseRequest;
-            }
-            if (m_oBaseRequest is AssetsPositionRequest)
-            {
-                return (AssetsPositionRequest)m_oBaseRequest;
+                return (AssetsBookmarksRequest)m_oBaseRequest;
             }
             if (m_oBaseRequest is EpgProgramDetailsRequest)
             {
