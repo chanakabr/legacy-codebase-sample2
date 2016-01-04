@@ -1453,7 +1453,7 @@ namespace TVinciShared
                         sVal = sVal.Replace("\r\n", "<br\\>");
                         bValid = validateParam("string", sVal, -1, -1);
                         if (bFirst == false)
-                            selectQuery += "and"; 
+                            selectQuery += "and";
                         else
                             selectQuery += "where";
                         selectQuery += ODBCWrapper.Parameter.NEW_PARAM(sFieldName, "=", DBStrEncode(sVal.ToString()));
@@ -1617,76 +1617,68 @@ namespace TVinciShared
                                         }
                                     }
 
-                                    // use old/new image server
-                                    if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, "USE_OLD_IMAGE_SERVER", ';'))
+                                    #region useRabbitQueue
+
+                                    sPicBaseName = ImageUtils.GetDateImageName(mediaID);
+
+                                    sUploadedFile = theFile.FileName;
+
+                                    sUploadedFileExt = ImageUtils.GetFileExt(sUploadedFile);
+
+                                    if (!Directory.Exists(sBasePath + "/" + sDirectory + "/" + nGroupID.ToString()))
                                     {
-                                        #region useRabbitQueue
+                                        Directory.CreateDirectory(sBasePath + "/" + sDirectory + "/" + nGroupID.ToString());
+                                    }
 
-                                        sPicBaseName = ImageUtils.GetDateImageName(mediaID);
-
-                                        sUploadedFile = theFile.FileName;
-
-                                        sUploadedFileExt = ImageUtils.GetFileExt(sUploadedFile);
-
-                                        if (!Directory.Exists(sBasePath + "/" + sDirectory + "/" + nGroupID.ToString()))
-                                        {
-                                            Directory.CreateDirectory(sBasePath + "/" + sDirectory + "/" + nGroupID.ToString());
-                                        }
-
-                                        if (bIsImage == false)
-                                        {
-                                            string sTmpImage = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicBaseName + sUploadedFileExt;
-                                            theFile.SaveAs(sTmpImage);
-                                        }
-                                        else
-                                        {
-                                            List<string> lSizes = new List<string>();
-                                            lSizes.Add("full");
-                                            // add checkbox value if needed 
-                                            if (coll["6_val"] == "on")
-                                            {
-                                                lSizes.Add("tn");
-                                            }
-
-                                            Int32 nI = 0;
-                                            bool bCont1 = true;
-                                            while (bCont1 && sPicBaseName != "")
-                                            {
-                                                if (coll[nCounter.ToString() + "_picDim_width_" + nI.ToString()] != null &&
-                                                    coll[nCounter.ToString() + "_picDim_width_" + nI.ToString()].Trim().ToString() != "")
-                                                {
-                                                    bool isResize = true;
-                                                    string sRatio = string.Empty;
-                                                    string sWidth = coll[nCounter.ToString() + "_picDim_width_" + nI.ToString()].ToString();
-                                                    string sHeight = coll[nCounter.ToString() + "_picDim_height_" + nI.ToString()].ToString();
-                                                    if (coll[nCounter.ToString() + "_picDim_ratio_" + nI.ToString()] != null &&
-                                                    coll[nCounter.ToString() + "_picDim_ratio_" + nI.ToString()].Trim().ToString() != "")
-                                                    {
-                                                        sRatio = coll[nCounter.ToString() + "_picDim_ratio_" + nI.ToString()].ToString();
-                                                        if (!string.IsNullOrEmpty(selectedRatioVal) && sRatio != selectedRatioVal)
-                                                        {
-                                                            isResize = false;
-                                                        }
-                                                    }
-                                                    if (isResize)
-                                                    {
-                                                        lSizes.Add(sWidth + "X" + sHeight);
-                                                    }
-                                                    nI++;
-                                                }
-                                                else
-                                                    bCont1 = false;
-                                            }
-
-                                            string[] sPicSizes = lSizes.ToArray();
-                                            bool succeed = ImageUtils.SendPictureDataToQueue(sUploadedFile, sPicBaseName, sBasePath, sPicSizes, nGroupID);//send to Rabbit
-                                        }
-                                        #endregion
+                                    if (bIsImage == false)
+                                    {
+                                        string sTmpImage = sBasePath + "/" + sDirectory + "/" + nGroupID.ToString() + "/" + sPicBaseName + sUploadedFileExt;
+                                        theFile.SaveAs(sTmpImage);
                                     }
                                     else
                                     {
-                                        DownloadPicToImageServer(mediaID, nGroupID, nCounter, ref sPicBaseName, sBasePath, ref sUploadedFile, ref sUploadedFileExt, theFile, sDirectory, selectedRatioVal, bIsImage);
+                                        List<string> lSizes = new List<string>();
+                                        lSizes.Add("full");
+                                        // add checkbox value if needed 
+                                        if (coll["6_val"] == "on")
+                                        {
+                                            lSizes.Add("tn");
+                                        }
+
+                                        Int32 nI = 0;
+                                        bool bCont1 = true;
+                                        while (bCont1 && sPicBaseName != "")
+                                        {
+                                            if (coll[nCounter.ToString() + "_picDim_width_" + nI.ToString()] != null &&
+                                                coll[nCounter.ToString() + "_picDim_width_" + nI.ToString()].Trim().ToString() != "")
+                                            {
+                                                bool isResize = true;
+                                                string sRatio = string.Empty;
+                                                string sWidth = coll[nCounter.ToString() + "_picDim_width_" + nI.ToString()].ToString();
+                                                string sHeight = coll[nCounter.ToString() + "_picDim_height_" + nI.ToString()].ToString();
+                                                if (coll[nCounter.ToString() + "_picDim_ratio_" + nI.ToString()] != null &&
+                                                coll[nCounter.ToString() + "_picDim_ratio_" + nI.ToString()].Trim().ToString() != "")
+                                                {
+                                                    sRatio = coll[nCounter.ToString() + "_picDim_ratio_" + nI.ToString()].ToString();
+                                                    if (!string.IsNullOrEmpty(selectedRatioVal) && sRatio != selectedRatioVal)
+                                                    {
+                                                        isResize = false;
+                                                    }
+                                                }
+                                                if (isResize)
+                                                {
+                                                    lSizes.Add(sWidth + "X" + sHeight);
+                                                }
+                                                nI++;
+                                            }
+                                            else
+                                                bCont1 = false;
+                                        }
+
+                                        string[] sPicSizes = lSizes.ToArray();
+                                        bool succeed = ImageUtils.SendPictureDataToQueue(sUploadedFile, sPicBaseName, sBasePath, sPicSizes, nGroupID);//send to Rabbit
                                     }
+                                    #endregion                                   
                                 }
                                 else
                                 {
@@ -1888,138 +1880,6 @@ namespace TVinciShared
             selectQuery.Finish();
             selectQuery = null;
             return nID;
-        }
-
-        private static int DownloadPicToImageServer(int mediaID, int groupID, int counter, ref string mediaName, string baseUrl, ref string uploadedFile,
-            ref string uploadedFileExt, HttpPostedFile theFile, string directory, string selectedRatio, bool isImage)
-        {
-            int picId = 0;
-            int ratioId = 0;
-            int picRatioId = 0;
-            int version = 0;
-
-            if (mediaID > 0)
-            {
-                mediaName = ImageUtils.GetDateImageName(mediaID);
-
-            }
-            else
-            {
-                mediaName = ImageUtils.GetDateImageName();
-            }
-
-            uploadedFile = theFile.FileName;
-
-            int nExtractPos = uploadedFile.LastIndexOf(".");
-            if (nExtractPos > 0)
-                uploadedFileExt = uploadedFile.Substring(nExtractPos);
-
-            if (!Directory.Exists(baseUrl + "/" + directory + "/" + groupID.ToString()))
-            {
-                Directory.CreateDirectory(baseUrl + "/" + directory + "/" + groupID.ToString());
-            }
-
-
-            string localImageUrlSuffix = "/" + directory + "/" + groupID.ToString() + "/" + mediaName + uploadedFileExt;
-            string sTmpImage = baseUrl + localImageUrlSuffix;
-            theFile.SaveAs(sTmpImage);
-
-            int.TryParse(selectedRatio, out ratioId);
-
-            if (ratioId <= 0)
-            {
-                ratioId = GetGroupDefaultRatio(groupID);
-            }
-
-            // get picture data           
-            if (mediaID > 0 && GetPicData(ratioId, mediaID, out picId, out version, out baseUrl, out picRatioId))
-            {
-                // get Base URL
-                baseUrl = Path.GetFileNameWithoutExtension(baseUrl);
-
-                // incase row exist --> update  version number
-                if (picRatioId == ratioId)
-                {
-                    version++;
-                }
-                else
-                {
-                    picId = CatalogDAL.InsertPic(groupID, mediaName, string.Empty, baseUrl, ratioId, mediaID);
-                }
-
-            }
-            // picture does not exist -- > create new picture
-            else
-            {
-                baseUrl = TVinciShared.ImageUtils.GetDateImageName();
-                picId = CatalogDAL.InsertPic(groupID, mediaName, string.Empty, baseUrl, ratioId, mediaID);
-            }
-            if (picId != 0)
-            {
-                string localImageUrl = TVinciShared.WS_Utils.GetTcmConfigValue("LOCAL_IMAGE_URL");
-                localImageUrl += localImageUrlSuffix;
-
-                SendImageDataToImageUploadQueue(localImageUrl, groupID, version, picId, baseUrl + "_" + ratioId, eMediaType.VOD);
-            }
-
-            return picId;
-        }
-
-        private static bool GetPicData(int ratioID, int mediaID, out int picId, out int version, out string baseUrl, out int picRatioId)
-        {
-            bool result = false;
-            picId = 0;
-            version = 0;
-            baseUrl = string.Empty;
-            picRatioId = 0;
-
-            try
-            {
-                DataRowCollection rows = CatalogDAL.GetPicsTableData(mediaID, ratioID, 0);
-
-                if (rows != null && rows.Count > 0)
-                {
-                    result = true;
-
-                    foreach (DataRow row in rows)
-                    {
-                        picId = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
-                        version = ODBCWrapper.Utils.GetIntSafeVal(row, "VERSION");
-                        baseUrl = ODBCWrapper.Utils.GetSafeStr(row, "BASE_URL");
-                        picRatioId = ODBCWrapper.Utils.GetIntSafeVal(row, "RATIO_ID");
-                        if (picRatioId == ratioID)
-                        {
-                            break;
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(ex.Message, ex);
-                result = false;
-            }
-            return result;
-        }
-
-        private static int GetGroupDefaultRatio(int groupId)
-        {
-            int rationId = 0;
-
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select RATIO_ID from groups (nolock) where";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", groupId);
-            if (selectQuery.Execute("query", true) != null)
-            {
-                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                if (nCount > 0)
-                {
-                    rationId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "RATIO_ID", 0);
-                }
-            }
-            selectQuery.Finish();
-            selectQuery = null;
-            return rationId;
         }
 
         private static bool SendImageDataToImageUploadQueue(string sourcePath, int groupId, int version, int picId, string picNewName, eMediaType mediaType)

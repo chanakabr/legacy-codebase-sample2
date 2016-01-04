@@ -112,6 +112,7 @@
     <Compile Include="BulkExport\BulkExportTask.cs" />
     <Compile Include="BulkExport\BulkExportTasksResponse.cs" />
     <Compile Include="EntitlementObject.cs" />
+    <Compile Include="ImageServerUploadRequest.cs" />
     <Compile Include="KSQLChannel\KSQLChannel.cs" />
     <Compile Include="KSQLChannel\KSQLChannelResponse.cs" />
     <Compile Include="KSQLChannel\KSQLChannelResponseList.cs" />

@@ -1188,7 +1188,7 @@ namespace TVinciShared
                         }
                         if (sFileName != "" && sFileName != "-")
                         {
-                            if (PageUtils.IsDownloadPicWithImageServer())
+                            if (ImageUtils.IsDownloadPicWithImageServer())
                             {
                                 sTable.Append("<td>");
 

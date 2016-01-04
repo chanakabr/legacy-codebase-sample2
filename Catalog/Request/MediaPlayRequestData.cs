@@ -6,6 +6,7 @@ using DAL;
 using Tvinci.Core.DAL;
 using System;
 using System.Text;
+using ApiObjects;
 
 
 namespace Catalog.Request
@@ -14,9 +15,7 @@ namespace Catalog.Request
     public class MediaPlayRequestData
     {
         [DataMember]
-        public int m_nMediaID;
-        [DataMember]
-        public string m_sNpvrID;
+        public string m_sAssetID;
         [DataMember]
         public string m_sSiteGuid;
         [DataMember]
@@ -35,7 +34,9 @@ namespace Catalog.Request
         public int m_nTotalBitRate;
         [DataMember]
         public int m_nCurrentBitRate;
-        
+        [DataMember]
+        public eAssetTypes m_eAssetType;
+
         public string m_sMediaTypeId;
 
         public MediaPlayRequestData()
@@ -47,7 +48,7 @@ namespace Catalog.Request
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder("MediaPlayRequestData obj: ");
-            sb.Append(String.Concat("Media ID: ", m_nMediaID));
+            sb.Append(String.Concat("Asset ID: ", m_sAssetID));
             sb.Append(String.Concat(" Site Guid: ", m_sSiteGuid ?? "null"));
             sb.Append(String.Concat(" Action: ", m_sAction ?? "null"));
             sb.Append(String.Concat(" Loc: ", m_nLoc));
@@ -57,6 +58,7 @@ namespace Catalog.Request
             sb.Append(String.Concat(" Avg Bitrate: ", m_nAvgBitRate));
             sb.Append(String.Concat(" Total Bitrate: ", m_nTotalBitRate));
             sb.Append(String.Concat(" Current Bitrate: ", m_nCurrentBitRate));
+            sb.Append(String.Concat(" Asset Type: ", m_eAssetType));
 
             return sb.ToString();
         }

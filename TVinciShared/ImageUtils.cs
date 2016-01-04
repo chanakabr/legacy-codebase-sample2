@@ -1,21 +1,16 @@
+using ApiObjects;
+using DAL;
+using KLogMonitor;
+using QueueWrapper;
 using System;
+using System.Collections.Generic;
 using System.Data;
-using System.Configuration;
-using System.Web;
-using System.Web.Security;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Web.UI.HtmlControls;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Net;
-using System.Collections.Generic;
-using QueueWrapper;
-using KLogMonitor;
 using System.Reflection;
-using ApiObjects;
+using System.Web;
 
 namespace TVinciShared
 {
@@ -598,9 +593,6 @@ namespace TVinciShared
             return sRemotePicsURL;
         }
 
-
-
-
         internal static void GetDateEpgImageDetails(string sPicDescription, int groupID, ref bool isNew, ref string picName, ref int picID, ref string baseURL)
         {
             isNew = true;
@@ -677,8 +669,6 @@ namespace TVinciShared
             return imageServerUrl;
         }
 
-       
-
         public static string BuildImageUrl(int groupId, string imageId, int version = 0, int width = 0, int height = 0, int quality = 100, bool isDynamic = false)
         {
             string imageServerUrl = string.Empty;
@@ -723,6 +713,179 @@ namespace TVinciShared
             }
 
             return imageServerUrl;
+        }
+
+        public static bool IsDownloadPicWithImageServer()
+        {
+            // true in case image server is in use
+            //------------------------------------
+            bool isDownloadPicWithImageServer = false;
+
+            string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
+            sUseQueue = sUseQueue.ToLower();
+            if (sUseQueue.Equals("true"))
+            {
+                if (!WS_Utils.IsGroupIDContainedInConfig(LoginManager.GetLoginGroupID(), "USE_OLD_IMAGE_SERVER", ';'))
+                {
+                    isDownloadPicWithImageServer = true;
+                }
+            }
+
+            return isDownloadPicWithImageServer;
+        }
+
+        public static string GetEpgPicImageUrl(string epgChannelId, out int picId)
+        {
+            string imageUrl = string.Empty;
+            string baseUrl = string.Empty;
+            int ratioId = 0;
+            int version = 0;
+            picId = 0;
+            int groupId = LoginManager.GetLoginGroupID();
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select p.BASE_URL, p.ID, p.version from epg_pics p left join epg_channels ec on ec.PIC_ID = p.ID where p.STATUS in (0, 1) and ec.id = " + epgChannelId.ToString();
+
+            if (selectQuery.Execute("query", true) != null && selectQuery.Table("query").DefaultView != null && selectQuery.Table("query").DefaultView.Count > 0)
+            {
+
+                baseUrl = ODBCWrapper.Utils.GetSafeStr(selectQuery.Table("query").DefaultView[0].Row["BASE_URL"]);
+                picId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["ID"]);
+                version = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["version"]);
+                int parentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);
+
+                imageUrl = PageUtils.BuildEpgUrl(parentGroupID, baseUrl, ratioId, version);
+            }
+
+            return imageUrl;
+        }
+
+        public static bool IsUrlExists(string url)
+        {
+            HttpWebResponse response = null;
+            
+            try
+            {
+                var request = (HttpWebRequest)WebRequest.Create(url);
+                request.Method = "HEAD";
+                response = (HttpWebResponse)request.GetResponse();
+                //log.Debug("URL validated" + url);
+                return true;
+            }
+            catch (WebException ex)
+            {
+                log.Error("URL wasn't found" + url);
+                return false;
+            }
+            finally
+            {
+                if (response != null)
+                {
+                    response.Close();
+                }
+            }
+        }
+
+        public static bool UpdateImageState(int groupId, long rowId, int version, eMediaType mediaType, eTableStatus status)
+        {
+            bool res = false;
+            int queryRes = 0;
+
+            switch (status)
+            {
+                case eTableStatus.OK:
+
+                    if (mediaType == eMediaType.VOD)
+                        queryRes = ApiDAL.UpdateImageState(groupId, rowId, version, status);
+
+                    if (mediaType == eMediaType.EPG)
+                        queryRes = ApiDAL.UpdateEpgImageState(groupId, rowId, version, status);
+
+                    if (queryRes > 0)
+                    {
+                        log.DebugFormat("{0} Successfully updated image state. groupId: {1}, imageId: {2}, version: {3}",
+                            mediaType.ToString(),
+                            groupId,
+                            rowId,
+                            version);
+                        res = true;
+                    }
+                    else if (queryRes == 0)
+                    {
+                        log.WarnFormat("{0} Error while updating image state - 0 rows updated. groupId: {1}, imageId: {2}, version: {3}", mediaType.ToString(), groupId, rowId, version);
+                    }
+                    else
+                    {
+                        log.ErrorFormat("{0} Error while updating image state. groupId: {1}, imageId: {2}, version: {3}", mediaType.ToString(), groupId, rowId, version);
+                    }
+                    break;
+
+                case eTableStatus.Failed:
+
+                    log.ErrorFormat("{0} Failed to post new image to image server. groupId: {1}, imageId: {2}, version: {3}",
+                              mediaType.ToString(),
+                              groupId,
+                              rowId,
+                              version);
+                    break;
+
+                default:
+                case eTableStatus.Pending:
+
+                    log.ErrorFormat("{0} Illegal state received. groupId: {1}, imageId: {2}, version: {3}, state: {4}",
+                        mediaType.ToString(),
+                        groupId,
+                        rowId,
+                        version,
+                        status.ToString());
+                    break;
+            }
+
+            return res;
+        }
+
+        public static int GetGroupDefaultRatio(int groupId)
+        {
+            int rationId = 0;
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+            selectQuery += "select RATIO_ID from groups (nolock) where";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", groupId);
+            selectQuery.SetCachedSec(120);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    rationId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "RATIO_ID", 0);
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return rationId;
+        }
+
+        public static int GetGroupDefaultEpgRatio(int groupId)
+        {
+            int rationId = 0;
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+            selectQuery += "select ISNULL( EPG_RATIO_ID, RATIO_ID) as 'RATIO_ID' from groups (nolock) where ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", groupId);
+            selectQuery.SetCachedSec(120);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    rationId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "RATIO_ID", 0);
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return rationId;
         }
     }
 }

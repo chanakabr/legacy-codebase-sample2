@@ -7,7 +7,8 @@ using System.Runtime.Serialization;
 namespace Catalog.Response
 {
     
-    [DataContract]
+    [DataContract]    
+    [KnownType(typeof(AssetsBookmarksResponse))]
     [KnownType(typeof(ChannelResponse))]
     [KnownType(typeof(MediaIdsResponse))]
     [KnownType(typeof(MediaResponse))]

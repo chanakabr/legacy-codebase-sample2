@@ -1624,26 +1624,7 @@ namespace TVinciShared
 
             url = ImageUtils.BuildImageUrl(groupId, imageId, version, width, height, quality);
             return url;
-        }
-
-        public static bool IsDownloadPicWithImageServer()
-        {
-            // true in case image server is in use
-            //------------------------------------
-            bool isDownloadPicWithImageServer = false;
-
-            string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
-            sUseQueue = sUseQueue.ToLower();
-            if (sUseQueue.Equals("true"))
-            {
-                if (!WS_Utils.IsGroupIDContainedInConfig(LoginManager.GetLoginGroupID(), "USE_OLD_IMAGE_SERVER", ';'))
-                {
-                    isDownloadPicWithImageServer = true;
-                }
-            }
-
-            return isDownloadPicWithImageServer;
-        }
+        }     
 
         public static string GetPicImageUrlByRatio(int picId, int width = 0, int height = 0)
         {
@@ -1668,6 +1649,29 @@ namespace TVinciShared
             else
             {
                 log.ErrorFormat("GetPicImageUrlByRatio imageUrl is empty. PicId {0}", picId);
+            }
+
+            return imageUrl;
+        }
+
+        public static string GetEpgChannelsSchedulePicImageUrl(int picId, int width = 0, int height = 0)
+        {
+            string imageUrl = string.Empty;
+            string baseUrl = string.Empty;
+            int version = 0;
+            int groupId = LoginManager.GetLoginGroupID();
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select p.BASE_URL, p.ID, p.version from epg_pics p where p.id = " + picId.ToString();
+
+            if (selectQuery.Execute("query", true) != null && selectQuery.Table("query").DefaultView != null && selectQuery.Table("query").DefaultView.Count > 0)
+            {
+                baseUrl = ODBCWrapper.Utils.GetSafeStr(selectQuery.Table("query").DefaultView[0].Row["BASE_URL"]);
+                picId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["ID"]);
+                version = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["version"]);
+                int parentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);
+
+                imageUrl = PageUtils.BuildEpgUrl(parentGroupID, baseUrl, version, width, height);
             }
 
             return imageUrl;

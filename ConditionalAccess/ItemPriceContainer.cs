@@ -62,9 +62,9 @@ namespace ConditionalAccess
 
         public void Initialize(string sCollectionCode, TvinciPricing.Price oPrice, PriceReason ePriceReason)
         {
-            m_sCollectionCode   = sCollectionCode;
-            m_oPrice            = oPrice;
-            m_PriceReason       = ePriceReason;
+            m_sCollectionCode = sCollectionCode;
+            m_oPrice = oPrice;
+            m_PriceReason = ePriceReason;
         }
 
     }
@@ -95,7 +95,7 @@ namespace ConditionalAccess
         public TvinciPricing.Price m_oFullPrice;
         public PriceReason m_PriceReason;
         public TvinciPricing.Subscription m_relevantSub;
-        public TvinciPricing.Collection   m_relevantCol;
+        public TvinciPricing.Collection m_relevantCol;
         public TvinciPricing.PrePaidModule m_relevantPP;
         public TvinciPricing.LanguageContainer[] m_oPPVDescription;
         public TvinciPricing.CouponsStatus m_couponStatus;
@@ -106,6 +106,7 @@ namespace ConditionalAccess
         public int[] m_lRelatedMediaFileIDs;
         public DateTime? m_dtStartDate;
         public DateTime? m_dtEndDate;
+        public string m_sProductCode;
 
         public ItemPriceContainer()
         {
@@ -124,12 +125,13 @@ namespace ConditionalAccess
             m_lPurchasedMediaFileID = 0;
             m_lRelatedMediaFileIDs = new int[0];
             m_dtStartDate = null;
+            m_sProductCode = string.Empty;
         }
 
-        public void Initialize(TvinciPricing.Price oPrice, TvinciPricing.Price oFullPrice, string sPPVModuleCode, 
-            TvinciPricing.LanguageContainer[] oPPVDescription, PriceReason theReason, TvinciPricing.Subscription relevantSub, 
-            TvinciPricing.Collection relevantCol, bool bSubscriptionOnly, TvinciPricing.PrePaidModule relevantPP, string sFirstDeviceFound, 
-            bool bCancelWindow, string purchasedBySiteGuid, int purchasedAsMediaFileID, IEnumerable<int> relatedMediaFileIDs, DateTime? dtStartDate = null, DateTime? dtEndDate = null)
+        public void Initialize(TvinciPricing.Price oPrice, TvinciPricing.Price oFullPrice, string sPPVModuleCode,
+            TvinciPricing.LanguageContainer[] oPPVDescription, PriceReason theReason, TvinciPricing.Subscription relevantSub,
+            TvinciPricing.Collection relevantCol, bool bSubscriptionOnly, TvinciPricing.PrePaidModule relevantPP, string sFirstDeviceFound,
+            bool bCancelWindow, string purchasedBySiteGuid, int purchasedAsMediaFileID, IEnumerable<int> relatedMediaFileIDs, string productCode, DateTime? dtStartDate = null, DateTime? dtEndDate = null)
         {
             m_oPPVDescription = oPPVDescription;
             m_oPrice = oPrice;
@@ -138,7 +140,7 @@ namespace ConditionalAccess
             m_PriceReason = theReason;
             m_relevantSub = relevantSub;
             m_relevantCol = relevantCol;
-            m_bSubscriptionOnly = bSubscriptionOnly;            
+            m_bSubscriptionOnly = bSubscriptionOnly;
             m_relevantPP = relevantPP;
             m_sFirstDeviceNameFound = sFirstDeviceFound;
             m_bCancelWindow = bCancelWindow;
@@ -155,6 +157,7 @@ namespace ConditionalAccess
 
             m_dtStartDate = dtStartDate;
             m_dtEndDate = dtEndDate;
+            m_sProductCode = productCode;
         }
     }
 }

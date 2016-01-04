@@ -243,7 +243,8 @@ namespace ApiObjects
         MEDIA = 0,
         NPVR = 1,
         ALL = 2,
-        UNKNOWN = 3
+        UNKNOWN = 3,
+        EPG
     }
 
 
@@ -370,6 +371,19 @@ namespace ApiObjects
     }
 
     [Serializable]
+    public enum eTableStatus
+    {
+        [EnumMember]
+        Pending = 0,
+
+        [EnumMember]
+        OK = 1,
+
+        [EnumMember]
+        Failed = 2
+    }
+
+    [Serializable]
     public enum eHouseholdPaymentGatewaySelectedBy
     {
         [EnumMember]
@@ -479,5 +493,5 @@ namespace ApiObjects
         META10_BOOL = 40
     }
 
-    
+
 }
