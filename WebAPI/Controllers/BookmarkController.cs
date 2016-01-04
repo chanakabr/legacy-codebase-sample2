@@ -8,13 +8,14 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
+using WebAPI.Models.Domains;
 using WebAPI.Models.General;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/lastPosition/action")]
-    public class LastPositionController : ApiController
+    [RoutePrefix("_service/Bookmark/action")]
+    public class BookmarkController : ApiController
     {
         /// <summary>
         /// Returns the last position (in seconds) in a media or nPVR asset until which a user in the household watched
@@ -23,9 +24,9 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaAssetsPositionsResponse List(KalturaSlimAssetsFilter filter)
+        public KalturaAssetsBookmarksResponse List(KalturaAssetsBookmarksFilter filter)
         {
-            KalturaAssetsPositionsResponse response = null;
+            KalturaAssetsBookmarksResponse response = null;
 
             if (filter.Assets == null || filter.Assets.Count == 0)
             {
@@ -38,27 +39,15 @@ namespace WebAPI.Controllers
             {
                 string userID = KS.GetFromRequest().UserId;
                 string udid = KSUtils.ExtractKSPayload().UDID;
-                int domain = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
-                eUserType userType;
+                int domain = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);                   
 
-                switch (filter.By)
-                {
-                    case KalturaEntityReferenceBy.user:
-                        userType = eUserType.PERSONAL;
-                        break;
-                    case KalturaEntityReferenceBy.household:
-                        userType = eUserType.HOUSEHOLD;
-                        break;                        
-                    default:
-                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.NotImplemented, "Not implemented");
-                }                    
-
-                List<AssetPositionRequestInfo> assetsToRequestPositions = new List<AssetPositionRequestInfo>();
+                List<AssetBookmarkRequest> assetsToRequestPositions = new List<AssetBookmarkRequest>();
 
                 foreach (KalturaSlimAsset asset in filter.Assets)
                 {
-                    AssetPositionRequestInfo assetInfo = new AssetPositionRequestInfo();
+                    AssetBookmarkRequest assetInfo = new AssetBookmarkRequest();
                     assetInfo.AssetID = asset.Id;
+                    bool addToRequest = true;
                     switch (asset.Type)
                     {
                         case KalturaAssetType.media:
@@ -72,12 +61,16 @@ namespace WebAPI.Controllers
                             break;
                         default:
                             assetInfo.AssetType = eAssetTypes.UNKNOWN;
+                            addToRequest = false;
                             break;
                     }
-                    assetsToRequestPositions.Add(assetInfo);
+                    if(addToRequest)
+                    {
+                        assetsToRequestPositions.Add(assetInfo);
+                    }
                 }
 
-                response = ClientsManager.CatalogClient().GetAssetsPositions(userID, groupId, domain, udid, userType, assetsToRequestPositions);
+                response = ClientsManager.CatalogClient().GetAssetsBookmarks(userID, groupId, domain, udid, assetsToRequestPositions);
                 
             }
             catch (ClientException ex)
