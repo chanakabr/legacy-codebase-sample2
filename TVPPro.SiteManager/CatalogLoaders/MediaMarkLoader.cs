@@ -101,7 +101,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
                 Log("Got:", m_oResponse);
                 retVal = m_oResponse as MediaMarkResponse;
             }
-            return retVal != null ? retVal.m_sStatus : null;
+            return retVal != null ? retVal.status : null;
         }
 
         protected override void Log(string message, object obj)
@@ -118,7 +118,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
                         break;
                     case "Tvinci.Data.Loaders.TvinciPlatform.Catalog.MediaMarkResponse":
                         MediaMarkResponse mediaMarkResponse = obj as MediaMarkResponse;
-                        sText.AppendFormat("MediaHitResponse: Status = {0}, ", mediaMarkResponse.m_sStatus);
+                        sText.AppendFormat("MediaHitResponse: Status = {0}, ", mediaMarkResponse.status);
                         break;
                     default:
                         break;

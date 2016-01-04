@@ -302,7 +302,7 @@ namespace TVPPro.SiteManager.DataLoaders
             return Execute();
         }
 
-        public override string Execute()
+        public override String Execute()
         {
             bool shouldUseNewCache;
             if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out shouldUseNewCache) && shouldUseNewCache)
