@@ -8,15 +8,15 @@ using System.Text;
 namespace Catalog.Request
 {
     [DataContract]
-    public class AssetsPositionRequestData
+    public class AssetsBookmarksRequestData
     {
         [DataMember]
-        public List<AssetPositionRequestInfo> Assets;
+        public List<AssetBookmarkRequest> Assets;
 
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder("AssetsPositionRequestData object - ");
-            foreach (AssetPositionRequestInfo asset in Assets)
+            foreach (AssetBookmarkRequest asset in Assets)
             {
                 sb.Append(asset.ToString() + " ");
             }
@@ -25,7 +25,7 @@ namespace Catalog.Request
     }
 
     [DataContract]
-    public class AssetPositionRequestInfo
+    public class AssetBookmarkRequest
     {
         [DataMember]
         public eAssetTypes AssetType;

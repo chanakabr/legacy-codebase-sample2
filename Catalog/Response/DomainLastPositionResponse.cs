@@ -17,7 +17,7 @@ namespace Catalog.Response
         public string m_sDescription;
 
         [DataMember]
-        public List<LastPosition> m_lPositions;
+        public List<Bookmark> m_lPositions;
 
         [DataMember]
         public Status Status;
@@ -26,30 +26,6 @@ namespace Catalog.Response
         public DomainLastPositionResponse()
         {
             Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-        }
-    }
-
-    [DataContract]
-    public class LastPosition
-    {
-        [DataMember]
-        public int m_nUserID;
-
-        [DataMember]
-        public eUserType m_eUserType;
-
-        [DataMember]
-        public int m_nLocation;
-
-        public LastPosition()
-        {
-        }
-
-        public LastPosition(int nUserID, eUserType eUserType, int nLocation)
-        {
-            this.m_nUserID = nUserID;
-            this.m_eUserType = eUserType;
-            this.m_nLocation = nLocation;
         }
     }
 }

@@ -9,6 +9,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using System.Data;
 using TVinciShared;
+using ApiObjects.Response;
 
 namespace Catalog.Response
 {
@@ -20,6 +21,9 @@ namespace Catalog.Response
 
         [DataMember]
         public string m_sDescription;
+
+        [DataMember]
+        public Status status;
 
         public MediaMarkResponse()
         {

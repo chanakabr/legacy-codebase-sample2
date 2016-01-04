@@ -2312,7 +2312,7 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static void UpdateOrInsert_UsersNpvrMark(int nDomainID, int nSiteUserGuid, string sUDID, string sNpvrID, int nGroupID, int nLoactionSec, int fileDuration, string action)
+        public static void UpdateOrInsert_UsersNpvrMark(int nDomainID, int nSiteUserGuid, string sUDID, string sAssetID, int nGroupID, int nLoactionSec, int fileDuration, string action)
         {
             var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
             int limitRetries = RETRY_LIMIT;
@@ -2335,7 +2335,7 @@ namespace Tvinci.Core.DAL
                     CreatedAt = currentDate,
                     CreatedAtEpoch = Utils.DateTimeToUnixTimestamp(currentDate),
                     playType = ApiObjects.ePlayType.NPVR.ToString(),
-                    NpvrID = sNpvrID,
+                    NpvrID = sAssetID,
                     AssetAction = action,
                     FileDuration = fileDuration,
                     AssetTypeId = (int)eAssetTypes.NPVR
@@ -2371,7 +2371,7 @@ namespace Tvinci.Core.DAL
             }
 
             limitRetries = RETRY_LIMIT;
-            string mmKey = UtilsDal.getUserNpvrMarkDocKey(nSiteUserGuid, sNpvrID);
+            string mmKey = UtilsDal.getUserNpvrMarkDocKey(nSiteUserGuid, sAssetID);
             while (limitRetries >= 0)
             {
                 var data = m_oClient.GetWithCas<string>(mmKey);
@@ -2383,11 +2383,120 @@ namespace Tvinci.Core.DAL
                     UserID = nSiteUserGuid,
                     CreatedAt = currentDate,
                     CreatedAtEpoch = Utils.DateTimeToUnixTimestamp(currentDate),
-                    playType = ePlayType.NPVR.ToString(),
-                    NpvrID = sNpvrID,
+                    playType = ApiObjects.ePlayType.NPVR.ToString(),
+                    NpvrID = sAssetID,
                     AssetAction = action,
                     FileDuration = fileDuration,
                     AssetTypeId = (int)eAssetTypes.NPVR
+                };
+
+                MediaMarkLog umm = new MediaMarkLog();
+
+                if (data.Result == null)
+                {
+                    umm.devices = new List<UserMediaMark>();
+                    umm.devices.Add(dev);
+                }
+                else
+                {
+                    umm = JsonConvert.DeserializeObject<MediaMarkLog>(data.Result);
+                    var existdev = umm.devices.Where(x => x.UDID == sUDID).FirstOrDefault();
+
+                    if (existdev != null)
+                        umm.devices.Remove(existdev);
+
+                    umm.devices.Add(dev);
+                }
+
+                //For quick last position access
+                umm.LastMark = dev;
+
+                var res = m_oClient.Cas(Enyim.Caching.Memcached.StoreMode.Set, mmKey, JsonConvert.SerializeObject(umm, Formatting.None));
+
+                if (!res.Result)
+                {
+                    Thread.Sleep(r.Next(50));
+                    limitRetries--;
+                }
+                else
+                    break;
+            }
+        }
+
+        public static void UpdateOrInsert_UsersEpgMark(int nDomainID, int nSiteUserGuid, string sUDID, int nAssetID, int nGroupID, int nLoactionSec, int fileDuration, string action)
+        {
+            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+            int limitRetries = RETRY_LIMIT;
+            Random r = new Random();
+
+            DateTime currentDate = DateTime.UtcNow;
+
+            while (limitRetries >= 0)
+            {
+
+                string docKey = UtilsDal.getDomainMediaMarksDocKey(nDomainID);
+
+                var data = m_oClient.GetWithCas<string>(docKey);
+                var dev = new UserMediaMark()
+                {
+                    Location = nLoactionSec,
+                    UDID = sUDID,
+                    MediaID = nAssetID,
+                    UserID = nSiteUserGuid,
+                    CreatedAt = currentDate,
+                    CreatedAtEpoch = Utils.DateTimeToUnixTimestamp(currentDate),
+                    playType = ApiObjects.ePlayType.EPG.ToString(),
+                    AssetAction = action,
+                    FileDuration = fileDuration,
+                    AssetTypeId = (int)eAssetTypes.EPG
+                };
+
+                DomainMediaMark mm = new DomainMediaMark();
+
+                //Create new if doesn't exist
+                if (data.Result == null)
+                {
+                    mm.devices = new List<UserMediaMark>();
+                    mm.devices.Add(dev);
+                }
+                else
+                {
+                    mm = JsonConvert.DeserializeObject<DomainMediaMark>(data.Result);
+                    var existdev = mm.devices.Where(x => x.UDID == sUDID).FirstOrDefault();
+
+                    if (existdev != null)
+                        mm.devices.Remove(existdev);
+
+                    mm.devices.Add(dev);
+                }
+                var res = m_oClient.Cas(Enyim.Caching.Memcached.StoreMode.Set, docKey, JsonConvert.SerializeObject(mm, Formatting.None), data.Cas);
+
+                if (!res.Result)
+                {
+                    Thread.Sleep(r.Next(50));
+                    limitRetries--;
+                }
+                else
+                    break;
+            }
+
+            limitRetries = RETRY_LIMIT;
+            string mmKey = UtilsDal.getUserEpgMarkDocKey(nSiteUserGuid, nAssetID.ToString());
+            while (limitRetries >= 0)
+            {
+                var data = m_oClient.GetWithCas<string>(mmKey);
+                var dev = new UserMediaMark()
+                {
+                    Location = nLoactionSec,
+                    UDID = sUDID,
+                    MediaID = nAssetID,
+                    UserID = nSiteUserGuid,
+                    CreatedAt = currentDate,
+                    CreatedAtEpoch = Utils.DateTimeToUnixTimestamp(currentDate),
+                    playType = ApiObjects.ePlayType.EPG.ToString(),
+                    AssetAction = action,
+                    FileDuration = fileDuration,
+                    AssetTypeId = (int)eAssetTypes.EPG
                 };
 
                 MediaMarkLog umm = new MediaMarkLog();

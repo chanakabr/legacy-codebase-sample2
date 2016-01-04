@@ -243,7 +243,8 @@ namespace ApiObjects
         MEDIA = 0,
         NPVR = 1,
         ALL = 2,
-        UNKNOWN = 3
+        UNKNOWN = 3,
+        EPG
     }
 
 

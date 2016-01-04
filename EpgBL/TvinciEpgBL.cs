@@ -88,15 +88,12 @@ namespace EpgBL
 
                     bRes = (cas.HasValue) ? m_oEpgCouchbase.InsertProgram(docID, newEpgItem, newEpgItem.EndDate.AddDays(EXPIRY_DATE), cas.Value) :
                                             m_oEpgCouchbase.InsertProgram(docID, newEpgItem, newEpgItem.EndDate.AddDays(EXPIRY_DATE));
+                }
 
-                    if (!bRes)
-                    {
-                        docID = string.Empty;
-                    }
-                    else
-                    {
-                        log.Error("InsertEpg - " + string.Format("Failed insert to CB id={0}", docID));
-                    }
+                if (!bRes)
+                {
+                    log.Error("InsertEpg - " + string.Format("Failed insert to CB id={0}", docID));
+                    docID = string.Empty;
                 }
             }
             catch (Exception ex)
