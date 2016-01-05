@@ -952,8 +952,6 @@
     <Compile Include="Models\Catalog\KalturaAssetHistoryFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAssetInfoFilter.cs" />
     <Compile Include="Models\Catalog\KalturaCatalogReferenceBy.cs" />
-    <Compile Include="Models\Catalog\KalturaLastPositionAssetType.cs" />
-    <Compile Include="Models\Catalog\KalturaLastPositionFilter.cs" />
     <Compile Include="Models\Catalog\KalturaPersonalFile.cs" />
     <Compile Include="Models\Catalog\PersonalEnrichments\KalturaPersonalAsset.cs" />
     <Compile Include="Models\Catalog\KalturaAssetType.cs" />
@@ -963,7 +961,6 @@
     <Compile Include="Models\Billing\KalturaPaymentGatewayBaseProfile.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGatewayProfile.cs" />
     <Compile Include="Models\API\KalturaParentalRuleListResponse.cs" />
-    <Compile Include="Models\Catalog\KalturaLastPosition.cs" />
     <Compile Include="Models\Catalog\PersonalEnrichments\KalturaPersonalAssetRequest.cs" />
     <Compile Include="Models\Catalog\PersonalEnrichments\KalturaPersonalAssetWith.cs" />
     <Compile Include="Models\Catalog\KalturaAssetsBookmarksResponse.cs" />
