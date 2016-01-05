@@ -803,11 +803,40 @@ namespace WebAPI.Clients
             }
 
             return result;
-        }        
+        }
 
-        public KalturaAssetsBookmarksResponse GetAssetsBookmarks(string siteGuid, int groupId, int domainId, string udid, List<AssetBookmarkRequest> assets)
+        public KalturaAssetsBookmarksResponse GetAssetsBookmarks(string siteGuid, int groupId, int domainId, string udid, List<KalturaSlimAsset> assets)
         {
             List<KalturaAssetBookmarks> result = null;
+            List<AssetBookmarkRequest> assetsToRequestPositions = new List<AssetBookmarkRequest>();
+
+            foreach (KalturaSlimAsset asset in assets)
+            {
+                AssetBookmarkRequest assetInfo = new AssetBookmarkRequest();
+                assetInfo.AssetID = asset.Id;
+                bool addToRequest = true;
+                switch (asset.Type)
+                {
+                    case KalturaAssetType.media:
+                        assetInfo.AssetType = eAssetTypes.MEDIA;
+                        break;
+                    case KalturaAssetType.recording:
+                        assetInfo.AssetType = eAssetTypes.NPVR;
+                        break;
+                    case KalturaAssetType.epg:
+                        assetInfo.AssetType = eAssetTypes.EPG;
+                        break;
+                    default:
+                        assetInfo.AssetType = eAssetTypes.UNKNOWN;
+                        addToRequest = false;
+                        break;
+                }
+                if (addToRequest)
+                {
+                    assetsToRequestPositions.Add(assetInfo);
+                }
+            }
+
             AssetsBookmarksRequest request = new AssetsBookmarksRequest()
             {
                 m_sSignature = Signature,
@@ -822,7 +851,7 @@ namespace WebAPI.Clients
                 },
                 Data = new AssetsBookmarksRequestData()
                 {
-                    Assets = assets
+                    Assets = assetsToRequestPositions
                 }
             };
 
