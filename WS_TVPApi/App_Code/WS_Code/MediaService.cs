@@ -1470,7 +1470,7 @@ namespace TVPApiServices
                         assetRequestID = npvrID;
                         AssetsToGet = new AssetBookmarkRequest() { AssetID = assetRequestID, AssetType = eAssetTypes.NPVR };
                     }
-                    var res = new AssetsBookmarksLoader(groupID, initObj.SiteGuid, SiteHelper.GetClientIP(), initObj.UDID, new List<AssetBookmarkRequest>() { AssetsToGet })
+                    var res = new AssetsBookmarksLoader(groupID, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, new List<AssetBookmarkRequest>() { AssetsToGet })
                     {
                         DomainId = initObj.DomainID,
                         Platform = initObj.Platform.ToString()
@@ -3449,7 +3449,7 @@ namespace TVPApiServices
                         }
                         assetsToSend.Add(assetToAdd);
                     }
-                    var res = new AssetsBookmarksLoader(groupId, initObj.SiteGuid, SiteHelper.GetClientIP(), initObj.UDID, assetsToSend)
+                    var res = new AssetsBookmarksLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, assetsToSend)
                     {
                         DomainId = initObj.DomainID,
                         Platform = initObj.Platform.ToString()
@@ -3486,6 +3486,14 @@ namespace TVPApiServices
                 }
                 try
                 {
+                    if (mediaID == 0 || initObj.DomainID == 0)
+                    {
+                        sRet = new DomainLastPositionResponse()
+                        {
+                            m_sStatus = "INVALID_PARAMS"
+                        };
+                        return sRet;
+                    }
                     AssetBookmarkRequest mediaAssets = new AssetBookmarkRequest() { AssetID = mediaID.ToString(), AssetType = eAssetTypes.MEDIA };
                     var res = new AssetsBookmarksLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, new List<AssetBookmarkRequest>() { mediaAssets })
                     {
@@ -3504,9 +3512,8 @@ namespace TVPApiServices
 
                     sRet = new DomainLastPositionResponse()
                     {
-                        m_lPositions = mediaBookmarks,
-                        m_sDescription = res.Status.Message,
-                        m_sStatus = res.Status.Code.ToString()
+                        m_lPositions = mediaBookmarks,                        
+                        m_sStatus = res.Status.Message
                     };
                 }
                 catch (Exception ex)
