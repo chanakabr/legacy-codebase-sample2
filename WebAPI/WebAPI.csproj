@@ -833,6 +833,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Controllers\PermissionController.cs" />
+    <Compile Include="Controllers\PersonalAssetController.cs" />
     <Compile Include="Controllers\RecommendationProfileSettingsController.cs" />
     <Compile Include="Controllers\OSSAdapterProfileSettingsController.cs" />
     <Compile Include="Controllers\OSSAdapterProfileController.cs" />
@@ -905,12 +906,16 @@
     <Compile Include="Models\Catalog\KalturaCatalogReferenceBy.cs" />
     <Compile Include="Models\Catalog\KalturaLastPositionAssetType.cs" />
     <Compile Include="Models\Catalog\KalturaLastPositionFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaPersonalFile.cs" />
+    <Compile Include="Models\Catalog\PersonalEnrichments\KalturaPersonalAsset.cs" />
     <Compile Include="Models\Catalog\KalturaPositionOwner.cs" />
     <Compile Include="Models\Catalog\KalturaBaseChannel.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGatewayBaseProfile.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGatewayProfile.cs" />
     <Compile Include="Models\API\KalturaParentalRuleListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaLastPosition.cs" />
+    <Compile Include="Models\Catalog\PersonalEnrichments\KalturaPersonalAssetRequest.cs" />
+    <Compile Include="Models\Catalog\PersonalEnrichments\KalturaPersonalAssetWith.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingAction.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingItemsType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingResponse.cs" />
