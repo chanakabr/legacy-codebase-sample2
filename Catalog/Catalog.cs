@@ -2150,13 +2150,13 @@ namespace Catalog
 
         internal static int GetMediaActionID(string sAction)
         {
-            int retActionID = 0;
+            MediaPlayActions action;
 
-            DataTable dtAction = CatalogDAL.Get_ActionValues(sAction);
-            if (dtAction != null && dtAction.Rows != null && dtAction.Rows.Count > 0)
-            {
-                retActionID = Utils.GetIntSafeVal(dtAction.Rows[0], "ID");
-            }
+            int retActionID = -1;
+
+            if (Enum.TryParse<MediaPlayActions>(sAction, true, out action))
+                retActionID = (int)action;
+
             return retActionID;
         }
 

@@ -52,6 +52,7 @@ namespace Catalog
 
     public enum MediaPlayActions
     {
+        HIT = 0,
         PLAY = 1,
         STOP = 2,
         PAUSE = 3,

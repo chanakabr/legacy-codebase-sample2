@@ -188,6 +188,12 @@ namespace Catalog.Request
                         break;
 
                     }
+                case MediaPlayActions.HIT:
+                    {
+                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc,
+                            this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), (int)assetType, nDomainID, playType);
+                        break;
+                    }
                 case MediaPlayActions.PLAY:
                     {
                         nPlay = 1;
@@ -265,7 +271,7 @@ namespace Catalog.Request
             MediaMarkResponse oMediaMarkResponse = new MediaMarkResponse();
 
             int nCDNID = 0;
-            int nActionID = 0;
+            int nActionID = -1;
             int nPlay = 0;
             int nStop = 0;
             int nPause = 0;
@@ -338,23 +344,27 @@ namespace Catalog.Request
 
             if (!isTerminateRequest)
             {
-                if (nActionID == 0 && this.m_oMediaPlayRequestData.m_sAction.Length > 0)
+                if (nActionID == -1 && this.m_oMediaPlayRequestData.m_sAction.Length > 0)
                 {
                     nActionID = Catalog.GetMediaActionID(m_oMediaPlayRequestData.m_sAction);
                 }
 
                 if (mediaId != 0)
                 {
-                    if (nFirstPlay != 0 || nPlay != 0 || nLoad != 0 || nPause != 0 || nStop != 0 || nFull != 0 || nExitFull != 0 || nSendToFriend != 0 || nPlayTime != 0 || nFinish != 0 || nSwhoosh != 0)
+                    if (nFirstPlay != 0 || nPlay != 0 || nLoad != 0 || nPause != 0 || nStop != 0 || nFull != 0 || nExitFull != 0 || nSendToFriend != 0 || nPlayTime != 0 || nFinish != 0 || nSwhoosh != 0 || nActionID == (int)MediaPlayActions.HIT)
                     {
                         CatalogDAL.Insert_MediaMarkHitActionData(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, mediaId,
                             m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID, nMediaDuration, nCountryID, nPlayerID, nFirstPlay, nPlay, nLoad, nPause,
                             nStop, nFull, nExitFull, nSendToFriend, m_oMediaPlayRequestData.m_nLoc, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid,
                             m_oMediaPlayRequestData.m_sUDID, nSwhoosh, 0);
                     }
-                }
 
-                if (nActionID != 0)
+                    if (nActionID == (int)MediaPlayActions.HIT)
+                        // log for mediahit for statistics
+                        Task.Factory.StartNew(() => WriteLiveViews(m_nGroupID, mediaId, nMediaTypeID, nPlayTime));
+                }
+                
+                if (nActionID != -1)
                 {
                     CatalogDAL.Insert_NewWatcherMediaAction(nWatcherID, sSessionID, nBillingTypeID, nOwnerGroupID, nQualityID, nFormatID, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_nGroupID,
                                                             nCDNID, nActionID, nCountryID, nPlayerID, m_oMediaPlayRequestData.m_nLoc, nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID);
@@ -372,6 +382,12 @@ namespace Catalog.Request
             }
 
             return oMediaMarkResponse;
+        }
+
+        private void WriteLiveViews(int groupID, int mediaID, int mediaTypeID, int playTime)
+        {
+            if (!Catalog.InsertStatisticsRequestToES(groupID, mediaID, mediaTypeID, Catalog.STAT_ACTION_MEDIA_HIT, playTime))
+                log.Error("Error - " + String.Concat("Failed to write mediahit into stats index. M ID: ", mediaID, " MT ID: ", mediaTypeID));
         }
 
         private void WriteFirstPlay(int mediaID, int mediaFileID, int groupID, int mediaTypeID, int playTime,
@@ -403,6 +419,11 @@ namespace Catalog.Request
 
             switch (mediaMarkAction)
             {
+                case MediaPlayActions.HIT:
+                    {
+                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), mediaTypeId, domainId);
+                        break;
+                    }
                 case MediaPlayActions.ERROR:
                     {
                         int nErrorCode = 0;
