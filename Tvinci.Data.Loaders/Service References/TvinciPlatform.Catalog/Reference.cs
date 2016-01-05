@@ -8409,6 +8409,9 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool IsFinishedWatchingField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int LocationField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -8424,6 +8427,19 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
             }
             set {
                 this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool IsFinishedWatching {
+            get {
+                return this.IsFinishedWatchingField;
+            }
+            set {
+                if ((this.IsFinishedWatchingField.Equals(value) != true)) {
+                    this.IsFinishedWatchingField = value;
+                    this.RaisePropertyChanged("IsFinishedWatching");
+                }
             }
         }
         
