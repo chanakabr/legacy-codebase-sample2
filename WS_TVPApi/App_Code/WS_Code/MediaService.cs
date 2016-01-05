@@ -3432,15 +3432,15 @@ namespace TVPApiServices
                     {
                         AssetBookmarkRequest assetToAdd = new AssetBookmarkRequest();
                         assetToAdd.AssetID = asset.AssetID;
-                        switch (asset.AssetType)
+                        switch (asset.AssetType.ToUpper())
                         {
-                            case AssetTypes.EPG:
+                            case "EPG":
                                 assetToAdd.AssetType = eAssetTypes.EPG;
                                 break;
-                            case AssetTypes.Media:
+                            case "MEDIA":
                                 assetToAdd.AssetType = eAssetTypes.MEDIA;
                                 break;
-                            case AssetTypes.NPVR:
+                            case "NPVR":
                                 assetToAdd.AssetType = eAssetTypes.NPVR;
                                 break;
                             default:
