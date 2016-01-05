@@ -199,13 +199,13 @@ public partial class adm_categories_new : System.Web.UI.Page
             Session["error_msg"] = "";
             return Session["last_page_html"].ToString();
         }
-        object t = null; ;
+        object categoryId = null; ;
         if (Session["category_id"] != null && Session["category_id"].ToString() != "" && int.Parse(Session["category_id"].ToString()) != 0)
-            t = Session["category_id"];
+            categoryId = Session["category_id"];
         string sBack = "adm_categories.aspx?search_save=1";
         if (Session["parent_category_id"] != null)
             sBack += "&parent_category_id=" + Session["parent_category_id"].ToString();
-        DBRecordWebEditor theRecord = new DBRecordWebEditor("categories", "adm_table_pager", sBack, "", "ID", t, sBack, "");
+        DBRecordWebEditor theRecord = new DBRecordWebEditor("categories", "adm_table_pager", sBack, "", "ID", categoryId, sBack, "");
 
         DataRecordShortTextField dr_group_name = new DataRecordShortTextField("ltr", true, 60, 128);
         dr_group_name.Initialize("Category name", "adm_table_header_nbg", "FormInput", "category_NAME", true);
@@ -215,9 +215,25 @@ public partial class adm_categories_new : System.Web.UI.Page
         dr_admin_name.Initialize("Unique Name", "adm_table_header_nbg", "FormInput", "ADMIN_NAME", true);
         theRecord.AddRecord(dr_admin_name);
 
-        DataRecordOnePicBrowserField dr_pic = new DataRecordOnePicBrowserField();
-        dr_pic.Initialize("Category Pic", "adm_table_header_nbg", "FormInput", "PIC_ID", false);
-        theRecord.AddRecord(dr_pic);
+        // if category is not new - upload pic is allowed
+        if (categoryId != null && !string.IsNullOrEmpty(categoryId.ToString()))
+        {
+            bool isDownloadPicWithImageServer = false;
+            string imageUrl = string.Empty;
+            int picId = 0;
+
+            if (ImageUtils.IsDownloadPicWithImageServer())
+            {
+                isDownloadPicWithImageServer = true;
+                int groupId = LoginManager.GetLoginGroupID();
+                imageUrl = GetPicImageUrlByRatio(categoryId, out picId);
+            }
+
+            DataRecordOnePicBrowserField dr_pic = new DataRecordOnePicBrowserField("category", isDownloadPicWithImageServer, imageUrl, picId);            
+            dr_pic.Initialize("Category Pic", "adm_table_header_nbg", "FormInput", "PIC_ID", false);
+            dr_pic.SetDefault(0);
+            theRecord.AddRecord(dr_pic);
+        }
 
         Int32 nParentID = 0;
         if (Session["parent_category_id"] != null && Session["parent_category_id"].ToString() != "" && Session["parent_category_id"].ToString() != "0")
@@ -246,5 +262,32 @@ public partial class adm_categories_new : System.Web.UI.Page
         string sTable = theRecord.GetTableHTML("adm_categories_new.aspx?submited=1");
 
         return sTable;
+    }
+
+    private string GetPicImageUrlByRatio(object categoryId, out int picId)
+    {
+        string imageUrl = string.Empty;
+        string baseUrl = string.Empty;
+        int ratioId = 0;
+        int version = 0;
+        picId = 0;
+        int groupId = LoginManager.GetLoginGroupID();
+
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery += "select p.RATIO_ID, p.BASE_URL, p.ID, p.version from pics p left join categories c on c.PIC_ID = p.ID where p.STATUS in (0, 1) and c.id = " + categoryId.ToString();
+
+        if (selectQuery.Execute("query", true) != null && selectQuery.Table("query").DefaultView != null && selectQuery.Table("query").DefaultView.Count > 0)
+        {
+
+            baseUrl = ODBCWrapper.Utils.GetSafeStr(selectQuery.Table("query").DefaultView[0].Row["BASE_URL"]);
+            ratioId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["RATIO_ID"]);
+            picId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["ID"]);
+            version = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["version"]);
+            int parentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);
+
+            imageUrl = PageUtils.BuildVodUrl(parentGroupID, baseUrl, ratioId, version);
+        }
+
+        return imageUrl;
     }
 }

@@ -48,7 +48,9 @@
                     </td>
                 </tr>
                 <tr>
-                    <td class='adm_table_header_nbg' nowrap>Pic Ratio</td>
+                    <td class='adm_table_header_nbg' nowrap>
+                            <asp:Label ID="lblPicRatio" runat="server" Visible="True">Pic Ratio</asp:Label>
+                       </td>
                     <td class="align1">
                         <asp:RadioButtonList ID="rdbRatio" runat="server" Width="300" MaxLength="128"></asp:RadioButtonList>
                     </td>

@@ -136,7 +136,7 @@ public partial class adm_categories : System.Web.UI.Page
         if (Session["parent_category_id"] != null && Session["parent_category_id"].ToString() != "" && Session["parent_category_id"].ToString() != "0")
             nCategoryID = int.Parse(Session["parent_category_id"].ToString());
 
-        theTable += "select q.order_num,q.is_active,q.id as 'ID',q.id as 'CID',p.BASE_URL as 'Pic',q.category_name as 'Category name',q.admin_name as 'Unique Name',q.status,q.State as 'State' from (select c.is_active,c.id as id,c.PIC_ID,c.category_name,c.admin_name,c.status,lcs.description as 'State',c.order_num from categories c,lu_content_status lcs where lcs.id=c.status and c.status<>2 and (";
+        theTable += "select q.order_num,q.is_active,q.id as 'ID',q.id as 'CID',p.BASE_URL as 'Pic',q.category_name as 'Category name',q.admin_name as 'Unique Name',q.status,q.State as 'State', pic_Id from (select c.is_active,c.id as id,c.PIC_ID,c.category_name,c.admin_name,c.status,lcs.description as 'State',c.order_num from categories c,lu_content_status lcs where lcs.id=c.status and c.status<>2 and (";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("c.parent_category_id", "=", nCategoryID);
         theTable += "and";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("c.group_id", "=", nGroupID);
@@ -157,6 +157,7 @@ public partial class adm_categories : System.Web.UI.Page
         theTable.AddActivationField("categories");
         theTable.AddImageField("Pic");
         theTable.AddOrderNumField("categories", "id", "order_num", "Order Number");
+        theTable.AddHiddenField("pic_Id");
         theTable.AddHiddenField("is_active");
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {
