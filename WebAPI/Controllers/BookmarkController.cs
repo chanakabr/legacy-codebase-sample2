@@ -39,38 +39,9 @@ namespace WebAPI.Controllers
             {
                 string userID = KS.GetFromRequest().UserId;
                 string udid = KSUtils.ExtractKSPayload().UDID;
-                int domain = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);                   
+                int domain = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
 
-                List<AssetBookmarkRequest> assetsToRequestPositions = new List<AssetBookmarkRequest>();
-
-                foreach (KalturaSlimAsset asset in filter.Assets)
-                {
-                    AssetBookmarkRequest assetInfo = new AssetBookmarkRequest();
-                    assetInfo.AssetID = asset.Id;
-                    bool addToRequest = true;
-                    switch (asset.Type)
-                    {
-                        case KalturaAssetType.media:
-                            assetInfo.AssetType = eAssetTypes.MEDIA;
-                            break;
-                        case KalturaAssetType.recording:
-                            assetInfo.AssetType = eAssetTypes.NPVR;
-                            break;
-                        case KalturaAssetType.epg:
-                            assetInfo.AssetType = eAssetTypes.EPG;
-                            break;
-                        default:
-                            assetInfo.AssetType = eAssetTypes.UNKNOWN;
-                            addToRequest = false;
-                            break;
-                    }
-                    if(addToRequest)
-                    {
-                        assetsToRequestPositions.Add(assetInfo);
-                    }
-                }
-
-                response = ClientsManager.CatalogClient().GetAssetsBookmarks(userID, groupId, domain, udid, assetsToRequestPositions);
+                response = ClientsManager.CatalogClient().GetAssetsBookmarks(userID, groupId, domain, udid, filter.Assets);
                 
             }
             catch (ClientException ex)
