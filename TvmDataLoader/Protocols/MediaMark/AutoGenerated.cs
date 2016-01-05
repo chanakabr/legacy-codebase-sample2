@@ -63,7 +63,9 @@ namespace Tvinci.Data.TVMDataLoader.Protocols.MediaMark
         [XmlEnum(Name = "swoosh")]
         swoosh,
         [XmlEnum(Name = "bitrate_change")]
-        bitrate_change
+        bitrate_change,
+        [XmlEnum(Name = "hit")]
+        hit
     }
 
 
