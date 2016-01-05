@@ -34,6 +34,7 @@ namespace CachingProvider
             m_Client = CouchbaseManager.CouchbaseManager.RefreshInstance(bucket);
         }
 
+
         public static CouchBaseCache<T> GetInstance(string sCacheName)
         {
             CouchBaseCache<T> cache = null;
@@ -57,6 +58,10 @@ namespace CachingProvider
             return cache;
         }
 
+        /// <summary>
+        /// See status codes at: http://docs.couchbase.com/couchbase-sdk-net-1.3/#checking-error-codes
+        /// </summary>
+        /// <param name="statusCode"></param>
         private void HandleStatusCode(int? statusCode)
         {
             if (statusCode != null)
@@ -66,9 +71,19 @@ namespace CachingProvider
                     log.ErrorFormat("Error while executing action on CB. Status code = {0}", statusCode.Value);
                 }
 
+                // Cases of retry
                 switch (statusCode)
                 {
+                    // Busy
+                    case 133:
+                    // SocketPoolTimeout
+                    case 145:
+                    // UnableToLocateNode
                     case 146:
+                    // NodeShutdown
+                    case 147:
+                    // OperationTimeout
+                    case 148:
                     {
                         m_Client = CouchbaseManager.CouchbaseManager.RefreshInstance(bucket);
 
