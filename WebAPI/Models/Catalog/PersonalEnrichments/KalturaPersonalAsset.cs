@@ -44,13 +44,12 @@ namespace WebAPI.Models.Catalog
         }
 
         /// <summary>
-        /// Identifies the asset type (EPG, Movie, TV Series, etc). 
-        /// Possible values: 0 – EPG linear programs, or any asset type ID according to the asset types IDs defined in the system.
+        /// Identifies the asset type (EPG, Media, etc). 
         /// </summary>
         [DataMember(Name = "type")]
         [JsonProperty(PropertyName = "type")]
         [XmlElement(ElementName = "type")]
-        public int Type
+        public KalturaAssetType Type
         {
             get;
             set;
@@ -58,8 +57,8 @@ namespace WebAPI.Models.Catalog
 
         [DataMember(Name = "bookmark")]
         [JsonProperty(PropertyName = "bookmark")]
-        [XmlElement(ElementName = "bookmark")]
-        public int Bookmark
+        [XmlElement(ElementName = "bookmark", IsNullable=true)]
+        public KalturaAssetBookmark Bookmark
         {
             get;
             set;
