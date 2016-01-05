@@ -141,7 +141,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<Bookmark, WebAPI.Models.Catalog.KalturaAssetBookmark>()
                 .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User))
                 .ForMember(dest => dest.Position, opt => opt.MapFrom(src => src.Location))
-                .ForMember(dest => dest.PositionOwner, opt => opt.MapFrom(src => ConvertPositionOwner(src.UserType)));
+                .ForMember(dest => dest.PositionOwner, opt => opt.MapFrom(src => ConvertPositionOwner(src.UserType)))
+                .ForMember(dest => dest.IsFinishedWatching, opt => opt.MapFrom(src => src.IsFinishedWatching));
 
             //User to KalturaBaseOTTUser
             Mapper.CreateMap<User, WebAPI.Models.Users.KalturaBaseOTTUser>()

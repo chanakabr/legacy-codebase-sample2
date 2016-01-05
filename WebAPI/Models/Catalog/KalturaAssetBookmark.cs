@@ -39,6 +39,15 @@ namespace WebAPI.Models.Catalog
         [JsonProperty("position_owner")]
         [XmlElement(ElementName = "position_owner", IsNullable = true)]
         public KalturaPositionOwner PositionOwner { get; set; }
+
+        /// <summary>
+        ///Boolean which specifies whether the user finished watching the asset
+        /// </summary>
+        [DataMember(Name = "finished_watching")]
+        [JsonProperty("finished_watching")]
+        [XmlElement(ElementName = "finished_watching")]
+        public bool IsFinishedWatching { get; set; }
+
     }
 }
 
