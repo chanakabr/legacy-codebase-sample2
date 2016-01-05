@@ -39,38 +39,9 @@ namespace WebAPI.Controllers
             {
                 string userID = KS.GetFromRequest().UserId;
                 string udid = KSUtils.ExtractKSPayload().UDID;
-                int domain = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);                   
+                int domain = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
 
-                List<AssetBookmarkRequest> assetsToRequestPositions = new List<AssetBookmarkRequest>();
-
-                foreach (KalturaSlimAsset asset in filter.Assets)
-                {
-                    AssetBookmarkRequest assetInfo = new AssetBookmarkRequest();
-                    assetInfo.AssetID = asset.Id;
-                    bool addToRequest = true;
-                    switch (asset.Type)
-                    {
-                        case KalturaAssetType.media:
-                            assetInfo.AssetType = eAssetTypes.MEDIA;
-                            break;
-                        case KalturaAssetType.recording:
-                            assetInfo.AssetType = eAssetTypes.NPVR;
-                            break;
-                        case KalturaAssetType.epg:
-                            assetInfo.AssetType = eAssetTypes.EPG;
-                            break;
-                        default:
-                            assetInfo.AssetType = eAssetTypes.UNKNOWN;
-                            addToRequest = false;
-                            break;
-                    }
-                    if(addToRequest)
-                    {
-                        assetsToRequestPositions.Add(assetInfo);
-                    }
-                }
-
-                response = ClientsManager.CatalogClient().GetAssetsBookmarks(userID, groupId, domain, udid, assetsToRequestPositions);
+                response = ClientsManager.CatalogClient().GetAssetsBookmarks(userID, groupId, domain, udid, filter.Assets);
                 
             }
             catch (ClientException ex)
@@ -81,6 +52,15 @@ namespace WebAPI.Controllers
             return response;
         }
 
+        /// <summary>
+        /// Report player position and action for the user on the watched asset. Player position is used to later allow resume watching.
+        /// </summary>
+        /// <param name="assetId">Internal identifier of the asset </param>
+        /// <param name="assetType">The type of the asset. Possible values <VOD, nPVR, Catch-Up> </param>
+        /// <param name="fileId">Identifier of the file</param>
+        /// <param name="PlayerAssetData">Data regarding players status for the asset</param>
+        /// <returns></returns>
+        /// <remarks>Possible status codes: BadRequest = 500003, Bad search request = 4002, ConcurrencyLimitation = 4001</remarks>
         [Route("set"), HttpPost]
         [ApiAuthorize(true)]
         public bool Set(string assetId, eAssetTypes assetType, long fileId, KalturaPlayerAssetData PlayerAssetData)

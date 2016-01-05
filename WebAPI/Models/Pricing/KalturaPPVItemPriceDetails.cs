@@ -144,5 +144,13 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("is_in_cancelation_period")]
         [XmlElement(ElementName = "is_in_cancelation_period")]
         public bool IsInCancelationPeriod { get; set; }
+
+        /// <summary>
+        /// The PPV product code
+        /// </summary>
+        [DataMember(Name = "ppv_product_code")]
+        [JsonProperty("ppv_product_code")]
+        [XmlElement(ElementName = "ppv_product_code")]
+        public string ProductCode { get; set; }
     }
 }
