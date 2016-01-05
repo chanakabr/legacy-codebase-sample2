@@ -58,7 +58,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "bookmark")]
         [JsonProperty(PropertyName = "bookmark")]
         [XmlElement(ElementName = "bookmark", IsNullable=true)]
-        public KalturaAssetBookmark Bookmark
+        public KalturaAssetBookmarks Bookmark
         {
             get;
             set;
