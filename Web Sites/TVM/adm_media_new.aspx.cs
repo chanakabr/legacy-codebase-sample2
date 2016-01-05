@@ -1,21 +1,11 @@
-using System;
-using System.Data;
-using System.Configuration;
-using System.Collections;
-using System.Web;
-using System.Web.Security;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Web.UI.HtmlControls;
-using ODBCWrapper;
-using TVinciShared;
-using TvinciImporter;
-using System.Threading;
-using Notifiers;
-using System.Collections.Generic;
 using KLogMonitor;
+using ODBCWrapper;
+using System;
+using System.Collections.Generic;
 using System.Reflection;
+using System.Web;
+using TvinciImporter;
+using TVinciShared;
 
 public partial class adm_media_new : System.Web.UI.Page
 {
@@ -386,11 +376,11 @@ public partial class adm_media_new : System.Web.UI.Page
             {
                 isDownloadPicWithImageServer = true;
                 int groupId = LoginManager.GetLoginGroupID();
-                imageUrl = GetPicImageUrlByRatio(out picId);
+                imageUrl = GetPicImageUrlByRatio(mediaId, groupId, out picId);
             }
 
             DataRecordOnePicBrowserField dr_pic = new DataRecordOnePicBrowserField("media", isDownloadPicWithImageServer, imageUrl, picId);
-            dr_pic.Initialize("Thumb", "adm_table_header_nbg", "FormInput", "MEDIA_PIC_ID", false);           
+            dr_pic.Initialize("Thumb", "adm_table_header_nbg", "FormInput", "MEDIA_PIC_ID", false);
             theRecord.AddRecord(dr_pic);
         }
 
@@ -467,22 +457,19 @@ public partial class adm_media_new : System.Web.UI.Page
         return sTable;
     }
 
-    private string GetPicImageUrlByRatio(out int picId)
+    private string GetPicImageUrlByRatio(object mediaId, int groupId, out int picId)
     {
         string imageUrl = string.Empty;
         string baseUrl = string.Empty;
         int ratioId = 0;
         int version = 0;
         picId = 0;
-        int groupId = LoginManager.GetLoginGroupID();
-        object mediaId = Session["media_id"];
 
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
         selectQuery += "select p.RATIO_ID, p.BASE_URL, p.ID, p.version from pics p left join media m on m.MEDIA_PIC_ID = p.ID where p.STATUS in (0, 1) and m.id = " + mediaId.ToString();
 
         if (selectQuery.Execute("query", true) != null && selectQuery.Table("query").DefaultView != null && selectQuery.Table("query").DefaultView.Count > 0)
         {
-
             baseUrl = ODBCWrapper.Utils.GetSafeStr(selectQuery.Table("query").DefaultView[0].Row["BASE_URL"]);
             ratioId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["RATIO_ID"]);
             picId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["ID"]);

@@ -1,13 +1,5 @@
 using System;
-using System.Data;
-using System.Configuration;
-using System.Collections;
 using System.Web;
-using System.Web.Security;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Web.UI.HtmlControls;
 using TVinciShared;
 
 public partial class adm_categories_new : System.Web.UI.Page
@@ -226,10 +218,10 @@ public partial class adm_categories_new : System.Web.UI.Page
             {
                 isDownloadPicWithImageServer = true;
                 int groupId = LoginManager.GetLoginGroupID();
-                imageUrl = GetPicImageUrlByRatio(categoryId, out picId);
+                imageUrl = GetPicImageUrlByRatio(categoryId, groupId, out picId);
             }
 
-            DataRecordOnePicBrowserField dr_pic = new DataRecordOnePicBrowserField("category", isDownloadPicWithImageServer, imageUrl, picId);            
+            DataRecordOnePicBrowserField dr_pic = new DataRecordOnePicBrowserField("category", isDownloadPicWithImageServer, imageUrl, picId);
             dr_pic.Initialize("Category Pic", "adm_table_header_nbg", "FormInput", "PIC_ID", false);
             dr_pic.SetDefault(0);
             theRecord.AddRecord(dr_pic);
@@ -264,14 +256,13 @@ public partial class adm_categories_new : System.Web.UI.Page
         return sTable;
     }
 
-    private string GetPicImageUrlByRatio(object categoryId, out int picId)
+    private string GetPicImageUrlByRatio(object categoryId, int groupId, out int picId)
     {
         string imageUrl = string.Empty;
         string baseUrl = string.Empty;
         int ratioId = 0;
         int version = 0;
         picId = 0;
-        int groupId = LoginManager.GetLoginGroupID();
 
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
         selectQuery += "select p.RATIO_ID, p.BASE_URL, p.ID, p.version from pics p left join categories c on c.PIC_ID = p.ID where p.STATUS in (0, 1) and c.id = " + categoryId.ToString();

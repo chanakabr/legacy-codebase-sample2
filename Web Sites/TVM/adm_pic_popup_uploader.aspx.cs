@@ -40,24 +40,25 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
             }
 
             Initialize();
-
         }
     }
 
     private void Initialize()
     {
-        PopUpContext picMediaType = GetPicMediaType();
+        // Get the pic popup Context ( media, epg, channel, category)
+        PopUpContext popUpContext = GetPopUpContext();
 
-        switch (picMediaType)
+        switch (popUpContext)
         {
             case PopUpContext.Vod:
                 // Set ratios
-                PopulateRatioList(picMediaType);
+                PopulateRatioList(popUpContext);
                 break;
             case PopUpContext.EpgProgram:
                 // Set ratios
-                PopulateRatioList(picMediaType);
+                PopulateRatioList(popUpContext);
                 break;
+            case PopUpContext.Channel:
             case PopUpContext.Category:
                 // hide ratio
                 lblPicRatio.Visible = false;
@@ -162,7 +163,7 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
 
         int id = 0;
         int picId = 0;
-        PopUpContext picMediaType = GetPicMediaType();
+        PopUpContext picMediaType = GetPopUpContext();
         string mediaIdentifier = string.Format("MediaType_{0}_Id", picMediaType.ToString());
 
         if (Session[mediaIdentifier] == null || string.IsNullOrEmpty(Session[mediaIdentifier].ToString()) ||
@@ -220,6 +221,19 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
                         }
                     }
                     break;
+                case PopUpContext.Channel:
+                    {
+                        picId = TvinciImporter.ImporterImpl.DownloadPicToImageServer(picLink, name, groupID, id, "eng", true, ratioId, false);
+
+                        if (picId > 0)
+                        {
+                            //update media with new Pic
+                            Session["Pic_Image_Url"] = PageUtils.GetPicImageUrlByRatio(picId, 90, 65);
+                            ClientScript.RegisterStartupScript(typeof(Page), "close", "<script language=javascript>window.opener.document.getElementsByName('" + openerFieldToUpdate + "')[0].value = " + picId
+                                + ";window.opener.ChangePic('" + openerFieldToUpdate + "'," + picId + ");</script>");
+                        }
+                    }
+                    break;
                 case PopUpContext.EpgProgram:
                     {
                         picId = TvinciImporter.ImporterImpl.DownloadEPGPicToImageServer(picLink, name, groupID, id, ratioId, false);
@@ -251,36 +265,31 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
         ClientScript.RegisterStartupScript(typeof(Page), "closePage", "window.close();", true);
     }
 
-    private PopUpContext GetPicMediaType()
+    private PopUpContext GetPopUpContext()
     {
         PopUpContext type = PopUpContext.None;
-
-        string source = string.Empty;
-        int sourceId = 0;
 
         if (Session["MediaType"] == null)
         {
             if (Request.QueryString["epgIdentifier"] != null && Request.QueryString["epgIdentifier"].ToString() != "")
             {
-                source = Session["epg_channel_id"].ToString();
-                int.TryParse(source, out sourceId);
                 type = PopUpContext.EpgProgram;
-                Session[string.Format("MediaType_{0}_Id", type)] = sourceId;
+                SetMediaTypeSession("epg_channel_id", type);
             }
             else if (!string.IsNullOrEmpty(Request.QueryString["lastPage"]) && Request.QueryString["lastPage"].ToString() == "category")
             {
-                source = Session["category_id"].ToString();
-                int.TryParse(source, out sourceId);
                 type = PopUpContext.Category;
-                Session[string.Format("MediaType_{0}_Id", type)] = sourceId;
+                SetMediaTypeSession("category_id", type);
+            }
+            else if (!string.IsNullOrEmpty(Request.QueryString["lastPage"]) && Request.QueryString["lastPage"].ToString() == "channel")
+            {
+                type = PopUpContext.Channel;
+                SetMediaTypeSession("channel_id", type);
             }
             else
             {
-                source = Session["media_id"].ToString();
-                int.TryParse(source, out sourceId);
                 type = PopUpContext.Vod;
-                Session[string.Format("MediaType_{0}_Id", type)] = sourceId;
-
+                SetMediaTypeSession("media_id", type);
             }
         }
         else
@@ -293,9 +302,19 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
         return type;
     }
 
+    private void SetMediaTypeSession(string contextIdName, PopUpContext type)
+    {
+        string source = string.Empty;
+        int sourceId = 0;
+
+        source = Session[contextIdName].ToString();
+        int.TryParse(source, out sourceId);
+        Session[string.Format("MediaType_{0}_Id", type)] = sourceId;
+    }
+
     protected void btnCancel_Click(object sender, EventArgs e)
     {
-        PopUpContext picMediaType = GetPicMediaType();
+        PopUpContext picMediaType = GetPopUpContext();
         string mediaIdentifier = string.Format("MediaType_{0}_Id", picMediaType.ToString());
 
         Session["MediaType"] = null;
@@ -309,6 +328,7 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
         None,
         Vod,
         EpgProgram,
-        Category
+        Category,
+        Channel
     }
 }

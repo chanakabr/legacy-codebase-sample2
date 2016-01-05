@@ -1,17 +1,10 @@
-using System;
-using System.Data;
-using System.Configuration;
-using System.Collections;
-using System.Web;
-using System.Web.Security;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Web.UI.HtmlControls;
-using TVinciShared;
-using TvinciImporter;
-using System.Collections.Generic;
 using DAL;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Web;
+using TvinciImporter;
+using TVinciShared;
 
 public partial class adm_channels_new : System.Web.UI.Page
 {
@@ -572,10 +565,10 @@ public partial class adm_channels_new : System.Web.UI.Page
             Session["error_msg"] = "";
             return Session["last_page_html"].ToString();
         }
-        object t = null; ;
+        object channelId = null; ;
         if (Session["channel_id"] != null && Session["channel_id"].ToString() != "" && int.Parse(Session["channel_id"].ToString()) != 0)
-            t = Session["channel_id"];
-        DBRecordWebEditor theRecord = new DBRecordWebEditor("channels", "adm_table_pager", "adm_channels.aspx?search_save=1", "", "ID", t, "adm_channels.aspx?search_save=1", "channel_id");
+            channelId = Session["channel_id"];
+        DBRecordWebEditor theRecord = new DBRecordWebEditor("channels", "adm_table_pager", "adm_channels.aspx?search_save=1", "", "ID", channelId, "adm_channels.aspx?search_save=1", "channel_id");
 
         DataRecordShortIntField dr_order_num = new DataRecordShortIntField(true, 3, 3);
         dr_order_num.Initialize("Order number", "adm_table_header_nbg", "FormInput", "ORDER_NUM", true);
@@ -609,9 +602,24 @@ public partial class adm_channels_new : System.Web.UI.Page
         dr_relevant_time.Initialize("Linear Start Time", "adm_table_header_nbg", "FormInput", "LINEAR_START_TIME", false);
         theRecord.AddRecord(dr_relevant_time);
 
-        DataRecordOnePicBrowserField dr_logo_Pic = new DataRecordOnePicBrowserField();
-        dr_logo_Pic.Initialize("Pic", "adm_table_header_nbg", "FormInput", "PIC_ID", false);
-        theRecord.AddRecord(dr_logo_Pic);
+        if (channelId != null && !string.IsNullOrEmpty(channelId.ToString()))
+        {
+            bool isDownloadPicWithImageServer = false;
+            string imageUrl = string.Empty;
+            int picId = 0;
+
+            if (ImageUtils.IsDownloadPicWithImageServer())
+            {
+                isDownloadPicWithImageServer = true;
+                int groupId = LoginManager.GetLoginGroupID();
+                imageUrl = GetPicImageUrlByRatio(channelId, groupId, out picId);
+            }
+
+            DataRecordOnePicBrowserField dr_logo_Pic = new DataRecordOnePicBrowserField("channel", isDownloadPicWithImageServer, imageUrl, picId);
+            dr_logo_Pic.Initialize("Pic", "adm_table_header_nbg", "FormInput", "PIC_ID", false);
+            dr_logo_Pic.SetDefault(0);
+            theRecord.AddRecord(dr_logo_Pic);
+        }
 
         string sDefPT = "";
         object oDefPT = ODBCWrapper.Utils.GetTableSingleVal("groups", "DEFAULT_PLAYLIST_TEMPLATE_ID", LoginManager.GetLoginGroupID());
@@ -671,8 +679,6 @@ public partial class adm_channels_new : System.Web.UI.Page
 
         return sTable;
     }
-
-
 
     public string changeItemStatus(string sID, string sAction)
     {
@@ -822,5 +828,31 @@ public partial class adm_channels_new : System.Web.UI.Page
             nStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "STATUS");
         }
         return nRet;
+    }
+
+    private string GetPicImageUrlByRatio(object channelId, int groupId, out int picId)
+    {
+        string imageUrl = string.Empty;
+        string baseUrl = string.Empty;
+        int ratioId = 0;
+        int version = 0;
+        picId = 0;
+
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery += "select p.RATIO_ID, p.BASE_URL, p.ID, p.version from pics p left join channels c on c.PIC_ID = p.ID where p.STATUS in (0, 1) and c.id = " + channelId.ToString();
+
+        if (selectQuery.Execute("query", true) != null && selectQuery.Table("query").DefaultView != null && selectQuery.Table("query").DefaultView.Count > 0)
+        {
+
+            baseUrl = ODBCWrapper.Utils.GetSafeStr(selectQuery.Table("query").DefaultView[0].Row["BASE_URL"]);
+            ratioId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["RATIO_ID"]);
+            picId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["ID"]);
+            version = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["version"]);
+            int parentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);
+
+            imageUrl = PageUtils.BuildVodUrl(parentGroupID, baseUrl, ratioId, version);
+        }
+
+        return imageUrl;
     }
 }
