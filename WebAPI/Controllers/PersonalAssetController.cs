@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 using WebAPI.Catalog;
@@ -81,44 +82,38 @@ namespace WebAPI.Controllers
                     response.Objects.Add(responseAsset);
                 }
 
+                KalturaAssetsBookmarksResponse bookmarksResponse = null;
+                List<KalturaItemPrice> pricingsResponse = null;
+
+                // Perform the two calls asynchronously and then merge their two results
+                List<Task> taskList = new List<Task>();
+
                 var withTypes = with.Select(x => x.type);
 
                 if (withTypes.Contains(KalturaPersonalAssetWith.bookmark))
                 {
                     #region Bookmarks
 
-                    // Convert request to catalog client's parameter
-
-                    var assetsBookmarksRequest = new List<KalturaSlimAsset>();
-
-                    foreach (var asset in assets)
+                    var task = Task.Factory.StartNew(() =>
                     {
-                        assetsBookmarksRequest.Add(new KalturaSlimAsset()
+                        // Convert request to catalog client's parameter
+
+                        var assetsBookmarksRequest = new List<KalturaSlimAsset>();
+
+                        foreach (var asset in assets)
                         {
-                            Id = asset.Id.ToString(),
-                            Type = asset.Type
-                        });
-                    }
-
-                    // Call catalog
-                    var bookmarksResponse =
-                        ClientsManager.CatalogClient().GetAssetsBookmarks(userID, groupId, domainId, udid, assetsBookmarksRequest);
-
-                    // According to catalog response, update final response's objects
-                    if (bookmarksResponse != null && bookmarksResponse.AssetsBookmarks != null)
-                    {
-                        foreach (var bookmark in bookmarksResponse.AssetsBookmarks)
-                        {
-                            string key = string.Format("{0}.{1}", bookmark.Type.ToString(), bookmark.Id);
-
-                            KalturaPersonalAsset personalAsset;
-
-                            if (assetIdToPersonalAsset.TryGetValue(key, out personalAsset))
+                            assetsBookmarksRequest.Add(new KalturaSlimAsset()
                             {
-                                personalAsset.Bookmarks = bookmark.Bookmarks;
-                            }
+                                Id = asset.Id.ToString(),
+                                Type = asset.Type
+                            });
                         }
-                    }
+
+                        // Call catalog
+                        bookmarksResponse = ClientsManager.CatalogClient().GetAssetsBookmarks(userID, groupId, domainId, udid, assetsBookmarksRequest);
+                    });
+
+                    taskList.Add(task);
 
                     #endregion
                 }
@@ -127,24 +122,49 @@ namespace WebAPI.Controllers
                 {
                     #region Pricing
 
-                    var fileIds = fileToPersonalAsset.Keys.Select(l => (int)l).ToList();
-
-                    var pricingsResponse = ClientsManager.ConditionalAccessClient().GetItemsPrices(groupId, fileIds, userID, coupon_code, udid, language, true);
-
-                    if (pricingsResponse != null)
+                    var task = Task.Factory.StartNew(() =>
                     {
-                        foreach (var pricing in pricingsResponse)
-                        {
-                            KalturaPersonalAsset personalAsset;
+                        var fileIds = fileToPersonalAsset.Keys.Select(l => (int)l).ToList();
 
-                            if (fileToPersonalAsset.TryGetValue(pricing.FileId, out personalAsset))
-                            {
-                                personalAsset.Files.Add(pricing);
-                            }
-                        }
-                    }
+                        pricingsResponse = ClientsManager.ConditionalAccessClient().GetItemsPrices(groupId, fileIds, userID, coupon_code, udid, language, true);
+
+                    });
+
+                    taskList.Add(task);
 
                     #endregion
+                }
+
+                Task.WaitAll(taskList.ToArray());
+
+                // According to catalog response, update final response's objects
+                if (bookmarksResponse != null && bookmarksResponse.AssetsBookmarks != null)
+                {
+                    foreach (var bookmark in bookmarksResponse.AssetsBookmarks)
+                    {
+                        string key = string.Format("{0}.{1}", bookmark.Type.ToString(), bookmark.Id);
+
+                        KalturaPersonalAsset personalAsset;
+
+                        if (assetIdToPersonalAsset.TryGetValue(key, out personalAsset))
+                        {
+                            personalAsset.Bookmarks = bookmark.Bookmarks;
+                        }
+                    }
+                }
+
+                // According to CAS response, update final response's objects
+                if (pricingsResponse != null)
+                {
+                    foreach (var pricing in pricingsResponse)
+                    {
+                        KalturaPersonalAsset personalAsset;
+
+                        if (fileToPersonalAsset.TryGetValue(pricing.FileId, out personalAsset))
+                        {
+                            personalAsset.Files.Add(pricing);
+                        }
+                    }
                 }
             }
             catch (ClientException ex)
