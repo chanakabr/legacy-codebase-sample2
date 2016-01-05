@@ -6,36 +6,23 @@ using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
 using WebAPI.Models.General;
+using WebAPI.Models.Users;
 
 namespace WebAPI.Models.Catalog
 {
     /// <summary>
-    /// List of last positions
-    /// </summary>
-    [DataContract(Name = "LastPosition", Namespace = "")]
-    [XmlRoot("LastPosition")]
-    public class KalturaLastPositionListResponse : KalturaListResponse
-    {
-        [DataMember(Name = "objects")]
-        [JsonProperty("objects")]
-        [XmlArray(ElementName = "objects", IsNullable = true)]
-        [XmlArrayItem(ElementName = "item")]
-        public List<KalturaLastPosition> LastPositions { get; set; }
-    }
-
-    /// <summary>
-    /// Representing the last position in a media or nPVR asset until which a user watched   
+    /// The last position in a media / NPVR / EPG asset which a user watched  
     /// </summary>
     [Serializable]
-    public class KalturaLastPosition : KalturaOTTObject
+    public class KalturaAssetBookmark : KalturaOTTObject
     {
         /// <summary>
         ///User identifier
         /// </summary>
-        [DataMember(Name = "user_id")]
-        [JsonProperty("user_id")]
-        [XmlElement(ElementName = "user_id")]
-        public string UserId { get; set; }
+        [DataMember(Name = "user")]
+        [JsonProperty("user")]
+        [XmlElement(ElementName = "user", IsNullable = true)]        
+        public KalturaBaseOTTUser User { get; set; }
 
         /// <summary>
         ///The position in the media duration in seconds
@@ -54,3 +41,5 @@ namespace WebAPI.Models.Catalog
         public KalturaPositionOwner PositionOwner { get; set; }
     }
 }
+
+ 

@@ -344,6 +344,9 @@ namespace WebAPI.Managers
             // privileges - we currently not support privileges - but for future OVP aligning...
             appToken.SessionPrivileges = string.Format("{0}:{1},{2}:{3}", APP_TOKEN_PRIVILEGE_APP_TOKEN, appToken.Token, APP_TOKEN_PRIVILEGE_SESSION_ID, appToken.Token);
 
+            // status
+            appToken.Status = KalturaAppTokenStatus.ACTIVE;
+
             // 4. save in CB
             AppToken cbAppToken = new AppToken(appToken); 
 
