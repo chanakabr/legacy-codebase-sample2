@@ -151,6 +151,6 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "ppv_product_code")]
         [JsonProperty("ppv_product_code")]
         [XmlElement(ElementName = "ppv_product_code")]
-        public bool ProductCode { get; set; }
+        public string ProductCode { get; set; }
     }
 }
