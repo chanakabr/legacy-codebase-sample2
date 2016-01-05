@@ -366,8 +366,11 @@ namespace Catalog.Request
                 
                 if (nActionID != -1)
                 {
-                    CatalogDAL.Insert_NewWatcherMediaAction(nWatcherID, sSessionID, nBillingTypeID, nOwnerGroupID, nQualityID, nFormatID, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_nGroupID,
-                                                            nCDNID, nActionID, nCountryID, nPlayerID, m_oMediaPlayRequestData.m_nLoc, nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID);
+                    if (nActionID != (int)MediaPlayActions.HIT)
+                    {
+                        CatalogDAL.Insert_NewWatcherMediaAction(nWatcherID, sSessionID, nBillingTypeID, nOwnerGroupID, nQualityID, nFormatID, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_nGroupID,
+                                                                nCDNID, nActionID, nCountryID, nPlayerID, m_oMediaPlayRequestData.m_nLoc, nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID);
+                    }
 
                     if (IsFirstPlay(nActionID))
                     {
