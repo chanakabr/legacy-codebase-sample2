@@ -44,9 +44,6 @@ public partial class adm_media_new : System.Web.UI.Page
 
                 if (nID > 0) //if record was save , update record in Lucene , create Notification Requests
                 {
-                    //if record was saved , update media record with Pic Id
-                    UpdateMediaWithPicId(nID);
-
                     // Update record in Catalog (see the flow inside Update Index
                     int nGroupId = LoginManager.GetLoginGroupID();
                     bool result = false;
@@ -102,26 +99,6 @@ public partial class adm_media_new : System.Web.UI.Page
             }
             else
                 Session["media_id"] = 0;
-        }
-    }
-
-    private void UpdateMediaWithPicId(Int32 nID)
-    {
-
-        if (Session[string.Format("Media_{0}_Pic_Id", nID)] != null)
-        {
-
-            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
-            updateQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
-
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("media_pic_id", "=", Session[string.Format("Media_{0}_Pic_Id", nID)]);
-            updateQuery += "WHERE";
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nID);
-
-            updateQuery.Execute();
-            updateQuery.Finish();
-
-            Session[string.Format("Media_{0}_Pic_Id", nID)] = null;
         }
     }
 

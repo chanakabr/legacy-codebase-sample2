@@ -176,9 +176,9 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
                             {
                                 //update media with new Pic
                                 Session["Pic_Image_Url"] = PageUtils.GetPicImageUrlByRatio(picId, 90, 65);
-                                //Session is saved in order updating Media table at media_new.aspx
-                                Session[string.Format("Media_{0}_Pic_Id", id)] = picId;
-                                ClientScript.RegisterStartupScript(typeof(Page), "close", "<script language=javascript>window.opener.ChangePic('9_val'," + picId + ");self.close();</script>");
+                                
+                                ClientScript.RegisterStartupScript(typeof(Page), "close", "<script language=javascript>window.opener.document.getElementsByName('9_val')[0].value = " + picId 
+                                    +";window.opener.ChangePic('9_val'," + picId + ");</script>");
                             }
                         }
                     }
@@ -200,7 +200,8 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
                             {
                                 //update media with new Pic
                                 Session["Pic_Image_Url"] = PageUtils.GetEpgChannelsSchedulePicImageUrl(picId, 90, 65);
-                                ClientScript.RegisterStartupScript(typeof(Page), "close", "<script language=javascript>window.opener.ChangePic('3_val'," + picId + ");self.close();</script>");
+                                ClientScript.RegisterStartupScript(typeof(Page), "close", "<script language=javascript>window.opener.document.getElementsByName('3_val')[0].value = " + picId 
+                                    + ";window.opener.ChangePic('3_val'," + picId + ");</script>");
                             }
                         }
                     }
@@ -259,7 +260,7 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
 
         ClientScript.RegisterStartupScript(typeof(Page), "closePage", "window.close();", true);
     }
-
+    
     private enum MediaType
     {
         None,
