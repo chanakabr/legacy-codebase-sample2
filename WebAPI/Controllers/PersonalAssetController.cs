@@ -28,6 +28,8 @@ namespace WebAPI.Controllers
         /// <param name="coupon_code">Discount coupon code</param>
         /// <param name="language">Language code</param>
         /// <returns></returns>
+        [Route("list"), HttpPost]
+        [ApiAuthorize]
         public KalturaPersonalAssetListResponse List(List<KalturaPersonalAssetRequest> assets, List<KalturaPersonalAssetWithHolder> with,
             string coupon_code = null, string language = null)
         {
