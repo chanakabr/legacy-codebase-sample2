@@ -42,7 +42,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "file_ids")]
         [XmlArray(ElementName = "file_ids", IsNullable = true)]
         [XmlArrayItem("item")]
-        public List<KalturaLongValue> FileIds
+        public List<long> FileIds
         {
             get;
             set;

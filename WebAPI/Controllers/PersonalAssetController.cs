@@ -75,7 +75,7 @@ namespace WebAPI.Controllers
                     // Run on all file IDs and map them to respone asset
                     foreach (var file in asset.FileIds)
                     {
-                        fileToPersonalAsset.Add(file.value, responseAsset);
+                        fileToPersonalAsset.Add(file, responseAsset);
                     }
 
                     response.Objects.Add(responseAsset);
@@ -150,7 +150,9 @@ namespace WebAPI.Controllers
                 {
                     #region Pricing
 
-                    var pricingsResponse = ClientsManager.ConditionalAccessClient().GetItemsPrices(groupId, null, userID, coupon_code, udid, language, true);
+                    var fileIds = fileToPersonalAsset.Keys.Select(l => (int)l).ToList();
+
+                    var pricingsResponse = ClientsManager.ConditionalAccessClient().GetItemsPrices(groupId, fileIds, userID, coupon_code, udid, language, true);
 
                     if (pricingsResponse != null)
                     {
