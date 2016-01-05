@@ -2631,7 +2631,6 @@ namespace Tvinci.Core.DAL
         {
             DomainMediaMark dmmResponse = new DomainMediaMark();            
 
-            CouchbaseClient client = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
             //Create users keys according to asset type
             List<string> userKeys = new List<string>();
             string userDocKey = string.Empty;
@@ -2667,6 +2666,7 @@ namespace Tvinci.Core.DAL
             }
 
             // get all documents from CB
+            CouchbaseClient client = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
             IDictionary<string, object> usersData = client.Get(userKeys);
             List<UserMediaMark> usersMediaMark = new List<UserMediaMark>();
 

@@ -55,6 +55,7 @@ namespace Catalog
         internal const int DEFAULT_PWWAWP_MAX_RESULTS_SIZE = 8;
         internal const int DEFAULT_PWLALP_MAX_RESULTS_SIZE = 8;
         internal const int DEFAULT_PERSONAL_RECOMMENDED_MAX_RESULTS_SIZE = 20;
+        internal const int FINISHED_PERCENT_THRESHOLD = 95;
         private static int DEFAULT_CURRENT_REQUEST_DAYS_OFFSET = 7;
         internal static readonly string STAT_ACTION_MEDIA_HIT = "mediahit";
         internal static readonly string STAT_ACTION_FIRST_PLAY = "firstplay";
@@ -4377,7 +4378,8 @@ namespace Catalog
 
                     if (!bookmarks.Where(x => x.User.m_sSiteGUID == userMediaMark.UserID.ToString()).Any())
                     {
-                        bookmarks.Add(new Bookmark(usersDictionary[userMediaMark.UserID.ToString()], userType, userMediaMark.Location));                        
+                        bookmarks.Add(new Bookmark(usersDictionary[userMediaMark.UserID.ToString()], userType, userMediaMark.Location, 
+                                      (((float)userMediaMark.Location / (float)userMediaMark.FileDuration) * 100 > FINISHED_PERCENT_THRESHOLD)));                      
                     }                    
                 }
             }

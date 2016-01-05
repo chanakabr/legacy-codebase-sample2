@@ -61,15 +61,19 @@ namespace Catalog.Response
         [DataMember]
         public int Location;
 
+        [DataMember]
+        public bool IsFinishedWatching;
+
         public Bookmark()
         {
         }
 
-        public Bookmark(ws_users.User user, eUserType userType, int location)
+        public Bookmark(ws_users.User user, eUserType userType, int location, bool isFinishedWatching)
         {
             this.User = user;
             this.UserType = userType;
             this.Location = location;
+            this.IsFinishedWatching = isFinishedWatching;
         }
     }
 

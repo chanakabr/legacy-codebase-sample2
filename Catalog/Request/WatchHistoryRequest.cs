@@ -32,10 +32,7 @@ namespace Catalog.Request
         public List<int> AssetTypes { get; set; }
 
         [DataMember]
-        public int NumOfDays { get; set; }
-
-        [DataMember]
-        private const int FINISHED_PERCENT_THRESHOLD = 95;
+        public int NumOfDays { get; set; }        
 
         public BaseResponse GetResponse(BaseRequest baseRequest)
         {
@@ -67,7 +64,7 @@ namespace Catalog.Request
                     dbThresholdVal == DBNull.Value ||
                     !int.TryParse(dbThresholdVal.ToString(), out finishedPercentThreshold))
                 {
-                    finishedPercentThreshold = FINISHED_PERCENT_THRESHOLD;
+                    finishedPercentThreshold = Catalog.FINISHED_PERCENT_THRESHOLD;
                 }
 
                 // get results
