@@ -136,7 +136,7 @@ namespace WebAPI.Controllers
 
                             if (assetIdToPersonalAsset.TryGetValue(key, out personalAsset))
                             {
-                                personalAsset.Bookmark = bookmark;
+                                personalAsset.Bookmarks = bookmark.Bookmarks;
                             }
                         }
                     }
