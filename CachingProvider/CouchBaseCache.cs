@@ -62,13 +62,21 @@ namespace CachingProvider
         /// See status codes at: http://docs.couchbase.com/couchbase-sdk-net-1.3/#checking-error-codes
         /// </summary>
         /// <param name="statusCode"></param>
-        private void HandleStatusCode(int? statusCode)
+        private void HandleStatusCode(int? statusCode, string key = "")
         {
             if (statusCode != null)
             {
                 if (statusCode.Value != 0)
                 {
-                    log.ErrorFormat("Error while executing action on CB. Status code = {0}", statusCode.Value);
+                    // 1 - not found
+                    if (statusCode.Value == 1)
+                    {
+                        log.DebugFormat("Could not find key on couchbase: {0}", key);
+                    }
+                    else
+                    {
+                        log.ErrorFormat("Error while executing action on CB. Status code = {0}", statusCode.Value);
+                    }
                 }
 
                 // Cases of retry
@@ -230,7 +238,7 @@ namespace CachingProvider
                     else
                     {
                         int? statusCode = executeGet.StatusCode;
-                        HandleStatusCode(statusCode);
+                        HandleStatusCode(statusCode, key);
 
                         baseModule.result = m_Client.Get(key);
                     }
@@ -264,7 +272,7 @@ namespace CachingProvider
                 else
                 {
                     int? statusCode = executeGet.StatusCode;
-                    HandleStatusCode(statusCode);
+                    HandleStatusCode(statusCode, key);
 
                     result = m_Client.Get<T>(key);
                 }
