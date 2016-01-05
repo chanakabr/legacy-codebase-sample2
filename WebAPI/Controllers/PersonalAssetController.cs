@@ -89,37 +89,14 @@ namespace WebAPI.Controllers
 
                     // Convert request to catalog client's parameter
 
-                    var assetsBookmarksRequest = new List<AssetBookmarkRequest>();
+                    var assetsBookmarksRequest = new List<KalturaSlimAsset>();
 
                     foreach (var asset in assets)
                     {
-                        eAssetTypes type = eAssetTypes.UNKNOWN;
-
-                        switch (asset.Type)
+                        assetsBookmarksRequest.Add(new KalturaSlimAsset()
                         {
-                            case KalturaAssetType.media:
-                            {
-                                type = eAssetTypes.MEDIA;
-                                break;
-                            }
-                            case KalturaAssetType.recording:
-                            {
-                                type = eAssetTypes.NPVR;
-                                break;
-                            }
-                            case KalturaAssetType.epg:
-                            {
-                                type = eAssetTypes.EPG;
-                                break;
-                            }
-                            default:
-                            break;
-                        }
-
-                        assetsBookmarksRequest.Add(new AssetBookmarkRequest()
-                        {
-                            AssetID = asset.Id.ToString(),
-                            AssetType = type
+                            Id = asset.Id.ToString(),
+                            Type = asset.Type
                         });
                     }
 
