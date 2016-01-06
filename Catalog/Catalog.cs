@@ -526,11 +526,11 @@ namespace Catalog
         /// in case of new server version: rebuild image URL so it will lead to new image server
         /// </summary>
         /// <param name="groupId"></param>
-        /// <param name="mediaId"></param>
+        /// <param name="assetId"></param>
         /// <param name="dtPic"></param>
         /// <param name="result"></param>
         /// <returns></returns>
-        private static List<Picture> GetAllPic(int groupId, int mediaId, DataTable dtPic, ref bool result)
+        private static List<Picture> GetAllPic(int groupId, int assetId, DataTable dtPic, ref bool result)
         {
             result = true;
             List<Picture> lPicObject = new List<Picture>();
@@ -557,7 +557,7 @@ namespace Catalog
                 {
                     // new image server - get pictures data
                     List<PicData> picsTableData = new List<PicData>();
-                    DataRowCollection rows = CatalogDAL.GetPicsTableData(mediaId);
+                    DataRowCollection rows = CatalogDAL.GetPicsTableData(assetId, eAssetImageType.Media);
                     if (rows == null || rows.Count == 0)
                         return null;
                     else
