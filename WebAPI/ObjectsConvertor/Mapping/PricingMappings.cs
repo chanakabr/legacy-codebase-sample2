@@ -148,6 +148,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
             Mapper.CreateMap<ConditionalAccess.ItemPriceContainer, Models.Pricing.KalturaPPVItemPriceDetails>()
                .ForMember(dest => dest.CollectionId, opt => opt.MapFrom(src => src.m_relevantCol))
                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.m_dtEndDate.HasValue ? SerializationUtils.ConvertToUnixTimestamp(src.m_dtEndDate.Value) : 0))
+               .ForMember(dest => dest.DiscountEndDate, opt => opt.MapFrom(src => src.m_dtDiscountEndDate.HasValue ? SerializationUtils.ConvertToUnixTimestamp(src.m_dtDiscountEndDate.Value) : 0))
                .ForMember(dest => dest.FirstDeviceName, opt => opt.MapFrom(src => src.m_sFirstDeviceNameFound))
                .ForMember(dest => dest.FullPrice, opt => opt.MapFrom(src => src.m_oFullPrice))
                .ForMember(dest => dest.IsInCancelationPeriod, opt => opt.MapFrom(src => src.m_bCancelWindow))
