@@ -43,6 +43,7 @@ namespace ConditionalAccess
         protected bool m_bIsInitialized;
         protected Int32 m_nGroupID;
 
+        private const long DEFAULT_RECONCILIATION_FREQUENCY_SECONDS = 7200;
         private const string ILLEGAL_CONTENT_ID = "Illegal content ID";
         private const string CONTENT_ID_WITH_A_RELATED_MEDIA = "Content ID with a related media";
         protected const string ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION = "PROCESS_RENEW_SUBSCRIPTION\\{0}";
@@ -14812,5 +14813,107 @@ namespace ConditionalAccess
             return ConditionalAccessDAL.Update_SubscriptionPurchaseRenewalActiveStatus(m_nGroupID, purchaseId, billingGuid, Convert.ToInt16(isActive));
         }
 
+
+        public ApiObjects.Response.Status ReconcileEntitlements(string userId)
+        {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            // validate user
+            long householdId = 0;
+            var userValidStatus = Utils.ValidateUser(m_nGroupID, userId, ref householdId);
+
+            if (userValidStatus != ResponseStatus.OK)
+            {
+                // user validation failed
+                response = SetResponseStatus(userValidStatus);
+                log.ErrorFormat("User validation failed: {0}, userId: {1}", response.Message, userId);
+                return response;
+            }
+
+            // validate household
+            if (householdId < 1)
+            {
+                response.Message = "Illegal household";
+                log.ErrorFormat("Error: {0}, userId: {1}", response.Message, userId);
+                return response;
+            }
+
+            // frequency (tcm)
+            long frequency = 0;
+            if (!long.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue("reconciliation_frequency_seconds"), out frequency))
+            {
+                frequency = DEFAULT_RECONCILIATION_FREQUENCY_SECONDS;
+            }
+
+            // get household last reconciliation date
+            DateTime? householdLastReconciliation = DomainDal.GetDomainLastReconciliationDate(m_nGroupID, householdId);
+
+            // check if reconciliation is allowed for the household now
+            if (householdLastReconciliation != null && householdLastReconciliation.HasValue && DateTime.UtcNow.AddSeconds(-frequency) >= householdLastReconciliation.Value)
+            {
+                log.ErrorFormat("Entitlements reconciliation was not done due to frequency. userId = {0}, householdId = {1}, groupId = {2}, householdLastReconciliation = {3}",
+                    userId, householdId, m_nGroupID, householdLastReconciliation);
+                response = new ApiObjects.Response.Status((int)eResponseStatus.ReconciliationFrequency, "reconciliation too frequent");
+                return response;
+            }
+            
+            // call oss adapter through ws api to get the entitlements
+            TvinciAPI.OSSAdapterEntitlementsResponse entitlementsResponse = null;
+
+            using (TvinciAPI.API wsApi = new TvinciAPI.API())
+            {
+                string wsApiUsername = string.Empty;
+                string wsApiPass = string.Empty;
+                Utils.GetWSCredentials(m_nGroupID, eWSModules.API, ref wsApiUsername, ref wsApiPass);
+                string wsApiUrl = Utils.GetWSURL("api_ws");
+
+                if (string.IsNullOrEmpty(wsApiUrl) || string.IsNullOrEmpty(wsApiUsername) || string.IsNullOrEmpty(wsApiPass))
+                {
+                    log.ErrorFormat("ReconcileEntitlements: failed to get WS API credentials or URL. groupId = {0}, userId = {1}", m_nGroupID, userId);
+                    return response;
+                }
+
+                wsApi.Url = wsApiUrl;
+
+                try
+                {
+                    entitlementsResponse = wsApi.GetExternalEntitlements(wsApiUsername, wsApiPass, userId);
+                }
+                catch (Exception ex)
+                {
+                    log.Error(string.Format("ReconcileEntitlements: Error while calling WS API GetExternalEntitlements. groupId = {0}, userId = {1}", m_nGroupID, userId), ex);
+                    return response;
+                }
+            }
+
+            // validate response
+            if (entitlementsResponse == null || entitlementsResponse.Status == null)
+            {
+                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed to get entitlements");
+                return response;
+            }
+
+            if (entitlementsResponse.Status.Code != (int)eResponseStatus.OK)
+            {
+                response = new ApiObjects.Response.Status(entitlementsResponse.Status.Code, entitlementsResponse.Status.Message);
+                return response;
+            }
+
+            if (entitlementsResponse.Entitlements != null && entitlementsResponse.Entitlements.Length > 0)
+            {
+                // handle subscriptions entitlements
+                var subscriptuons = entitlementsResponse.Entitlements.Where(e => e.EntitlementType == TvinciAPI.eTransactionType.Subscription).ToList();
+                //Get_AllSubscriptionsPurchasesByUsersIDsOrDomainID
+
+                // handle ppv entitlements
+                var ppvs = entitlementsResponse.Entitlements.Where(e => e.EntitlementType == TvinciAPI.eTransactionType.PPV).ToList();
+                //Get_AllUsersEntitlements
+        
+                //grant entitlement
+                
+            }
+
+            return response;
+        }
     }
 }

@@ -6,7 +6,7 @@ using System.Text;
 
 namespace ApiObjects
 {
-    public class Entitlement
+    public class ExternalEntitlement
     {
         public string Alias { get; set; }
 
@@ -32,7 +32,7 @@ namespace ApiObjects
     {
         public ApiObjects.Response.Status Status { get; set; }
 
-        public List<Entitlement> Entitlements { get; set; }
+        public List<ExternalEntitlement> Entitlements { get; set; }
 
         public OSSAdapterEntitlementsResponse()
         {
