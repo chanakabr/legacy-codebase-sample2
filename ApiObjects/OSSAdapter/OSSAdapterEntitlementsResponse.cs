@@ -20,9 +20,9 @@ namespace ApiObjects
 
         public string CurrencyCode { get; set; }
 
-        public DateTime StartDate { get; set; }
+        public long StartDateSeconds { get; set; }
 
-        public DateTime EndDate { get; set; }
+        public long EndDateSeconds { get; set; }
 
         public string UDID { get; set; }
 
