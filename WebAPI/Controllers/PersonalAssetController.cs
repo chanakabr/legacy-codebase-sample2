@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
@@ -86,9 +87,11 @@ namespace WebAPI.Controllers
                 List<KalturaItemPrice> pricingsResponse = null;
 
                 // Perform the two calls asynchronously and then merge their two results
-                List<Task> taskList = new List<Task>();
 
                 var withTypes = with.Select(x => x.type);
+
+                HttpContext ctx = HttpContext.Current;
+                List<Task> taskList = new List<Task>();
 
                 if (withTypes.Contains(KalturaPersonalAssetWith.bookmark))
                 {
@@ -96,6 +99,8 @@ namespace WebAPI.Controllers
 
                     var task = Task.Factory.StartNew(() =>
                     {
+                        HttpContext.Current = ctx;
+
                         // Convert request to catalog client's parameter
 
                         var assetsBookmarksRequest = new List<KalturaSlimAsset>();
@@ -124,6 +129,8 @@ namespace WebAPI.Controllers
 
                     var task = Task.Factory.StartNew(() =>
                     {
+                        HttpContext.Current = ctx;
+
                         var fileIds = fileToPersonalAsset.Keys.Select(l => (int)l).ToList();
 
                         pricingsResponse = ClientsManager.ConditionalAccessClient().GetItemsPrices(groupId, fileIds, userID, coupon_code, udid, language, true);
