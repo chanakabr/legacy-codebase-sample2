@@ -1,3 +1,4 @@
+using ApiObjects;
 using KLogMonitor;
 using System;
 using System.Data;
@@ -62,7 +63,7 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
             case PopUpContext.Category:
                 // hide ratio
                 lblPicRatio.Visible = false;
-                rdbRatio.Visible = false;
+                ddlRatio.Visible = false;
                 break;
             default:
                 break;
@@ -72,13 +73,11 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
     private void PopulateRatioList(PopUpContext picMediaType)
     {
         int selectedIndex = 0;
-
-        rdbRatio.DataValueField = "id";
-        rdbRatio.DataTextField = "txt";
-        rdbRatio.DataSource = GetRatioData(picMediaType, out selectedIndex);
-        rdbRatio.DataBind();
-        // This will select the radio with value 1
-        rdbRatio.SelectedValue = selectedIndex.ToString();
+        ddlRatio.DataValueField = "id";
+        ddlRatio.DataTextField = "txt";
+        ddlRatio.DataSource = GetRatioData(picMediaType, out selectedIndex);
+        ddlRatio.DataBind();
+        ddlRatio.SelectedValue = selectedIndex.ToString();
     }
 
     private object GetRatioData(PopUpContext picMediaType, out int selectedIndex)
@@ -134,7 +133,7 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
 
         string name = txtName.Text.Trim();
         string picLink = txtPicLink.Text.Trim();
-        string ratio = rdbRatio.SelectedValue;
+        string ratio = ddlRatio.SelectedValue;
         int ratioId = 0;
 
         int.TryParse(ratio, out ratioId);
@@ -194,7 +193,7 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
                         // setMediaThumb only if the ratio is the group default ratio
                         bool setMediaThumb = ratioId == ImageUtils.GetGroupDefaultRatio(groupID);
 
-                        picId = TvinciImporter.ImporterImpl.DownloadPicToImageServer(picLink, name, groupID, id, "eng", setMediaThumb, ratioId, false);
+                        picId = TvinciImporter.ImporterImpl.DownloadPicToImageServer(picLink, name, groupID, id, "eng", setMediaThumb, ratioId, eAssetImageType.Media, false);
 
                         if (picId > 0)
                         {
@@ -210,7 +209,7 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
                     break;
                 case PopUpContext.Category:
                     {
-                        picId = TvinciImporter.ImporterImpl.DownloadPicToImageServer(picLink, name, groupID, 0, "eng", true, ratioId, false);
+                        picId = TvinciImporter.ImporterImpl.DownloadPicToImageServer(picLink, name, groupID, id, "eng", true, ratioId, eAssetImageType.Category, false);
 
                         if (picId > 0)
                         {
@@ -223,7 +222,7 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
                     break;
                 case PopUpContext.Channel:
                     {
-                        picId = TvinciImporter.ImporterImpl.DownloadPicToImageServer(picLink, name, groupID, 0, "eng", true, ratioId, false);
+                        picId = TvinciImporter.ImporterImpl.DownloadPicToImageServer(picLink, name, groupID, id, "eng", true, ratioId, eAssetImageType.Channel, false);
 
                         if (picId > 0)
                         {

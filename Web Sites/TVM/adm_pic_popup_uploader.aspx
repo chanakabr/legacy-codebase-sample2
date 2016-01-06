@@ -52,7 +52,8 @@
                             <asp:Label ID="lblPicRatio" runat="server" Visible="True">Pic Ratio</asp:Label>
                        </td>
                     <td class="align1">
-                        <asp:RadioButtonList ID="rdbRatio" runat="server" Width="300" MaxLength="128"></asp:RadioButtonList>
+                        <asp:DropDownList ID="ddlRatio" runat="server" Width="100" MaxLength="128"></asp:DropDownList>
+                        <asp:Image ID="imgPicRatio" runat="server" Width="200" MaxLength="128"></asp:Image>
                     </td>
                 </tr>               
             </table>
