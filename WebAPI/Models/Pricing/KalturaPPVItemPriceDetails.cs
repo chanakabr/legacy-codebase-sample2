@@ -130,6 +130,14 @@ namespace WebAPI.Models.Pricing
         public long EndDate { get; set; }
 
         /// <summary>
+        /// Discount end date
+        /// </summary>
+        [DataMember(Name = "discount_end_date")]
+        [JsonProperty("discount_end_date")]
+        [XmlElement(ElementName = "discount_end_date")]
+        public long DiscountEndDate { get; set; }
+
+        /// <summary>
         /// If the item already purchased and played - the name of the device on which it was first played 
         /// </summary>
         [DataMember(Name = "first_device_name")]
@@ -144,5 +152,13 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("is_in_cancelation_period")]
         [XmlElement(ElementName = "is_in_cancelation_period")]
         public bool IsInCancelationPeriod { get; set; }
+
+        /// <summary>
+        /// The PPV product code
+        /// </summary>
+        [DataMember(Name = "ppv_product_code")]
+        [JsonProperty("ppv_product_code")]
+        [XmlElement(ElementName = "ppv_product_code")]
+        public string ProductCode { get; set; }
     }
 }

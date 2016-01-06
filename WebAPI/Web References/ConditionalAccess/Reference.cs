@@ -6157,6 +6157,8 @@ namespace WebAPI.ConditionalAccess {
         
         private System.Nullable<System.DateTime> m_dtEndDateField;
         
+        private System.Nullable<System.DateTime> m_dtDiscountEndDateField;
+        
         private string m_sProductCodeField;
         
         /// <remarks/>
@@ -6328,6 +6330,17 @@ namespace WebAPI.ConditionalAccess {
             }
             set {
                 this.m_dtEndDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<System.DateTime> m_dtDiscountEndDate {
+            get {
+                return this.m_dtDiscountEndDateField;
+            }
+            set {
+                this.m_dtDiscountEndDateField = value;
             }
         }
         

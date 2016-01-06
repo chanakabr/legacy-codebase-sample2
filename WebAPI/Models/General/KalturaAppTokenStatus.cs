@@ -11,6 +11,7 @@ namespace WebAPI.Models.General
     [KalturaIntEnum]
     public enum KalturaAppTokenStatus
     {
+        DELETED = 0,
         DISABLED = 1,	
         ACTIVE = 2,		
     }

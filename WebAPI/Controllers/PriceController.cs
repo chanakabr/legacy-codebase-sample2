@@ -28,7 +28,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         public KalturaProductsPriceListResponse List(KalturaPricesFilter filter, string coupon_code = null, string language = null)
         {
-            List<KalturaProductPrice> productPrices = null;
+            List<KalturaProductPrice> productPrices = new List<KalturaProductPrice>();
             List<KalturaSubscriptionPrice> subscriptionPrices = new List<KalturaSubscriptionPrice>();
             List<KalturaItemPrice> ppvPrices = new List<KalturaItemPrice>(); ;
 
@@ -49,8 +49,9 @@ namespace WebAPI.Controllers
                 if (filter.SubscriptionsIds != null && filter.SubscriptionsIds.Count() > 0)
                 {
                     // call client
-                    subscriptionPrices = ClientsManager.ConditionalAccessClient().GetSubscriptionsPrices(groupId, filter.SubscriptionsIds.Select(x => x.value), KS.GetFromRequest().UserId, coupon_code, 
+                    subscriptionPrices = ClientsManager.ConditionalAccessClient().GetSubscriptionsPrices(groupId, filter.SubscriptionsIds.Select(x => x.value), KS.GetFromRequest().UserId, coupon_code,
                         udid, language, filter.ShouldGetOnlyLowest);
+                    productPrices.AddRange(subscriptionPrices);
                 }
 
                 if (filter.FilesIds != null && filter.FilesIds.Count() > 0)
@@ -58,6 +59,7 @@ namespace WebAPI.Controllers
                     // call client
                     ppvPrices = ClientsManager.ConditionalAccessClient().GetItemsPrices(groupId, filter.FilesIds.Select(x => x.value).ToList(), KS.GetFromRequest().UserId, coupon_code,
                         udid, language, filter.ShouldGetOnlyLowest);
+                    productPrices.AddRange(ppvPrices);
                 }
             }
             catch (ClientException ex)
@@ -65,8 +67,6 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            productPrices =  new List<KalturaProductPrice>(subscriptionPrices);
-            productPrices.AddRange(ppvPrices);
             return new KalturaProductsPriceListResponse() { ProductsPrices = productPrices, TotalCount = productPrices.Count() };
         }
     }

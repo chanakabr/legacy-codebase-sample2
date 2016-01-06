@@ -15,6 +15,7 @@ using WebAPI.ObjectsConvertor;
 using WebAPI.Utils;
 using WebAPI.Models.General;
 using WebAPI.Managers.Models;
+using WebAPI.Models.Users;
 
 namespace WebAPI.Clients
 {
@@ -804,10 +805,39 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaLastPositionListResponse GetDomainLastPosition(int groupId, string siteGuid, int domainId, string udid, int? mediaId, string npvrId = null)
+        public KalturaAssetsBookmarksResponse GetAssetsBookmarks(string siteGuid, int groupId, int domainId, string udid, List<KalturaSlimAsset> assets)
         {
-            List<KalturaLastPosition> result = null;
-            DomainLastPositionRequest request = new DomainLastPositionRequest()
+            List<KalturaAssetBookmarks> result = null;
+            List<AssetBookmarkRequest> assetsToRequestPositions = new List<AssetBookmarkRequest>();
+
+            foreach (KalturaSlimAsset asset in assets)
+            {
+                AssetBookmarkRequest assetInfo = new AssetBookmarkRequest();
+                assetInfo.AssetID = asset.Id;
+                bool addToRequest = true;
+                switch (asset.Type)
+                {
+                    case KalturaAssetType.media:
+                        assetInfo.AssetType = eAssetTypes.MEDIA;
+                        break;
+                    case KalturaAssetType.recording:
+                        assetInfo.AssetType = eAssetTypes.NPVR;
+                        break;
+                    case KalturaAssetType.epg:
+                        assetInfo.AssetType = eAssetTypes.EPG;
+                        break;
+                    default:
+                        assetInfo.AssetType = eAssetTypes.UNKNOWN;
+                        addToRequest = false;
+                        break;
+                }
+                if (addToRequest)
+                {
+                    assetsToRequestPositions.Add(assetInfo);
+                }
+            }
+
+            AssetsBookmarksRequest request = new AssetsBookmarksRequest()
             {
                 m_sSignature = Signature,
                 m_sSignString = SignString,
@@ -815,21 +845,17 @@ namespace WebAPI.Clients
                 m_nGroupID = groupId,
                 m_sUserIP = Utils.Utils.GetClientIP(),
                 domainId = domainId,
-                m_nDomainID = domainId,
                 m_oFilter = new Filter()
                 {
                     m_sDeviceId = udid
                 },
-                data = new MediaLastPositionRequestData()
+                Data = new AssetsBookmarksRequestData()
                 {
-                    m_nMediaID = mediaId.HasValue ? mediaId.Value : 0,
-                    m_sNpvrID = npvrId,
-                    m_sSiteGuid = siteGuid,
-                    m_sUDID = udid
+                    Assets = assetsToRequestPositions
                 }
             };
 
-            DomainLastPositionResponse response = null;
+            AssetsBookmarksResponse response = null;
             if (!CatalogUtils.GetBaseResponse(CatalogClientModule, request, out response) || response == null || response.Status == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
@@ -838,10 +864,11 @@ namespace WebAPI.Clients
             {
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
+            
+            result = Mapper.Map<List<KalturaAssetBookmarks>>(response.AssetsBookmarks);
 
-            result = Mapper.Map<List<KalturaLastPosition>>(response.m_lPositions);
+            return new KalturaAssetsBookmarksResponse() { AssetsBookmarks = result, TotalCount = result.Count };
 
-            return new KalturaLastPositionListResponse() { LastPositions = result, TotalCount = result.Count };
         }
 
         public KalturaAssetInfoListResponse GetExternalChannelAssets(int groupId, string channelId, 
@@ -926,6 +953,55 @@ namespace WebAPI.Clients
             result.RequestId = searchResponse.requestId;
 
             return result;
+        }
+
+        internal bool SetBookmark(int groupId, string siteGuid, int householdId, string udid, string assetId, eAssetTypes assetType, long fileId, KalturaPlayerAssetData PlayerAssetData)
+        {
+            int t;
+
+            if (assetType != eAssetTypes.NPVR)                
+                if (string.IsNullOrEmpty(assetId) || !int.TryParse(assetId, out t))
+                    throw new ClientException((int)StatusCode.BadRequest, "Asset type is not a number");
+
+            // build request
+            MediaMarkRequest request = new MediaMarkRequest()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                domainId = householdId,
+                m_nGroupID = groupId,
+                m_sSiteGuid = siteGuid,
+                m_oMediaPlayRequestData = new MediaPlayRequestData()
+                {
+                    m_eAssetType = assetType,
+                    m_nLoc = PlayerAssetData.location,
+                    m_nMediaFileID = (int)fileId,
+                    m_sAssetID = assetId,
+                    m_sAction = PlayerAssetData.action,
+                    m_sSiteGuid = siteGuid,
+                    m_sUDID = udid,
+                    m_nAvgBitRate = PlayerAssetData.averageBitRate,
+                    m_nCurrentBitRate = PlayerAssetData.currentBitRate,
+                    m_nTotalBitRate = PlayerAssetData.totalBitRate
+                }
+            };
+            
+            // fire search request
+            MediaMarkResponse response = new MediaMarkResponse();
+
+            if (!CatalogUtils.GetBaseResponse<MediaMarkResponse>(CatalogClientModule, request, out response))
+            {
+                // general error
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.status.Code != (int)StatusCode.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(response.status.Code, response.status.Message);
+            }
+
+            return true;
         }
     }
 }

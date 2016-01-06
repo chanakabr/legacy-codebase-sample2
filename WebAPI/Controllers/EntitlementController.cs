@@ -65,7 +65,7 @@ namespace WebAPI.Controllers
         /// <param name="asset_id">Asset identifier to cancel</param>        
         /// <param name="transaction_type">The transaction type for the cancelation</param>
         /// <remarks>Possible status codes: 
-        /// Household suspended = 1009, Invalid purchase = 3000, Cancellation window period expired = 3001, Content already consumed = 3005</remarks>
+        /// Household suspended = 1009, Invalid purchase = 3000</remarks>
         [Route("forceCancel"), HttpPost]
         [ApiAuthorize]
         public bool ForceCancel(int asset_id, KalturaTransactionType transaction_type)
