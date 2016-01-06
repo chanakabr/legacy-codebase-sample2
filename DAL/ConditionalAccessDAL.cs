@@ -2058,5 +2058,15 @@ namespace DAL
             return spGet_AllBundlesInfoByUserIDsOrDomainID.ExecuteDataSet();
         }
 
+        public static DataTable Get_AllSubscriptionsPurchasesByUsersIDsOrDomainID(int domainID, List<int> lstUsers, int nGroupID)
+        {
+            StoredProcedure spGet_AllBundlesInfoByUserIDsOrDomainID = new StoredProcedure("Get_AllSubscriptionsPurchasesByUsersIDsOrDomainID");
+            spGet_AllBundlesInfoByUserIDsOrDomainID.SetConnectionKey("CONNECTION_STRING");
+            spGet_AllBundlesInfoByUserIDsOrDomainID.AddIDListParameter("@Users", lstUsers, "ID");
+            spGet_AllBundlesInfoByUserIDsOrDomainID.AddParameter("@DomainID", domainID);
+            spGet_AllBundlesInfoByUserIDsOrDomainID.AddParameter("@Group_id", nGroupID);
+
+            return spGet_AllBundlesInfoByUserIDsOrDomainID.Execute();
+        }
     }
 }
