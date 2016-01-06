@@ -250,7 +250,7 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
                             if (setMediaThumb)
                             {
                                 //update media with new Pic
-                                Session["Pic_Image_Url"] = PageUtils.GetEpgChannelsSchedulePicImageUrl(picId, 90, 65);
+                                Session["Pic_Image_Url"] = PageUtils.GetEpgPicImageUrlByRatio(picId, 90, 65);
                                 ClientScript.RegisterStartupScript(typeof(Page), "close", "<script language=javascript>window.opener.document.getElementsByName('" + openerFieldToUpdate + "')[0].value = " + picId
                                     + ";window.opener.ChangePic('" + openerFieldToUpdate + "'," + picId + ");</script>");
                             }
