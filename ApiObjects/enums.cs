@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
 
 namespace ApiObjects
 {
@@ -255,6 +252,13 @@ namespace ApiObjects
         EPG = 0,
         NPVR = 1,
         MEDIA = 2
+    }
+
+    public enum eAssetImageType
+    {
+        Media = 0,
+        Channel = 1,
+        Category = 2
     }
 
     [Serializable]
