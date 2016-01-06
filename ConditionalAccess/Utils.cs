@@ -1095,9 +1095,9 @@ namespace ConditionalAccess
 
         internal static TvinciPricing.Price CalculateMediaFileFinalPriceNoSubs(Int32 nMediaFileID, int mediaID, TvinciPricing.Price pModule,
             TvinciPricing.DiscountModule discModule, TvinciPricing.CouponsGroup oCouponsGroup, string sSiteGUID,
-            string sCouponCode, Int32 nGroupID, string subCode, string sPricingUsername, string sPricingPassword)
+            string sCouponCode, Int32 nGroupID, string subCode, string sPricingUsername, string sPricingPassword, out DateTime? dtDiscountEnd)
         {
-
+            dtDiscountEnd = null;
             TvinciPricing.Price p = CopyPrice(pModule);
             if (discModule != null)
             {
@@ -1111,6 +1111,8 @@ namespace ConditionalAccess
                     nPPVPurchaseCount = ConditionalAccessDAL.Get_PPVPurchaseCount(nGroupID, sSiteGUID, subCode, nMediaFileID);
                 }
                 p = GetPriceAfterDiscount(p, discModule, nPPVPurchaseCount);
+                
+                dtDiscountEnd = discModule.m_dEndDate;
             }
 
             if (sCouponCode.Length > 0)
@@ -1166,14 +1168,14 @@ namespace ConditionalAccess
         }
 
         private static TvinciPricing.Price GetMediaFileFinalPriceNoSubs(Int32 nMediaFileID, int mediaID, TvinciPricing.PPVModule ppvModule,
-            string sSiteGUID, string sCouponCode, Int32 nGroupID, string subCode, string sPricingUsername, string sPricingPassword)
+            string sSiteGUID, string sCouponCode, Int32 nGroupID, string subCode, string sPricingUsername, string sPricingPassword, out DateTime? dtDiscountEnd)
         {
             TvinciPricing.Price pModule = TVinciShared.ObjectCopier.Clone<TvinciPricing.Price>((TvinciPricing.Price)(ppvModule.m_oPriceCode.m_oPrise));
             TvinciPricing.DiscountModule discModule = TVinciShared.ObjectCopier.Clone<TvinciPricing.DiscountModule>((TvinciPricing.DiscountModule)(ppvModule.m_oDiscountModule));
             TvinciPricing.CouponsGroup couponGroups = TVinciShared.ObjectCopier.Clone<TvinciPricing.CouponsGroup>((TvinciPricing.CouponsGroup)(ppvModule.m_oCouponsGroup));
 
             return CalculateMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, pModule, discModule, couponGroups, sSiteGUID,
-                sCouponCode, nGroupID, subCode, sPricingUsername, sPricingPassword);
+                sCouponCode, nGroupID, subCode, sPricingUsername, sPricingPassword, out dtDiscountEnd);
         }
 
         internal static TvinciPricing.Price GetSubscriptionFinalPrice(Int32 nGroupID, string sSubCode, string sSiteGUID, string sCouponCode, ref PriceReason theReason, ref TvinciPricing.Subscription theSub,
@@ -1602,13 +1604,14 @@ namespace ConditionalAccess
             int purchasedAsMediaFileID = 0;
             DateTime? dtStartDate = null;
             DateTime? dtEndDate = null;
+            DateTime? dtDiscountEndDate = null;
 
             // relatedMediaFileIDs is needed only GetLicensedLinks (which calls GetItemsPrices in order to get to GetMediaFileFinalPrice)
             List<int> relatedMediaFileIDs = new List<int>();
             return GetMediaFileFinalPrice(nMediaFileID, validMediaFiles[nMediaFileID], ppvModule, sSiteGUID, sCouponCode, nGroupID, true, ref theReason, ref relevantSub,
                 ref relevantCol, ref relevantPP, ref sFirstDeviceNameFound, sCouponCode, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty,
                 mediaFileTypesMapping, allUsersInDomain, nMediaFileTypeID, sAPIUsername, sAPIPassword, sPricingUsername, sPricingPassword,
-                ref bCancellationWindow, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref relatedMediaFileIDs, ref dtStartDate, ref dtEndDate);
+                ref bCancellationWindow, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref relatedMediaFileIDs, ref dtStartDate, ref dtEndDate, ref dtDiscountEndDate);
         }
 
         internal static void GetApiAndPricingCredentials(int nGroupID, ref string sPricingUsername, ref string sPricingPassword,
@@ -1709,7 +1712,7 @@ namespace ConditionalAccess
             string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sClientIP, Dictionary<int, int> mediaFileTypesMapping,
             List<int> allUserIDsInDomain, int nMediaFileTypeID, string sAPIUsername, string sAPIPassword, string sPricingUsername,
             string sPricingPassword, ref bool bCancellationWindow, ref string purchasedBySiteGuid, ref int purchasedAsMediaFileID,
-            ref List<int> relatedMediaFileIDs, ref DateTime? p_dtStartDate, ref DateTime? p_dtEndDate, UserEntitlementsObject userEntitlements = null, 
+            ref List<int> relatedMediaFileIDs, ref DateTime? p_dtStartDate, ref DateTime? p_dtEndDate, ref DateTime? dtDiscountEndDate, UserEntitlementsObject userEntitlements = null, 
             int mediaID = 0, TvinciUsers.DomainSuspentionStatus userSuspendStatus = TvinciUsers.DomainSuspentionStatus.Suspended, bool shouldCheckUserStatus = true)
         {
             if (ppvModule == null)
@@ -1902,7 +1905,7 @@ namespace ConditionalAccess
                                 TvinciPricing.Subscription s = prioritySubs[i];
                                 TvinciPricing.DiscountModule d = (TvinciPricing.DiscountModule)(s.m_oDiscountModule);
                                 TvinciPricing.Price subp = TVinciShared.ObjectCopier.Clone<TvinciPricing.Price>((TvinciPricing.Price)(CalculateMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule.m_oPriceCode.m_oPrise,
-                                    s.m_oDiscountModule, s.m_oCouponsGroup, sSiteGUID, sCouponCode, nGroupID, s.m_sObjectCode, sPricingUsername, sPricingPassword)));
+                                    s.m_oDiscountModule, s.m_oCouponsGroup, sSiteGUID, sCouponCode, nGroupID, s.m_sObjectCode, sPricingUsername, sPricingPassword, out dtDiscountEndDate)));
                                 if (subp != null)
                                 {
                                     if (IsGeoBlock(nGroupID, s.n_GeoCommerceID, sClientIP, sAPIUsername, sAPIPassword))
@@ -1954,7 +1957,7 @@ namespace ConditionalAccess
                         {
                             TvinciPricing.Collection collection = (TvinciPricing.Collection)relevantValidCollections[i];
                             TvinciPricing.DiscountModule discount = (TvinciPricing.DiscountModule)(collection.m_oDiscountModule);
-                            TvinciPricing.Price collectionsPrice = TVinciShared.ObjectCopier.Clone<TvinciPricing.Price>((TvinciPricing.Price)(CalculateMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule.m_oPriceCode.m_oPrise, collection.m_oDiscountModule, collection.m_oCouponsGroup, sSiteGUID, sCouponCode, nGroupID, collection.m_sObjectCode, sPricingUsername, sPricingPassword)));
+                            TvinciPricing.Price collectionsPrice = TVinciShared.ObjectCopier.Clone<TvinciPricing.Price>((TvinciPricing.Price)(CalculateMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule.m_oPriceCode.m_oPrise, collection.m_oDiscountModule, collection.m_oCouponsGroup, sSiteGUID, sCouponCode, nGroupID, collection.m_sObjectCode, sPricingUsername, sPricingPassword, out dtDiscountEndDate)));
                             if (collectionsPrice != null)
                             {
                                 if (IsItemPurchased(price, collectionsPrice, ppvModule))
@@ -1985,7 +1988,7 @@ namespace ConditionalAccess
                     {
                         // the media file was not purchased in any way. calculate its price as a single media file and its price reason
                         price = GetMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule, sSiteGUID, sCouponCode, nGroupID, string.Empty,
-                            sPricingUsername, sPricingPassword);
+                            sPricingUsername, sPricingPassword, out dtDiscountEndDate);
                         if (IsFreeMediaFile(theReason, price))
                         {
                             theReason = PriceReason.Free;
@@ -2009,7 +2012,7 @@ namespace ConditionalAccess
             else
             {
                 price = GetMediaFileFinalPriceNoSubs(nMediaFileID, mediaID, ppvModule, sSiteGUID, sCouponCode, nGroupID, string.Empty,
-                    sPricingUsername, sPricingPassword);
+                    sPricingUsername, sPricingPassword, out dtDiscountEndDate);
 
                 if (IsPPVModuleToBePurchasedAsSubOnly(ppvModule))
                 {
