@@ -1654,7 +1654,7 @@ namespace TVinciShared
             return imageUrl;
         }
 
-        public static string GetEpgChannelsSchedulePicImageUrl(int picId, int width = 0, int height = 0)
+        public static string GetEpgPicImageUrlByRatio(int picId, int width = 0, int height = 0)
         {
             string imageUrl = string.Empty;
             string baseUrl = string.Empty;

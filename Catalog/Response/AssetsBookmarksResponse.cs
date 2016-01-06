@@ -61,39 +61,19 @@ namespace Catalog.Response
         [DataMember]
         public int Location;
 
+        [DataMember]
+        public bool IsFinishedWatching;
+
         public Bookmark()
         {
         }
 
-        public Bookmark(ws_users.User user, eUserType userType, int location)
+        public Bookmark(ws_users.User user, eUserType userType, int location, bool isFinishedWatching)
         {
             this.User = user;
             this.UserType = userType;
             this.Location = location;
-        }
-    }
-
-    [DataContract]
-    public class LastPosition
-    {
-        [DataMember]
-        public int m_nUserID;
-
-        [DataMember]
-        public eUserType m_eUserType;
-
-        [DataMember]
-        public int m_nLocation;
-
-        public LastPosition()
-        {
-        }
-
-        public LastPosition(int nUserID, eUserType eUserType, int nLocation)
-        {
-            this.m_nUserID = nUserID;
-            this.m_eUserType = eUserType;
-            this.m_nLocation = nLocation;
+            this.IsFinishedWatching = isFinishedWatching;
         }
     }
 
