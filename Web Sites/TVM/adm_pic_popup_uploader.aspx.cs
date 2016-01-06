@@ -210,7 +210,7 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
                     break;
                 case PopUpContext.Category:
                     {
-                        picId = TvinciImporter.ImporterImpl.DownloadPicToImageServer(picLink, name, groupID, id, "eng", true, ratioId, false);
+                        picId = TvinciImporter.ImporterImpl.DownloadPicToImageServer(picLink, name, groupID, 0, "eng", true, ratioId, false);
 
                         if (picId > 0)
                         {
@@ -223,7 +223,7 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
                     break;
                 case PopUpContext.Channel:
                     {
-                        picId = TvinciImporter.ImporterImpl.DownloadPicToImageServer(picLink, name, groupID, id, "eng", true, ratioId, false);
+                        picId = TvinciImporter.ImporterImpl.DownloadPicToImageServer(picLink, name, groupID, 0, "eng", true, ratioId, false);
 
                         if (picId > 0)
                         {
