@@ -184,10 +184,10 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Grant entitlements for a household for specific product or subscription. If a subscription is provided – the grant will apply only till the end of the first renewal period.
         /// </summary>
-        /// <param name="content_id">Identifier for the content. Relevent only if Product type = PPV</param>
+        /// <param name="content_id">Identifier for the content. Relevant only if Product type = PPV</param>
         /// <param name="product_id">Identifier for the product package from which this content is offered  </param>
         /// <param name="product_type">Product package type. Possible values: PPV, Subscription, Collection</param>
-        /// <param name="history">Controls if the new entilements grant will appear in the user’s history. True – will add a history entry. False (or if ommited) – no history entry will be added</param>
+        /// <param name="history">Controls if the new entitlements grant will appear in the user’s history. True – will add a history entry. False (or if ommited) – no history entry will be added</param>
         /// <remarks>Possible status codes: 
         /// User not in domain = 1005, User does not exist = 2000, User suspended = 2001, PPV purchased = 3021, Free = 3022, For purchase subscription only = 3023,
         /// Subscription purchased = 3024, Not for purchase = 3025, Collection purchased = 3027, UnKnown PPV module = 6001
@@ -267,6 +267,33 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        /// <summary>
+        /// Reconcile the user household's entitlements with an external entitlements source. This request is frequency protected to avoid too frequent calls per household. 
+        /// </summary>
+        [Route("enternalReconcile"), HttpPost]
+        [ApiAuthorize]
+        public bool EnternalReconcile()
+        {
+            bool response = false;
+
+            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
+
+            long domainID = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+            try
+            {
+                response = ClientsManager.ConditionalAccessClient().ReconcileEntitlements(groupId, userId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
 
     }
 }

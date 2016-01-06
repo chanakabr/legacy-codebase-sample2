@@ -695,5 +695,39 @@ namespace WebAPI.Clients
 
             return clientResponse;
         }
+
+        internal bool ReconcileEntitlements(int groupId, string userId)
+        {
+            WebAPI.ConditionalAccess.Status response = null;
+
+            // get group ID
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    response = ConditionalAccess.ReconcileEntitlements(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
     }
 }
