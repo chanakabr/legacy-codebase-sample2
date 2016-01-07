@@ -89,6 +89,7 @@
     <Compile Include="AdminAccountObj.cs" />
     <Compile Include="AdminAccountUserObj.cs" />
     <Compile Include="AdminAccountUserResponse.cs" />
+    <Compile Include="PersonalEnrichments\AssetFiles.cs" />
     <Compile Include="Billing\HouseholdPaymentGatewayResponse.cs" />
     <Compile Include="Billing\HouseholdPaymentGateway.cs" />
     <Compile Include="Billing\PartnerConfiguration.cs" />
@@ -96,6 +97,7 @@
     <Compile Include="Billing\PaymentGatewayBase.cs" />
     <Compile Include="Billing\PaymentGateway.cs" />
     <Compile Include="Billing\PaymentGatewayChargeIDResponse.cs" />
+    <Compile Include="Billing\PaymentGatewayConfigurationResponse.cs" />
     <Compile Include="Billing\PaymentGatewayItemResponse.cs" />
     <Compile Include="Billing\PaymentGatewayPending.cs" />
     <Compile Include="Billing\PaymentGatewaySettings.cs" />

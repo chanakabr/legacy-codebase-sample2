@@ -6,5 +6,5 @@
     cause the file to be unrecognizable by the program.
 -->
 <GenericObjectDataSource DisplayName="Response" Version="1.0" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
-   <TypeInfo>ConditionalAccess.WS_Catalog.Response, Service References.WS_Catalog.Reference.cs, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null</TypeInfo>
+   <TypeInfo>ConditionalAccess.WS_Catalog.Response</TypeInfo>
 </GenericObjectDataSource>

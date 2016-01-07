@@ -2385,7 +2385,7 @@ namespace TvinciImporter
                 }
                 else
                 {
-                    return DownloadPicToImageServer(sPic, sMediaName, nGroupID, nMediaID, sMainLang, bSetMediaThumb, ratioID);
+                    return DownloadPicToImageServer(sPic, sMediaName, nGroupID, nMediaID, sMainLang, bSetMediaThumb, ratioID, eAssetImageType.Media);
                 }
             }
             else
@@ -2574,7 +2574,7 @@ namespace TvinciImporter
             return nPicID;
         }
 
-        static public int DownloadPicToImageServer(string pic, string mediaName, int groupId, int mediaId, string mainLang, bool setMediaThumb, int ratioId, bool isAsync = true)
+        static public int DownloadPicToImageServer(string pic, string assetName, int groupId, int assetId, string mainLang, bool setMediaThumb, int ratioId, eAssetImageType assetImageType, bool isAsync = true)
         {
             int version = 0;
             string baseUrl = string.Empty;
@@ -2599,7 +2599,7 @@ namespace TvinciImporter
             }
 
             //get pic data           
-            if (mediaId > 0 && GetPicData(ratioId, mediaId, out picId, out version, out baseUrl, out picRatioId))
+            if (assetId > 0 && GetPicData(ratioId, assetId, assetImageType, out picId, out version, out baseUrl, out picRatioId))
             {
                 // Get Base Url
                 baseUrl = Path.GetFileNameWithoutExtension(baseUrl);
@@ -2611,13 +2611,13 @@ namespace TvinciImporter
                 }
                 else
                 {
-                    picId = CatalogDAL.InsertPic(groupId, mediaName, pic, baseUrl, ratioId, mediaId);
+                    picId = CatalogDAL.InsertPic(groupId, assetName, pic, baseUrl, ratioId, assetId, assetImageType);
                 }
             }
             else // pic does not exist -- > create new pic
             {
                 baseUrl = TVinciShared.ImageUtils.GetDateImageName();
-                picId = CatalogDAL.InsertPic(groupId, mediaName, pic, baseUrl, ratioId, mediaId);
+                picId = CatalogDAL.InsertPic(groupId, assetName, pic, baseUrl, ratioId, assetId, assetImageType);
             }
 
             if (picId != 0)
@@ -2650,13 +2650,13 @@ namespace TvinciImporter
                 if (picId > 0)
                 {
                     #region handle pic tags and update the media files
-                    IngestionUtils.M2MHandling("ID", "", "", "", "ID", "tags", "pics_tags", "pic_id", "tag_id", "true", mainLang, mediaName, groupId, picId, false);
+                    IngestionUtils.M2MHandling("ID", "", "", "", "ID", "tags", "pics_tags", "pic_id", "tag_id", "true", mainLang, assetName, groupId, picId, false);
                     if (setMediaThumb == true)
                     {
                         ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
                         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_PIC_ID", "=", picId);
                         updateQuery += " where ";
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", mediaId);
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", assetId);
                         updateQuery.Execute();
                         updateQuery.Finish();
                         updateQuery = null;
@@ -2668,7 +2668,7 @@ namespace TvinciImporter
             return picId;
         }
 
-        private static bool GetPicData(int ratioID, int mediaID, out int picId, out int version, out string baseUrl, out int picRatioId)
+        private static bool GetPicData(int ratioID, int assetId, eAssetImageType assetImageType, out int picId, out int version, out string baseUrl, out int picRatioId)
         {
             bool result = false;
             picId = 0;
@@ -2678,7 +2678,7 @@ namespace TvinciImporter
 
             try
             {
-                DataRowCollection rows = CatalogDAL.GetPicsTableData(mediaID, ratioID, 0);
+                DataRowCollection rows = CatalogDAL.GetPicsTableData(assetId, assetImageType, ratioID, 0);
 
                 if (rows != null && rows.Count > 0)
                 {

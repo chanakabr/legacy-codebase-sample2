@@ -106,6 +106,7 @@ namespace ConditionalAccess
         public int[] m_lRelatedMediaFileIDs;
         public DateTime? m_dtStartDate;
         public DateTime? m_dtEndDate;
+        public DateTime? m_dtDiscountEndDate;
         public string m_sProductCode;
 
         public ItemPriceContainer()
@@ -131,7 +132,8 @@ namespace ConditionalAccess
         public void Initialize(TvinciPricing.Price oPrice, TvinciPricing.Price oFullPrice, string sPPVModuleCode,
             TvinciPricing.LanguageContainer[] oPPVDescription, PriceReason theReason, TvinciPricing.Subscription relevantSub,
             TvinciPricing.Collection relevantCol, bool bSubscriptionOnly, TvinciPricing.PrePaidModule relevantPP, string sFirstDeviceFound,
-            bool bCancelWindow, string purchasedBySiteGuid, int purchasedAsMediaFileID, IEnumerable<int> relatedMediaFileIDs, string productCode, DateTime? dtStartDate = null, DateTime? dtEndDate = null)
+            bool bCancelWindow, string purchasedBySiteGuid, int purchasedAsMediaFileID, IEnumerable<int> relatedMediaFileIDs, string productCode, DateTime? dtStartDate = null, 
+            DateTime? dtEndDate = null, DateTime? dtDiscountEndDate = null)
         {
             m_oPPVDescription = oPPVDescription;
             m_oPrice = oPrice;
@@ -158,6 +160,7 @@ namespace ConditionalAccess
             m_dtStartDate = dtStartDate;
             m_dtEndDate = dtEndDate;
             m_sProductCode = productCode;
+            m_dtDiscountEndDate = dtDiscountEndDate;
         }
     }
 }
