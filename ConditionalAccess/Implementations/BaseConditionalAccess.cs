@@ -13209,8 +13209,8 @@ namespace ConditionalAccess
                 }
 
                 // validate PPV 
-                TvinciPricing.PPVModule thePPVModule = null;
-                ApiObjects.Response.Status status = ValidatePPVModuleCode(productId, contentId, ref thePPVModule);
+                TvinciPricing.PPVModule ppv = null;
+                ApiObjects.Response.Status status = ValidatePPVModuleCode(productId, contentId, ref ppv);
                 if (status.Code != (int)eResponseStatus.OK)
                 {
                     response.Status = status;
@@ -13223,7 +13223,7 @@ namespace ConditionalAccess
                 TvinciPricing.Subscription relevantSub = null;
                 TvinciPricing.Collection relevantCol = null;
                 TvinciPricing.PrePaidModule relevantPP = null;
-                TvinciPricing.Price oPrice = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(contentId, thePPVModule, siteguid, string.Empty, m_nGroupID,
+                TvinciPricing.Price oPrice = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(contentId, ppv, siteguid, string.Empty, m_nGroupID,
                                                                                               ref ePriceReason, ref relevantSub, ref relevantCol, ref relevantPP,
                                                                                               string.Empty, string.Empty, deviceName);
 
@@ -13240,16 +13240,25 @@ namespace ConditionalAccess
                     }
 
                     // create custom data
-                    string customData = GetCustomData(relevantSub, thePPVModule, null, siteguid, oPrice.m_dPrice, oPrice.m_oCurrency.m_sCurrencyCD3,
+                    string customData = GetCustomData(relevantSub, ppv, null, siteguid, oPrice.m_dPrice, oPrice.m_oCurrency.m_sCurrencyCD3,
                                                       contentId, mediaID, productId.ToString(), string.Empty, string.Empty,
                                                       userIp, country, string.Empty, deviceName);
 
                     // create new GUID for billing transaction
                     string billingGuid = Guid.NewGuid().ToString();
 
+                    // get PPV product code - first priority from file, second from PPV
+                    string ppvCode = ppv.m_Product_Code;
+                    var mediaMappers = Utils.GetMediaMapper(m_nGroupID, new int[] { contentId });
+                    if (mediaMappers != null && mediaMappers.Length > 0)
+                    {
+                        if (!string.IsNullOrEmpty(mediaMappers[0].m_sProductCode))
+                            ppvCode = mediaMappers[0].m_sProductCode;
+                    }
+
                     // purchase
                     response = VerifyPurchase(siteguid, householdId, oPrice.m_dPrice, oPrice.m_oCurrency.m_sCurrencyCD3, userIp, customData,
-                                                productId, relevantSub.m_ProductCode, TvinciBilling.eTransactionType.PPV, billingGuid, paymentGwName, contentId, purchaseToken);
+                                                productId, ppvCode, TvinciBilling.eTransactionType.PPV, billingGuid, paymentGwName, contentId, purchaseToken);
                     if (response != null &&
                         response.Status != null)
                     {
@@ -13267,7 +13276,7 @@ namespace ConditionalAccess
 
                             // grant entitlement
                             bool handleBillingPassed = HandlePPVBillingSuccess(ref response, siteguid, householdId, relevantSub, oPrice.m_dPrice, oPrice.m_oCurrency.m_sCurrencyCD3, string.Empty, userIp,
-                                                                               country, deviceName, long.Parse(response.TransactionID), customData, thePPVModule,
+                                                                               country, deviceName, long.Parse(response.TransactionID), customData, ppv,
                                                                                productId, contentId, billingGuid, entitlementDate, ref purchaseId);
 
                             if (handleBillingPassed)
@@ -14813,5 +14822,115 @@ namespace ConditionalAccess
             return ConditionalAccessDAL.Update_SubscriptionPurchaseRenewalActiveStatus(m_nGroupID, purchaseId, billingGuid, Convert.ToInt16(isActive));
         }
 
+
+        public AssetItemPriceResponse GetAssetPrices(List<AssetFiles> assetFiles, string siteGuid, 
+            string couponCode, string countryCd2, string languageCode3, string deviceName, string clientIP)
+        {
+            AssetItemPriceResponse response = new AssetItemPriceResponse();
+
+            if (assetFiles == null)
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Missing parameter - asset files list");
+                return response;
+            }
+
+            List<int> mediaFiles = new List<int>();
+            Dictionary<int, int> fileToAsset = new Dictionary<int, int>();
+
+            foreach (var asset in assetFiles)
+            {
+                foreach (var file in asset.FileIds)
+                {
+                    fileToAsset.Add(file, Convert.ToInt32(asset.AssetId));
+                }
+
+                mediaFiles.AddRange(asset.FileIds);
+            }
+
+            // Validate that all file IDs match the given asset IDs
+            TvinciAPI.MeidaMaper[] mapper = Utils.GetMediaMapper(m_nGroupID, mediaFiles.ToArray());
+            HashSet<int> mappedFileIds = new HashSet<int>();
+
+            // Checked that all mappings match
+            foreach (var mapping in mapper)
+            {
+                int fileId = mapping.m_nMediaFileID;
+                int assetId = 0;
+
+                if (fileToAsset.TryGetValue(fileId, out assetId))
+                {
+                    mappedFileIds.Add(fileId);
+
+                    if (mapping.m_nMediaID != assetId)
+                    {
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.FileToMediaMismatch,
+                            string.Format("File Id does not match media id: file = {0}, media = {1}", fileId, assetId));
+                        return response;
+                    }
+                }
+                else
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.FileToMediaMismatch,
+                        string.Format("Could not find asset of file {0}", fileId));
+                    return response;
+                }
+            }
+
+            // Check that all IDs had a match and nobody was left out
+            foreach (var fileId in mediaFiles)
+            {
+                if (!mappedFileIds.Contains(fileId))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.FileToMediaMismatch,
+                        string.Format("Could not find mapping for file {0}", fileId));
+                    return response;
+                }
+            }
+
+            var itemPrices = this.GetItemsPrices(mediaFiles.ToArray(), siteGuid, couponCode, true, countryCd2, languageCode3, deviceName, clientIP);
+
+            if (itemPrices == null)
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error,
+                    "Failed getting prices of items");
+                return response;
+            }
+
+            Dictionary<int, AssetItemPrices> fileToAssetItem = new Dictionary<int, AssetItemPrices>();
+
+            response.Prices = new List<AssetItemPrices>();
+
+            // Map file Ids to asset item price object
+            foreach (var item in assetFiles)
+            {
+                var assetItem = new AssetItemPrices()
+                {
+                    AssetId = item.AssetId,
+                    AssetType = item.AssetType,
+                    PriceContainers = new List<MediaFileItemPricesContainer>()
+                };
+
+                foreach (var fileId in item.FileIds)
+                {
+                    fileToAssetItem.Add(fileId, assetItem);
+                }
+
+                response.Prices.Add(assetItem);
+            }
+
+            // Add price containers to asset item price objects that we created a step earlier
+            foreach (var itemPrice in itemPrices)
+            {
+                AssetItemPrices current;
+                if (fileToAssetItem.TryGetValue(itemPrice.m_nMediaFileID, out current))
+                {
+                    current.PriceContainers.Add(itemPrice);
+                }
+            }
+
+            response.Status = new ApiObjects.Response.Status();
+
+            return response;
+        }
     }
 }

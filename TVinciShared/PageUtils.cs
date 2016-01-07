@@ -1,19 +1,13 @@
-using System;
-using System.Data;
-using System.Configuration;
-using System.Collections;
-using System.Web;
-using System.Web.Security;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using System.Web.UI.HtmlControls;
-using System.Text;
-using System.Collections.Generic;
+using ApiObjects;
 using DAL;
 using KLogMonitor;
-using System.Reflection;
+using System;
+using System.Collections.Generic;
+using System.Data;
 using System.IO;
+using System.Reflection;
+using System.Text;
+using System.Web;
 
 namespace TVinciShared
 {
@@ -1624,7 +1618,7 @@ namespace TVinciShared
 
             url = ImageUtils.BuildImageUrl(groupId, imageId, version, width, height, quality);
             return url;
-        }     
+        }
 
         public static string GetPicImageUrlByRatio(int picId, int width = 0, int height = 0)
         {
@@ -1654,7 +1648,36 @@ namespace TVinciShared
             return imageUrl;
         }
 
-        public static string GetEpgPicImageUrlByRatio(int picId, int width = 0, int height = 0)
+        public static string GetPicImageUrlByRatio(int assetId, eAssetImageType asssetImageType, int ratioId, int width = 0, int height = 0)
+        {
+            string imageUrl = string.Empty;
+            string baseUrl = string.Empty;
+            int version = 0;
+            int groupId = LoginManager.GetLoginGroupID();
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select p.RATIO_ID, p.BASE_URL, p.VERSION from pics p where ASSET_ID = " + assetId.ToString();
+            selectQuery += "And ASSET_IMAGE_TYPE = " + ((int)asssetImageType).ToString();
+            selectQuery += "And RATIO_ID = " + ratioId.ToString();
+
+            if (selectQuery.Execute("query", true) != null && selectQuery.Table("query").DefaultView != null && selectQuery.Table("query").DefaultView.Count > 0)
+            {
+                baseUrl = ODBCWrapper.Utils.GetSafeStr(selectQuery.Table("query").DefaultView[0].Row["BASE_URL"]);
+                ratioId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["RATIO_ID"]);
+                version = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["VERSION"]);
+                int parentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);
+
+                imageUrl = PageUtils.BuildVodUrl(parentGroupID, baseUrl, ratioId, version, width, height);
+            }
+            else
+            {
+                log.ErrorFormat("GetPicImageUrlByRatio imageUrl is empty. AssetId {0}, AsssetImageType {1}", assetId, (int)asssetImageType);
+            }
+
+            return imageUrl;
+        }
+
+        public static string GetEpgPicImageUrl(int picId, int width = 0, int height = 0)
         {
             string imageUrl = string.Empty;
             string baseUrl = string.Empty;
@@ -1668,6 +1691,33 @@ namespace TVinciShared
             {
                 baseUrl = ODBCWrapper.Utils.GetSafeStr(selectQuery.Table("query").DefaultView[0].Row["BASE_URL"]);
                 picId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["ID"]);
+                version = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["version"]);
+                int parentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);
+
+                imageUrl = PageUtils.BuildEpgUrl(parentGroupID, baseUrl, version, width, height);
+            }
+
+            return imageUrl;
+        }
+
+        public static string GetEpgPicImageUrl(string epgIdentifier, int channelId, int rationId, int width = 0, int height = 0)
+        {
+            string imageUrl = string.Empty;
+            string baseUrl = string.Empty;
+            int version = 0;
+            int groupId = LoginManager.GetLoginGroupID();
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select top 1 ep.BASE_URL, ep.ID, ep.version from epg_pics ep inner join epg_multi_pictures emp on emp.pic_id = ep.ID ";
+            selectQuery += " Where emp.epg_Identifier  = '" + epgIdentifier + "' ";
+            selectQuery += " And emp.channel_id  = " + channelId.ToString();
+            selectQuery += " And emp.ratio_id  = " + rationId.ToString();
+            selectQuery += " And ep.status  = 1";
+            selectQuery += " Order by ep.id desc";
+
+            if (selectQuery.Execute("query", true) != null && selectQuery.Table("query").DefaultView != null && selectQuery.Table("query").DefaultView.Count > 0)
+            {
+                baseUrl = ODBCWrapper.Utils.GetSafeStr(selectQuery.Table("query").DefaultView[0].Row["BASE_URL"]);
                 version = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["version"]);
                 int parentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);
 

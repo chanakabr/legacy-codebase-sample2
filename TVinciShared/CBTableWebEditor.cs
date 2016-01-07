@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Text;
 using System.Web;
 using System.Web.UI;
@@ -101,6 +100,11 @@ namespace TVinciShared
             m_hiddenFields.Add(sFieldName.ToUpper(), true);
         }
 
+        public void AddImageField(string sFieldName)
+        {
+            m_ImageFields.Add(sFieldName.ToUpper(), true);
+        }
+
         public void AddOnOffField(string sFieldName, string sIndexFieldName)
         {
             m_OnOffFields.Add(sFieldName.ToUpper(), sIndexFieldName);
@@ -140,6 +144,10 @@ namespace TVinciShared
         public virtual System.Collections.Hashtable GetOnOffFields()
         {
             return m_OnOffFields;
+        }
+        public virtual System.Collections.Hashtable GetImageFields()
+        {
+            return m_ImageFields;
         }
 
         protected void PageToSession(string sPageURL)
@@ -481,6 +489,23 @@ namespace TVinciShared
                         }
                         if (sFileName != "" && sFileName != "-")
                         {
+                            if (ImageUtils.IsDownloadPicWithImageServer())
+                            {
+                                sTable.Append("<td>");
+
+                                if (m_theDataTable.Columns.Contains("pic_id"))
+                                {
+                                    object picId = m_theDataTable.DefaultView[pageIndx].Row["pic_id"];
+                                    if (picId != DBNull.Value && picId != null)
+                                    {
+                                        sTable.Append("<img src='" + PageUtils.GetEpgPicImageUrl(int.Parse(picId.ToString()), 90, 65));
+                                        sTable.Append("'/>");
+                                    }
+                                }
+                                sTable.Append("</td>");
+                            }
+                            else
+                            {
                             sTable.Append("<td ><img src='" + sBP);
                             if (sBP.EndsWith("=") == false)
                                 sTable.Append("/");
@@ -494,6 +519,7 @@ namespace TVinciShared
                             sTable.Append(randomInt.ToString());
 
                             sTable.Append("'/></td>");
+                                }
                         }
                         else
                         {

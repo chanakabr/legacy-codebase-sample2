@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:import schemaLocation="http://192.168.192.146/webservices/catalog/Service.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/ApiObjects" />
-  <xs:import schemaLocation="http://192.168.192.146/webservices/catalog/Service.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+  <xs:import schemaLocation="http://localhost:82/WS_Catalog/Service.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/ApiObjects" />
+  <xs:import schemaLocation="http://localhost:82/WS_Catalog/Service.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
   <xs:complexType name="ArrayOfSearchResult">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="unbounded" name="SearchResult" nillable="true" type="tns:SearchResult" />
@@ -29,6 +29,10 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="EpgResultsObj" nillable="true" type="tns:EpgResultsObj" />
+  <xs:complexType name="BooleanPhraseNode">
+    <xs:sequence />
+  </xs:complexType>
+  <xs:element name="BooleanPhraseNode" nillable="true" type="tns:BooleanPhraseNode" />
   <xs:complexType name="OrderObj">
     <xs:sequence>
       <xs:element minOccurs="0" name="lu_min_period_id" type="xs:int" />
@@ -116,6 +120,13 @@
         <xs:annotation>
           <xs:appinfo>
             <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">101</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="RECOMMENDATION">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">-13</EnumerationValue>
           </xs:appinfo>
         </xs:annotation>
       </xs:enumeration>

@@ -5344,7 +5344,7 @@ namespace Catalog
 
             if (channel == null)
             {
-                return new Status((int)eResponseStatus.ObjectNotExist, string.Format("Channel with identifier {0} does not exist for group {1}", parentGroupID, channelId));
+                return new Status((int)eResponseStatus.ObjectNotExist, string.Format("Channel with identifier {1} does not exist for group {0}", parentGroupID, channelId));
             }
 
             // Build search object
