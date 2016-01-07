@@ -7,6 +7,8 @@ using System.Data;
 using Tvinci.Core.DAL;
 using Catalog.Response;
 using KLogMonitor;
+using TVinciShared;
+using System.IO;
 
 
 namespace Catalog.Request
@@ -66,59 +68,139 @@ namespace Catalog.Request
 
                     var catChannels = dtCatChan.AsEnumerable().Select(r => new
                     {
-                        CategoryID = r.Field<long>("CATEGORY_ID"),
-                        ChannelID = r.Field<long>("ID"),
-                        Title = r.Field<string>("NAME"),
-                        Description = r.Field<string>("DESCRIPTION"),
-                        EditorRemarks = r.Field<string>("EDITOR_REMARKS"),
+                        CategoryID = Utils.GetLongSafeVal(r, "CATEGORY_ID"),
+                        ChannelID = Utils.GetLongSafeVal(r, "ID"),
+                        Title = Utils.GetStrSafeVal(r, "NAME"),
+                        Description = Utils.GetStrSafeVal(r, "DESCRIPTION"),
+                        EditorRemarks = Utils.GetStrSafeVal(r, "EDITOR_REMARKS"),
                         LinearStartTime = r.Field<DateTime>("LINEAR_START_TIME")
-                        //,
-                        //PicUrl = r.Field<string>("PIC_URL"),
-                        //PicSize = r.Field<string>("PIC_SIZE")
                     }).Distinct()
                         .GroupBy(cc => cc.CategoryID)
                         .ToDictionary(cc => cc.Key, cc => cc.ToList());
 
-                    // Make category-pictures dictionary
-                    Dictionary<long, List<Picture>> dChanPics = dtCatChan.AsEnumerable()
-                        .Select(r => new
-                        {
-                            ID = (long)r.Field<long>("ID"),
-                            PicUrl = r.Field<string>("PIC_URL"),
-                            PicSize = r.Field<string>("PIC_SIZE")
-                        })
-                        .Where(p => (!string.IsNullOrEmpty(p.PicUrl)))
-                        .GroupBy(c => c.ID)
-                        .ToDictionary(c => c.Key, c => c.ToList()
-                            .Select(cp => new Picture() { m_sURL = cp.PicUrl, m_sSize = (cp.PicSize == "0X0" ? "full" : cp.PicSize) }).ToList());
+
+
+                    Dictionary<long, List<Picture>> dChanPics = new Dictionary<long, List<Picture>>();
+
+                    // use old/new image server
+                    if (WS_Utils.IsGroupIDContainedInConfig(m_nGroupID, "USE_OLD_IMAGE_SERVER", ';'))
+                    {
+
+                        // Make category-pictures dictionary
+                        dChanPics = dtCatChan.AsEnumerable()
+                            .Select(r => new
+                            {
+                                ID = Utils.GetLongSafeVal(r, "ID"),
+                                PicUrl = Utils.GetStrSafeVal(r, "PIC_URL"),
+                                PicSize = Utils.GetStrSafeVal(r, "PIC_SIZE")
+                            })
+                            .Where(p => (!string.IsNullOrEmpty(p.PicUrl)))
+                            .GroupBy(c => c.ID)
+                            .ToDictionary(c => c.Key, c => c.ToList()
+                                .Select(cp => new Picture() { m_sURL = cp.PicUrl, m_sSize = (cp.PicSize == "0X0" ? "full" : cp.PicSize) }).ToList());
+                    }
+                    else
+                    {
+                        dChanPics = dtCatChan.AsEnumerable()
+                            .Select(r => new
+                            {
+                                ID = Utils.GetLongSafeVal(r, "ID"),
+
+                                // build image URL. 
+                                // template: <image_server_url>/p/<partner_id>/entry_id/<image_id>/version/<image_version>/width/<image_width>/height/<image_height>/quality/<image_quality>
+                                // Example:  http://localhost/ImageServer/Service.svc/GetImage/p/215/entry_id/123/version/10/width/432/height/230/quality/100
+                                PicUrl = ImageUtils.BuildImageUrl(m_nGroupID,
+                                                                  Path.GetFileNameWithoutExtension(Utils.GetStrSafeVal(r, "BASE_URL")) + "_" + Utils.GetIntSafeVal(r, "RATIO_ID"),
+                                                                  Utils.GetIntSafeVal(r, "VERSION"),
+                                                                  Utils.GetIntSafeVal(r, "WIDTH"),
+                                                                  Utils.GetIntSafeVal(r, "HEIGHT"),
+                                                                  100),
+                                PicSize = Utils.GetStrSafeVal(r, "PIC_SIZE"),
+                                PicId = Utils.GetIntSafeVal(r, "PIC_ID"),
+                                Version = Utils.GetIntSafeVal(r, "VERSION"),
+                                Ratio = Utils.GetIntSafeVal(r, "RATIO_ID"),
+                                Id = Path.GetFileNameWithoutExtension(Utils.GetStrSafeVal(r, "BASE_URL")) + "_" + Utils.GetIntSafeVal(r, "RATIO_ID")
+                            })
+                            .Where(p => (p.PicId > 0))
+                            .GroupBy(c => c.ID)
+                            .ToDictionary(c => c.Key, c => c.ToList()
+                                .Select(cp => new Picture()
+                                {
+                                    m_sURL = cp.PicUrl,
+                                    m_sSize = (cp.PicSize == "0X0" ? "full" : cp.PicSize),
+                                    id = cp.Id,
+                                    //ratio = "RATIO_NAME",
+                                    version = cp.Version
+                                }).ToList());
+                    }
+
+
 
                     List<CategoryResponse> cats = dtCat.AsEnumerable().Select(r => new CategoryResponse()
                                                 {
-                                                    ID = (int)r.Field<long>("ID"),
-                                                    m_sTitle = r.Field<string>("NAME"),
-                                                    //((nLanguage == 0 || nLanguage == groupLangID) ? 
-                                                    //            r.Field<string>("CATEGORY_NAME") :
-                                                    //            r.Field<string>("NAME")),
-                                                    m_nParentCategoryID = (int)r.Field<long>("PARENT_CATEGORY_ID"),
-                                                    m_sCoGuid = r.Field<string>("CO_GUID")
+                                                    ID = Utils.GetIntSafeVal(r, "ID"),
+                                                    m_sTitle = Utils.GetStrSafeVal(r, "NAME"),
+                                                    m_nParentCategoryID = Utils.GetIntSafeVal(r, "PARENT_CATEGORY_ID"),
+                                                    m_sCoGuid = Utils.GetStrSafeVal(r, "CO_GUID")
                                                 })
                                                 .GroupBy(c => c.ID)
                                                 .Select(c => c.First())
                                                 .ToList();
 
-                    // Make category-pictures dictionary
-                    Dictionary<int, List<Picture>> dCatPics = dtCat.AsEnumerable()
-                        .Select(r => new
-                        {
-                            ID = (int)r.Field<long>("ID"),
-                            PicUrl = r.Field<string>("PIC_URL"),
-                            PicSize = r.Field<string>("PIC_SIZE")
-                        })
-                        .Where(p => (!string.IsNullOrEmpty(p.PicUrl)))
-                        .GroupBy(c => c.ID)
-                        .ToDictionary(c => c.Key, c => c.ToList()
-                            .Select(cp => new Picture() { m_sURL = cp.PicUrl, m_sSize = (cp.PicSize == "0X0" ? "full" : cp.PicSize) }).ToList());
+                    // use old/new image server
+                    Dictionary<int, List<Picture>> dCatPics = new Dictionary<int, List<Picture>>();
+                    if (WS_Utils.IsGroupIDContainedInConfig(m_nGroupID, "USE_OLD_IMAGE_SERVER", ';'))
+                    {
 
+                        // Make category-pictures dictionary
+                        dCatPics = dtCat.AsEnumerable()
+                            .Select(r => new
+                            {
+                                ID = Utils.GetIntSafeVal(r, "ID"),
+                                PicUrl = Utils.GetStrSafeVal(r, "PIC_URL"),
+                                PicSize = Utils.GetStrSafeVal(r, "PIC_SIZE")
+                            })
+                            .Where(p => (!string.IsNullOrEmpty(p.PicUrl)))
+                            .GroupBy(c => c.ID)
+                            .ToDictionary(c => c.Key, c => c.ToList()
+                                .Select(cp => new Picture() { m_sURL = cp.PicUrl, m_sSize = (cp.PicSize == "0X0" ? "full" : cp.PicSize) }).ToList());
+                    }
+                    else
+                    {
+                        // Make category-pictures dictionary
+                        dCatPics = dtCat.AsEnumerable()
+                            .Select(r => new
+                            {
+                                ID = Utils.GetIntSafeVal(r, "ID"),
+
+                                // build image URL. 
+                                // template: <image_server_url>/p/<partner_id>/entry_id/<image_id>/version/<image_version>/width/<image_width>/height/<image_height>/quality/<image_quality>
+                                // Example:  http://localhost/ImageServer/Service.svc/GetImage/p/215/entry_id/123/version/10/width/432/height/230/quality/100
+                                PicUrl = ImageUtils.BuildImageUrl(m_nGroupID,
+                                                                  Path.GetFileNameWithoutExtension(Utils.GetStrSafeVal(r, "BASE_URL")) + "_" + Utils.GetIntSafeVal(r, "RATIO_ID"),
+                                                                  Utils.GetIntSafeVal(r, "VERSION"),
+                                                                  Utils.GetIntSafeVal(r, "WIDTH"),
+                                                                  Utils.GetIntSafeVal(r, "HEIGHT"),
+                                                                  100),
+
+                                PicSize = Utils.GetStrSafeVal(r, "PIC_SIZE"),
+                                PicId = Utils.GetIntSafeVal(r, "PIC_ID"),
+                                Version = Utils.GetIntSafeVal(r, "VERSION"),
+                                Ratio = Utils.GetIntSafeVal(r, "RATIO_ID"),
+                                Id = Path.GetFileNameWithoutExtension(Utils.GetStrSafeVal(r, "BASE_URL")) + "_" + Utils.GetIntSafeVal(r, "RATIO_ID")
+                            })
+                            .Where(p => (p.PicId > 0))
+                            .GroupBy(c => c.ID)
+                            .ToDictionary(c => c.Key, c => c.ToList()
+                                .Select(cp => new Picture()
+                                {
+                                    m_sURL = cp.PicUrl,
+                                    m_sSize = (cp.PicSize == "0X0" ? "full" : cp.PicSize),
+                                    id = cp.Id,
+                                    //ratio = "RATIO_NAME",
+                                    version = cp.Version
+                                }).ToList());
+                    }
 
                     // If requested category not found, return empty response
                     if (!cats.Any(c => c.ID == request.m_nCategoryID))

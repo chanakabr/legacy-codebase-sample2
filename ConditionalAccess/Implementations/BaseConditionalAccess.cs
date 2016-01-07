@@ -13209,8 +13209,8 @@ namespace ConditionalAccess
                 }
 
                 // validate PPV 
-                TvinciPricing.PPVModule thePPVModule = null;
-                ApiObjects.Response.Status status = ValidatePPVModuleCode(productId, contentId, ref thePPVModule);
+                TvinciPricing.PPVModule ppv = null;
+                ApiObjects.Response.Status status = ValidatePPVModuleCode(productId, contentId, ref ppv);
                 if (status.Code != (int)eResponseStatus.OK)
                 {
                     response.Status = status;
@@ -13223,7 +13223,7 @@ namespace ConditionalAccess
                 TvinciPricing.Subscription relevantSub = null;
                 TvinciPricing.Collection relevantCol = null;
                 TvinciPricing.PrePaidModule relevantPP = null;
-                TvinciPricing.Price oPrice = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(contentId, thePPVModule, siteguid, string.Empty, m_nGroupID,
+                TvinciPricing.Price oPrice = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(contentId, ppv, siteguid, string.Empty, m_nGroupID,
                                                                                               ref ePriceReason, ref relevantSub, ref relevantCol, ref relevantPP,
                                                                                               string.Empty, string.Empty, deviceName);
 
@@ -13240,16 +13240,25 @@ namespace ConditionalAccess
                     }
 
                     // create custom data
-                    string customData = GetCustomData(relevantSub, thePPVModule, null, siteguid, oPrice.m_dPrice, oPrice.m_oCurrency.m_sCurrencyCD3,
+                    string customData = GetCustomData(relevantSub, ppv, null, siteguid, oPrice.m_dPrice, oPrice.m_oCurrency.m_sCurrencyCD3,
                                                       contentId, mediaID, productId.ToString(), string.Empty, string.Empty,
                                                       userIp, country, string.Empty, deviceName);
 
                     // create new GUID for billing transaction
                     string billingGuid = Guid.NewGuid().ToString();
 
+                    // get PPV product code - first priority from file, second from PPV
+                    string ppvCode = ppv.m_Product_Code;
+                    var mediaMappers = Utils.GetMediaMapper(m_nGroupID, new int[] { contentId });
+                    if (mediaMappers != null && mediaMappers.Length > 0)
+                    {
+                        if (!string.IsNullOrEmpty(mediaMappers[0].m_sProductCode))
+                            ppvCode = mediaMappers[0].m_sProductCode;
+                    }
+
                     // purchase
                     response = VerifyPurchase(siteguid, householdId, oPrice.m_dPrice, oPrice.m_oCurrency.m_sCurrencyCD3, userIp, customData,
-                                                productId, relevantSub.m_ProductCode, TvinciBilling.eTransactionType.PPV, billingGuid, paymentGwName, contentId, purchaseToken);
+                                                productId, ppvCode, TvinciBilling.eTransactionType.PPV, billingGuid, paymentGwName, contentId, purchaseToken);
                     if (response != null &&
                         response.Status != null)
                     {
@@ -13267,7 +13276,7 @@ namespace ConditionalAccess
 
                             // grant entitlement
                             bool handleBillingPassed = HandlePPVBillingSuccess(ref response, siteguid, householdId, relevantSub, oPrice.m_dPrice, oPrice.m_oCurrency.m_sCurrencyCD3, string.Empty, userIp,
-                                                                               country, deviceName, long.Parse(response.TransactionID), customData, thePPVModule,
+                                                                               country, deviceName, long.Parse(response.TransactionID), customData, ppv,
                                                                                productId, contentId, billingGuid, entitlementDate, ref purchaseId);
 
                             if (handleBillingPassed)
