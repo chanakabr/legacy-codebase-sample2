@@ -6019,6 +6019,7 @@ namespace Catalog
             #endregion
 
             BooleanPhraseNode initialTree = null;
+            bool emptyRequest = false;
 
             // If this is a KSQL channel
             if (channel.m_nChannelTypeID == (int)ChannelType.KSQL)
@@ -6169,7 +6170,7 @@ namespace Catalog
                 {
                     // if there are no tags:
                     // filter everything out
-                    initialTree = new BooleanLeaf("media_Id", 0);
+                    emptyRequest = true;
                 }
 
                 #endregion
@@ -6178,6 +6179,12 @@ namespace Catalog
             if (initialTree != null)
             {
                 Catalog.UpdateNodeTreeFields(request, ref initialTree, definitions, group);
+            }
+            else if (emptyRequest)
+            {
+                // if there are no tags:
+                // filter everything out
+                initialTree = new BooleanLeaf("media_Id", 0);
             }
 
             #region Final Filter Tree
