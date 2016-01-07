@@ -14814,7 +14814,8 @@ namespace ConditionalAccess
         }
 
 
-        public AssetItemPriceResponse GetAssetPrices(List<AssetFiles> assetFiles, string siteGuid, string countryCd2, string languageCode3, string deviceName, string clientIP)
+        public AssetItemPriceResponse GetAssetPrices(List<AssetFiles> assetFiles, string siteGuid, 
+            string couponCode, string countryCd2, string languageCode3, string deviceName, string clientIP)
         {
             AssetItemPriceResponse response = new AssetItemPriceResponse();
 
@@ -14877,7 +14878,7 @@ namespace ConditionalAccess
                 }
             }
 
-            var itemPrices = this.GetItemsPrices(mediaFiles.ToArray(), siteGuid, true, countryCd2, languageCode3, deviceName, clientIP);
+            var itemPrices = this.GetItemsPrices(mediaFiles.ToArray(), siteGuid, couponCode, true, countryCd2, languageCode3, deviceName, clientIP);
 
             Dictionary<int, AssetItemPrices> fileToAssetItem = new Dictionary<int, AssetItemPrices>();
 
