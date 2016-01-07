@@ -224,6 +224,8 @@
     <Compile Include="Objects\Responses\DomainLastPositionResponse.cs" />
     <Compile Include="Objects\Responses\NpvrRecordAsset.cs" />
     <Compile Include="Objects\Responses\AssetInfo.cs" />
+    <Compile Include="Objects\Responses\PersonalAssetListResponse.cs" />
+    <Compile Include="Objects\Responses\PersonalAssetRequest.cs" />
     <Compile Include="Objects\Responses\Rules\GenericRule.cs" />
     <Compile Include="Objects\Responses\Rules\GenericRulesResponse.cs" />
     <Compile Include="Objects\Responses\Rules\PinResponse.cs" />

@@ -4182,5 +4182,19 @@ namespace TVPApiServices
 
             return response;
         }
+
+        [WebMethod(EnableSession = true, Description = "Enriches personal data of assets")]
+        public PersonalAssetListResponse GetEnrichedPersonalData(InitializationObject initObj)
+        {
+            PersonalAssetListResponse response = new PersonalAssetListResponse()
+            {
+                TotalItems = 0,
+                Objects = new List<PersonalAssetInfo>(),
+                Status = new TVPApiModule.Objects.Responses.Status()
+            };
+
+            return response;
+        }
+
     }
 }
