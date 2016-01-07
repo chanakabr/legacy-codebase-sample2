@@ -14889,6 +14889,13 @@ namespace ConditionalAccess
 
             var itemPrices = this.GetItemsPrices(mediaFiles.ToArray(), siteGuid, couponCode, true, countryCd2, languageCode3, deviceName, clientIP);
 
+            if (itemPrices == null)
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error,
+                    "Failed getting prices of items");
+                return response;
+            }
+
             Dictionary<int, AssetItemPrices> fileToAssetItem = new Dictionary<int, AssetItemPrices>();
 
             response.Prices = new List<AssetItemPrices>();
@@ -14920,6 +14927,8 @@ namespace ConditionalAccess
                     current.PriceContainers.Add(itemPrice);
                 }
             }
+
+            response.Status = new ApiObjects.Response.Status();
 
             return response;
         }
