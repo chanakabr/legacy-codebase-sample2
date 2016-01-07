@@ -97,6 +97,7 @@
     <Compile Include="Billing\PaymentGatewayBase.cs" />
     <Compile Include="Billing\PaymentGateway.cs" />
     <Compile Include="Billing\PaymentGatewayChargeIDResponse.cs" />
+    <Compile Include="Billing\PaymentGatewayConfigurationResponse.cs" />
     <Compile Include="Billing\PaymentGatewayItemResponse.cs" />
     <Compile Include="Billing\PaymentGatewayPending.cs" />
     <Compile Include="Billing\PaymentGatewaySettings.cs" />
