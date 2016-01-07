@@ -134,7 +134,6 @@ namespace WebAPI.Controllers
                         var fileIds = fileToPersonalAsset.Keys.Select(l => (int)l).ToList();
 
                         pricingsResponse = ClientsManager.ConditionalAccessClient().GetAssetPrices(groupId, userID, coupon_code, language, udid, assets);
-                        //ClientsManager.ConditionalAccessClient().GetItemsPrices(groupId, fileIds, userID, coupon_code, udid, language, true);
 
                     });
 
@@ -186,6 +185,10 @@ namespace WebAPI.Controllers
                         if (exInner is ClientException)
                         {
                             ErrorUtils.HandleClientException(exInner as ClientException);
+                        }
+                        else
+                        {
+                            throw exInner;
                         }
                     }
                 }
