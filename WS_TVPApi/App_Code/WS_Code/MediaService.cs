@@ -1346,7 +1346,8 @@ namespace TVPApiServices
                 try
                 {
                     //ConnectionHelper.InitServiceConfigs(groupID, initObj.Platform);
-                    eAssetTypes assetType = string.IsNullOrEmpty(NPVRID) ? eAssetTypes.MEDIA : eAssetTypes.NPVR;
+                    Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes assetType = string.IsNullOrEmpty(NPVRID) ? 
+                        Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.MEDIA : Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.NPVR;
                     sRet = ActionHelper.MediaMark(initObj, groupID, initObj.Platform, Action, iMediaID, iFileID, iLocation, NPVRID, assetType, 0, 0, 0);
                 }
                 catch (Exception ex)
@@ -1364,7 +1365,7 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Mark player status")]
         [PrivateMethod]
-        public string AssetBookmark(InitializationObject initObj, string assetID, eAssetTypes assetType, long fileID, PlayerAssetData PlayerAssetData)
+        public string AssetBookmark(InitializationObject initObj, string assetID, Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes assetType, long fileID, PlayerAssetData PlayerAssetData)
         {
             string sRet = string.Empty;
 
@@ -1387,7 +1388,7 @@ namespace TVPApiServices
                     long mediaId = 0;
                     string npvrId = "";
 
-                    if (assetType == eAssetTypes.NPVR)
+                    if (assetType == Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.NPVR)
                         npvrId = assetID;
                     else
                     {
@@ -1447,7 +1448,7 @@ namespace TVPApiServices
         public MediaMarkObject GetMediaMark(InitializationObject initObj, int iMediaID, string npvrID)
         {
             MediaMarkObject mediaMark = null;
-            eAssetTypes requestType;
+            Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes requestType;
             string assetRequestID;
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaMark", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -1459,16 +1460,16 @@ namespace TVPApiServices
                     // npvrID is empty then we get media by iMediaID
                     if (string.IsNullOrEmpty(npvrID))
                     {
-                        requestType = eAssetTypes.MEDIA;
+                        requestType = Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.MEDIA;
                         assetRequestID = iMediaID.ToString();
                         AssetsToGet = new AssetBookmarkRequest() { AssetID = assetRequestID, AssetType = requestType };
                     }
                     // npvrId is not empty then we get NPVR by npvrID
                     else
                     {
-                        requestType = eAssetTypes.NPVR;
+                        requestType = Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.NPVR;
                         assetRequestID = npvrID;
-                        AssetsToGet = new AssetBookmarkRequest() { AssetID = assetRequestID, AssetType = eAssetTypes.NPVR };
+                        AssetsToGet = new AssetBookmarkRequest() { AssetID = assetRequestID, AssetType = Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.NPVR };
                     }
                     var res = new AssetsBookmarksLoader(groupID, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, new List<AssetBookmarkRequest>() { AssetsToGet })
                     {
@@ -2590,7 +2591,7 @@ namespace TVPApiServices
                                 program = new Program()
                                 {
                                     m_oProgram = obj,
-                                    AssetType = eAssetTypes.EPG
+                                    AssetType = Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.EPG
                                 };
                                 ret.Add(program);
                             }
@@ -2604,7 +2605,7 @@ namespace TVPApiServices
                                 program = new Program()
                                 {
                                     m_oProgram = obj.m_oProgram,
-                                    AssetType = eAssetTypes.EPG,
+                                    AssetType = Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.EPG,
                                     AssetId = obj.AssetId,
                                     m_dUpdateDate = obj.m_dUpdateDate
                                 };
@@ -3435,16 +3436,16 @@ namespace TVPApiServices
                         switch (asset.AssetType.ToUpper())
                         {
                             case "EPG":
-                                assetToAdd.AssetType = eAssetTypes.EPG;
+                                assetToAdd.AssetType = Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.EPG;
                                 break;
                             case "MEDIA":
-                                assetToAdd.AssetType = eAssetTypes.MEDIA;
+                                assetToAdd.AssetType = Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.MEDIA;
                                 break;
                             case "NPVR":
-                                assetToAdd.AssetType = eAssetTypes.NPVR;
+                                assetToAdd.AssetType = Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.NPVR;
                                 break;
                             default:
-                                assetToAdd.AssetType = eAssetTypes.UNKNOWN;
+                                assetToAdd.AssetType = Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.UNKNOWN;
                                 break;
                         }
                         assetsToSend.Add(assetToAdd);
@@ -3494,7 +3495,7 @@ namespace TVPApiServices
                         };
                         return sRet;
                     }
-                    AssetBookmarkRequest mediaAssets = new AssetBookmarkRequest() { AssetID = mediaID.ToString(), AssetType = eAssetTypes.MEDIA };
+                    AssetBookmarkRequest mediaAssets = new AssetBookmarkRequest() { AssetID = mediaID.ToString(), AssetType = Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.MEDIA };
                     var res = new AssetsBookmarksLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, new List<AssetBookmarkRequest>() { mediaAssets })
                     {
                         DomainId = initObj.DomainID,
@@ -4184,7 +4185,10 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Enriches personal data of assets")]
-        public PersonalAssetListResponse GetEnrichedPersonalData(InitializationObject initObj)
+        public PersonalAssetListResponse GetEnrichedPersonalData(InitializationObject initObj,
+            string couponCode,
+            List<PersonalAssetRequest> assets,
+            List<string> with)
         {
             PersonalAssetListResponse response = new PersonalAssetListResponse()
             {
@@ -4192,6 +4196,72 @@ namespace TVPApiServices
                 Objects = new List<PersonalAssetInfo>(),
                 Status = new TVPApiModule.Objects.Responses.Status()
             };
+
+            if (with == null)
+            {
+                with = new List<string>();
+            }
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetItemPrices", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+
+            AssetItemPriceResponse pricingsResponse = null;
+            TVPApiModule.Objects.Responses.AssetsBookmarksResponse bookmarksResponse = null;
+
+            if (groupId > 0)
+            {
+                if (with.Contains("pricing"))
+                {
+                    try
+                    {
+                        List<AssetFiles> assetFiles = new List<AssetFiles>();
+
+                        pricingsResponse = new ApiConditionalAccessService(groupId, initObj.Platform).GetAssetsPrices(initObj.SiteGuid,
+                            couponCode, initObj.UDID, assetFiles);
+
+                    }
+                    catch (Exception ex)
+                    {
+                        HttpContext.Current.Items["Error"] = ex;
+                    }
+                }
+
+                if (with.Contains("bookmark"))
+                {
+                    try
+                    {
+                        // Tokenization: validate domain
+                        if (AuthorizationManager.IsTokenizationEnabled() &&
+                            !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, groupId, initObj.Platform))
+                        {
+                            return null;
+                        }
+
+                        List<AssetBookmarkRequest> assetsToSend = new List<AssetBookmarkRequest>();
+                        foreach (PersonalAssetRequest asset in assets)
+                        {
+                            AssetBookmarkRequest assetToAdd = new AssetBookmarkRequest();
+                            assetToAdd.AssetID = asset.Id.ToString();
+                            assetToAdd.AssetType = asset.Type;
+
+                            assetsToSend.Add(assetToAdd);
+                        }
+                        var res = new AssetsBookmarksLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, assetsToSend)
+                        {
+                            DomainId = initObj.DomainID,
+                            Platform = initObj.Platform.ToString()
+                        }.Execute() as Tvinci.Data.Loaders.TvinciPlatform.Catalog.AssetsBookmarksResponse;
+                        bookmarksResponse = new TVPApiModule.Objects.Responses.AssetsBookmarksResponse(res.AssetsBookmarks, res.Status.Code, res.Status.Message, res.m_nTotalItems);
+                    }
+                    catch (Exception ex)
+                    {
+                        HttpContext.Current.Items["Error"] = ex;
+                    }
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items["Error"] = "Unknown group";
+            }
 
             return response;
         }

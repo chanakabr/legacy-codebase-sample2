@@ -1630,5 +1630,24 @@ namespace TVPApiModule.Services
         }
 
 
+        public AssetItemPriceResponse GetAssetsPrices(string siteGuid, string couponCode, string udid, List<AssetFiles> assetFiles)
+        {
+            AssetItemPriceResponse response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    response = m_Module.GetAssetPrices(m_wsUserName, m_wsPassword, siteGuid, couponCode, string.Empty, string.Empty, udid,
+                        SiteHelper.GetClientIP(), assetFiles.ToArray());
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetAssetsPrices, Error Message: {0}, Parameters :  User: {1}", ex.Message, siteGuid);
+            }
+
+            return response;
+        }
     }
 }

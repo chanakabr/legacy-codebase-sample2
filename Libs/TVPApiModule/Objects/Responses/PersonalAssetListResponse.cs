@@ -67,7 +67,7 @@ namespace TVPApiModule.Objects.Responses
         [DataMember(Name = "type")]
         [JsonProperty(PropertyName = "type")]
         [XmlElement(ElementName = "type")]
-        public eAssetTypes Type
+        public TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.eAssetTypes Type
         {
             get;
             set;
