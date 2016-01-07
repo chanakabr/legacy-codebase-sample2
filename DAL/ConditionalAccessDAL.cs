@@ -901,7 +901,7 @@ namespace DAL
             return Get_GroupFailCount(lGroupID, string.Empty);
         }
 
-        public static void Update_MPPRenewalData(long lPurchaseID, bool bIsRecurringStatus, DateTime dtNewEndDate, long lNumOfUses, string sConnKey)
+        public static void Update_MPPRenewalData(long lPurchaseID, bool bIsRecurringStatus, DateTime dtNewEndDate, long lNumOfUses, string sConnKey, string siteGuid = null)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_MPPRenewalData");
             sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
@@ -910,6 +910,19 @@ namespace DAL
             sp.AddParameter("@EndDate", dtNewEndDate);
             sp.AddParameter("@NumOfUses", lNumOfUses);
             sp.AddParameter("@UpdateDate", DateTime.UtcNow);
+            sp.AddParameter("@SiteGuid", siteGuid);
+
+            sp.ExecuteNonQuery();
+        }
+
+        public static void Update_SubscriptionPurchaseRenewalSiteGuid(int nGroupID, string billingGuid, int nPurchaseID, string siteGuid, string sConnKey)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_SubscriptionPurchaseRenewalSiteGuid");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@BillingGuid", billingGuid);
+            sp.AddParameter("@PurchaseID", nPurchaseID);
+            sp.AddParameter("@SiteGuid", siteGuid);
 
             sp.ExecuteNonQuery();
         }
