@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:import schemaLocation="http://192.168.192.146/webservices/catalog/Service.svc?xsd=xsd14" namespace="http://schemas.datacontract.org/2004/07/Catalog.Request" />
-  <xs:import schemaLocation="http://192.168.192.146/webservices/catalog/Service.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/Catalog.Response" />
-  <xs:import schemaLocation="http://192.168.192.146/webservices/catalog/Service.svc?xsd=xsd6" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
-  <xs:import schemaLocation="http://192.168.192.146/webservices/catalog/Service.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/ApiObjects" />
-  <xs:element name="InjestAdiData">
+  <xs:import schemaLocation="http://localhost:82/WS_Catalog/Service.svc?xsd=xsd15" namespace="http://schemas.datacontract.org/2004/07/Catalog.Request" />
+  <xs:import schemaLocation="http://localhost:82/WS_Catalog/Service.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/Catalog.Response" />
+  <xs:import schemaLocation="http://localhost:82/WS_Catalog/Service.svc?xsd=xsd5" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+  <xs:import schemaLocation="http://localhost:82/WS_Catalog/Service.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/ApiObjects" />
+  <xs:element name="IngestAdiData">
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" name="request" nillable="true" type="Feeder" />
@@ -19,10 +19,10 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="Feeder" nillable="true" type="Feeder" />
-  <xs:element name="InjestAdiDataResponse">
+  <xs:element name="IngestAdiDataResponse">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" name="InjestAdiDataResult" nillable="true" type="Response" />
+        <xs:element minOccurs="0" name="IngestAdiDataResult" nillable="true" type="Response" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -35,17 +35,39 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="Response" nillable="true" type="Response" />
-  <xs:element name="InjestTvinciData">
+  <xs:element name="IngestTvinciData">
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" name="request" nillable="true" type="Feeder" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="InjestTvinciDataResponse">
+  <xs:element name="IngestTvinciDataResponse">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" name="InjestTvinciDataResult" nillable="true" type="Response" />
+        <xs:element minOccurs="0" name="IngestTvinciDataResult" nillable="true" type="Response" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:complexType name="EpgIngestReponse">
+    <xs:complexContent mixed="false">
+      <xs:extension base="Response">
+        <xs:sequence />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="EpgIngestReponse" nillable="true" type="EpgIngestReponse" />
+  <xs:element name="IngestKalturaEpg">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="request" nillable="true" type="Feeder" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="IngestKalturaEpgResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="IngestKalturaEpgResult" nillable="true" type="Response" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -95,9 +117,9 @@
   <xs:element name="UpdateIndex">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q5="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="lMediaIds" nillable="true" type="q5:ArrayOfint" />
-        <xs:element minOccurs="0" name="nGroupId" type="xs:int" />
-        <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="eAction" type="q6:eAction" />
+        <xs:element xmlns:q5="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="objectIDs" nillable="true" type="q5:ArrayOfint" />
+        <xs:element minOccurs="0" name="groupId" type="xs:int" />
+        <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="action" type="q6:eAction" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -169,6 +191,54 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" name="UpdateEpgIndexResult" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RebuildIndex">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="groupId" type="xs:int" />
+        <xs:element xmlns:q14="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="type" type="q14:eObjectType" />
+        <xs:element minOccurs="0" name="switchIndexAlias" type="xs:boolean" />
+        <xs:element minOccurs="0" name="deleteOldIndices" type="xs:boolean" />
+        <xs:element minOccurs="0" name="startDate" nillable="true" type="xs:dateTime" />
+        <xs:element minOccurs="0" name="endDate" nillable="true" type="xs:dateTime" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RebuildIndexResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="RebuildIndexResult" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RebuildGroup">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="nGroupId" type="xs:int" />
+        <xs:element minOccurs="0" name="rebuild" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RebuildGroupResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="RebuildGroupResult" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetGroup">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="nGroupId" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetGroupResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="GetGroupResult" nillable="true" type="xs:string" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

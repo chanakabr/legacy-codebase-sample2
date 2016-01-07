@@ -92,6 +92,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseCampaignActionImpl.cs" />
+    <Compile Include="PersonalEnrichments\AssetItemPriceResponse.cs" />
+    <Compile Include="PersonalEnrichments\AssetItemPrices.cs" />
     <Compile Include="UserEntitlementsObject.cs" />
     <Compile Include="Implementations\BaseConditionalAccess.cs" />
     <Compile Include="Commands\BaseNPVRCommand.cs" />
@@ -225,53 +227,56 @@
     <None Include="Service References\WS_Catalog\ConditionalAccess.WS_Catalog.Response.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\WS_Catalog\Service.wsdl" />
-    <None Include="Service References\WS_Catalog\Service.xsd">
+    <None Include="Service References\WS_Catalog\Service15.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service1.wsdl" />
-    <None Include="Service References\WS_Catalog\Service1.xsd">
+    <None Include="Service References\WS_Catalog\Service151.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service10.xsd">
+    <None Include="Service References\WS_Catalog\Service1510.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service11.xsd">
+    <None Include="Service References\WS_Catalog\Service1511.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service12.xsd">
+    <None Include="Service References\WS_Catalog\Service1512.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service13.xsd">
+    <None Include="Service References\WS_Catalog\Service1513.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service14.xsd">
+    <None Include="Service References\WS_Catalog\Service1514.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service2.xsd">
+    <None Include="Service References\WS_Catalog\Service1515.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service3.xsd">
+    <None Include="Service References\WS_Catalog\Service152.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service4.xsd">
+    <None Include="Service References\WS_Catalog\Service153.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service5.xsd">
+    <None Include="Service References\WS_Catalog\Service154.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service6.xsd">
+    <None Include="Service References\WS_Catalog\Service155.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service7.xsd">
+    <None Include="Service References\WS_Catalog\Service156.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service8.xsd">
+    <None Include="Service References\WS_Catalog\Service157.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service9.xsd">
+    <None Include="Service References\WS_Catalog\Service158.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\WS_Catalog\Service159.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WS_Catalog\Service2.wsdl" />
+    <None Include="Service References\WS_Catalog\Service21.wsdl" />
     <None Include="Web References\NotificationService\ArrayOfKeyValueOfstringArrayOfstringty7Ep6D1KeyValueOfstringArrayOfstringty7Ep6D1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -777,9 +782,6 @@
     <WCFMetadataStorage Include="Service References\WS_Catalog\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\WS_Catalog\Service.disco" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Service References\WS_Catalog\configuration91.svcinfo" />
   </ItemGroup>
   <ItemGroup>
@@ -790,6 +792,9 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\WS_Catalog\Service1.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

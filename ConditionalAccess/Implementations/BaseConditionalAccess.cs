@@ -14813,5 +14813,105 @@ namespace ConditionalAccess
             return ConditionalAccessDAL.Update_SubscriptionPurchaseRenewalActiveStatus(m_nGroupID, purchaseId, billingGuid, Convert.ToInt16(isActive));
         }
 
+
+        public AssetItemPriceResponse GetAssetPrices(List<AssetFiles> assetFiles, string siteGuid, string countryCd2, string languageCode3, string deviceName, string clientIP)
+        {
+            AssetItemPriceResponse response = new AssetItemPriceResponse();
+
+            if (assetFiles == null)
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Missing parameter - asset files list");
+                return response;
+            }
+
+            List<int> mediaFiles = new List<int>();
+            Dictionary<int, int> fileToAsset = new Dictionary<int, int>();
+
+            foreach (var asset in assetFiles)
+            {
+                foreach (var file in asset.FileIds)
+                {
+                    fileToAsset.Add(file, Convert.ToInt32(asset.AssetId));
+                }
+
+                mediaFiles.AddRange(asset.FileIds);
+            }
+
+            // Validate that all file IDs match the given asset IDs
+            TvinciAPI.MeidaMaper[] mapper = Utils.GetMediaMapper(m_nGroupID, mediaFiles.ToArray());
+            HashSet<int> mappedFileIds = new HashSet<int>();
+
+            // Checked that all mappings match
+            foreach (var mapping in mapper)
+            {
+                int fileId = mapping.m_nMediaFileID;
+                int assetId = 0;
+
+                if (fileToAsset.TryGetValue(fileId, out assetId))
+                {
+                    mappedFileIds.Add(fileId);
+
+                    if (mapping.m_nMediaID != assetId)
+                    {
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.FileToMediaMismatch,
+                            string.Format("File Id does not match media id: file = {0}, media = {1}", fileId, assetId));
+                        return response;
+                    }
+                }
+                else
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.FileToMediaMismatch,
+                        string.Format("Could not find asset of file {0}", fileId));
+                    return response;
+                }
+            }
+
+            // Check that all IDs had a match and nobody was left out
+            foreach (var fileId in mediaFiles)
+            {
+                if (!mappedFileIds.Contains(fileId))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.FileToMediaMismatch,
+                        string.Format("Could not find mapping for file {0}", fileId));
+                    return response;
+                }
+            }
+
+            var itemPrices = this.GetItemsPrices(mediaFiles.ToArray(), siteGuid, true, countryCd2, languageCode3, deviceName, clientIP);
+
+            Dictionary<int, AssetItemPrices> fileToAssetItem = new Dictionary<int, AssetItemPrices>();
+
+            response.Prices = new List<AssetItemPrices>();
+
+            // Map file Ids to asset item price object
+            foreach (var item in assetFiles)
+            {
+                var assetItem = new AssetItemPrices()
+                {
+                    AssetId = item.AssetId,
+                    AssetType = item.AssetType,
+                    PriceContainers = new List<MediaFileItemPricesContainer>()
+                };
+
+                foreach (var fileId in item.FileIds)
+                {
+                    fileToAssetItem.Add(fileId, assetItem);
+                }
+
+                response.Prices.Add(assetItem);
+            }
+
+            // Add price containers to asset item price objects that we created a step earlier
+            foreach (var itemPrice in itemPrices)
+            {
+                AssetItemPrices current;
+                if (fileToAssetItem.TryGetValue(itemPrice.m_nMediaFileID, out current))
+                {
+                    current.PriceContainers.Add(itemPrice);
+                }
+            }
+
+            return response;
+        }
     }
 }
