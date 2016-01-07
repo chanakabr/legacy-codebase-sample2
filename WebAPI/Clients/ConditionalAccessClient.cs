@@ -15,6 +15,7 @@ using WebAPI.Models.Pricing;
 using WebAPI.Utils;
 using WebAPI.ConditionalAccess;
 using WebAPI.ObjectsConvertor.Mapping;
+using WebAPI.Models.Catalog;
 
 namespace WebAPI.Clients
 {
@@ -164,7 +165,7 @@ namespace WebAPI.Clients
             }
 
             transactions = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaBillingTransactionListResponse>(response.transactions);
-            
+
             return transactions;
         }
 
@@ -263,7 +264,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = ConditionalAccess.GetSubscriptionsPricesWithCoupon(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password,
-                        subscriptionsIds.Select(x=> x.ToString()).ToArray(), userId, couponCode, string.Empty, languageCode, udid, Utils.Utils.GetClientIP());
+                        subscriptionsIds.Select(x => x.ToString()).ToArray(), userId, couponCode, string.Empty, languageCode, udid, Utils.Utils.GetClientIP());
                 }
             }
             catch (Exception ex)
@@ -575,7 +576,7 @@ namespace WebAPI.Clients
             return entitlements;
         }
 
-        internal bool  GrantEntitlements(int groupId, string user_id, long household_id, int content_id, int product_id, KalturaTransactionType product_type, bool history, string deviceName)
+        internal bool GrantEntitlements(int groupId, string user_id, long household_id, int content_id, int product_id, KalturaTransactionType product_type, bool history, string deviceName)
         {
             WebAPI.ConditionalAccess.Status response = null;
 
@@ -613,7 +614,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaBillingTransactionListResponse GetDomainBillingHistory(int groupId, int domainId, DateTime startDate, DateTime endDate, 
+        internal KalturaBillingTransactionListResponse GetDomainBillingHistory(int groupId, int domainId, DateTime startDate, DateTime endDate,
             int pageIndex, int pageSize)
         {
             KalturaBillingTransactionListResponse clientResponse = new KalturaBillingTransactionListResponse();
@@ -689,25 +690,62 @@ namespace WebAPI.Clients
                 {
                     pageTransactions = allTransactions.Skip(pageIndex * pageSize).Take(pageSize).ToList();
                 }
-                
+
                 clientResponse.transactions = pageTransactions;
             }
 
             return clientResponse;
         }
 
+        internal List<KalturaAssetPrice> GetAssetPrices(int groupId,
+            string userId, string couponCode, string languageCode, string udid, List<KalturaPersonalAssetRequest> assets)
+        {
+            List<KalturaAssetPrice> assetPrices = new List<KalturaAssetPrice>();
+            WebAPI.ConditionalAccess.AssetItemPriceResponse response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                List<AssetFiles> assetFiles = AutoMapper.Mapper.Map<List<AssetFiles>>(assets);
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = ConditionalAccess.GetAssetPrices(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password,
+                        userId, couponCode, string.Empty, languageCode, udid, Utils.Utils.GetClientIP(), assetFiles.ToArray());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling web service. ws address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            assetPrices = AutoMapper.Mapper.Map<List<WebAPI.Models.Pricing.KalturaAssetPrice>>(response.Prices);
+
+            return assetPrices;
+        }
+
         internal bool ReconcileEntitlements(int groupId, string userId)
         {
             WebAPI.ConditionalAccess.Status response = null;
 
-            // get group ID
             Group group = GroupsManager.GetGroup(groupId);
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    // fire request
                     response = ConditionalAccess.ReconcileEntitlements(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId);
                 }
             }

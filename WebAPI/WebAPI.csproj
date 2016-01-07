@@ -607,6 +607,9 @@
     <Content Include="Web References\Billing\PaymentGatewayItemResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\Billing\PaymentGatewayConfigurationResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\Billing\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
@@ -618,6 +621,9 @@
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\Billing\UpdatePendingResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\ConditionalAccess\AssetItemPriceResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <None Include="Web References\ConditionalAccess\module.disco" />
@@ -943,6 +949,7 @@
     <Compile Include="Models\API\KSQLChannel\KalturaKSQLChannelProfile.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGateway.cs" />
     <Compile Include="Models\Billing\KalturaHouseholdPaymentGatewaySelectedBy.cs" />
+    <Compile Include="Models\Billing\KalturaPaymentGatewayConfiguration.cs" />
     <Compile Include="Models\Catalog\KalturaAssetBookmark.cs" />
     <Compile Include="Models\Catalog\KalturaAssetsBookmarksFilter.cs" />
     <Compile Include="Models\Catalog\KalturaEPGChannelAssetsListResponse.cs" />
@@ -1007,6 +1014,7 @@
     <Compile Include="Models\Partner\KalturaPartnerConfiguration.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Models\Pricing\KalturaAssetPrice.cs" />
     <Compile Include="Models\Pricing\KalturaCoupon.cs" />
     <Compile Include="Models\Pricing\KalturaCouponStatus.cs" />
     <Compile Include="Models\Pricing\KalturaItemPriceListResponse.cs" />
@@ -1257,10 +1265,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>WebAPI_Billing_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://192.168.192.146/webservices/cas/module.asmx">
+    <WebReferenceUrl Include="http://localhost:82/ws_cas/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\ConditionalAccess\</RelPath>
-      <UpdateFromURL>http://192.168.192.146/webservices/cas/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost:82/ws_cas/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

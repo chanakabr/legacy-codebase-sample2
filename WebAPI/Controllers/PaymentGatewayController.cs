@@ -78,6 +78,37 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
+        /// Gets the Payment Gateway Configuration for the payment gateway identifier given
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes:       
+        /// PaymentGatewayNotExist = 6008, SignatureMismatch = 6013
+        /// </remarks>
+        [Route("getConfiguration"), HttpPost]
+        [ApiAuthorize]
+        public Models.Billing.KalturaPaymentGatewayConfiguration GetConfiguration(string paymanetGatewayExternalId, string intent)
+        {
+            Models.Billing.KalturaPaymentGatewayConfiguration response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            // get domain id      
+            var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+            try
+            {
+                // call client
+                response = ClientsManager.BillingClient().GetPaymentGatewayConfiguration(groupId, paymanetGatewayExternalId, intent);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
         /// Set a Payment Gateway provider for the household. It also clear the Charge ID.
         /// </summary>
         /// <remarks>
