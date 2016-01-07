@@ -1959,5 +1959,16 @@ namespace DAL
 
             return sp.ExecuteReturnValue<DateTime?>();
         }
+
+        public static int Set_DomainLastReconciliationDate(int groupID, long domainId, DateTime reconciliationDate)
+        {
+            StoredProcedure sp = new StoredProcedure("Set_DomainLastReconciliationDate");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@reconciliation_date", reconciliationDate);
+            sp.AddParameter("@domain_id", domainId);
+            sp.AddParameter("@group_id", groupID);
+
+            return sp.ExecuteReturnValue<int>();
+        }
     }
 }

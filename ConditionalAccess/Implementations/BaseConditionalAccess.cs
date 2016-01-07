@@ -14853,7 +14853,7 @@ namespace ConditionalAccess
             // get household last reconciliation date
             DateTime? householdLastReconciliationDate = null;
             var householdLastReconciliation = ODBCWrapper.Utils.GetTableSingleVal("domains", "LAST_RECONCILIATION_DATE", "ID", "=", householdId, "USERS_CONNECTION_STRING");
-            if (householdLastReconciliation != null)
+            if (!(householdLastReconciliation is DBNull))
             {
                 householdLastReconciliationDate = Convert.ToDateTime(householdLastReconciliation);
             }
@@ -14917,6 +14917,8 @@ namespace ConditionalAccess
                 // handle ppv entitlements
                 ReconcilePPVs(userId, householdId, entitlementsResponse.Entitlements);
             }
+
+            DomainDal.Set_DomainLastReconciliationDate(m_nGroupID, householdId, DateTime.UtcNow);
 
             response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 

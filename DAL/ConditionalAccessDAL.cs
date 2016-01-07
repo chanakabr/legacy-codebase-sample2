@@ -2060,13 +2060,13 @@ namespace DAL
 
         public static DataTable Get_AllSubscriptionsPurchasesByUsersIDsOrDomainID(int domainID, List<int> lstUsers, int nGroupID)
         {
-            StoredProcedure spGet_AllBundlesInfoByUserIDsOrDomainID = new StoredProcedure("Get_AllSubscriptionsPurchasesByUsersIDsOrDomainID");
-            spGet_AllBundlesInfoByUserIDsOrDomainID.SetConnectionKey("CONNECTION_STRING");
-            spGet_AllBundlesInfoByUserIDsOrDomainID.AddIDListParameter("@Users", lstUsers, "ID");
-            spGet_AllBundlesInfoByUserIDsOrDomainID.AddParameter("@DomainID", domainID);
-            spGet_AllBundlesInfoByUserIDsOrDomainID.AddParameter("@Group_id", nGroupID);
+            StoredProcedure sp= new StoredProcedure("Get_AllSubscriptionsPurchasesByUsersIDsOrDomainID");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddIDListParameter("@usersList", lstUsers, "ID");
+            sp.AddParameter("@DomainID", domainID);
+            sp.AddParameter("@Group_id", nGroupID);
 
-            return spGet_AllBundlesInfoByUserIDsOrDomainID.Execute();
+            return sp.Execute();
         }
     }
 }
