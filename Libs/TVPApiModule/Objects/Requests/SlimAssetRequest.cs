@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TVPPro.SiteManager.Context;
 
 namespace TVPApiModule.Objects.Requests
 {
@@ -16,15 +17,19 @@ namespace TVPApiModule.Objects.Requests
         public string AssetID { get; set; }
 
         [JsonProperty(PropertyName = "AssetType")]
-        public AssetTypes AssetType { get; set; }
+        public string AssetType { get; set; }
 
     }
 
     public enum AssetTypes
     {
+        [EnumAsStringValue("EPG")]
         EPG,
-        Media,
+        [EnumAsStringValue("MEDIA")]
+        MEDIA,
+        [EnumAsStringValue("NPVR")]
         NPVR,
+        [EnumAsStringValue("UNKNOWN")]
         UNKNOWN
     }
 }

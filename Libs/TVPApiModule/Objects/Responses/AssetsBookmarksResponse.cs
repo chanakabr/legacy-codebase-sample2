@@ -67,7 +67,7 @@ namespace TVPApiModule.Objects.Responses
                         AssetType = AssetTypes.NPVR;
                         break;
                     case eAssetTypes.MEDIA:
-                        AssetType = AssetTypes.Media;
+                        AssetType = AssetTypes.MEDIA;
                         break;
                     default:
                         AssetType = AssetTypes.UNKNOWN;
@@ -77,6 +77,7 @@ namespace TVPApiModule.Objects.Responses
                 foreach (Bookmark bookmark in assetBookmarks.Bookmarks)
                 {
                     AssetBookmarkResponse assetBookmarkResponse = new AssetBookmarkResponse(bookmark);
+                    Bookmarks.Add(assetBookmarkResponse);
                 }
             }
         }
@@ -96,11 +97,15 @@ namespace TVPApiModule.Objects.Responses
         [JsonProperty(PropertyName = "PositionOwner")]
         public AssetPositionOwner PositionOwner { get; set; }
 
+        [JsonProperty(PropertyName = "IsFinishedWatching")]
+        public bool IsFinishedWatching { get; set; }
+
         public AssetBookmarkResponse(Bookmark bookmark)
         {
             if (bookmark != null)
             {
                 Position = bookmark.Location;
+                IsFinishedWatching = bookmark.IsFinishedWatching;
                 switch (bookmark.UserType)
                 {
                     case eUserType.HOUSEHOLD:
