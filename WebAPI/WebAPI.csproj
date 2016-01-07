@@ -607,6 +607,9 @@
     <Content Include="Web References\Billing\PaymentGatewayItemResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\Billing\PaymentGatewayConfigurationResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\Billing\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
@@ -946,6 +949,7 @@
     <Compile Include="Models\API\KSQLChannel\KalturaKSQLChannelProfile.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGateway.cs" />
     <Compile Include="Models\Billing\KalturaHouseholdPaymentGatewaySelectedBy.cs" />
+    <Compile Include="Models\Billing\KalturaPaymentGatewayConfiguration.cs" />
     <Compile Include="Models\Catalog\KalturaAssetBookmark.cs" />
     <Compile Include="Models\Catalog\KalturaAssetsBookmarksFilter.cs" />
     <Compile Include="Models\Catalog\KalturaEPGChannelAssetsListResponse.cs" />
