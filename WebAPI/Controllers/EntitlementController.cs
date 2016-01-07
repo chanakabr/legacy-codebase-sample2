@@ -271,9 +271,9 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Reconcile the user household's entitlements with an external entitlements source. This request is frequency protected to avoid too frequent calls per household. 
         /// </summary>
-        [Route("enternalReconcile"), HttpPost]
+        [Route("externalReconcile"), HttpPost]
         [ApiAuthorize]
-        public bool EnternalReconcile()
+        public bool ExternalReconcile()
         {
             bool response = false;
 
