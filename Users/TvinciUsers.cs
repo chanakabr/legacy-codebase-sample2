@@ -550,7 +550,7 @@ namespace Users
                 else
                 {
                     resp.m_RespStatus = ResponseStatus.UserCreatedWithNoRole;
-                    log.Error("User created with no role");
+                    log.ErrorFormat("User created with no role. userId = {0}", userID);
                 }
             }
 

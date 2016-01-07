@@ -93,6 +93,7 @@ namespace ApiObjects.Response
         NotForPurchase = 3025,  
         Fail = 3026,
         UnableToPurchaseCollectionPurchased = 3027,
+        FileToMediaMismatch = 3028,
 
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,

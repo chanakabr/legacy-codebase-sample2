@@ -239,7 +239,7 @@ namespace Users
                 userResponse.Initialize(ResponseStatus.OK, newUser);
 
             // add role to user
-            if (userResponse.m_RespStatus == ResponseStatus.OK)
+            if (userResponse.m_RespStatus == ResponseStatus.OK || userResponse.m_RespStatus == ResponseStatus.UserWithNoDomain)
             {
                 long roleId;
 
@@ -259,7 +259,7 @@ namespace Users
                 else
                 {
                     userResponse.m_RespStatus = ResponseStatus.UserCreatedWithNoRole;
-                    log.Error("User created with no role");
+                    log.ErrorFormat("User created with no role. userId = {0}", nUserID);
                 }
             }
             // create default rules
