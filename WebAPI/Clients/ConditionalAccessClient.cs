@@ -15,6 +15,7 @@ using WebAPI.Models.Pricing;
 using WebAPI.Utils;
 using WebAPI.ConditionalAccess;
 using WebAPI.ObjectsConvertor.Mapping;
+using WebAPI.Models.Catalog;
 
 namespace WebAPI.Clients
 {
@@ -694,6 +695,45 @@ namespace WebAPI.Clients
             }
 
             return clientResponse;
+        }
+
+        internal List<KalturaAssetPrice> GetAssetPrices(int groupId,
+            string userId, string couponCode, string languageCode, string udid, List<KalturaPersonalAssetRequest> assets)
+        {
+            List<KalturaAssetPrice> assetPrices = new List<KalturaAssetPrice>();
+            WebAPI.ConditionalAccess.AssetItemPriceResponse response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                List<AssetFiles> assetFiles = AutoMapper.Mapper.Map<List<AssetFiles>>(assets);
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = ConditionalAccess.GetAssetPrices(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password,
+                        userId, couponCode, string.Empty, languageCode, udid, Utils.Utils.GetClientIP(), assetFiles.ToArray());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling web service. ws address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            assetPrices = AutoMapper.Mapper.Map<List<WebAPI.Models.Pricing.KalturaAssetPrice>>(response.Prices);
+
+            return assetPrices;
         }
     }
 }

@@ -8,6 +8,7 @@ using WebAPI.Models.General;
 using WebAPI.Utils;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Models.Catalog;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -132,6 +133,34 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //    .ForMember(dest => dest.SiteGuid, opt => opt.MapFrom(src => src.m_sSiteGUID))
             //    .ForMember(dest => dest.BillingTransactions, opt => opt.MapFrom(src => src.m_BillingTransactionResponse));
             //#endregion
+
+            #region Asset Item Prices
+            Mapper.CreateMap<WebAPI.ConditionalAccess.AssetItemPrices, Models.Pricing.KalturaAssetPrice>()
+              .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
+              .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => src.AssetType))
+              .ForMember(dest => dest.FilePrices, opt => opt.MapFrom(src => src.PriceContainers))
+              ;
+            #endregion
+
+            #region Asset Files
+            Mapper.CreateMap<KalturaPersonalAssetRequest, WebAPI.ConditionalAccess.AssetFiles>()
+              .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => src.Type))
+              .ForMember(dest => dest.FileIds, opt => opt.MapFrom(src => 
+                  //{
+                      //if (src.FileIds != null)
+                      //{
+                      //    return null;
+                      //}
+                      //else
+                      //{
+                          src.FileIds
+                          //.Select(i => (long)i).ToList();
+                      //}
+                  //}
+                ))
+              ;
+            #endregion
 
         }
 

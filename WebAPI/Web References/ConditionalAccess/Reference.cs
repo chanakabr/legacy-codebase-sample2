@@ -36,6 +36,8 @@ namespace WebAPI.ConditionalAccess {
         
         private System.Threading.SendOrPostCallback RenewOperationCompleted;
         
+        private System.Threading.SendOrPostCallback GetAssetPricesOperationCompleted;
+        
         private System.Threading.SendOrPostCallback GetUserPermittedItemsOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetDomainPermittedItemsOperationCompleted;
@@ -254,6 +256,9 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         public event RenewCompletedEventHandler RenewCompleted;
+        
+        /// <remarks/>
+        public event GetAssetPricesCompletedEventHandler GetAssetPricesCompleted;
         
         /// <remarks/>
         public event GetUserPermittedItemsCompletedEventHandler GetUserPermittedItemsCompleted;
@@ -619,6 +624,51 @@ namespace WebAPI.ConditionalAccess {
             if ((this.RenewCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.RenewCompleted(this, new RenewCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetAssetPrices", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public AssetItemPriceResponse GetAssetPrices(string username, string password, string siteGuid, string couponCode, string countryCd2, string languageCode3, string deviceName, string clientIP, AssetFiles[] assetFiles) {
+            object[] results = this.Invoke("GetAssetPrices", new object[] {
+                        username,
+                        password,
+                        siteGuid,
+                        couponCode,
+                        countryCd2,
+                        languageCode3,
+                        deviceName,
+                        clientIP,
+                        assetFiles});
+            return ((AssetItemPriceResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetAssetPricesAsync(string username, string password, string siteGuid, string couponCode, string countryCd2, string languageCode3, string deviceName, string clientIP, AssetFiles[] assetFiles) {
+            this.GetAssetPricesAsync(username, password, siteGuid, couponCode, countryCd2, languageCode3, deviceName, clientIP, assetFiles, null);
+        }
+        
+        /// <remarks/>
+        public void GetAssetPricesAsync(string username, string password, string siteGuid, string couponCode, string countryCd2, string languageCode3, string deviceName, string clientIP, AssetFiles[] assetFiles, object userState) {
+            if ((this.GetAssetPricesOperationCompleted == null)) {
+                this.GetAssetPricesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetAssetPricesOperationCompleted);
+            }
+            this.InvokeAsync("GetAssetPrices", new object[] {
+                        username,
+                        password,
+                        siteGuid,
+                        couponCode,
+                        countryCd2,
+                        languageCode3,
+                        deviceName,
+                        clientIP,
+                        assetFiles}, this.GetAssetPricesOperationCompleted, userState);
+        }
+        
+        private void OnGetAssetPricesOperationCompleted(object arg) {
+            if ((this.GetAssetPricesCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetAssetPricesCompleted(this, new GetAssetPricesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -4862,9 +4912,9 @@ namespace WebAPI.ConditionalAccess {
     
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(LicensedLinkNPVRCommand))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RetrieveQuotaNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(DeleteNPVRCommand))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelSeriesNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordSeriesByProgramIdNPVRCommand))]
@@ -5074,6 +5124,15 @@ namespace WebAPI.ConditionalAccess {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class CancelNPVRCommand : BaseNPVRCommand {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class RetrieveQuotaNPVRCommand : BaseNPVRCommand {
     }
     
@@ -5084,15 +5143,6 @@ namespace WebAPI.ConditionalAccess {
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class DeleteNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class CancelNPVRCommand : BaseNPVRCommand {
     }
     
     /// <remarks/>
@@ -8939,6 +8989,148 @@ namespace WebAPI.ConditionalAccess {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class AssetItemPrices {
+        
+        private string assetIdField;
+        
+        private eAssetTypes assetTypeField;
+        
+        private MediaFileItemPricesContainer[] priceContainersField;
+        
+        /// <remarks/>
+        public string AssetId {
+            get {
+                return this.assetIdField;
+            }
+            set {
+                this.assetIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public eAssetTypes AssetType {
+            get {
+                return this.assetTypeField;
+            }
+            set {
+                this.assetTypeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public MediaFileItemPricesContainer[] PriceContainers {
+            get {
+                return this.priceContainersField;
+            }
+            set {
+                this.priceContainersField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public enum eAssetTypes {
+        
+        /// <remarks/>
+        UNKNOWN,
+        
+        /// <remarks/>
+        EPG,
+        
+        /// <remarks/>
+        NPVR,
+        
+        /// <remarks/>
+        MEDIA,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class AssetItemPriceResponse {
+        
+        private Status statusField;
+        
+        private AssetItemPrices[] pricesField;
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public AssetItemPrices[] Prices {
+            get {
+                return this.pricesField;
+            }
+            set {
+                this.pricesField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class AssetFiles {
+        
+        private string assetIdField;
+        
+        private eAssetTypes assetTypeField;
+        
+        private int[] fileIdsField;
+        
+        /// <remarks/>
+        public string AssetId {
+            get {
+                return this.assetIdField;
+            }
+            set {
+                this.assetIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public eAssetTypes AssetType {
+            get {
+                return this.assetTypeField;
+            }
+            set {
+                this.assetTypeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int[] FileIds {
+            get {
+                return this.fileIdsField;
+            }
+            set {
+                this.fileIdsField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class Entitlement {
         
         private int mediaFileIDField;
@@ -9303,6 +9495,32 @@ namespace WebAPI.ConditionalAccess {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((bool)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetAssetPricesCompletedEventHandler(object sender, GetAssetPricesCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetAssetPricesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetAssetPricesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public AssetItemPriceResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((AssetItemPriceResponse)(this.results[0]));
             }
         }
     }

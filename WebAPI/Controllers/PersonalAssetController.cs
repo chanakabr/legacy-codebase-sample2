@@ -33,7 +33,7 @@ namespace WebAPI.Controllers
         [Route("list"), HttpPost]
         [ApiAuthorize]
         public KalturaPersonalAssetListResponse List(List<KalturaPersonalAssetRequest> assets, List<KalturaPersonalAssetWithHolder> with,
-            string coupon_code = null, string language = null)
+            string coupon_code = "", string language = "")
         {
             KalturaPersonalAssetListResponse response = null;
 
@@ -49,9 +49,9 @@ namespace WebAPI.Controllers
             {
                 // get user id and domain from KS
                 string userID = KS.GetFromRequest().UserId;
-                int domainId =(int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+                int domainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
 
-                Dictionary<string, KalturaPersonalAsset> assetIdToPersonalAsset = new Dictionary<string,KalturaPersonalAsset>();
+                Dictionary<string, KalturaPersonalAsset> assetIdToPersonalAsset = new Dictionary<string, KalturaPersonalAsset>();
                 Dictionary<long, KalturaPersonalAsset> fileToPersonalAsset = new Dictionary<long, KalturaPersonalAsset>();
 
                 // Create response list to be identical as request
@@ -84,7 +84,7 @@ namespace WebAPI.Controllers
                 }
 
                 KalturaAssetsBookmarksResponse bookmarksResponse = null;
-                List<KalturaItemPrice> pricingsResponse = null;
+                List<KalturaAssetPrice> pricingsResponse = null;
 
                 // Perform the two calls asynchronously and then merge their two results
 
@@ -133,7 +133,8 @@ namespace WebAPI.Controllers
 
                         var fileIds = fileToPersonalAsset.Keys.Select(l => (int)l).ToList();
 
-                        pricingsResponse = ClientsManager.ConditionalAccessClient().GetItemsPrices(groupId, fileIds, userID, coupon_code, udid, language, true);
+                        pricingsResponse = ClientsManager.ConditionalAccessClient().GetAssetPrices(groupId, userID, coupon_code, language, udid, assets);
+                        //ClientsManager.ConditionalAccessClient().GetItemsPrices(groupId, fileIds, userID, coupon_code, udid, language, true);
 
                     });
 
@@ -165,11 +166,26 @@ namespace WebAPI.Controllers
                 {
                     foreach (var pricing in pricingsResponse)
                     {
+                        string key = string.Format("{0}.{1}", pricing.AssetType.ToString(), pricing.AssetId);
+
                         KalturaPersonalAsset personalAsset;
 
-                        if (fileToPersonalAsset.TryGetValue(pricing.FileId, out personalAsset))
+                        if (assetIdToPersonalAsset.TryGetValue(key, out personalAsset))
                         {
-                            personalAsset.Files.Add(pricing);
+                            personalAsset.Files = pricing.FilePrices;
+                        }
+                    }
+                }
+            }
+            catch (AggregateException ex)
+            {
+                if (ex.InnerExceptions != null)
+                {
+                    foreach (var exInner in ex.InnerExceptions)
+                    {
+                        if (exInner is ClientException)
+                        {
+                            ErrorUtils.HandleClientException(exInner as ClientException);
                         }
                     }
                 }
