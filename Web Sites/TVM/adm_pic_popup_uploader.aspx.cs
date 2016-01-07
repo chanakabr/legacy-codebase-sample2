@@ -8,6 +8,15 @@ using TVinciShared;
 
 public partial class adm_pic_popup_uploader : System.Web.UI.Page
 {
+    private enum PopUpContext
+    {
+        None,
+        Vod,
+        EpgProgram,
+        Category,
+        Channel
+    }
+
     private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
     static protected string m_sIDs = "";
@@ -25,6 +34,9 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
 
         if (!IsPostBack)
         {
+            // in case session wasn't nullify
+            ClearSession();
+
             if (!string.IsNullOrEmpty(Request.QueryString["epgIdentifier"]))
             {
                 Session["epgIdentifier"] = Request.QueryString["epgIdentifier"].ToString();
@@ -42,85 +54,6 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
 
             Initialize();
         }
-    }
-
-    private void Initialize()
-    {
-        // Get the pic popup Context ( media, epg, channel, category)
-        PopUpContext popUpContext = GetPopUpContext();
-
-        switch (popUpContext)
-        {
-            case PopUpContext.Vod:
-                // Set ratios
-                PopulateRatioList(popUpContext);
-                break;
-            case PopUpContext.EpgProgram:
-                // Set ratios
-                PopulateRatioList(popUpContext);
-                break;
-            case PopUpContext.Channel:
-            case PopUpContext.Category:
-                // hide ratio
-                lblPicRatio.Visible = false;
-                ddlRatio.Visible = false;
-                break;
-            default:
-                break;
-        }
-    }
-
-    private void PopulateRatioList(PopUpContext picMediaType)
-    {
-        int selectedIndex = 0;
-        ddlRatio.DataValueField = "id";
-        ddlRatio.DataTextField = "txt";
-        ddlRatio.DataSource = GetRatioData(picMediaType, out selectedIndex);
-        ddlRatio.DataBind();
-        ddlRatio.SelectedValue = selectedIndex.ToString();
-    }
-
-    private object GetRatioData(PopUpContext picMediaType, out int selectedIndex)
-    {
-        selectedIndex = 0;
-        int groupId = LoginManager.GetLoginGroupID();
-        DataView data = new DataView();
-        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-
-        switch (picMediaType)
-        {
-            case PopUpContext.None:
-                {
-                    log.Error("Pic_popup_uploader - Confirm failed. Id");
-                    return data;
-                }
-            case PopUpContext.Vod:
-                {
-                    selectQuery += "select lur.ratio as 'txt', g.ratio_id as 'id' from groups g, lu_pics_ratios lur where g.ratio_id = lur.id and g.id = " + groupId.ToString() + " UNION " +
-                        "select lur.ratio as 'txt', gr.ratio_id as 'id' from group_ratios gr, lu_pics_ratios lur where gr.ratio_id = lur.id and gr.status = 1 and gr.group_id = " + groupId.ToString();
-
-                    selectedIndex = ImageUtils.GetGroupDefaultRatio(groupId);
-                }
-                break;
-
-            case PopUpContext.EpgProgram:
-                {
-                    selectQuery += "select lur.ratio as 'txt', g.ratio_id as 'id' from groups g, lu_pics_epg_ratios lur where g.ratio_id = lur.id and g.id = " + groupId.ToString() + " UNION " +
-                        "select lur.ratio as 'txt', gr.ratio_id as 'id' from group_epg_ratios gr, lu_pics_epg_ratios lur where gr.ratio_id = lur.id and gr.group_id = " + groupId.ToString();
-
-                    selectedIndex = ImageUtils.GetGroupDefaultEpgRatio(groupId);
-                }
-                break;
-            default:
-                break;
-        }
-
-        if (selectQuery.Execute("query", true) != null && selectQuery.Table("query").DefaultView != null)
-        {
-            return selectQuery.Table("query").DefaultView;
-        }
-
-        return data;
     }
 
     protected void btnConfirm_Click(object sender, EventArgs e)
@@ -195,15 +128,9 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
 
                         picId = TvinciImporter.ImporterImpl.DownloadPicToImageServer(picLink, name, groupID, id, "eng", setMediaThumb, ratioId, eAssetImageType.Media, false);
 
-                        if (picId > 0)
+                        if (setMediaThumb)
                         {
-                            if (setMediaThumb)
-                            {
-                                //update media with new Pic
-                                Session["Pic_Image_Url"] = PageUtils.GetPicImageUrlByRatio(picId, 90, 65);
-                                ClientScript.RegisterStartupScript(typeof(Page), "close", "<script language=javascript>window.opener.document.getElementsByName('" + openerFieldToUpdate + "')[0].value = " + picId
-                                    + ";window.opener.ChangePic('" + openerFieldToUpdate + "'," + picId + ");</script>");
-                            }
+                            ChangePicAtOpenerPage(picId, openerFieldToUpdate);
                         }
                     }
                     break;
@@ -211,26 +138,14 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
                     {
                         picId = TvinciImporter.ImporterImpl.DownloadPicToImageServer(picLink, name, groupID, id, "eng", true, ratioId, eAssetImageType.Category, false);
 
-                        if (picId > 0)
-                        {
-                            //update media with new Pic
-                            Session["Pic_Image_Url"] = PageUtils.GetPicImageUrlByRatio(picId, 90, 65);
-                            ClientScript.RegisterStartupScript(typeof(Page), "close", "<script language=javascript>window.opener.document.getElementsByName('" + openerFieldToUpdate + "')[0].value = " + picId
-                                + ";window.opener.ChangePic('" + openerFieldToUpdate + "'," + picId + ");</script>");
-                        }
+                        ChangePicAtOpenerPage(picId, openerFieldToUpdate);
                     }
                     break;
                 case PopUpContext.Channel:
                     {
                         picId = TvinciImporter.ImporterImpl.DownloadPicToImageServer(picLink, name, groupID, id, "eng", true, ratioId, eAssetImageType.Channel, false);
 
-                        if (picId > 0)
-                        {
-                            //update media with new Pic
-                            Session["Pic_Image_Url"] = PageUtils.GetPicImageUrlByRatio(picId, 90, 65);
-                            ClientScript.RegisterStartupScript(typeof(Page), "close", "<script language=javascript>window.opener.document.getElementsByName('" + openerFieldToUpdate + "')[0].value = " + picId
-                                + ";window.opener.ChangePic('" + openerFieldToUpdate + "'," + picId + ");</script>");
-                        }
+                        ChangePicAtOpenerPage(picId, openerFieldToUpdate);
                     }
                     break;
                 case PopUpContext.EpgProgram:
@@ -249,7 +164,7 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
                             if (setMediaThumb)
                             {
                                 //update media with new Pic
-                                Session["Pic_Image_Url"] = PageUtils.GetEpgPicImageUrlByRatio(picId, 90, 65);
+                                Session["Pic_Image_Url"] = PageUtils.GetEpgPicImageUrl(picId, 90, 65);
                                 ClientScript.RegisterStartupScript(typeof(Page), "close", "<script language=javascript>window.opener.document.getElementsByName('" + openerFieldToUpdate + "')[0].value = " + picId
                                     + ";window.opener.ChangePic('" + openerFieldToUpdate + "'," + picId + ");</script>");
                             }
@@ -261,7 +176,131 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
             }
         }
 
+        ClearSession();
         ClientScript.RegisterStartupScript(typeof(Page), "closePage", "window.close();", true);
+    }
+
+    protected void ddlRatio_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        int id = 0;
+        PopUpContext type = GetPopUpContext();
+
+        string mediaIdentifier = string.Format("MediaType_{0}_Id", type.ToString());
+
+        if (Session[mediaIdentifier] == null || string.IsNullOrEmpty(Session[mediaIdentifier].ToString()) ||
+          !int.TryParse(Session[mediaIdentifier].ToString(), out id))
+        {
+            log.Error("Pic_popup_uploader - Confirm failed.");
+        }
+
+        imgPicRatio.ImageUrl = string.Empty;
+
+        //set imgPicRatio according to selected ratio
+        switch (type)
+        {
+            case PopUpContext.Vod:
+                imgPicRatio.ImageUrl = PageUtils.GetPicImageUrlByRatio(id, eAssetImageType.Media, int.Parse(ddlRatio.SelectedValue), 90, 65);
+                break;
+            case PopUpContext.EpgProgram:
+                {
+                    if (Session["epgIdentifier"] != null && !string.IsNullOrEmpty(Session["epgIdentifier"].ToString()))
+                    {
+                        imgPicRatio.ImageUrl = PageUtils.GetEpgPicImageUrl(Session["epgIdentifier"].ToString(), id, int.Parse(ddlRatio.SelectedValue), 90, 65);
+                    }
+                    break;
+                }
+            case PopUpContext.Category:
+                imgPicRatio.ImageUrl = PageUtils.GetPicImageUrlByRatio(id, eAssetImageType.Category, int.Parse(ddlRatio.SelectedValue), 90, 65);
+                break;
+            case PopUpContext.Channel:
+                imgPicRatio.ImageUrl = PageUtils.GetPicImageUrlByRatio(id, eAssetImageType.Channel, int.Parse(ddlRatio.SelectedValue), 90, 65);
+                break;
+            default:
+                break;
+        }
+
+        imgPicRatio.Visible = !string.IsNullOrEmpty(imgPicRatio.ImageUrl);
+    }
+
+    protected void btnCancel_Click(object sender, EventArgs e)
+    {
+        ClearSession();
+        ClientScript.RegisterStartupScript(typeof(Page), "closePage", "window.close();", true);
+    }
+
+    private void Initialize()
+    {
+        // Get the pic popup Context ( media, epg, channel, category)
+        PopUpContext popUpContext = GetPopUpContext();
+
+        PopulateRatioList(popUpContext);
+    }
+
+    private void PopulateRatioList(PopUpContext picMediaType)
+    {
+        int selectedIndex = 0;
+        ddlRatio.DataValueField = "id";
+        ddlRatio.DataTextField = "txt";
+        ddlRatio.DataSource = GetRatioData(picMediaType, out selectedIndex);
+        ddlRatio.DataBind();
+        ddlRatio.SelectedValue = selectedIndex.ToString();
+        ddlRatio_SelectedIndexChanged(null, null);
+    }
+
+    private object GetRatioData(PopUpContext picMediaType, out int selectedIndex)
+    {
+        selectedIndex = 0;
+        int groupId = LoginManager.GetLoginGroupID();
+        DataView data = new DataView();
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+
+        switch (picMediaType)
+        {
+            case PopUpContext.None:
+                {
+                    log.Error("Pic_popup_uploader - Confirm failed. Id");
+                    return data;
+                }
+            case PopUpContext.Vod:
+            case PopUpContext.Channel:
+            case PopUpContext.Category:
+                {
+                    selectQuery += "select lur.ratio as 'txt', g.ratio_id as 'id' from groups g, lu_pics_ratios lur where g.ratio_id = lur.id and g.id = " + groupId.ToString() + " UNION " +
+                        "select lur.ratio as 'txt', gr.ratio_id as 'id' from group_ratios gr, lu_pics_ratios lur where gr.ratio_id = lur.id and gr.status = 1 and gr.group_id = " + groupId.ToString();
+
+                    selectedIndex = ImageUtils.GetGroupDefaultRatio(groupId);
+                }
+                break;
+
+            case PopUpContext.EpgProgram:
+                {
+                    selectQuery += "select lur.ratio as 'txt', g.ratio_id as 'id' from groups g, lu_pics_epg_ratios lur where g.ratio_id = lur.id and g.id = " + groupId.ToString() + " UNION " +
+                        "select lur.ratio as 'txt', gr.ratio_id as 'id' from group_epg_ratios gr, lu_pics_epg_ratios lur where gr.ratio_id = lur.id and gr.group_id = " + groupId.ToString();
+
+                    selectedIndex = ImageUtils.GetGroupDefaultEpgRatio(groupId);
+                }
+                break;
+            default:
+                break;
+        }
+
+        if (selectQuery.Execute("query", true) != null && selectQuery.Table("query").DefaultView != null)
+        {
+            return selectQuery.Table("query").DefaultView;
+        }
+
+        return data;
+    }
+
+    private void ChangePicAtOpenerPage(int picId, string openerFieldToUpdate)
+    {
+        if (picId > 0)
+        {
+            //update media with new Pic
+            Session["Pic_Image_Url"] = PageUtils.GetPicImageUrlByRatio(picId, 90, 65);
+            ClientScript.RegisterStartupScript(typeof(Page), "close", "<script language=javascript>window.opener.document.getElementsByName('" + openerFieldToUpdate + "')[0].value = " + picId
+                + ";window.opener.ChangePic('" + openerFieldToUpdate + "'," + picId + ");</script>");
+        }
     }
 
     private PopUpContext GetPopUpContext()
@@ -311,23 +350,16 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
         Session[string.Format("MediaType_{0}_Id", type)] = sourceId;
     }
 
-    protected void btnCancel_Click(object sender, EventArgs e)
+    private void ClearSession()
     {
         PopUpContext picMediaType = GetPopUpContext();
         string mediaIdentifier = string.Format("MediaType_{0}_Id", picMediaType.ToString());
 
-        Session["MediaType"] = null;
         Session[mediaIdentifier] = null;
 
-        ClientScript.RegisterStartupScript(typeof(Page), "closePage", "window.close();", true);
-    }
-
-    private enum PopUpContext
-    {
-        None,
-        Vod,
-        EpgProgram,
-        Category,
-        Channel
+        // in case session wasn't nullify
+        Session["MediaType"] = null;
+        Session["epgIdentifier"] = null;
+        Session["FieldId"] = null;
     }
 }

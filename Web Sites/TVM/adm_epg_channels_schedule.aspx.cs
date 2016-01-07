@@ -1,13 +1,10 @@
-﻿using System;
+﻿using ApiObjects;
+using EpgBL;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using ApiObjects;
-using EpgBL;
 using TVinciShared;
 
 public partial class adm_epg_channels_schedule : System.Web.UI.Page
@@ -90,14 +87,15 @@ public partial class adm_epg_channels_schedule : System.Web.UI.Page
             theTable.SetData(dEpg[channelID]);
 
         theTable.AddField("DOW");
-        theTable.AddField("EPG name");
-        theTable.AddField("EPG Description");
-        theTable.AddField("EPF Identifier");
-        theTable.AddField("Media description");
+        theTable.AddField("Name");
+        theTable.AddImageField("Pic");
+        theTable.AddField("Description");
+        theTable.AddField("Identifier");
         theTable.AddField("Start Date");
         theTable.AddField("End Date");
         theTable.AddField("State");
 
+        theTable.AddHiddenField("pic_id");
         theTable.AddHiddenField("eci");     //EPG_CHANNEL ID
         theTable.AddHiddenField("m_id");    //Epg program ID
         theTable.AddHiddenField("id");      //Epg program ID
@@ -223,10 +221,15 @@ public partial class adm_epg_channels_schedule : System.Web.UI.Page
         DataTable dt = new DataTable();
         
         // Build DataTable
-        foreach (DictionaryEntry item in theTable.GetHTMLFields())
-        {
-            dt.Columns.Add(item.Key.ToString());
-        }
+        dt.Columns.Add("Name");
+        dt.Columns.Add("Pic");
+        dt.Columns.Add("Description");
+        dt.Columns.Add("DOW");
+        dt.Columns.Add("Start Date");
+        dt.Columns.Add("End Date");
+        dt.Columns.Add("Identifier");
+        dt.Columns.Add("State");
+        
         foreach (DictionaryEntry item in theTable.GetHiddenFields())
         {
             string sKey = item.Key.ToString();
@@ -236,7 +239,7 @@ public partial class adm_epg_channels_schedule : System.Web.UI.Page
         foreach (DictionaryEntry item in theTable.GetOnOffFields())
         {
             dt.Columns.Add(item.Key.ToString());
-        }
+        }       
 
         List<EPGChannelProgrammeObject> lEpg = theTable.GetData();
         if (lEpg != null && lEpg.Count > 0)
@@ -294,12 +297,11 @@ public partial class adm_epg_channels_schedule : System.Web.UI.Page
                     default:
                         break;
                 }
-                row["EPG name"] = epg.NAME;
-                row["EPG Description"] = epg.DESCRIPTION;
-                row["EPF Identifier"] = epg.EPG_IDENTIFIER;
-
-                row["Media description"] = GetDescription(epg.EPG_IDENTIFIER, lMediaDescription); 
-
+                row["Name"] = epg.NAME;
+                row["Pic"] = epg.PIC_URL;
+                row["pic_id"] = epg.PIC_ID;
+                row["Description"] = epg.DESCRIPTION;
+                row["Identifier"] = epg.EPG_IDENTIFIER;
                 row["Start Date"] = epg.START_DATE;
                 row["End Date"] = epg.END_DATE;
 
