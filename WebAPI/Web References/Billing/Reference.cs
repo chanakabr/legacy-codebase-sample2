@@ -1850,28 +1850,30 @@ namespace WebAPI.Billing {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/GetPaymentGatewayConfiguration", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public PaymentGatewayConfigurationResponse GetPaymentGatewayConfiguration(string sWSUserName, string sWSPassword, string paymentGWExternalId) {
+        public PaymentGatewayConfigurationResponse GetPaymentGatewayConfiguration(string sWSUserName, string sWSPassword, string paymentGWExternalId, string intent) {
             object[] results = this.Invoke("GetPaymentGatewayConfiguration", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        paymentGWExternalId});
+                        paymentGWExternalId,
+                        intent});
             return ((PaymentGatewayConfigurationResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void GetPaymentGatewayConfigurationAsync(string sWSUserName, string sWSPassword, string paymentGWExternalId) {
-            this.GetPaymentGatewayConfigurationAsync(sWSUserName, sWSPassword, paymentGWExternalId, null);
+        public void GetPaymentGatewayConfigurationAsync(string sWSUserName, string sWSPassword, string paymentGWExternalId, string intent) {
+            this.GetPaymentGatewayConfigurationAsync(sWSUserName, sWSPassword, paymentGWExternalId, intent, null);
         }
         
         /// <remarks/>
-        public void GetPaymentGatewayConfigurationAsync(string sWSUserName, string sWSPassword, string paymentGWExternalId, object userState) {
+        public void GetPaymentGatewayConfigurationAsync(string sWSUserName, string sWSPassword, string paymentGWExternalId, string intent, object userState) {
             if ((this.GetPaymentGatewayConfigurationOperationCompleted == null)) {
                 this.GetPaymentGatewayConfigurationOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetPaymentGatewayConfigurationOperationCompleted);
             }
             this.InvokeAsync("GetPaymentGatewayConfiguration", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        paymentGWExternalId}, this.GetPaymentGatewayConfigurationOperationCompleted, userState);
+                        paymentGWExternalId,
+                        intent}, this.GetPaymentGatewayConfigurationOperationCompleted, userState);
         }
         
         private void OnGetPaymentGatewayConfigurationOperationCompleted(object arg) {

@@ -86,7 +86,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("getConfiguration"), HttpPost]
         [ApiAuthorize]
-        public Models.Billing.KalturaPaymentGatewayConfiguration GetConfiguration(string paymanetGatewayExternalId)
+        public Models.Billing.KalturaPaymentGatewayConfiguration GetConfiguration(string paymanetGatewayExternalId, string intent)
         {
             Models.Billing.KalturaPaymentGatewayConfiguration response = null;
 
@@ -98,7 +98,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().GetPaymentGatewayConfiguration(groupId, paymanetGatewayExternalId);
+                response = ClientsManager.BillingClient().GetPaymentGatewayConfiguration(groupId, paymanetGatewayExternalId, intent);
             }
             catch (ClientException ex)
             {
