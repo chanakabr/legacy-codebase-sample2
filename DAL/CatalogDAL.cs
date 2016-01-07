@@ -2629,7 +2629,7 @@ namespace Tvinci.Core.DAL
 
         public static DomainMediaMark GetAssetLastPosition(string assetID, eAssetTypes assetType, List<int> users)
         {
-            DomainMediaMark dmmResponse = new DomainMediaMark();            
+            DomainMediaMark dmmResponse = new DomainMediaMark();
 
             //Create users keys according to asset type
             List<string> userKeys = new List<string>();
@@ -2652,7 +2652,7 @@ namespace Tvinci.Core.DAL
                     break;
                 case eAssetTypes.MEDIA:
                     int mediaID;
-                    if(int.TryParse(assetID, out mediaID))
+                    if (int.TryParse(assetID, out mediaID))
                     {
                         foreach (int userID in users)
                         {
@@ -4046,13 +4046,14 @@ namespace Tvinci.Core.DAL
 
         }
 
-        public static DataRowCollection GetPicsTableData(int mediaId, int? ratioId = null, int? extraStatus = null)
+        public static DataRowCollection GetPicsTableData(int assetId, eAssetImageType assetImageType, int? ratioId = null, int? extraStatus = null)
         {
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PicsData");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-                sp.AddParameter("@MediaId", mediaId);
+                sp.AddParameter("@AssetId", assetId);
+                sp.AddParameter("@AssetImageType", (int)assetImageType);
                 sp.AddParameter("@RatioId", ratioId);
                 sp.AddParameter("@ExtraStatus", extraStatus);
 
@@ -4091,7 +4092,7 @@ namespace Tvinci.Core.DAL
             return picId;
         }
 
-        public static int InsertPic(int groupId, string name, string description, string baseUrl, int ratioId, int mediaId)
+        public static int InsertPic(int groupId, string name, string description, string baseUrl, int ratioId, int assetId, eAssetImageType assetImageType)
         {
             int picId = 0;
 
@@ -4104,7 +4105,8 @@ namespace Tvinci.Core.DAL
                 sp.AddParameter("@Description", description);
                 sp.AddParameter("@BaseUrl", baseUrl);
                 sp.AddParameter("@RatioId", ratioId);
-                sp.AddParameter("@MediaId", mediaId);
+                sp.AddParameter("@AssetId", assetId);
+                sp.AddParameter("@AssetImageType", (int)assetImageType);
 
                 DataSet ds = sp.ExecuteDataSet();
 

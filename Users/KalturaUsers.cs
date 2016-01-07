@@ -239,7 +239,7 @@ namespace Users
                 userResponse.Initialize(ResponseStatus.OK, newUser);
 
             // add role to user
-            if (userResponse.m_RespStatus == ResponseStatus.OK)
+            if (userResponse.m_RespStatus == ResponseStatus.OK || userResponse.m_RespStatus == ResponseStatus.UserWithNoDomain)
             {
                 long roleId;
 
