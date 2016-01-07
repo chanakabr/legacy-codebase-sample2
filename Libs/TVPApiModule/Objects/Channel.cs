@@ -18,15 +18,18 @@ namespace TVPApi
         public long ChannelID { get; set; }
         private int MediaCount { get; set; }
         public string PicURL { get; set; }
+        public List<Picture> m_pictures;
 
         public Channel(channelObj channelObj, string picSize)
         {
             Title = string.Empty;
             ChannelID = 0;
             MediaCount = 0;
-            
+
             Title = channelObj.m_sTitle;
             ChannelID = channelObj.m_nChannelID;
+            this.m_pictures = channelObj.m_lPic;
+
             if (channelObj.m_lPic != null)
             {
                 var pic = channelObj.m_lPic.Where(p => p.m_sSize.ToLower() == picSize.ToLower()).FirstOrDefault();
