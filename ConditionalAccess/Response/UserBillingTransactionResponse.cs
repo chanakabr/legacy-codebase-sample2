@@ -33,4 +33,19 @@ namespace ConditionalAccess
 
         }
     }
+
+    public class DomainTransactionsHistoryResponse
+    {
+        public ApiObjects.Response.Status Status;
+
+        public int TransactionsCount;
+
+        public List<TransactionHistoryContainer> TransactionsHistory;
+
+        public DomainTransactionsHistoryResponse()
+        {
+            TransactionsHistory = new List<TransactionHistoryContainer>();
+        }
+    }
+
 }
