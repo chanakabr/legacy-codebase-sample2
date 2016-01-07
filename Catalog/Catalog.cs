@@ -4378,8 +4378,9 @@ namespace Catalog
 
                     if (!bookmarks.Where(x => x.User.m_sSiteGUID == userMediaMark.UserID.ToString()).Any())
                     {
-                        bookmarks.Add(new Bookmark(usersDictionary[userMediaMark.UserID.ToString()], userType, userMediaMark.Location, 
-                                      (((float)userMediaMark.Location / (float)userMediaMark.FileDuration) * 100 > FINISHED_PERCENT_THRESHOLD)));                      
+                        bool isFinished = userMediaMark.AssetAction.ToUpper() == "FINISH" ? true : 
+                                          (((float)userMediaMark.Location / (float)userMediaMark.FileDuration) * 100 > FINISHED_PERCENT_THRESHOLD) ? true : false;
+                        bookmarks.Add(new Bookmark(usersDictionary[userMediaMark.UserID.ToString()], userType, userMediaMark.Location, isFinished));                      
                     }                    
                 }
             }
@@ -5344,7 +5345,7 @@ namespace Catalog
 
             if (channel == null)
             {
-                return new Status((int)eResponseStatus.ObjectNotExist, string.Format("Channel with identifier {0} does not exist for group {1}", parentGroupID, channelId));
+                return new Status((int)eResponseStatus.ObjectNotExist, string.Format("Channel with identifier {1} does not exist for group {0}", parentGroupID, channelId));
             }
 
             // Build search object
@@ -6019,6 +6020,7 @@ namespace Catalog
             #endregion
 
             BooleanPhraseNode initialTree = null;
+            bool emptyRequest = false;
 
             // If this is a KSQL channel
             if (channel.m_nChannelTypeID == (int)ChannelType.KSQL)
@@ -6169,7 +6171,7 @@ namespace Catalog
                 {
                     // if there are no tags:
                     // filter everything out
-                    initialTree = new BooleanLeaf("media_Id", 0);
+                    emptyRequest = true;
                 }
 
                 #endregion
@@ -6178,6 +6180,12 @@ namespace Catalog
             if (initialTree != null)
             {
                 Catalog.UpdateNodeTreeFields(request, ref initialTree, definitions, group);
+            }
+            else if (emptyRequest)
+            {
+                // if there are no tags:
+                // filter everything out
+                initialTree = new BooleanLeaf("media_Id", 0);
             }
 
             #region Final Filter Tree

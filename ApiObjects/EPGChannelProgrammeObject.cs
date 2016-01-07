@@ -1,9 +1,7 @@
 ﻿using ApiObjects.Epg;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
 
 namespace ApiObjects
 {
@@ -32,6 +30,7 @@ namespace ApiObjects
         public string START_DATE;
         public string END_DATE;
         public string PIC_URL;
+        public int PIC_ID;
         public string STATUS;
         public string IS_ACTIVE;
         public string GROUP_ID;

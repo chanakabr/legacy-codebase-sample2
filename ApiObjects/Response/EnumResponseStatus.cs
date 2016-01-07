@@ -93,7 +93,8 @@ namespace ApiObjects.Response
         NotForPurchase = 3025,  
         Fail = 3026,
         UnableToPurchaseCollectionPurchased = 3027,
-        ReconciliationFrequency = 3028,
+        FileToMediaMismatch = 3028,
+        ReconciliationFrequency = 3029,
 
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,

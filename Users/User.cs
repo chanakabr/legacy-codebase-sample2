@@ -595,7 +595,18 @@ namespace Users
 
                     if (userID > 0)
                     {
-                        m_sSiteGUID = userID.ToString();                        
+                        m_sSiteGUID = userID.ToString();       
+
+                        // add user role
+                        long roleId;
+                        if (long.TryParse(Utils.GetTcmConfigValue("user_role_id"), out roleId))
+                        {
+                            DAL.UsersDal.Insert_UserRole(nGroupID, userID.ToString(), roleId, true);
+                        }
+                        else
+                        {
+                            log.ErrorFormat("User created with no role. userId = {0}", userID);
+                        }
                     }
                     else
                     {

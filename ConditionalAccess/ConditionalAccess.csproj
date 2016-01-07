@@ -92,6 +92,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseCampaignActionImpl.cs" />
+    <Compile Include="PersonalEnrichments\AssetItemPriceResponse.cs" />
+    <Compile Include="PersonalEnrichments\AssetItemPrices.cs" />
     <Compile Include="UserEntitlementsObject.cs" />
     <Compile Include="Implementations\BaseConditionalAccess.cs" />
     <Compile Include="Commands\BaseNPVRCommand.cs" />
@@ -225,53 +227,56 @@
     <None Include="Service References\WS_Catalog\ConditionalAccess.WS_Catalog.Response.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\WS_Catalog\Service.wsdl" />
-    <None Include="Service References\WS_Catalog\Service.xsd">
+    <None Include="Service References\WS_Catalog\Service15.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service1.wsdl" />
-    <None Include="Service References\WS_Catalog\Service1.xsd">
+    <None Include="Service References\WS_Catalog\Service151.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service10.xsd">
+    <None Include="Service References\WS_Catalog\Service1510.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service11.xsd">
+    <None Include="Service References\WS_Catalog\Service1511.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service12.xsd">
+    <None Include="Service References\WS_Catalog\Service1512.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service13.xsd">
+    <None Include="Service References\WS_Catalog\Service1513.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service14.xsd">
+    <None Include="Service References\WS_Catalog\Service1514.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service2.xsd">
+    <None Include="Service References\WS_Catalog\Service1515.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service3.xsd">
+    <None Include="Service References\WS_Catalog\Service152.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service4.xsd">
+    <None Include="Service References\WS_Catalog\Service153.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service5.xsd">
+    <None Include="Service References\WS_Catalog\Service154.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service6.xsd">
+    <None Include="Service References\WS_Catalog\Service155.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service7.xsd">
+    <None Include="Service References\WS_Catalog\Service156.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service8.xsd">
+    <None Include="Service References\WS_Catalog\Service157.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service9.xsd">
+    <None Include="Service References\WS_Catalog\Service158.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\WS_Catalog\Service159.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WS_Catalog\Service2.wsdl" />
+    <None Include="Service References\WS_Catalog\Service21.wsdl" />
     <None Include="Web References\NotificationService\ArrayOfKeyValueOfstringArrayOfstringty7Ep6D1KeyValueOfstringArrayOfstringty7Ep6D1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -299,6 +304,12 @@
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\TvinciAPI\api.wsdl" />
+    <None Include="Web References\TvinciAPI\BulkExportTaskResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciAPI\BulkExportTasksResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\TvinciAPI\CategoryObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -314,7 +325,16 @@
     <None Include="Web References\TvinciAPI\EPGChannelProgrammeObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\TvinciAPI\ExternalChannelResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciAPI\ExternalChannelResponseList.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\TvinciAPI\FileTypeContainer.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciAPI\GenericRuleResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\TvinciAPI\GenericWriteResponse.datasource">
@@ -329,6 +349,15 @@
     <None Include="Web References\TvinciAPI\GroupRule.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\TvinciAPI\KSQLChannelResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciAPI\KSQLChannelResponseList.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciAPI\LanguageObj.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\TvinciAPI\MediaConcurrencyRule.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -341,17 +370,71 @@
     <None Include="Web References\TvinciAPI\MeidaMaper.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\TvinciAPI\OSSAdapterBillingDetailsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciAPI\OSSAdapterResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciAPI\OSSAdapterResponseList.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciAPI\OSSAdapterSettingsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciAPI\ParentalRulesResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciAPI\ParentalRulesTagsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciAPI\PermissionResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciAPI\PermissionsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciAPI\PinResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciAPI\PurchaseSettingsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\TvinciAPI\RateMediaObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciAPI\RecommendationEngineResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciAPI\RecommendationEngineSettinsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciAPI\RecommendationEnginesResponseList.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\TvinciAPI\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
+    <None Include="Web References\TvinciAPI\RegionsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciAPI\RolesResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\TvinciAPI\Scheduling.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\TvinciAPI\Status.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciAPI\StatusErrorCodesResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\TvinciAPI\TagResponseObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciAPI\UnifiedSearchResult.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\TvinciAPI\UserIMRequestObject.datasource">
@@ -463,10 +546,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://localhost/ws_api/api.asmx">
+    <WebReferenceUrl Include="http://192.168.192.146/webservices/api/api.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciAPI\</RelPath>
-      <UpdateFromURL>http://localhost/ws_api/api.asmx</UpdateFromURL>
+      <UpdateFromURL>http://192.168.192.146/webservices/api/api.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -777,9 +860,6 @@
     <WCFMetadataStorage Include="Service References\WS_Catalog\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\WS_Catalog\Service.disco" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Service References\WS_Catalog\configuration91.svcinfo" />
   </ItemGroup>
   <ItemGroup>
@@ -790,6 +870,9 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\WS_Catalog\Service1.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

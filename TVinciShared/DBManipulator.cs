@@ -86,7 +86,7 @@ namespace TVinciShared
 
         static public DateTime GetEODTime()
         {
-            DateTime t = DateTime.Now;
+            DateTime t = DateTime.UtcNow;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select DAY_START_TIME from site_configuration order by id desc";
             if (selectQuery.Execute("query", true) != null)
@@ -591,7 +591,7 @@ namespace TVinciShared
             ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery(sMiddleTable);
             updateQuery.SetConnectionKey(sConnectionKey);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 2);
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Update_date", "=", DateTime.Now);
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Update_date", "=", DateTime.UtcNow);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Updater_ID", "=", LoginManager.GetLoginID());
             updateQuery += " where ";
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM(sMiddleFieldRefToMain, "=", mainPointerValue);
@@ -612,7 +612,7 @@ namespace TVinciShared
             updateQuery1.SetConnectionKey(sConnectionKey);
             updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 1);
             updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("Updater_ID", "=", LoginManager.GetLoginID());
-            updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("Update_date", "=", DateTime.Now);
+            updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("Update_date", "=", DateTime.UtcNow);
             updateQuery1 += " where ";
             updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM(sMiddleFieldRefToMain, "=", mainPointerValue);
             updateQuery1 += "and";
@@ -671,7 +671,7 @@ namespace TVinciShared
                 ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery(sMiddleTable);
                 updateQuery.SetConnectionKey(sConnectionKey);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 3);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Update_date", "=", DateTime.Now);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Update_date", "=", DateTime.UtcNow);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Updater_ID", "=", LoginManager.GetLoginID());
                 updateQuery += "where";
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nCo);
@@ -688,7 +688,7 @@ namespace TVinciShared
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 3);
                 if (sMiddleFieldRefToCollection.ToLower().Trim() != "group_id" && sMiddleFieldRefToMain.ToLower().Trim() != "group_id")
                     insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("Update_date", "=", DateTime.Now);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("Update_date", "=", DateTime.UtcNow);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("Updater_ID", "=", LoginManager.GetLoginID());
                 insertQuery.Execute();
                 insertQuery.Finish();
@@ -966,7 +966,7 @@ namespace TVinciShared
                                 }
 
                                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", collectionTableGroupId);
-                                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("Update_date", "=", DateTime.Now);
+                                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("Update_date", "=", DateTime.UtcNow);
                                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("Updater_ID", "=", LoginManager.GetLoginID());
                                 insertQuery.Execute();
                                 insertQuery.Finish();
@@ -1841,7 +1841,7 @@ namespace TVinciShared
             }
             selectQuery += " order by id desc";
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("Updater_ID", "=", LoginManager.GetLoginID());
-            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("Update_date", "=", DateTime.Now);
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("Update_date", "=", DateTime.UtcNow);
             bool bNew = CheckUnique(sTableName, sUniquField, sUniqueValue, sUniqueType);
             if (bValid == true)
             {

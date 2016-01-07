@@ -9,6 +9,7 @@
   <xs:complexType name="EpgPicture">
     <xs:sequence>
       <xs:element minOccurs="0" name="PicHeight" type="xs:int" />
+      <xs:element minOccurs="0" name="PicID" type="xs:int" />
       <xs:element minOccurs="0" name="PicWidth" type="xs:int" />
       <xs:element minOccurs="0" name="Ratio" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="Url" nillable="true" type="xs:string" />
