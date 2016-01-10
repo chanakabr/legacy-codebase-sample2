@@ -1155,6 +1155,16 @@ namespace DAL
 
         }
 
+        public static bool Get_IsPurchasedWithPreviewModuleByBillingGuid(int nGroupID, string billingGuid, int nPurchaseID)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_IsPurchasedWithPreviewModuleByBillingGuid");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", nGroupID);
+            sp.AddParameter("@BillingGuid", billingGuid);
+            sp.AddParameter("@PurchaseID", nPurchaseID);
+            int res = sp.ExecuteReturnValue<int>();
+            return res > 0;
+        }
 
         public static bool Update_PurchaseIDInBillingTransactions(long lBillingTransactionID, long lPurchaseID)
         {

@@ -1620,13 +1620,17 @@ namespace TVinciShared
             return url;
         }
 
-        public static string GetPicImageUrlByRatio(int picId, int width = 0, int height = 0)
+        public static string GetPicImageUrlByRatio(int picId, int width = 0, int height = 0, int? groupId = null)
         {
             string imageUrl = string.Empty;
             string baseUrl = string.Empty;
             int ratioId = 0;
             int version = 0;
-            int groupId = LoginManager.GetLoginGroupID();
+            
+            if (!groupId.HasValue)
+            {
+                groupId = LoginManager.GetLoginGroupID();
+            }
 
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select p.RATIO_ID, p.BASE_URL, p.VERSION from pics p where ID = " + picId.ToString();
@@ -1636,7 +1640,7 @@ namespace TVinciShared
                 baseUrl = ODBCWrapper.Utils.GetSafeStr(selectQuery.Table("query").DefaultView[0].Row["BASE_URL"]);
                 ratioId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["RATIO_ID"]);
                 version = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["VERSION"]);
-                int parentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);
+                int parentGroupID = DAL.UtilsDal.GetParentGroupID(groupId.Value);
 
                 imageUrl = PageUtils.BuildVodUrl(parentGroupID, baseUrl, ratioId, version, width, height);
             }
