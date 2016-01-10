@@ -14828,9 +14828,17 @@ namespace ConditionalAccess
         {
             AssetItemPriceResponse response = new AssetItemPriceResponse();
 
+            // Validate main parameter
             if (assetFiles == null)
             {
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Missing parameter - asset files list");
+                return response;
+            }
+
+            // no count no party
+            if (assetFiles.Count == 0)
+            {
+                response.Status = new ApiObjects.Response.Status();
                 return response;
             }
 

@@ -1659,6 +1659,7 @@ namespace TVinciShared
             selectQuery += "select p.RATIO_ID, p.BASE_URL, p.VERSION from pics p where ASSET_ID = " + assetId.ToString();
             selectQuery += "And ASSET_IMAGE_TYPE = " + ((int)asssetImageType).ToString();
             selectQuery += "And RATIO_ID = " + ratioId.ToString();
+            selectQuery += "And STATUS = 1";
 
             if (selectQuery.Execute("query", true) != null && selectQuery.Table("query").DefaultView != null && selectQuery.Table("query").DefaultView.Count > 0)
             {

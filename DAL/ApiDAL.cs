@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.BulkExport;
 using ApiObjects.MediaMarks;
+using ApiObjects.Roles;
 using CouchbaseManager;
 using KLogMonitor;
 using Newtonsoft.Json;
@@ -9,8 +10,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using ApiObjects.BulkExport;
-using ApiObjects.Roles;
 using System.Threading;
 
 namespace DAL
@@ -3126,7 +3125,7 @@ namespace DAL
             return rowCount;
         }
 
-        public static int UpdateImageState(int groupId, long rowId, int version, eTableStatus status)
+        public static int UpdateImageState(int groupId, long rowId, int version, eTableStatus status, int? updaterId)
         {
             int result = -1;
             ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("pics");
@@ -3137,6 +3136,9 @@ namespace DAL
                     // update image upload success only if current version is lower then updated version
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("VERSION", "=", version);
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", (int)status);
+                    if (updaterId.HasValue)
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", updaterId.Value);
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                     updateQuery += " WHERE ";
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", rowId);
                     updateQuery += " AND ";
@@ -3147,6 +3149,9 @@ namespace DAL
                 {
                     // update image upload failed only if current status is "Pending"
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", (int)status);
+                    if (updaterId.HasValue)
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", updaterId.Value);
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                     updateQuery += " WHERE ";
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", rowId);
                     updateQuery += " AND ";
@@ -3169,11 +3174,11 @@ namespace DAL
             return result;
         }
 
-        public static int UpdateEpgImageState(int groupId, long rowId, int version, eTableStatus status)
+        public static int UpdateEpgImageState(int groupId, long rowId, int version, eTableStatus status, int? updaterId)
         {
             int result = -1;
             ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("EPG_pics");
-            
+
             try
             {
                 if (status == eTableStatus.OK)
@@ -3181,6 +3186,9 @@ namespace DAL
                     // update image upload success only if current version is lower then updated version
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("VERSION", "=", version);
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", (int)status);
+                    if (updaterId.HasValue)
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", updaterId.Value);
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                     updateQuery += " WHERE ";
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", rowId);
                     updateQuery += " AND ";
@@ -3191,6 +3199,9 @@ namespace DAL
                 {
                     // update image upload failed only if current status is "Pending"
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", (int)status);
+                    if (updaterId.HasValue)
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", updaterId.Value);
+                    updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                     updateQuery += " WHERE ";
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", rowId);
                     updateQuery += " AND ";
