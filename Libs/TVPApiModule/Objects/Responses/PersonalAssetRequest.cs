@@ -6,10 +6,10 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Xml.Serialization;
 using ApiObjects;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 
 namespace TVPApiModule.Objects.Responses
 {
+    [DataContract]
     public class PersonalAssetRequest
     {
         /// <summary>
@@ -30,7 +30,7 @@ namespace TVPApiModule.Objects.Responses
         [DataMember(Name = "type")]
         [JsonProperty(PropertyName = "type")]
         [XmlElement(ElementName = "type")]
-        public eAssetTypes Type
+        public string type
         {
             get;
             set;

@@ -4187,7 +4187,7 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Enriches personal data of assets")]
         public PersonalAssetListResponse GetEnrichedPersonalData(InitializationObject initObj,
             string couponCode,
-            List<PersonalAssetRequest> assets,
+            PersonalAssetRequest[] assets,
             List<string> with)
         {
             PersonalAssetListResponse response = new PersonalAssetListResponse()
@@ -4197,9 +4197,84 @@ namespace TVPApiServices
                 Status = new TVPApiModule.Objects.Responses.Status()
             };
 
+            if (assets == null)
+            {
+                assets = new List<PersonalAssetRequest>().ToArray();
+            }
+
             if (with == null)
             {
                 with = new List<string>();
+            }
+
+            // Validate with values
+            foreach (var currentWith in with)
+            {
+                if (currentWith != "pricing" && currentWith != "bookmark")
+                {
+                    response.Status = ResponseUtils.ReturnBadRequestStatus(string.Format("Invalid with value: {0}", currentWith));
+                    return response;
+                }
+            }
+
+            Dictionary<string, PersonalAssetInfo> assetIdToPersonalAsset = new Dictionary<string, PersonalAssetInfo>();
+            Dictionary<long, PersonalAssetInfo> fileToPersonalAsset = new Dictionary<long, PersonalAssetInfo>();
+
+            // Create response list to be identical as request
+            // +, map ids to objects in response
+
+            response.TotalItems = assets.Length;
+            response.Objects = new List<PersonalAssetInfo>();
+
+            foreach (var asset in assets)
+            {
+                var type = TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.eAssetTypes.UNKNOWN;
+
+                if (asset.type != null)
+                {
+                    switch (asset.type.ToLower())
+                    {
+                        case "unknown":
+                        {
+                            type = TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.eAssetTypes.UNKNOWN;
+                            break;
+                        }
+                        case "npvr":
+                        {
+                            type = TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.eAssetTypes.NPVR;
+                            break;
+                        }
+                        case "media":
+                        {
+                            type = TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.eAssetTypes.MEDIA;
+                            break;
+                        }
+                        default:
+                        break;
+                    }
+                }
+
+                var responseAsset = new PersonalAssetInfo()
+                {
+                    Id = asset.Id,
+                    Type = type,
+                    Files = new List<MediaFileItemPricesContainer>()
+                };
+
+                // pair example: Key = Media.875638 Value = new and empty personal asset data
+                assetIdToPersonalAsset.Add(string.Format("{0}.{1}", asset.type.ToString().ToLower(), asset.Id),
+                    responseAsset);
+
+                if (asset.FileIds != null)
+                {
+                    // Run on all file IDs and map them to respone asset
+                    foreach (var file in asset.FileIds)
+                    {
+                        fileToPersonalAsset.Add(file, responseAsset);
+                    }
+                }
+
+                response.Objects.Add(responseAsset);
             }
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetItemPrices", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
@@ -4209,6 +4284,11 @@ namespace TVPApiServices
 
             if (groupId > 0)
             {
+                if (assets.Length == 0)
+                {
+                    return response;
+                }
+
                 if (with.Contains("pricing"))
                 {
                     try
@@ -4241,7 +4321,33 @@ namespace TVPApiServices
                         {
                             AssetBookmarkRequest assetToAdd = new AssetBookmarkRequest();
                             assetToAdd.AssetID = asset.Id.ToString();
-                            assetToAdd.AssetType = asset.Type;
+
+                            var type = Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.UNKNOWN;
+
+                            if (asset.type != null)
+                            {
+                                switch (asset.type.ToLower())
+                                {
+                                    case "unknown":
+                                    {
+                                        type = Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.UNKNOWN;
+                                        break;
+                                    }
+                                    case "npvr":
+                                    {
+                                        type = Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.NPVR;
+                                        break;
+                                    }
+                                    case "media":
+                                    {
+                                        type = Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.MEDIA;
+                                        break;
+                                    }
+                                    default:
+                                    break;
+                                }
+                            }
+                            assetToAdd.AssetType = type;
 
                             assetsToSend.Add(assetToAdd);
                         }
@@ -4255,6 +4361,38 @@ namespace TVPApiServices
                     catch (Exception ex)
                     {
                         HttpContext.Current.Items["Error"] = ex;
+                    }
+                }
+
+                // According to catalog response, update final response's objects
+                if (bookmarksResponse != null && bookmarksResponse.AssetsBookmarks != null)
+                {
+                    foreach (var bookmark in bookmarksResponse.AssetsBookmarks)
+                    {
+                        string key = string.Format("{0}.{1}", bookmark.AssetType.ToString().ToLower(), bookmark.AssetID);
+
+                        PersonalAssetInfo personalAsset;
+
+                        if (assetIdToPersonalAsset.TryGetValue(key, out personalAsset))
+                        {
+                            personalAsset.Bookmarks = bookmark.Bookmarks;
+                        }
+                    }
+                }
+
+                // According to CAS response, update final response's objects
+                if (pricingsResponse != null && pricingsResponse.Prices != null)
+                {
+                    foreach (var pricing in pricingsResponse.Prices)
+                    {
+                        string key = string.Format("{0}.{1}", pricing.AssetType.ToString().ToLower(), pricing.AssetId);
+
+                        PersonalAssetInfo personalAsset;
+
+                        if (assetIdToPersonalAsset.TryGetValue(key, out personalAsset))
+                        {
+                            personalAsset.Files = pricing.PriceContainers.ToList();
+                        }
                     }
                 }
             }

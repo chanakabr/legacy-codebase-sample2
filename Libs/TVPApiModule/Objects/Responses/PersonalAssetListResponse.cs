@@ -77,7 +77,7 @@ namespace TVPApiModule.Objects.Responses
         [JsonProperty(PropertyName = "bookmarks")]
         [XmlArray(ElementName = "bookmarks", IsNullable = true)]
         [XmlArrayItem("item")]
-        public List<Bookmark> Bookmarks
+        public List<AssetBookmarkResponse> Bookmarks
         {
             get;
             set;

@@ -17,6 +17,7 @@ using TVPApiModule.Manager;
 using System.Configuration;
 using TVPPro.SiteManager.Helper;
 using TVPApiModule.Objects.Authorization;
+using System.Collections;
 
 /// <summary>
 /// Finds the Method By Reflection
@@ -95,7 +96,8 @@ public partial class MethodFinder
                         }
                         else
                         {
-                            Product = ser.GetType().GetMethod("Deserialize").MakeGenericMethod(TargetType).Invoke(ser, new object[] { DeserializationTarget });
+                            Product = ser.GetType().GetMethod("Deserialize", new Type[] { typeof(string) }).
+                                MakeGenericMethod(TargetType).Invoke(ser, new object[] { DeserializationTarget });
                         }
                     }
                     catch (Exception ex)
@@ -376,42 +378,67 @@ public partial class MethodFinder
                     ReplaceStratagy(ref json, EnumType, currValue);
                     break;
                 }
-                /*****************/
-                // re-build the json string with the updated enum VALUES|NAMES.
-                Newtonsoft.Json.Linq.JObject oJson = Newtonsoft.Json.Linq.JObject.Parse(json);
 
-                Newtonsoft.Json.Linq.JToken oCurToken = (oJson[replaceThisName] != null) ? oCurToken = oJson[replaceThisName] : oCurToken = oJson["Locale"][replaceThisName];
+                Newtonsoft.Json.Linq.JToken parsed = Newtonsoft.Json.Linq.JToken.Parse(json);
 
-                int index = json.IndexOf(replaceThisName);
-                //String partA = json.Substring(0, index + replaceThisName.Length +2);
-                //String partB = json.Substring(partA.Length);
+                List<Newtonsoft.Json.Linq.JToken> tokens = new List<Newtonsoft.Json.Linq.JToken>();
+                Stack<Newtonsoft.Json.Linq.JToken> stack = new Stack<Newtonsoft.Json.Linq.JToken>();
+                stack.Push(parsed);
 
-                //int indexOfNextProp = partB.IndexOf(",");
-                //int indexOfNextObject = partB.IndexOf("}");
-                //if (indexOfNextProp != -1 && indexOfNextProp < indexOfNextObject) index = indexOfNextProp;
-                //else index = indexOfNextObject;
-
-
-
-                //String ReplaceThis = partB.Substring(1, index);
-                //ReplaceThis = ReplaceThis.Replace("'", string.Empty);
-                //String partBWithoutValue = partB.Substring(ReplaceThis.Length);
-
-                String replacement = String.Empty;
-
-                ReplaceStratagy(ref replacement, EnumType, oCurToken.ToString());
-
-                if (oJson[replaceThisName] != null)
+                // Run on stack of json objects and create a list of all json leafs
+                while (stack.Count > 0)
                 {
-                    oJson[replaceThisName] = replacement.Replace("\"", string.Empty);
-                }
-                else
-                {
-                    oJson["Locale"][replaceThisName] = replacement.Replace("\"", string.Empty);
+                    var current = stack.Pop();
+
+                    if (current is Newtonsoft.Json.Linq.JObject)
+                    {
+                        tokens.Add(current);
+                    }
+                    else if (current is Newtonsoft.Json.Linq.JArray)
+                    {
+                        foreach (var token in (current as Newtonsoft.Json.Linq.JArray))
+                        {
+                            stack.Push(token);
+                        }
+                    }
                 }
 
-                json = oJson.ToString(Newtonsoft.Json.Formatting.None);
+                foreach (var token in tokens)
+	            {
+                    /*****************/
+                    // re-build the json string with the updated enum VALUES|NAMES.
+                    //Newtonsoft.Json.Linq.JObject oJson = token as Newtonsoft.Json.Linq.JObject;ֲ
 
+                    Newtonsoft.Json.Linq.JToken oCurToken = (token[replaceThisName] != null) ? oCurToken = token[replaceThisName] : oCurToken = token["Locale"][replaceThisName];
+
+                    int index = json.IndexOf(replaceThisName);
+                    //String partA = json.Substring(0, index + replaceThisName.Length +2);
+                    //String partB = json.Substring(partA.Length);
+
+                    //int indexOfNextProp = partB.IndexOf(",");
+                    //int indexOfNextObject = partB.IndexOf("}");
+                    //if (indexOfNextProp != -1 && indexOfNextProp < indexOfNextObject) index = indexOfNextProp;
+                    //else index = indexOfNextObject;
+
+                    //String ReplaceThis = partB.Substring(1, index);
+                    //ReplaceThis = ReplaceThis.Replace("'", string.Empty);
+                    //String partBWithoutValue = partB.Substring(ReplaceThis.Length);
+
+                    String replacement = String.Empty;
+
+                    ReplaceStratagy(ref replacement, EnumType, oCurToken.ToString());
+
+                    if (token[replaceThisName] != null)
+                    {
+                        token[replaceThisName] = replacement.Replace("\"", string.Empty);
+                    }
+                    else
+                    {
+                        token["Locale"][replaceThisName] = replacement.Replace("\"", string.Empty);
+                    }
+
+                    json = token.ToString(Newtonsoft.Json.Formatting.None);
+                }
                 //json = String.Format("{0}{1}{2}", partA, replacement, partBWithoutValue);
                 /*****************/
             } while (false);
