@@ -24,6 +24,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Height, opt => opt.MapFrom(src => GetPictureHeight(src.m_sSize)))
                  .ForMember(dest => dest.Width, opt => opt.MapFrom(src => GetPictureWidth(src.m_sSize)))
                  .ForMember(dest => dest.Ratio, opt => opt.MapFrom(src => src.ratio))
+                 .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.isDefault))
                  .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.version))
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.id));
 
@@ -134,7 +135,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //AssetBookmarks to KalturaAssetBookmarks
             Mapper.CreateMap<AssetBookmarks, WebAPI.Models.Catalog.KalturaAssetBookmarks>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetID))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertAssetType(src.AssetType)))                
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertAssetType(src.AssetType)))
                 .ForMember(dest => dest.Bookmarks, opt => opt.MapFrom(src => src.Bookmarks));
 
             //Bookmark to KalturaAssetBookmark
@@ -191,7 +192,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
 
             return result;
-        }        
+        }
 
         private static int GetPictureWidth(string size)
         {
