@@ -115,13 +115,20 @@ public partial class adm_my_group : System.Web.UI.Page
         dr_secret_code.Initialize("Group Secret Code", "adm_table_header_nbg", "FormInput", "GROUP_SECRET_CODE", false);
         theRecord.AddRecord(dr_secret_code);
 
-        DataRecordOnePicBrowserField dr_pic = new DataRecordOnePicBrowserField();
-        dr_pic.Initialize("Logo pic", "adm_table_header_nbg", "FormInput", "ADMIN_LOGO", false);
-        theRecord.AddRecord(dr_pic);
-
         bool isDownloadPicWithImageServer = false;
         string imageUrl = string.Empty;
         int picId = 0;
+
+
+        if (ImageUtils.IsDownloadPicWithImageServer())
+        {
+            isDownloadPicWithImageServer = true;
+            int groupId = LoginManager.GetLoginGroupID();
+            imageUrl = GetGroupLogoPicImageUrl(groupId, out picId);
+        }
+        DataRecordOnePicBrowserField dr_pic = new DataRecordOnePicBrowserField("myGroupLogo", isDownloadPicWithImageServer, imageUrl, picId);
+        dr_pic.Initialize("Logo pic", "adm_table_header_nbg", "FormInput", "ADMIN_LOGO", false);
+        theRecord.AddRecord(dr_pic);
 
         if (ImageUtils.IsDownloadPicWithImageServer())
         {
@@ -335,6 +342,29 @@ public partial class adm_my_group : System.Web.UI.Page
             int parentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);
 
             imageUrl = PageUtils.BuildVodUrl(parentGroupID, baseUrl, ratioId, version);
+        }
+
+        return imageUrl;
+    }
+
+    private string GetGroupLogoPicImageUrl(int groupId, out int picId)
+    {
+        string imageUrl = string.Empty;
+        string baseUrl = string.Empty;
+        int ratioId = 0;
+        picId = 0;
+
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery += "select  p.RATIO_ID, p.BASE_URL, p.ID from pics p left join groups g on g.ADMIN_LOGO = p.ID where p.STATUS in (0, 1) and g.id = " + groupId.ToString();
+
+        if (selectQuery.Execute("query", true) != null && selectQuery.Table("query").DefaultView != null && selectQuery.Table("query").DefaultView.Count > 0)
+        {
+            baseUrl = ODBCWrapper.Utils.GetSafeStr(selectQuery.Table("query").DefaultView[0].Row["BASE_URL"]);
+            ratioId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["RATIO_ID"]);
+            picId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["ID"]);
+            int parentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);
+
+            imageUrl = PageUtils.BuildVodUrl(parentGroupID, baseUrl, ratioId, 0);
         }
 
         return imageUrl;

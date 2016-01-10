@@ -152,6 +152,14 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
 
                     }
                     break;
+                case PopUpContext.LogoPic:
+                    {
+                        picId = TvinciImporter.ImporterImpl.DownloadPicToImageServer(picLink, name, groupID, id, "eng", false, 0, eAssetImageType.LogoPic, false, LoginManager.GetLoginID());
+
+                        ChangePicAtOpenerPage(picId, true, openerFieldToUpdate);
+
+                    }
+                    break;
                 case PopUpContext.EpgProgram:
                     {
 
@@ -221,6 +229,9 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
             case PopUpContext.DefaultPic:
                 imgPicRatio.ImageUrl = PageUtils.GetPicImageUrlByRatio(id, eAssetImageType.DefaultPic, int.Parse(ddlRatio.SelectedValue), 90, 65);
                 break;
+            case PopUpContext.LogoPic:
+                imgPicRatio.ImageUrl = PageUtils.GetPicImageUrlByRatio(id, eAssetImageType.LogoPic, 0, 90, 65);
+                break;
             default:
                 break;
         }
@@ -237,7 +248,7 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
             Session[mediaIdentifier] = null;
         }
         catch
-        { 
+        {
         }
 
         ClearSession();
@@ -249,7 +260,12 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
         // Get the pic popup Context ( media, epg, channel, category)
         PopUpContext popUpContext = GetPopUpContext();
 
-        PopulateRatioList(popUpContext);
+        if (popUpContext == PopUpContext.LogoPic)
+        {
+            lblPicRatio.Visible = ddlRatio.Visible = false;
+        }
+        else
+            PopulateRatioList(popUpContext);
     }
 
     private void PopulateRatioList(PopUpContext picMediaType)
@@ -346,6 +362,11 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
                 type = PopUpContext.DefaultPic;
                 SetMediaTypeSession("defaultPic", type);
             }
+            else if (!string.IsNullOrEmpty(Request.QueryString["lastPage"]) && Request.QueryString["lastPage"].ToString() == "myGroupLogo")
+            {
+                type = PopUpContext.LogoPic;
+                SetMediaTypeSession("logoPic", type);
+            }
             else
             {
                 type = PopUpContext.Vod;
@@ -375,16 +396,17 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
                 {
                     string source = string.Empty;
                     source = Session[contextIdName].ToString();
-                    int.TryParse(source, out sourceId);        
+                    int.TryParse(source, out sourceId);
                 }
                 break;
             case PopUpContext.DefaultPic:
+            case PopUpContext.LogoPic:
                 sourceId = LoginManager.GetLoginGroupID();
                 break;
             default:
                 break;
         }
-        
+
         Session[string.Format("MediaType_{0}_Id", type)] = sourceId;
     }
 
@@ -416,5 +438,4 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
 
         return isImageUrlVaild;
     }
-
 }
