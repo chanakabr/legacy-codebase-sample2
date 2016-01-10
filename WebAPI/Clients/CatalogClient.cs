@@ -867,7 +867,7 @@ namespace WebAPI.Clients
             
             result = Mapper.Map<List<KalturaAssetBookmarks>>(response.AssetsBookmarks);
 
-            return new KalturaAssetsBookmarksResponse() { AssetsBookmarks = result, TotalCount = result.Count };
+            return new KalturaAssetsBookmarksResponse() { AssetsBookmarks = result, TotalCount = response.m_nTotalItems };
 
         }
 
