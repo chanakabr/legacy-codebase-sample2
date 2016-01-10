@@ -19,7 +19,9 @@ namespace TVPApi
         public string Title { get; set; }
         public string ID { get; set; }
         public string PicURL { get; set; }
-        public string  CoGuid { get; set; }
+        public string CoGuid { get; set; }
+        public List<Picture> m_pictures;
+
 
         public Category(CategoryResponse categoryResponse, string picSize)
         {

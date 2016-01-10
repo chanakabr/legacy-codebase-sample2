@@ -21,7 +21,7 @@ namespace TVPApi
         {
             m_rootID = rootID;
             m_categoryResponse = categoryResponse;
-            m_picSize = picSize; 
+            m_picSize = picSize;
         }
 
         public CategoryTreeBuilder()
@@ -34,14 +34,6 @@ namespace TVPApi
         public Category BuildCategoryTree()
         {
             Category retVal = null;
-            //CategoryResponse rootCategory = (from categories in m_categoryResponse.m_oChildCategories
-            //                                    where categories.ID.Equals(m_rootID)
-            //                                    select categories).FirstOrDefault();
-
-
-            //IEnumerable<CategoryResponse> innerCategories = (from categories in m_categoryResponse.m_oChildCategories
-            //                                                         where !(categories.ID.Equals(m_rootID))
-            //                                                         select categories);
             CategoryResponse rootCategory = m_categoryResponse;
             IEnumerable<CategoryResponse> innerCategories = m_categoryResponse.m_oChildCategories;
 
@@ -65,20 +57,17 @@ namespace TVPApi
         {
             Category retVal = null;
             retVal = new Category(categoryResponse, m_picSize);
+            retVal.m_pictures = categoryResponse.m_lPics;
             retVal.Channels = new List<Channel>();
-            foreach (channelObj channel in categoryResponse.m_oChannels)                            
+            foreach (channelObj channel in categoryResponse.m_oChannels)
                 retVal.Channels.Add(new Channel(channel, m_picSize));
-            
+
             return retVal;
         }
 
         public Category BuildFullCategoryTree()
         {
             Category retVal = null;
-            //CategoryResponse rootCategory = (from categories in m_categoryResponse.m_oChildCategories
-            //                                    where categories.ID.Equals(m_rootID)
-            //                                    select categories).FirstOrDefault();
-
             CategoryResponse rootCategory = m_categoryResponse;
 
             if (rootCategory != null)
@@ -93,7 +82,6 @@ namespace TVPApi
                 return null;
 
             Category currentCat = CreateCategory(categoryResponse);
-
             currentCat.InnerCategories = new List<Category>();
 
             foreach (CategoryResponse child in categoryResponse.m_oChildCategories)
