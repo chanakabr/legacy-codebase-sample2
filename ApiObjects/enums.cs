@@ -258,7 +258,9 @@ namespace ApiObjects
     {
         Media = 0,
         Channel = 1,
-        Category = 2
+        Category = 2,
+        DefaultPic = 3,
+        LogoPic = 4
     }
 
     [Serializable]

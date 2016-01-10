@@ -1197,8 +1197,21 @@ namespace TVinciShared
                                     object picId = m_theDataTable.DefaultView[pageIndx].Row["pic_id"];
                                     if (picId != DBNull.Value && picId != null)
                                     {
-                                        sTable.Append("<img src='" + PageUtils.GetPicImageUrlByRatio(int.Parse(picId.ToString()), 90, 65));
-                                        sTable.Append("'/>");
+                                        if (m_theDataTable.Columns.Contains("pic_group_id"))
+                                        {
+                                            object groupId = m_theDataTable.DefaultView[pageIndx].Row["pic_group_id"];
+                                            if (groupId != DBNull.Value && groupId != null)
+                                            {
+                                                sTable.Append("<img src='" + PageUtils.GetPicImageUrlByRatio(int.Parse(picId.ToString()), 90, 65, int.Parse(groupId.ToString())));
+                                                sTable.Append("'/>");
+                                    
+                                            }                                            
+                                        }
+                                        else
+                                        {
+                                            sTable.Append("<img src='" + PageUtils.GetPicImageUrlByRatio(int.Parse(picId.ToString()), 90, 65));
+                                            sTable.Append("'/>");
+                                        }
                                     }
                                 }
                                 sTable.Append("</td>");

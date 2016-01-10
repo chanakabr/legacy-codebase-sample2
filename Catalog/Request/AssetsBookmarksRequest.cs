@@ -83,7 +83,8 @@ namespace Catalog.Request
                                         {
                                             response.AssetsBookmarks.Add(assetPositionResponseInfo);
                                         }
-                                    }                                
+                                    }
+                                    response.m_nTotalItems = response.AssetsBookmarks.Count();
                                 }
                                 else
                                 {

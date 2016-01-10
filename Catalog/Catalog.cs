@@ -4387,7 +4387,7 @@ namespace Catalog
 
             if (bookmarks.Count > 0)
             {
-                response = new AssetBookmarks(assetType, assetID, bookmarks);                
+                response = new AssetBookmarks(assetType, assetID, bookmarks.OrderBy(x => x.User.m_sSiteGUID).ToList());                
             }
 
             return response;
