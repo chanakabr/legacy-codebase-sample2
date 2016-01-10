@@ -63,7 +63,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: BadRequest = 500003, Bad search request = 4002, ConcurrencyLimitation = 4001</remarks>
         [Route("set"), HttpPost]
         [ApiAuthorize(true)]
-        public bool Set(string assetId, eAssetTypes assetType, long fileId, KalturaPlayerAssetData PlayerAssetData)
+        public bool Set(string assetId, KalturaAssetType assetType, long fileId, KalturaPlayerAssetData PlayerAssetData)
         {
             bool response = false;
 
