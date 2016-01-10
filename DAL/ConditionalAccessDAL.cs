@@ -988,7 +988,8 @@ namespace DAL
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("CancelSubscription");
             sp.SetConnectionKey("CONNECTION_STRING");
             sp.AddParameter("@nID", nSubscriptionsPurchasesID);
-            sp.AddParameter("@GroupID", nGroupID);            
+            sp.AddParameter("@SiteGUID", sSiteGUID);
+            sp.AddParameter("@GroupID", nGroupID);
             sp.AddParameter("@SubscriptionCode", nSubscriptionCode);
 
 
