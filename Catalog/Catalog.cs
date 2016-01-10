@@ -558,6 +558,7 @@ namespace Catalog
                     // new image server - get pictures data
                     List<PicData> picsTableData = new List<PicData>();
                     DataRowCollection rows = CatalogDAL.GetPicsTableData(assetId, eAssetImageType.Media);
+
                     if (rows == null || rows.Count == 0)
                         return null;
                     else
@@ -639,6 +640,8 @@ namespace Catalog
                         if (isMigratedImage)
                         {
                             // new image server, sizes are not defined, migrated media/picture => get group ratios
+
+                            // get group ratios
                             List<Ratio> groupRatios = CatalogCache.Instance().GetGroupRatios(picDataZeroRatio.GroupId);
                             if (groupRatios == null || groupRatios.Count == 0)
                             {
@@ -696,6 +699,37 @@ namespace Catalog
 
                                 lPicObject.Add(picObj);
                             }
+                        }
+                    }
+
+                    // Add default images to configured ratios - get default images
+                    List<PicData> defaultGroupPics = CatalogCache.Instance().GetDefaultImages(picsTableData[0].GroupId);
+
+                    // new image server, sizes are not defined, new image
+                    foreach (var defaultPic in defaultGroupPics)
+                    {
+                        if (lPicObject.FirstOrDefault(x => x.ratio == defaultPic.Ratio) == null)
+                        {
+                            picObj = new Picture();
+
+                            // get ratio string
+                            picObj.ratio = defaultPic.Ratio;
+
+                            // get picture id: <pic_base_url>_<ratio_id>
+                            int ratioId = defaultPic.RatioId;
+                            picObj.id = string.Format("{0}_{1}", picBaseName, ratioId);
+
+                            // get version
+                            picObj.version = defaultPic.Version;
+
+                            picObj.isDefault = true;
+
+                            // build image URL. 
+                            // template: <image_server_url>/p/<partner_id>/entry_id/<image_id>/version/<image_version>
+                            // Example:  http://localhost/ImageServer/Service.svc/GetImage/p/215/entry_id/123/version/10
+                            picObj.m_sURL = ImageUtils.BuildImageUrl(groupId, picObj.id, picObj.version, 0, 0, 100, true);
+
+                            lPicObject.Add(picObj);
                         }
                     }
                 }
@@ -2251,7 +2285,7 @@ namespace Catalog
                 searchObject.m_bUseStartDate = request.m_oFilter.m_bUseStartDate;
                 searchObject.m_bUseFinalEndDate = request.m_oFilter.m_bUseFinalDate;
                 searchObject.m_nUserTypeID = request.m_oFilter.m_nUserTypeID;
-                searchObject.m_bUseActive = request.m_oFilter.m_bOnlyActiveMedia;                
+                searchObject.m_bUseActive = request.m_oFilter.m_bOnlyActiveMedia;
             }
 
             CopySearchValuesToSearchObjects(ref searchObject, channel.m_eCutWith, channel.m_lChannelTags);
@@ -4360,7 +4394,7 @@ namespace Catalog
                 return response;
             }
 
-            List<Bookmark> bookmarks = new List<Bookmark>();            
+            List<Bookmark> bookmarks = new List<Bookmark>();
 
             if (domainMediaMark.devices != null)
             {
@@ -4373,21 +4407,21 @@ namespace Catalog
                     }
                     else
                     {
-                        userType = eUserType.PERSONAL;                        
+                        userType = eUserType.PERSONAL;
                     }
 
                     if (!bookmarks.Where(x => x.User.m_sSiteGUID == userMediaMark.UserID.ToString()).Any())
                     {
-                        bool isFinished = userMediaMark.AssetAction.ToUpper() == "FINISH" ? true : 
+                        bool isFinished = userMediaMark.AssetAction.ToUpper() == "FINISH" ? true :
                                           (((float)userMediaMark.Location / (float)userMediaMark.FileDuration) * 100 > FINISHED_PERCENT_THRESHOLD) ? true : false;
-                        bookmarks.Add(new Bookmark(usersDictionary[userMediaMark.UserID.ToString()], userType, userMediaMark.Location, isFinished));                      
-                    }                    
+                        bookmarks.Add(new Bookmark(usersDictionary[userMediaMark.UserID.ToString()], userType, userMediaMark.Location, isFinished));
+                    }
                 }
             }
 
             if (bookmarks.Count > 0)
             {
-                response = new AssetBookmarks(assetType, assetID, bookmarks);                
+                response = new AssetBookmarks(assetType, assetID, bookmarks);
             }
 
             return response;
@@ -4576,7 +4610,7 @@ namespace Catalog
             {
                 string sWSUsername = string.Empty;
                 string sWSPassword = string.Empty;
-                string sWSUrl = string.Empty;                
+                string sWSUrl = string.Empty;
 
                 //get username + password from wsCache
                 Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, groupID, ApiObjects.eWSModules.DOMAINS);
@@ -4604,14 +4638,14 @@ namespace Catalog
             }
             catch (Exception ex)
             {
-                log.Error("GetDomain - " + string.Format("Failed ex={0}, domainID={1}, groupdID={2}", ex.Message, domainID, groupID), ex);                
+                log.Error("GetDomain - " + string.Format("Failed ex={0}, domainID={1}, groupdID={2}", ex.Message, domainID, groupID), ex);
             }
 
             return domainResponse;
         }
 
         internal static Dictionary<string, ws_users.User> GetUsers(int groupID, List<int> users)
-        {            
+        {
             Dictionary<string, ws_users.User> usersDictionary = new Dictionary<string, ws_users.User>();
             ws_users.UsersResponse usersResponse = null;
             Credentials oCredentials = TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, groupID, ApiObjects.eWSModules.USERS);
@@ -4625,7 +4659,7 @@ namespace Catalog
             using (ws_users.UsersService u = new ws_users.UsersService())
             {
                 u.Url = url;
-                usersResponse = u.GetUsers(oCredentials.m_sUsername, oCredentials.m_sPassword, users.Select(i => i.ToString()).ToArray(), string.Empty);                                                                
+                usersResponse = u.GetUsers(oCredentials.m_sUsername, oCredentials.m_sPassword, users.Select(i => i.ToString()).ToArray(), string.Empty);
             }
             if (usersResponse != null && usersResponse.resp != null && usersResponse.resp.Code == (int)ws_users.ResponseStatus.OK && usersResponse.users != null)
             {
@@ -4633,7 +4667,7 @@ namespace Catalog
                 {
                     if (user != null && user.m_RespStatus == ws_users.ResponseStatus.OK)
                     {
-                        if(!usersDictionary.ContainsKey(user.m_user.m_sSiteGUID))
+                        if (!usersDictionary.ContainsKey(user.m_user.m_sSiteGUID))
                         {
                             usersDictionary.Add(user.m_user.m_sSiteGUID, user.m_user);
                         }

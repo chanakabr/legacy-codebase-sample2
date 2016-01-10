@@ -9,6 +9,7 @@ using ApiObjects;
 using KLogMonitor;
 using System.Reflection;
 using Tvinci.Core.DAL;
+using System.Data;
 
 namespace Catalog.Cache
 {
@@ -124,6 +125,48 @@ namespace Catalog.Cache
                 log.ErrorFormat("Error while getting group ratios. GID {0}, ex: {1}", groupID, ex);
             }
             return ratios;
+        }
+
+        public List<PicData> GetDefaultImages(int groupID)
+        {
+            List<PicData> defaultPictures = null;
+            try
+            {
+                string sKey = "GroupDefaultImages_" + groupID.ToString();
+                defaultPictures = Get<List<PicData>>(sKey);
+
+                if (defaultPictures == null || defaultPictures.Count == 0)
+                {
+                    DataRowCollection picsDataRows = CatalogDAL.GetPicsTableData(groupID, eAssetImageType.DefaultPic);
+
+                    if (picsDataRows == null || picsDataRows.Count == 0)
+                        return null;
+                    else
+                    {
+                        defaultPictures = new List<PicData>();
+                        foreach (DataRow row in picsDataRows)
+                        {
+                            defaultPictures.Add(new PicData()
+                            {
+                                RatioId = Utils.GetIntSafeVal(row, "RATIO_ID"),
+                                Version = Utils.GetIntSafeVal(row, "VERSION"),
+                                BaseUrl = Utils.GetStrSafeVal(row, "BASE_URL"),
+                                PicId = Utils.GetLongSafeVal(row, "ID"),
+                                Ratio = Utils.GetStrSafeVal(row, "RATIO"),
+                                GroupId = Utils.GetIntSafeVal(row, "GROUP_ID")
+                            });
+                        }
+                    }
+
+                    if (defaultPictures != null && defaultPictures.Count > 0)
+                        Set(sKey, defaultPictures);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while getting group default images. GID {0}, ex: {1}", groupID, ex);
+            }
+            return defaultPictures;
         }
 
 

@@ -24,6 +24,9 @@ namespace Catalog
         [DataMember]
         public string id = string.Empty;
 
+        [DataMember]
+        public bool isDefault = false;
+
         public Picture() { }
 
         public Picture(string sSize, string sURL, string picRatio)
