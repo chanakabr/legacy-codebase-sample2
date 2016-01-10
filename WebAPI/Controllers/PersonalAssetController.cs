@@ -71,7 +71,7 @@ namespace WebAPI.Controllers
                     };
 
                     // pair example: Key = Media.875638 Value = new and empty personal asset data
-                    assetIdToPersonalAsset.Add(string.Format("{0}.{1}", asset.Type.ToString(), asset.Id),
+                    assetIdToPersonalAsset.Add(string.Format("{0}.{1}", asset.Type.ToString().ToLower(), asset.Id),
                         responseAsset);
 
                     if (asset.FileIds != null)
@@ -152,7 +152,7 @@ namespace WebAPI.Controllers
                 {
                     foreach (var bookmark in bookmarksResponse.AssetsBookmarks)
                     {
-                        string key = string.Format("{0}.{1}", bookmark.Type.ToString(), bookmark.Id);
+                        string key = string.Format("{0}.{1}", bookmark.Type.ToString().ToLower(), bookmark.Id);
 
                         KalturaPersonalAsset personalAsset;
 
@@ -168,7 +168,7 @@ namespace WebAPI.Controllers
                 {
                     foreach (var pricing in pricingsResponse)
                     {
-                        string key = string.Format("{0}.{1}", pricing.AssetType.ToString(), pricing.AssetId);
+                        string key = string.Format("{0}.{1}", pricing.AssetType.ToString().ToLower(), pricing.AssetId);
 
                         KalturaPersonalAsset personalAsset;
 
