@@ -557,7 +557,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaPaymentGatewayConfiguration GetPaymentGatewayConfiguration(int groupId, string pgAlias, string intent)
+        internal KalturaPaymentGatewayConfiguration GetPaymentGatewayConfiguration(int groupId, string alias, string intent)
         {
             Models.Billing.KalturaPaymentGatewayConfiguration configuration = null;
             WebAPI.Billing.PaymentGatewayConfigurationResponse response = null;
@@ -567,7 +567,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.GetPaymentGatewayConfiguration(group.BillingCredentials.Username, group.BillingCredentials.Password, pgAlias, intent);
+                    response = Billing.GetPaymentGatewayConfiguration(group.BillingCredentials.Username, group.BillingCredentials.Password, alias, intent);
                 }
             }
             catch (Exception ex)
