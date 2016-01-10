@@ -74,10 +74,13 @@ namespace WebAPI.Controllers
                     assetIdToPersonalAsset.Add(string.Format("{0}.{1}", asset.Type.ToString(), asset.Id),
                         responseAsset);
 
-                    // Run on all file IDs and map them to respone asset
-                    foreach (var file in asset.FileIds)
+                    if (asset.FileIds != null)
                     {
-                        fileToPersonalAsset.Add(file, responseAsset);
+                        // Run on all file IDs and map them to respone asset
+                        foreach (var file in asset.FileIds)
+                        {
+                            fileToPersonalAsset.Add(file, responseAsset);
+                        }
                     }
 
                     response.Objects.Add(responseAsset);
