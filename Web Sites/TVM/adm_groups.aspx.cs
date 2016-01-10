@@ -118,7 +118,7 @@ public partial class adm_groups : System.Web.UI.Page
         //theTable += "select q.status,q.s_id as 'Article ID',p.base_url as 'Pic',q.HEADER as 'Header',q.writer as 'Writer',q.s_id as id,q.s_desc as 'State' from (select s.LOGO_PIC_ID as pic_id,s.status,s.HEADER as 'HEADER',s.SUB_HEADER as 'SUB_HEADER',s.SHORT_DESCRIPTION as 'SHORT_DESCRIPTION' ,s.writer,s.id as s_id,lcs.description as s_desc from articles s,lu_content_status lcs where ";
         //theTable += "lcs.id=s.status and s.status<>2)q LEFT JOIN pics p ON p.id=q.pic_id and " + PageUtils.GetStatusQueryPart("p");
 
-        theTable += "select q.order_num,q.is_active,q.id as id,p.BASE_URL as 'Logo',q.group_name as 'Group name',q.status,q.State as 'State' from (select g.id as id,g.ADMIN_LOGO,g.group_name,g.status,lcs.description as 'State',order_num,g.is_active from groups g,lu_content_status lcs where lcs.id=g.status and g.status<>2 and (";
+        theTable += "select q.order_num,q.is_active,q.id as id,p.BASE_URL as 'Logo',q.group_name as 'Group name',q.status,q.State as 'State', q.ADMIN_LOGO as 'pic_id', q.id as 'pic_group_id' from (select g.id as id,g.ADMIN_LOGO,g.group_name,g.status,lcs.description as 'State',order_num,g.is_active from groups g,lu_content_status lcs where lcs.id=g.status and g.status<>2 and (";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("g.parent_group_id", "=", nGroupID);
         theTable += ") )q  LEFT JOIN pics p ON p.id=q.ADMIN_LOGO and " + PageUtils.GetStatusQueryPart("p");
         if (sOrderBy != "")
@@ -137,6 +137,8 @@ public partial class adm_groups : System.Web.UI.Page
         theTable.AddActivationField("groups");
         theTable.AddHiddenField("is_active");
         theTable.AddImageField("Logo");
+        theTable.AddHiddenField("pic_id");
+        theTable.AddHiddenField("pic_group_id");
         /*
         if (LoginManager.GetLoginGroupID() == 1)
         {

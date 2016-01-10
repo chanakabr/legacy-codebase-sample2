@@ -19,7 +19,7 @@
     <script type="text/javascript" language="JavaScript" src="js/utils.js"></script>
     <script type="text/javascript" language="JavaScript" src="js/AnchorPosition.js"></script>
     <script type="text/javascript" language="JavaScript" src="js/dom-drag.js"></script>
-   </head>
+</head>
 <body onload="GetPageTable('' , 0);StartValues();">
     <form id="form1" runat="server">
         <%--<input type="hidden" id="ids_place" name="ids_place" style="width: 0px; height: 0px; display: none;" value="<% GetIDs(); %>" />--%>
@@ -49,16 +49,19 @@
                 </tr>
                 <tr>
                     <td class='adm_table_header_nbg' nowrap>
-                            <asp:Label ID="lblPicRatio" runat="server" Visible="True">Pic Ratio</asp:Label>
-                       </td>
-                    <td class="align1">
-                        <asp:DropDownList ID="ddlRatio" runat="server" Width="100" MaxLength="128"></asp:DropDownList>
-                        <asp:Image ID="imgPicRatio" runat="server" Width="200" MaxLength="128"></asp:Image>
+                        <asp:Label ID="lblPicRatio" runat="server" Visible="True">Pic Ratio</asp:Label>
                     </td>
-                </tr>               
+                    <td class="align1">
+                        <asp:DropDownList ID="ddlRatio" runat="server" Width="100" MaxLength="128" AutoPostBack="True" OnSelectedIndexChanged="ddlRatio_SelectedIndexChanged"></asp:DropDownList>
+                    </td>
+                </tr>
+                <tr>
+                    <td class='adm_table_header_nbg' nowrap></td>
+                    <td class="align1">
+                        <asp:Image ID="imgPicRatio" runat="server" Width="90" Height="65" Visible="False"></asp:Image>
+                    </td>
+                </tr>
             </table>
-
-
             <!--/picSelected -->
             <div class="butLine">
                 <table>
