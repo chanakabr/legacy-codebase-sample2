@@ -4365,33 +4365,56 @@ namespace TVPApiServices
                 }
 
                 // According to catalog response, update final response's objects
-                if (bookmarksResponse != null && bookmarksResponse.AssetsBookmarks != null)
+                if (bookmarksResponse != null)
                 {
-                    foreach (var bookmark in bookmarksResponse.AssetsBookmarks)
+                    // If response from catalog web service is not OK, return error message
+                    if (bookmarksResponse.Status != null && bookmarksResponse.Status.Code != 0)
                     {
-                        string key = string.Format("{0}.{1}", bookmark.AssetType.ToString().ToLower(), bookmark.AssetID);
+                        response.Objects.Clear();
+                        response.TotalItems = 0;
+                        response.Status = bookmarksResponse.Status;
+                        return response;
+                    }
 
-                        PersonalAssetInfo personalAsset;
-
-                        if (assetIdToPersonalAsset.TryGetValue(key, out personalAsset))
+                    if (bookmarksResponse.AssetsBookmarks != null)
+                    {
+                        foreach (var bookmark in bookmarksResponse.AssetsBookmarks)
                         {
-                            personalAsset.Bookmarks = bookmark.Bookmarks;
+                            string key = string.Format("{0}.{1}", bookmark.AssetType.ToString().ToLower(), bookmark.AssetID);
+
+                            PersonalAssetInfo personalAsset;
+
+                            if (assetIdToPersonalAsset.TryGetValue(key, out personalAsset))
+                            {
+                                personalAsset.Bookmarks = bookmark.Bookmarks;
+                            }
                         }
                     }
                 }
-
                 // According to CAS response, update final response's objects
-                if (pricingsResponse != null && pricingsResponse.Prices != null)
+                if (pricingsResponse != null)
                 {
-                    foreach (var pricing in pricingsResponse.Prices)
+                    // If response from CAS web service is not OK, return error message
+                    if (pricingsResponse.Status != null && pricingsResponse.Status.Code != 0)
                     {
-                        string key = string.Format("{0}.{1}", pricing.AssetType.ToString().ToLower(), pricing.AssetId);
+                        response.Objects.Clear();
+                        response.TotalItems = 0;
+                        response.Status = new TVPApiModule.Objects.Responses.Status(pricingsResponse.Status.Code, pricingsResponse.Status.Message);
+                        return response;
+                    }
 
-                        PersonalAssetInfo personalAsset;
-
-                        if (assetIdToPersonalAsset.TryGetValue(key, out personalAsset))
+                    if (pricingsResponse.Prices != null)
+                    {
+                        foreach (var pricing in pricingsResponse.Prices)
                         {
-                            personalAsset.Files = pricing.PriceContainers.ToList();
+                            string key = string.Format("{0}.{1}", pricing.AssetType.ToString().ToLower(), pricing.AssetId);
+
+                            PersonalAssetInfo personalAsset;
+
+                            if (assetIdToPersonalAsset.TryGetValue(key, out personalAsset))
+                            {
+                                personalAsset.Files = pricing.PriceContainers.ToList();
+                            }
                         }
                     }
                 }
