@@ -23,7 +23,8 @@ namespace WebAPI.Controllers
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         /// <summary>
-        /// Lists personal enriched data for given assets
+        /// Lists personal enriched data for given assets.
+        /// <remarks>Possible status codes: FileToMediaMismatch = 3028, InvalidAssetType = 4021, UserNotExistsInDomain = 1020, InvalidUser = 1026</remarks>
         /// </summary>
         /// <param name="assets">Assets and files which we want their data</param>
         /// <param name="with">Which data will be returned</param>
