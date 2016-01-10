@@ -20,7 +20,6 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="appToken">Application token</param>
         /// <remarks>
-        /// Possible status codes:   
         /// </remarks>
         /// <returns></returns>
         [Route("add"), HttpPost]
@@ -48,7 +47,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">Application token identifier</param>
         /// <remarks>
-        /// Possible status codes:   
+        /// Possible status codes: 50020 = Invalid Application token
         /// </remarks>
         /// <returns></returns>
         [Route("get"), HttpPost]
@@ -76,7 +75,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">Application token identifier</param>
         /// <remarks>
-        /// Possible status codes:   
+        /// Possible status codes: 50020 = Invalid Application token
         /// </remarks>
         /// <returns></returns>
         [Route("delete"), HttpPost]
@@ -108,7 +107,7 @@ namespace WebAPI.Controllers
         /// <param name="type">session type, will be ignored if a different session type already defined on the application token</param>
         /// <param name="expiry">session expiry (in seconds), could be overwritten by shorter expiry of the application token and the session-expiry that defined on the application token</param>
         /// <remarks>
-        /// Possible status codes:   
+        /// Possible status codes: 50020 = Invalid Application token, 50021 = Expired application token, 50022 = Invalid application token hash, 50023 = Not active application token
         /// </remarks>
         /// <returns></returns>
         [Route("startSession"), HttpPost]
