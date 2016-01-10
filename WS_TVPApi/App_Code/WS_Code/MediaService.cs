@@ -34,6 +34,7 @@ using TVPApiModule.Objects.Authorization;
 using KLogMonitor;
 using System.Reflection;
 using TVPApiModule.Objects.Requests;
+using System.Threading;
 
 namespace TVPApiServices
 {
@@ -4289,32 +4290,31 @@ namespace TVPApiServices
                     return response;
                 }
 
-                if (with.Contains("pricing"))
-                {
-                    try
-                    {
-                        List<AssetFiles> assetFiles = new List<AssetFiles>();
+                var ctx = HttpContext.Current;
 
-                        pricingsResponse = new ApiConditionalAccessService(groupId, initObj.Platform).GetAssetsPrices(initObj.SiteGuid,
-                            couponCode, initObj.UDID, assetFiles);
-
-                    }
-                    catch (Exception ex)
+                System.Threading.Thread threadPricing = new Thread(() =>
                     {
-                        HttpContext.Current.Items["Error"] = ex;
-                    }
-                }
-
-                if (with.Contains("bookmark"))
-                {
-                    try
-                    {
-                        // Tokenization: validate domain
-                        if (AuthorizationManager.IsTokenizationEnabled() &&
-                            !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, groupId, initObj.Platform))
+                        try
                         {
-                            return null;
+                            HttpContext.Current = ctx;
+
+                            List<AssetFiles> assetFiles = new List<AssetFiles>();
+
+                            pricingsResponse = new ApiConditionalAccessService(groupId, initObj.Platform).GetAssetsPrices(initObj.SiteGuid,
+                                couponCode, initObj.UDID, assetFiles);
+
                         }
+                        catch (Exception ex)
+                        {
+                            ctx.Items["Error"] = ex;
+                        }
+                    });
+
+                System.Threading.Thread threadBookmarks = new Thread(() =>
+                {
+                    try
+                    {
+                        HttpContext.Current = ctx;
 
                         List<AssetBookmarkRequest> assetsToSend = new List<AssetBookmarkRequest>();
                         foreach (PersonalAssetRequest asset in assets)
@@ -4360,8 +4360,36 @@ namespace TVPApiServices
                     }
                     catch (Exception ex)
                     {
-                        HttpContext.Current.Items["Error"] = ex;
+                        ctx.Items["Error"] = ex;
                     }
+
+                });
+
+                if (with.Contains("pricing"))
+                {
+                    threadPricing.Start();
+                }
+
+                if (with.Contains("bookmark"))
+                {
+                    // Tokenization: validate domain
+                    if (AuthorizationManager.IsTokenizationEnabled() &&
+                        !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, groupId, initObj.Platform))
+                    {
+                        return null;
+                    }
+
+                    threadBookmarks.Start();
+                }
+
+                if (with.Contains("pricing"))
+                {
+                    threadPricing.Join();
+                }
+
+                if (with.Contains("bookmark"))
+                {
+                    threadBookmarks.Join();
                 }
 
                 // According to catalog response, update final response's objects
