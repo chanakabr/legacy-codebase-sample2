@@ -80,12 +80,8 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
             return;
         }
 
-        Uri uriResult;
         // check for valid Url
-        bool result = Uri.TryCreate(picLink, UriKind.Absolute, out uriResult)
-            && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
-
-        if (!result)
+        if (!IsImageUrlVaild(picLink))
         {
             lblStatus.ForeColor = System.Drawing.Color.Red;
             lblStatus.Text = "Please fill valid pic link";
@@ -114,6 +110,8 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
             Session["FieldId"] = null;
         }
 
+        bool setMediaThumb = ratioId == ImageUtils.GetGroupDefaultRatio(groupID);
+
         if (id > 0)
         {
             switch (picMediaType)
@@ -123,34 +121,31 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
                     break;
                 case PopUpContext.Vod:
                     {
+                        picId = TvinciImporter.ImporterImpl.DownloadPicToImageServer(picLink, name, groupID, id, "eng", setMediaThumb, ratioId, eAssetImageType.Media, false, LoginManager.GetLoginID());
                         // setMediaThumb only if the ratio is the group default ratio
-                        bool setMediaThumb = ratioId == ImageUtils.GetGroupDefaultRatio(groupID);
-
-                        picId = TvinciImporter.ImporterImpl.DownloadPicToImageServer(picLink, name, groupID, id, "eng", setMediaThumb, ratioId, eAssetImageType.Media, false);
-
-                        if (setMediaThumb)
-                        {
-                            ChangePicAtOpenerPage(picId, openerFieldToUpdate);
-                        }
+                        ChangePicAtOpenerPage(picId, setMediaThumb, openerFieldToUpdate);
                     }
                     break;
                 case PopUpContext.Category:
                     {
-                        picId = TvinciImporter.ImporterImpl.DownloadPicToImageServer(picLink, name, groupID, id, "eng", true, ratioId, eAssetImageType.Category, false);
+                        picId = TvinciImporter.ImporterImpl.DownloadPicToImageServer(picLink, name, groupID, id, "eng", false, ratioId, eAssetImageType.Category, false, LoginManager.GetLoginID());
 
-                        ChangePicAtOpenerPage(picId, openerFieldToUpdate);
+                        ChangePicAtOpenerPage(picId, setMediaThumb, openerFieldToUpdate);
+
                     }
                     break;
                 case PopUpContext.Channel:
                     {
-                        picId = TvinciImporter.ImporterImpl.DownloadPicToImageServer(picLink, name, groupID, id, "eng", true, ratioId, eAssetImageType.Channel, false);
+                        picId = TvinciImporter.ImporterImpl.DownloadPicToImageServer(picLink, name, groupID, id, "eng", false, ratioId, eAssetImageType.Channel, false, LoginManager.GetLoginID());
 
-                        ChangePicAtOpenerPage(picId, openerFieldToUpdate);
+                        ChangePicAtOpenerPage(picId, setMediaThumb, openerFieldToUpdate);
+
                     }
                     break;
                 case PopUpContext.EpgProgram:
                     {
-                        picId = TvinciImporter.ImporterImpl.DownloadEPGPicToImageServer(picLink, name, groupID, id, ratioId, false);
+
+                        picId = TvinciImporter.ImporterImpl.DownloadEPGPicToImageServer(picLink, name, groupID, id, ratioId, false, LoginManager.GetLoginID());
 
                         if (picId > 0)
                         {
@@ -158,10 +153,8 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
                             Session[string.Format("Epg_Channel_Schedule_{0}_Pic_Id", Session["epgIdentifier"].ToString())] = picId;
                             Session[string.Format("Epg_Pic_Id_{0}_Pic_Ratio", picId)] = ratioId;
 
-                            // setMediaThumb only if the ratio is the group default ratio
-                            bool setMediaThumb = ratioId == ImageUtils.GetGroupDefaultEpgRatio(groupID);
-
-                            if (setMediaThumb)
+                            // if the ratio is the group default ratio
+                            if (ratioId == ImageUtils.GetGroupDefaultEpgRatio(groupID))
                             {
                                 //update media with new Pic
                                 Session["Pic_Image_Url"] = PageUtils.GetEpgPicImageUrl(picId, 90, 65);
@@ -178,6 +171,27 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
 
         ClearSession();
         ClientScript.RegisterStartupScript(typeof(Page), "closePage", "window.close();", true);
+    }
+
+    private bool IsImageUrlVaild(string picLink)
+    {
+        bool isImageUrlVaild = false;
+        //check if thumb Url exist
+        string checkImageUrl = WS_Utils.GetTcmConfigValue("CheckImageUrl");
+        if (!string.IsNullOrEmpty(checkImageUrl) && checkImageUrl.ToLower().Equals("true"))
+        {
+            if (!ImageUtils.IsUrlExists(picLink))
+            {
+                log.ErrorFormat("DownloadPicToImageServer thumb Uri not valid: {0} ", picLink);
+                isImageUrlVaild = false;
+            }
+            else
+            {
+                isImageUrlVaild = true;
+            }
+        }
+
+        return isImageUrlVaild;
     }
 
     protected void ddlRatio_SelectedIndexChanged(object sender, EventArgs e)
@@ -292,9 +306,9 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
         return data;
     }
 
-    private void ChangePicAtOpenerPage(int picId, string openerFieldToUpdate)
+    private void ChangePicAtOpenerPage(int picId, bool iSChangePicNeeded, string openerFieldToUpdate)
     {
-        if (picId > 0)
+        if (picId > 0 && iSChangePicNeeded)
         {
             //update media with new Pic
             Session["Pic_Image_Url"] = PageUtils.GetPicImageUrlByRatio(picId, 90, 65);
