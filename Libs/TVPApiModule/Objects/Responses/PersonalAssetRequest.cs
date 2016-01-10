@@ -39,11 +39,11 @@ namespace TVPApiModule.Objects.Responses
         /// <summary>
         /// Files of the current asset
         /// </summary>
-        [DataMember(Name = "file_ids")]
-        [JsonProperty(PropertyName = "file_ids")]
-        [XmlArray(ElementName = "file_ids", IsNullable = true)]
+        [DataMember(Name = "fileIds")]
+        [JsonProperty(PropertyName = "fileIds", NullValueHandling = NullValueHandling.Ignore)]
+        [XmlArray(ElementName = "fileIds", IsNullable = true)]
         [XmlArrayItem("item")]
-        public List<long> FileIds
+        public List<int> FileIds
         {
             get;
             set;

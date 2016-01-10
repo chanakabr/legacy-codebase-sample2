@@ -4227,6 +4227,8 @@ namespace TVPApiServices
             response.TotalItems = assets.Length;
             response.Objects = new List<PersonalAssetInfo>();
 
+            List<AssetFiles> assetFiles = new List<AssetFiles>();
+
             foreach (var asset in assets)
             {
                 var type = TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.eAssetTypes.UNKNOWN;
@@ -4276,6 +4278,13 @@ namespace TVPApiServices
                 }
 
                 response.Objects.Add(responseAsset);
+
+                assetFiles.Add(new AssetFiles()
+                {
+                    AssetId = asset.Id.ToString(),
+                    AssetType = type,
+                    FileIds = asset.FileIds.ToArray()                
+                });
             }
 
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetItemPrices", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
@@ -4298,11 +4307,8 @@ namespace TVPApiServices
                         {
                             HttpContext.Current = ctx;
 
-                            List<AssetFiles> assetFiles = new List<AssetFiles>();
-
                             pricingsResponse = new ApiConditionalAccessService(groupId, initObj.Platform).GetAssetsPrices(initObj.SiteGuid,
                                 couponCode, initObj.UDID, assetFiles);
-
                         }
                         catch (Exception ex)
                         {
