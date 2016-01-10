@@ -3163,7 +3163,7 @@ namespace ConditionalAccess
                     }
 
                     var res = svcDomains.GetDomainInfo(wsUsername, wsPassword, p_nDomainId);
-                    if (res != null)
+                    if (res != null && res.Status != null && res.Status.Code == (int)eResponseStatus.OK)
                     {
                         oDomain = res.Domain;
                     }

@@ -2083,10 +2083,10 @@ namespace ConditionalAccess
         /// <param name="p_sSubscriptionCode"></param>
         /// <param name="p_arrUsers"></param>
         /// <returns></returns>
-        private DataRow GetSubscriptionPurchaseRow(string p_sSubscriptionCode, int[] p_arrUsers)
+        private DataRow GetSubscriptionPurchaseRow(string p_sSubscriptionCode, int[] p_arrUsers, int domainID = 0)
         {
             DataRow drUserPurchase = null;
-            DataTable dtUsersPurchases = ConditionalAccessDAL.Get_UsersSubscriptionPurchases(p_arrUsers.ToList(), p_sSubscriptionCode);
+            DataTable dtUsersPurchases = ConditionalAccessDAL.Get_UsersSubscriptionPurchases(p_arrUsers.ToList(), p_sSubscriptionCode, domainID);
 
             // If there is at least one valid purchase
             if (dtUsersPurchases != null && dtUsersPurchases.Rows != null && dtUsersPurchases.Rows.Count > 0)
@@ -11473,7 +11473,7 @@ namespace ConditionalAccess
                         string sPurchasingSiteGuid = string.Empty;
 
                         // Check if within cancellation window
-                        bool bCancellationWindow = GetCancellationWindow(arrUserIDs, p_nAssetID, p_enmTransactionType, this.m_nGroupID, ref dtUserPurchases);
+                        bool bCancellationWindow = GetCancellationWindow(arrUserIDs, p_nAssetID, p_enmTransactionType, this.m_nGroupID, ref dtUserPurchases, p_nDomainID);
 
                         // Check if the user purchased the asset at all
                         if (dtUserPurchases == null || dtUserPurchases.Rows == null || dtUserPurchases.Rows.Count == 0)
@@ -11739,7 +11739,7 @@ namespace ConditionalAccess
         /// <param name="p_nGroupID"></param>
         /// <param name="p_dtUserPurchases"></param>
         /// <returns></returns>
-        private bool GetCancellationWindow(int[] p_arrUserIDs, int p_nAssetID, eTransactionType p_enmServiceType, int p_nGroupID, ref DataTable p_dtUserPurchases)
+        private bool GetCancellationWindow(int[] p_arrUserIDs, int p_nAssetID, eTransactionType p_enmServiceType, int p_nGroupID, ref DataTable p_dtUserPurchases, int domainID = 0)
         {
             TvinciPricing.UsageModule oUsageModule = null;
             bool bCancellationWindow = false;
@@ -11751,17 +11751,17 @@ namespace ConditionalAccess
             {
                 case eTransactionType.PPV:
                     {
-                        p_dtUserPurchases = ConditionalAccessDAL.Get_AllPPVPurchasesByUserIDsAndMediaFileID(p_nAssetID, p_arrUserIDs.ToList(), p_nGroupID);
+                        p_dtUserPurchases = ConditionalAccessDAL.Get_AllPPVPurchasesByUserIDsAndMediaFileID(p_nAssetID, p_arrUserIDs.ToList(), p_nGroupID, domainID);
                         break;
                     }
                 case eTransactionType.Subscription:
                     {
-                        p_dtUserPurchases = ConditionalAccessDAL.Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode(p_nAssetID, p_arrUserIDs.ToList(), p_nGroupID);
+                        p_dtUserPurchases = ConditionalAccessDAL.Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode(p_nAssetID, p_arrUserIDs.ToList(), p_nGroupID, domainID);
                         break;
                     }
                 case eTransactionType.Collection:
                     {
-                        p_dtUserPurchases = ConditionalAccessDAL.Get_AllCollectionPurchasesByUserIDsAndCollectionCode(p_nAssetID, p_arrUserIDs.ToList(), p_nGroupID);
+                        p_dtUserPurchases = ConditionalAccessDAL.Get_AllCollectionPurchasesByUserIDsAndCollectionCode(p_nAssetID, p_arrUserIDs.ToList(), p_nGroupID, domainID);
                         break;
                     }
                 default:
@@ -14626,14 +14626,14 @@ namespace ConditionalAccess
             ResponseStatus userValidStatus = ResponseStatus.OK;
             long householdId = 0;
             userValidStatus = Utils.ValidateUser(m_nGroupID, siteguid, ref householdId);
-            bool shouldSwitchToMasterUser = false;
-            string masterSiteGuid = string.Empty;
+            bool shouldSwitchToMasterUser = false;            
 
             // check if we need to set isSwitchToMasterUser = true so we will update subscription details to master user instead of user where needed
             if (userValidStatus == ResponseStatus.UserDoesNotExist)
             {                
                 shouldSwitchToMasterUser = true;
                 householdId = ODBCWrapper.Utils.GetLongSafeVal(subscriptionPurchaseRow, "DOMAIN_ID");
+                string masterSiteGuid = string.Empty;
                 if (householdId > 0)
                 {
                     TvinciDomains.Domain domain = Utils.GetDomainInfo((int)householdId, m_nGroupID);
@@ -14643,11 +14643,15 @@ namespace ConditionalAccess
                     }
                 }
 
-                if(string.IsNullOrEmpty(masterSiteGuid))
+                if (string.IsNullOrEmpty(masterSiteGuid))
                 {
                     // could not find a master user to replace the deleted user                   
                     log.ErrorFormat("User validation failed: UserDoesNotExist and no MasterUser to replace in renew, data: {0}", logString);
                     return true;
+                }
+                else
+                {
+                    siteguid = masterSiteGuid;
                 }
             }
 
@@ -14734,16 +14738,7 @@ namespace ConditionalAccess
 
             // check if purchased with preview module
             bool isPurchasedWithPreviewModule;
-
-            // check which siteGuid to send
-            if (shouldSwitchToMasterUser)
-            {
-                isPurchasedWithPreviewModule = ApiDAL.Get_IsPurchasedWithPreviewModuleByBillingGuid(m_nGroupID, billingGuid, (int)purchaseId);
-            }
-            else
-            {
-                isPurchasedWithPreviewModule = ApiDAL.Get_IsPurchasedWithPreviewModule(m_nGroupID, siteguid, (int)purchaseId);
-            }
+            isPurchasedWithPreviewModule = ApiDAL.Get_IsPurchasedWithPreviewModuleByBillingGuid(m_nGroupID, billingGuid, (int)purchaseId);            
 
             paymentNumber = Utils.CalcPaymentNumber(numOfPayments, paymentNumber, isPurchasedWithPreviewModule);
             if (numOfPayments > 0 && paymentNumber > numOfPayments)
@@ -14766,19 +14761,9 @@ namespace ConditionalAccess
             string couponCode = string.Empty;
             try
             {
-                // check which siteGuid to send
-                if (shouldSwitchToMasterUser)
-                {
-                    GetMultiSubscriptionUsageModule(masterSiteGuid, userIp, (int)purchaseId, paymentNumber, totalNumOfPayments, numOfPayments, isPurchasedWithPreviewModule,
-                            ref price, ref customData, ref currency, ref recPeriods, ref isMPPRecurringInfinitely, ref maxVLCOfSelectedUsageModule,
-                            ref couponCode, subscription);
-                }
-                else
-                {
-                    GetMultiSubscriptionUsageModule(siteguid, userIp, (int)purchaseId, paymentNumber, totalNumOfPayments, numOfPayments, isPurchasedWithPreviewModule,
-                            ref price, ref customData, ref currency, ref recPeriods, ref isMPPRecurringInfinitely, ref maxVLCOfSelectedUsageModule,
-                            ref couponCode, subscription);
-                }
+                GetMultiSubscriptionUsageModule(siteguid, userIp, (int)purchaseId, paymentNumber, totalNumOfPayments, numOfPayments, isPurchasedWithPreviewModule,
+                        ref price, ref customData, ref currency, ref recPeriods, ref isMPPRecurringInfinitely, ref maxVLCOfSelectedUsageModule,
+                        ref couponCode, subscription);
             }
             catch (Exception ex)
             {
@@ -14795,17 +14780,8 @@ namespace ConditionalAccess
             TvinciBilling.TransactResult transactionResponse = null;
             try
             {
-                // check which siteGuid to send
-                if (shouldSwitchToMasterUser)
-                {
-                    transactionResponse = wsBillingService.ProcessRenewal(billingUserName, billingPassword, masterSiteGuid, householdId, price, currency,
-                                              customData, (int)productId, subscription.m_ProductCode, paymentNumber, numOfPayments, billingGuid, subscription.m_GracePeriodMinutes);
-                }
-                else
-                {
-                    transactionResponse = wsBillingService.ProcessRenewal(billingUserName, billingPassword, siteguid, householdId, price, currency,
-                                              customData, (int)productId, subscription.m_ProductCode, paymentNumber, numOfPayments, billingGuid, subscription.m_GracePeriodMinutes);
-                }
+                transactionResponse = wsBillingService.ProcessRenewal(billingUserName, billingPassword, siteguid, householdId, price, currency,
+                                            customData, (int)productId, subscription.m_ProductCode, paymentNumber, numOfPayments, billingGuid, subscription.m_GracePeriodMinutes);
             }
             catch (Exception ex)
             {
@@ -14867,27 +14843,13 @@ namespace ConditionalAccess
                         // update MPP renew data
                         try
                         {
-                            // check which siteGuid to send and if we need to update the siteGuid in the subscription_purchases row
-                            if (shouldSwitchToMasterUser)
-                            {
-                                ConditionalAccessDAL.Update_MPPRenewalData(purchaseId, true, endDate, 0, "CA_CONNECTION_STRING", masterSiteGuid);
-                                WriteToUserLog(masterSiteGuid, string.Format("Successfully renewed. Product ID: {0}, price: {1}, currency: {2}, purchase ID: {3}, Billing Transition ID: {4}",
-                                    productId,                           // {0}
-                                    price,                               // {1}
-                                    currency,                            // {2}
-                                    purchaseId,                          // {3}
-                                    transactionResponse.TransactionID)); // {4}
-                            }
-                            else
-                            {
-                                ConditionalAccessDAL.Update_MPPRenewalData(purchaseId, true, endDate, 0, "CA_CONNECTION_STRING");
-                                WriteToUserLog(siteguid, string.Format("Successfully renewed. Product ID: {0}, price: {1}, currency: {2}, purchase ID: {3}, Billing Transition ID: {4}",
-                                    productId,                           // {0}
-                                    price,                               // {1}
-                                    currency,                            // {2}
-                                    purchaseId,                          // {3}
-                                    transactionResponse.TransactionID)); // {4}
-                            }
+                            ConditionalAccessDAL.Update_MPPRenewalData(purchaseId, true, endDate, 0, "CA_CONNECTION_STRING");
+                            WriteToUserLog(siteguid, string.Format("Successfully renewed. Product ID: {0}, price: {1}, currency: {2}, purchase ID: {3}, Billing Transition ID: {4}",
+                                productId,                           // {0}
+                                price,                               // {1}
+                                currency,                            // {2}
+                                purchaseId,                          // {3}
+                                transactionResponse.TransactionID)); // {4}
                         }
                         catch (Exception ex)
                         {
@@ -14903,17 +14865,8 @@ namespace ConditionalAccess
 
                         // enqueue renew transaction
                         RenewTransactionsQueue queue = new RenewTransactionsQueue();
-                        DateTime nextRenewalDate = endDate.AddMinutes(paymentGateway.RenewalStartMinutes);
-                        RenewTransactionData data;
-                        // check which siteGuid to send
-                        if (shouldSwitchToMasterUser)
-                        {
-                            data = new RenewTransactionData(m_nGroupID, masterSiteGuid, purchaseId, billingGuid, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate), nextRenewalDate);
-                        }
-                        else
-                        {
-                            data = new RenewTransactionData(m_nGroupID, siteguid, purchaseId, billingGuid, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate), nextRenewalDate);
-                        }
+                        DateTime nextRenewalDate = endDate.AddMinutes(paymentGateway.RenewalStartMinutes);                        
+                        RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseId, billingGuid, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate), nextRenewalDate);
                         bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
                         if (!enqueueSuccessful)
                         {
@@ -14936,11 +14889,6 @@ namespace ConditionalAccess
                                             {"SubscriptionCode", subscription.m_SubscriptionCode}
                                         };
 
-                        // check if to change SiteGUID to masterSiteGuid
-                        if (shouldSwitchToMasterUser && dicData.ContainsKey("SiteGUID"))
-                        {
-                            dicData["SiteGUID"] = masterSiteGuid;
-                        }
                         this.EnqueueEventRecord(NotifiedAction.ChargedSubscriptionRenewal, dicData);
 
                         log.DebugFormat("Successfully renewed. productId: {0}, price: {1}, currency: {2}, userID: {3}, billingTransactionId: {4}",
@@ -14981,18 +14929,13 @@ namespace ConditionalAccess
                         {
                             RenewTransactionsQueue queue = new RenewTransactionsQueue();
                             DateTime nextRenewalDate = DateTime.UtcNow.AddMinutes(paymentGatewayResponse.RenewalIntervalMinutes);
-                            RenewTransactionData data;
                             // check if to update siteGuid in subscription_purchases to masterSiteGuid and set renewal to masterSiteGuid
                             if (shouldSwitchToMasterUser)
                             {
-                                ConditionalAccessDAL.Update_SubscriptionPurchaseRenewalSiteGuid(m_nGroupID, billingGuid, (int)purchaseId, masterSiteGuid, "CA_CONNECTION_STRING");
-                                data = new RenewTransactionData(m_nGroupID, masterSiteGuid, purchaseId, billingGuid, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate), nextRenewalDate);
-                            }
-                            else
-                            {
-                                data = new RenewTransactionData(m_nGroupID, siteguid, purchaseId, billingGuid, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate), nextRenewalDate);
+                                ConditionalAccessDAL.Update_SubscriptionPurchaseRenewalSiteGuid(m_nGroupID, billingGuid, (int)purchaseId, siteguid, "CA_CONNECTION_STRING");                                
                             }
 
+                            RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseId, billingGuid, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate), nextRenewalDate);
                             bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
                             if (!enqueueSuccessful)
                             {
