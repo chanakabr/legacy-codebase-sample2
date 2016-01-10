@@ -23,10 +23,13 @@ namespace TVPApiModule.Objects.Responses
         [JsonProperty(PropertyName = "id")]
         public string Id { get; set; }
 
+        [JsonProperty(PropertyName = "is_default")]
+        public bool IsDefault { get; set; }
+
         [JsonProperty(PropertyName = "version")]
         public int Version { get; set; }
 
-         
+
         public Image(Tvinci.Data.Loaders.TvinciPlatform.Catalog.Picture picture)
         {
             if (picture != null)
@@ -35,6 +38,7 @@ namespace TVPApiModule.Objects.Responses
                 Ratio = picture.ratio;
                 Id = picture.id;
                 Version = picture.version;
+                IsDefault = picture.isDefault;
 
                 // parse from "widthXheight" format
                 string[] sizeArr = picture.m_sSize.ToLower().Split('x');

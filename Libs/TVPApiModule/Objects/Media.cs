@@ -89,6 +89,7 @@ namespace TVPApi
             public string ID;
             public int Version;
             public string Ratio;
+            public bool IsDefault;
         }
 
         public List<TagMetaPair> Tags
@@ -462,7 +463,8 @@ namespace TVPApi
                     pic.Version = Convert.ToInt32(rowPicture["Version"].ToString());
                     pic.ID = rowPicture["ImageId"].ToString();
                     pic.Ratio = rowPicture["Ratio"].ToString();
-                    
+                    pic.IsDefault = Convert.ToBoolean(rowPicture["IsDefault"]);
+
                     Pictures.Add(pic);
                 }
             }
