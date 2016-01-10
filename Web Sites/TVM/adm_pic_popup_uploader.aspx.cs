@@ -14,7 +14,9 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
         Vod,
         EpgProgram,
         Category,
-        Channel
+        Channel,
+        DefaultPic,
+        LogoPic
     }
 
     private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -142,6 +144,14 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
 
                     }
                     break;
+                case PopUpContext.DefaultPic:
+                    {
+                        picId = TvinciImporter.ImporterImpl.DownloadPicToImageServer(picLink, name, groupID, id, "eng", false, ratioId, eAssetImageType.DefaultPic, false, LoginManager.GetLoginID());
+
+                        ChangePicAtOpenerPage(picId, setMediaThumb, openerFieldToUpdate);
+
+                    }
+                    break;
                 case PopUpContext.EpgProgram:
                     {
 
@@ -171,27 +181,6 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
 
         ClearSession();
         ClientScript.RegisterStartupScript(typeof(Page), "closePage", "window.close();", true);
-    }
-
-    private bool IsImageUrlVaild(string picLink)
-    {
-        bool isImageUrlVaild = false;
-        //check if thumb Url exist
-        string checkImageUrl = WS_Utils.GetTcmConfigValue("CheckImageUrl");
-        if (!string.IsNullOrEmpty(checkImageUrl) && checkImageUrl.ToLower().Equals("true"))
-        {
-            if (!ImageUtils.IsUrlExists(picLink))
-            {
-                log.ErrorFormat("DownloadPicToImageServer thumb Uri not valid: {0} ", picLink);
-                isImageUrlVaild = false;
-            }
-            else
-            {
-                isImageUrlVaild = true;
-            }
-        }
-
-        return isImageUrlVaild;
     }
 
     protected void ddlRatio_SelectedIndexChanged(object sender, EventArgs e)
@@ -229,6 +218,9 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
             case PopUpContext.Channel:
                 imgPicRatio.ImageUrl = PageUtils.GetPicImageUrlByRatio(id, eAssetImageType.Channel, int.Parse(ddlRatio.SelectedValue), 90, 65);
                 break;
+            case PopUpContext.DefaultPic:
+                imgPicRatio.ImageUrl = PageUtils.GetPicImageUrlByRatio(id, eAssetImageType.DefaultPic, int.Parse(ddlRatio.SelectedValue), 90, 65);
+                break;
             default:
                 break;
         }
@@ -238,6 +230,16 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
 
     protected void btnCancel_Click(object sender, EventArgs e)
     {
+        try
+        {
+            PopUpContext picMediaType = GetPopUpContext();
+            string mediaIdentifier = string.Format("MediaType_{0}_Id", picMediaType.ToString());
+            Session[mediaIdentifier] = null;
+        }
+        catch
+        { 
+        }
+
         ClearSession();
         ClientScript.RegisterStartupScript(typeof(Page), "closePage", "window.close();", true);
     }
@@ -278,6 +280,7 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
             case PopUpContext.Vod:
             case PopUpContext.Channel:
             case PopUpContext.Category:
+            case PopUpContext.DefaultPic:
                 {
                     selectQuery += "select lur.ratio as 'txt', g.ratio_id as 'id' from groups g, lu_pics_ratios lur where g.ratio_id = lur.id and g.id = " + groupId.ToString() + " UNION " +
                         "select lur.ratio as 'txt', gr.ratio_id as 'id' from group_ratios gr, lu_pics_ratios lur where gr.ratio_id = lur.id and gr.status = 1 and gr.group_id = " + groupId.ToString();
@@ -338,6 +341,11 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
                 type = PopUpContext.Channel;
                 SetMediaTypeSession("channel_id", type);
             }
+            else if (!string.IsNullOrEmpty(Request.QueryString["lastPage"]) && Request.QueryString["lastPage"].ToString() == "myGroup")
+            {
+                type = PopUpContext.DefaultPic;
+                SetMediaTypeSession("defaultPic", type);
+            }
             else
             {
                 type = PopUpContext.Vod;
@@ -356,24 +364,57 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
 
     private void SetMediaTypeSession(string contextIdName, PopUpContext type)
     {
-        string source = string.Empty;
         int sourceId = 0;
 
-        source = Session[contextIdName].ToString();
-        int.TryParse(source, out sourceId);
+        switch (type)
+        {
+            case PopUpContext.Vod:
+            case PopUpContext.EpgProgram:
+            case PopUpContext.Category:
+            case PopUpContext.Channel:
+                {
+                    string source = string.Empty;
+                    source = Session[contextIdName].ToString();
+                    int.TryParse(source, out sourceId);        
+                }
+                break;
+            case PopUpContext.DefaultPic:
+                sourceId = LoginManager.GetLoginGroupID();
+                break;
+            default:
+                break;
+        }
+        
         Session[string.Format("MediaType_{0}_Id", type)] = sourceId;
     }
 
     private void ClearSession()
     {
-        PopUpContext picMediaType = GetPopUpContext();
-        string mediaIdentifier = string.Format("MediaType_{0}_Id", picMediaType.ToString());
-
-        Session[mediaIdentifier] = null;
-
         // in case session wasn't nullify
         Session["MediaType"] = null;
         Session["epgIdentifier"] = null;
         Session["FieldId"] = null;
     }
+
+    private bool IsImageUrlVaild(string picLink)
+    {
+        bool isImageUrlVaild = false;
+        //check if thumb Url exist
+        string checkImageUrl = WS_Utils.GetTcmConfigValue("CheckImageUrl");
+        if (!string.IsNullOrEmpty(checkImageUrl) && checkImageUrl.ToLower().Equals("true"))
+        {
+            if (!ImageUtils.IsUrlExists(picLink))
+            {
+                log.ErrorFormat("DownloadPicToImageServer thumb Uri not valid: {0} ", picLink);
+                isImageUrlVaild = false;
+            }
+            else
+            {
+                isImageUrlVaild = true;
+            }
+        }
+
+        return isImageUrlVaild;
+    }
+
 }
