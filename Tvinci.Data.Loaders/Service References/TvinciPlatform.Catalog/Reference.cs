@@ -6230,6 +6230,9 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
         private string idField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool isDefaultField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string m_sSizeField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -6260,6 +6263,19 @@ namespace Tvinci.Data.Loaders.TvinciPlatform.Catalog {
                 if ((object.ReferenceEquals(this.idField, value) != true)) {
                     this.idField = value;
                     this.RaisePropertyChanged("id");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool isDefault {
+            get {
+                return this.isDefaultField;
+            }
+            set {
+                if ((this.isDefaultField.Equals(value) != true)) {
+                    this.isDefaultField = value;
+                    this.RaisePropertyChanged("isDefault");
                 }
             }
         }
