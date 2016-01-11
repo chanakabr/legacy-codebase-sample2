@@ -214,7 +214,10 @@
     <Compile Include="Objects\Responses\AdminUserResponse.cs" />
     <Compile Include="Objects\Responses\AssetsBookmarksResponse.cs" />
     <Compile Include="Objects\Responses\Billing\PaymentGatewayChargeIdResponse.cs" />
+    <Compile Include="Objects\Responses\Pricing\Currency.cs" />
+    <Compile Include="Objects\Responses\Pricing\Price.cs" />
     <Compile Include="Objects\Responses\ConditionalAccess\DomainsBillingTransactionsResponse.cs" />
+    <Compile Include="Objects\Responses\ConditionalAccess\DomainTransactionsHistoryResponse.cs" />
     <Compile Include="Objects\Responses\ConditionalAccess\TransactionResponse.cs">
       <SubType>Code</SubType>
     </Compile>

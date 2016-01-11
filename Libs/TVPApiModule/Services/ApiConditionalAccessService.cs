@@ -869,6 +869,28 @@ namespace TVPApiModule.Services
             return retVal;
         }
 
+        public TVPApiModule.Objects.Responses.ConditionalAccess.DomainTransactionsHistoryResponse GetDomainTransactionsHistory(int domainIDs, DateTime startDate, DateTime endDate)
+        {
+            TVPApiModule.Objects.Responses.ConditionalAccess.DomainTransactionsHistoryResponse retVal = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    DomainTransactionsHistoryResponse response = m_Module.GetDomainTransactionsHistory(m_wsUserName, m_wsPassword, domainIDs, startDate, endDate);
+                    if (response != null)
+                    {
+                        retVal = new Objects.Responses.ConditionalAccess.DomainTransactionsHistoryResponse(response);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling webservice protocol : GetDomainTransactionsHistory, Error Message: {0}, Parameters : domainID {1}, startDate: {2}, endDate: {3}", ex.Message, domainIDs, startDate, endDate);
+            }
+            return retVal;
+        }
+
         public PermittedMediaContainer[] GetDomainPermittedItems(int domainID)
         {
             PermittedMediaContainer[] retVal = null;
