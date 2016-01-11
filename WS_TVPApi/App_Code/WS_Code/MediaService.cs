@@ -1395,7 +1395,7 @@ namespace TVPApiServices
                     {
                         if (!long.TryParse(assetID, out mediaId))
                         {
-                            return "Asset id is not a number";
+                            return "Invalid Asset id";
                         }
                     }
 
