@@ -944,6 +944,7 @@ namespace NPVR
                 {
                     epgGroupId = picGroupTree.Keys.Max();
                     log.Debug("NPVRPics " + string.Format("picGroupTree[{0}] count {1}", epgGroupId, picGroupTree[epgGroupId].Count));
+
                 }
 
 
