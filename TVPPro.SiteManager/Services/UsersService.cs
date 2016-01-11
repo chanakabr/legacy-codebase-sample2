@@ -125,12 +125,12 @@ namespace TVPPro.SiteManager.Services
             return retVal;
         }
 
-        public Enums.eUserOnlineStatus GetCurrentUserOnlineStatus(string UserName, string Password)
+        public Enums.eUserOnlineStatus GetCurrentUserOnlineStatus(string UserName, string Password, KeyValuePair[] KeyValuePairs = null)
         {
             UserContext = null; // to be ensure we start a new context
             try
             {
-                UserContext.UserResponse = PlatUserService.SignIn(wsUserName, wsPassword, UserName, Password, HttpContext.Current.Session.SessionID, TVPPro.SiteManager.Helper.SiteHelper.GetClientIP(), string.Empty, TVPPro.Configuration.Site.SiteConfiguration.Instance.Data.Features.SingleLogin.SupportFeature);
+                UserContext.UserResponse = PlatUserService.SignIn(wsUserName, wsPassword, UserName, Password, HttpContext.Current.Session.SessionID, TVPPro.SiteManager.Helper.SiteHelper.GetClientIP(), string.Empty, TVPPro.Configuration.Site.SiteConfiguration.Instance.Data.Features.SingleLogin.SupportFeature, KeyValuePairs);
                 return UserContext.OnlineStatus;
             }
             catch (Exception ex)
@@ -140,12 +140,12 @@ namespace TVPPro.SiteManager.Services
             }
         }
 
-        public bool SignIn(string UserName, string Password)
+        public bool SignIn(string UserName, string Password, KeyValuePair[] KeyValuePairs = null)
         {
             UserContext = null; // to be ensure we start a new context
             try
             {
-                UserContext.UserResponse = PlatUserService.SignIn(wsUserName, wsPassword, UserName, Password, HttpContext.Current.Session.SessionID, TVPPro.SiteManager.Helper.SiteHelper.GetClientIP(), string.Empty, TVPPro.Configuration.Site.SiteConfiguration.Instance.Data.Features.SingleLogin.SupportFeature);
+                UserContext.UserResponse = PlatUserService.SignIn(wsUserName, wsPassword, UserName, Password, HttpContext.Current.Session.SessionID, TVPPro.SiteManager.Helper.SiteHelper.GetClientIP(), string.Empty, TVPPro.Configuration.Site.SiteConfiguration.Instance.Data.Features.SingleLogin.SupportFeature, KeyValuePairs);
                 return UserContext.OnlineStatus == Enums.eUserOnlineStatus.LoggedIn;
             }
             catch (Exception ex)
@@ -1094,7 +1094,7 @@ namespace TVPPro.SiteManager.Services
             FavoritObject[] UserFavorites = null;
             try
             {
-                var res =  PlatUserService.GetUserFavorites(wsUserName, wsPassword, GetUserID(), DomainId, DeviceId, sMediaType);
+                var res = PlatUserService.GetUserFavorites(wsUserName, wsPassword, GetUserID(), DomainId, DeviceId, sMediaType);
                 UserFavorites = res.Favorites;
             }
             catch (Exception ex)

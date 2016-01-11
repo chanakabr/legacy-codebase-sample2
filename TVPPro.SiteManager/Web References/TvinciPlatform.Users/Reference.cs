@@ -501,7 +501,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/SignIn", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public UserResponseObject SignIn(string sWSUserName, string sWSPassword, string sUserName, string sPassword, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins) {
+        public UserResponseObject SignIn(string sWSUserName, string sWSPassword, string sUserName, string sPassword, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins, KeyValuePair[] KeyValuePairs) {
             object[] results = this.Invoke("SignIn", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -510,17 +510,18 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
                         sessionID,
                         sIP,
                         deviceID,
-                        bPreventDoubleLogins});
+                        bPreventDoubleLogins,
+                        KeyValuePairs});
             return ((UserResponseObject)(results[0]));
         }
         
         /// <remarks/>
-        public void SignInAsync(string sWSUserName, string sWSPassword, string sUserName, string sPassword, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins) {
-            this.SignInAsync(sWSUserName, sWSPassword, sUserName, sPassword, sessionID, sIP, deviceID, bPreventDoubleLogins, null);
+        public void SignInAsync(string sWSUserName, string sWSPassword, string sUserName, string sPassword, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins, KeyValuePair[] KeyValuePairs) {
+            this.SignInAsync(sWSUserName, sWSPassword, sUserName, sPassword, sessionID, sIP, deviceID, bPreventDoubleLogins, KeyValuePairs, null);
         }
         
         /// <remarks/>
-        public void SignInAsync(string sWSUserName, string sWSPassword, string sUserName, string sPassword, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins, object userState) {
+        public void SignInAsync(string sWSUserName, string sWSPassword, string sUserName, string sPassword, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins, KeyValuePair[] KeyValuePairs, object userState) {
             if ((this.SignInOperationCompleted == null)) {
                 this.SignInOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSignInOperationCompleted);
             }
@@ -532,7 +533,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
                         sessionID,
                         sIP,
                         deviceID,
-                        bPreventDoubleLogins}, this.SignInOperationCompleted, userState);
+                        bPreventDoubleLogins,
+                        KeyValuePairs}, this.SignInOperationCompleted, userState);
         }
         
         private void OnSignInOperationCompleted(object arg) {
@@ -3459,6 +3461,9 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         
         /// <remarks/>
         UserSuspended,
+        
+        /// <remarks/>
+        UserCreatedWithNoRole,
     }
     
     /// <remarks/>
@@ -3473,17 +3478,17 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         
         private UserDynamicData m_oDynamicDataField;
         
+        private UserState m_eUserStateField;
+        
+        private DomainSuspentionStatus m_eSuspendStateField;
+        
         private string m_sSiteGUIDField;
         
         private int m_domianIDField;
         
         private bool m_isDomainMasterField;
         
-        private UserState m_eUserStateField;
-        
         private int m_nSSOOperatorIDField;
-        
-        private DomainSuspentionStatus m_eSuspendStateField;
         
         /// <remarks/>
         public UserBasicData m_oBasicData {
@@ -3502,6 +3507,26 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
             }
             set {
                 this.m_oDynamicDataField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public UserState m_eUserState {
+            get {
+                return this.m_eUserStateField;
+            }
+            set {
+                this.m_eUserStateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public DomainSuspentionStatus m_eSuspendState {
+            get {
+                return this.m_eSuspendStateField;
+            }
+            set {
+                this.m_eSuspendStateField = value;
             }
         }
         
@@ -3536,32 +3561,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         }
         
         /// <remarks/>
-        public UserState m_eUserState {
-            get {
-                return this.m_eUserStateField;
-            }
-            set {
-                this.m_eUserStateField = value;
-            }
-        }
-        
-        /// <remarks/>
         public int m_nSSOOperatorID {
             get {
                 return this.m_nSSOOperatorIDField;
             }
             set {
                 this.m_nSSOOperatorIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public DomainSuspentionStatus m_eSuspendState {
-            get {
-                return this.m_eSuspendStateField;
-            }
-            set {
-                this.m_eSuspendStateField = value;
             }
         }
     }
