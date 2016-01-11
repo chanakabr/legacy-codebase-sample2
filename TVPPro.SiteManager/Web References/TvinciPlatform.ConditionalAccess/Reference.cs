@@ -30,6 +30,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PPVModule))]
     public partial class module : System.Web.Services.Protocols.SoapHttpClientProtocol {
         
+        private System.Threading.SendOrPostCallback CheckPendingTransactionOperationCompleted;
+        
         private System.Threading.SendOrPostCallback GetUserEntitlementsOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetDomainEntitlementsOperationCompleted;
@@ -73,6 +75,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         private System.Threading.SendOrPostCallback IsPermittedSubscriptionOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetUsersBillingHistoryOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetDomainTransactionsHistoryOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetDomainsBillingHistoryOperationCompleted;
         
@@ -208,8 +212,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         private System.Threading.SendOrPostCallback UpdatePendingTransactionOperationCompleted;
         
-        private System.Threading.SendOrPostCallback CheckPendingTransactionOperationCompleted;
-        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -247,6 +249,9 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
                 this.useDefaultCredentialsSetExplicitly = true;
             }
         }
+        
+        /// <remarks/>
+        public event CheckPendingTransactionCompletedEventHandler CheckPendingTransactionCompleted;
         
         /// <remarks/>
         public event GetUserEntitlementsCompletedEventHandler GetUserEntitlementsCompleted;
@@ -313,6 +318,9 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         /// <remarks/>
         public event GetUsersBillingHistoryCompletedEventHandler GetUsersBillingHistoryCompleted;
+        
+        /// <remarks/>
+        public event GetDomainTransactionsHistoryCompletedEventHandler GetDomainTransactionsHistoryCompleted;
         
         /// <remarks/>
         public event GetDomainsBillingHistoryCompletedEventHandler GetDomainsBillingHistoryCompleted;
@@ -516,7 +524,49 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         public event UpdatePendingTransactionCompletedEventHandler UpdatePendingTransactionCompleted;
         
         /// <remarks/>
-        public event CheckPendingTransactionCompletedEventHandler CheckPendingTransactionCompleted;
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/CheckPendingTransaction", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status CheckPendingTransaction(string wsUserName, string wsPassword, long paymentGatewayPendingId, int numberOfRetries, string billingGuid, long paymentGatewayTransactionId, string siteGuid, int productId, int productType) {
+            object[] results = this.Invoke("CheckPendingTransaction", new object[] {
+                        wsUserName,
+                        wsPassword,
+                        paymentGatewayPendingId,
+                        numberOfRetries,
+                        billingGuid,
+                        paymentGatewayTransactionId,
+                        siteGuid,
+                        productId,
+                        productType});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void CheckPendingTransactionAsync(string wsUserName, string wsPassword, long paymentGatewayPendingId, int numberOfRetries, string billingGuid, long paymentGatewayTransactionId, string siteGuid, int productId, int productType) {
+            this.CheckPendingTransactionAsync(wsUserName, wsPassword, paymentGatewayPendingId, numberOfRetries, billingGuid, paymentGatewayTransactionId, siteGuid, productId, productType, null);
+        }
+        
+        /// <remarks/>
+        public void CheckPendingTransactionAsync(string wsUserName, string wsPassword, long paymentGatewayPendingId, int numberOfRetries, string billingGuid, long paymentGatewayTransactionId, string siteGuid, int productId, int productType, object userState) {
+            if ((this.CheckPendingTransactionOperationCompleted == null)) {
+                this.CheckPendingTransactionOperationCompleted = new System.Threading.SendOrPostCallback(this.OnCheckPendingTransactionOperationCompleted);
+            }
+            this.InvokeAsync("CheckPendingTransaction", new object[] {
+                        wsUserName,
+                        wsPassword,
+                        paymentGatewayPendingId,
+                        numberOfRetries,
+                        billingGuid,
+                        paymentGatewayTransactionId,
+                        siteGuid,
+                        productId,
+                        productType}, this.CheckPendingTransactionOperationCompleted, userState);
+        }
+        
+        private void OnCheckPendingTransactionOperationCompleted(object arg) {
+            if ((this.CheckPendingTransactionCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.CheckPendingTransactionCompleted(this, new CheckPendingTransactionCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetUserEntitlements", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -1334,6 +1384,43 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
             if ((this.GetUsersBillingHistoryCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.GetUsersBillingHistoryCompleted(this, new GetUsersBillingHistoryCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetDomainTransactionsHistory", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public DomainTransactionsHistoryResponse GetDomainTransactionsHistory(string sWSUserName, string sWSPassword, int domainID, System.DateTime dStartDate, System.DateTime dEndDate) {
+            object[] results = this.Invoke("GetDomainTransactionsHistory", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        domainID,
+                        dStartDate,
+                        dEndDate});
+            return ((DomainTransactionsHistoryResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetDomainTransactionsHistoryAsync(string sWSUserName, string sWSPassword, int domainID, System.DateTime dStartDate, System.DateTime dEndDate) {
+            this.GetDomainTransactionsHistoryAsync(sWSUserName, sWSPassword, domainID, dStartDate, dEndDate, null);
+        }
+        
+        /// <remarks/>
+        public void GetDomainTransactionsHistoryAsync(string sWSUserName, string sWSPassword, int domainID, System.DateTime dStartDate, System.DateTime dEndDate, object userState) {
+            if ((this.GetDomainTransactionsHistoryOperationCompleted == null)) {
+                this.GetDomainTransactionsHistoryOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetDomainTransactionsHistoryOperationCompleted);
+            }
+            this.InvokeAsync("GetDomainTransactionsHistory", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        domainID,
+                        dStartDate,
+                        dEndDate}, this.GetDomainTransactionsHistoryOperationCompleted, userState);
+        }
+        
+        private void OnGetDomainTransactionsHistoryOperationCompleted(object arg) {
+            if ((this.GetDomainTransactionsHistoryCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetDomainTransactionsHistoryCompleted(this, new GetDomainTransactionsHistoryCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -4449,51 +4536,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/CheckPendingTransaction", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status CheckPendingTransaction(string wsUserName, string wsPassword, long paymentGatewayPendingId, int numberOfRetries, string billingGuid, long paymentGatewayTransactionId, string siteGuid, int productId, int productType) {
-            object[] results = this.Invoke("CheckPendingTransaction", new object[] {
-                        wsUserName,
-                        wsPassword,
-                        paymentGatewayPendingId,
-                        numberOfRetries,
-                        billingGuid,
-                        paymentGatewayTransactionId,
-                        siteGuid,
-                        productId,
-                        productType});
-            return ((Status)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void CheckPendingTransactionAsync(string wsUserName, string wsPassword, long paymentGatewayPendingId, int numberOfRetries, string billingGuid, long paymentGatewayTransactionId, string siteGuid, int productId, int productType) {
-            this.CheckPendingTransactionAsync(wsUserName, wsPassword, paymentGatewayPendingId, numberOfRetries, billingGuid, paymentGatewayTransactionId, siteGuid, productId, productType, null);
-        }
-        
-        /// <remarks/>
-        public void CheckPendingTransactionAsync(string wsUserName, string wsPassword, long paymentGatewayPendingId, int numberOfRetries, string billingGuid, long paymentGatewayTransactionId, string siteGuid, int productId, int productType, object userState) {
-            if ((this.CheckPendingTransactionOperationCompleted == null)) {
-                this.CheckPendingTransactionOperationCompleted = new System.Threading.SendOrPostCallback(this.OnCheckPendingTransactionOperationCompleted);
-            }
-            this.InvokeAsync("CheckPendingTransaction", new object[] {
-                        wsUserName,
-                        wsPassword,
-                        paymentGatewayPendingId,
-                        numberOfRetries,
-                        billingGuid,
-                        paymentGatewayTransactionId,
-                        siteGuid,
-                        productId,
-                        productType}, this.CheckPendingTransactionOperationCompleted, userState);
-        }
-        
-        private void OnCheckPendingTransactionOperationCompleted(object arg) {
-            if ((this.CheckPendingTransactionCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.CheckPendingTransactionCompleted(this, new CheckPendingTransactionCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -4509,55 +4551,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
                 return true;
             }
             return false;
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public enum eTransactionType {
-        
-        /// <remarks/>
-        PPV,
-        
-        /// <remarks/>
-        Subscription,
-        
-        /// <remarks/>
-        Collection,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class Entitlements {
-        
-        private Status statusField;
-        
-        private Entitlement[] entitelmentsField;
-        
-        /// <remarks/>
-        public Status status {
-            get {
-                return this.statusField;
-            }
-            set {
-                this.statusField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public Entitlement[] entitelments {
-            get {
-                return this.entitelmentsField;
-            }
-            set {
-                this.entitelmentsField = value;
-            }
         }
     }
     
@@ -4790,10 +4783,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordResponse))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(LicensedLinkNPVRResponse))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelDeleteResponse))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(QuotaResponse))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordResponse))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -4822,6 +4815,27 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
             }
             set {
                 this.msgField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class RecordResponse : NPVRResponse {
+        
+        private string recordingIDField;
+        
+        /// <remarks/>
+        public string recordingID {
+            get {
+                return this.recordingIDField;
+            }
+            set {
+                this.recordingIDField = value;
             }
         }
     }
@@ -4890,37 +4904,16 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class RecordResponse : NPVRResponse {
-        
-        private string recordingIDField;
-        
-        /// <remarks/>
-        public string recordingID {
-            get {
-                return this.recordingIDField;
-            }
-            set {
-                this.recordingIDField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(LicensedLinkNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelNPVRCommand))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RetrieveQuotaNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(DeleteNPVRCommand))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelSeriesNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordSeriesByProgramIdNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordSeriesByNameNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(DeleteSeriesNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(ProtectNPVRCommand))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(LicensedLinkNPVRCommand))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -4997,6 +4990,99 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
             }
             set {
                 this.assetIDField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class CancelNPVRCommand : BaseNPVRCommand {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class RecordNPVRCommand : BaseNPVRCommand {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class RetrieveQuotaNPVRCommand : BaseNPVRCommand {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class DeleteNPVRCommand : BaseNPVRCommand {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class CancelSeriesNPVRCommand : BaseNPVRCommand {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class RecordSeriesByProgramIdNPVRCommand : BaseNPVRCommand {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class RecordSeriesByNameNPVRCommand : BaseNPVRCommand {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class DeleteSeriesNPVRCommand : BaseNPVRCommand {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class ProtectNPVRCommand : BaseNPVRCommand {
+        
+        private bool isProtectField;
+        
+        /// <remarks/>
+        public bool isProtect {
+            get {
+                return this.isProtectField;
+            }
+            set {
+                this.isProtectField = value;
             }
         }
     }
@@ -5114,99 +5200,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
             }
             set {
                 this.couponCodeField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class CancelNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class RetrieveQuotaNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class DeleteNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class RecordNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class CancelSeriesNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class RecordSeriesByProgramIdNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class RecordSeriesByNameNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class DeleteSeriesNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class ProtectNPVRCommand : BaseNPVRCommand {
-        
-        private bool isProtectField;
-        
-        /// <remarks/>
-        public bool isProtect {
-            get {
-                return this.isProtectField;
-            }
-            set {
-                this.isProtectField = value;
             }
         }
     }
@@ -7852,6 +7845,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(TransactionHistoryContainer))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -8120,6 +8114,39 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class TransactionHistoryContainer : BillingTransactionContainer {
+        
+        private string siteGuidField;
+        
+        private string userFullNameField;
+        
+        /// <remarks/>
+        public string SiteGuid {
+            get {
+                return this.siteGuidField;
+            }
+            set {
+                this.siteGuidField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string UserFullName {
+            get {
+                return this.userFullNameField;
+            }
+            set {
+                this.userFullNameField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class DomainBillingTransactionsResponse {
         
         private int m_nDomainIDField;
@@ -8209,6 +8236,51 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
             }
             set {
                 this.billingTransactionsField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class DomainTransactionsHistoryResponse {
+        
+        private Status statusField;
+        
+        private int transactionsCountField;
+        
+        private TransactionHistoryContainer[] transactionsHistoryField;
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int TransactionsCount {
+            get {
+                return this.transactionsCountField;
+            }
+            set {
+                this.transactionsCountField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public TransactionHistoryContainer[] TransactionsHistory {
+            get {
+                return this.transactionsHistoryField;
+            }
+            set {
+                this.transactionsHistoryField = value;
             }
         }
     }
@@ -9366,6 +9438,55 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public enum eTransactionType {
+        
+        /// <remarks/>
+        PPV,
+        
+        /// <remarks/>
+        Subscription,
+        
+        /// <remarks/>
+        Collection,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class Entitlements {
+        
+        private Status statusField;
+        
+        private Entitlement[] entitelmentsField;
+        
+        /// <remarks/>
+        public Status status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Entitlement[] entitelments {
+            get {
+                return this.entitelmentsField;
+            }
+            set {
+                this.entitelmentsField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum UserCAStatus {
         
         /// <remarks/>
@@ -9419,6 +9540,32 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         /// <remarks/>
         UserSuspended,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void CheckPendingTransactionCompletedEventHandler(object sender, CheckPendingTransactionCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class CheckPendingTransactionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal CheckPendingTransactionCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
     }
     
     /// <remarks/>
@@ -9997,6 +10144,32 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((UserBillingTransactionsResponse[])(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetDomainTransactionsHistoryCompletedEventHandler(object sender, GetDomainTransactionsHistoryCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetDomainTransactionsHistoryCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetDomainTransactionsHistoryCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public DomainTransactionsHistoryResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((DomainTransactionsHistoryResponse)(this.results[0]));
             }
         }
     }
@@ -11730,32 +11903,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         private object[] results;
         
         internal UpdatePendingTransactionCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public Status Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((Status)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void CheckPendingTransactionCompletedEventHandler(object sender, CheckPendingTransactionCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class CheckPendingTransactionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal CheckPendingTransactionCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }
