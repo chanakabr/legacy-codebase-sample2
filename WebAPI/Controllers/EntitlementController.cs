@@ -271,6 +271,10 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Reconcile the user household's entitlements with an external entitlements source. This request is frequency protected to avoid too frequent calls per household. 
         /// </summary>
+        /// /// <remarks>
+        /// Possible status codes: 
+        /// User not in household = 1005, User does not exist = 2000, User suspended = 2001, Reconciliation too frequent = 3029, Adapter application failure = 6012
+        /// </remarks>
         [Route("externalReconcile"), HttpPost]
         [ApiAuthorize]
         public bool ExternalReconcile()
