@@ -35,6 +35,7 @@ using KLogMonitor;
 using System.Reflection;
 using TVPApiModule.Objects.Requests;
 using System.Threading;
+using eAssetTypes = Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes;
 
 namespace TVPApiServices
 {
@@ -1366,12 +1367,13 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Mark player status")]
         [PrivateMethod]
-        public string AssetBookmark(InitializationObject initObj, string assetID, Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes assetType, long fileID, PlayerAssetData PlayerAssetData)
+        public string AssetBookmark(InitializationObject initObj, string assetID, string assetType, long fileID, PlayerAssetData PlayerAssetData)
         {
             string sRet = string.Empty;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "MediaMark", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
             action action;
+            eAssetTypes eAssetType;
 
             if (groupID > 0)
             {
@@ -1386,10 +1388,19 @@ namespace TVPApiServices
                         return "Action not recognized";
                     }
 
+                    try
+                    {
+                        eAssetType = (eAssetTypes)Enum.Parse(typeof(eAssetTypes), assetType, true);
+                    }
+                    catch
+                    {
+                        return "invalid asset type";
+                    }
+
                     long mediaId = 0;
                     string npvrId = "";
 
-                    if (assetType == Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.NPVR)
+                    if (eAssetType == Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.NPVR)
                         npvrId = assetID;
                     else
                     {
@@ -1399,7 +1410,7 @@ namespace TVPApiServices
                         }
                     }
 
-                    sRet = ActionHelper.MediaMark(initObj, groupID, initObj.Platform, action, mediaId, fileID, PlayerAssetData.location, npvrId, assetType, 
+                    sRet = ActionHelper.MediaMark(initObj, groupID, initObj.Platform, action, mediaId, fileID, PlayerAssetData.location, npvrId, eAssetType, 
                         PlayerAssetData.averageBitRate, PlayerAssetData.currentBitRate, PlayerAssetData.totalBitRate);
                 }
                 catch (Exception ex)
