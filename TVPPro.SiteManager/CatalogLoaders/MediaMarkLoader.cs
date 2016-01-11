@@ -25,7 +25,6 @@ namespace TVPPro.SiteManager.CatalogLoaders
         public int TotalBitRate { get; set; }
         public string Action { get; set; }
         public string MediaDuration { get; set; }
-        public string SiteGuid { get; set; }
         public string UDID { get; set; }
         public string ErrorCode { get; set; }
         public string ErrorMessage { get; set; }
