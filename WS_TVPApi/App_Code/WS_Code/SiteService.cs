@@ -699,7 +699,7 @@ namespace TVPApiServices
                 {
                     //XXX: Do the UDID empty stuff
                     IImplementation impl = WSUtils.GetImplementation(groupID, initObj);
-                    responseData = impl.SignIn(userName, password);
+                    responseData = impl.SignIn(userName, password, System.Web.HttpContext.Current.Request.Headers);
 
                     // if sign in successful and tokenization enabled - generate access token and add it to headers
                     AuthorizationManager.Instance.AddTokenToHeadersForValidNotAdminUser(responseData, groupID, initObj.UDID);
