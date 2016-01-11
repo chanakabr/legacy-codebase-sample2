@@ -60,7 +60,7 @@ namespace WebAPI.Controllers
         /// <param name="fileId">Identifier of the file</param>
         /// <param name="PlayerAssetData">Data regarding players status for the asset</param>
         /// <returns></returns>
-        /// <remarks>Possible status codes: BadRequest = 500003, Bad search request = 4002, ConcurrencyLimitation = 4001, InvalidAssetType = 4021, 
+        /// <remarks>Possible status codes: BadRequest = 500003, ConcurrencyLimitation = 4001, InvalidAssetType = 4021, 
         /// ProgramDoesntExist = 4022, ActionNotRecognized = 4023, InvalidAssetId = 4024,</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize(true)]
