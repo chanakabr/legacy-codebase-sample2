@@ -161,6 +161,8 @@ namespace WebAPI.Controllers
             try
             {
                 string userID = KS.GetFromRequest().UserId;
+                string udid = KSUtils.ExtractKSPayload().UDID;
+
 
                 switch (type)
                 {
@@ -171,7 +173,7 @@ namespace WebAPI.Controllers
                             {
                                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id must be numeric when type is media");
                             }
-                            var mediaRes = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
+                            var mediaRes = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
                                 0, 1, new List<int>() { mediaId }, with.Select(x => x.type).ToList());
 
                             // if no response - return not found status 
@@ -191,7 +193,7 @@ namespace WebAPI.Controllers
                                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id must be numeric when type is epg_internal");
                             }
 
-                            var epgRes = ClientsManager.CatalogClient().GetEPGByInternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
+                            var epgRes = ClientsManager.CatalogClient().GetEPGByInternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
                                0, 1, new List<int> { epgId }, with.Select(x => x.type).ToList());
 
                             // if no response - return not found status 
@@ -205,7 +207,7 @@ namespace WebAPI.Controllers
                         break;
                     case KalturaAssetReferenceType.epg_external:
                         {
-                            var epgRes = ClientsManager.CatalogClient().GetEPGByExternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), string.Empty, language,
+                            var epgRes = ClientsManager.CatalogClient().GetEPGByExternalIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
                               0, 1, new List<string> { id }, with.Select(x => x.type).ToList());
 
                             // if no response - return not found status 
@@ -310,6 +312,8 @@ namespace WebAPI.Controllers
             KalturaSlimAssetInfoWrapper response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
+            string userID = KS.GetFromRequest().UserId;
+            string udid = KSUtils.ExtractKSPayload().UDID;
 
             // Size rules - according to spec.  10>=size>=1 is valid. default is 5.
             if (size == null || size > 10 || size < 1)
@@ -325,8 +329,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.CatalogClient().Autocomplete(groupId, string.Empty, string.Empty, language, size, query, order_by,
-                    filter_types.Select(x => x.value).ToList(), with.Select(x => x.type).ToList());
+                response = ClientsManager.CatalogClient().Autocomplete(groupId, userID, udid, language, size, query, order_by, filter_types.Select(x => x.value).ToList(), with.Select(x => x.type).ToList());
             }
             catch (ClientException ex)
             {

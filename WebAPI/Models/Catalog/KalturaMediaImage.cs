@@ -61,5 +61,13 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "id")]
         [XmlElement(ElementName = "id")]
         public string Id { get; set; }
+
+        /// <summary>
+        /// Determined whether image was taken from default configuration or not 
+        /// </summary>
+        [DataMember(Name = "is_default")]
+        [JsonProperty(PropertyName = "is_default")]
+        [XmlElement(ElementName = "is_default")]
+        public bool IsDefault { get; set; }
     }
 }

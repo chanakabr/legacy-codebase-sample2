@@ -116,6 +116,29 @@ namespace WebAPI.ObjectsConvertor.Mapping
                ;
 
             #endregion
+
+            #region TransactionHistoryContainer to KalturaUserBillingTransaction
+            Mapper.CreateMap<ConditionalAccess.TransactionHistoryContainer, KalturaUserBillingTransaction>()
+               .ForMember(dest => dest.actionDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dtActionDate)))
+               .ForMember(dest => dest.startDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dtStartDate)))
+               .ForMember(dest => dest.endDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dtEndDate)))
+               .ForMember(dest => dest.billingAction, opt => opt.MapFrom(src => src.m_eBillingAction))
+               .ForMember(dest => dest.itemType, opt => opt.MapFrom(src => src.m_eItemType))
+               .ForMember(dest => dest.paymentMethod, opt => opt.MapFrom(src => src.m_ePaymentMethod))
+               .ForMember(dest => dest.isRecurring, opt => opt.MapFrom(src => src.m_bIsRecurring))
+               .ForMember(dest => dest.billingProviderRef, opt => opt.MapFrom(src => src.m_nBillingProviderRef))
+               .ForMember(dest => dest.purchaseID, opt => opt.MapFrom(src => src.m_nPurchaseID))
+               .ForMember(dest => dest.purchasedItemName, opt => opt.MapFrom(src => src.m_sPurchasedItemName))
+               .ForMember(dest => dest.purchasedItemCode, opt => opt.MapFrom(src => src.m_sPurchasedItemCode))
+               .ForMember(dest => dest.recieptCode, opt => opt.MapFrom(src => src.m_sRecieptCode))
+               .ForMember(dest => dest.remarks, opt => opt.MapFrom(src => src.m_sRemarks))
+               .ForMember(dest => dest.paymentMethodExtraDetails, opt => opt.MapFrom(src => src.m_sPaymentMethodExtraDetails))
+               .ForMember(dest => dest.price, opt => opt.MapFrom(src => src.m_Price))
+               .ForMember(dest => dest.UserID, opt => opt.MapFrom(src => src.SiteGuid))
+               .ForMember(dest => dest.UserFullName, opt => opt.MapFrom(src => src.UserFullName));
+
+            #endregion
+
             //#region Domains Billing Transactions
             //Mapper.CreateMap<ConditionalAccess.DomainsBillingTransactionsResponse, KalturaHouseholdsBillingTransactions>()
             //    .ForMember(dest => dest.DomainsBillingTransactions, opt => opt.MapFrom(src => src.billingTransactions));

@@ -23,7 +23,8 @@ namespace WebAPI.Controllers
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         /// <summary>
-        /// Lists personal enriched data for given assets
+        /// Lists personal enriched data for given assets.
+        /// <remarks>Possible status codes: FileToMediaMismatch = 3028, InvalidAssetType = 4021, UserNotExistsInDomain = 1020, InvalidUser = 1026</remarks>
         /// </summary>
         /// <param name="assets">Assets and files which we want their data</param>
         /// <param name="with">Which data will be returned</param>
@@ -71,13 +72,16 @@ namespace WebAPI.Controllers
                     };
 
                     // pair example: Key = Media.875638 Value = new and empty personal asset data
-                    assetIdToPersonalAsset.Add(string.Format("{0}.{1}", asset.Type.ToString(), asset.Id),
+                    assetIdToPersonalAsset.Add(string.Format("{0}.{1}", asset.Type.ToString().ToLower(), asset.Id),
                         responseAsset);
 
-                    // Run on all file IDs and map them to respone asset
-                    foreach (var file in asset.FileIds)
+                    if (asset.FileIds != null)
                     {
-                        fileToPersonalAsset.Add(file, responseAsset);
+                        // Run on all file IDs and map them to respone asset
+                        foreach (var file in asset.FileIds)
+                        {
+                            fileToPersonalAsset.Add(file, responseAsset);
+                        }
                     }
 
                     response.Objects.Add(responseAsset);
@@ -149,7 +153,7 @@ namespace WebAPI.Controllers
                 {
                     foreach (var bookmark in bookmarksResponse.AssetsBookmarks)
                     {
-                        string key = string.Format("{0}.{1}", bookmark.Type.ToString(), bookmark.Id);
+                        string key = string.Format("{0}.{1}", bookmark.Type.ToString().ToLower(), bookmark.Id);
 
                         KalturaPersonalAsset personalAsset;
 
@@ -165,7 +169,7 @@ namespace WebAPI.Controllers
                 {
                     foreach (var pricing in pricingsResponse)
                     {
-                        string key = string.Format("{0}.{1}", pricing.AssetType.ToString(), pricing.AssetId);
+                        string key = string.Format("{0}.{1}", pricing.AssetType.ToString().ToLower(), pricing.AssetId);
 
                         KalturaPersonalAsset personalAsset;
 

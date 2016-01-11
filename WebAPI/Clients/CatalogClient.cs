@@ -867,7 +867,7 @@ namespace WebAPI.Clients
             
             result = Mapper.Map<List<KalturaAssetBookmarks>>(response.AssetsBookmarks);
 
-            return new KalturaAssetsBookmarksResponse() { AssetsBookmarks = result, TotalCount = result.Count };
+            return new KalturaAssetsBookmarksResponse() { AssetsBookmarks = result, TotalCount = response.m_nTotalItems };
 
         }
 
@@ -955,13 +955,27 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal bool SetBookmark(int groupId, string siteGuid, int householdId, string udid, string assetId, eAssetTypes assetType, long fileId, KalturaPlayerAssetData PlayerAssetData)
+        internal bool AddBookmark(int groupId, string siteGuid, int householdId, string udid, string assetId, KalturaAssetType assetType, long fileId, KalturaPlayerAssetData PlayerAssetData)
         {
             int t;
 
-            if (assetType != eAssetTypes.NPVR)                
+            if (assetType != KalturaAssetType.recording)                
                 if (string.IsNullOrEmpty(assetId) || !int.TryParse(assetId, out t))
-                    throw new ClientException((int)StatusCode.BadRequest, "Asset type is not a number");
+                    throw new ClientException((int)StatusCode.BadRequest, "Invalid Asset id");
+
+            eAssetTypes CatalogAssetType = eAssetTypes.UNKNOWN;
+            switch (assetType)
+            {
+                case KalturaAssetType.epg:
+                    CatalogAssetType = eAssetTypes.EPG;
+                    break;
+                case KalturaAssetType.media:
+                    CatalogAssetType = eAssetTypes.MEDIA;
+                    break;
+                case KalturaAssetType.recording:
+                    CatalogAssetType = eAssetTypes.NPVR;
+                    break;
+            }
 
             // build request
             MediaMarkRequest request = new MediaMarkRequest()
@@ -973,7 +987,7 @@ namespace WebAPI.Clients
                 m_sSiteGuid = siteGuid,
                 m_oMediaPlayRequestData = new MediaPlayRequestData()
                 {
-                    m_eAssetType = assetType,
+                    m_eAssetType = CatalogAssetType,
                     m_nLoc = PlayerAssetData.location,
                     m_nMediaFileID = (int)fileId,
                     m_sAssetID = assetId,

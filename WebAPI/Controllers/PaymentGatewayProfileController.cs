@@ -159,5 +159,39 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        /// <summary>
+        /// Gets the Payment Gateway Configuration for the payment gateway identifier given
+        /// </summary>
+        /// <param name="id">The payemnt gateway for which to return the registration URL/s for the household. If omitted – return the regisration URL for the household for the default payment gateway</param>                
+        /// <param name="id">Represent the client’s intent for working with the payment gateway. Intent options to be coordinated with the applicable payment gateway adapter.</param>                
+        /// <remarks>
+        /// Possible status codes:       
+        /// PaymentGatewayNotExist = 6008, SignatureMismatch = 6013
+        /// </remarks>
+        [Route("getConfiguration"), HttpPost]
+        [ApiAuthorize]
+        public Models.Billing.KalturaPaymentGatewayConfiguration GetConfiguration(string alias, string intent)
+        {
+            Models.Billing.KalturaPaymentGatewayConfiguration response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            // get domain id      
+            var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+            try
+            {
+                // call client
+                response = ClientsManager.BillingClient().GetPaymentGatewayConfiguration(groupId, alias, intent);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
     }
 }
