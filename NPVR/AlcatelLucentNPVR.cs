@@ -935,7 +935,6 @@ namespace NPVR
                 if (picGroupTree != null & picGroupTree.Keys.Count > 0)
                 {
                     epgGroupId  = picGroupTree.Keys.Max();
-                    Logger.Logger.Log("NPVRPics", string.Format("picGroupTree[{0}] count {1}", epgGroupId, picGroupTree[epgGroupId].Count), "NPVRPics");
                 }
 
 
@@ -1082,8 +1081,6 @@ namespace NPVR
                     urlStr.Append(string.Format("_{0}X{1}.", pic.PicWidth, pic.PicHeight));
                     urlStr.Append(ratioDic[pic.RatioId].Value);
 
-                    Logger.Logger.Log("SetEpgPictures ", string.Format("RatioId= {0} Name= {1}", pic.RatioId, ratioDic[pic.RatioId].Key), "NPVRPics");                    
-
                     obj.EPG_PICTURES.Add(new EpgPicture()
                     {
                         PicHeight = pic.PicHeight,
@@ -1099,15 +1096,12 @@ namespace NPVR
 
         private Dictionary<int, KeyValuePair<string, string>> SetRatioList(string thumbnail)
         {
-            Logger.Logger.Log("SetRatioList ", string.Format("thumbnail={0}", thumbnail), "NPVRPics");
-
             string sep = ";";
             var pics = thumbnail.Split(sep.ToCharArray());   //sample of thumbnail-->  [rationid]=[basepic].[suffix];;
             var list = new Dictionary<int, KeyValuePair<string, string>>();
             
             foreach (string pic in pics)
             {
-                Logger.Logger.Log("SetRatioList ", string.Format("pic={0}", pic), "NPVRPics");
                 if (!string.IsNullOrEmpty(pic))
                 {
                     var internalStr = pic.Split((new char[] { '=', '.' }));
@@ -1116,7 +1110,6 @@ namespace NPVR
                         int ratioId = 0;
                         if (int.TryParse(internalStr[0], out ratioId))
                         {
-                            Logger.Logger.Log("SetRatioList ", string.Format("pic={0} ratioId={1}", pic, ratioId), "NPVRPics");
                             list.Add(ratioId, new KeyValuePair<string, string>(internalStr[1], internalStr[2]));
                         }
                     }
