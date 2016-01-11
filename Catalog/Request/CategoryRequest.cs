@@ -65,6 +65,8 @@ namespace Catalog.Request
                     DataTable dtCat = dsCatAndChannels.Tables[0];
                     DataTable dtCatChan = dsCatAndChannels.Tables[1];
                     DataTable dtGroupLang = dsCatAndChannels.Tables[2];
+                    DataTable dtCategoryData = dsCatAndChannels.Tables[3];
+                    DataTable dtChannelData = dsCatAndChannels.Tables[4];
 
                     var catChannels = dtCatChan.AsEnumerable().Select(r => new
                     {
@@ -95,42 +97,51 @@ namespace Catalog.Request
                                 PicSize = Utils.GetStrSafeVal(r, "PIC_SIZE")
                             })
                             .Where(p => (!string.IsNullOrEmpty(p.PicUrl)))
+                            .Distinct()
                             .GroupBy(c => c.ID)
                             .ToDictionary(c => c.Key, c => c.ToList()
                                 .Select(cp => new Picture() { m_sURL = cp.PicUrl, m_sSize = (cp.PicSize == "0X0" ? "full" : cp.PicSize) }).ToList());
                     }
                     else
                     {
-                        dChanPics = dtCatChan.AsEnumerable()
+                        dChanPics = dtChannelData.AsEnumerable()
                             .Select(r => new
                             {
                                 ID = Utils.GetLongSafeVal(r, "ID"),
+                                ChannelId = Utils.GetLongSafeVal(r, "channel_id"),
 
                                 // build image URL. 
                                 // template: <image_server_url>/p/<partner_id>/entry_id/<image_id>/version/<image_version>/width/<image_width>/height/<image_height>/quality/<image_quality>
                                 // Example:  http://localhost/ImageServer/Service.svc/GetImage/p/215/entry_id/123/version/10/width/432/height/230/quality/100
-                                PicUrl = ImageUtils.BuildImageUrl(m_nGroupID,
+                                PicUrl = Utils.GetIntSafeVal(r, "WIDTH") == 0 ?
+                                                                  ImageUtils.BuildImageUrl(m_nGroupID,
+                                                                  Path.GetFileNameWithoutExtension(Utils.GetStrSafeVal(r, "BASE_URL")) + "_" + Utils.GetIntSafeVal(r, "RATIO_ID"),
+                                                                  Utils.GetIntSafeVal(r, "VERSION"),
+                                                                  0,
+                                                                  0,
+                                                                  100,
+                                                                  true) :
+                                                                  ImageUtils.BuildImageUrl(m_nGroupID,
                                                                   Path.GetFileNameWithoutExtension(Utils.GetStrSafeVal(r, "BASE_URL")) + "_" + Utils.GetIntSafeVal(r, "RATIO_ID"),
                                                                   Utils.GetIntSafeVal(r, "VERSION"),
                                                                   Utils.GetIntSafeVal(r, "WIDTH"),
                                                                   Utils.GetIntSafeVal(r, "HEIGHT"),
                                                                   100),
-                                PicSize = Utils.GetStrSafeVal(r, "PIC_SIZE"),
-                                PicId = Utils.GetIntSafeVal(r, "PIC_ID"),
                                 Version = Utils.GetIntSafeVal(r, "VERSION"),
-                                Ratio = Utils.GetIntSafeVal(r, "RATIO_ID"),
-                                Id = Path.GetFileNameWithoutExtension(Utils.GetStrSafeVal(r, "BASE_URL")) + "_" + Utils.GetIntSafeVal(r, "RATIO_ID")
+                                Ratio = Utils.GetStrSafeVal(r, "RATIO"),
+                                PicSize = Utils.GetStrSafeVal(r, "PIC_SIZE"),
+                                Image_Id = Path.GetFileNameWithoutExtension(Utils.GetStrSafeVal(r, "BASE_URL")) + "_" + Utils.GetIntSafeVal(r, "RATIO_ID")
                             })
-                            .Where(p => (p.PicId > 0))
-                            .GroupBy(c => c.ID)
+                            .Distinct()
+                            .GroupBy(c => c.ChannelId)
                             .ToDictionary(c => c.Key, c => c.ToList()
                                 .Select(cp => new Picture()
                                 {
-                                    m_sURL = cp.PicUrl,
                                     m_sSize = (cp.PicSize == "0X0" ? "full" : cp.PicSize),
-                                    id = cp.Id,
-                                    //ratio = "RATIO_NAME",
-                                    version = cp.Version
+                                    m_sURL = cp.PicUrl,
+                                    id = cp.Image_Id,
+                                    version = cp.Version,
+                                    ratio = cp.Ratio
                                 }).ToList());
                     }
 
@@ -161,6 +172,7 @@ namespace Catalog.Request
                                 PicSize = Utils.GetStrSafeVal(r, "PIC_SIZE")
                             })
                             .Where(p => (!string.IsNullOrEmpty(p.PicUrl)))
+                            .Distinct()
                             .GroupBy(c => c.ID)
                             .ToDictionary(c => c.Key, c => c.ToList()
                                 .Select(cp => new Picture() { m_sURL = cp.PicUrl, m_sSize = (cp.PicSize == "0X0" ? "full" : cp.PicSize) }).ToList());
@@ -168,37 +180,44 @@ namespace Catalog.Request
                     else
                     {
                         // Make category-pictures dictionary
-                        dCatPics = dtCat.AsEnumerable()
-                            .Select(r => new
-                            {
-                                ID = Utils.GetIntSafeVal(r, "ID"),
+                        dCatPics = dtCategoryData.AsEnumerable()
+                                .Select(r => new
+                                {
+                                    ID = Utils.GetLongSafeVal(r, "ID"),
+                                    CategoryId = Utils.GetLongSafeVal(r, "category_id"),
 
-                                // build image URL. 
-                                // template: <image_server_url>/p/<partner_id>/entry_id/<image_id>/version/<image_version>/width/<image_width>/height/<image_height>/quality/<image_quality>
-                                // Example:  http://localhost/ImageServer/Service.svc/GetImage/p/215/entry_id/123/version/10/width/432/height/230/quality/100
-                                PicUrl = ImageUtils.BuildImageUrl(m_nGroupID,
-                                                                  Path.GetFileNameWithoutExtension(Utils.GetStrSafeVal(r, "BASE_URL")) + "_" + Utils.GetIntSafeVal(r, "RATIO_ID"),
-                                                                  Utils.GetIntSafeVal(r, "VERSION"),
-                                                                  Utils.GetIntSafeVal(r, "WIDTH"),
-                                                                  Utils.GetIntSafeVal(r, "HEIGHT"),
-                                                                  100),
-
-                                PicSize = Utils.GetStrSafeVal(r, "PIC_SIZE"),
-                                PicId = Utils.GetIntSafeVal(r, "PIC_ID"),
-                                Version = Utils.GetIntSafeVal(r, "VERSION"),
-                                Ratio = Utils.GetIntSafeVal(r, "RATIO_ID"),
-                                Id = Path.GetFileNameWithoutExtension(Utils.GetStrSafeVal(r, "BASE_URL")) + "_" + Utils.GetIntSafeVal(r, "RATIO_ID")
-                            })
-                            .Where(p => (p.PicId > 0))
-                            .GroupBy(c => c.ID)
-                            .ToDictionary(c => c.Key, c => c.ToList()
+                                    // build image URL. 
+                                    // template: <image_server_url>/p/<partner_id>/entry_id/<image_id>/version/<image_version>/width/<image_width>/height/<image_height>/quality/<image_quality>
+                                    // Example:  http://localhost/ImageServer/Service.svc/GetImage/p/215/entry_id/123/version/10/width/432/height/230/quality/100
+                                    PicUrl = Utils.GetIntSafeVal(r, "WIDTH") == 0 ?
+                                                                      ImageUtils.BuildImageUrl(m_nGroupID,
+                                                                      Path.GetFileNameWithoutExtension(Utils.GetStrSafeVal(r, "BASE_URL")) + "_" + Utils.GetIntSafeVal(r, "RATIO_ID"),
+                                                                      Utils.GetIntSafeVal(r, "VERSION"),
+                                                                      0,
+                                                                      0,
+                                                                      100,
+                                                                      true) :
+                                                                      ImageUtils.BuildImageUrl(m_nGroupID,
+                                                                      Path.GetFileNameWithoutExtension(Utils.GetStrSafeVal(r, "BASE_URL")) + "_" + Utils.GetIntSafeVal(r, "RATIO_ID"),
+                                                                      Utils.GetIntSafeVal(r, "VERSION"),
+                                                                      Utils.GetIntSafeVal(r, "WIDTH"),
+                                                                      Utils.GetIntSafeVal(r, "HEIGHT"),
+                                                                      100),
+                                    Version = Utils.GetIntSafeVal(r, "VERSION"),
+                                    Ratio = Utils.GetStrSafeVal(r, "RATIO"),
+                                    PicSize = Utils.GetStrSafeVal(r, "PIC_SIZE"),
+                                    Image_Id = Path.GetFileNameWithoutExtension(Utils.GetStrSafeVal(r, "BASE_URL")) + "_" + Utils.GetIntSafeVal(r, "RATIO_ID")
+                                })
+                            .Distinct()
+                            .GroupBy(c => c.CategoryId)
+                            .ToDictionary(c => (int)c.Key, c => c.ToList()
                                 .Select(cp => new Picture()
                                 {
-                                    m_sURL = cp.PicUrl,
                                     m_sSize = (cp.PicSize == "0X0" ? "full" : cp.PicSize),
-                                    id = cp.Id,
-                                    //ratio = "RATIO_NAME",
-                                    version = cp.Version
+                                    m_sURL = cp.PicUrl,
+                                    id = cp.Image_Id,
+                                    version = cp.Version,
+                                    ratio = cp.Ratio
                                 }).ToList());
                     }
 

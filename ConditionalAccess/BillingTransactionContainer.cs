@@ -80,6 +80,17 @@ namespace ConditionalAccess
         }
     }
 
+    public class TransactionHistoryContainer : BillingTransactionContainer
+    {
+        public string SiteGuid;
+
+        public string UserFullName;
+
+        public TransactionHistoryContainer() : base()
+        {            
+        }
+    }
+
     public class PrePaidHistoryResponse
     {
         public PrePaidHistoryContainer[] m_Transactions;

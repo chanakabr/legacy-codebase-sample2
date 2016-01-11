@@ -67,7 +67,7 @@ namespace Catalog.Request
                         int t;
                         if (!int.TryParse(m_oMediaPlayRequestData.m_sAssetID, out t))
                         {
-                            oMediaMarkResponse.status = new Status((int)eResponseStatus.BadSearchRequest, "Asset id is not a number");
+                            oMediaMarkResponse.status = new Status((int)eResponseStatus.InvalidAssetId, "Invalid Asset id");
                             return oMediaMarkResponse;
                         }
                     }
@@ -83,7 +83,7 @@ namespace Catalog.Request
                     else
                     {
                         oMediaMarkResponse = new MediaMarkResponse();
-                        oMediaMarkResponse.status = new Status((int)eResponseStatus.BadSearchRequest, "invalid asset type");
+                        oMediaMarkResponse.status = new Status((int)eResponseStatus.InvalidAssetType, "invalid asset type");
                     }
                 }
                 else
@@ -132,7 +132,7 @@ namespace Catalog.Request
                     fileDuration = Convert.ToInt32((lEpgProg.First().EndDate - lEpgProg.First().StartDate).TotalSeconds);
                 else
                 {
-                    oMediaMarkResponse.status = new Status((int)eResponseStatus.BadSearchRequest, "Program doesn't exist");
+                    oMediaMarkResponse.status = new Status((int)eResponseStatus.ProgramDoesntExist, "Program doesn't exist");
                     return oMediaMarkResponse;
                 }
             }
@@ -140,7 +140,7 @@ namespace Catalog.Request
             // check action
             if (!Enum.TryParse(m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out mediaMarkAction))
             {
-                oMediaMarkResponse.status = new Status((int)eResponseStatus.BadSearchRequest, "Action not recognized");
+                oMediaMarkResponse.status = new Status((int)eResponseStatus.ActionNotRecognized, "Action not recognized");
                 return oMediaMarkResponse;
             }
 
@@ -380,7 +380,7 @@ namespace Catalog.Request
                 }
                 else
                 {
-                    oMediaMarkResponse.status = new Status((int)eResponseStatus.BadSearchRequest, "Action not recognized");
+                    oMediaMarkResponse.status = new Status((int)eResponseStatus.ActionNotRecognized, "Action not recognized");
                 }
             }
 
