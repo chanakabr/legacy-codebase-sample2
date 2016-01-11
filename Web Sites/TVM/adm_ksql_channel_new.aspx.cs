@@ -462,10 +462,24 @@ public partial class adm_ksql_channel_new : System.Web.UI.Page
         dr_bio.Initialize("Description", "adm_table_header_nbg", "FormInput", "DESCRIPTION", false);
         theRecord.AddRecord(dr_bio);
 
+         if (channelId != null && !string.IsNullOrEmpty(channelId.ToString()))
+        {
+            bool isDownloadPicWithImageServer = false;
+            string imageUrl = string.Empty;
+            int picId = 0;
 
-        DataRecordOnePicBrowserField dr_logo_Pic = new DataRecordOnePicBrowserField();
-        dr_logo_Pic.Initialize("Pic", "adm_table_header_nbg", "FormInput", "PIC_ID", false);
-        theRecord.AddRecord(dr_logo_Pic);
+            if (ImageUtils.IsDownloadPicWithImageServer())
+            {
+                isDownloadPicWithImageServer = true;
+                int groupId = LoginManager.GetLoginGroupID();
+                imageUrl = GetPicImageUrlByRatio(channelId, groupId, out picId);
+            }
+            
+            DataRecordOnePicBrowserField dr_logo_Pic = new DataRecordOnePicBrowserField("channel", isDownloadPicWithImageServer, imageUrl, picId);
+            dr_logo_Pic.Initialize("Pic", "adm_table_header_nbg", "FormInput", "PIC_ID", false);
+            dr_logo_Pic.SetDefault(0);
+            theRecord.AddRecord(dr_logo_Pic);
+        }
 
         DataRecordBrowserField dr_asset_types = new DataRecordBrowserField("OpenAssetTypeBrowser", "adm_ksql_channel_new.aspx");
         dr_asset_types.Initialize("Asset Type", "adm_table_header_nbg", "FormInput", "ID", false);
@@ -661,5 +675,31 @@ public partial class adm_ksql_channel_new : System.Web.UI.Page
         }
 
         return result;
+    }
+
+    private string GetPicImageUrlByRatio(object channelId, int groupId, out int picId)
+    {
+        string imageUrl = string.Empty;
+        string baseUrl = string.Empty;
+        int ratioId = 0;
+        int version = 0;
+        picId = 0;
+
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery += "select p.RATIO_ID, p.BASE_URL, p.ID, p.version from pics p left join channels c on c.PIC_ID = p.ID where p.STATUS in (0, 1) and c.id = " + channelId.ToString();
+
+        if (selectQuery.Execute("query", true) != null && selectQuery.Table("query").DefaultView != null && selectQuery.Table("query").DefaultView.Count > 0)
+        {
+
+            baseUrl = ODBCWrapper.Utils.GetSafeStr(selectQuery.Table("query").DefaultView[0].Row["BASE_URL"]);
+            ratioId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["RATIO_ID"]);
+            picId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["ID"]);
+            version = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["version"]);
+            int parentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);
+
+            imageUrl = PageUtils.BuildVodUrl(parentGroupID, baseUrl, ratioId, version);
+        }
+
+        return imageUrl;
     }
 }
