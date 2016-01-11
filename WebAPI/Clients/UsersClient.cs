@@ -74,31 +74,30 @@ namespace WebAPI.Clients
             return user;
         }
 
-        public WebAPI.Models.Users.KalturaOTTUser Login(int groupId, string userName, string password, string deviceId, NameValueCollection nameValueCollection)
+        internal KalturaOTTUser Login(int partnerId, string userName, string password, string udid, SerializableDictionary<string, KalturaStringValue> extraParams, NameValueCollection nameValueCollection)
         {
-            return Login(groupId, userName, password, deviceId, GetExtraParamsFromHeader(nameValueCollection));
+            return Login(partnerId, userName, password, udid, GetMergedExtraParams(extraParams, nameValueCollection));
         }
 
-        private Dictionary<string, KalturaStringValue> GetExtraParamsFromHeader(System.Collections.Specialized.NameValueCollection nameValueCollection)
+        private Dictionary<string, KalturaStringValue> GetMergedExtraParams(Dictionary<string, KalturaStringValue> extraParams, NameValueCollection nameValueCollection)
         {
-            Dictionary<string, KalturaStringValue> result = null;
+            Dictionary<string, KalturaStringValue> result = new Dictionary<string, KalturaStringValue>(); 
+
+            if (extraParams != null && extraParams.Count > 0)
+            {
+                result = extraParams;
+            }
 
             if (nameValueCollection != null && nameValueCollection.Count > 0)
             {
-                result = new Dictionary<string, KalturaStringValue>();
                 foreach (var key in nameValueCollection.AllKeys)
                 {
-                    if (!string.IsNullOrEmpty(key))
+                    if (!string.IsNullOrEmpty(key) && !result.ContainsKey(key))
                     {
-                        result.Add(key, new KalturaStringValue() { value = nameValueCollection[key]});
+                        result.Add(key, new KalturaStringValue() { value = nameValueCollection[key] });
                     }
                 }
             }
-
-            // Check this as well
-
-            nameValueCollection.AllKeys.ToDictionary<string, KalturaStringValue>(t => new KalturaStringValue() { value = nameValueCollection[t] });
-
             return result;
         }
 
@@ -737,7 +736,6 @@ namespace WebAPI.Clients
 
             return true;
         }
-
 
         internal bool DeleteUser(int groupId, int userId)
         {

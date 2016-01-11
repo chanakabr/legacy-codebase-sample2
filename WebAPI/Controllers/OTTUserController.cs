@@ -85,7 +85,7 @@ namespace WebAPI.Controllers
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, User does not exist = 2000
         /// </remarks>
         [Route("login"), HttpPost]
-        public KalturaLoginResponse Login(int partnerId, string username, string password, SerializableDictionary<string, KalturaStringValue> extra_params = null,
+        public KalturaLoginResponse Login(int partnerId, string username = null, string password = null, SerializableDictionary<string, KalturaStringValue> extra_params = null,
             string udid = null)
         {
             KalturaOTTUser response = null;
@@ -97,7 +97,8 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().Login(partnerId, username, password, udid, extra_params);
+                // add header. if key exists use extra_params
+                response = ClientsManager.UsersClient().Login(partnerId, username, password, udid, extra_params, System.Web.HttpContext.Current.Request.Headers);
             }
             catch (ClientException ex)
             {
@@ -368,9 +369,9 @@ namespace WebAPI.Controllers
         public KalturaOTTUserListResponse Get()
         {
             List<KalturaOTTUser> response = null;
-            
+
             string userId = KS.GetFromRequest().UserId;
-            
+
             int groupId = KS.GetFromRequest().GroupId;
 
             try
@@ -451,38 +452,6 @@ namespace WebAPI.Controllers
             }
 
             return response;
-        }
-
-        /// <summary>
-        /// login using request headers.
-        /// </summary>        
-        /// <param name="partnerId">Partner identifier</param>
-        /// <param name="udid">Device UDID</param>
-        /// <remarks>        
-        /// UserNotInHousehold = 1005, Wrong username or password = 1011, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
-        /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, User does not exist = 2000
-        /// </remarks>        
-        [Route("silentLogin"), HttpPost]
-        public KalturaLoginResponse SilentLogin(int partnerId, string udid = null)
-        {
-            KalturaOTTUser response = null;
-
-            try
-            {
-                // call client
-                response = ClientsManager.UsersClient().Login(partnerId, null, null, udid, System.Web.HttpContext.Current.Request.Headers);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            if (response == null)
-            {
-                throw new InternalServerErrorException();
-            }
-
-            return new KalturaLoginResponse() { LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, false, udid), User = response };
         }
 
         /// <summary>
