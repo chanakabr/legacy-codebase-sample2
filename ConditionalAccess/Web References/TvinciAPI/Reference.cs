@@ -12752,6 +12752,8 @@ namespace ConditionalAccess.TvinciAPI {
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class ExternalEntitlement {
         
+        private long idField;
+        
         private string aliasField;
         
         private string productIdField;
@@ -12769,6 +12771,16 @@ namespace ConditionalAccess.TvinciAPI {
         private long endDateSecondsField;
         
         private string uDIDField;
+        
+        /// <remarks/>
+        public long Id {
+            get {
+                return this.idField;
+            }
+            set {
+                this.idField = value;
+            }
+        }
         
         /// <remarks/>
         public string Alias {

@@ -2013,7 +2013,7 @@ namespace DAL
                         {
                             EntitlementObject entitlement = new EntitlementObject(Utils.GetIntSafeVal(dr["ID"]), Utils.GetSafeStr(dr["subscription_code"]), Utils.GetSafeStr(dr["rel_pp"]),
                                                     Utils.GetIntSafeVal(dr, "WAIVER"), Utils.GetSafeStr(dr["SITE_USER_GUID"]), mediaFileID,
-                                                    ppvCode, Utils.GetDateSafeVal(dr, "CREATE_DATE"), Utils.ExtractNullableDateTime(dr, "START_DATE"));
+                                                    ppvCode, Utils.GetDateSafeVal(dr, "CREATE_DATE"), Utils.ExtractNullableDateTime(dr, "START_DATE"), Utils.ExtractNullableDateTime(dr, "END_DATE"));
                             allEntitlments.Add(entitlementKey, entitlement);
                         }
                     }
@@ -2067,6 +2067,33 @@ namespace DAL
             sp.AddParameter("@Group_id", nGroupID);
 
             return sp.Execute();
+        }
+
+        public static bool Delete_PPVPurchases(List<int> ppvIds)
+        {
+            StoredProcedure sp = new StoredProcedure("Delete_PPVPurchases");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddIDListParameter("@ppv_purchase_ids", ppvIds, "ID");
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public static bool Update_PPVPurchaseDates(long ppvPurchaseId, DateTime startDate, DateTime endDate)
+        {
+            StoredProcedure sp = new StoredProcedure("Update_PPVPurchaseDates");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@ppv_purchase_id", ppvPurchaseId);
+            sp.AddParameter("@start_date", startDate);
+            sp.AddParameter("@end_date", endDate); 
+ 
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public static bool Delete_SubscriptionPurchases(List<int> subscriptionIds)
+        {
+            StoredProcedure sp = new StoredProcedure("Delete_SubscriptionPurchases");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddIDListParameter("@subscription_purchase_ids", subscriptionIds, "ID");
+            return sp.ExecuteReturnValue<int>() > 0;
         }
     }
 }
