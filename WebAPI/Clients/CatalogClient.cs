@@ -955,13 +955,13 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal bool SetBookmark(int groupId, string siteGuid, int householdId, string udid, string assetId, KalturaAssetType assetType, long fileId, KalturaPlayerAssetData PlayerAssetData)
+        internal bool AddBookmark(int groupId, string siteGuid, int householdId, string udid, string assetId, KalturaAssetType assetType, long fileId, KalturaPlayerAssetData PlayerAssetData)
         {
             int t;
 
             if (assetType != KalturaAssetType.recording)                
                 if (string.IsNullOrEmpty(assetId) || !int.TryParse(assetId, out t))
-                    throw new ClientException((int)StatusCode.BadRequest, "Asset type is not a number");
+                    throw new ClientException((int)StatusCode.BadRequest, "Invalid Asset id");
 
             eAssetTypes CatalogAssetType = eAssetTypes.UNKNOWN;
             switch (assetType)

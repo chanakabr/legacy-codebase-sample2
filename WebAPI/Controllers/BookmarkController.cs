@@ -60,10 +60,11 @@ namespace WebAPI.Controllers
         /// <param name="fileId">Identifier of the file</param>
         /// <param name="PlayerAssetData">Data regarding players status for the asset</param>
         /// <returns></returns>
-        /// <remarks>Possible status codes: BadRequest = 500003, Bad search request = 4002, ConcurrencyLimitation = 4001</remarks>
-        [Route("set"), HttpPost]
+        /// <remarks>Possible status codes: BadRequest = 500003, Bad search request = 4002, ConcurrencyLimitation = 4001, InvalidAssetType = 4021, 
+        /// ProgramDoesntExist = 4022, ActionNotRecognized = 4023, InvalidAssetId = 4024,</remarks>
+        [Route("add"), HttpPost]
         [ApiAuthorize(true)]
-        public bool Set(string assetId, KalturaAssetType assetType, long fileId, KalturaPlayerAssetData PlayerAssetData)
+        public bool Add(string assetId, KalturaAssetType assetType, long fileId, KalturaPlayerAssetData PlayerAssetData)
         {
             bool response = false;
 
@@ -73,7 +74,7 @@ namespace WebAPI.Controllers
                 string udid = KSUtils.ExtractKSPayload().UDID;
                 int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
                 string siteGuid = KS.GetFromRequest().UserId;
-                response = ClientsManager.CatalogClient().SetBookmark(groupId, siteGuid, householdId, udid, assetId, assetType, fileId, PlayerAssetData);
+                response = ClientsManager.CatalogClient().AddBookmark(groupId, siteGuid, householdId, udid, assetId, assetType, fileId, PlayerAssetData);
             }
 
             catch (ClientException ex)
