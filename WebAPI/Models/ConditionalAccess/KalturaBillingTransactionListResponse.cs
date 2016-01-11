@@ -166,5 +166,11 @@ namespace WebAPI.Models.ConditionalAccess
             get;
             set;
         }
+
+        [DataMember(Name = "user_full_name")]
+        [JsonProperty("user_full_name")]
+        [XmlElement(ElementName = "user_full_name")]
+        public string UserFullName { get; set; }
     }
+
 }
