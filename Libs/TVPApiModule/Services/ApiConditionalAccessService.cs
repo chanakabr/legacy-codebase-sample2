@@ -869,7 +869,7 @@ namespace TVPApiModule.Services
             return retVal;
         }
 
-        public TVPApiModule.Objects.Responses.ConditionalAccess.DomainTransactionsHistoryResponse GetDomainTransactionsHistory(int domainIDs, DateTime startDate, DateTime endDate)
+        public TVPApiModule.Objects.Responses.ConditionalAccess.DomainTransactionsHistoryResponse GetDomainTransactionsHistory(int domainID, DateTime startDate, DateTime endDate)
         {
             TVPApiModule.Objects.Responses.ConditionalAccess.DomainTransactionsHistoryResponse retVal = null;
 
@@ -877,7 +877,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    DomainTransactionsHistoryResponse response = m_Module.GetDomainTransactionsHistory(m_wsUserName, m_wsPassword, domainIDs, startDate, endDate);
+                    DomainTransactionsHistoryResponse response = m_Module.GetDomainTransactionsHistory(m_wsUserName, m_wsPassword, domainID, startDate, endDate);
                     if (response != null)
                     {
                         retVal = new Objects.Responses.ConditionalAccess.DomainTransactionsHistoryResponse(response);
@@ -886,7 +886,7 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error calling webservice protocol : GetDomainTransactionsHistory, Error Message: {0}, Parameters : domainID {1}, startDate: {2}, endDate: {3}", ex.Message, domainIDs, startDate, endDate);
+                logger.ErrorFormat("Error calling webservice protocol : GetDomainTransactionsHistory, Error Message: {0}, Parameters : domainID {1}, startDate: {2}, endDate: {3}", ex.Message, domainID, startDate, endDate);
             }
             return retVal;
         }
