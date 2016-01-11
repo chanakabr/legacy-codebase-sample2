@@ -215,7 +215,7 @@ namespace TVPPro.SiteManager.Helper
                                 rowPic.ImageId = pic.id;
                                 rowPic.Version = pic.version.ToString();
                                 rowPic.Ratio = pic.ratio;
-
+                                rowPic.IsDefault = pic.isDefault.ToString();
 
                                 retVal.Pictures.AddPicturesRow(rowPic);
                             }

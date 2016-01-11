@@ -3242,6 +3242,8 @@ namespace TVPPro.SiteManager.DataEntities {
             
             private global::System.Data.DataColumn columnRatio;
             
+            private global::System.Data.DataColumn columnIsDefault;
+            
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             public PicturesDataTable() {
@@ -3325,6 +3327,14 @@ namespace TVPPro.SiteManager.DataEntities {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public global::System.Data.DataColumn IsDefaultColumn {
+                get {
+                    return this.columnIsDefault;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             [global::System.ComponentModel.Browsable(false)]
             public int Count {
                 get {
@@ -3360,7 +3370,7 @@ namespace TVPPro.SiteManager.DataEntities {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public PicturesRow AddPicturesRow(ItemRow parentItemRowByPictures_Item, string PicSize, string URL, string Version, string ImageId, string Ratio) {
+            public PicturesRow AddPicturesRow(ItemRow parentItemRowByPictures_Item, string PicSize, string URL, string Version, string ImageId, string Ratio, string IsDefault) {
                 PicturesRow rowPicturesRow = ((PicturesRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
                         null,
@@ -3368,7 +3378,8 @@ namespace TVPPro.SiteManager.DataEntities {
                         URL,
                         Version,
                         ImageId,
-                        Ratio};
+                        Ratio,
+                        IsDefault};
                 if ((parentItemRowByPictures_Item != null)) {
                     columnValuesArray[0] = parentItemRowByPictures_Item[0];
                 }
@@ -3400,6 +3411,7 @@ namespace TVPPro.SiteManager.DataEntities {
                 this.columnVersion = base.Columns["Version"];
                 this.columnImageId = base.Columns["ImageId"];
                 this.columnRatio = base.Columns["Ratio"];
+                this.columnIsDefault = base.Columns["IsDefault"];
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -3417,6 +3429,8 @@ namespace TVPPro.SiteManager.DataEntities {
                 base.Columns.Add(this.columnImageId);
                 this.columnRatio = new global::System.Data.DataColumn("Ratio", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnRatio);
+                this.columnIsDefault = new global::System.Data.DataColumn("IsDefault", typeof(string), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnIsDefault);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -5712,6 +5726,22 @@ namespace TVPPro.SiteManager.DataEntities {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public string IsDefault {
+                get {
+                    try {
+                        return ((string)(this[this.tablePictures.IsDefaultColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'IsDefault\' in table \'Pictures\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tablePictures.IsDefaultColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             public ItemRow ItemRow {
                 get {
                     return ((ItemRow)(this.GetParentRow(this.Table.ParentRelations["Pictures_Item"])));
@@ -5791,6 +5821,18 @@ namespace TVPPro.SiteManager.DataEntities {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             public void SetRatioNull() {
                 this[this.tablePictures.RatioColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public bool IsIsDefaultNull() {
+                return this.IsNull(this.tablePictures.IsDefaultColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public void SetIsDefaultNull() {
+                this[this.tablePictures.IsDefaultColumn] = global::System.Convert.DBNull;
             }
         }
         
