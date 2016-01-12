@@ -1421,10 +1421,7 @@ namespace ElasticSearch.Searcher
 
         private IESTerm BuildEntitledAssetsQuery()
         {
-            ESFilteredQuery result = null;
-            BoolQuery boolQuery = new BoolQuery();
-
-            result = new ESFilteredQuery();
+            BoolQuery result = new BoolQuery();
 
             BaseFilterCompositeType assetsFilter = new FilterCompositeType(CutWith.OR);
             
@@ -1507,10 +1504,8 @@ namespace ElasticSearch.Searcher
             };
 
             // Connect all the channels in the entitled user's subscriptions
-            boolQuery.AddChild(this.SubscriptionsQuery, CutWith.OR);
-            boolQuery.AddChild(specificAssetsTerm, CutWith.OR);
-
-            result.Query = boolQuery;
+            result.AddChild(this.SubscriptionsQuery, CutWith.OR);
+            result.AddChild(specificAssetsTerm, CutWith.OR);
 
             return result;
         }

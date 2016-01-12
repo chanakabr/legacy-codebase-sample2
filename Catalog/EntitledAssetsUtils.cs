@@ -34,12 +34,14 @@ namespace Catalog
 
                 // Get channel IDs of current bundle
                 List<int> channelIds = Catalog.GetBundleChannelIds(group.m_nParentGroupID, subscription, bundleType);
+
+                // Get channels from cache
                 List<GroupsCacheManager.Channel> allChannels = groupManager.GetChannels(channelIds, group.m_nParentGroupID);
 
+                // Build search object for each channel
                 var subscriptionsSearchObjects = BundleAssetsRequest.BuildBaseSearchObjects(request, group, allChannels, mediaTypes, deviceRuleIds, order);
                 result.AddRange(subscriptionsSearchObjects);
             }
-
 
             foreach (var collection in collectionIds)
             {
@@ -47,8 +49,11 @@ namespace Catalog
 
                 // Get channel IDs of current bundle
                 List<int> channelIds = Catalog.GetBundleChannelIds(group.m_nParentGroupID, collection, bundleType);
+                
+                // Get channels from cache
                 List<GroupsCacheManager.Channel> allChannels = groupManager.GetChannels(channelIds, group.m_nParentGroupID);
 
+                // Build search object for each channel
                 var collectionsSearchObjects = BundleAssetsRequest.BuildBaseSearchObjects(request, group, allChannels, mediaTypes, deviceRuleIds, order);
                 result.AddRange(collectionsSearchObjects);
             }
