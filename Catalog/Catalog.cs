@@ -1189,13 +1189,14 @@ namespace Catalog
 
                 string[] entitlementMediaTypes = null;
 
-
+                // If there are no specific media types, the utility method still needs a "0" to indicate "all"
                 if (definitions.shouldSearchMedia && definitions.mediaTypes.Count == 0)
                 {
                     entitlementMediaTypes = new string[] { "0" };
                 }
                 else
                 {
+                    // If there are specific media types, use them
                     entitlementMediaTypes = definitions.mediaTypes.Select(t => t.ToString()).ToArray();
                 }
 

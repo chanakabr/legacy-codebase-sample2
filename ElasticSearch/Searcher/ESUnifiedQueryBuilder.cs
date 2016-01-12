@@ -1424,12 +1424,11 @@ namespace ElasticSearch.Searcher
             ESFilteredQuery result = null;
             BoolQuery boolQuery = new BoolQuery();
 
-            result = new ESFilteredQuery()
-            {
-            };
+            result = new ESFilteredQuery();
 
             BaseFilterCompositeType assetsFilter = new FilterCompositeType(CutWith.OR);
-
+            
+            // Build terms of free assets
             foreach (var item in this.SearchDefinitions.freeAssets)
             {
                 FilterCompositeType idsFilter = new FilterCompositeType(CutWith.AND);
@@ -1464,6 +1463,7 @@ namespace ElasticSearch.Searcher
                 assetsFilter.AddChild(idsFilter);
             }
 
+            // Build terms of assets (PPVs) the user purchased and is entitled to watch
             foreach (var item in this.SearchDefinitions.entitledPaidForAssets)
             {
                 FilterCompositeType idsFilter = new FilterCompositeType(CutWith.AND);
@@ -1506,6 +1506,7 @@ namespace ElasticSearch.Searcher
                 }
             };
 
+            // Connect all the channels in the entitled user's subscriptions
             boolQuery.AddChild(this.SubscriptionsQuery, CutWith.OR);
             boolQuery.AddChild(specificAssetsTerm, CutWith.OR);
 
