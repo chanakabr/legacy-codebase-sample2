@@ -186,6 +186,7 @@
     <Compile Include="Manager\TextLocalizationManager.cs" />
     <Compile Include="Objects\Authorization\APIToken.cs" />
     <Compile Include="Objects\Authorization\AppCredentials.cs" />
+    <Compile Include="Objects\Authorization\UserDeviceTokensView.cs" />
     <Compile Include="Objects\Authorization\RefreshToken.cs" />
     <Compile Include="Objects\Authorization\DeviceToken.cs" />
     <Compile Include="Objects\Authorization\GroupConfiguration.cs" />
