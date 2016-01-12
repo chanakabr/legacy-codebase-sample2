@@ -1183,7 +1183,22 @@ namespace Catalog
             {
                 definitions.freeAssets = EntitledAssetsUtils.GetFreeAssets(parentGroupID, request.m_sSiteGuid);
                 definitions.entitledPaidForAssets = EntitledAssetsUtils.GetUserPPVAssets(parentGroupID, request.m_sSiteGuid);
-                definitions.subscriptionSearchObjects = EntitledAssetsUtils.GetUserSubscriptionSearchObjects(parentGroupID, request.m_sSiteGuid);
+
+                string[] entitlementMediaTypes = null;
+
+
+                if (definitions.shouldSearchMedia && definitions.mediaTypes.Count == 0)
+                {
+                    entitlementMediaTypes = new string[] { "0" };
+                }
+                else
+                {
+                    entitlementMediaTypes = definitions.mediaTypes.Select(t => t.ToString()).ToArray();
+                }
+
+                definitions.subscriptionSearchObjects =
+                    EntitledAssetsUtils.GetUserSubscriptionSearchObjects(request, parentGroupID, request.m_sSiteGuid,
+                    request.order, entitlementMediaTypes, definitions.deviceRuleId);
             }
 
             #endregion

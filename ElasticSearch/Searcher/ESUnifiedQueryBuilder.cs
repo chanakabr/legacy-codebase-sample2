@@ -21,6 +21,18 @@ namespace ElasticSearch.Searcher
 
         public const string ENTITLED_ASSETS_FIELD = "entitled_assets";
 
+        protected static readonly ESPrefix epgPrefixTerm = new ESPrefix()
+        {
+            Key = "_type",
+            Value = "epg"
+        };
+
+        protected static readonly ESPrefix mediaPrefixTerm = new ESPrefix()
+        {
+            Key = "_type",
+            Value = "media"
+        };
+
         #endregion
 
         #region Data Members
@@ -230,18 +242,6 @@ namespace ElasticSearch.Searcher
 
         public void BuildInnerFilterAndQuery(out BaseFilterCompositeType filterPart, out IESTerm queryTerm, bool bAddDeviceRuleID = true, bool bAddActive = true)
         {
-            ESPrefix epgPrefixTerm = new ESPrefix()
-            {
-                Key = "_type",
-                Value = "epg"
-            };
-
-            ESPrefix mediaPrefixTerm = new ESPrefix()
-            {
-                Key = "_type",
-                Value = "media"
-            };
-
             // Eventual filter will be:
             //
             // AND: [
@@ -1432,6 +1432,8 @@ namespace ElasticSearch.Searcher
 
             foreach (var item in this.SearchDefinitions.freeAssets)
             {
+                FilterCompositeType idsFilter = new FilterCompositeType(CutWith.AND);
+
                 ESTerms idsTerm = new ESTerms(true)
                 {
                     Key = "_id"
@@ -1439,11 +1441,33 @@ namespace ElasticSearch.Searcher
 
                 idsTerm.Value.AddRange(item.Value);
 
-                assetsFilter.AddChild(idsTerm);
+                idsFilter.AddChild(idsTerm);
+
+                switch (item.Key)
+                {
+                    case ApiObjects.eAssetTypes.EPG:
+                    {
+                        idsFilter.AddChild(epgPrefixTerm);
+                        break;
+                    }
+                    case ApiObjects.eAssetTypes.MEDIA:
+                    {
+                        idsFilter.AddChild(mediaPrefixTerm);
+                        break;
+                    }
+                    case ApiObjects.eAssetTypes.UNKNOWN:
+                    case ApiObjects.eAssetTypes.NPVR:
+                    default:
+                    break;
+                }
+
+                assetsFilter.AddChild(idsFilter);
             }
 
             foreach (var item in this.SearchDefinitions.entitledPaidForAssets)
             {
+                FilterCompositeType idsFilter = new FilterCompositeType(CutWith.AND);
+
                 ESTerms idsTerm = new ESTerms(true)
                 {
                     Key = "_id"
@@ -1451,7 +1475,27 @@ namespace ElasticSearch.Searcher
 
                 idsTerm.Value.AddRange(item.Value);
 
-                assetsFilter.AddChild(idsTerm);
+                idsFilter.AddChild(idsTerm);
+
+                switch (item.Key)
+                {
+                    case ApiObjects.eAssetTypes.EPG:
+                    {
+                        idsFilter.AddChild(epgPrefixTerm);
+                        break;
+                    }
+                    case ApiObjects.eAssetTypes.MEDIA:
+                    {
+                        idsFilter.AddChild(mediaPrefixTerm);
+                        break;
+                    }
+                    case ApiObjects.eAssetTypes.UNKNOWN:
+                    case ApiObjects.eAssetTypes.NPVR:
+                    default:
+                    break;
+                }
+
+                assetsFilter.AddChild(idsFilter);
             }
 
             ESFilteredQuery specificAssetsTerm = new ESFilteredQuery()

@@ -87,11 +87,6 @@ namespace Catalog.Request
                                 sMediaTypesFromRequest = request.m_sMediaType.Split(';');
                             }
 
-                            // save monitor and logs context data
-                            ContextData contextData = new ContextData();
-
-                            Task[] channelsSearchObjectTasks = new Task[allChannels.Count];
-
                             int[] deviceRuleIds = null;
 
                             if (request.m_oFilter != null)
@@ -99,72 +94,8 @@ namespace Catalog.Request
                                 deviceRuleIds = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
                             }
 
-                            List<BaseSearchObject> searchObjectsList = new List<BaseSearchObject>();
-
-                            BaseSearchObject[] searchObjectsArray = new BaseSearchObject[allChannels.Count];
-                            
-                            // Building search object for each channel
-                            for (int searchObjectIndex = 0; searchObjectIndex < allChannels.Count; searchObjectIndex++)
-                            {
-                                channelsSearchObjectTasks[searchObjectIndex] = new Task(
-                                     (obj) =>
-                                     {
-                                         // load monitor and logs context data
-                                         contextData.Load();
-
-                                         try
-                                         {
-                                             int channelIndex = (int)obj;
-
-                                             if (groupInCache != null)
-                                             {
-                                                 GroupsCacheManager.Channel currentChannel = allChannels[channelIndex];
-
-                                                 if (sMediaTypesFromRequest.Contains<string>("0") || sMediaTypesFromRequest.Contains<string>(currentChannel.m_nMediaType.ToString()) || currentChannel.m_nMediaType.ToString().Equals("0"))
-                                                 {
-                                                     if (currentChannel.m_nChannelTypeID == (int)ChannelType.KSQL)
-                                                     {
-                                                         UnifiedSearchDefinitions definitions = Catalog.BuildInternalChannelSearchObjectWithBaseRequest(currentChannel, this, groupInCache);
-
-                                                         searchObjectsArray[channelIndex] = definitions;
-                                                     }
-                                                     else
-                                                     {
-                                                         MediaSearchObj channelSearchObject = Catalog.BuildBaseChannelSearchObject(currentChannel, request, 
-                                                             request.m_oOrderObj, request.m_nGroupID, groupInCache.m_sPermittedWatchRules, deviceRuleIds, groupInCache.GetGroupDefaultLanguage());
-
-                                                         if ((currentChannel.m_nMediaType.ToString().Equals("0") || 
-                                                             string.IsNullOrEmpty(currentChannel.m_nMediaType.ToString())) && 
-                                                             !(sMediaTypesFromRequest.Contains<string>("0")) && sMediaTypesFromRequest.Length > 0)
-                                                         {
-                                                             channelSearchObject.m_sMediaTypes = sMediaTypesFromRequest[0];
-                                                         }
-                                                         channelSearchObject.m_oOrder.m_eOrderBy = OrderBy.ID;
-                                                         searchObjectsArray[channelIndex] = channelSearchObject;
-                                                     }
-                                                 }
-                                             }
-                                         }
-                                         catch (Exception ex)
-                                         {
-                                             log.Error(ex.Message, ex);
-                                         }
-                                     }, searchObjectIndex);
-                                channelsSearchObjectTasks[searchObjectIndex].Start();
-                            }
-
-                            //Wait for all parallel tasks to end
-                            Task.WaitAll(channelsSearchObjectTasks);
-
-                            searchObjectsList = searchObjectsArray.ToList();
-
-                            for (int i = 0; i < channelsSearchObjectTasks.Length; i++)
-                            {
-                                if (channelsSearchObjectTasks[i] != null)
-                                {
-                                    channelsSearchObjectTasks[i].Dispose();
-                                }
-                            }
+                            List<BaseSearchObject> searchObjectsList = 
+                                BuildBaseSearchObjects(request, groupInCache, allChannels, sMediaTypesFromRequest, deviceRuleIds, request.m_oOrderObj);
 
                             if (searchObjectsList != null && searchObjectsList.Count > 0)
                             {
@@ -217,6 +148,85 @@ namespace Catalog.Request
                 log.Error(ex.Message, ex);
                 throw ex;
             }
+        }
+
+        public static List<BaseSearchObject> BuildBaseSearchObjects(BaseRequest request, Group groupInCache, 
+            List<GroupsCacheManager.Channel> allChannels, string[] mediaTypes, int[] deviceRuleIds, OrderObj order)
+        {
+            List<BaseSearchObject> searchObjectsList = new List<BaseSearchObject>();
+
+            BaseSearchObject[] searchObjectsArray = new BaseSearchObject[allChannels.Count];
+            Task[] channelsSearchObjectTasks = new Task[allChannels.Count];
+
+            // save monitor and logs context data
+            ContextData contextData = new ContextData();
+
+            // Building search object for each channel
+            for (int searchObjectIndex = 0; searchObjectIndex < allChannels.Count; searchObjectIndex++)
+            {
+                channelsSearchObjectTasks[searchObjectIndex] = new Task(
+                     (obj) =>
+                     {
+                         // load monitor and logs context data
+                         contextData.Load();
+
+                         try
+                         {
+                             int channelIndex = (int)obj;
+
+                             if (groupInCache != null)
+                             {
+                                 GroupsCacheManager.Channel currentChannel = allChannels[channelIndex];
+
+                                 if (mediaTypes.Contains<string>("0") || mediaTypes.Contains<string>(currentChannel.m_nMediaType.ToString()) || 
+                                     currentChannel.m_nMediaType.ToString().Equals("0"))
+                                 {
+                                     if (currentChannel.m_nChannelTypeID == (int)ChannelType.KSQL)
+                                     {
+                                         UnifiedSearchDefinitions definitions = Catalog.BuildInternalChannelSearchObjectWithBaseRequest(currentChannel, request, groupInCache);
+
+                                         searchObjectsArray[channelIndex] = definitions;
+                                     }
+                                     else
+                                     {
+                                         MediaSearchObj channelSearchObject = Catalog.BuildBaseChannelSearchObject(currentChannel, request,
+                                             order, request.m_nGroupID, groupInCache.m_sPermittedWatchRules, deviceRuleIds, groupInCache.GetGroupDefaultLanguage());
+
+                                         if ((currentChannel.m_nMediaType.ToString().Equals("0") ||
+                                             string.IsNullOrEmpty(currentChannel.m_nMediaType.ToString())) &&
+                                             !(mediaTypes.Contains<string>("0")) && mediaTypes.Length > 0)
+                                         {
+                                             channelSearchObject.m_sMediaTypes = mediaTypes[0];
+                                         }
+                                         channelSearchObject.m_oOrder.m_eOrderBy = OrderBy.ID;
+                                         searchObjectsArray[channelIndex] = channelSearchObject;
+                                     }
+                                 }
+                             }
+                         }
+                         catch (Exception ex)
+                         {
+                             log.Error(ex.Message, ex);
+                         }
+                     }, searchObjectIndex);
+                channelsSearchObjectTasks[searchObjectIndex].Start();
+            }
+
+            //Wait for all parallel tasks to end
+            Task.WaitAll(channelsSearchObjectTasks);
+
+            searchObjectsList = searchObjectsArray.ToList();
+
+            // Dispose task objects
+            for (int i = 0; i < channelsSearchObjectTasks.Length; i++)
+            {
+                if (channelsSearchObjectTasks[i] != null)
+                {
+                    channelsSearchObjectTasks[i].Dispose();
+                }
+            }
+
+            return searchObjectsList;
         }
     }
 }
