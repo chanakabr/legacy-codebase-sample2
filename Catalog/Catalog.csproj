@@ -124,6 +124,7 @@
     <Compile Include="AdProvider.cs" />
     <Compile Include="BaseObject.cs" />
     <Compile Include="PicData.cs" />
+    <Compile Include="PicSize.cs" />
     <Compile Include="Request\AssetsBookmarksRequest.cs" />
     <Compile Include="Request\AssetsBookmarksRequestData.cs" />
     <Compile Include="Response\AssetsBookmarksResponse.cs" />
