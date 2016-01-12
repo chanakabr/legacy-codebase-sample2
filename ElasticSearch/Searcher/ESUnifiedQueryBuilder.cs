@@ -8,7 +8,7 @@ namespace ElasticSearch.Searcher
 {
     public class ESUnifiedQueryBuilder
     {
-        #region Data Members
+        #region Consts and readonlys 
 
         protected static readonly List<string> DEFAULT_RETURN_FIELDS = new List<string>(7) { 
                 "\"_id\"", "\"_index\"", "\"_type\"", "\"_score\"", "\"group_id\"", "\"name\"", "\"cache_date\"",  "\"update_date\""};
@@ -18,6 +18,12 @@ namespace ElasticSearch.Searcher
         public static readonly string METAS = "METAS";
         public static readonly string TAGS = "TAGS";
         public static readonly string ES_DATE_FORMAT = "yyyyMMddHHmmss";
+
+        public const string ENTITLED_ASSETS_FIELD = "entitled_assets";
+
+        #endregion
+
+        #region Data Members
 
         protected static int MAX_RESULTS;
         
@@ -1072,6 +1078,111 @@ namespace ElasticSearch.Searcher
             return typesString.ToString();
         }
 
+        /// <summary>
+        /// Connects with "OR" several, different queries alltogther.
+        /// </summary>
+        /// <param name="unifiedSearchDefinitions"></param>
+        /// <returns></returns>
+        public string BuildMultiSearchQueryString(List<UnifiedSearchDefinitions> unifiedSearchDefinitions)
+        {
+            this.ReturnFields = DEFAULT_RETURN_FIELDS.ToList();
+
+            this.ReturnFields.Add("\"epg_id\"");
+            this.ReturnFields.Add("\"media_id\"");
+
+            // This is a query-filter.
+            // First comes query
+            // Then comes filter
+            // Query is for non-exact phrases
+            // Filter is for exact phrases
+
+            // filtered query :
+            //  {
+            //      { 
+            //          query : {},
+            //          filter : {}
+            //      }
+            // }
+
+            string fullQuery = string.Empty;
+
+            if (this.SearchDefinitions == null)
+            {
+                return fullQuery;
+            }
+
+            FilteredQuery filteredQuery = new FilteredQuery(true)
+            {
+                PageIndex = 0,
+                PageSize = 0
+            };
+
+            filteredQuery.Filter = new QueryFilter();
+            filteredQuery.Filter.FilterSettings = new FilterCompositeType(CutWith.OR);
+
+            BoolQuery boolquery = new BoolQuery();
+
+            ESUnifiedQueryBuilder innerQueryBuilder = new ESUnifiedQueryBuilder(null, this.GroupID);
+
+            foreach (var definition in unifiedSearchDefinitions)
+            {
+                BaseFilterCompositeType filterPart;
+                IESTerm queryTerm;
+
+                innerQueryBuilder.SearchDefinitions = definition;
+                innerQueryBuilder.BuildInnerFilterAndQuery(out filterPart, out queryTerm);
+
+                filteredQuery.Filter.FilterSettings.AddChild(filterPart);
+                boolquery.AddChild(queryTerm, CutWith.OR);
+            }
+
+            filteredQuery.Query = boolquery;
+
+            PageSize = MAX_RESULTS;
+
+            int fromIndex = 0;
+
+            StringBuilder filteredQueryBuilder = new StringBuilder();
+
+            filteredQueryBuilder.Append("{");
+            filteredQueryBuilder.AppendFormat(" \"size\": {0}, ", PageSize);
+            filteredQueryBuilder.AppendFormat(" \"from\": {0}, ", fromIndex);
+
+            // TODO - find if the search is exact or not!
+            bool bExact = false;
+
+            // If not exact, order by score, and vice versa
+            string sSort = GetSort(this.SearchDefinitions.order, !bExact);
+
+            // Join return fields with commas
+            if (ReturnFields.Count > 0)
+            {
+                filteredQueryBuilder.Append("\"fields\": [");
+
+                filteredQueryBuilder.Append(ReturnFields.Aggregate((current, next) => string.Format("{0}, {1}", current, next)));
+
+                filteredQueryBuilder.Append("], ");
+            }
+
+            filteredQueryBuilder.AppendFormat("{0}, ", sSort);
+            filteredQueryBuilder.Append(" \"query\": { \"filtered\": {");
+
+            if (filteredQuery.Query != null && !filteredQuery.Query.IsEmpty())
+            {
+                string queryPart = filteredQuery.Query.ToString();
+
+                if (!string.IsNullOrEmpty(queryPart))
+                {
+                    filteredQueryBuilder.AppendFormat(" \"query\": {0},", queryPart.ToString());
+                }
+            }
+
+            filteredQueryBuilder.Append(filteredQuery.Filter.ToString());
+            filteredQueryBuilder.Append(" } } }");
+            fullQuery = filteredQueryBuilder.ToString();
+
+            return fullQuery;
+        }
         #endregion
 
         #region Protected and Private Methods
@@ -1128,7 +1239,7 @@ namespace ElasticSearch.Searcher
                 BooleanLeaf leaf = root as BooleanLeaf;
 
                 // Special case - if this is the entitled assets leaf, we build a specific term for it
-                if (leaf.field == "entitled_assets")
+                if (leaf.field == ENTITLED_ASSETS_FIELD)
                 {
                     term = BuildEntitledAssetsQuery();
                 }
@@ -1317,9 +1428,42 @@ namespace ElasticSearch.Searcher
             {
             };
 
+            BaseFilterCompositeType assetsFilter = new FilterCompositeType(CutWith.OR);
+
+            foreach (var item in this.SearchDefinitions.freeAssets)
+            {
+                ESTerms idsTerm = new ESTerms(true)
+                {
+                    Key = "_id"
+                };
+
+                idsTerm.Value.AddRange(item.Value);
+
+                assetsFilter.AddChild(idsTerm);
+            }
+
+            foreach (var item in this.SearchDefinitions.entitledPaidForAssets)
+            {
+                ESTerms idsTerm = new ESTerms(true)
+                {
+                    Key = "_id"
+                };
+
+                idsTerm.Value.AddRange(item.Value);
+
+                assetsFilter.AddChild(idsTerm);
+            }
+
+            ESFilteredQuery specificAssetsTerm = new ESFilteredQuery()
+            {
+                Filter = new QueryFilter()
+                {
+                   FilterSettings = assetsFilter
+                }
+            };
+
             boolQuery.AddChild(this.SubscriptionsQuery, CutWith.OR);
-            boolQuery.AddChild(null, CutWith.OR);
-            boolQuery.AddChild(null, CutWith.OR);
+            boolQuery.AddChild(specificAssetsTerm, CutWith.OR);
 
             result.Query = boolQuery;
 
@@ -1512,111 +1656,6 @@ namespace ElasticSearch.Searcher
 
         #endregion
 
-        /// <summary>
-        /// Connects with "OR" several, different queries alltogther.
-        /// </summary>
-        /// <param name="unifiedSearchDefinitions"></param>
-        /// <returns></returns>
-        public string BuildMultiSearchQueryString(List<UnifiedSearchDefinitions> unifiedSearchDefinitions)
-        {
-            this.ReturnFields = DEFAULT_RETURN_FIELDS.ToList();
-            
-            this.ReturnFields.Add("\"epg_id\"");
-            this.ReturnFields.Add("\"media_id\"");
-
-            // This is a query-filter.
-            // First comes query
-            // Then comes filter
-            // Query is for non-exact phrases
-            // Filter is for exact phrases
-
-            // filtered query :
-            //  {
-            //      { 
-            //          query : {},
-            //          filter : {}
-            //      }
-            // }
-
-            string fullQuery = string.Empty;
-
-            if (this.SearchDefinitions == null)
-            {
-                return fullQuery;
-            }
-
-            FilteredQuery filteredQuery = new FilteredQuery(true)
-            {
-                PageIndex = 0,
-                PageSize = 0
-            };
-
-            filteredQuery.Filter = new QueryFilter();
-            filteredQuery.Filter.FilterSettings = new FilterCompositeType(CutWith.OR);
-
-            BoolQuery boolquery = new BoolQuery();
-
-            ESUnifiedQueryBuilder innerQueryBuilder = new ESUnifiedQueryBuilder(null, this.GroupID);
-
-            foreach (var definition in unifiedSearchDefinitions)
-            {
-                BaseFilterCompositeType filterPart;
-                IESTerm queryTerm;
-            
-                innerQueryBuilder.SearchDefinitions = definition;
-                innerQueryBuilder.BuildInnerFilterAndQuery(out filterPart, out queryTerm);
-
-                filteredQuery.Filter.FilterSettings.AddChild(filterPart);
-                boolquery.AddChild(queryTerm, CutWith.OR);
-            }
-
-            filteredQuery.Query = boolquery;
-
-            PageSize = MAX_RESULTS;
-
-            int fromIndex = 0;
-
-            StringBuilder filteredQueryBuilder = new StringBuilder();
-
-            filteredQueryBuilder.Append("{");
-            filteredQueryBuilder.AppendFormat(" \"size\": {0}, ", PageSize);
-            filteredQueryBuilder.AppendFormat(" \"from\": {0}, ", fromIndex);
-
-            // TODO - find if the search is exact or not!
-            bool bExact = false;
-
-            // If not exact, order by score, and vice versa
-            string sSort = GetSort(this.SearchDefinitions.order, !bExact);
-
-            // Join return fields with commas
-            if (ReturnFields.Count > 0)
-            {
-                filteredQueryBuilder.Append("\"fields\": [");
-
-                filteredQueryBuilder.Append(ReturnFields.Aggregate((current, next) => string.Format("{0}, {1}", current, next)));
-
-                filteredQueryBuilder.Append("], ");
-            }
-
-            filteredQueryBuilder.AppendFormat("{0}, ", sSort);
-            filteredQueryBuilder.Append(" \"query\": { \"filtered\": {");
-
-            if (filteredQuery.Query != null && !filteredQuery.Query.IsEmpty())
-            {
-                string queryPart = filteredQuery.Query.ToString();
-
-                if (!string.IsNullOrEmpty(queryPart))
-                {
-                    filteredQueryBuilder.AppendFormat(" \"query\": {0},", queryPart.ToString());
-                }
-            }
-
-            filteredQueryBuilder.Append(filteredQuery.Filter.ToString());
-            filteredQueryBuilder.Append(" } } }");
-            fullQuery = filteredQueryBuilder.ToString();
-
-            return fullQuery;
-        }
     }
 
 }

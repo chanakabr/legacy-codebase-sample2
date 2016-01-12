@@ -5932,10 +5932,10 @@ namespace Catalog
                             throw new KalturaException("Invalid search value or operator was sent for parental_rules", (int)eResponseStatus.BadSearchRequest);
                         }
                     }
-                    else if (searchKeyLowered == "entitled_assets")
+                    else if (searchKeyLowered == ESUnifiedQueryBuilder.ENTITLED_ASSETS_FIELD)
                     {
                         // Same as geo_block: it is a personal filter that currently will work only with "true".
-                        if (leaf.operand != ComparisonOperator.Equals || leaf.value.ToString().ToLower() == "true")
+                        if (leaf.operand != ComparisonOperator.Equals || leaf.value.ToString().ToLower() != "true")
                         {
                             throw new KalturaException("Invalid search value or operator was sent for entitled_assets", (int)eResponseStatus.BadSearchRequest);
                         }
