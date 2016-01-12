@@ -41,7 +41,7 @@ namespace ApiObjects.Response
         UserNotAllowed = 1027,
         DuplicatePin = 1028,
         UserAlreadyInDomain = 1029,
-        PartnerNotAllowedToDelete = 1030,
+        NotAllowedToDelete = 1030,
 
         // User Section 2000 - 2999
         UserDoesNotExist = 2000,
