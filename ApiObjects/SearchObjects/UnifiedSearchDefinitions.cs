@@ -22,6 +22,15 @@ namespace ApiObjects.SearchObjects
             set;
         }
 
+        /// <summary>
+        /// Indicates an offset for the Elasticsearch, from which document index to start the response. This is an alternative for page index+size combo
+        /// </summary>
+        public int from
+        {
+            get;
+            set;
+        }
+
         public OrderObj order;
 
         public bool shouldUseFinalEndDate;
@@ -140,6 +149,26 @@ namespace ApiObjects.SearchObjects
         /// </summary>
         public List<long> specificOrder;
 
+        /// <summary>
+        /// Should the search
+        /// </summary>
+        public bool shouldSearchByEntitlements;
+
+        /// <summary>
+        /// List of free assets according to their type - will be filled if searching by entitlements
+        /// </summary>
+        public Dictionary<eAssetTypes, List<string>> freeAssets;
+
+        /// <summary>
+        /// List of assets that the user already paid for - will be filled if searching by entitlements
+        /// </summary>
+        public Dictionary<eAssetTypes, List<string>> entitledPaidForAssets;
+
+        /// <summary>
+        /// List of search objects that represent queries of subscriptions the user is entitled to
+        /// </summary>
+        public List<BaseSearchObject> subscriptionSearchObjects;
+
         #endregion
 
         #region Ctor
@@ -148,6 +177,7 @@ namespace ApiObjects.SearchObjects
         {
             pageIndex = 0;
             pageSize = 0;
+            from = 0;
             groupId = 0;
             epgDaysOffest = 0;
 

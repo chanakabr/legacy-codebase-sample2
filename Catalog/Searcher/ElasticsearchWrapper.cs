@@ -380,64 +380,7 @@ namespace Catalog
                 List<ElasticSearchApi.ESAssetDocument> searchResults = new List<ElasticSearchApi.ESAssetDocument>();
 
                 #region Build Search Query
-
-                ESMediaQueryBuilder mediaQueryBuilder = new ESMediaQueryBuilder();
-                ESUnifiedQueryBuilder unifiedQueryBuilder = new ESUnifiedQueryBuilder(null, parentGroupId);
-
-                BoolQuery boolQuery = new BoolQuery();
-
-                /*
-                 * Foreach media/unified search object, create filtered query.
-                 * Add the query's filter to the grouped filter so that we can then create a single request
-                 * containing all the channels that we want.
-                 */
-                foreach (BaseSearchObject searchObject in searchObjects)
-                {
-                    if (searchObject == null)
-                        continue;
-
-                    if (searchObject is MediaSearchObj)
-                    {
-                        MediaSearchObj mediaSearchObject = searchObject as MediaSearchObj;
-                        mediaQueryBuilder.m_nGroupID = mediaSearchObject.m_nGroupId;
-                        mediaSearchObject.m_nPageSize = 0;
-                        mediaQueryBuilder.oSearchObject = mediaSearchObject;
-                        mediaQueryBuilder.QueryType = (mediaSearchObject.m_bExact) ? eQueryType.EXACT : eQueryType.BOOLEAN;
-                        FilteredQuery tempQuery = mediaQueryBuilder.BuildChannelFilteredQuery();
-
-                        if (tempQuery != null && tempQuery.Filter != null)
-                        {
-                            ESFilteredQuery currentFilteredQuery = new ESFilteredQuery()
-                            {
-                                Filter = tempQuery.Filter
-                            };
-
-                            boolQuery.AddChild(currentFilteredQuery, CutWith.OR);
-                        }
-                    }
-                    else if (searchObject is UnifiedSearchDefinitions)
-                    {
-                        UnifiedSearchDefinitions definitions = searchObject as UnifiedSearchDefinitions;
-                        unifiedQueryBuilder.SearchDefinitions = definitions;
-                        
-                        BaseFilterCompositeType currentFilter;
-                        IESTerm currentQuery;
-
-                        unifiedQueryBuilder.BuildInnerFilterAndQuery(out currentFilter, out currentQuery);
-
-                        ESFilteredQuery currentFilteredQuery = new ESFilteredQuery()
-                        {
-                            Filter = new QueryFilter()
-                            {
-                                FilterSettings = currentFilter
-                            },
-                            Query = currentQuery
-                        };
-
-                        //groupedFilters.AddChild(currentFilter);
-                        boolQuery.AddChild(currentQuery, CutWith.OR);
-                    }
-                }
+                BoolQuery boolQuery = BuildMultipleSearchQuery(searchObjects, parentGroupId);
 
                 string orderValue = FilteredQuery.GetESSortValue(order);
 
@@ -517,6 +460,70 @@ namespace Catalog
             }
 
             return finalSearchResults;
+        }
+
+        private static BoolQuery BuildMultipleSearchQuery(List<BaseSearchObject> searchObjects, int parentGroupId)
+        {
+
+            ESMediaQueryBuilder mediaQueryBuilder = new ESMediaQueryBuilder();
+            ESUnifiedQueryBuilder unifiedQueryBuilder = new ESUnifiedQueryBuilder(null, parentGroupId);
+
+            BoolQuery boolQuery = new BoolQuery();
+
+            /*
+             * Foreach media/unified search object, create filtered query.
+             * Add the query's filter to the grouped filter so that we can then create a single request
+             * containing all the channels that we want.
+             */
+            foreach (BaseSearchObject searchObject in searchObjects)
+            {
+                if (searchObject == null)
+                    continue;
+
+                if (searchObject is MediaSearchObj)
+                {
+                    MediaSearchObj mediaSearchObject = searchObject as MediaSearchObj;
+                    mediaQueryBuilder.m_nGroupID = mediaSearchObject.m_nGroupId;
+                    mediaSearchObject.m_nPageSize = 0;
+                    mediaQueryBuilder.oSearchObject = mediaSearchObject;
+                    mediaQueryBuilder.QueryType = (mediaSearchObject.m_bExact) ? eQueryType.EXACT : eQueryType.BOOLEAN;
+                    FilteredQuery tempQuery = mediaQueryBuilder.BuildChannelFilteredQuery();
+
+                    if (tempQuery != null && tempQuery.Filter != null)
+                    {
+                        ESFilteredQuery currentFilteredQuery = new ESFilteredQuery()
+                        {
+                            Filter = tempQuery.Filter
+                        };
+
+                        boolQuery.AddChild(currentFilteredQuery, CutWith.OR);
+                    }
+                }
+                else if (searchObject is UnifiedSearchDefinitions)
+                {
+                    UnifiedSearchDefinitions definitions = searchObject as UnifiedSearchDefinitions;
+                    unifiedQueryBuilder.SearchDefinitions = definitions;
+
+                    BaseFilterCompositeType currentFilter;
+                    IESTerm currentQuery;
+
+                    unifiedQueryBuilder.BuildInnerFilterAndQuery(out currentFilter, out currentQuery);
+
+                    ESFilteredQuery currentFilteredQuery = new ESFilteredQuery()
+                    {
+                        Filter = new QueryFilter()
+                        {
+                            FilterSettings = currentFilter
+                        },
+                        Query = currentQuery
+                    };
+
+                    //groupedFilters.AddChild(currentFilter);
+                    boolQuery.AddChild(currentQuery, CutWith.OR);
+                }
+            }
+
+            return boolQuery;
         }
 
 
@@ -1140,7 +1147,7 @@ namespace Catalog
         /// </summary>
         /// <param name="unifiedSearchDefinitions"></param>
         /// <returns></returns>
-        public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearchDefinitions, ref int totalItems)
+        public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearchDefinitions, ref int totalItems, ref int to)
         {
             List<UnifiedSearchResult> searchResultsList = new List<UnifiedSearchResult>();
             totalItems = 0;
@@ -1186,6 +1193,7 @@ namespace Catalog
             {
                 queryParser.PageIndex = unifiedSearchDefinitions.pageIndex;
                 queryParser.PageSize = unifiedSearchDefinitions.pageSize;
+                queryParser.From = unifiedSearchDefinitions.from;
             }
 
             // ES index is on parent group id
@@ -1196,6 +1204,13 @@ namespace Catalog
             if (parentGroupId == 0)
             {
                 parentGroupId = unifiedSearchDefinitions.groupId;
+            }
+
+            if (unifiedSearchDefinitions.shouldSearchByEntitlements)
+            {
+                // If we need to search by entitlements, we have A LOT of work to do now
+                BoolQuery boolQuery = BuildMultipleSearchQuery(unifiedSearchDefinitions.subscriptionSearchObjects, parentGroupId);
+                queryParser.SubscriptionsQuery = boolQuery;
             }
 
             string requestBody = queryParser.BuildSearchQueryString(unifiedSearchDefinitions.shouldAddDeviceRuleID, unifiedSearchDefinitions.shouldAddActive);
@@ -1308,6 +1323,7 @@ namespace Catalog
                             #endregion
                         }
                     }
+
 
                     #endregion
                 }

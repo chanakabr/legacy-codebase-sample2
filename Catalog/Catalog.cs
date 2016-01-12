@@ -948,7 +948,7 @@ namespace Catalog
         /// <param name="request"></param>
         /// <param name="totalItems"></param>
         /// <returns></returns>
-        public static List<UnifiedSearchResult> GetAssetIdFromSearcher(UnifiedSearchRequest request, ref int totalItems)
+        public static List<UnifiedSearchResult> GetAssetIdFromSearcher(UnifiedSearchRequest request, ref int totalItems, ref int to)
         {
             List<UnifiedSearchResult> searchResultsList = new List<UnifiedSearchResult>();
             totalItems = 0;
@@ -974,7 +974,7 @@ namespace Catalog
             {
                 SetLanguageDefinition(request.m_nGroupID, request.m_oFilter, searchDefinitions);
 
-                List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(searchDefinitions, ref totalItems);
+                List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(searchDefinitions, ref totalItems, ref to);
 
                 if (searchResults != null)
                 {
@@ -1177,8 +1177,19 @@ namespace Catalog
 
             #endregion
 
+            #region Search by entitlement
+
+            if (definitions.shouldSearchByEntitlements)
+            {
+                definitions.freeAssets = EntitledAssetsUtils.GetFreeAssets(parentGroupID, request.m_sSiteGuid);
+                definitions.entitledPaidForAssets = EntitledAssetsUtils.GetUserPPVAssets(parentGroupID, request.m_sSiteGuid);
+                definitions.subscriptionSearchObjects = EntitledAssetsUtils.GetUserSubscriptionSearchObjects(parentGroupID, request.m_sSiteGuid);
+            }
+
+            #endregion
             definitions.pageIndex = request.m_nPageIndex;
             definitions.pageSize = request.m_nPageSize;
+            definitions.from = request.from;
 
             return definitions;
         }
@@ -4924,8 +4935,9 @@ namespace Catalog
                 {
                     SetLanguageDefinition(request.m_nGroupID, request.m_oFilter, searchDefinitions);
 
+                    int to = 0;
                     // The provided response should be filtered according to the Filter defined in the applicable 3rd-party channel settings
-                    List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(searchDefinitions, ref totalItems);
+                    List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(searchDefinitions, ref totalItems, ref to);
 
                     if (searchResults != null)
                     {
@@ -5403,8 +5415,10 @@ namespace Catalog
                 return new Status((int)eResponseStatus.Error, "Failed getting instance of searcher");
             }
 
+            int to = 0;
+
             // Perform initial search of channel
-            searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems);
+            searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to);
 
             if (searchResults == null)
             {
@@ -5527,8 +5541,10 @@ namespace Catalog
                 return new Status((int)eResponseStatus.Error, "Failed getting instance of searcher");
             }
 
+            int to = 0;
+
             // Perform initial search of channel
-            searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems);
+            searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to);
 
             if (searchResults == null)
             {
@@ -5915,6 +5931,19 @@ namespace Catalog
                         {
                             throw new KalturaException("Invalid search value or operator was sent for parental_rules", (int)eResponseStatus.BadSearchRequest);
                         }
+                    }
+                    else if (searchKeyLowered == "entitled_assets")
+                    {
+                        // Same as geo_block: it is a personal filter that currently will work only with "true".
+                        if (leaf.operand != ComparisonOperator.Equals || leaf.value.ToString().ToLower() == "true")
+                        {
+                            throw new KalturaException("Invalid search value or operator was sent for entitled_assets", (int)eResponseStatus.BadSearchRequest);
+                        }
+
+                        definitions.shouldSearchByEntitlements = true;
+
+                        // I mock a "contains" operator so that the query builder will know it is a not-exact search
+                        leaf.operand = ComparisonOperator.Contains;
                     }
                     else if (reservedUnifiedSearchNumericFields.Contains(searchKeyLowered))
                     {

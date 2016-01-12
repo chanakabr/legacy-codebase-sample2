@@ -41,6 +41,9 @@ namespace Catalog.Request
         [DataMember]
         public List<ePersonalFilter> personalFilters;
 
+        [DataMember]
+        public int from;
+
         #endregion
 
         #region Ctor
@@ -150,13 +153,19 @@ namespace Catalog.Request
                 CheckSignature(baseRequest);
 
                 int totalItems = 0;
-                List<UnifiedSearchResult> assetsResults = Catalog.GetAssetIdFromSearcher(request, ref totalItems);
+                int to = 0;
+                List<UnifiedSearchResult> assetsResults = Catalog.GetAssetIdFromSearcher(request, ref totalItems, ref to);
 
                 response.m_nTotalItems = totalItems;
 
                 if (totalItems > 0)
                 {
                     response.searchResults = assetsResults;
+                }
+
+                if (to > 0)
+                {
+                    response.to = to;
                 }
 
                 response.status.Code = (int)eResponseStatus.OK;

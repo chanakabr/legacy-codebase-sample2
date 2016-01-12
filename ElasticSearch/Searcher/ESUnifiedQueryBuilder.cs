@@ -43,7 +43,31 @@ namespace ElasticSearch.Searcher
             set;
         }
 
+        public int From
+        {
+            get;
+            set;
+        }
+
         public List<string> ReturnFields
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// A search query/filter represeting the search for entitled assets
+        /// </summary>
+        public string EntitlementSearchQuery
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// A bool query containing all
+        /// </summary>
+        public BoolQuery SubscriptionsQuery
         {
             get;
             set;
@@ -143,7 +167,18 @@ namespace ElasticSearch.Searcher
                 PageSize = MAX_RESULTS;
             }
 
-            int fromIndex = (PageIndex <= 0) ? 0 : PageSize * PageIndex;
+            int fromIndex = 0;
+
+            // If we have a defined offset for search, use it
+            if (this.From > 0)
+            {
+                fromIndex = this.From;
+            }
+            else
+            {
+                // Otherwise, we calculate the "from" by "page size times page index";
+                fromIndex = (PageIndex <= 0) ? 0 : PageSize * PageIndex;
+            }
 
             StringBuilder filteredQueryBuilder = new StringBuilder();
 
@@ -1083,7 +1118,7 @@ namespace ElasticSearch.Searcher
         /// </summary>
         /// <param name="root"></param>
         /// <returns></returns>
-        protected static IESTerm ConvertToQuery(BooleanPhraseNode root)
+        protected IESTerm ConvertToQuery(BooleanPhraseNode root)
         {
             IESTerm term = null;
 
@@ -1091,107 +1126,116 @@ namespace ElasticSearch.Searcher
             if (root.type == BooleanNodeType.Leaf)
             {
                 BooleanLeaf leaf = root as BooleanLeaf;
-                bool isNumeric = leaf.valueType == typeof(int) || leaf.valueType == typeof(long);
 
-                string value = string.Empty;
-
-                // First find out the value to use in the filter body 
-                if (isNumeric)
+                // Special case - if this is the entitled assets leaf, we build a specific term for it
+                if (leaf.field == "entitled_assets")
                 {
-                    value = leaf.value.ToString();
-                }
-                else if (leaf.valueType == typeof(DateTime))
-                {
-                    DateTime date = Convert.ToDateTime(leaf.value);
-
-                    if (date != null)
-                    {
-                        value = date.ToString(ES_DATE_FORMAT);
-                    }
+                    term = BuildEntitledAssetsQuery();
                 }
                 else
                 {
-                    value = leaf.value.ToString().ToLower();
-                }
+                    bool isNumeric = leaf.valueType == typeof(int) || leaf.valueType == typeof(long);
 
-                // "Match" when search is not exact (contains)
-                if (leaf.operand == ApiObjects.ComparisonOperator.Contains ||
-                    leaf.operand == ApiObjects.ComparisonOperator.WordStartsWith)
-                {
-                    string field = string.Empty;
+                    string value = string.Empty;
 
-                    if (leaf.operand == ApiObjects.ComparisonOperator.WordStartsWith)
+                    // First find out the value to use in the filter body 
+                    if (isNumeric)
                     {
-                        field = string.Format("{0}.autocomplete", leaf.field);
+                        value = leaf.value.ToString();
+                    }
+                    else if (leaf.valueType == typeof(DateTime))
+                    {
+                        DateTime date = Convert.ToDateTime(leaf.value);
+
+                        if (date != null)
+                        {
+                            value = date.ToString(ES_DATE_FORMAT);
+                        }
                     }
                     else
                     {
-                        field = string.Format("{0}.analyzed", leaf.field);
+                        value = leaf.value.ToString().ToLower();
                     }
 
-                    term = new ESMatchQuery(ESMatchQuery.eMatchQueryType.match)
+                    // "Match" when search is not exact (contains)
+                    if (leaf.operand == ApiObjects.ComparisonOperator.Contains ||
+                        leaf.operand == ApiObjects.ComparisonOperator.WordStartsWith)
                     {
-                        Field = field,
-                        eOperator = CutWith.AND,
-                        Query = value
-                    };
-                }
-                // "bool" with "must_not" when no contains
-                else if (leaf.operand == ApiObjects.ComparisonOperator.NotContains)
-                {
-                    string field = string.Format("{0}.analyzed", leaf.field);
+                        string field = string.Empty;
 
-                    term = new BoolQuery();
+                        if (leaf.operand == ApiObjects.ComparisonOperator.WordStartsWith)
+                        {
+                            field = string.Format("{0}.autocomplete", leaf.field);
+                        }
+                        else
+                        {
+                            field = string.Format("{0}.analyzed", leaf.field);
+                        }
 
-                    (term as BoolQuery).AddNot(
-                        new ESMatchQuery(ESMatchQuery.eMatchQueryType.match)
+                        term = new ESMatchQuery(ESMatchQuery.eMatchQueryType.match)
                         {
                             Field = field,
                             eOperator = CutWith.AND,
                             Query = value
-                        });
-                }
-                // "Term" when search is equals/not equals
-                else if (leaf.operand == ApiObjects.ComparisonOperator.Equals ||
-                    leaf.operand == ApiObjects.ComparisonOperator.NotEquals)
-                {
-                    term = new ESTerm(isNumeric)
+                        };
+                    }
+                    // "bool" with "must_not" when no contains
+                    else if (leaf.operand == ApiObjects.ComparisonOperator.NotContains)
                     {
-                        Key = leaf.field,
-                        Value = value
-                    };
-                }
-                else if (leaf.operand == ApiObjects.ComparisonOperator.Prefix)
-                {
-                    term = new ESPrefix()
-                    {
-                        Key = leaf.field,
-                        Value = value
-                    };
-                }
-                else if (leaf.operand == ApiObjects.ComparisonOperator.In)
-                {
-                    term = new ESTerms(false)
-                    {
-                        Key = leaf.field
-                    };
+                        string field = string.Format("{0}.analyzed", leaf.field);
 
-                    (term as ESTerms).Value.AddRange(leaf.value as IEnumerable<string>);
-                }
-                else if (leaf.operand == ApiObjects.ComparisonOperator.NotIn)
-                {
-                    term = new ESTerms(false)
-                    {
-                        Key = leaf.field,
-                        isNot = true
-                    };
+                        term = new BoolQuery();
 
-                    (term as ESTerms).Value.AddRange(leaf.value as IEnumerable<string>);
-                }
-                // Other cases are "Range"
-                else
-                {
-                    term = ConvertToRange(leaf.field, value, leaf.operand, isNumeric);
+                        (term as BoolQuery).AddNot(
+                            new ESMatchQuery(ESMatchQuery.eMatchQueryType.match)
+                            {
+                                Field = field,
+                                eOperator = CutWith.AND,
+                                Query = value
+                            });
+                    }
+                    // "Term" when search is equals/not equals
+                    else if (leaf.operand == ApiObjects.ComparisonOperator.Equals ||
+                        leaf.operand == ApiObjects.ComparisonOperator.NotEquals)
+                    {
+                        term = new ESTerm(isNumeric)
+                        {
+                            Key = leaf.field,
+                            Value = value
+                        };
+                    }
+                    else if (leaf.operand == ApiObjects.ComparisonOperator.Prefix)
+                    {
+                        term = new ESPrefix()
+                        {
+                            Key = leaf.field,
+                            Value = value
+                        };
+                    }
+                    else if (leaf.operand == ApiObjects.ComparisonOperator.In)
+                    {
+                        term = new ESTerms(false)
+                        {
+                            Key = leaf.field
+                        };
+
+                        (term as ESTerms).Value.AddRange(leaf.value as IEnumerable<string>);
+                    }
+                    else if (leaf.operand == ApiObjects.ComparisonOperator.NotIn)
+                    {
+                        term = new ESTerms(false)
+                        {
+                            Key = leaf.field,
+                            isNot = true
+                        };
+
+                        (term as ESTerms).Value.AddRange(leaf.value as IEnumerable<string>);
+                    }
+                    // Other cases are "Range"
+                    else
+                    {
+                        term = ConvertToRange(leaf.field, value, leaf.operand, isNumeric);
+                    }
                 }
             }
             // If it is a phrase, join all children in a bool query with the corresponding operand
@@ -1262,6 +1306,24 @@ namespace ElasticSearch.Searcher
             }
 
             return (term);
+        }
+
+        private IESTerm BuildEntitledAssetsQuery()
+        {
+            ESFilteredQuery result = null;
+            BoolQuery boolQuery = new BoolQuery();
+
+            result = new ESFilteredQuery()
+            {
+            };
+
+            boolQuery.AddChild(this.SubscriptionsQuery, CutWith.OR);
+            boolQuery.AddChild(null, CutWith.OR);
+            boolQuery.AddChild(null, CutWith.OR);
+
+            result.Query = boolQuery;
+
+            return result;
         }
 
         /// <summary>

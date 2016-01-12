@@ -23,6 +23,12 @@ namespace Catalog.Response
         [DataMember]
         public ApiObjects.Response.Status status;
 
+        /// <summary>
+        /// Last search document offset/index the response contains
+        /// </summary>
+        [DataMember]
+        public int to;
+
         public UnifiedSearchResponse()
         {
             searchResults = new List<UnifiedSearchResult>();

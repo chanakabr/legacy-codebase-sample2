@@ -285,7 +285,7 @@ namespace Catalog
 
         #region ISearcher Methods
 
-        public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearch, ref int totalItems)
+        public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearch, ref int totalItems, ref int to)
         {
             throw new NotImplementedException();
         }
