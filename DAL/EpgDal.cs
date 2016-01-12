@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Data;
-using ODBCWrapper;
-using ApiObjects.Epg;
+﻿using ApiObjects.Epg;
 using KLogMonitor;
+using ODBCWrapper;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using System.Reflection;
 
 namespace Tvinci.Core.DAL
@@ -584,6 +583,30 @@ namespace Tvinci.Core.DAL
 
             DataSet dataSet = storedProcedured.ExecuteDataSet();
             return dataSet;
+        }
+
+        public static bool UpdateEPGMultiPic(int groupId, string epgIdentifier, int channelID, int picID, int ratioID, int? updaterId)
+        {
+            bool res = false;
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Set_EpgMultiPictures");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@groupID", groupId);
+                sp.AddParameter("@epgIdentifier", epgIdentifier);
+                sp.AddParameter("@channelId", channelID);
+                sp.AddParameter("@picId", picID);
+                sp.AddParameter("@ratioId", ratioID);
+                if (updaterId.HasValue)
+                    sp.AddParameter("@UpdaterID", updaterId.Value);
+
+                res = sp.ExecuteReturnValue<bool>();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed UpdateEPGMultiPic, ex {0}", ex);
+            }
+            return res;
         }
     }
 }
