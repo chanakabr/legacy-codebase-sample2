@@ -118,6 +118,9 @@ namespace ApiObjects.Response
         NoObjectToInsert = 4019,
         InvalidMediaType = 4020,
         InvalidAssetType = 4021,
+        ProgramDoesntExist = 4022,
+        ActionNotRecognized = 4023,
+        InvalidAssetId = 4024,
 
         // Api 5000 - 5999
         NoPinDefined = 5001,

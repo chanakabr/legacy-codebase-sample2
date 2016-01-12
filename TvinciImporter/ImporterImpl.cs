@@ -1928,7 +1928,7 @@ namespace TvinciImporter
             return picId;
         }
 
-        public static int DownloadEPGPicToImageServer(string thumb, string name, int groupID, int channelID, int ratioID, bool isAsync = true, int? updaterId = null)
+        public static int DownloadEPGPicToImageServer(string thumb, string name, int groupID, int channelID, int ratioID, bool isAsync = true, int? updaterId = null, string epgIdentifier = null)
         {
             int version = 0;
             string picName = string.Empty;
@@ -1983,6 +1983,10 @@ namespace TvinciImporter
                         else if (result.ToLower() == "true")
                         {
                             ImageUtils.UpdateImageState(groupID, picId, version, eMediaType.EPG, eTableStatus.OK, updaterId);
+
+                            // Update EpgMultiPictures
+                            EpgDal.UpdateEPGMultiPic(groupID, epgIdentifier, channelID, picId, ratioID, updaterId);
+
                             log.DebugFormat("post image success. picId {0} ", picId);
                         }
                     }

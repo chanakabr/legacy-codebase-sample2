@@ -8354,14 +8354,14 @@ namespace ConditionalAccess
             try
             {
                 DataTable domainBillingHistory = ConditionalAccessDAL.GetDomainBillingHistory(m_nGroupID, domainID, 0, dStartDate, dEndDate);
+                domainTransactionsHistoryResponse = new DomainTransactionsHistoryResponse();
 
                 if (domainBillingHistory == null || domainBillingHistory.Rows == null || domainBillingHistory.Rows.Count == 0)
                 {
                     domainTransactionsHistoryResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no history billing for domain");
                     return domainTransactionsHistoryResponse;
                 }
-                                
-                domainTransactionsHistoryResponse = new DomainTransactionsHistoryResponse();
+                                                
                 foreach (DataRow dr in domainBillingHistory.Rows)
                 {
                     TransactionHistoryContainer transactionHistory = GetBillingTransactionContainerFromDataRow(dr, true);

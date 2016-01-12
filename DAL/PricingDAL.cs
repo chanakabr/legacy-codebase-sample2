@@ -611,6 +611,54 @@ namespace DAL
                 return dt.Rows[0];
             return null;
         }
+
+        public static Dictionary<string, int> Get_SubscriptionsFromProductCodes(List<string> productCodes, int groupID)
+        {
+            Dictionary<string, int> ret = new Dictionary<string,int>();
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_SubscriptionsFromProductCodes");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddIDListParameter("@ProductCodesList", productCodes, "id");
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+            {
+                foreach (DataRow row in ds.Tables[0].Rows)
+                {
+                    string productCode = ODBCWrapper.Utils.GetSafeStr(row["Product_Code"]);
+                    int id = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
+                    ret.Add(productCode, id);
+                }
+            }
+
+            return ret;
+        }
+
+        public static Dictionary<string, int> Get_PPVsFromProductCodes(List<string> productCodes, int groupID)
+        {
+            Dictionary<string, int> ret = new Dictionary<string, int>();
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PPVsFromProductCodes");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddIDListParameter("@ProductCodesList", productCodes, "id");
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+            {
+                foreach (DataRow row in ds.Tables[0].Rows)
+                {
+                    string productCode = ODBCWrapper.Utils.GetSafeStr(row["Product_Code"]);
+                    int id = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
+                    ret.Add(productCode, id);
+                }
+            }
+
+            return ret;
+        }
     }
 }
 
