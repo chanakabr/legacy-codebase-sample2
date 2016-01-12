@@ -91,7 +91,7 @@ namespace ElasticSearch.Searcher
                 filteredQuery.Append(parts.Aggregate((current, next) => current + "," + next));
             }
 
-            filteredQuery.Append("}");
+            filteredQuery.Append("}}");
 
             return filteredQuery.ToString();
         }
