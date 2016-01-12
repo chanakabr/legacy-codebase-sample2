@@ -90,10 +90,13 @@ public partial class adm_users_settings : System.Web.UI.Page
             dr_SecurityQuestion.Initialize("Force security question", "adm_table_header_nbg", "FormInput", "security_question", false);
             theRecord.AddRecord(dr_SecurityQuestion);
 
-
             DataRecordShortIntField dr_pin_must_hours = new DataRecordShortIntField(true, 9, 9);
             dr_pin_must_hours.Initialize("PIN Expirey Timeout (minutes)", "adm_table_header_nbg", "FormInput", "PIN_MUST_HOURS", false);
             theRecord.AddRecord(dr_pin_must_hours);
+
+            DataRecordCheckBoxField dr_allowUserDeletion = new DataRecordCheckBoxField(true);
+            dr_allowUserDeletion.Initialize("Allow user deletion", "adm_table_header_nbg", "FormInput", "allow_delete_user", false);
+            theRecord.AddRecord(dr_allowUserDeletion);
 
             sTable = theRecord.GetTableHTML("adm_users_settings.aspx?submited=1");
         }
