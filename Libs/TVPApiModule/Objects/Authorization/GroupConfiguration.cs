@@ -29,6 +29,9 @@ namespace TVPApiModule.Objects.Authorization
         [JsonProperty("is_switching_users_allowed")]
         public bool IsSwitchingUsersAllowed { get; set; }
 
+        [JsonProperty("session_revocation_enabled")]
+        public bool SessionRevocationEnabled { get; set; }
+
         [JsonIgnore]
         public override string Id
         {

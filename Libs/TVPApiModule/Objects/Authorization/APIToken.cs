@@ -35,6 +35,9 @@ namespace TVPApiModule.Objects.Authorization
         [JsonProperty("is_long_refresh_expiration")]
         public bool IsLongRefreshExpiration { get; set; }
 
+        [JsonProperty("udid")]
+        public string UDID{ get; set; }
+        
         [JsonIgnore]
         public override string Id
         {
@@ -45,7 +48,7 @@ namespace TVPApiModule.Objects.Authorization
         {
         }
 
-        public APIToken(string siteGuid, int groupId, bool isAdmin, GroupConfiguration groupConfig, bool isLongRefreshExpiration)
+        public APIToken(string siteGuid, int groupId, bool isAdmin, GroupConfiguration groupConfig, bool isLongRefreshExpiration, string udid)
         {
             AccessToken = Guid.NewGuid().ToString().Replace("-", string.Empty);
             RefreshToken = Guid.NewGuid().ToString().Replace("-", string.Empty);
@@ -57,6 +60,7 @@ namespace TVPApiModule.Objects.Authorization
             SiteGuid = siteGuid;
             IsAdmin = isAdmin;
             IsLongRefreshExpiration = isLongRefreshExpiration;
+            UDID = udid;
         }
 
         public APIToken(APIToken token, GroupConfiguration groupConfig)
@@ -75,6 +79,7 @@ namespace TVPApiModule.Objects.Authorization
             SiteGuid = token.SiteGuid;
             IsAdmin = token.IsAdmin;
             IsLongRefreshExpiration = token.IsLongRefreshExpiration;
+            UDID = token.UDID;
         }
 
         public APIToken(RefreshToken token, GroupConfiguration groupConfig)
@@ -98,6 +103,7 @@ namespace TVPApiModule.Objects.Authorization
             SiteGuid = token.SiteGuid;
             IsAdmin = token.IsAdmin;
             IsLongRefreshExpiration = token.IsLongRefreshExpiration;
+            UDID = token.UDID;
         }
 
         public static string GetAPITokenId(string accessToken)
