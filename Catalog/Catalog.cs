@@ -1203,6 +1203,25 @@ namespace Catalog
                 definitions.subscriptionSearchObjects =
                     EntitledAssetsUtils.GetUserSubscriptionSearchObjects(request, parentGroupID, request.m_sSiteGuid,
                     request.order, entitlementMediaTypes, definitions.deviceRuleId);
+
+                // edge case - user is not entitled to anything!
+                if ((definitions.freeAssets == null || definitions.freeAssets.Count == 0) &&
+                    (definitions.entitledPaidForAssets == null || definitions.entitledPaidForAssets.Count == 0) &&
+                    definitions.subscriptionSearchObjects.Count == 0)
+                {
+                    // Make sure that all lists in dictionaries are empty
+                    bool entitledToAnything = 
+                        definitions.freeAssets.Values.Any(item => item.Count > 0) || definitions.entitledPaidForAssets.Values.Any(item => item.Count > 0);
+
+                    if (!entitledToAnything)
+                    {
+                        // If user is not entitled to anything, add a dummy media, so that it will filter everything out
+                        definitions.freeAssets.Add(eAssetTypes.MEDIA, new List<string>()
+                        {
+                            int.MinValue.ToString()
+                        });
+                    }
+                }
             }
 
             #endregion
