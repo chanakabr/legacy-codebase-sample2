@@ -163,7 +163,7 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
                 case PopUpContext.EpgProgram:
                     {
 
-                        picId = TvinciImporter.ImporterImpl.DownloadEPGPicToImageServer(picLink, name, groupID, id, ratioId, false, LoginManager.GetLoginID());
+                        picId = TvinciImporter.ImporterImpl.DownloadEPGPicToImageServer(picLink, name, groupID, id, ratioId, false, LoginManager.GetLoginID(),Session["epgIdentifier"].ToString());
 
                         if (picId > 0)
                         {
