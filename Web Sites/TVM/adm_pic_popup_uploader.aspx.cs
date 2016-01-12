@@ -367,7 +367,7 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
                 type = PopUpContext.LogoPic;
                 SetMediaTypeSession("logoPic", type);
             }
-            else
+            else if (!string.IsNullOrEmpty(Request.QueryString["lastPage"]) && Request.QueryString["lastPage"].ToString() == "media")
             {
                 type = PopUpContext.Vod;
                 SetMediaTypeSession("media_id", type);

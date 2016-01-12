@@ -352,19 +352,21 @@ public partial class adm_my_group : System.Web.UI.Page
         string imageUrl = string.Empty;
         string baseUrl = string.Empty;
         int ratioId = 0;
+        int version = 0;
         picId = 0;
 
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        selectQuery += "select  p.RATIO_ID, p.BASE_URL, p.ID from pics p left join groups g on g.ADMIN_LOGO = p.ID where p.STATUS in (0, 1) and g.id = " + groupId.ToString();
+        selectQuery += "select  p.RATIO_ID, p.BASE_URL, p.ID,  p.VERSION  from pics p left join groups g on g.ADMIN_LOGO = p.ID where p.STATUS in (0, 1) and g.id = " + groupId.ToString();
 
         if (selectQuery.Execute("query", true) != null && selectQuery.Table("query").DefaultView != null && selectQuery.Table("query").DefaultView.Count > 0)
         {
             baseUrl = ODBCWrapper.Utils.GetSafeStr(selectQuery.Table("query").DefaultView[0].Row["BASE_URL"]);
             ratioId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["RATIO_ID"]);
+            version = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["VERSION"]);
             picId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["ID"]);
             int parentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);
 
-            imageUrl = PageUtils.BuildVodUrl(parentGroupID, baseUrl, ratioId, 0);
+            imageUrl = PageUtils.BuildVodUrl(parentGroupID, baseUrl, ratioId, version);
         }
 
         return imageUrl;
