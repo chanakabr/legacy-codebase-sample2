@@ -1801,6 +1801,11 @@ namespace Users
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
 
+            if (!Utils.IsDeleteUserAllowedForGroup(m_nGroupID))
+            {
+                return new ApiObjects.Response.Status((int)eResponseStatus.PartnerNotAllowedToDelete, eResponseStatus.PartnerNotAllowedToDelete.ToString());
+            }
+
             try
             {
                 UserResponseObject userResponse = GetUserData(userId.ToString());
