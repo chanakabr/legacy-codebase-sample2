@@ -138,6 +138,14 @@ namespace TVPApiModule.Manager
                 return null;
             }
 
+            // check if session revocation is allowed and udid is not empty
+            if (groupConfig.SessionRevocationEnabled && string.IsNullOrEmpty(udid))
+            {
+                logger.ErrorFormat("GenerateAccessToken: UDID cannot be empty when session revocation is enabled. siteGuid = {0}", siteGuid);
+                returnError(403);
+                return null;
+            }
+
             // generate access token and refresh token pair
             APIToken apiToken = new APIToken(siteGuid, groupId, isAdmin, groupConfig, isSTB, udid);
             RefreshToken refreshToken = new RefreshToken(apiToken);
@@ -158,6 +166,59 @@ namespace TVPApiModule.Manager
                 return null;
             }
 
+            // handle session revocation if turned on for the group
+            if (groupConfig.SessionRevocationEnabled)
+            {
+                string sessionInfoString = string.Format("userId = {0}, udid = {1}, IP = {2}, groupId = {3}", siteGuid, udid, SiteHelper.GetClientIP(), groupId);
+
+                // check if the user already logged in from the same device by getting the user device tokens view
+                string viewId = UserDeviceTokensView.GetViewId(siteGuid, udid);
+                UserDeviceTokensView view = _client.Get<UserDeviceTokensView>(viewId);
+                if (view != null)
+                {
+                    // delete old access token
+                    if (!_client.Remove(view.AccessTokenId))
+                    {
+                        logger.ErrorFormat("GenerateAccessToken: failed to delete old access token for {0}", sessionInfoString);
+                    }
+                    else
+                    {
+                        logger.DebugFormat("GenerateAccessToken: Removed access token with ID = {0} for {1}", view.AccessTokenId, sessionInfoString);
+                    }
+                    
+                    // delete old refresh token
+                    if (!_client.Remove(view.RefreshTokenId))
+                    {
+                        logger.ErrorFormat("GenerateAccessToken: failed to delete old refresh token for {0}", sessionInfoString);
+                    }
+                    else
+                    {
+                        logger.DebugFormat("GenerateAccessToken: Removed refresh token with ID = {0} for {1}", view.RefreshTokenId, sessionInfoString);
+                    }
+                }
+                else
+                {
+                    // create new view doc
+                    view = new UserDeviceTokensView()
+                    {
+                        UDID = udid,
+                        SiteGuid = siteGuid,
+                        GroupID = groupId,
+                    };
+                }
+
+                // set new data in view
+                view.AccessTokenId = apiToken.Id;
+                view.RefreshTokenId = refreshToken.Id;
+                view.AccessTokenExpiration = apiToken.AccessTokenExpiration;
+                view.RefreshTokenExpiration = apiToken.RefreshTokenExpiration;
+
+                // save new view
+                if (!_client.Store<UserDeviceTokensView>(view, TimeHelper.ConvertFromUnixTimestamp(apiToken.RefreshTokenExpiration)))
+                {
+                    logger.ErrorFormat("GenerateAccessToken: failed to to save user-device tokens view for {0}", sessionInfoString);
+                }
+            }
             return apiToken;
         }
 
@@ -177,13 +238,30 @@ namespace TVPApiModule.Manager
             }
         }
 
-        public object RefreshAccessToken(string refreshToken, string accessToken, int groupId, PlatformType platform)
+        public object RefreshAccessToken(string refreshToken, string accessToken, int groupId, PlatformType platform, string udid)
         {
             // validate request parameters
             if (string.IsNullOrEmpty(refreshToken))
             {
                 logger.ErrorFormat("RefreshAccessToken: Bad request refreshToken is empty");
                 returnError(400);
+                return null;
+            }
+
+            // get group configurations
+            GroupConfiguration groupConfig = Instance.GetGroupConfigurations(groupId);
+            if (groupConfig == null)
+            {
+                logger.ErrorFormat("RefreshAccessToken: group configuration was not found for groupId = {0}", groupId);
+                returnError(500);
+                return null;
+            }
+
+            // check if session revocation is allowed and udid is not empty
+            if (groupConfig.SessionRevocationEnabled && string.IsNullOrEmpty(udid))
+            {
+                logger.ErrorFormat("RefreshAccessToken: UDID cannot be empty when session revocation is enabled. refreshToken = {0}", refreshToken);
+                returnError(403);
                 return null;
             }
 
@@ -217,7 +295,7 @@ namespace TVPApiModule.Manager
                     logger.ErrorFormat("RefreshAccessToken: Refresh token doc not found, access token not supplied - refresh cannot be done");
                 }
 
-                // try get access token doc  from CB
+                // try get access token doc from CB
                 CasGetResult<APIToken> accessCasRes = _client.GetWithCas<APIToken>(apiTokenId);
                 if (accessCasRes == null)
                 {
@@ -241,14 +319,13 @@ namespace TVPApiModule.Manager
                 // get the access token doc
                 accessTokenDoc = accessCasRes.Value;
 
-                // create refresh access docw
+                // create refresh access doc
                 refreshTokenDoc = new RefreshToken(accessTokenDoc);
             }
             else
             {
                 refreshTokenDoc = casRes.Value;
             }
-
 
             // validate refresh token
             if (refreshTokenDoc.RefreshTokenValue != refreshToken)
@@ -258,6 +335,13 @@ namespace TVPApiModule.Manager
                 return null;
             }
 
+            // if the provided udid does not match the udid in the token and session revocation and the token is not old (and missing udid) is enabled return 403
+            if (groupConfig.SessionRevocationEnabled && !string.IsNullOrEmpty(refreshTokenDoc.UDID) && refreshTokenDoc.UDID != udid)
+            {
+                logger.ErrorFormat("RefreshAccessToken: provided udid does not match the udid in the token and session revocation enabled. siteGuid = {0}, supplied udid = {1}", refreshTokenDoc.SiteGuid, udid);
+                returnError(403);
+                return null;
+            }
             string siteGuid = refreshTokenDoc.SiteGuid;
 
             // validate user
@@ -281,15 +365,6 @@ namespace TVPApiModule.Manager
                 return null;
             }
 
-            // get group configurations
-            GroupConfiguration groupConfig = Instance.GetGroupConfigurations(groupId);
-            if (groupConfig == null)
-            {
-                logger.ErrorFormat("RefreshAccessToken: group configuration was not found for groupId = {0}", groupId);
-                returnError(500);
-                return null;
-            }
-
             // generate new access token with the old refresh token
             accessTokenDoc = new APIToken(refreshTokenDoc, groupConfig);
             
@@ -306,6 +381,51 @@ namespace TVPApiModule.Manager
                 logger.ErrorFormat("RefreshAccessToken: Failed to store new access token, returning 500");
                 returnError(500);
                 return null;
+            }
+
+            // handle session revocation if enabled
+            if (groupConfig.SessionRevocationEnabled)
+            {
+                string sessionInfoString = string.Format("userId = {0}, udid = {1}, IP = {2}, groupId = {3}", siteGuid, udid, SiteHelper.GetClientIP(), groupId);
+
+                // update view doc if revocation session is enabled
+                string viewId = UserDeviceTokensView.GetViewId(siteGuid, udid);
+                UserDeviceTokensView view = _client.Get<UserDeviceTokensView>(viewId);
+                if (view != null)
+                {
+                    // delete old access token
+                    if (!_client.Remove(view.AccessTokenId))
+                    {
+                        logger.ErrorFormat("RefreshAccessToken: failed to delete old access token for user = {0} udid = {1}.", siteGuid, udid);
+                    }
+                    else
+                    {
+                        logger.DebugFormat("RefreshAccessToken: Removed access token with ID = {0} for {1}", view.RefreshTokenId, sessionInfoString);
+
+                    }
+                }
+                else
+                {
+                    // create new view doc if not exists
+                    view = new UserDeviceTokensView()
+                    {
+                        UDID = udid,
+                        SiteGuid = siteGuid,
+                        GroupID = groupId,
+                    };
+                }
+
+                // set new data in view
+                view.AccessTokenId = accessTokenDoc.Id;
+                view.RefreshTokenId = refreshTokenDoc.Id;
+                view.AccessTokenExpiration = accessTokenDoc.AccessTokenExpiration;
+                view.RefreshTokenExpiration = accessTokenDoc.RefreshTokenExpiration;
+
+                // save new view
+                if (!_client.Store<UserDeviceTokensView>(view, TimeHelper.ConvertFromUnixTimestamp(accessTokenDoc.RefreshTokenExpiration)))
+                {
+                    logger.ErrorFormat("RefreshAccessToken: failed to to save user-device tokens view for user = {0} udid = {1}.", siteGuid, udid);
+                }
             }
 
             return GetTokenResponseObject(accessTokenDoc);
@@ -533,8 +653,11 @@ namespace TVPApiModule.Manager
             if (!string.IsNullOrEmpty(accessToken))
             {
                 string apiTokenId = APIToken.GetAPITokenId(accessToken);
+                
                 // delete token
-                _client.Remove(apiTokenId);
+                if (_client.Remove(apiTokenId))
+                    logger.DebugFormat("DeleteAccessToken: removed access token {0} on logout", accessToken);
+
             }
         }
 
@@ -551,13 +674,30 @@ namespace TVPApiModule.Manager
         }
 
         // Updates the siteguid of the token 
-        public object UpdateUserInToken(string accessToken, string siteGuid, int groupId)
+        public object UpdateUserInToken(string accessToken, string siteGuid, int groupId, string udid)
         {
             if (string.IsNullOrEmpty(accessToken) || string.IsNullOrEmpty(siteGuid))
             {
                 logger.ErrorFormat("UpdateUserInToken: accessToken or siteGuid empty");
                 returnError(400);
                 return false;
+            }
+
+            // get group configurations
+            GroupConfiguration groupConfig = Instance.GetGroupConfigurations(groupId);
+            if (groupConfig == null)
+            {
+                logger.ErrorFormat("UpdateUserInToken: group configuration was not found for groupId = {0}", groupId);
+                returnError(500);
+                return false;
+            }
+
+            // check if session revocation is allowed and udid is not empty
+            if (groupConfig.SessionRevocationEnabled && string.IsNullOrEmpty(udid))
+            {
+                logger.ErrorFormat("UpdateUserInToken: UDID cannot be empty when session revocation is enabled. accessToken = {1}, new siteGuid = {0}", siteGuid, accessToken);
+                returnError(403);
+                return null;
             }
 
             // get token
@@ -579,13 +719,26 @@ namespace TVPApiModule.Manager
                 return false;
             }
 
-            // get group configurations
-            GroupConfiguration groupConfig = Instance.GetGroupConfigurations(groupId);
-            if (groupConfig == null)
+            // if session revocation enabled - remove the old user-device tokens view for the old user
+            if (groupConfig.SessionRevocationEnabled)
             {
-                logger.ErrorFormat("UpdateUserInToken: group configuration was not found for groupId = {0}", groupId);
-                returnError(500);
-                return false;
+                if (!string.IsNullOrEmpty(apiToken.UDID) && apiToken.UDID != udid)
+                {
+                    logger.ErrorFormat("UpdateUserInToken: request UDID and token UDID do not match ", groupId);
+                    returnError(403);
+                    return false;
+                }
+
+                string sessionInfoString = string.Format("userId = {0}, udid = {1}, IP = {2}, groupId = {3}", siteGuid, udid, SiteHelper.GetClientIP(), groupId);
+
+                if (!_client.Remove(UserDeviceTokensView.GetViewId(apiToken.SiteGuid, udid)))
+                {
+                    logger.ErrorFormat("UpdateUserInToken: failed to remove user-device tokens view on changing user for {0}", sessionInfoString);
+                }
+                else
+                {
+                    logger.DebugFormat("UpdateUserInToken: removed user-device tokens view on changing user for {0}", sessionInfoString);
+                }
             }
 
             // change user id in both access and refresh tokens
@@ -613,6 +766,30 @@ namespace TVPApiModule.Manager
                 logger.ErrorFormat("UpdateUserInToken: refresh token was not saved in CB.");
                 returnError(500);
                 return null;
+            }
+
+            // save new user-device tokens view for the new user if session revocation is enabled for the group
+            if (groupConfig.SessionRevocationEnabled)
+            {
+                string sessionInfoString = string.Format("userId = {0}, udid = {1}, IP = {2}, groupId = {3}", siteGuid, udid, SiteHelper.GetClientIP(), groupId);
+
+                // create new view for the new user + device
+                UserDeviceTokensView view = new UserDeviceTokensView()
+                {
+                    AccessTokenExpiration = apiToken.AccessTokenExpiration,
+                    AccessTokenId = apiToken.Id,
+                    GroupID = groupId,
+                    RefreshTokenExpiration = apiToken.RefreshTokenExpiration,
+                    RefreshTokenId = refreshToken.Id,
+                    SiteGuid = siteGuid,
+                    UDID = udid
+                };
+
+                // save new view
+                if (!_client.Store<UserDeviceTokensView>(view, TimeHelper.ConvertFromUnixTimestamp(apiToken.RefreshTokenExpiration)))
+                {
+                    logger.ErrorFormat("GenerateAccessToken: failed to to save user-device tokens view for {0}", sessionInfoString);
+                }
             }
 
             // return token response

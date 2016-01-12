@@ -1474,7 +1474,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = AuthorizationManager.Instance.RefreshAccessToken(refreshToken, initObj.Token, groupID, initObj.Platform);
+                    response = AuthorizationManager.Instance.RefreshAccessToken(refreshToken, initObj.Token, groupID, initObj.Platform, initObj.UDID);
                 }
                 catch (Exception ex)
                 {
@@ -1508,7 +1508,7 @@ namespace TVPApiServices
                 }
                 try
                 {
-                    response = AuthorizationManager.Instance.UpdateUserInToken(initObj.Token, siteGuid, groupID);
+                    response = AuthorizationManager.Instance.UpdateUserInToken(initObj.Token, siteGuid, groupID, initObj.UDID);
                 }
                 catch (Exception ex)
                 {
