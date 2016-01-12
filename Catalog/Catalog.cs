@@ -706,30 +706,33 @@ namespace Catalog
                     List<PicData> defaultGroupPics = CatalogCache.Instance().GetDefaultImages(picsTableData[0].GroupId);
 
                     // new image server, sizes are not defined, new image
-                    foreach (var defaultPic in defaultGroupPics)
+                    if (defaultGroupPics != null)
                     {
-                        if (lPicObject.FirstOrDefault(x => x.ratio == defaultPic.Ratio) == null)
+                        foreach (var defaultPic in defaultGroupPics)
                         {
-                            picObj = new Picture();
+                            if (lPicObject.FirstOrDefault(x => x.ratio == defaultPic.Ratio) == null)
+                            {
+                                picObj = new Picture();
 
-                            // get ratio string
-                            picObj.ratio = defaultPic.Ratio;
+                                // get ratio string
+                                picObj.ratio = defaultPic.Ratio;
 
-                            // get picture id: <pic_base_url>_<ratio_id>
-                            int ratioId = defaultPic.RatioId;
-                            picObj.id = string.Format("{0}_{1}", picBaseName, ratioId);
+                                // get picture id: <pic_base_url>_<ratio_id>
+                                int ratioId = defaultPic.RatioId;
+                                picObj.id = string.Format("{0}_{1}", picBaseName, ratioId);
 
-                            // get version
-                            picObj.version = defaultPic.Version;
+                                // get version
+                                picObj.version = defaultPic.Version;
 
-                            picObj.isDefault = true;
+                                picObj.isDefault = true;
 
-                            // build image URL. 
-                            // template: <image_server_url>/p/<partner_id>/entry_id/<image_id>/version/<image_version>
-                            // Example:  http://localhost/ImageServer/Service.svc/GetImage/p/215/entry_id/123/version/10
-                            picObj.m_sURL = ImageUtils.BuildImageUrl(groupId, picObj.id, picObj.version, 0, 0, 100, true);
+                                // build image URL. 
+                                // template: <image_server_url>/p/<partner_id>/entry_id/<image_id>/version/<image_version>
+                                // Example:  http://localhost/ImageServer/Service.svc/GetImage/p/215/entry_id/123/version/10
+                                picObj.m_sURL = ImageUtils.BuildImageUrl(groupId, picObj.id, picObj.version, 0, 0, 100, true);
 
-                            lPicObject.Add(picObj);
+                                lPicObject.Add(picObj);
+                            }
                         }
                     }
                 }
