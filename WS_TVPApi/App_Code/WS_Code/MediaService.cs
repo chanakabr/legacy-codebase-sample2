@@ -3441,6 +3441,7 @@ namespace TVPApiServices
                 try
                 {
                     List<AssetBookmarkRequest> assetsToSend = new List<AssetBookmarkRequest>();
+                    bool isInvalidAsset = false;
                     foreach (SlimAssetRequest asset in assets)
                     {
                         AssetBookmarkRequest assetToAdd = new AssetBookmarkRequest();
@@ -3457,9 +3458,16 @@ namespace TVPApiServices
                                 assetToAdd.AssetType = Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.NPVR;
                                 break;
                             default:
-                                assetToAdd.AssetType = Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.UNKNOWN;
+                                isInvalidAsset = true;
                                 break;
                         }
+
+                        if (isInvalidAsset)
+                        {
+                            sRet = new TVPApiModule.Objects.Responses.AssetsBookmarksResponse(null, (int)eStatus.BadRequest, "BadRequest", 0);
+                            return sRet;
+                        }
+
                         assetsToSend.Add(assetToAdd);
                     }
                     var res = new AssetsBookmarksLoader(groupId, SiteHelper.GetClientIP(), initObj.SiteGuid, initObj.UDID, assetsToSend)
