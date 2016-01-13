@@ -151,6 +151,10 @@
       <Project>{82876744-9a82-4730-b9e0-29810b4cde81}</Project>
       <Name>FileUploadHandler</Name>
     </ProjectReference>
+    <ProjectReference Include="..\FreeAssetUpdateHandler\FreeAssetUpdateHandler.csproj">
+      <Project>{24639160-158d-4110-9585-eaa81adb5249}</Project>
+      <Name>FreeAssetUpdateHandler</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ImageResizeHandler\ImageResizeHandler.csproj">
       <Project>{ead60549-3a6d-455c-abab-b2f29945b97f}</Project>
       <Name>ImageResizeHandler</Name>
