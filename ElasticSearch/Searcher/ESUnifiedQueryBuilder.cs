@@ -1424,40 +1424,43 @@ namespace ElasticSearch.Searcher
             BoolQuery result = new BoolQuery();
 
             BaseFilterCompositeType assetsFilter = new FilterCompositeType(CutWith.OR);
-            
-            // Build terms of free assets
-            foreach (var item in this.SearchDefinitions.freeAssets)
+
+            if (this.SearchDefinitions.entitlementSearchDefinitions.freeAssets != null)
             {
-                FilterCompositeType idsFilter = new FilterCompositeType(CutWith.AND);
-
-                ESTerms idsTerm = new ESTerms(true)
+                // Build terms of free assets
+                foreach (var item in this.SearchDefinitions.entitlementSearchDefinitions.freeAssets)
                 {
-                    Key = "_id"
-                };
+                    FilterCompositeType idsFilter = new FilterCompositeType(CutWith.AND);
 
-                idsTerm.Value.AddRange(item.Value);
-
-                idsFilter.AddChild(idsTerm);
-
-                switch (item.Key)
-                {
-                    case ApiObjects.eAssetTypes.EPG:
+                    ESTerms idsTerm = new ESTerms(true)
                     {
-                        idsFilter.AddChild(epgPrefixTerm);
+                        Key = "_id"
+                    };
+
+                    idsTerm.Value.AddRange(item.Value);
+
+                    idsFilter.AddChild(idsTerm);
+
+                    switch (item.Key)
+                    {
+                        case ApiObjects.eAssetTypes.EPG:
+                        {
+                            idsFilter.AddChild(epgPrefixTerm);
+                            break;
+                        }
+                        case ApiObjects.eAssetTypes.MEDIA:
+                        {
+                            idsFilter.AddChild(mediaPrefixTerm);
+                            break;
+                        }
+                        case ApiObjects.eAssetTypes.UNKNOWN:
+                        case ApiObjects.eAssetTypes.NPVR:
+                        default:
                         break;
                     }
-                    case ApiObjects.eAssetTypes.MEDIA:
-                    {
-                        idsFilter.AddChild(mediaPrefixTerm);
-                        break;
-                    }
-                    case ApiObjects.eAssetTypes.UNKNOWN:
-                    case ApiObjects.eAssetTypes.NPVR:
-                    default:
-                    break;
+
+                    assetsFilter.AddChild(idsFilter);
                 }
-
-                assetsFilter.AddChild(idsFilter);
             }
 
             // Alternative: just check the is_free member
@@ -1467,39 +1470,42 @@ namespace ElasticSearch.Searcher
                 Value = "1"
             };
 
-            // Build terms of assets (PPVs) the user purchased and is entitled to watch
-            foreach (var item in this.SearchDefinitions.entitledPaidForAssets)
+            if (this.SearchDefinitions.entitlementSearchDefinitions.entitledPaidForAssets != null)
             {
-                FilterCompositeType idsFilter = new FilterCompositeType(CutWith.AND);
-
-                ESTerms idsTerm = new ESTerms(true)
+                // Build terms of assets (PPVs) the user purchased and is entitled to watch
+                foreach (var item in this.SearchDefinitions.entitlementSearchDefinitions.entitledPaidForAssets)
                 {
-                    Key = "_id"
-                };
+                    FilterCompositeType idsFilter = new FilterCompositeType(CutWith.AND);
 
-                idsTerm.Value.AddRange(item.Value);
-
-                idsFilter.AddChild(idsTerm);
-
-                switch (item.Key)
-                {
-                    case ApiObjects.eAssetTypes.EPG:
+                    ESTerms idsTerm = new ESTerms(true)
                     {
-                        idsFilter.AddChild(epgPrefixTerm);
+                        Key = "_id"
+                    };
+
+                    idsTerm.Value.AddRange(item.Value);
+
+                    idsFilter.AddChild(idsTerm);
+
+                    switch (item.Key)
+                    {
+                        case ApiObjects.eAssetTypes.EPG:
+                        {
+                            idsFilter.AddChild(epgPrefixTerm);
+                            break;
+                        }
+                        case ApiObjects.eAssetTypes.MEDIA:
+                        {
+                            idsFilter.AddChild(mediaPrefixTerm);
+                            break;
+                        }
+                        case ApiObjects.eAssetTypes.UNKNOWN:
+                        case ApiObjects.eAssetTypes.NPVR:
+                        default:
                         break;
                     }
-                    case ApiObjects.eAssetTypes.MEDIA:
-                    {
-                        idsFilter.AddChild(mediaPrefixTerm);
-                        break;
-                    }
-                    case ApiObjects.eAssetTypes.UNKNOWN:
-                    case ApiObjects.eAssetTypes.NPVR:
-                    default:
-                    break;
+
+                    assetsFilter.AddChild(idsFilter);
                 }
-
-                assetsFilter.AddChild(idsFilter);
             }
 
             ESFilteredQuery specificAssetsTerm = new ESFilteredQuery()

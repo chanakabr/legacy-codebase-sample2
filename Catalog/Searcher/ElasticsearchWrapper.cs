@@ -1206,10 +1206,11 @@ namespace Catalog
                 parentGroupId = unifiedSearchDefinitions.groupId;
             }
 
-            if (unifiedSearchDefinitions.shouldSearchByEntitlements)
+            if (unifiedSearchDefinitions.entitlementSearchDefinitions != null && 
+                unifiedSearchDefinitions.entitlementSearchDefinitions.subscriptionSearchObjects != null)
             {
                 // If we need to search by entitlements, we have A LOT of work to do now
-                BoolQuery boolQuery = BuildMultipleSearchQuery(unifiedSearchDefinitions.subscriptionSearchObjects, parentGroupId);
+                BoolQuery boolQuery = BuildMultipleSearchQuery(unifiedSearchDefinitions.entitlementSearchDefinitions.subscriptionSearchObjects, parentGroupId);
                 queryParser.SubscriptionsQuery = boolQuery;
             }
 

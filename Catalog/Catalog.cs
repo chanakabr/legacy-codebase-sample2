@@ -1136,10 +1136,12 @@ namespace Catalog
 
             #region Search by entitlement
 
-            if (definitions.shouldSearchByEntitlements)
+            if (definitions.entitlementSearchDefinitions != null)
             {
-                definitions.freeAssets = EntitledAssetsUtils.GetFreeAssets(parentGroupID, request.m_sSiteGuid);
-                definitions.entitledPaidForAssets = EntitledAssetsUtils.GetUserPPVAssets(parentGroupID, request.m_sSiteGuid);
+                var entitlementSearchDefinitions = definitions.entitlementSearchDefinitions;
+
+                entitlementSearchDefinitions.freeAssets = EntitledAssetsUtils.GetFreeAssets(parentGroupID, request.m_sSiteGuid);
+                entitlementSearchDefinitions.entitledPaidForAssets = EntitledAssetsUtils.GetUserPPVAssets(parentGroupID, request.m_sSiteGuid);
 
                 string[] entitlementMediaTypes = null;
 
@@ -1154,9 +1156,11 @@ namespace Catalog
                     entitlementMediaTypes = definitions.mediaTypes.Select(t => t.ToString()).ToArray();
                 }
 
-                definitions.subscriptionSearchObjects =
+                entitlementSearchDefinitions.subscriptionSearchObjects =
                     EntitledAssetsUtils.GetUserSubscriptionSearchObjects(request, parentGroupID, request.m_sSiteGuid,
                     request.order, entitlementMediaTypes, definitions.deviceRuleId);
+
+                entitlementSearchDefinitions.fileType = 0;
 
                 /* Not sure if we need this if I add is_free member to ES index
                 // edge case - user is not entitled to anything!
@@ -5934,7 +5938,8 @@ namespace Catalog
                             throw new KalturaException("Invalid search value or operator was sent for entitled_assets", (int)eResponseStatus.BadSearchRequest);
                         }
 
-                        definitions.shouldSearchByEntitlements = true;
+                        // initialize inner definitions object, this will indicate that we search by entitlement
+                        definitions.entitlementSearchDefinitions = new EntitlementSearchDefinitions();
 
                         // I mock a "contains" operator so that the query builder will know it is a not-exact search
                         leaf.operand = ComparisonOperator.Contains;

@@ -150,24 +150,9 @@ namespace ApiObjects.SearchObjects
         public List<long> specificOrder;
 
         /// <summary>
-        /// Should the search
+        /// All definitions regarding entitled assets of the user
         /// </summary>
-        public bool shouldSearchByEntitlements;
-
-        /// <summary>
-        /// List of free assets according to their type - will be filled if searching by entitlements
-        /// </summary>
-        public Dictionary<eAssetTypes, List<string>> freeAssets;
-
-        /// <summary>
-        /// List of assets that the user already paid for - will be filled if searching by entitlements
-        /// </summary>
-        public Dictionary<eAssetTypes, List<string>> entitledPaidForAssets;
-
-        /// <summary>
-        /// List of search objects that represent queries of subscriptions the user is entitled to
-        /// </summary>
-        public List<BaseSearchObject> subscriptionSearchObjects;
+        public EntitlementSearchDefinitions entitlementSearchDefinitions;
 
         #endregion
 
@@ -200,6 +185,8 @@ namespace ApiObjects.SearchObjects
 
             mediaParentalRulesTags = new Dictionary<string, List<string>>();
             epgParentalRulesTags = new Dictionary<string, List<string>>();
+
+            entitlementSearchDefinitions = null;
         }
 
         #endregion
