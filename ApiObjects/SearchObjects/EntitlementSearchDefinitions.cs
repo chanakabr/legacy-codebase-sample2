@@ -30,5 +30,10 @@ namespace ApiObjects.SearchObjects
         /// </summary>
         public int fileType;
 
+        /// <summary>
+        /// List of epg channel IDs that the user is entitled to watch (either free or paid for)
+        /// </summary>
+        public List<int> epgChannelIds;
+
     }
 }

@@ -1516,10 +1516,30 @@ namespace ElasticSearch.Searcher
                 }
             };
 
+            ESTerm fileTypeTerm = new ESTerm(true)
+            {
+                Key = "file_type",
+                Value = this.SearchDefinitions.entitlementSearchDefinitions.fileType.ToString()
+            };
+
+            // EPG Channel IDs
+            if (this.SearchDefinitions.entitlementSearchDefinitions.epgChannelIds != null)
+            {
+                ESTerms channelsTerm = new ESTerms(true)
+                {
+                    Key = "epg_channel_id"
+                };
+
+                channelsTerm.Value.AddRange(this.SearchDefinitions.entitlementSearchDefinitions.epgChannelIds.Select(i => i.ToString()));
+
+                result.AddChild(channelsTerm, CutWith.OR);
+            }
+
             // Connect all the channels in the entitled user's subscriptions
             result.AddChild(this.SubscriptionsQuery, CutWith.OR);
             result.AddChild(specificAssetsTerm, CutWith.OR);
             result.AddChild(isFreeTerm, CutWith.OR);
+            result.AddChild(fileTypeTerm, CutWith.OR);
 
             return result;
         }
