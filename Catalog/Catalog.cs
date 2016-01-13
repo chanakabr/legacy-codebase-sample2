@@ -1204,6 +1204,7 @@ namespace Catalog
                     EntitledAssetsUtils.GetUserSubscriptionSearchObjects(request, parentGroupID, request.m_sSiteGuid,
                     request.order, entitlementMediaTypes, definitions.deviceRuleId);
 
+                /* Not sure if we need this if I add is_free member to ES index
                 // edge case - user is not entitled to anything!
                 if ((definitions.freeAssets == null || definitions.freeAssets.Count == 0) &&
                     (definitions.entitledPaidForAssets == null || definitions.entitledPaidForAssets.Count == 0) &&
@@ -1222,6 +1223,7 @@ namespace Catalog
                         });
                     }
                 }
+                 */
             }
 
             #endregion

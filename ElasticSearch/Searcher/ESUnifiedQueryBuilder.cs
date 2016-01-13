@@ -1460,6 +1460,13 @@ namespace ElasticSearch.Searcher
                 assetsFilter.AddChild(idsFilter);
             }
 
+            // Alternative: just check the is_free member
+            ESTerm isFreeTerm = new ESTerm(true)
+            {
+                Key = "is_free",
+                Value = "1"
+            };
+
             // Build terms of assets (PPVs) the user purchased and is entitled to watch
             foreach (var item in this.SearchDefinitions.entitledPaidForAssets)
             {
@@ -1506,6 +1513,7 @@ namespace ElasticSearch.Searcher
             // Connect all the channels in the entitled user's subscriptions
             result.AddChild(this.SubscriptionsQuery, CutWith.OR);
             result.AddChild(specificAssetsTerm, CutWith.OR);
+            result.AddChild(isFreeTerm, CutWith.OR);
 
             return result;
         }
