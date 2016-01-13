@@ -237,7 +237,9 @@ namespace EpgIngest
                                 if (nPicID != 0)
                                 {
                                     //Update CB, the DB is updated in the end with all other data
-                                    sPicUrl = TVinciShared.CouchBaseManipulator.getEpgPicUrl(nPicID);
+                                    object baseURl = ODBCWrapper.Utils.GetTableSingleVal("epg_pics", "BASE_URL", nPicID);
+                                    if (baseURl != null && baseURl != DBNull.Value)
+                                        sPicUrl = baseURl.ToString();
                                 }
                                 //update each epgCB with the picURL + PicID - ONLY FIRST ONE -  all the rest will be in the list 
                                 if (newEpgItem.PicID == 0)
@@ -297,7 +299,7 @@ namespace EpgIngest
 
             // Delete all EpgIdentifiers that are not needed (per channel per day)
             List<int> lProgramsID = DeleteEpgs(dPublishDate, kalturaChannelID, m_Channels.groupid, deletedDays);
-            
+
             if (lProgramsID != null && lProgramsID.Count > 0)
             {
                 List<string> docIds = Utils.BuildDocIdsToRemoveGroupPrograms(lProgramsID, lLanguage);

@@ -524,7 +524,12 @@ namespace Users
                 return resp;
             }
 
-            Utils.SetPassword(sPassword, ref oBasicData, m_nGroupID);
+            if (!Utils.SetPassword(sPassword, ref oBasicData, m_nGroupID))
+            {
+                resp.Initialize(ResponseStatus.WrongPasswordOrUserName, u);
+                return resp;
+            }
+
             u.InitializeBasicAndDynamicData(oBasicData, sDynamicData);
             
             int nUserID = u.Save(m_nGroupID, !IsActivationNeeded(oBasicData), true);    //u.Save(m_nGroupID);  
