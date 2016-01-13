@@ -407,7 +407,16 @@ namespace ElasticSearchHandler.IndexBuilders
                             {
                                 int mediaID = ODBCWrapper.Utils.GetIntSafeVal(row, "media_id");
                                 string sMFT = ODBCWrapper.Utils.GetSafeStr(row, "media_type_id");
-                                medias[mediaID].m_sMFTypes += string.Format("{0};", sMFT);
+
+                                int mediaTypeId;
+                                Media theMedia = medias[mediaID];
+
+                                theMedia.m_sMFTypes += string.Format("{0};", sMFT);
+
+                                if (int.TryParse(sMFT, out mediaTypeId))
+                                {
+                                    theMedia.freeFileTypes.Add(mediaTypeId);
+                                }
                             }
                         }
                         #endregion
