@@ -612,14 +612,14 @@ namespace DAL
             return null;
         }
 
-        public static Dictionary<string, int> Get_SubscriptionsFromProductCodes(List<string> productCodes, int groupID)
+        public static Dictionary<string, string> Get_SubscriptionsFromProductCodes(List<string> productCodes, int groupID)
         {
-            Dictionary<string, int> ret = new Dictionary<string,int>();
+            Dictionary<string, string> ret = new Dictionary<string, string>();
 
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_SubscriptionsFromProductCodes");
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@GroupID", groupID);
-            sp.AddIDListParameter("@ProductCodesList", productCodes, "id");
+            sp.AddIDListParameter("@ProductCodesList", productCodes, "STR");
 
             DataSet ds = sp.ExecuteDataSet();
 
@@ -628,22 +628,22 @@ namespace DAL
                 foreach (DataRow row in ds.Tables[0].Rows)
                 {
                     string productCode = ODBCWrapper.Utils.GetSafeStr(row["Product_Code"]);
-                    int id = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
-                    ret.Add(productCode, id);
+                    string id = ODBCWrapper.Utils.GetSafeStr(row, "ID");
+                    ret.Add(id, productCode);
                 }
             }
 
             return ret;
         }
 
-        public static Dictionary<string, int> Get_PPVsFromProductCodes(List<string> productCodes, int groupID)
+        public static Dictionary<string, string> Get_PPVsFromProductCodes(List<string> productCodes, int groupID)
         {
-            Dictionary<string, int> ret = new Dictionary<string, int>();
+            Dictionary<string, string> ret = new Dictionary<string, string>();
 
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PPVsFromProductCodes");
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@GroupID", groupID);
-            sp.AddIDListParameter("@ProductCodesList", productCodes, "id");
+            sp.AddIDListParameter("@ProductCodesList", productCodes, "STR");
 
             DataSet ds = sp.ExecuteDataSet();
 
@@ -652,8 +652,8 @@ namespace DAL
                 foreach (DataRow row in ds.Tables[0].Rows)
                 {
                     string productCode = ODBCWrapper.Utils.GetSafeStr(row["Product_Code"]);
-                    int id = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
-                    ret.Add(productCode, id);
+                    string id = ODBCWrapper.Utils.GetSafeStr(row, "ID");
+                    ret.Add(id, productCode);
                 }
             }
 
