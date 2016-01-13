@@ -61,16 +61,25 @@ namespace Catalog
             return result;
         }
 
-        internal static Dictionary<eAssetTypes, List<string>> GetFreeAssets(int groupId, string siteGuid)
+        internal static Dictionary<eAssetTypes, List<string>> GetFreeAssets(int groupId, string siteGuid, out List<int> epgChannelIds)
         {
             Dictionary<eAssetTypes, List<string>> result = new Dictionary<eAssetTypes, List<string>>();
+            epgChannelIds = new List<int>();
 
             return result;
         }
 
-        internal static Dictionary<eAssetTypes, List<string>> GetUserPPVAssets(int groupId, string siteGuid)
+        internal static Dictionary<eAssetTypes, List<string>> GetUserPPVAssets(int groupId, string siteGuid, out List<int> epgChannelIds)
         {
             Dictionary<eAssetTypes, List<string>> result = new Dictionary<eAssetTypes, List<string>>();
+            epgChannelIds = new List<int>();
+
+            return result;
+        }
+
+        internal static List<int> GetUserEntitledEpgChannelIds(int parentGroupID, string siteGuid)
+        {
+            List<int> result = new List<int>();
 
             return result;
         }

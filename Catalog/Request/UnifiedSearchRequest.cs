@@ -44,6 +44,9 @@ namespace Catalog.Request
         [DataMember]
         public int from;
 
+        [DataMember]
+        public int fileType;
+
         #endregion
 
         #region Ctor

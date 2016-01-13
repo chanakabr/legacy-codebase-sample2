@@ -1140,8 +1140,16 @@ namespace Catalog
             {
                 var entitlementSearchDefinitions = definitions.entitlementSearchDefinitions;
 
-                entitlementSearchDefinitions.freeAssets = EntitledAssetsUtils.GetFreeAssets(parentGroupID, request.m_sSiteGuid);
-                entitlementSearchDefinitions.entitledPaidForAssets = EntitledAssetsUtils.GetUserPPVAssets(parentGroupID, request.m_sSiteGuid);
+                List<int> epgChannelIds = new List<int>();
+                List<int> freeEpgChannelIds;
+                List<int> purchasedEpgChannelIds;
+
+                // TODO: Maybe we won't use this method eventually!
+                entitlementSearchDefinitions.freeAssets = EntitledAssetsUtils.GetFreeAssets(parentGroupID, request.m_sSiteGuid, out freeEpgChannelIds);
+                entitlementSearchDefinitions.entitledPaidForAssets = EntitledAssetsUtils.GetUserPPVAssets(parentGroupID, request.m_sSiteGuid, out purchasedEpgChannelIds);
+
+                epgChannelIds.AddRange(freeEpgChannelIds);
+                epgChannelIds.AddRange(purchasedEpgChannelIds);
 
                 string[] entitlementMediaTypes = null;
 
@@ -1160,7 +1168,14 @@ namespace Catalog
                     EntitledAssetsUtils.GetUserSubscriptionSearchObjects(request, parentGroupID, request.m_sSiteGuid,
                     request.order, entitlementMediaTypes, definitions.deviceRuleId);
 
-                entitlementSearchDefinitions.fileType = 0;
+                entitlementSearchDefinitions.fileType = request.fileType;
+
+                // TODO: Maybe this will be the method that gets the FREE epg channel IDs
+                var entitledChannelIds = EntitledAssetsUtils.GetUserEntitledEpgChannelIds(parentGroupID, request.m_sSiteGuid);
+
+                epgChannelIds.AddRange(entitledChannelIds);
+
+                entitlementSearchDefinitions.epgChannelIds = epgChannelIds;
 
                 /* Not sure if we need this if I add is_free member to ES index
                 // edge case - user is not entitled to anything!
@@ -1185,6 +1200,7 @@ namespace Catalog
             }
 
             #endregion
+
             definitions.pageIndex = request.m_nPageIndex;
             definitions.pageSize = request.m_nPageSize;
             definitions.from = request.from;
