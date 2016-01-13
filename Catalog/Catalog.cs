@@ -1144,9 +1144,11 @@ namespace Catalog
                 List<int> freeEpgChannelIds;
                 List<int> purchasedEpgChannelIds;
 
-                // TODO: Maybe we won't use this method eventually!
-                entitlementSearchDefinitions.freeAssets = EntitledAssetsUtils.GetFreeAssets(parentGroupID, request.m_sSiteGuid, out freeEpgChannelIds);
-                entitlementSearchDefinitions.entitledPaidForAssets = EntitledAssetsUtils.GetUserPPVAssets(parentGroupID, request.m_sSiteGuid, out purchasedEpgChannelIds);
+                // TODO: Maybe we won't use this (getting free assets) method eventually!
+                entitlementSearchDefinitions.freeAssets =
+                    EntitledAssetsUtils.GetFreeAssets(parentGroupID, request.m_sSiteGuid, out freeEpgChannelIds);
+                entitlementSearchDefinitions.entitledPaidForAssets =
+                    EntitledAssetsUtils.GetUserPPVAssets(parentGroupID, request.m_sSiteGuid, out purchasedEpgChannelIds);
 
                 epgChannelIds.AddRange(freeEpgChannelIds);
                 epgChannelIds.AddRange(purchasedEpgChannelIds);

@@ -45,6 +45,11 @@ namespace ApiObjects.SearchObjects
         /// </summary>
         public int geoBlockRule;
 
+        /// <summary>
+        /// Media file types that are currently free to watch for everyone
+        /// </summary>
+        public List<int> freeFileTypes;
+
         #endregion
 
         #region Ctor
@@ -81,6 +86,7 @@ namespace ApiObjects.SearchObjects
             m_dMeatsValues = new Dictionary<string, string>();
             m_dTagValues = new Dictionary<string, Dictionary<long, string>>();
             regions = new List<int>();
+            freeFileTypes = new List<int>();
         }
 
         #endregion
@@ -129,6 +135,9 @@ namespace ApiObjects.SearchObjects
             }
 
             clone.regions.AddRange(this.regions);
+
+            clone.freeFileTypes = new List<int>();
+            clone.freeFileTypes.AddRange(this.freeFileTypes);
 
             return clone;
         }
