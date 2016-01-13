@@ -12752,53 +12752,47 @@ namespace ConditionalAccess.TvinciAPI {
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class ExternalEntitlement {
         
-        private long idField;
+        private long purchaseIdField;
         
-        private string aliasField;
+        private long productIdField;
         
-        private string productIdField;
+        private string productCodeField;
         
         private eTransactionType entitlementTypeField;
         
         private string contentIdField;
         
-        private double priceField;
-        
-        private string currencyCodeField;
-        
         private long startDateSecondsField;
         
         private long endDateSecondsField;
         
-        private string uDIDField;
-        
         /// <remarks/>
-        public long Id {
+        public long PurchaseId {
             get {
-                return this.idField;
+                return this.purchaseIdField;
             }
             set {
-                this.idField = value;
+                this.purchaseIdField = value;
             }
         }
         
         /// <remarks/>
-        public string Alias {
-            get {
-                return this.aliasField;
-            }
-            set {
-                this.aliasField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string ProductId {
+        public long ProductId {
             get {
                 return this.productIdField;
             }
             set {
                 this.productIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string ProductCode {
+            get {
+                return this.productCodeField;
+            }
+            set {
+                this.productCodeField = value;
             }
         }
         
@@ -12823,26 +12817,6 @@ namespace ConditionalAccess.TvinciAPI {
         }
         
         /// <remarks/>
-        public double Price {
-            get {
-                return this.priceField;
-            }
-            set {
-                this.priceField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string CurrencyCode {
-            get {
-                return this.currencyCodeField;
-            }
-            set {
-                this.currencyCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
         public long StartDateSeconds {
             get {
                 return this.startDateSecondsField;
@@ -12859,16 +12833,6 @@ namespace ConditionalAccess.TvinciAPI {
             }
             set {
                 this.endDateSecondsField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string UDID {
-            get {
-                return this.uDIDField;
-            }
-            set {
-                this.uDIDField = value;
             }
         }
     }

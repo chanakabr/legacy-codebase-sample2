@@ -2137,6 +2137,17 @@ namespace DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
+        public static bool Update_SubscriptionPurchaseDates(long subscriptionPurchaseId, DateTime startDate, DateTime endDate)
+        {
+            StoredProcedure sp = new StoredProcedure("Update_SubscriptionPurchaseDates");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@subscription_purchase_id", subscriptionPurchaseId);
+            sp.AddParameter("@start_date", startDate);
+            sp.AddParameter("@end_date", endDate);
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
         public static bool Delete_SubscriptionPurchases(List<int> subscriptionIds)
         {
             StoredProcedure sp = new StoredProcedure("Delete_SubscriptionPurchases");

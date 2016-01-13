@@ -8,26 +8,19 @@ namespace ApiObjects
 {
     public class ExternalEntitlement
     {
-        public long Id { get; set; }
+        public long PurchaseId { get; set; }
 
-        public string Alias { get; set; }
+        public long ProductId { get; set; }
 
-        public string ProductId { get; set; }
+        public string ProductCode { get; set; }
 
         public eTransactionType EntitlementType { get; set; }
 
         public string ContentId { get; set; }
 
-        public double Price { get; set; }
-
-        public string CurrencyCode { get; set; }
-
         public long StartDateSeconds { get; set; }
 
         public long EndDateSeconds { get; set; }
-
-        public string UDID { get; set; }
-
     }
 
     public class OSSAdapterEntitlementsResponse
