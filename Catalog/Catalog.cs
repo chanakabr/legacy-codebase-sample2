@@ -6095,6 +6095,7 @@ namespace Catalog
                 else
                 {
                     initialTree = filterTree;
+                    Catalog.UpdateNodeTreeFields(request, ref initialTree, definitions, group);
                 }
 
                 #region Asset Types
@@ -6237,11 +6238,7 @@ namespace Catalog
                 #endregion
             }
 
-            if (initialTree != null)
-            {
-                Catalog.UpdateNodeTreeFields(request, ref initialTree, definitions, group);
-            }
-            else if (emptyRequest)
+            if (initialTree == null && emptyRequest)
             {
                 // if there are no tags:
                 // filter everything out
