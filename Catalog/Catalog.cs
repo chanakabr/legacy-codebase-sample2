@@ -321,7 +321,8 @@ namespace Catalog
                     return null;
                 if (ds.Tables.Count >= 6)
                 {
-                    bool isMedia = GetMediaBasicDetails(ref oMediaObj, ds.Tables[0], ds.Tables[5], bIsMainLang);
+                    int assetGroupId = 0;
+                    bool isMedia = GetMediaBasicDetails(ref oMediaObj, ds.Tables[0], ds.Tables[5], bIsMainLang, ref assetGroupId);
 
                     // only if we found basic details for media - media in status = 1 , and active if necessary. If not - return null.
                     if (!isMedia)
@@ -330,7 +331,7 @@ namespace Catalog
                     }
                     else
                     {
-                        oMediaObj.m_lPicture = GetAllPic(groupId, nMedia, ds.Tables[1], ref result);
+                        oMediaObj.m_lPicture = GetAllPic(groupId, nMedia, ds.Tables[1], ref result, assetGroupId);
                         if (!result)
                         {
                             return null;
@@ -530,7 +531,7 @@ namespace Catalog
         /// <param name="dtPic"></param>
         /// <param name="result"></param>
         /// <returns></returns>
-        private static List<Picture> GetAllPic(int groupId, int assetId, DataTable dtPic, ref bool result)
+        private static List<Picture> GetAllPic(int groupId, int assetId, DataTable dtPic, ref bool result, int assetGroupId)
         {
             result = true;
             List<Picture> lPicObject = new List<Picture>();
@@ -555,100 +556,100 @@ namespace Catalog
                 }
                 else
                 {
-                    // new image server - get pictures data
-                    List<PicData> picsTableData = new List<PicData>();
+                    // new image server - get group ratios
+                    List<Ratio> groupRatios = CatalogCache.Instance().GetGroupRatios(assetGroupId);
+                    if (groupRatios == null || groupRatios.Count == 0)
+                    {
+                        log.ErrorFormat("group ratios were not found. GID {0}", assetGroupId);
+                        return null;
+                    }
+
+                    // get default images
+                    List<PicData> defaultGroupPics = CatalogCache.Instance().GetDefaultImages(assetGroupId);
+
+                    // get picture sizes
+                    List<PicSize> pictureSizes = CatalogCache.Instance().GetGroupPicSizes(assetGroupId);
+
+                    // get pictures data
                     DataRowCollection rows = CatalogDAL.GetPicsTableData(assetId, eAssetImageType.Media);
 
-                    if (rows == null || rows.Count == 0)
-                        return null;
-                    else
+                    if ((rows != null && rows.Count > 0) ||
+                        (defaultGroupPics != null && defaultGroupPics.Count > 0))
                     {
-                        foreach (DataRow row in rows)
+                        List<PicData> picsTableData = new List<PicData>();
+                        if (rows != null)
                         {
-                            picsTableData.Add(new PicData()
+                            foreach (DataRow row in rows)
                             {
-                                RatioId = Utils.GetIntSafeVal(row, "RATIO_ID"),
-                                Version = Utils.GetIntSafeVal(row, "VERSION"),
-                                BaseUrl = Utils.GetStrSafeVal(row, "BASE_URL"),
-                                PicId = Utils.GetLongSafeVal(row, "ID"),
-                                Ratio = Utils.GetStrSafeVal(row, "RATIO"),
-                                GroupId = Utils.GetIntSafeVal(row, "GROUP_ID")
-                            });
-                        }
-                    }
-
-                    // check if migrated image or new one 
-                    bool isMigratedImage = false;
-                    PicData picDataZeroRatio = picsTableData.FirstOrDefault(x => x.RatioId == 0);
-                    if (picDataZeroRatio != null)
-                        isMigratedImage = true;
-
-                    // get picture base URL
-                    string picBaseName = Path.GetFileNameWithoutExtension(picsTableData[0].BaseUrl);
-                    if (string.IsNullOrEmpty(picBaseName))
-                        throw new Exception("could not retrieve picture base URL");
-
-                    if (dtPic != null &&
-                        dtPic.Rows != null &&
-                        dtPic.Rows.Count > 0)
-                    {
-                        // new images server with picture sizes
-                        for (int i = 0; i < dtPic.Rows.Count; i++)
-                        {
-                            // ratio ID
-                            int ratioId = Utils.GetIntSafeVal(dtPic.Rows[i], "RATIO_ID");
-                            var picsRowData = picsTableData.FirstOrDefault(x => x.RatioId == ratioId);
-
-                            if (!isMigratedImage)
-                            {
-                                // new image (not migrated)
-                                if (picsRowData == null)
+                                picsTableData.Add(new PicData()
                                 {
-                                    // data doesn't exists in pictures table 
+                                    RatioId = Utils.GetIntSafeVal(row, "RATIO_ID"),
+                                    Version = Utils.GetIntSafeVal(row, "VERSION"),
+                                    BaseUrl = Utils.GetStrSafeVal(row, "BASE_URL"),
+                                    PicId = Utils.GetLongSafeVal(row, "ID"),
+                                    Ratio = Utils.GetStrSafeVal(row, "RATIO"),
+                                    GroupId = Utils.GetIntSafeVal(row, "GROUP_ID")
+                                });
+                            }
+                        }
+
+                        // check if migrated image or new one 
+                        bool isMigratedImage = false;
+                        PicData picDataZeroRatio = picsTableData.FirstOrDefault(x => x.RatioId == 0);
+                        if (picDataZeroRatio != null)
+                            isMigratedImage = true;
+
+                        if (pictureSizes != null && pictureSizes.Count > 0)
+                        {
+                            // new images server with picture sizes
+                            foreach (var pictureSize in pictureSizes)
+                            {
+                                var ratio = groupRatios.FirstOrDefault(x => x.Id == pictureSize.RatioId);
+                                if (ratio == null)
+                                {
+                                    log.DebugFormat("picture size doesn't have a corresponding group ratio configuration. GID: {0}, RatioId: {1}", assetGroupId, pictureSize.RatioId);
                                     continue;
                                 }
+
+                                picObj = new Picture();
+
+                                // ratio ID
+                                var pic = picsTableData.FirstOrDefault(x => x.RatioId == pictureSize.RatioId);
+
+                                if (pic == null && isMigratedImage)
+                                    pic = picDataZeroRatio;
+
+                                if (pic == null && defaultGroupPics != null)
+                                {
+                                    pic = defaultGroupPics.FirstOrDefault(x => x.RatioId == pictureSize.RatioId);
+                                    picObj.isDefault = true;
+                                }
+
+                                if (pic == null)
+                                    continue;
+
+                                // get size string: <width>X<height>
+                                picObj.m_sSize = string.Format("{0}X{1}", pictureSize.Width, pictureSize.Height);
+
+                                // get ratio string
+                                picObj.ratio = groupRatios.First(x => x.Id == pictureSize.RatioId).Name;
+
+                                // get picture id: <pic_base_url>_<ratio_id>
+                                picObj.id = string.Format("{0}_{1}", Path.GetFileNameWithoutExtension(pic.BaseUrl), pic.RatioId);
+
+                                // get version: if ratio_id exists in pictures table => get its version
+                                picObj.version = pic.Version;
+
+                                // build image URL. 
+                                // template: <image_server_url>/p/<partner_id>/entry_id/<image_id>/version/<image_version>/width/<image_width>/height/<image_height>/quality/<image_quality>
+                                // Example:  http://localhost/ImageServer/Service.svc/GetImage/p/215/entry_id/123/version/10/width/432/height/230/quality/100
+                                picObj.m_sURL = ImageUtils.BuildImageUrl(groupId, picObj.id, picObj.version, pictureSize.Width, pictureSize.Height, 100);
+
+                                lPicObject.Add(picObj);
                             }
-
-                            picObj = new Picture();
-
-                            // get size string: <width>X<height>
-                            picObj.m_sSize = Utils.GetStrSafeVal(dtPic.Rows[i], "PICSIZE");
-
-                            // get ratio string
-                            picObj.ratio = Utils.GetStrSafeVal(dtPic.Rows[i], "RATIO");
-
-                            // get picture id: <pic_base_url>_<ratio_id>
-                            picObj.id = string.Format("{0}_{1}", picBaseName, ratioId);
-
-                            // get version: if ratio_id exists in pictures table => get its version
-                            if (picsRowData != null)
-                                picObj.version = picsRowData.Version;
-                            else
-                                picObj.version = 0;
-
-                            // build image URL. 
-                            // template: <image_server_url>/p/<partner_id>/entry_id/<image_id>/version/<image_version>/width/<image_width>/height/<image_height>/quality/<image_quality>
-                            // Example:  http://localhost/ImageServer/Service.svc/GetImage/p/215/entry_id/123/version/10/width/432/height/230/quality/100
-                            picObj.m_sURL = ImageUtils.BuildImageUrl(groupId, picObj.id, picObj.version, Utils.GetIntSafeVal(dtPic.Rows[i], "WIDTH"), Utils.GetIntSafeVal(dtPic.Rows[i], "HEIGHT"), 100);
-
-                            lPicObject.Add(picObj);
                         }
-                    }
-                    else
-                    {
-                        // sizes are not defined
-                        if (isMigratedImage)
+                        else
                         {
-                            // new image server, sizes are not defined, migrated media/picture => get group ratios
-
-                            // get group ratios
-                            List<Ratio> groupRatios = CatalogCache.Instance().GetGroupRatios(picDataZeroRatio.GroupId);
-                            if (groupRatios == null || groupRatios.Count == 0)
-                            {
-                                log.ErrorFormat("group ratios were not found. GID {0}", picDataZeroRatio.GroupId);
-                                return null;
-                            }
-
                             // build picture object for each ratio
                             foreach (var ratio in groupRatios)
                             {
@@ -657,15 +658,26 @@ namespace Catalog
                                 // get ratio string
                                 picObj.ratio = ratio.Name;
 
-                                // get picture id: <pic_base_url>_<ratio_id>
-                                picObj.id = string.Format("{0}_{1}", picBaseName, ratio.Id);
-
                                 // get version
-                                PicData pic = picsTableData.FirstOrDefault(x => x.RatioId == 0);
-                                if (pic != null)
-                                    picObj.version = pic.Version;
-                                else
-                                    picObj.version = 0;
+                                PicData pic = picsTableData.FirstOrDefault(x => x.RatioId == ratio.Id);
+
+                                if (pic == null && isMigratedImage)
+                                    pic = picDataZeroRatio;
+
+                                if (pic == null && defaultGroupPics != null)
+                                {
+                                    pic = defaultGroupPics.FirstOrDefault(x => x.RatioId == ratio.Id);
+                                    picObj.isDefault = true;
+                                }
+
+                                if (pic == null)
+                                    continue;
+
+                                // get picture id: <pic_base_url>_<ratio_id>
+                                picObj.id = string.Format("{0}_{1}", Path.GetFileNameWithoutExtension(pic.BaseUrl), pic.RatioId);
+
+                                picObj.version = pic.Version;
+
 
                                 // build image URL. 
                                 // template: <image_server_url>/p/<partner_id>/entry_id/<image_id>/version/<image_version>
@@ -674,62 +686,6 @@ namespace Catalog
 
                                 lPicObject.Add(picObj);
                             }
-                        }
-                        else
-                        {
-                            // new image server, sizes are not defined, new image
-                            foreach (var picData in picsTableData)
-                            {
-                                picObj = new Picture();
-
-                                // get ratio string
-                                picObj.ratio = picData.Ratio;
-
-                                // get picture id: <pic_base_url>_<ratio_id>
-                                int ratioId = picData.RatioId;
-                                picObj.id = string.Format("{0}_{1}", picBaseName, ratioId);
-
-                                // get version
-                                picObj.version = picData.Version;
-
-                                // build image URL. 
-                                // template: <image_server_url>/p/<partner_id>/entry_id/<image_id>/version/<image_version>
-                                // Example:  http://localhost/ImageServer/Service.svc/GetImage/p/215/entry_id/123/version/10
-                                picObj.m_sURL = ImageUtils.BuildImageUrl(groupId, picObj.id, picObj.version, 0, 0, 100, true);
-
-                                lPicObject.Add(picObj);
-                            }
-                        }
-                    }
-
-                    // Add default images to configured ratios - get default images
-                    List<PicData> defaultGroupPics = CatalogCache.Instance().GetDefaultImages(picsTableData[0].GroupId);
-
-                    // new image server, sizes are not defined, new image
-                    foreach (var defaultPic in defaultGroupPics)
-                    {
-                        if (lPicObject.FirstOrDefault(x => x.ratio == defaultPic.Ratio) == null)
-                        {
-                            picObj = new Picture();
-
-                            // get ratio string
-                            picObj.ratio = defaultPic.Ratio;
-
-                            // get picture id: <pic_base_url>_<ratio_id>
-                            int ratioId = defaultPic.RatioId;
-                            picObj.id = string.Format("{0}_{1}", picBaseName, ratioId);
-
-                            // get version
-                            picObj.version = defaultPic.Version;
-
-                            picObj.isDefault = true;
-
-                            // build image URL. 
-                            // template: <image_server_url>/p/<partner_id>/entry_id/<image_id>/version/<image_version>
-                            // Example:  http://localhost/ImageServer/Service.svc/GetImage/p/215/entry_id/123/version/10
-                            picObj.m_sURL = ImageUtils.BuildImageUrl(groupId, picObj.id, picObj.version, 0, 0, 100, true);
-
-                            lPicObject.Add(picObj);
                         }
                     }
                 }
@@ -744,7 +700,7 @@ namespace Catalog
         }
 
         /*Insert all Basic Details about media  that return from the "CompleteDetailsForMediaResponse" into MediaObj*/
-        private static bool GetMediaBasicDetails(ref MediaObj oMediaObj, DataTable dtMedia, DataTable dtUpdateDate, bool bIsMainLang)
+        private static bool GetMediaBasicDetails(ref MediaObj oMediaObj, DataTable dtMedia, DataTable dtUpdateDate, bool bIsMainLang, ref int assetGroupId)
         {
             bool result = false;
             try
@@ -753,8 +709,9 @@ namespace Catalog
                 {
                     if (dtMedia.Rows.Count != 0)
                     {
+                        assetGroupId = Utils.GetIntSafeVal(dtMedia.Rows[0], "GROUP_ID");
                         result = true;
-                        oMediaObj.AssetId = Utils.GetIntSafeVal(dtMedia.Rows[0], "ID").ToString();
+                        oMediaObj.AssetId = Utils.GetStrSafeVal(dtMedia.Rows[0], "ID");
                         oMediaObj.EntryId = Utils.GetStrSafeVal(dtMedia.Rows[0], "ENTRY_ID");
                         oMediaObj.CoGuid = Utils.GetStrSafeVal(dtMedia.Rows[0], "CO_GUID");
                         if (!bIsMainLang)
@@ -6067,6 +6024,7 @@ namespace Catalog
                 else
                 {
                     initialTree = filterTree;
+                    Catalog.UpdateNodeTreeFields(request, ref initialTree, definitions, group);
                 }
 
                 #region Asset Types
@@ -6209,11 +6167,7 @@ namespace Catalog
                 #endregion
             }
 
-            if (initialTree != null)
-            {
-                Catalog.UpdateNodeTreeFields(request, ref initialTree, definitions, group);
-            }
-            else if (emptyRequest)
+            if (initialTree == null && emptyRequest)
             {
                 // if there are no tags:
                 // filter everything out

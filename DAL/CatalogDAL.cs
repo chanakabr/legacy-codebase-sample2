@@ -21,7 +21,8 @@ namespace Tvinci.Core.DAL
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly string CB_MEDIA_MARK_DESGIN = ODBCWrapper.Utils.GetTcmConfigValue("cb_media_mark_design");
-        private const int RETRY_LIMIT = 5;
+        private static readonly string CB_EPG_DOCUMENT_EXPIRY = ODBCWrapper.Utils.GetTcmConfigValue("epg_doc_expiry");
+        private const int RETRY_LIMIT = 5;        
 
         public static DataSet Get_MediaDetails(int nGroupID, int nMediaID, string sSiteGuid, bool bOnlyActiveMedia, int nLanguage, string sEndDate, bool bUseStartDate, List<int> lSubGroupTree)
         {
@@ -2519,8 +2520,13 @@ namespace Tvinci.Core.DAL
 
                 //For quick last position access
                 umm.LastMark = dev;
+                
+                TimeSpan? epgDocExpiry = null;
+                try { epgDocExpiry = new TimeSpan(int.Parse(CB_EPG_DOCUMENT_EXPIRY),0,0,0); } catch {}
 
-                var res = m_oClient.Cas(Enyim.Caching.Memcached.StoreMode.Set, mmKey, JsonConvert.SerializeObject(umm, Formatting.None));
+                var res = (epgDocExpiry.HasValue) ?
+                    m_oClient.Cas(Enyim.Caching.Memcached.StoreMode.Set, mmKey, JsonConvert.SerializeObject(umm, Formatting.None), epgDocExpiry.Value, data.Cas)
+                    : m_oClient.Cas(Enyim.Caching.Memcached.StoreMode.Set, mmKey, JsonConvert.SerializeObject(umm, Formatting.None), data.Cas);
 
                 if (!res.Result)
                 {
@@ -4064,6 +4070,25 @@ namespace Tvinci.Core.DAL
             catch (Exception ex)
             {
                 log.Error("Error while trying to get pics data", ex);
+            }
+            return null;
+        }
+
+        public static DataRowCollection GetGroupPicSizesTableData(int groupId)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MediaPicSizes");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupId);
+
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                    return ds.Tables[0].Rows;
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error while trying to get group picture sizes", ex);
             }
             return null;
         }

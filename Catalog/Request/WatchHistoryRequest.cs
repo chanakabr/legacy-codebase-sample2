@@ -90,11 +90,12 @@ namespace Catalog.Request
 
                     switch (item.AssetTypeId)
                     {
-                        case (int)eAssetTypes.MEDIA:
-                            userWatchHistory.AssetType = eAssetTypes.MEDIA;
+                        case (int)eAssetTypes.EPG:
+                        case (int)eAssetTypes.NPVR:
+                            userWatchHistory.AssetType = (eAssetTypes)item.AssetTypeId;
                             break;
                         default:
-                            userWatchHistory.AssetType = (eAssetTypes)item.AssetTypeId;
+                            userWatchHistory.AssetType = eAssetTypes.MEDIA;
                             break;
                     }
                     response.result.Add(userWatchHistory);

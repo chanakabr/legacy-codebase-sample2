@@ -19,6 +19,7 @@ namespace Catalog.Cache
 
         #region Constants
         private static readonly double DEFAULT_TIME_IN_CACHE_MINUTES = 60d; // 1 hours
+        private static readonly double SHORT_IN_CACHE_MINUTES = 10d; // 10 minutes
         private static readonly string DEFAULT_CACHE_NAME = "CatalogCache";
         protected const string CACHE_KEY = "CATALOG";
         #endregion
@@ -139,7 +140,7 @@ namespace Catalog.Cache
                 {
                     DataRowCollection picsDataRows = CatalogDAL.GetPicsTableData(groupID, eAssetImageType.DefaultPic);
 
-                    if (picsDataRows == null || picsDataRows.Count == 0)
+                    if (picsDataRows == null)
                         return null;
                     else
                     {
@@ -158,7 +159,9 @@ namespace Catalog.Cache
                         }
                     }
 
-                    if (defaultPictures != null && defaultPictures.Count > 0)
+                    if (defaultPictures == null)
+                        Set(sKey, new List<PicData>(), SHORT_IN_CACHE_MINUTES);
+                    else
                         Set(sKey, defaultPictures);
                 }
             }
@@ -169,6 +172,46 @@ namespace Catalog.Cache
             return defaultPictures;
         }
 
+        public List<PicSize> GetGroupPicSizes(int groupID)
+        {
+            List<PicSize> picSizes = null;
+            try
+            {
+                string sKey = "GroupPicSizes_" + groupID.ToString();
+                picSizes = Get<List<PicSize>>(sKey);
+
+                if (picSizes == null || picSizes.Count == 0)
+                {
+                    DataRowCollection picsSizeRows = CatalogDAL.GetGroupPicSizesTableData(groupID);
+
+                    if (picsSizeRows == null)
+                        return null;
+                    else
+                    {
+                        picSizes = new List<PicSize>();
+                        foreach (DataRow row in picsSizeRows)
+                        {
+                            picSizes.Add(new PicSize()
+                            {
+                                RatioId = Utils.GetIntSafeVal(row, "RATIO_ID"),
+                                Width = Utils.GetIntSafeVal(row, "WIDTH"),
+                                Height = Utils.GetIntSafeVal(row, "HEIGHT")
+                            });
+                        }
+                    }
+
+                    if (picSizes == null)
+                        Set(sKey, new List<PicSize>(), SHORT_IN_CACHE_MINUTES);
+                    else
+                        Set(sKey, picSizes);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while getting group picture sizes. GID {0}, ex: {1}", groupID, ex);
+            }
+            return picSizes;
+        }
 
         public object Get(string sKey)
         {

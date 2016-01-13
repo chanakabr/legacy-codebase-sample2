@@ -1635,61 +1635,26 @@ namespace TvinciImporter
                 GetLangData(nGroupID, ref sMainLang, ref nLangID);
 
                 UpdateInsertBasicMainLangData(nGroupID, ref nMediaID, nItemType, sCoGuid, sEpgIdentifier, nWatchPerRule, nGeoBlockRule,
-                    nPlayersRule, nDeviceRule, dCatalogStartDate, dStartDate, dCatalogEndDate, dFinalEndDate, sThumb, sMainLang, ref theItemName,
+                    nPlayersRule, nDeviceRule, dCatalogStartDate, dStartDate, dCatalogEndDate, dFinalEndDate, sMainLang, ref theItemName,
                     ref theItemDesc, sIsActive, dCreate, entryId);
 
+                // get all ratio and ratio's pic url from input xml
+                Dictionary<string, string> ratioStrThumb = SetRatioStrThumb(thePicRatios);
+
+                Dictionary<int, List<string>> ratioSizesList = new Dictionary<int, List<string>>();
+                Dictionary<int, string> ratiosThumb = new Dictionary<int, string>();
+                //get all ratio/sizes needed for DownloadPic 
+                SetRatioIdsWithPicUrl(nGroupID, ratioStrThumb, out ratioSizesList, out ratiosThumb);
+
+                //set default ratio with size
                 if (!string.IsNullOrEmpty(sThumb))
                 {
-                    string sName = GetMultiLangValue(sMainLang, ref theItemName);
-                    Int32 nPicID = DownloadPic(sThumb, sName, nGroupID, nMediaID, sMainLang, "THUMBNAIL", true, 0);
-                    if (nPicID != 0)
-                    {
-                        ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_PIC_ID", "=", nPicID);
-                        updateQuery += " where ";
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nMediaID);
-                        updateQuery.Execute();
-                        updateQuery.Finish();
-                        updateQuery = null;
-                    }
+                    theItemName = DownloadThumbPic(nMediaID, nGroupID, sThumb, theItemName, sMainLang, ratiosThumb);
                 }
 
-                int groupDefaultRatioId = -1;
-
-                if (!WS_Utils.IsGroupIDContainedInConfig(nGroupID, "USE_OLD_IMAGE_SERVER", ';') && !string.IsNullOrEmpty(sThumb))
+                foreach (int ratioKey in ratiosThumb.Keys)
                 {
-                    groupDefaultRatioId = ImageUtils.GetGroupDefaultRatio(nGroupID);
-                }
-
-                if (thePicRatios != null)
-                {
-                    int ratiosCount = thePicRatios.Count;
-                    for (int i = 0; i < ratiosCount; i++)
-                    {
-                        XmlNode theRatioItem = thePicRatios[i];
-                        string picStr = GetItemParameterVal(ref theRatioItem, "thumb");
-                        string ratioStr = GetItemParameterVal(ref theRatioItem, "ratio");
-                        int ratioID = 0;
-                        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                        selectQuery += "select id from lu_pics_ratios where is_active = 1 and status = 1 and ";
-                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ratio", "=", ratioStr);
-                        if (selectQuery.Execute("query", true) != null)
-                        {
-                            int selectCount = selectQuery.Table("query").DefaultView.Count;
-                            if (selectCount > 0)
-                            {
-                                ratioID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["id"].ToString());
-                            }
-                        }
-                        selectQuery.Finish();
-                        selectQuery = null;
-
-                        if (ratioID > 0 && groupDefaultRatioId != ratioID)
-                        {
-                            DownloadPic(picStr, string.Empty, nGroupID, nMediaID, sMainLang, "RATIOPIC", false, ratioID);
-                        }
-
-                    }
+                    DownloadPic(ratiosThumb[ratioKey], string.Empty, nGroupID, nMediaID, sMainLang, "RATIOPIC", false, ratioKey, ratioSizesList[ratioKey]);
                 }
 
                 UpdateInsertBasicSubLangData(nGroupID, nMediaID, sMainLang, ref theItemName, ref theItemDesc);
@@ -1707,6 +1672,82 @@ namespace TvinciImporter
             }
 
             return bOK;
+        }
+
+        private static XmlNode DownloadThumbPic(int mediaId, int groupId, string thumb, XmlNode itemName, string mainLang, Dictionary<int, string> ratiosThumb)
+        {
+            string sName = GetMultiLangValue(mainLang, ref itemName);
+
+            List<string> sizes = GetMediaPicSizesExclude(groupId, ratiosThumb.Keys.ToList());
+            sizes.Add("full");
+            sizes.Add("tn");
+            Int32 nPicID = DownloadPic(thumb, sName, groupId, mediaId, mainLang, "THUMBNAIL", true, 0, sizes);
+            if (nPicID != 0)
+            {
+                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_PIC_ID", "=", nPicID);
+                updateQuery += " where ";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", mediaId);
+                updateQuery.Execute();
+                updateQuery.Finish();
+                updateQuery = null;
+            }
+            return itemName;
+        }
+        private static void SetRatioIdsWithPicUrl(int groupId, Dictionary<string, string> ratioStrThumb, out Dictionary<int, List<string>> ratioSizesList, out Dictionary<int, string> ratiosThumb)
+        {
+            ratioSizesList = new Dictionary<int, List<string>>();
+            ratiosThumb = new Dictionary<int, string>();
+
+            if (ratioStrThumb.Count > 0)
+            {
+                int ratioID = 0;
+                string ratioStr = string.Empty;
+
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery += "select id, ratio from lu_pics_ratios where is_active = 1 and status = 1 and ";
+                selectQuery += "ratio in " + string.Format("('{0}')", string.Join("','", ratioStrThumb.Keys.Select(x => x.ToString()).ToArray()));
+                if (selectQuery.Execute("query", true) != null && selectQuery.Table("query").DefaultView.Count > 0)
+                {
+                    for (int rowIndex = 0; rowIndex < selectQuery.Table("query").DefaultView.Count; rowIndex++)
+                    {
+                        ratioID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "id", rowIndex);
+                        ratioStr = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "ratio", rowIndex);
+                        if (ratioID > 0)
+                        {
+                            // collect ratio Ids
+                            ratiosThumb.Add(ratioID, ratioStrThumb[ratioStr]);
+                            //get ratio Sizes
+                            ratioSizesList.Add(ratioID, GetMediaPicSizes(groupId, ratioID));
+                        }
+                    }
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+            }
+        }
+
+        private static Dictionary<string, string> SetRatioStrThumb(XmlNodeList thePicRatios)
+        {
+            //set ratioStrThumb dictionary with ratioStr and pic url
+            //  10:7  ,  https://....
+            Dictionary<string, string> ratioStrThumb = new Dictionary<string, string>();
+            if (thePicRatios != null)
+            {
+                int ratiosCount = thePicRatios.Count;
+                XmlNode ratioItem = null;
+                for (int i = 0; i < ratiosCount; i++)
+                {
+                    ratioItem = thePicRatios[i];
+                    string picStr = GetItemParameterVal(ref ratioItem, "thumb");
+                    string ratioStr = GetItemParameterVal(ref ratioItem, "ratio");
+                    if (!string.IsNullOrEmpty(picStr) && !string.IsNullOrEmpty(ratioStr) && !ratioStrThumb.ContainsKey(ratioStr))
+                    {
+                        ratioStrThumb.Add(ratioStr, picStr);
+                    }
+                }
+            }
+            return ratioStrThumb;
         }
 
         static protected string GetPicBaseName(int picID, int groupID)
@@ -1928,7 +1969,7 @@ namespace TvinciImporter
             return picId;
         }
 
-        public static int DownloadEPGPicToImageServer(string thumb, string name, int groupID, int channelID, int ratioID, bool isAsync = true, int? updaterId = null)
+        public static int DownloadEPGPicToImageServer(string thumb, string name, int groupID, int channelID, int ratioID, bool isAsync = true, int? updaterId = null, string epgIdentifier = null)
         {
             int version = 0;
             string picName = string.Empty;
@@ -1983,6 +2024,10 @@ namespace TvinciImporter
                         else if (result.ToLower() == "true")
                         {
                             ImageUtils.UpdateImageState(groupID, picId, version, eMediaType.EPG, eTableStatus.OK, updaterId);
+
+                            // Update EpgMultiPictures
+                            EpgDal.UpdateEPGMultiPic(groupID, epgIdentifier, channelID, picId, ratioID, updaterId);
+
                             log.DebugFormat("post image success. picId {0} ", picId);
                         }
                     }
@@ -2363,7 +2408,7 @@ namespace TvinciImporter
             return nPicID;
         }
 
-        static public Int32 DownloadPic(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID)
+        static public Int32 DownloadPic(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID, List<string> ratioSize = null)
         {
             string sUseQueue = TVinciShared.WS_Utils.GetTcmConfigValue("downloadPicWithQueue");
             if (!string.IsNullOrEmpty(sUseQueue) && sUseQueue.ToLower().Equals("true"))
@@ -2379,7 +2424,7 @@ namespace TvinciImporter
                 // use old/new image server
                 if (WS_Utils.IsGroupIDContainedInConfig(nGroupID, "USE_OLD_IMAGE_SERVER", ';'))
                 {
-                    picId = DownloadPicToQueue(sPic, sMediaName, nGroupID, nMediaID, sMainLang, sPicType, bSetMediaThumb, ratioID);
+                    picId = DownloadPicToQueue(sPic, sMediaName, nGroupID, nMediaID, sMainLang, sPicType, bSetMediaThumb, ratioID, ratioSize);
                 }
                 else
                 {
@@ -2550,20 +2595,22 @@ namespace TvinciImporter
             return nPicID;
         }
 
-        static public Int32 DownloadPicToQueue(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID)
+        static public Int32 DownloadPicToQueue(string sPic, string sMediaName, Int32 nGroupID, Int32 nMediaID, string sMainLang, string sPicType, bool bSetMediaThumb, int ratioID, List<string> picSizes = null)
         {
             int nPicID = 0;
             log.Debug("File downloaded - Start Download Pic: " + " " + sPic + " " + "MediaID: " + nMediaID.ToString() + " RatioID :" + ratioID.ToString());
 
+            if (picSizes == null)
+            {
+                picSizes = GetMediaPicSizes(bSetMediaThumb, nGroupID, ratioID);                
+            }
             //generate PictureData and send to Queue 
             string sPicNewName = getNewUninqueName(ratioID, nMediaID); //the unique name            
-
-            string[] sPicSizes = getMediaPicSizes(bSetMediaThumb, nGroupID, ratioID);
 
             string sBasePath = ImageUtils.getRemotePicsURL(nGroupID);
 
             // generate PictureData and send to Queue
-            bool bIsUpdateSucceeded = ImageUtils.SendPictureDataToQueue(sPic, sPicNewName, sBasePath, sPicSizes, nGroupID);
+            bool bIsUpdateSucceeded = ImageUtils.SendPictureDataToQueue(sPic, sPicNewName, sBasePath, picSizes.ToArray(), nGroupID);
 
             //insert new Picture to DB 
             string sUploadedFileExt = ImageUtils.GetFileExt(sPic);
@@ -2577,6 +2624,115 @@ namespace TvinciImporter
                 #endregion
             }
             return nPicID;
+        }
+
+        //according to 'bSetMediaThumb' there is "full" and "tn"
+        //if there is a ratioID, then the pic size is determined by it. if there isn't ratio, then all sizes of the group will be added
+        private static List<string> GetMediaPicSizes(bool bSetMediaThumb, int nGroupID, int ratioID)
+        {
+            List<string> mediaPicSizes = new List<string>();
+            if (bSetMediaThumb)
+            {
+                mediaPicSizes.Add("full");
+                mediaPicSizes.Add("tn");
+            }
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select * from media_pics_sizes (nolock) where status=1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+            if (ratioID > 0)
+            {
+                selectQuery += " and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ratio_id", "=", ratioID);
+            }
+            if (selectQuery.Execute("query", true) != null)
+            {
+                int nCount = selectQuery.Table("query").DefaultView.Count;
+                for (int i = 0; i < nCount; i++)
+                {
+                    int nWidth = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "WIDTH", i);
+                    int nHeight = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "HEIGHT", i);
+
+                    string size = nWidth + "X" + nHeight;
+                    mediaPicSizes.Add(size);
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+
+            return mediaPicSizes;
+        }
+
+        //according to 'bSetMediaThumb' there is "full" and "tn"
+        //if there is a ratioID, then the pic size is determined by it. if there isn't ratio, then all sizes of the group will be added
+        private static List<string> GetMediaPicSizes(int groupId, int ratioID)
+        {
+            List<string> mediaPicSizes = new List<string>();
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select WIDTH, HEIGHT from media_pics_sizes (nolock) where status=1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", groupId);
+            if (ratioID > 0)
+            {
+                selectQuery += " and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ratio_id", "=", ratioID);
+            }
+            if (selectQuery.Execute("query", true) != null)
+            {
+                int nCount = selectQuery.Table("query").DefaultView.Count;
+                for (int i = 0; i < nCount; i++)
+                {
+                    int nWidth = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "WIDTH", i);
+                    int nHeight = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "HEIGHT", i);
+
+                    string size = nWidth + "X" + nHeight;
+                    mediaPicSizes.Add(size);
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+
+            return mediaPicSizes;
+        }
+
+        //according to 'bSetMediaThumb' there is "full" and "tn"
+        //if there is a ratioID, then the pic size is determined by it. if there isn't ratio, then all sizes of the group will be added
+        private static List<string> GetMediaPicSizesExclude(int groupId, List<int> ratiolist)
+        {
+            List<string> mediaPicSizes = new List<string>();
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select WIDTH, HEIGHT from media_pics_sizes (nolock) where status=1 and ";
+            selectQuery += "group_id = " + groupId.ToString();
+            if (ratiolist != null && ratiolist.Count > 0)
+            {
+                selectQuery += " and ";
+                string ratioToExclude = BuildRatiosListString(ratiolist);
+                selectQuery += "ratio_id not in " + ratioToExclude;
+            }
+            if (selectQuery.Execute("query", true) != null)
+            {
+                int rows = selectQuery.Table("query").DefaultView.Count;
+                for (int rowIndex = 0; rowIndex < rows; rowIndex++)
+                {
+                    int nWidth = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "WIDTH", rowIndex);
+                    int nHeight = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "HEIGHT", rowIndex);
+
+                    string size = nWidth + "X" + nHeight;
+                    mediaPicSizes.Add(size);
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+
+            return mediaPicSizes;
+        }
+
+        private static string BuildRatiosListString(List<int> ratiolist)
+        {
+            return string.Format("({0})", string.Join(",", ratiolist.Select(x => x.ToString()).ToArray()));
         }
 
         static public int DownloadPicToImageServer(string pic, string assetName, int groupId, int assetId, string mainLang, bool setMediaThumb, int ratioId, eAssetImageType assetImageType, bool isAsync = true, int? updaterId = null)
@@ -2744,46 +2900,6 @@ namespace TvinciImporter
                     lString.Add(sSize);
                 }
             }
-
-            str = lString.ToArray();
-            return str;
-        }
-
-        //according to 'bSetMediaThumb' there is "full" and "tn"
-        //if there is a ratioID, then the pic size is determined by it. if there isn't ratio, then all sizes of the group will be added
-        private static string[] getMediaPicSizes(bool bSetMediaThumb, int nGroupID, int ratioID)
-        {
-            string[] str;
-            List<string> lString = new List<string>();
-            if (bSetMediaThumb)
-            {
-                lString.Add("full");
-                lString.Add("tn");
-            }
-
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select * from media_pics_sizes (nolock) where status=1 and ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
-            if (ratioID > 0)
-            {
-                selectQuery += " and ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ratio_id", "=", ratioID);
-            }
-            if (selectQuery.Execute("query", true) != null)
-            {
-                int nCount = selectQuery.Table("query").DefaultView.Count;
-                for (int i = 0; i < nCount; i++)
-                {
-                    int nWidth = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "WIDTH", i);
-                    int nHeight = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "HEIGHT", i);
-
-                    string size = nWidth + "X" + nHeight;
-                    lString.Add(size);
-                }
-            }
-            selectQuery.Finish();
-            selectQuery = null;
 
             str = lString.ToArray();
             return str;
@@ -4203,7 +4319,7 @@ namespace TvinciImporter
 
         static protected bool UpdateInsertBasicMainLangData(Int32 nGroupID, ref Int32 nMediaID, Int32 nItemType, string sCoGuid,
             string sEpgIdentifier, Int32 nWatchPerRule, Int32 nGeoBlockRule, Int32 nPlayersRule, Int32 nDeviceRule,
-            DateTime dCatalogStartDate, DateTime dStartDate, DateTime dCatalogEndDate, DateTime dFinalEndDate, string sThumb, string sMainLang,
+            DateTime dCatalogStartDate, DateTime dStartDate, DateTime dCatalogEndDate, DateTime dFinalEndDate, string sMainLang,
             ref XmlNode theItemNames, ref XmlNode theItemDesc, string sIsActive, DateTime dCreate, string entryId)
         {
             string sName = GetMultiLangValue(sMainLang, ref theItemNames);
