@@ -15130,5 +15130,10 @@ namespace ConditionalAccess
 
             return response;
         }
+
+        public ApiObjects.Response.Status UpdateFreeFileTypesIndex(eObjectType type, List<int> assetIds, List<int> moduleIds)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
