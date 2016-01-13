@@ -949,6 +949,27 @@ namespace Users
             return result;
         }
 
+        public static bool IsDeleteUserAllowedForGroup(int groupId)
+        {
+            bool isAllowed = false;
+            DataTable dt = null;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select allow_delete_user from groups_parameters where ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", groupId);
+            dt = selectQuery.Execute("query", true);
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                int isGroupAllowed = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "allow_delete_user");
+                if (isGroupAllowed == 1)
+                {
+                    isAllowed = true;
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+
+            return isAllowed;
+        }
     }
 
 }

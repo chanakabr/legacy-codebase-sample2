@@ -4074,6 +4074,25 @@ namespace Tvinci.Core.DAL
             return null;
         }
 
+        public static DataRowCollection GetGroupPicSizesTableData(int groupId)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MediaPicSizes");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupId);
+
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                    return ds.Tables[0].Rows;
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error while trying to get group picture sizes", ex);
+            }
+            return null;
+        }
+
         public static int GetEpgPicsData(int groupId, string description)
         {
             int picId = 0;
