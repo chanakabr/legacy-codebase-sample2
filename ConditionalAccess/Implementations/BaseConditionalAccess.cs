@@ -11434,11 +11434,10 @@ namespace ConditionalAccess
         /// <param name="p_nDomainID"></param>
         /// <param name="p_nAssetID"></param>
         /// <param name="p_enmTransactionType"></param>
-        /// <param name="p_nGroupID"></param>
         /// <param name="p_bIsForce"></param>
         /// <returns></returns>
         public virtual ApiObjects.Response.Status CancelServiceNow(int p_nDomainID, int p_nAssetID,
-            eTransactionType p_enmTransactionType, int p_nGroupID, bool p_bIsForce = false)
+            eTransactionType p_enmTransactionType, bool p_bIsForce = false)
         {
             ApiObjects.Response.Status oResult = new ApiObjects.Response.Status();
 
@@ -11446,7 +11445,7 @@ namespace ConditionalAccess
 
             try
             {
-                // Start with getting domain info - both for validation and to get domain's users
+                // Start with getting domain info for validation
                 TvinciDomains.Domain oDomain = Utils.GetDomainInfo(p_nDomainID, this.m_nGroupID);
 
 
@@ -11475,16 +11474,13 @@ namespace ConditionalAccess
                         log.Error("Domain status: " + oDomain.m_DomainStatus.ToString());
                     }
                     else
-                    {
-
-                        int[] arrUserIDs = oDomain.m_UsersIDs;
-
+                    {                        
                         DataTable dtUserPurchases = null;
                         DataRow drUserPurchase = null;
                         string sPurchasingSiteGuid = string.Empty;
 
                         // Check if within cancellation window
-                        bool bCancellationWindow = GetCancellationWindow(arrUserIDs, p_nAssetID, p_enmTransactionType, this.m_nGroupID, ref dtUserPurchases, p_nDomainID);
+                        bool bCancellationWindow = GetCancellationWindow(p_nAssetID, p_enmTransactionType, ref dtUserPurchases, p_nDomainID);
 
                         // Check if the user purchased the asset at all
                         if (dtUserPurchases == null || dtUserPurchases.Rows == null || dtUserPurchases.Rows.Count == 0)
@@ -11652,11 +11648,10 @@ namespace ConditionalAccess
         /// </summary>
         /// <param name="p_sSiteGuid"></param>
         /// <param name="p_nAssetID"></param>
-        /// <param name="p_enmTransactionType"></param>
-        /// <param name="p_nGroupID"></param>
+        /// <param name="p_enmTransactionType"></param>        
         /// <param name="p_bIsForce"></param>
         /// <returns></returns>
-        public virtual bool CancelTransaction(string p_sSiteGuid, int p_nAssetID, eTransactionType p_enmTransactionType, int p_nGroupID, bool p_bIsForce = false)
+        public virtual bool CancelTransaction(string p_sSiteGuid, int p_nAssetID, eTransactionType p_enmTransactionType, bool p_bIsForce = false)
         {
             bool bResult = false;
 
@@ -11670,7 +11665,7 @@ namespace ConditionalAccess
                     return false;
                 }
                 // Check if within cancellation window
-                bool bCancellationWindow = GetCancellationWindow(p_sSiteGuid, p_nAssetID, p_enmTransactionType, p_nGroupID, ref dtUserPurchases, (int)domainid);
+                bool bCancellationWindow = GetCancellationWindow(p_nAssetID, p_enmTransactionType, ref dtUserPurchases, (int)domainid);
 
                 // Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided
                 if (bCancellationWindow || p_bIsForce)
@@ -11725,37 +11720,15 @@ namespace ConditionalAccess
         }
 
         /// <summary>
-        /// Tells whether the user can still cancel the given asset or not - if it is within the cancellation window
-        /// </summary>
-        /// <param name="sSiteGuid"></param>
-        /// <param name="nAssetID"></param>
-        /// <param name="transactionType"></param>
-        /// <param name="nGroupID"></param>
-        /// <param name="dt"></param>
-        /// <returns></returns>
-        private bool GetCancellationWindow(string sSiteGuid, int nAssetID, eTransactionType transactionType, int nGroupID, ref DataTable dt, int domainID)
-        {
-            bool bResult = false;
-            int nSiteGuid;
-
-            if (int.TryParse(sSiteGuid, out nSiteGuid))
-            {
-                bResult = GetCancellationWindow(new int[] { nSiteGuid }, nAssetID, transactionType, nGroupID, ref dt, domainID);
-            }
-
-            return (bResult);
-        }
-
-        /// <summary>
         /// Tells whether the users can still cancel the given asset or not - if they are within the cancellation window
-        /// </summary>
-        /// <param name="p_arrUserIDs"></param>
+        /// </summary>        
         /// <param name="p_nAssetID"></param>
         /// <param name="p_enmServiceType"></param>
         /// <param name="p_nGroupID"></param>
         /// <param name="p_dtUserPurchases"></param>
+        /// <param name="p_domainID"></param>
         /// <returns></returns>
-        private bool GetCancellationWindow(int[] p_arrUserIDs, int p_nAssetID, eTransactionType p_enmServiceType, int p_nGroupID, ref DataTable p_dtUserPurchases, int domainID)
+        private bool GetCancellationWindow(int p_nAssetID, eTransactionType p_enmServiceType, ref DataTable p_dtUserPurchases, int p_domainID)
         {
             TvinciPricing.UsageModule oUsageModule = null;
             bool bCancellationWindow = false;
@@ -11767,17 +11740,17 @@ namespace ConditionalAccess
             {
                 case eTransactionType.PPV:
                     {
-                        p_dtUserPurchases = ConditionalAccessDAL.Get_AllPPVPurchasesByUserIDsAndMediaFileID(p_nAssetID, p_arrUserIDs.ToList(), p_nGroupID, domainID);
+                        p_dtUserPurchases = ConditionalAccessDAL.Get_AllPPVPurchasesByUserIDsAndMediaFileID(p_nAssetID, null, m_nGroupID, p_domainID);
                         break;
                     }
                 case eTransactionType.Subscription:
                     {
-                        p_dtUserPurchases = ConditionalAccessDAL.Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode(p_nAssetID, p_arrUserIDs.ToList(), p_nGroupID, domainID);
+                        p_dtUserPurchases = ConditionalAccessDAL.Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode(p_nAssetID, null, m_nGroupID, p_domainID);
                         break;
                     }
                 case eTransactionType.Collection:
                     {
-                        p_dtUserPurchases = ConditionalAccessDAL.Get_AllCollectionPurchasesByUserIDsAndCollectionCode(p_nAssetID, p_arrUserIDs.ToList(), p_nGroupID, domainID);
+                        p_dtUserPurchases = ConditionalAccessDAL.Get_AllCollectionPurchasesByUserIDsAndCollectionCode(p_nAssetID, null, m_nGroupID, p_domainID);
                         break;
                     }
                 default:
@@ -11804,21 +11777,21 @@ namespace ConditionalAccess
 
         /*This method shall set the waiver flag on the user entitlement table (susbcriptions/ppv/collection_purchases) 
          * and the waiver_date field to the current date.*/
-        public virtual bool WaiverTransaction(string sSiteGuid, int nAssetID, eTransactionType transactionType, int nGroupID)
+        public virtual bool WaiverTransaction(string sSiteGuid, int nAssetID, eTransactionType transactionType)
         {
             bool bRes = false;
             System.Data.DataTable dt = null;
 
             try
             {
-                // Get domainID to support canceling a transaction made by a deleted user (not the current p_sSiteGuid)
+                // Get domainID to support waiver a transaction made by a deleted user (not the current p_sSiteGuid)
                 long domainid = 0;
                 if (Utils.ValidateUser(m_nGroupID, sSiteGuid, ref domainid) != ResponseStatus.OK || domainid == 0)
                 {
                     return false;
                 }
 
-                bool bCancellationWindow = GetCancellationWindow(sSiteGuid, nAssetID, transactionType, nGroupID, ref dt, (int)domainid);
+                bool bCancellationWindow = GetCancellationWindow(nAssetID, transactionType, ref dt, (int)domainid);
 
                 if (bCancellationWindow)
                 {
