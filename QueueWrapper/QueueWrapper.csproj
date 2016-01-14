@@ -73,6 +73,7 @@
     <Compile Include="Enums\ConfigType.cs" />
     <Compile Include="Enums\QueueType.cs" />
     <Compile Include="Queues\Enums.cs" />
+    <Compile Include="Queues\QueueObjects\GenericCeleryQueue.cs" />
     <Compile Include="Queues\QueueObjects\ImageUploadQueue.cs" />
     <Compile Include="Queues\QueueObjects\ExportTasksQueue.cs" />
     <Compile Include="Queues\QueueObjects\SetupTasksQueue.cs" />

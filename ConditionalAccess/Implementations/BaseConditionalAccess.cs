@@ -46,6 +46,7 @@ namespace ConditionalAccess
         private const string ILLEGAL_CONTENT_ID = "Illegal content ID";
         private const string CONTENT_ID_WITH_A_RELATED_MEDIA = "Content ID with a related media";
         protected const string ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION = "PROCESS_RENEW_SUBSCRIPTION\\{0}";
+        protected const string ROUTING_KEY_PROCESS_FREE_ITEM_UPDATE = "PROCESS_FREE_ITEM_UPDATE\\{0}";
 
         #region Abstract methods
         protected abstract TvinciBilling.BillingResponse HandleBaseRenewMPPBillingCharge(string sSiteGuid, double dPrice,
@@ -15131,9 +15132,74 @@ namespace ConditionalAccess
             return response;
         }
 
-        public ApiObjects.Response.Status UpdateFreeFileTypesIndex(eObjectType type, List<int> assetIds, List<int> moduleIds)
+        public ApiObjects.Response.Status UpdateFreeFileTypesIndex(int groupId, eObjectType type, List<int> assetIds, List<int> moduleIds)
         {
-            throw new NotImplementedException();
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+
+            try
+            {
+                // TODO: Fill up the messages list with real data, after we understand when the assets/modules need to be updates
+                List<FreeItemUpdateData> messages = new List<FreeItemUpdateData>();
+
+                // TODO: Understand which assets need to be updated according to the asset ID list we got
+                List<int> assetsToUpdate = new List<int>();
+
+                GenericCeleryQueue queue = new GenericCeleryQueue();
+
+                // Fire messages for future check
+                foreach (var message in messages)
+                {
+                    queue.Enqueue(message, string.Format(ROUTING_KEY_PROCESS_FREE_ITEM_UPDATE, groupId));
+                }
+
+                // Call catalog to update index
+                using (WS_Catalog.IserviceClient catalog = new WS_Catalog.IserviceClient())
+                {
+                    catalog.Endpoint.Address = new System.ServiceModel.EndpointAddress(Utils.GetWSURL("WS_Catalog"));
+
+                    bool result = false;
+
+                    switch (type)
+                    {
+                        case eObjectType.Unknown:
+                        break;
+                        case eObjectType.Media:
+                        {
+                            result = catalog.UpdateIndex(assetsToUpdate.ToArray(), groupId, WS_Catalog.eAction.Update);
+                            break;
+                        }
+                        // This case shouldn't happen, but I'll still write this code down
+                        case eObjectType.Channel:
+                        {
+                            result = catalog.UpdateChannelIndex(assetsToUpdate.ToArray(), groupId, WS_Catalog.eAction.Update);
+                            break;
+                        }
+                        case eObjectType.EPG:
+                        {
+                            result = catalog.UpdateEpgIndex(assetsToUpdate.ToArray(), groupId, WS_Catalog.eAction.Update);
+                            break;
+                        }
+                        default:
+                        break;
+                    }
+
+                    if (!result)
+                    {
+                        log.ErrorFormat("Failed sending update index message to catalog. GroupId = {0}, type = {1}", groupId, type);
+                        status.Code = (int)eResponseStatus.Error;
+                        status.Message = "Failed sending update index message to catalog.";
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed upating free file types. GroupId = {0}, type = {1}", groupId, type, ex);
+                status.Code = (int)eResponseStatus.Error;
+                status.Message = ex.Message;
+            }
+
+            return status;
         }
     }
 }
