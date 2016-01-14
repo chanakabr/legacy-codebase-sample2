@@ -653,23 +653,29 @@ namespace TVinciShared
                 switch (httpRequestType)
                 {
                     case eHttpRequestType.Post:
-                        
-                            imageServerUrlObj = PageUtils.GetTableSingleVal("groups", "INTERNAL_IMAGE_SERVER_URL", groupId);
-                            if (imageServerUrlObj == null)
-                                log.ErrorFormat(string.Format("IMAGE_SERVER_URL wasn't found. GID: {0}", groupId));
-                            else
-                                imageServerUrl = imageServerUrlObj.ToString().EndsWith("/") ? imageServerUrl + "InsertImage" : imageServerUrl + "/InsertImage";
-                            break;
-                        
+
+                        imageServerUrlObj = PageUtils.GetTableSingleVal("groups", "INTERNAL_IMAGE_SERVER_URL", groupId);
+                        if (imageServerUrlObj == null)
+                            log.ErrorFormat(string.Format("IMAGE_SERVER_URL wasn't found. GID: {0}", groupId));
+                        else
+                        {
+                            imageServerUrl = imageServerUrlObj.ToString();
+                            imageServerUrl = imageServerUrl.EndsWith("/") ? imageServerUrl + "InsertImage" : imageServerUrl + "/InsertImage";
+                        }
+                        break;
+
                     case eHttpRequestType.Get:
-                        
-                            imageServerUrlObj = PageUtils.GetTableSingleVal("groups", "IMAGE_SERVER_URL", groupId);
-                            if (imageServerUrlObj == null)
-                                log.ErrorFormat(string.Format("IMAGE_SERVER_URL wasn't found. GID: {0}", groupId));
-                            else
-                                imageServerUrl = imageServerUrlObj.ToString().EndsWith("/") ? imageServerUrl + "GetImage/" : imageServerUrl + "/GetImage/";
-                            break;
-                        
+
+                        imageServerUrlObj = PageUtils.GetTableSingleVal("groups", "IMAGE_SERVER_URL", groupId);
+                        if (imageServerUrlObj == null)
+                            log.ErrorFormat(string.Format("IMAGE_SERVER_URL wasn't found. GID: {0}", groupId));
+                        else
+                        {
+                            imageServerUrl = imageServerUrlObj.ToString();
+                            imageServerUrl = imageServerUrl.EndsWith("/") ? imageServerUrl + "GetImage/" : imageServerUrl + "/GetImage/";
+                        }
+                        break;
+
                     default:
                         break;
                 }
