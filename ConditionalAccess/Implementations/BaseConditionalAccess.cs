@@ -7853,7 +7853,7 @@ namespace ConditionalAccess
                         // create mapper
                         mapper = Utils.GetMediaMapper(m_nGroupID, nMediaFiles, sAPIUsername, sAPIPassword);
                         //Get all user PPV entitlements
-                        Utils.InitializeUsersEntitlements(m_nGroupID, domainID, allUsersInDomain, nMediaFiles, mapper, userEntitlements.userPpvEntitlements);
+                        Utils.InitializeUsersEntitlements(m_nGroupID, domainID, allUsersInDomain, mapper, userEntitlements.userPpvEntitlements);
                         //Get all user bundle entitlements
                         Utils.InitializeUsersBundles(sUserGUID, domainID, m_nGroupID, allUsersInDomain, sPricingUsername, sPricingPassword, userEntitlements.userBundleEntitlements);
                     }
@@ -15070,7 +15070,7 @@ namespace ConditionalAccess
                 }
             }
 
-            var itemPrices = this.GetItemsPrices(mediaFiles.ToArray(), siteGuid, couponCode, true, countryCd2, languageCode3, deviceName, clientIP);
+            var itemPrices = this.GetItemsPrices(mediaFiles.ToArray(), siteGuid, couponCode, false, countryCd2, languageCode3, deviceName, clientIP);
 
             if (itemPrices == null)
             {
