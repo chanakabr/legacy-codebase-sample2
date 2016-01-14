@@ -407,13 +407,15 @@ namespace ElasticSearchHandler.IndexBuilders
                             {
                                 int mediaID = ODBCWrapper.Utils.GetIntSafeVal(row, "media_id");
                                 string sMFT = ODBCWrapper.Utils.GetSafeStr(row, "media_type_id");
+                                bool isFree = ODBCWrapper.Utils.ExtractBoolean(row, "is_free");
 
-                                int mediaTypeId;
                                 Media theMedia = medias[mediaID];
 
                                 theMedia.m_sMFTypes += string.Format("{0};", sMFT);
 
-                                if (int.TryParse(sMFT, out mediaTypeId))
+                                int mediaTypeId;
+
+                                if (isFree && int.TryParse(sMFT, out mediaTypeId))
                                 {
                                     theMedia.freeFileTypes.Add(mediaTypeId);
                                 }
