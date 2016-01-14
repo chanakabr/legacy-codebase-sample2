@@ -11512,17 +11512,17 @@ namespace ConditionalAccess
                                 {
                                     case eTransactionType.PPV:
                                         {
-                                            bResult = DAL.ConditionalAccessDAL.CancelPPVPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
+                                            bResult = DAL.ConditionalAccessDAL.CancelPPVPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID, p_nDomainID);
                                             break;
                                         }
                                     case eTransactionType.Subscription:
                                         {
-                                            bResult = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
+                                            bResult = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID, p_nDomainID);
                                             break;
                                         }
                                     case eTransactionType.Collection:
                                         {
-                                            bResult = DAL.ConditionalAccessDAL.CancelCollectionPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID);
+                                            bResult = DAL.ConditionalAccessDAL.CancelCollectionPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID, p_nDomainID);
                                             break;
                                         }
                                     default:
@@ -11663,9 +11663,14 @@ namespace ConditionalAccess
             try
             {
                 System.Data.DataTable dtUserPurchases = null;
-
+                // Get domainID to support canceling a transaction made by a deleted user (not the current p_sSiteGuid)
+                long domainid = 0;
+                if (Utils.ValidateUser(m_nGroupID, p_sSiteGuid, ref domainid) != ResponseStatus.OK || domainid == 0)
+                {
+                    return false;
+                }
                 // Check if within cancellation window
-                bool bCancellationWindow = GetCancellationWindow(p_sSiteGuid, p_nAssetID, p_enmTransactionType, p_nGroupID, ref dtUserPurchases);
+                bool bCancellationWindow = GetCancellationWindow(p_sSiteGuid, p_nAssetID, p_enmTransactionType, p_nGroupID, ref dtUserPurchases, (int)domainid);
 
                 // Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided
                 if (bCancellationWindow || p_bIsForce)
@@ -11676,17 +11681,17 @@ namespace ConditionalAccess
                     {
                         case eTransactionType.PPV:
                             {
-                                bResult = DAL.ConditionalAccessDAL.CancelPPVPurchaseTransaction(p_sSiteGuid, p_nAssetID);
+                                bResult = DAL.ConditionalAccessDAL.CancelPPVPurchaseTransaction(p_sSiteGuid, p_nAssetID, (int)domainid);
                                 break;
                             }
                         case eTransactionType.Subscription:
                             {
-                                bResult = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(p_sSiteGuid, p_nAssetID);
+                                bResult = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(p_sSiteGuid, p_nAssetID, (int)domainid);
                                 break;
                             }
                         case eTransactionType.Collection:
                             {
-                                bResult = DAL.ConditionalAccessDAL.CancelCollectionPurchaseTransaction(p_sSiteGuid, p_nAssetID);
+                                bResult = DAL.ConditionalAccessDAL.CancelCollectionPurchaseTransaction(p_sSiteGuid, p_nAssetID, (int)domainid);
                                 break;
                             }
                         default:
@@ -11728,14 +11733,14 @@ namespace ConditionalAccess
         /// <param name="nGroupID"></param>
         /// <param name="dt"></param>
         /// <returns></returns>
-        private bool GetCancellationWindow(string sSiteGuid, int nAssetID, eTransactionType transactionType, int nGroupID, ref DataTable dt)
+        private bool GetCancellationWindow(string sSiteGuid, int nAssetID, eTransactionType transactionType, int nGroupID, ref DataTable dt, int domainID)
         {
             bool bResult = false;
             int nSiteGuid;
 
             if (int.TryParse(sSiteGuid, out nSiteGuid))
             {
-                bResult = GetCancellationWindow(new int[] { nSiteGuid }, nAssetID, transactionType, nGroupID, ref dt);
+                bResult = GetCancellationWindow(new int[] { nSiteGuid }, nAssetID, transactionType, nGroupID, ref dt, domainID);
             }
 
             return (bResult);
@@ -11750,7 +11755,7 @@ namespace ConditionalAccess
         /// <param name="p_nGroupID"></param>
         /// <param name="p_dtUserPurchases"></param>
         /// <returns></returns>
-        private bool GetCancellationWindow(int[] p_arrUserIDs, int p_nAssetID, eTransactionType p_enmServiceType, int p_nGroupID, ref DataTable p_dtUserPurchases, int domainID = 0)
+        private bool GetCancellationWindow(int[] p_arrUserIDs, int p_nAssetID, eTransactionType p_enmServiceType, int p_nGroupID, ref DataTable p_dtUserPurchases, int domainID)
         {
             TvinciPricing.UsageModule oUsageModule = null;
             bool bCancellationWindow = false;
@@ -11806,7 +11811,14 @@ namespace ConditionalAccess
 
             try
             {
-                bool bCancellationWindow = GetCancellationWindow(sSiteGuid, nAssetID, transactionType, nGroupID, ref dt);
+                // Get domainID to support canceling a transaction made by a deleted user (not the current p_sSiteGuid)
+                long domainid = 0;
+                if (Utils.ValidateUser(m_nGroupID, sSiteGuid, ref domainid) != ResponseStatus.OK || domainid == 0)
+                {
+                    return false;
+                }
+
+                bool bCancellationWindow = GetCancellationWindow(sSiteGuid, nAssetID, transactionType, nGroupID, ref dt, (int)domainid);
 
                 if (bCancellationWindow)
                 {
@@ -11814,13 +11826,13 @@ namespace ConditionalAccess
                     switch (transactionType)
                     {
                         case eTransactionType.PPV:
-                            bRes = ConditionalAccessDAL.WaiverPPVPurchaseTransaction(sSiteGuid, nAssetID);
+                            bRes = ConditionalAccessDAL.WaiverPPVPurchaseTransaction(sSiteGuid, nAssetID, (int)domainid);
                             break;
                         case eTransactionType.Subscription:
-                            bRes = ConditionalAccessDAL.WaiverSubscriptionPurchaseTransaction(sSiteGuid, nAssetID);
+                            bRes = ConditionalAccessDAL.WaiverSubscriptionPurchaseTransaction(sSiteGuid, nAssetID, (int)domainid);
                             break;
                         case eTransactionType.Collection:
-                            bRes = ConditionalAccessDAL.WaiverCollectionPurchaseTransaction(sSiteGuid, nAssetID);
+                            bRes = ConditionalAccessDAL.WaiverCollectionPurchaseTransaction(sSiteGuid, nAssetID, (int)domainid);
                             break;
                         default:
                             return false;

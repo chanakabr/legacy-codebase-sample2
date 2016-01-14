@@ -1084,68 +1084,74 @@ namespace DAL
         }
 
 
-        public static bool CancelPPVPurchaseTransaction(string sSiteGuid, int nAssetID)
+        public static bool CancelPPVPurchaseTransaction(string sSiteGuid, int nAssetID, int domainID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("CancelPPVPurchaseTransaction");
             sp.SetConnectionKey("CONNECTION_STRING");
             sp.AddParameter("@CancellationDate", DateTime.UtcNow);
             sp.AddParameter("@SiteGuid", sSiteGuid);
             sp.AddParameter("@AssetID", nAssetID);
+            sp.AddParameter("@DomainID", domainID);
 
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static bool CancelSubscriptionPurchaseTransaction(string sSiteGuid, int nAssetID)
+        public static bool CancelSubscriptionPurchaseTransaction(string sSiteGuid, int nAssetID, int domainID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("CancelSubscriptionPurchaseTransaction");
             sp.SetConnectionKey("CONNECTION_STRING");
             sp.AddParameter("@CancellationDate", DateTime.UtcNow);
             sp.AddParameter("@SiteGuid", sSiteGuid);
             sp.AddParameter("@AssetID", nAssetID);
+            sp.AddParameter("@DomainID", domainID);
 
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static bool CancelCollectionPurchaseTransaction(string sSiteGuid, int nAssetID)
+        public static bool CancelCollectionPurchaseTransaction(string sSiteGuid, int nAssetID, int domainID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("CancelCollectionPurchaseTransaction");
             sp.SetConnectionKey("CONNECTION_STRING");
             sp.AddParameter("@CancellationDate", DateTime.UtcNow);
             sp.AddParameter("@SiteGuid", sSiteGuid);
             sp.AddParameter("@AssetID", nAssetID);
+            sp.AddParameter("@DomainID", domainID);
 
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static bool WaiverPPVPurchaseTransaction(string sSiteGuid, int nAssetID)
+        public static bool WaiverPPVPurchaseTransaction(string sSiteGuid, int nAssetID, int domainID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("WaiverPPVPurchaseTransaction");
             sp.SetConnectionKey("CONNECTION_STRING");
             sp.AddParameter("@WaiverDate", DateTime.UtcNow);
             sp.AddParameter("@SiteGuid", sSiteGuid);
             sp.AddParameter("@AssetID", nAssetID);
+            sp.AddParameter("@DomainID", domainID);
 
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static bool WaiverSubscriptionPurchaseTransaction(string sSiteGuid, int nAssetID)
+        public static bool WaiverSubscriptionPurchaseTransaction(string sSiteGuid, int nAssetID, int domainID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("WaiverSubscriptionPurchaseTransaction");
             sp.SetConnectionKey("CONNECTION_STRING");
             sp.AddParameter("@WaiverDate", DateTime.UtcNow);
             sp.AddParameter("@SiteGuid", sSiteGuid);
             sp.AddParameter("@AssetID", nAssetID);
+            sp.AddParameter("@DomainID", domainID);
 
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static bool WaiverCollectionPurchaseTransaction(string sSiteGuid, int nAssetID)
+        public static bool WaiverCollectionPurchaseTransaction(string sSiteGuid, int nAssetID, int domainID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("WaiverCollectionPurchaseTransaction");
             sp.SetConnectionKey("CONNECTION_STRING");
             sp.AddParameter("@WaiverDate", DateTime.UtcNow);
             sp.AddParameter("@SiteGuid", sSiteGuid);
             sp.AddParameter("@AssetID", nAssetID);
+            sp.AddParameter("@DomainID", domainID);
 
             return sp.ExecuteReturnValue<bool>();
         }

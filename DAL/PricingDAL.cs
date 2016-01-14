@@ -659,6 +659,18 @@ namespace DAL
 
             return ret;
         }
+
+        public static DataTable Get_PPVModulesData(int nGroupID, List<long> ppmModulesIDs)
+        {
+            ODBCWrapper.StoredProcedure spPPVModuleData = new ODBCWrapper.StoredProcedure("Get_PPVModulesData");
+            spPPVModuleData.SetConnectionKey("pricing_connection");
+
+            spPPVModuleData.AddParameter("@GroupID", nGroupID);
+            spPPVModuleData.AddIDListParameter("@PPVModulesIDs", ppmModulesIDs, "ID");            
+
+            return spPPVModuleData.Execute();
+        }
+
     }
 }
 
