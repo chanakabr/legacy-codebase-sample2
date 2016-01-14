@@ -256,22 +256,9 @@ namespace DAL
             return UID;
         }
 
-        public static int InsertUser(string sUserName,
-                                    string sPassword,
-                                    string sSalt,
-                                    string sFirstName,
-                                    string sLastName,
-                                    string sFacebookID,
-                                    string sFacebookImage,
-                                    string sFacebookToken,
-                                    int nIsFacebookImagePermitted,
-                                    string sEmail,
-                                    int nActivateStatus,
-                                    string sActivationToken,
-                                    string sCoGuid,
-                                    string sExternalToken,
-                                    int? nUserTypeID,
-                                    int nGroupID)
+        public static int InsertUser(string sUserName, string sPassword, string sSalt, string sFirstName, string sLastName, string sFacebookID, string sFacebookImage, string sFacebookToken,
+                                    int nIsFacebookImagePermitted, string sEmail, int nActivateStatus, string sActivationToken, string sCoGuid, string sExternalToken, int? nUserTypeID,
+                                    string sAddress, string sCity, int countryID, int stateID, string sZip, string sPhone, string sAffiliateCode, string sTwitterToken, string sTwitterTokenSecret, int nGroupID)
         {
             int nInserted = 0;
 
@@ -307,6 +294,15 @@ namespace DAL
                     spInsertUser.AddParameter("@userTypeID", nUserTypeID.Value);
                 }
 
+                spInsertUser.AddParameter("@address", sAddress);
+                spInsertUser.AddParameter("@city", sCity);
+                spInsertUser.AddParameter("@country", countryID);
+                spInsertUser.AddParameter("@state", stateID);
+                spInsertUser.AddParameter("@zip", sZip);
+                spInsertUser.AddParameter("@phone", sPhone);
+                spInsertUser.AddParameter("@affiliateCode", sAffiliateCode);
+                spInsertUser.AddParameter("@twitterToken", sTwitterToken);
+                spInsertUser.AddParameter("@twitterTokenSecret", sTwitterTokenSecret);
                 spInsertUser.AddParameter("@groupID", nGroupID);
 
                 int retVal = spInsertUser.ExecuteReturnValue<int>();
