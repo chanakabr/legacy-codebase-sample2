@@ -163,8 +163,8 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Gets the Payment Gateway Configuration for the payment gateway identifier given
         /// </summary>
-        /// <param name="id">The payemnt gateway for which to return the registration URL/s for the household. If omitted – return the regisration URL for the household for the default payment gateway</param>                
-        /// <param name="id">Represent the client’s intent for working with the payment gateway. Intent options to be coordinated with the applicable payment gateway adapter.</param>                
+        /// <param name="alias">The payemnt gateway for which to return the registration URL/s for the household. If omitted – return the regisration URL for the household for the default payment gateway</param>                
+        /// <param name="intent">Represent the client’s intent for working with the payment gateway. Intent options to be coordinated with the applicable payment gateway adapter.</param>                
         /// <remarks>
         /// Possible status codes:       
         /// PaymentGatewayNotExist = 6008, SignatureMismatch = 6013

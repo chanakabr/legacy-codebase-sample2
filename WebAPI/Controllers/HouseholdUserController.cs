@@ -85,7 +85,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Adds a user to a specific household       
+        /// Allow the Operator to add a user to a household     
         /// </summary>                
         /// <param name="user_id_to_add">The identifier of the user to add</param>
         /// <param name="household_id">Household to add the user to</param>
