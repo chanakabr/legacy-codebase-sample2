@@ -213,7 +213,7 @@ namespace WebAPI.Managers
             }
         }
 
-        internal static KalturaSessionInfo StartSessionWithAppToken(int groupId, string id, string tokenHash, string userId, KalturaSessionType? type, int? expiry)
+        internal static KalturaSessionInfo StartSessionWithAppToken(int groupId, string id, string tokenHash, string userId, string udid, KalturaSessionType? type, int? expiry)
         {
             KalturaSessionInfo response = null;
 
@@ -262,7 +262,10 @@ namespace WebAPI.Managers
             {
                 sessionDuration = Math.Min(sessionDuration, expiry.Value);
             }
-            
+
+            // set udid in payload
+            string payload = KSUtils.PrepareKSPayload(new WebAPI.Managers.Models.KS.KSData() { UDID = udid });
+
             // 6. get session type from cb token - user if not defined - we currently support only user
             KalturaSessionType sessionType = KalturaSessionType.USER;
 
@@ -285,7 +288,7 @@ namespace WebAPI.Managers
                 userId,
                 (int)sessionDuration,
                 sessionType,
-                string.Empty,
+                payload,
                 privileges,
                 Models.KS.KSVersion.V2);
 

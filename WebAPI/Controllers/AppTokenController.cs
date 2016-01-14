@@ -112,7 +112,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("startSession"), HttpPost]
         [ApiAuthorize]
-        public KalturaSessionInfo StartSession(string id, string tokenHash, string userId = null, KalturaSessionType? type = null, int? expiry = null)
+        public KalturaSessionInfo StartSession(string id, string tokenHash, string userId = null, KalturaSessionType? type = null, int? expiry = null, string udid = null)
         {
             KalturaSessionInfo response = null;
 
@@ -120,7 +120,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = AuthorizationManager.StartSessionWithAppToken(groupId, id, tokenHash, userId, type, expiry);
+                response = AuthorizationManager.StartSessionWithAppToken(groupId, id, tokenHash, userId, udid, type, expiry);
                 
             }
             catch (ClientException ex)
