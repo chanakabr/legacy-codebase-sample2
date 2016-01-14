@@ -654,9 +654,15 @@ namespace WebAPI.Clients
             {
                 // Set total count
                 clientResponse.TotalCount = wsResponse.TransactionsCount;
-                
+                List<KalturaBillingTransaction> allTransactions = new List<KalturaBillingTransaction>();
+
                 // Convert current user's list of transactions to List of Kaltura objects
-                List<KalturaBillingTransaction> pageTransactions = Mapper.Map<List<KalturaBillingTransaction>>(wsResponse.TransactionsHistory);
+                List<KalturaUserBillingTransaction> pageTransactions = Mapper.Map<List<KalturaUserBillingTransaction>>(wsResponse.TransactionsHistory);
+
+                if (pageTransactions != null && pageTransactions.Count > 0)
+                {
+                    allTransactions.AddRange(pageTransactions);
+                }
 
                 // Set paging if page size exists
                 if (pageSize != 0)
@@ -664,7 +670,7 @@ namespace WebAPI.Clients
                     pageTransactions = pageTransactions.Skip(pageIndex * pageSize).Take(pageSize).ToList();
                 }
 
-                clientResponse.transactions = pageTransactions;
+                clientResponse.transactions = allTransactions;
             }
 
             return clientResponse;
