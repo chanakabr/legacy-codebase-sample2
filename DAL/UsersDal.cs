@@ -1985,5 +1985,24 @@ namespace DAL
                 return false;
             }
         }
-    } 
+
+        public static DataTable Get_UserFavorites(string sUserGUID, string sUDID, int nType)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_UserFavorites");
+            sp.AddParameter("@SiteGUID", sUserGUID);
+            sp.AddParameter("@MediaTypeID", nType);
+            
+            if (!string.IsNullOrEmpty(sUDID))
+                sp.AddParameter("@UDID", sUDID);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                return ds.Tables[0];
+            }
+
+            return null;
+        }
+    }         
 }
