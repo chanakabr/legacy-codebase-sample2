@@ -1518,7 +1518,7 @@ namespace ElasticSearch.Searcher
 
             ESTerm fileTypeTerm = new ESTerm(true)
             {
-                Key = "free_file_type",
+                Key = "free_file_types",
                 Value = this.SearchDefinitions.entitlementSearchDefinitions.fileType.ToString()
             };
 
