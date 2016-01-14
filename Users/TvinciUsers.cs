@@ -1174,6 +1174,12 @@ namespace Users
                 }
 
                 int saveID = u.Update(oBasicData, sDynamicData, m_nGroupID);
+                // failed updating basicData or dynmaicData
+                if (saveID == -1)
+                {                    
+                    resp.Initialize(ResponseStatus.WrongPasswordOrUserName, null);
+                    return resp;
+                }
                 if (isSubscribeNewsLetter && m_newsLetterImpl != null)
                 {
                     m_newsLetterImpl.Subscribe(u);

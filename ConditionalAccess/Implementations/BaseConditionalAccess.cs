@@ -8514,26 +8514,26 @@ namespace ConditionalAccess
                 string sCurrencyCode = ODBCWrapper.Utils.GetSafeStr(dr["CURRENCY_CODE"]);
                 string sRemarks = ODBCWrapper.Utils.GetSafeStr(dr["REMARKS"]);
 
-                double dPrice = ODBCWrapper.Utils.GetDoubleSafeVal(dr["TOTAL_PRICE"]);
-                Int32 nPurchaseID = ODBCWrapper.Utils.GetIntSafeVal(dr["PURCHASE_ID"]);
+                double dPrice = ODBCWrapper.Utils.GetDoubleSafeVal(dr, "TOTAL_PRICE");
+                Int32 nPurchaseID = ODBCWrapper.Utils.GetIntSafeVal(dr, "PURCHASE_ID");
                 DateTime dActionDate = (DateTime)(dr["CREATE_DATE"]);
                 string sSubscriptionCode = dr["SUBSCRIPTION_CODE"].ToString();
-                Int32 nMediaID = ODBCWrapper.Utils.GetIntSafeVal(dr["MEDIA_ID"]);
+                Int32 nMediaID = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_ID");
                 string sLAST_FOUR_DIGITS = dr["LAST_FOUR_DIGITS"].ToString();
                 string sCellNum = dr["CELL_PHONE"].ToString();
                 string sID = dr["ID"].ToString();
-                int nPAYMENT_NUMBER = ODBCWrapper.Utils.GetIntSafeVal(dr["PAYMENT_NUMBER"]);
-                int nNUMBER_OF_PAYMENTS = ODBCWrapper.Utils.GetIntSafeVal(dr["NUMBER_OF_PAYMENTS"]);
-                int nBILLING_METHOD = ODBCWrapper.Utils.GetIntSafeVal(dr["BILLING_METHOD"]);
-                int nBILLING_PROCESSOR = ODBCWrapper.Utils.GetIntSafeVal(dr["BILLING_PROCESSOR"]);
-                int nNEW_RENEWABLE_STATUS = ODBCWrapper.Utils.GetIntSafeVal(dr["NEW_RENEWABLE_STATUS"]);
-                int nBILLING_PROVIDER = ODBCWrapper.Utils.GetIntSafeVal(dr["BILLING_PROVIDER"]);
-                int nBILLING_PROVIDER_REFFERENCE = ODBCWrapper.Utils.GetIntSafeVal(dr["BILLING_PROVIDER_REFFERENCE"]);
-                int nPURCHASE_ID = ODBCWrapper.Utils.GetIntSafeVal(dr["PURCHASE_ID"]);
-                string sPrePaidCode = ODBCWrapper.Utils.GetSafeStr(dr["pre_paid_code"]);
-                string collectionCode = ODBCWrapper.Utils.GetSafeStr(dr["COLLECTION_CODE"]);
-                string siteGuid = ODBCWrapper.Utils.GetSafeStr(dr["SITE_GUID"]);
-                string userFullName = ODBCWrapper.Utils.GetSafeStr(dr["FIRST_NAME"]) + " " + ODBCWrapper.Utils.GetSafeStr(dr["LAST_NAME"]);
+                int nPAYMENT_NUMBER = ODBCWrapper.Utils.GetIntSafeVal(dr, "PAYMENT_NUMBER");
+                int nNUMBER_OF_PAYMENTS = ODBCWrapper.Utils.GetIntSafeVal(dr, "NUMBER_OF_PAYMENTS");
+                int nBILLING_METHOD = ODBCWrapper.Utils.GetIntSafeVal(dr, "BILLING_METHOD");
+                int nBILLING_PROCESSOR = ODBCWrapper.Utils.GetIntSafeVal(dr, "BILLING_PROCESSOR");
+                int nNEW_RENEWABLE_STATUS = ODBCWrapper.Utils.GetIntSafeVal(dr, "NEW_RENEWABLE_STATUS");
+                int nBILLING_PROVIDER = ODBCWrapper.Utils.GetIntSafeVal(dr, "BILLING_PROVIDER");
+                int nBILLING_PROVIDER_REFFERENCE = ODBCWrapper.Utils.GetIntSafeVal(dr, "BILLING_PROVIDER_REFFERENCE");
+                int nPURCHASE_ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "PURCHASE_ID");
+                string sPrePaidCode = ODBCWrapper.Utils.GetSafeStr(dr, "pre_paid_code");
+                string collectionCode = ODBCWrapper.Utils.GetSafeStr(dr, "COLLECTION_CODE");
+                string siteGuid = ODBCWrapper.Utils.GetSafeStr(dr, "SITE_GUID");
+                string userFullName = ODBCWrapper.Utils.GetSafeStr(dr, "FIRST_NAME") + " " + ODBCWrapper.Utils.GetSafeStr(dr, "LAST_NAME");
 
 
                 if (nBILLING_PROVIDER == -1)
