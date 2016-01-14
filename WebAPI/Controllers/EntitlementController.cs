@@ -219,7 +219,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// (Obsolete - use Transaction.purchase) Charges a user for subscription or PPV      
+        /// (Deprecated - use Transaction.purchase) Charges a user for subscription or PPV      
         /// </summary>
         /// <remarks>
         /// Possible status codes: 
