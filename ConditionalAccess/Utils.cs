@@ -3110,14 +3110,23 @@ namespace ConditionalAccess
 
         internal static bool IsUserValid(string siteGuid, int groupID, ref int domainID, ref TvinciUsers.DomainSuspentionStatus eSuspnedStatus)
         {
+            bool res = false;
+            
             long temp = 0;
             if (!Int64.TryParse(siteGuid, out temp) || temp < 1)
                 return false;
+            
             string wsUsername = string.Empty;
             string wsPassword = string.Empty;
             Utils.GetWSCredentials(groupID, eWSModules.USERS, ref wsUsername, ref wsPassword);
             string url = Utils.GetWSURL("users_ws");
-            bool res = false;
+
+            if (string.IsNullOrEmpty(wsUsername) || string.IsNullOrEmpty(wsPassword) || string.IsNullOrEmpty(url))
+            {
+                log.WarnFormat("Missing WS_Users config. GID:{0}", groupID);
+                return false;
+            }
+
             using (UsersService u = new UsersService())
             {
                 if (url.Length > 0)
@@ -3470,7 +3479,7 @@ namespace ConditionalAccess
             return res;
         }
 
-        internal static void InitializeUsersEntitlements(int m_nGroupID, int domainID, List<int> allUsersInDomain, int[] nMediaFiles, TvinciAPI.MeidaMaper[] mapper, UserEntitlementsObject.PPVEntitlements userPpvEntitlements)                                
+        internal static void InitializeUsersEntitlements(int m_nGroupID, int domainID, List<int> allUsersInDomain, TvinciAPI.MeidaMaper[] mapper, UserEntitlementsObject.PPVEntitlements userPpvEntitlements)                                
         {
             // Get all user entitlements
             userPpvEntitlements.EntitlementsDictionary = ConditionalAccessDAL.Get_AllUsersEntitlements(domainID, allUsersInDomain);
