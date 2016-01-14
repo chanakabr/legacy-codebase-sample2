@@ -17,7 +17,7 @@ namespace WebAPI.Controllers
     public class UserAssetsListController : ApiController
     {
         /// <summary>
-        /// Returns all the items added to a list.
+        /// Retrieve the user’s private asset lists 
         /// </summary>
         /// <remarks>Possible status codes: 
         /// Invalid user = 1026</remarks>

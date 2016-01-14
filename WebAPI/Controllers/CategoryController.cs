@@ -15,7 +15,7 @@ namespace WebAPI.Controllers
     public class CategoryController : ApiController
     {
         /// <summary>
-        /// Returns category by category identifier        
+        /// Retrieve the list of categories (hierarchical) and their associated channels
         /// </summary>
         /// <param name="id">Category Identifier</param>
         /// <param name="language">Language Code</param>

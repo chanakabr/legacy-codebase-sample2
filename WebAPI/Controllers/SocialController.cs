@@ -17,7 +17,7 @@ namespace WebAPI.Controllers
     public class SocialController : ApiController
     {
         /// <summary>
-        /// Retrieves social user data
+        /// Return the user object with social information according to a provided external social token
         /// </summary>
         /// <param name="partnerId">Partner identifier</param>
         /// <param name="token">Social token</param>
@@ -53,7 +53,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Registers new user by social credentials
+        /// Create a new user in the system using a provided external social token
         /// </summary>
         /// <param name="token">social token</param>
         /// <param name="partnerId">Partner identifier</param>
@@ -108,7 +108,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Merge a registered social user with an existing regular user
+        /// Connect an existing user in the system to an external social network user 
         /// </summary>
         /// <param name="token">social token</param>
         /// <param name="username">Username</param>
@@ -147,9 +147,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Removes data stored in Kaltura's DB which makes social actions (login, share, like, etc) on the customer site feasible. 
-        /// The user is still be able to see the actions he performed as these are logged as 'Kaltura actions'. 
-        /// However, his friends won't be able to view his actions as they are deleted from social feed
+        /// Disconnect an existing user in the system from its  external social network user
         /// </summary>
         /// <param name="token">Social token</param>
         /// <param name="username">Username</param>
@@ -185,7 +183,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Returns the social application configuration for the partner
+        /// Retrieve the social network’s configuration information 
         /// </summary>        
         /// <param name="type">Social network type</param>
         /// <param name="partnerId">Partner identifier</param>
