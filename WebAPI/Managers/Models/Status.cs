@@ -84,7 +84,7 @@ namespace WebAPI.Managers.Models
         AbstractParameter = 500018,
         InvalidPaging = 500019,
         InvalidAppToken = 50020, 
-        ExpiredAppToken = 50021,
+        ExpiredAppToken = 50021, // currently not in use
         InvalidAppTokenHash = 50022,
         NotActiveAppToken = 50023
 
