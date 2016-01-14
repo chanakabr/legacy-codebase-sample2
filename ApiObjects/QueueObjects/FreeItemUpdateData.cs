@@ -30,6 +30,7 @@ namespace ApiObjects
 
             this.args = new List<object>()
             {
+                groupId,
                 type.ToString(),
                 assetIds,
                 moduleIds
