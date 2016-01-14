@@ -742,6 +742,10 @@ namespace DAL
 
         public static DataTable Get_AllPPVPurchasesByUserIDsAndMediaFileID(int nMediaFileID, List<int> UserIDs, int nGroupID, int domainID = 0)
         {
+            if (UserIDs == null)
+            {
+                UserIDs = new List<int>();
+            }
             ODBCWrapper.StoredProcedure spGet_AllPPVPurchasesByUserIDsAndMediaFileID = new ODBCWrapper.StoredProcedure("Get_AllPPVPurchasesByUserIDsAndMediaFileID");
             spGet_AllPPVPurchasesByUserIDsAndMediaFileID.SetConnectionKey("CONNECTION_STRING");
             spGet_AllPPVPurchasesByUserIDsAndMediaFileID.AddParameter("@nMediaFileID", nMediaFileID);
@@ -1403,6 +1407,10 @@ namespace DAL
 
         public static DataTable Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode(int nSubscriptionCode, List<int> UserIDs, int nGroupID, int domainID = 0)
         {
+            if (UserIDs == null)
+            {
+                UserIDs = new List<int>();
+            }
             ODBCWrapper.StoredProcedure spGet_AllPPVPurchasesByUserIDsAndMediaFileID = new ODBCWrapper.StoredProcedure("Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode");
             spGet_AllPPVPurchasesByUserIDsAndMediaFileID.SetConnectionKey("CONNECTION_STRING");
             spGet_AllPPVPurchasesByUserIDsAndMediaFileID.AddParameter("@SubscriptionCode", nSubscriptionCode);
@@ -1420,6 +1428,10 @@ namespace DAL
 
         public static DataTable Get_AllCollectionPurchasesByUserIDsAndCollectionCode(int nCollectionCode, List<int> UserIDs, int nGroupID, int domainID = 0)
         {
+            if (UserIDs == null)
+            {
+                UserIDs = new List<int>();
+            }
             ODBCWrapper.StoredProcedure spGet_AllPPVPurchasesByUserIDsAndMediaFileID = new ODBCWrapper.StoredProcedure("Get_AllCollectionPurchasesByUserIDsAndCollectionCode");
             spGet_AllPPVPurchasesByUserIDsAndMediaFileID.SetConnectionKey("CONNECTION_STRING");
             spGet_AllPPVPurchasesByUserIDsAndMediaFileID.AddParameter("@CollectionCode", nCollectionCode);
@@ -2068,7 +2080,7 @@ namespace DAL
                         {
                             EntitlementObject entitlement = new EntitlementObject(Utils.GetIntSafeVal(dr["ID"]), Utils.GetSafeStr(dr["subscription_code"]), Utils.GetSafeStr(dr["rel_pp"]),
                                                     Utils.GetIntSafeVal(dr, "WAIVER"), Utils.GetSafeStr(dr["SITE_USER_GUID"]), mediaFileID,
-                                                    ppvCode, Utils.GetDateSafeVal(dr, "CREATE_DATE"), Utils.ExtractNullableDateTime(dr, "START_DATE"));
+                                                    ppvCode, Utils.GetDateSafeVal(dr, "CREATE_DATE"), Utils.ExtractNullableDateTime(dr, "START_DATE"), Utils.ExtractNullableDateTime(dr, "END_DATE"));
                             allEntitlments.Add(entitlementKey, entitlement);
                         }
                     }
@@ -2113,5 +2125,53 @@ namespace DAL
             return spGet_AllBundlesInfoByUserIDsOrDomainID.ExecuteDataSet();
         }
 
+        public static DataTable Get_AllSubscriptionsPurchasesByUsersIDsOrDomainID(int domainID, List<int> lstUsers, int nGroupID)
+        {
+            StoredProcedure sp= new StoredProcedure("Get_AllSubscriptionsPurchasesByUsersIDsOrDomainID");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddIDListParameter("@usersList", lstUsers, "ID");
+            sp.AddParameter("@DomainID", domainID);
+            sp.AddParameter("@Group_id", nGroupID);
+
+            return sp.Execute();
+        }
+
+        public static bool Delete_PPVPurchases(List<int> ppvIds)
+        {
+            StoredProcedure sp = new StoredProcedure("Delete_PPVPurchases");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddIDListParameter("@ppv_purchase_ids", ppvIds, "ID");
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public static bool Update_PPVPurchaseDates(long ppvPurchaseId, DateTime startDate, DateTime endDate)
+        {
+            StoredProcedure sp = new StoredProcedure("Update_PPVPurchaseDates");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@ppv_purchase_id", ppvPurchaseId);
+            sp.AddParameter("@start_date", startDate);
+            sp.AddParameter("@end_date", endDate); 
+ 
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public static bool Update_SubscriptionPurchaseDates(long subscriptionPurchaseId, DateTime startDate, DateTime endDate)
+        {
+            StoredProcedure sp = new StoredProcedure("Update_SubscriptionPurchaseDates");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@subscription_purchase_id", subscriptionPurchaseId);
+            sp.AddParameter("@start_date", startDate);
+            sp.AddParameter("@end_date", endDate);
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public static bool Delete_SubscriptionPurchases(List<int> subscriptionIds)
+        {
+            StoredProcedure sp = new StoredProcedure("Delete_SubscriptionPurchases");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddIDListParameter("@subscription_purchase_ids", subscriptionIds, "ID");
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
     }
 }

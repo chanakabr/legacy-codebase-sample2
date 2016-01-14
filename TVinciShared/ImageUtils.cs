@@ -647,20 +647,29 @@ namespace TVinciShared
         public static string GetImageServerUrl(int groupId, eHttpRequestType httpRequestType)
         {
             string imageServerUrl = string.Empty;
-            var imageServerUrlObj = PageUtils.GetTableSingleVal("groups", "IMAGE_SERVER_URL", groupId);
-            if (imageServerUrlObj == null)
-                log.ErrorFormat(string.Format("IMAGE_SERVER_URL wasn't found. GID: {0}", groupId));
-            else
+
             {
-                imageServerUrl = imageServerUrlObj.ToString();
+
                 switch (httpRequestType)
                 {
                     case eHttpRequestType.Post:
-                        imageServerUrl = imageServerUrl.EndsWith("/") ? imageServerUrl + "InsertImage" : imageServerUrl + "/InsertImage";
-                        break;
+                        {
+                            var imageServerUrlObj = PageUtils.GetTableSingleVal("groups", "INTERNAL_IMAGE_SERVER_URL", groupId);
+                            if (imageServerUrlObj == null)
+                                log.ErrorFormat(string.Format("IMAGE_SERVER_URL wasn't found. GID: {0}", groupId));
+                            else
+                                imageServerUrl = imageServerUrlObj.ToString().EndsWith("/") ? imageServerUrl + "InsertImage" : imageServerUrl + "/InsertImage";
+                            break;
+                        }
                     case eHttpRequestType.Get:
-                        imageServerUrl = imageServerUrl.EndsWith("/") ? imageServerUrl + "GetImage/" : imageServerUrl + "/GetImage/";
-                        break;
+                        {
+                            var imageServerUrlObj = PageUtils.GetTableSingleVal("groups", "IMAGE_SERVER_URL", groupId);
+                            if (imageServerUrlObj == null)
+                                log.ErrorFormat(string.Format("IMAGE_SERVER_URL wasn't found. GID: {0}", groupId));
+                            else
+                                imageServerUrl = imageServerUrlObj.ToString().EndsWith("/") ? imageServerUrl + "GetImage/" : imageServerUrl + "/GetImage/";
+                            break;
+                        }
                     default:
                         break;
                 }

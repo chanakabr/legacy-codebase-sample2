@@ -502,8 +502,8 @@ namespace ConditionalAccess
 
          protected override bool HandleChargeUserForMediaFileBillingSuccess(string sWSUsername, string sWSPassword, string sSiteGUID,int domainID, TvinciPricing.Subscription relevantSub, 
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode, string sDeviceName, 
-            TvinciBilling.BillingResponse br, string sCustomData, TvinciPricing.PPVModule thePPVModule, long lMediaFileID, 
-            ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy,  ref TvinciBilling.module wsBillingService, string billingGuid = null)
+            TvinciBilling.BillingResponse br, string sCustomData, TvinciPricing.PPVModule thePPVModule, long lMediaFileID,
+            ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy, ref TvinciBilling.module wsBillingService, string billingGuid = null, DateTime? startDate = null, DateTime? endDate = null)
         {
             bool res = base.HandleChargeUserForMediaFileBillingSuccess(sWSUsername,sWSPassword, sSiteGUID, domainID, relevantSub, dPrice, sCurrency,
                 sCouponCode, sUserIP, sCountryCd, sLanguageCode, sDeviceName, br, sCustomData, thePPVModule, lMediaFileID,

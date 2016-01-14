@@ -16,8 +16,9 @@ namespace ApiObjects
         public int ppvCode;
         public DateTime createDate;
         public DateTime? startDate;
+        public DateTime? endDate;
 
-        public EntitlementObject(int p_ID, string p_subscriptionCode, string p_relPP, int p_waiver, string p_purchasedBySiteGuid, int p_purchasedAsMediaFileID, int p_ppvCode, DateTime p_createDate, DateTime? p_startDate)
+        public EntitlementObject(int p_ID, string p_subscriptionCode, string p_relPP, int p_waiver, string p_purchasedBySiteGuid, int p_purchasedAsMediaFileID, int p_ppvCode, DateTime p_createDate, DateTime? p_startDate, DateTime? p_endDate)
         {
             ID = p_ID;
             subscriptionCode = p_subscriptionCode;
@@ -28,6 +29,7 @@ namespace ApiObjects
             ppvCode = p_ppvCode;
             createDate = p_createDate;
             startDate = p_startDate;
+            endDate = p_endDate;
         }
     }
 }

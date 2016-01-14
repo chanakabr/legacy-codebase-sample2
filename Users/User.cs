@@ -576,22 +576,21 @@ namespace Users
 
                     string sActivationToken = bIsSetUserActive ? string.Empty : System.Guid.NewGuid().ToString();
 
-                    userID = DAL.UsersDal.InsertUser(m_oBasicData.m_sUserName,
-                                                               m_oBasicData.m_sPassword,
-                                                               m_oBasicData.m_sSalt,
-                                                               m_oBasicData.m_sFirstName,
-                                                               m_oBasicData.m_sLastName,
-                                                               m_oBasicData.m_sFacebookID,
-                                                               m_oBasicData.m_sFacebookImage,
-                                                               m_oBasicData.m_sFacebookToken,
-                                                               bIsFacebookImagePermitted,
-                                                               m_oBasicData.m_sEmail,
-                                                               (bIsSetUserActive ? 1 : 0),
-                                                               sActivationToken,
-                                                               m_oBasicData.m_CoGuid,
-                                                               m_oBasicData.m_ExternalToken,
-                                                               m_oBasicData.m_UserType.ID,
-                                                               nGroupID);
+                    int countryID = 0, stateID = 0;
+                    if(m_oBasicData.m_Country != null)
+                    {
+                        countryID = m_oBasicData.m_Country.m_nObjecrtID;                        
+                    }
+                    if(m_oBasicData.m_State != null && countryID > 0)
+                    {
+                        stateID = m_oBasicData.m_State.m_nObjecrtID;                        
+                    }
+
+                    userID = DAL.UsersDal.InsertUser(m_oBasicData.m_sUserName, m_oBasicData.m_sPassword, m_oBasicData.m_sSalt, m_oBasicData.m_sFirstName, m_oBasicData.m_sLastName, m_oBasicData.m_sFacebookID,
+                                                     m_oBasicData.m_sFacebookImage, m_oBasicData.m_sFacebookToken, bIsFacebookImagePermitted, m_oBasicData.m_sEmail, (bIsSetUserActive ? 1 : 0), sActivationToken,
+                                                     m_oBasicData.m_CoGuid, m_oBasicData.m_ExternalToken, m_oBasicData.m_UserType.ID, m_oBasicData.m_sAddress, m_oBasicData.m_sCity,
+                                                     countryID, stateID, m_oBasicData.m_sZip, m_oBasicData.m_sPhone, m_oBasicData.m_sAffiliateCode,
+                                                     m_oBasicData.m_sTwitterToken, m_oBasicData.m_sTwitterTokenSecret, nGroupID);
 
                     if (userID > 0)
                     {
@@ -613,12 +612,7 @@ namespace Users
                         return (-1);
                     }
 
-                    if (!m_oBasicData.Save(userID))
-                    {
-                        return (-1);
-                    }
-
-                    else if (m_oDynamicData != null &&  m_oDynamicData.m_sUserData != null && (!m_oDynamicData.Save(userID)))
+                    if (m_oDynamicData != null &&  m_oDynamicData.m_sUserData != null && (!m_oDynamicData.Save(userID)))
                     {
                         return (-1);
                     }

@@ -1948,5 +1948,27 @@ namespace DAL
 
             return Convert.ToInt32(res);
         }
+
+        public static DateTime? GetDomainLastReconciliationDate(int groupId, long domainId)
+        {
+            List<string> devicesChange = new List<string>();
+            StoredProcedure sp = new StoredProcedure("Get_DomainLastReconciliationDate");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@domain_id", domainId);
+            sp.AddParameter("@group_id", groupId);
+
+            return sp.ExecuteReturnValue<DateTime?>();
+        }
+
+        public static int Set_DomainLastReconciliationDate(int groupID, long domainId, DateTime reconciliationDate)
+        {
+            StoredProcedure sp = new StoredProcedure("Set_DomainLastReconciliationDate");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@reconciliation_date", reconciliationDate);
+            sp.AddParameter("@domain_id", domainId);
+            sp.AddParameter("@group_id", groupID);
+
+            return sp.ExecuteReturnValue<int>();
+        }
     }
 }
