@@ -46,7 +46,7 @@ namespace Mailer
             }
             catch (WebException ex)
             {
-                Console.WriteLine(ex);
+                log.Error(string.Empty, ex);
                 WebResponse errRsp = ex.Response;
 
                 if (errRsp == null)
