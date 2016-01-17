@@ -8373,8 +8373,7 @@ namespace ConditionalAccess
                         transactionHistory.UserFullName = ODBCWrapper.Utils.GetSafeStr(dr["FIRST_NAME"]) + " " + ODBCWrapper.Utils.GetSafeStr(dr["LAST_NAME"]);
                         domainTransactionsHistoryResponse.TransactionsHistory.Add(transactionHistory);
                     }
-                }
-                domainTransactionsHistoryResponse.TransactionsHistory.OrderBy(x => x.m_dtActionDate);
+                }                
                 domainTransactionsHistoryResponse.TransactionsCount = domainTransactionsHistoryResponse.TransactionsHistory.Count;                
                 domainTransactionsHistoryResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
