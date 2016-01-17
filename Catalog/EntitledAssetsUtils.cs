@@ -26,36 +26,61 @@ namespace Catalog
             List<int> subscriptionIds = new List<int>();
             List<int> collectionIds = new List<int>();
             
-            // TODO: get subscriptions and collections
+            string userName = string.Empty;
+            string password = string.Empty;
 
-            foreach (var subscription in subscriptionIds)
+            //get username + password from wsCache
+            Credentials credentials =
+                TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, groupId, ApiObjects.eWSModules.CONDITIONALACCESS);
+
+            if (credentials != null)
             {
-                eBundleType bundleType = eBundleType.SUBSCRIPTION;
-
-                // Get channel IDs of current bundle
-                List<int> channelIds = Catalog.GetBundleChannelIds(group.m_nParentGroupID, subscription, bundleType);
-
-                // Get channels from cache
-                List<GroupsCacheManager.Channel> allChannels = groupManager.GetChannels(channelIds, group.m_nParentGroupID);
-
-                // Build search object for each channel
-                var subscriptionsSearchObjects = BundleAssetsRequest.BuildBaseSearchObjects(request, group, allChannels, mediaTypes, deviceRuleIds, order);
-                result.AddRange(subscriptionsSearchObjects);
+                userName = credentials.m_sUsername;
+                password = credentials.m_sPassword;
             }
 
-            foreach (var collection in collectionIds)
+            // validate user name and password length
+            if (userName.Length == 0 || password.Length == 0)
             {
-                eBundleType bundleType = eBundleType.COLLECTION;
+                throw new Exception(string.Format(
+                    "No WS_CAS login parameters were extracted from DB. userId={0}, groupid={1}",
+                    siteGuid, groupId));
+            }
 
-                // Get channel IDs of current bundle
-                List<int> channelIds = Catalog.GetBundleChannelIds(group.m_nParentGroupID, collection, bundleType);
-                
-                // Get channels from cache
-                List<GroupsCacheManager.Channel> allChannels = groupManager.GetChannels(channelIds, group.m_nParentGroupID);
+            // Initialize web service
+            using (ws_cas.module cas = new ws_cas.module())
+            {
+                var userBundles = cas.GetUserBundles(string.Empty, string.Empty, siteGuid);
 
-                // Build search object for each channel
-                var collectionsSearchObjects = BundleAssetsRequest.BuildBaseSearchObjects(request, group, allChannels, mediaTypes, deviceRuleIds, order);
-                result.AddRange(collectionsSearchObjects);
+                foreach (var subscription in userBundles.subscriptions)
+                {
+                    eBundleType bundleType = eBundleType.SUBSCRIPTION;
+
+                    // Get channel IDs of current bundle
+                    List<int> channelIds = Catalog.GetBundleChannelIds(group.m_nParentGroupID, subscription, bundleType);
+
+                    // Get channels from cache
+                    List<GroupsCacheManager.Channel> allChannels = groupManager.GetChannels(channelIds, group.m_nParentGroupID);
+
+                    // Build search object for each channel
+                    var subscriptionsSearchObjects = BundleAssetsRequest.BuildBaseSearchObjects(request, group, allChannels, mediaTypes, deviceRuleIds, order);
+                    result.AddRange(subscriptionsSearchObjects);
+                }
+
+                foreach (var collection in userBundles.collections)
+                {
+                    eBundleType bundleType = eBundleType.COLLECTION;
+
+                    // Get channel IDs of current bundle
+                    List<int> channelIds = Catalog.GetBundleChannelIds(group.m_nParentGroupID, collection, bundleType);
+
+                    // Get channels from cache
+                    List<GroupsCacheManager.Channel> allChannels = groupManager.GetChannels(channelIds, group.m_nParentGroupID);
+
+                    // Build search object for each channel
+                    var collectionsSearchObjects = BundleAssetsRequest.BuildBaseSearchObjects(request, group, allChannels, mediaTypes, deviceRuleIds, order);
+                    result.AddRange(collectionsSearchObjects);
+                }
             }
 
             return result;
