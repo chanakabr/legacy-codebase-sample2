@@ -1,27 +1,23 @@
-﻿using System;
+﻿using KLogMonitor;
+using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Collections.Specialized;
+using System.Configuration;
 using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading;
+using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Web;
+using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
 using TVPApi;
-using TVPApiModule.Interfaces;
+using TVPApiModule.Helper;
+using TVPApiModule.Objects.ORCARecommendations;
 using TVPApiModule.Services;
-using TVPPro.SiteManager.TvinciPlatform.Domains;
-using TVPPro.SiteManager.TvinciPlatform.Users;
+using TVPApiModule.yes.tvinci.ITProxy;
+using TVPPro.Configuration.OrcaRecommendations;
 using TVPPro.SiteManager.DataEntities;
 using TVPPro.SiteManager.Helper;
-using TVPApiModule.Helper;
-using TVPApiModule.yes.tvinci.ITProxy;
-using System.Configuration;
-using TVPApiModule.Objects.ORCARecommendations;
-using System.Text.RegularExpressions;
-using TVPPro.Configuration.OrcaRecommendations;
-using Tvinci.Data.Loaders.TvinciPlatform.Catalog;
-using KLogMonitor;
-using System.Reflection;
+using TVPPro.SiteManager.TvinciPlatform.Domains;
+using TVPPro.SiteManager.TvinciPlatform.Users;
 
 namespace TVPApiModule.Objects
 {
@@ -36,9 +32,9 @@ namespace TVPApiModule.Objects
 
         }
 
-        public override Services.ApiUsersService.LogInResponseData SignIn(string sUsername, string sPassword)
+        public override Services.ApiUsersService.LogInResponseData SignIn(string sUsername, string sPassword, NameValueCollection nameValueCollection = null)
         {
-            ApiUsersService.LogInResponseData response = base.SignIn(sUsername, sPassword);
+            ApiUsersService.LogInResponseData response = base.SignIn(sUsername, sPassword, nameValueCollection);
 
             return response;
         }

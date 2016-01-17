@@ -426,6 +426,33 @@ namespace TVPApiServices
             return res;
         }
 
+        [WebMethod(EnableSession = true, Description = "Get domain transactions history")]
+        [PrivateMethod]
+        public TVPApiModule.Objects.Responses.ConditionalAccess.DomainTransactionsHistoryResponse GetDomainTransactionsHistory(InitializationObject initObj, DateTime startDate, DateTime endDate)
+        {
+            TVPApiModule.Objects.Responses.ConditionalAccess.DomainTransactionsHistoryResponse res = null;
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "GetDomainsBillingHistory", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+            if (groupId > 0)
+            {
+                // Tokenization: validate domainId
+                if (AuthorizationManager.IsTokenizationEnabled() && !AuthorizationManager.Instance.ValidateRequestParameters(initObj.SiteGuid, null, initObj.DomainID, null, groupId, initObj.Platform))
+                {
+                    return null;
+                }
+                try
+                {
+                    res = new ApiConditionalAccessService(groupId, initObj.Platform).GetDomainTransactionsHistory(initObj.DomainID, startDate, endDate);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items["Error"] = ex;
+                }
+            }
+            else
+                HttpContext.Current.Items["Error"] = "Unknown group";
+            return res;
+        }
+
         [WebMethod(EnableSession = true, Description = "Retrieve domain's permitted media")]
         [PrivateMethod]
         public PermittedMediaContainer[] GetDomainPermittedItems(InitializationObject initObj)

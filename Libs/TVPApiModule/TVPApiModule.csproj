@@ -193,6 +193,7 @@
     <Compile Include="Manager\TextLocalizationManager.cs" />
     <Compile Include="Objects\Authorization\APIToken.cs" />
     <Compile Include="Objects\Authorization\AppCredentials.cs" />
+    <Compile Include="Objects\Authorization\UserDeviceTokensView.cs" />
     <Compile Include="Objects\Authorization\RefreshToken.cs" />
     <Compile Include="Objects\Authorization\DeviceToken.cs" />
     <Compile Include="Objects\Authorization\GroupConfiguration.cs" />
@@ -214,7 +215,10 @@
     <Compile Include="Objects\Responses\AdminUserResponse.cs" />
     <Compile Include="Objects\Responses\AssetsBookmarksResponse.cs" />
     <Compile Include="Objects\Responses\Billing\PaymentGatewayChargeIdResponse.cs" />
+    <Compile Include="Objects\Responses\Pricing\Currency.cs" />
+    <Compile Include="Objects\Responses\Pricing\Price.cs" />
     <Compile Include="Objects\Responses\ConditionalAccess\DomainsBillingTransactionsResponse.cs" />
+    <Compile Include="Objects\Responses\ConditionalAccess\DomainTransactionsHistoryResponse.cs" />
     <Compile Include="Objects\Responses\ConditionalAccess\TransactionResponse.cs">
       <SubType>Code</SubType>
     </Compile>

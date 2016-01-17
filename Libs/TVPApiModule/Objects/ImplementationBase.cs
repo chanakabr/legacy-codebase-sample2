@@ -26,13 +26,13 @@ namespace TVPApiModule.Objects
         }
 
 
-        public virtual Services.ApiUsersService.LogInResponseData SignIn(string sUsername, string sPassword)
+        public virtual Services.ApiUsersService.LogInResponseData SignIn(string sUsername, string sPassword, System.Collections.Specialized.NameValueCollection nameValueCollection = null)
         {
             bool isSingleLogin = TVPApi.ConfigManager.GetInstance()
                                        .GetConfig(_nGroupID, _initObj.Platform)
                                        .SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
 
-            return new TVPApiModule.Services.ApiUsersService(_nGroupID, _initObj.Platform).SignIn(sUsername, sPassword, _initObj.UDID, string.Empty, isSingleLogin);
+            return new TVPApiModule.Services.ApiUsersService(_nGroupID, _initObj.Platform).SignIn(sUsername, sPassword, _initObj.UDID, string.Empty, isSingleLogin, nameValueCollection);
         }
 
 
@@ -110,7 +110,6 @@ namespace TVPApiModule.Objects
             return null;
         }
 
-
         public virtual string GetMediaLicenseLink(InitializationObject initObj, int groupId, int mediaFileID, string baseLink, string clientIP)
         {
             return new ApiConditionalAccessService(groupId, initObj.Platform).GetMediaLicenseLink(initObj.SiteGuid, mediaFileID, baseLink, initObj.UDID);
@@ -125,7 +124,6 @@ namespace TVPApiModule.Objects
         {
             return null;
         }
-
 
         public virtual UserResponse SetUserDynamicData(InitializationObject initObj, int groupID, string key, string value)
         {
@@ -143,10 +141,11 @@ namespace TVPApiModule.Objects
                 retVal = new UserResponse()
                 {
                     ResponseStatus = TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.InternalError,
-                    Message= TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.InternalError.ToString()
+                    Message = TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.InternalError.ToString()
                 };
             }
             return retVal;
         }
+
     }
 }

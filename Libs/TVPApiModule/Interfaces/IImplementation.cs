@@ -1,21 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using TVPApiModule.Services;
-using TVPPro.SiteManager.TvinciPlatform.Domains;
+﻿using System.Collections.Specialized;
 using Tvinci.Data.TVMDataLoader.Protocols.MediaMark;
 using TVPApi;
-using TVPPro.SiteManager.DataEntities;
-using TVPPro.Configuration.OrcaRecommendations;
-using TVPApiModule.yes.tvinci.ITProxy;
 using TVPApiModule.Objects;
+using TVPApiModule.Services;
+using TVPApiModule.yes.tvinci.ITProxy;
+using TVPPro.Configuration.OrcaRecommendations;
+using TVPPro.SiteManager.TvinciPlatform.Domains;
 
 namespace TVPApiModule.Interfaces
 {
     public interface IImplementation
     {
-        ApiUsersService.LogInResponseData SignIn(string sUsername, string sPassword);
+        ApiUsersService.LogInResponseData SignIn(string sUsername, string sPassword, NameValueCollection nameValueCollection = null);
 
         DomainResponseObject AddDeviceToDomain(string sDeviceName, int nDeviceBrandID);
 

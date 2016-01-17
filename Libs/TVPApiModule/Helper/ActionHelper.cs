@@ -105,9 +105,13 @@ namespace TVPApi
                 // ConcurrencyLimitation
                 case 4001:
                     return "Concurrent";
-                
-                // BadSearchRequest
-                case 4002:
+
+                // UserNotAllowed, InvalidAssetType, ProgramDoesntExist, ActionNotRecognized, InvalidAssetId
+                case 1027:
+                case 4021:
+                case 4022:
+                case 4023:
+                case 4024:
                     return status.Message;
 
                 default:
