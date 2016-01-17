@@ -4187,7 +4187,6 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Enriches personal data of assets")]
         public PersonalAssetListResponse GetEnrichedPersonalData(InitializationObject initObj,
-            string couponCode,
             PersonalAssetRequest[] assets,
             List<string> with)
         {
@@ -4308,7 +4307,7 @@ namespace TVPApiServices
                             HttpContext.Current = ctx;
 
                             pricingsResponse = new ApiConditionalAccessService(groupId, initObj.Platform).GetAssetsPrices(initObj.SiteGuid,
-                                couponCode, initObj.UDID, assetFiles);
+                                string.Empty, initObj.UDID, assetFiles);
                         }
                         catch (Exception ex)
                         {
