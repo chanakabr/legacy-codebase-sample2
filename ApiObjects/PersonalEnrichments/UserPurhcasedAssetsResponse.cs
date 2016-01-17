@@ -6,10 +6,9 @@ using System.Text;
 
 namespace ApiObjects
 {
-    public class UserBundlesResponse
+    public class UserPurhcasedAssetsResponse
     {
-        public List<int> subscriptions;
-        public List<int> collections;
+        public List<KeyValuePair<eAssetTypes, List<string>>> assets;
         public Status status;
     }
 }

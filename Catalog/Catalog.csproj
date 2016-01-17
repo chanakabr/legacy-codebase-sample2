@@ -519,6 +519,9 @@
     <None Include="Web References\ws_cas\UserPrePaidContainer.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\ws_cas\UserPurhcasedAssetsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\WS_Domains\ChangeDLMObj.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>

@@ -122,6 +122,7 @@
     <Compile Include="ExternalChannel\ExternalChannelResponse.cs" />
     <Compile Include="ExternalChannel\ExternalChannelResponseList.cs" />
     <Compile Include="PersonalEnrichments\UserBundlesResponse.cs" />
+    <Compile Include="PersonalEnrichments\UserPurhcasedAssetsResponse.cs" />
     <Compile Include="QueueObjects\FreeItemUpdateData.cs" />
     <Compile Include="OSSAdapter\OSSAdapterEntitlementsResponse.cs" />
     <Compile Include="QueueObjects\ImageUploadData.cs" />

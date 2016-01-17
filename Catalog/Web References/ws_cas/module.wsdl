@@ -334,6 +334,44 @@
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="subscriptions" type="tns:ArrayOfInt" />
           <s:element minOccurs="0" maxOccurs="1" name="collections" type="tns:ArrayOfInt" />
+          <s:element minOccurs="0" maxOccurs="1" name="status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetUserPurchasedAssets">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserPurchasedAssetsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetUserPurchasedAssetsResult" type="tns:UserPurhcasedAssetsResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UserPurhcasedAssetsResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="assets" type="tns:ArrayOfKeyValuePairOfeAssetTypesListOfString" />
+          <s:element minOccurs="0" maxOccurs="1" name="status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfKeyValuePairOfeAssetTypesListOfString">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="KeyValuePairOfeAssetTypesListOfString" type="tns:KeyValuePairOfeAssetTypesListOfString" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="KeyValuePairOfeAssetTypesListOfString">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Value" type="tns:ArrayOfString" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfString">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="string" nillable="true" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:element name="GetUserPermittedItems">
@@ -778,11 +816,6 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:complexType name="ArrayOfString">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="string" nillable="true" type="s:string" />
-        </s:sequence>
-      </s:complexType>
       <s:element name="GetUsersBillingHistoryResponse">
         <s:complexType>
           <s:sequence>
@@ -2443,15 +2476,6 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="ProtectNPVRCommand">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:BaseNPVRCommand">
-            <s:sequence>
-              <s:element minOccurs="1" maxOccurs="1" name="isProtect" type="s:boolean" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="DeleteSeriesNPVRCommand">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseNPVRCommand" />
@@ -2482,14 +2506,23 @@
           <s:extension base="tns:BaseNPVRCommand" />
         </s:complexContent>
       </s:complexType>
+      <s:complexType name="DeleteNPVRCommand">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:BaseNPVRCommand" />
+        </s:complexContent>
+      </s:complexType>
       <s:complexType name="RetrieveQuotaNPVRCommand">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseNPVRCommand" />
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="DeleteNPVRCommand">
+      <s:complexType name="ProtectNPVRCommand">
         <s:complexContent mixed="false">
-          <s:extension base="tns:BaseNPVRCommand" />
+          <s:extension base="tns:BaseNPVRCommand">
+            <s:sequence>
+              <s:element minOccurs="1" maxOccurs="1" name="isProtect" type="s:boolean" />
+            </s:sequence>
+          </s:extension>
         </s:complexContent>
       </s:complexType>
       <s:element name="GetNPVRResponseResponse">
@@ -2504,6 +2537,15 @@
           <s:element minOccurs="0" maxOccurs="1" name="status" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="msg" type="s:string" />
         </s:sequence>
+      </s:complexType>
+      <s:complexType name="LicensedLinkNPVRResponse">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:NPVRResponse">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="mainUrl" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
       </s:complexType>
       <s:complexType name="RecordResponse">
         <s:complexContent mixed="false">
@@ -2527,15 +2569,6 @@
       <s:complexType name="CancelDeleteResponse">
         <s:complexContent mixed="false">
           <s:extension base="tns:NPVRResponse" />
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="LicensedLinkNPVRResponse">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:NPVRResponse">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="mainUrl" type="s:string" />
-            </s:sequence>
-          </s:extension>
         </s:complexContent>
       </s:complexType>
       <s:element name="GetDomainServices">
@@ -2694,6 +2727,7 @@
       <s:element name="Entitlements" nillable="true" type="tns:Entitlements" />
       <s:element name="boolean" type="s:boolean" />
       <s:element name="UserBundlesResponse" nillable="true" type="tns:UserBundlesResponse" />
+      <s:element name="UserPurhcasedAssetsResponse" nillable="true" type="tns:UserPurhcasedAssetsResponse" />
       <s:element name="ArrayOfPermittedMediaContainer" nillable="true" type="tns:ArrayOfPermittedMediaContainer" />
       <s:element name="PermittedMediaContainerResponse" nillable="true" type="tns:PermittedMediaContainerResponse" />
       <s:element name="UserCAStatus" type="tns:UserCAStatus" />
@@ -3039,6 +3073,12 @@
   </wsdl:message>
   <wsdl:message name="GetUserBundlesSoapOut">
     <wsdl:part name="parameters" element="tns:GetUserBundlesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserPurchasedAssetsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetUserPurchasedAssets" />
+  </wsdl:message>
+  <wsdl:message name="GetUserPurchasedAssetsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetUserPurchasedAssetsResponse" />
   </wsdl:message>
   <wsdl:message name="GetUserPermittedItemsSoapIn">
     <wsdl:part name="parameters" element="tns:GetUserPermittedItems" />
@@ -3614,6 +3654,14 @@
   </wsdl:message>
   <wsdl:message name="GetUserBundlesHttpPostOut">
     <wsdl:part name="Body" element="tns:UserBundlesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserPurchasedAssetsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserPurchasedAssetsHttpPostOut">
+    <wsdl:part name="Body" element="tns:UserPurhcasedAssetsResponse" />
   </wsdl:message>
   <wsdl:message name="GetUserPermittedItemsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -4719,6 +4767,10 @@
       <wsdl:input message="tns:GetUserBundlesSoapIn" />
       <wsdl:output message="tns:GetUserBundlesSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetUserPurchasedAssets">
+      <wsdl:input message="tns:GetUserPurchasedAssetsSoapIn" />
+      <wsdl:output message="tns:GetUserPurchasedAssetsSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <wsdl:input message="tns:GetUserPermittedItemsSoapIn" />
       <wsdl:output message="tns:GetUserPermittedItemsSoapOut" />
@@ -5088,6 +5140,10 @@
     <wsdl:operation name="GetUserBundles">
       <wsdl:input message="tns:GetUserBundlesHttpPostIn" />
       <wsdl:output message="tns:GetUserBundlesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserPurchasedAssets">
+      <wsdl:input message="tns:GetUserPurchasedAssetsHttpPostIn" />
+      <wsdl:output message="tns:GetUserPurchasedAssetsHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <wsdl:input message="tns:GetUserPermittedItemsHttpPostIn" />
@@ -5477,6 +5533,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetUserBundles">
       <soap:operation soapAction="http://ca.tvinci.com/GetUserBundles" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserPurchasedAssets">
+      <soap:operation soapAction="http://ca.tvinci.com/GetUserPurchasedAssets" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -6333,6 +6398,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetUserPurchasedAssets">
+      <soap12:operation soapAction="http://ca.tvinci.com/GetUserPurchasedAssets" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <soap12:operation soapAction="http://ca.tvinci.com/GetUserPermittedItems" style="document" />
       <wsdl:input>
@@ -7157,6 +7231,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetUserBundles">
       <http:operation location="/GetUserBundles" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserPurchasedAssets">
+      <http:operation location="/GetUserPurchasedAssets" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>

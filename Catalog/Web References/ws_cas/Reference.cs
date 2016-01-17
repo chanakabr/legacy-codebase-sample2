@@ -46,6 +46,8 @@ namespace Catalog.ws_cas {
         
         private System.Threading.SendOrPostCallback GetUserBundlesOperationCompleted;
         
+        private System.Threading.SendOrPostCallback GetUserPurchasedAssetsOperationCompleted;
+        
         private System.Threading.SendOrPostCallback GetUserPermittedItemsOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetDomainPermittedItemsOperationCompleted;
@@ -279,6 +281,9 @@ namespace Catalog.ws_cas {
         
         /// <remarks/>
         public event GetUserBundlesCompletedEventHandler GetUserBundlesCompleted;
+        
+        /// <remarks/>
+        public event GetUserPurchasedAssetsCompletedEventHandler GetUserPurchasedAssetsCompleted;
         
         /// <remarks/>
         public event GetUserPermittedItemsCompletedEventHandler GetUserPermittedItemsCompleted;
@@ -837,6 +842,39 @@ namespace Catalog.ws_cas {
             if ((this.GetUserBundlesCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.GetUserBundlesCompleted(this, new GetUserBundlesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetUserPurchasedAssets", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public UserPurhcasedAssetsResponse GetUserPurchasedAssets(string sWSUserName, string sWSPassword, string siteGuid) {
+            object[] results = this.Invoke("GetUserPurchasedAssets", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteGuid});
+            return ((UserPurhcasedAssetsResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetUserPurchasedAssetsAsync(string sWSUserName, string sWSPassword, string siteGuid) {
+            this.GetUserPurchasedAssetsAsync(sWSUserName, sWSPassword, siteGuid, null);
+        }
+        
+        /// <remarks/>
+        public void GetUserPurchasedAssetsAsync(string sWSUserName, string sWSPassword, string siteGuid, object userState) {
+            if ((this.GetUserPurchasedAssetsOperationCompleted == null)) {
+                this.GetUserPurchasedAssetsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetUserPurchasedAssetsOperationCompleted);
+            }
+            this.InvokeAsync("GetUserPurchasedAssets", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteGuid}, this.GetUserPurchasedAssetsOperationCompleted, userState);
+        }
+        
+        private void OnGetUserPurchasedAssetsOperationCompleted(object arg) {
+            if ((this.GetUserPurchasedAssetsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetUserPurchasedAssetsCompleted(this, new GetUserPurchasedAssetsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -4901,10 +4939,10 @@ namespace Catalog.ws_cas {
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(LicensedLinkNPVRResponse))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelDeleteResponse))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(QuotaResponse))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordResponse))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(LicensedLinkNPVRResponse))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -4933,27 +4971,6 @@ namespace Catalog.ws_cas {
             }
             set {
                 this.msgField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class LicensedLinkNPVRResponse : NPVRResponse {
-        
-        private string mainUrlField;
-        
-        /// <remarks/>
-        public string mainUrl {
-            get {
-                return this.mainUrlField;
-            }
-            set {
-                this.mainUrlField = value;
             }
         }
     }
@@ -5022,15 +5039,36 @@ namespace Catalog.ws_cas {
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(DeleteNPVRCommand))]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class LicensedLinkNPVRResponse : NPVRResponse {
+        
+        private string mainUrlField;
+        
+        /// <remarks/>
+        public string mainUrl {
+            get {
+                return this.mainUrlField;
+            }
+            set {
+                this.mainUrlField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ProtectNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RetrieveQuotaNPVRCommand))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(DeleteNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelSeriesNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordSeriesByProgramIdNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordSeriesByNameNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(DeleteSeriesNPVRCommand))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ProtectNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(LicensedLinkNPVRCommand))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
@@ -5118,7 +5156,19 @@ namespace Catalog.ws_cas {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class DeleteNPVRCommand : BaseNPVRCommand {
+    public partial class ProtectNPVRCommand : BaseNPVRCommand {
+        
+        private bool isProtectField;
+        
+        /// <remarks/>
+        public bool isProtect {
+            get {
+                return this.isProtectField;
+            }
+            set {
+                this.isProtectField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -5128,6 +5178,15 @@ namespace Catalog.ws_cas {
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class RetrieveQuotaNPVRCommand : BaseNPVRCommand {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class DeleteNPVRCommand : BaseNPVRCommand {
     }
     
     /// <remarks/>
@@ -5182,27 +5241,6 @@ namespace Catalog.ws_cas {
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class DeleteSeriesNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class ProtectNPVRCommand : BaseNPVRCommand {
-        
-        private bool isProtectField;
-        
-        /// <remarks/>
-        public bool isProtect {
-            get {
-                return this.isProtectField;
-            }
-            set {
-                this.isProtectField = value;
-            }
-        }
     }
     
     /// <remarks/>
@@ -9179,11 +9217,68 @@ namespace Catalog.ws_cas {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class KeyValuePairOfeAssetTypesListOfString {
+        
+        private string[] valueField;
+        
+        /// <remarks/>
+        public string[] Value {
+            get {
+                return this.valueField;
+            }
+            set {
+                this.valueField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class UserPurhcasedAssetsResponse {
+        
+        private KeyValuePairOfeAssetTypesListOfString[] assetsField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable=false)]
+        public KeyValuePairOfeAssetTypesListOfString[] assets {
+            get {
+                return this.assetsField;
+            }
+            set {
+                this.assetsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class UserBundlesResponse {
         
         private int[] subscriptionsField;
         
         private int[] collectionsField;
+        
+        private Status statusField;
         
         /// <remarks/>
         public int[] subscriptions {
@@ -9202,6 +9297,16 @@ namespace Catalog.ws_cas {
             }
             set {
                 this.collectionsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
             }
         }
     }
@@ -9916,6 +10021,32 @@ namespace Catalog.ws_cas {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((UserBundlesResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetUserPurchasedAssetsCompletedEventHandler(object sender, GetUserPurchasedAssetsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetUserPurchasedAssetsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetUserPurchasedAssetsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public UserPurhcasedAssetsResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((UserPurhcasedAssetsResponse)(this.results[0]));
             }
         }
     }

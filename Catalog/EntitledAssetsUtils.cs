@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using Catalog.Cache;
 using Catalog.Request;
@@ -52,6 +53,16 @@ namespace Catalog
             {
                 var userBundles = cas.GetUserBundles(string.Empty, string.Empty, siteGuid);
 
+                if (userBundles == null || userBundles.status == null)
+                {
+                    throw new KalturaException("Couldn't get user bundles", 1);
+                }
+
+                if (userBundles.status.Code != (int)eResponseStatus.OK)
+                {
+                    throw new KalturaException(userBundles.status.Message, userBundles.status.Code);
+                }
+
                 foreach (var subscription in userBundles.subscriptions)
                 {
                     eBundleType bundleType = eBundleType.SUBSCRIPTION;
@@ -99,6 +110,43 @@ namespace Catalog
             Dictionary<eAssetTypes, List<string>> result = new Dictionary<eAssetTypes, List<string>>();
             epgChannelIds = new List<int>();
 
+            string userName = string.Empty;
+            string password = string.Empty;
+
+            //get username + password from wsCache
+            Credentials credentials =
+                TvinciCache.WSCredentials.GetWSCredentials(ApiObjects.eWSModules.CATALOG, groupId, ApiObjects.eWSModules.CONDITIONALACCESS);
+
+            if (credentials != null)
+            {
+                userName = credentials.m_sUsername;
+                password = credentials.m_sPassword;
+            }
+
+            // validate user name and password length
+            if (userName.Length == 0 || password.Length == 0)
+            {
+                throw new Exception(string.Format(
+                    "No WS_CAS login parameters were extracted from DB. userId={0}, groupid={1}",
+                    siteGuid, groupId));
+            }
+
+            // Initialize web service
+            using (ws_cas.module cas = new ws_cas.module())
+            {
+                var purchasedAssets = cas.GetUserPurchasedAssets(userName, password, siteGuid);
+
+                if (purchasedAssets == null || purchasedAssets.status == null)
+                {
+                    throw new KalturaException("Couldn't get user purchased assets", 1);
+                }
+
+                if (purchasedAssets.status.Code != (int)eResponseStatus.OK)
+                {
+                    throw new KalturaException(purchasedAssets.status.Message, purchasedAssets.status.Code);
+                }
+
+            }
             return result;
         }
 
