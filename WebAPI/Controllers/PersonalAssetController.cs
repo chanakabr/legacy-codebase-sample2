@@ -33,8 +33,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaPersonalAssetListResponse List(List<KalturaPersonalAssetRequest> assets, List<KalturaPersonalAssetWithHolder> with,
-            string coupon_code = "", string language = "")
+        public KalturaPersonalAssetListResponse List(List<KalturaPersonalAssetRequest> assets, List<KalturaPersonalAssetWithHolder> with, string language = "")
         {
             KalturaPersonalAssetListResponse response = null;
 
@@ -137,7 +136,7 @@ namespace WebAPI.Controllers
 
                         var fileIds = fileToPersonalAsset.Keys.Select(l => (int)l).ToList();
 
-                        pricingsResponse = ClientsManager.ConditionalAccessClient().GetAssetPrices(groupId, userID, coupon_code, language, udid, assets);
+                        pricingsResponse = ClientsManager.ConditionalAccessClient().GetAssetPrices(groupId, userID, string.Empty, language, udid, assets);
 
                     });
 
