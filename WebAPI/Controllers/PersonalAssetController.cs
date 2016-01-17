@@ -28,7 +28,6 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="assets">Assets and files which we want their data</param>
         /// <param name="with">Which data will be returned</param>
-        /// <param name="coupon_code">Discount coupon code</param>
         /// <param name="language">Language code</param>
         /// <returns></returns>
         [Route("list"), HttpPost]
