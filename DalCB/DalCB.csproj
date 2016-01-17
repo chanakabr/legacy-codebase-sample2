@@ -65,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EpgDal_Couchbase.cs" />
+    <Compile Include="General_Couchbase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SocialDAL_Couchbase.cs" />
     <Compile Include="StatisicsDal_CouchBase.cs" />

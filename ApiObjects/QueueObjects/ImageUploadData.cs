@@ -31,6 +31,7 @@ namespace ApiObjects
             this.rowId = rowId;
             this.imageServerUrl = imageServerUrl;
             this.mediaType = mediaType;
+            this.RecoveryMessageId = BuildMessageRecoveryKey(mediaType, rowId, version);
 
             this.args = new List<object>()
             {
@@ -42,6 +43,12 @@ namespace ApiObjects
                 imageServerUrl,
                 (int)mediaType
             };
+        }
+
+        // method to build the recovery key (others need to build the key as well)
+        public static string BuildMessageRecoveryKey(eMediaType mediaType, long rowId, int version)
+        {
+            return (int)mediaType + "_" + rowId + "_" + version;
         }
     }
 }
