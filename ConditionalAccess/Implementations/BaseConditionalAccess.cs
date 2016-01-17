@@ -15210,8 +15210,8 @@ namespace ConditionalAccess
             }
 
             // frequency (tcm)
-            long frequency = 0;
-            if (!long.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue("reconciliation_frequency_seconds"), out frequency))
+            long frequency = TVinciShared.WS_Utils.GetTcmIntValue("reconciliation_frequency_seconds");
+            if (frequency == 0)
             {
                 frequency = DEFAULT_RECONCILIATION_FREQUENCY_SECONDS;
             }
@@ -15294,7 +15294,6 @@ namespace ConditionalAccess
         private void ReconcilePPVs(string userId, long householdId, TvinciAPI.ExternalEntitlement[] entitlements)
         {
             var ppvEntitlementsToInsert = entitlements.Where(e => e.EntitlementType == TvinciAPI.eTransactionType.PPV).ToList();
-            List<TvinciAPI.ExternalEntitlement> ppvEntitlementsToUpdate = new List<TvinciAPI.ExternalEntitlement>();
             List<EntitlementObject> ppvEntitlementsToDelete = new List<EntitlementObject>();
 
             // get ppvs ids by product codes if there are external ppv entitlements
@@ -15313,7 +15312,9 @@ namespace ConditionalAccess
                         if (DateUtils.UnixTimeStampToDateTime(ppvEntitlement.EndDateSeconds) != ppv.endDate || DateUtils.UnixTimeStampToDateTime(ppvEntitlement.StartDateSeconds) != ppv.startDate)
                         {
                             ppvEntitlement.PurchaseId = ppv.ID;
-                            ppvEntitlementsToUpdate.Add(ppvEntitlement);
+                            
+                            // update ppv
+                            UpdateReconciledPPVEntitlement(householdId, ppvEntitlement, ppvsModulesDictionary);
                         }
 
                         ppvEntitlementsToInsert.Remove(ppvEntitlement);
@@ -15327,9 +15328,6 @@ namespace ConditionalAccess
 
             // insert ppvs
             InsertReconciledPPVEntitlements(userId, householdId, ppvEntitlementsToInsert);
-
-            // update ppvs (start date and end date)
-            UpdateReconciledPPVEntitlements(householdId, ppvEntitlementsToUpdate, ppvsModulesDictionary);
 
             // delete ppvs
             DeleteReconciledPPVEntitlements(householdId, ppvEntitlementsToDelete);
@@ -15403,39 +15401,36 @@ namespace ConditionalAccess
             }
         }
 
-        private void UpdateReconciledPPVEntitlements(long householdId, List<TvinciAPI.ExternalEntitlement> ppvsToUpdate, Dictionary<long, PPVModule> ppvs)
+        private void UpdateReconciledPPVEntitlement(long householdId, TvinciAPI.ExternalEntitlement ppvToUpdate, Dictionary<long, PPVModule> ppvs)
         {
-            if (ppvsToUpdate.Count > 0)
+            if (ppvToUpdate != null)
             {
                 DateTime startDate, endDate;
-                foreach (var ppv in ppvsToUpdate)
-                {
-                    startDate = ppv.StartDateSeconds != 0 ? DateUtils.UnixTimeStampToDateTime(ppv.StartDateSeconds) : DateTime.UtcNow;
+                startDate = ppvToUpdate.StartDateSeconds != 0 ? DateUtils.UnixTimeStampToDateTime(ppvToUpdate.StartDateSeconds) : DateTime.UtcNow;
 
-                    if (ppv.EndDateSeconds == 0)
+                if (ppvToUpdate.EndDateSeconds == 0)
+                {
+                    // get the end date for the ppv module
+                    if (ppvs.ContainsKey(ppvToUpdate.ProductId))
                     {
-                        // get the end date for the ppv module
-                        if (ppvs.ContainsKey(ppv.ProductId))
-                        {
-                            endDate = Utils.GetEndDateTime(startDate, ppvs[ppv.ProductId].m_oUsageModule.m_tsMaxUsageModuleLifeCycle);
-                        }
-                        else
-                        {
-                            log.ErrorFormat("ReconcileEntitlements: trying to update dates for PPV module with invalid productId or contentId. productCode = {0}, contentId = {1}, for household = {2}",
-                                    ppv.ProductCode, ppv.ContentId, householdId);
-                            continue;
-                        }
+                        endDate = Utils.GetEndDateTime(startDate, ppvs[ppvToUpdate.ProductId].m_oUsageModule.m_tsMaxUsageModuleLifeCycle);
                     }
                     else
                     {
-                        endDate = DateUtils.UnixTimeStampToDateTime(ppv.EndDateSeconds);
+                        log.ErrorFormat("ReconcileEntitlements: trying to update dates for PPV module with invalid productId or contentId. productCode = {0}, contentId = {1}, for household = {2}",
+                                ppvToUpdate.ProductCode, ppvToUpdate.ContentId, householdId);
+                        return;
                     }
+                }
+                else
+                {
+                    endDate = DateUtils.UnixTimeStampToDateTime(ppvToUpdate.EndDateSeconds);
+                }
 
-                    if (!ConditionalAccessDAL.Update_PPVPurchaseDates(ppv.PurchaseId, startDate, endDate))
-                    {
-                        log.ErrorFormat("ReconcileEntitlements: failed to update dates for PPV entitlement. ppv purchase id = {0}, for household = {1}",
-                                    ppv.ProductId, householdId);
-                    }
+                if (!ConditionalAccessDAL.Update_PPVPurchaseDates(ppvToUpdate.PurchaseId, startDate, endDate))
+                {
+                    log.ErrorFormat("ReconcileEntitlements: failed to update dates for PPV entitlement. ppv purchase id = {0}, for household = {1}",
+                                ppvToUpdate.ProductId, householdId);
                 }
             }
         }
@@ -15477,7 +15472,6 @@ namespace ConditionalAccess
         private void ReconcileSubscriptions(string userId, long householdId, TvinciAPI.ExternalEntitlement[] entitlements)
         {
             var subscriptionEntitlementsToInsert = entitlements.Where(e => e.EntitlementType == TvinciAPI.eTransactionType.Subscription).ToList();
-            List<TvinciAPI.ExternalEntitlement> subscriptionEntitlementsToUpdate = new List<TvinciAPI.ExternalEntitlement>();
             List<int> subscriptionEntitlementsToDelete = new List<int>();
 
             // get subscriptions ids by product codes if there are external subscription entitlements
@@ -15505,7 +15499,8 @@ namespace ConditionalAccess
 
                             if (DateUtils.UnixTimeStampToDateTime(subscription.EndDateSeconds) != endDate || DateUtils.UnixTimeStampToDateTime(subscription.StartDateSeconds) != startDate)
                             {
-                                subscriptionEntitlementsToUpdate.Add(subscription);
+                                // update subscription
+                                UpdateReconciledSubscriptionEntitlement(householdId, subscription, subscriptionsDictionary);
                             }
                             subscriptionEntitlementsToInsert.Remove(subscription);
                         }
@@ -15520,47 +15515,40 @@ namespace ConditionalAccess
             // insert subscriptions
             InsertReconciledSubscriptionEntitlements(userId, householdId, subscriptionEntitlementsToInsert);
 
-            // update subscriptions
-            UpdateReconciledSubscriptionEntitlements(householdId, subscriptionEntitlementsToUpdate, subscriptionsDictionary);
-
             // delete subscriptions 
             DeleteReconciledSubscriptionEntitlements(householdId, subscriptionEntitlementsToDelete);
         }
 
-        private void UpdateReconciledSubscriptionEntitlements(long householdId, List<TvinciAPI.ExternalEntitlement> subscriptionEntitlementsToUpdate, Dictionary<long, Subscription> subscriptions)
+        private void UpdateReconciledSubscriptionEntitlement(long householdId, TvinciAPI.ExternalEntitlement subscriptionEntitlementToUpdate, Dictionary<long, Subscription> subscriptions)
         {
-            if (subscriptionEntitlementsToUpdate.Count > 0)
+            if (subscriptionEntitlementToUpdate != null)
             {
                 DateTime startDate, endDate;
-                foreach (var subscription in subscriptionEntitlementsToUpdate)
+                startDate = subscriptionEntitlementToUpdate.StartDateSeconds != 0 ? DateUtils.UnixTimeStampToDateTime(subscriptionEntitlementToUpdate.StartDateSeconds) : DateTime.UtcNow;
+
+                if (subscriptionEntitlementToUpdate.EndDateSeconds == 0)
                 {
-                    startDate = subscription.StartDateSeconds != 0 ? DateUtils.UnixTimeStampToDateTime(subscription.StartDateSeconds) : DateTime.UtcNow;
-
-                    if (subscription.EndDateSeconds == 0)
+                    // get the end date for the ppv module
+                    if (subscriptions.ContainsKey(subscriptionEntitlementToUpdate.ProductId))
                     {
-                        // get the end date for the ppv module
-                        if (subscriptions.ContainsKey(subscription.ProductId))
-                        {
-                            endDate = CalcSubscriptionEndDate(subscriptions[subscription.ProductId], false, startDate);
-                        }
-                        else
-                        {
-                            log.ErrorFormat("ReconcileEntitlements: trying to update dates for subscription but subscription not found. productCode = {0}, contentId = {1}, for household = {2}",
-                                subscription.ProductCode, subscription.ContentId, householdId);
-                            continue;
-                        }
-
+                        endDate = CalcSubscriptionEndDate(subscriptions[subscriptionEntitlementToUpdate.ProductId], false, startDate);
                     }
                     else
                     {
-                        endDate = DateUtils.UnixTimeStampToDateTime(subscription.EndDateSeconds);
+                        log.ErrorFormat("ReconcileEntitlements: trying to update dates for subscription but subscription not found. productCode = {0}, contentId = {1}, for household = {2}",
+                            subscriptionEntitlementToUpdate.ProductCode, subscriptionEntitlementToUpdate.ContentId, householdId);
+                        return;
                     }
+                }
+                else
+                {
+                    endDate = DateUtils.UnixTimeStampToDateTime(subscriptionEntitlementToUpdate.EndDateSeconds);
+                }
 
-                    if (!ConditionalAccessDAL.Update_SubscriptionPurchaseDates(subscription.PurchaseId, startDate, endDate))
-                    {
-                        log.ErrorFormat("ReconcileEntitlements: failed to update dates for subscription. subscription purchase id = {0}, for household = {1}",
-                                    subscription.ProductId, householdId);
-                    }
+                if (!ConditionalAccessDAL.Update_SubscriptionPurchaseDates(subscriptionEntitlementToUpdate.PurchaseId, startDate, endDate))
+                {
+                    log.ErrorFormat("ReconcileEntitlements: failed to update dates for subscription. subscription purchase id = {0}, for household = {1}",
+                                subscriptionEntitlementToUpdate.ProductId, householdId);
                 }
             }
         }
