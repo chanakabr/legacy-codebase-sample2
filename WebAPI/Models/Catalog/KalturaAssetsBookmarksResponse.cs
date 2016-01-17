@@ -10,7 +10,7 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Catalog
 {
     /// <summary>
-    /// List Of Assets And Their Positions
+    /// List of assets and their bookmarks
     /// </summary>
     [DataContract(Name = "KalturaAssetsPositionsResponse", Namespace = "")]
     [XmlRoot("KalturaAssetsPositionsResponse")]
@@ -28,14 +28,14 @@ namespace WebAPI.Models.Catalog
     }
 
     /// <summary>
-    /// The Slim Asset Details And His Positions
+    /// The slim asset details and it's bookmarks
     /// </summary>
     [Serializable]
     public class KalturaAssetBookmarks : KalturaSlimAsset
     {
 
         /// <summary>
-        /// Positions
+        /// List of bookmarks
         /// </summary>
         [DataMember(Name = "objects")]
         [JsonProperty("objects")]

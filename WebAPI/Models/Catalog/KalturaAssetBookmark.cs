@@ -17,7 +17,7 @@ namespace WebAPI.Models.Catalog
     public class KalturaAssetBookmark : KalturaOTTObject
     {
         /// <summary>
-        ///User identifier
+        ///User object
         /// </summary>
         [DataMember(Name = "user")]
         [JsonProperty("user")]
@@ -25,7 +25,7 @@ namespace WebAPI.Models.Catalog
         public KalturaBaseOTTUser User { get; set; }
 
         /// <summary>
-        ///The position in the media duration in seconds
+        ///The position of the user in the specific asset (in seconds)
         /// </summary>
         [DataMember(Name = "position")]
         [JsonProperty("position")]
@@ -41,7 +41,7 @@ namespace WebAPI.Models.Catalog
         public KalturaPositionOwner PositionOwner { get; set; }
 
         /// <summary>
-        ///Boolean which specifies whether the user finished watching the asset
+        ///Specifies whether the user's current position exceeded 95% of the duration
         /// </summary>
         [DataMember(Name = "finished_watching")]
         [JsonProperty("finished_watching")]

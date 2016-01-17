@@ -19,7 +19,7 @@ namespace WebAPI.Models.Catalog
     {
 
         /// <summary>
-        /// Assets identifier
+        /// List of assets identifier
         /// </summary>
         [DataMember(Name = "Assets")]
         [JsonProperty(PropertyName = "Assets")]
