@@ -9,32 +9,32 @@ namespace TVPApiModule.Objects.Responses.Pricing
     public class Currency
     {
 
-        [JsonProperty(PropertyName = "CurrencyCD3")]
-        public string CurrencyCD3;
+        [JsonProperty(PropertyName = "currencyCD3")]
+        public string currencyCD3;
 
-        [JsonProperty(PropertyName = "CurrencyCD2")]
-        public string CurrencyCD2;
+        [JsonProperty(PropertyName = "currencyCD2")]
+        public string currencyCD2;
 
-        [JsonProperty(PropertyName = "CurrencySign")]
-        public string CurrencySign;
+        [JsonProperty(PropertyName = "currencySign")]
+        public string currencySign;
 
-        [JsonProperty(PropertyName = "CurrencyID")]
-        public Int32 CurrencyID;        
+        [JsonProperty(PropertyName = "currencyID")]
+        public Int32 currencyID;        
 
         public Currency()
         {
-            CurrencyCD2 = string.Empty;
-            CurrencyCD3 = string.Empty;
-            CurrencyID = 0;
-            CurrencySign = string.Empty;
+            currencyCD2 = string.Empty;
+            currencyCD3 = string.Empty;
+            currencyID = 0;
+            currencySign = string.Empty;
         }
 
         public Currency(TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.Currency sourceCurrency)
         {
-            CurrencyID = sourceCurrency.m_nCurrencyID;
-            CurrencySign = sourceCurrency.m_sCurrencySign;
-            CurrencyCD2 = sourceCurrency.m_sCurrencyCD2;
-            CurrencyCD3 = sourceCurrency.m_sCurrencyCD3;            
+            currencyID = sourceCurrency.m_nCurrencyID;
+            currencySign = sourceCurrency.m_sCurrencySign;
+            currencyCD2 = sourceCurrency.m_sCurrencyCD2;
+            currencyCD3 = sourceCurrency.m_sCurrencyCD3;            
         }
 
         public void InitializeById(Int32 nID)
@@ -50,10 +50,10 @@ namespace TVPApiModule.Objects.Responses.Pricing
                     Int32 nCount = selectQuery.Table("query").DefaultView.Count;
                     if (nCount > 0)
                     {
-                        CurrencyCD3 = selectQuery.Table("query").DefaultView[0].Row["code3"].ToString();
-                        CurrencyCD2 = selectQuery.Table("query").DefaultView[0].Row["code2"].ToString();
-                        CurrencySign = selectQuery.Table("query").DefaultView[0].Row["CURRENCY_SIGN"].ToString();
-                        CurrencyID = nID;
+                        currencyCD3 = selectQuery.Table("query").DefaultView[0].Row["code3"].ToString();
+                        currencyCD2 = selectQuery.Table("query").DefaultView[0].Row["code2"].ToString();
+                        currencySign = selectQuery.Table("query").DefaultView[0].Row["CURRENCY_SIGN"].ToString();
+                        currencyID = nID;
                     }
                 }
             }
@@ -79,10 +79,10 @@ namespace TVPApiModule.Objects.Responses.Pricing
                     Int32 nCount = selectQuery.Table("query").DefaultView.Count;
                     if (nCount > 0)
                     {
-                        CurrencyCD3 = sCode3;
-                        CurrencyCD2 = selectQuery.Table("query").DefaultView[0].Row["code2"].ToString();
-                        CurrencySign = selectQuery.Table("query").DefaultView[0].Row["CURRENCY_SIGN"].ToString();
-                        CurrencyID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["id"].ToString());
+                        currencyCD3 = sCode3;
+                        currencyCD2 = selectQuery.Table("query").DefaultView[0].Row["code2"].ToString();
+                        currencySign = selectQuery.Table("query").DefaultView[0].Row["CURRENCY_SIGN"].ToString();
+                        currencyID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["id"].ToString());
                     }
                 }
 
@@ -109,10 +109,10 @@ namespace TVPApiModule.Objects.Responses.Pricing
                     Int32 nCount = selectQuery.Table("query").DefaultView.Count;
                     if (nCount > 0)
                     {
-                        CurrencyCD2 = sCode2;
-                        CurrencyCD3 = selectQuery.Table("query").DefaultView[0].Row["code3"].ToString();
-                        CurrencySign = selectQuery.Table("query").DefaultView[0].Row["CURRENCY_SIGN"].ToString();
-                        CurrencyID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["id"].ToString());
+                        currencyCD2 = sCode2;
+                        currencyCD3 = selectQuery.Table("query").DefaultView[0].Row["code3"].ToString();
+                        currencySign = selectQuery.Table("query").DefaultView[0].Row["CURRENCY_SIGN"].ToString();
+                        currencyID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["id"].ToString());
                     }
                 }
             }
