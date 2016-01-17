@@ -61,6 +61,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
                 m_oOrderObj = OrderObj,
                 m_eFilterCutWith = cutWith,
                 m_lFilterTags = tagsMetas,
+                m_bAddDeviceRuleID = true
             };
         }
 
