@@ -141,6 +141,12 @@
     <None Include="Web References\WS_API\GroupRule.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\WS_API\KSQLChannelResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_API\KSQLChannelResponseList.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\WS_API\LanguageObj.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -157,6 +163,9 @@
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\WS_API\OSSAdapterBillingDetailsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_API\OSSAdapterEntitlementsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\WS_API\OSSAdapterResponse.datasource">
@@ -218,6 +227,9 @@
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\WS_API\TagResponseObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_API\UnifiedSearchResult.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\WS_API\UserIMRequestObject.datasource">
