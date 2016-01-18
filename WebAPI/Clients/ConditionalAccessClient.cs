@@ -626,7 +626,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    wsResponse = ConditionalAccess.GetDomainTransactionsHistory(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, domainId, startDate, endDate);
+                    wsResponse = ConditionalAccess.GetDomainTransactionsHistory(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, domainId, startDate, endDate, pageSize, pageIndex);
                 }
             }
             catch (Exception ex)
