@@ -15129,6 +15129,7 @@ namespace ConditionalAccess
 
                 // TODO: Understand which assets need to be updated according to the asset ID list we got
                 List<int> assetsToUpdate = new List<int>();
+                assetsToUpdate.AddRange(assetIds);
 
                 GenericCeleryQueue queue = new GenericCeleryQueue();
 

@@ -8,5 +8,8 @@
     <Setting Name="TvinciImporter_WS_Encryptor_Encryptor" Type="(Web Service URL)" Scope="Application">
       <Value Profile="(Default)">http://192.168.16.70:333/Encryptor.asmx</Value>
     </Setting>
+    <Setting Name="TvinciImporter_ws_cas_module" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://localhost:82/ws_cas/module.asmx</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
