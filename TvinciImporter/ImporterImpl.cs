@@ -5299,7 +5299,10 @@ namespace TvinciImporter
             string ip = "1.1.1.1";
             string sWSUserName = "";
             string sWSPassword = "";
-            TVinciShared.WS_Utils.GetWSUNPass(groupId, "UpdateFreeFileTypesIndex", "conditionalaccess", ip, ref sWSUserName, ref sWSPassword);
+
+            int parentGroupId = DAL.UtilsDal.GetParentGroupID(groupId);
+
+            TVinciShared.WS_Utils.GetWSUNPass(parentGroupId, "UpdateFreeFileTypesIndex", "conditionalaccess", ip, ref sWSUserName, ref sWSPassword);
             string url = TVinciShared.WS_Utils.GetTcmConfigValue("conditionalaccess_ws");
 
             if (url != "")
