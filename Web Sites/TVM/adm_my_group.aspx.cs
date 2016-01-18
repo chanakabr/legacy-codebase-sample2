@@ -119,7 +119,6 @@ public partial class adm_my_group : System.Web.UI.Page
         string imageUrl = string.Empty;
         int picId = 0;
 
-
         if (ImageUtils.IsDownloadPicWithImageServer())
         {
             isDownloadPicWithImageServer = true;
@@ -282,6 +281,10 @@ public partial class adm_my_group : System.Web.UI.Page
         theRecord.AddRecord(dr_more_ratios);
 
         //EPG
+        DataRecordDropDownField dr_epgRatios = new DataRecordDropDownField("lu_pics_epg_ratios", "ratio", "id", "", "", 60, true);
+        dr_epgRatios.Initialize("EPG Main Ratio", "adm_table_header_nbg", "FormInput", "EPG_RATIO_ID", false);
+        theRecord.AddRecord(dr_epgRatios); 
+        
         DataRecordMultiField dr_more_ratios_epg = new DataRecordMultiField("lu_pics_epg_ratios", "id", "id", "group_epg_ratios", "GROUP_ID", "RATIO_ID", false, "ltr", 60, "tags");
         dr_more_ratios_epg.Initialize("More EPG Ratios", "adm_table_header_nbg", "FormInput", "RATIO", false);        
         theRecord.AddRecord(dr_more_ratios_epg);
@@ -316,6 +319,14 @@ public partial class adm_my_group : System.Web.UI.Page
         string recommendationEnginesQuery = "select name as txt,id as id from recommendation_engines where status=1 and group_id= " + t.ToString();
         dr_recommendation_engine.SetSelectsQuery(recommendationEnginesQuery);
         theRecord.AddRecord(dr_recommendation_engine);
+
+        DataRecordShortTextField dr_imageServerUrl = new DataRecordShortTextField("ltr", true, 60, 128);
+        dr_imageServerUrl.Initialize("Image server URL", "adm_table_header_nbg", "FormInput", "IMAGE_SERVER_URL", false);
+        theRecord.AddRecord(dr_imageServerUrl);
+
+        DataRecordShortTextField dr_InternalImageServerUrl = new DataRecordShortTextField("ltr", true, 60, 128);
+        dr_InternalImageServerUrl.Initialize("Internal image server URL", "adm_table_header_nbg", "FormInput", "INTERNAL_IMAGE_SERVER_URL", false);
+        theRecord.AddRecord(dr_InternalImageServerUrl);
 
         string sTable = theRecord.GetTableHTML("adm_my_group.aspx?submited=1");
 
