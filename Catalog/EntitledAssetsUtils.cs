@@ -55,7 +55,7 @@ namespace Catalog
 
                 if (userBundles == null || userBundles.status == null)
                 {
-                    throw new KalturaException("Couldn't get user bundles", 1);
+                    throw new KalturaException("Couldn't get user bundles", (int)eResponseStatus.Error);
                 }
 
                 if (userBundles.status.Code != (int)eResponseStatus.OK)
@@ -138,7 +138,7 @@ namespace Catalog
 
                 if (purchasedAssets == null || purchasedAssets.status == null)
                 {
-                    throw new KalturaException("Couldn't get user purchased assets", 1);
+                    throw new KalturaException("Couldn't get user purchased assets", (int)eResponseStatus.Error);
                 }
 
                 if (purchasedAssets.status.Code != (int)eResponseStatus.OK)
