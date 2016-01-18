@@ -92,7 +92,7 @@ namespace ElasticSearch.Searcher
         /// Builds the request body for Elasticsearch search action
         /// </summary>
         /// <returns></returns>
-        public virtual string BuildSearchQueryString(bool bAddDeviceRuleID = true, bool bAddActive = true)
+        public virtual string BuildSearchQueryString(bool bIgnoreDeviceRuleID = false, bool bAddActive = true)
         {
             this.ReturnFields = DEFAULT_RETURN_FIELDS.ToList();
             this.ReturnFields.AddRange(this.SearchDefinitions.extraReturnFields.Select(field => string.Format("\"{0}\"", field)));
@@ -131,7 +131,7 @@ namespace ElasticSearch.Searcher
             BaseFilterCompositeType filterRoot;
             IESTerm queryTerm;
 
-            BuildInnerFilterAndQuery(out filterRoot, out queryTerm, bAddDeviceRuleID, bAddActive);
+            BuildInnerFilterAndQuery(out filterRoot, out queryTerm, bIgnoreDeviceRuleID, bAddActive);
 
             QueryFilter filterPart = new QueryFilter()
             {
@@ -187,7 +187,7 @@ namespace ElasticSearch.Searcher
             return fullQuery;
         }
 
-        public void BuildInnerFilterAndQuery(out BaseFilterCompositeType filterPart, out IESTerm queryTerm, bool bAddDeviceRuleID = true, bool bAddActive = true)
+        public void BuildInnerFilterAndQuery(out BaseFilterCompositeType filterPart, out IESTerm queryTerm, bool bIgnoreDeviceRuleID = false, bool bAddActive = true)
         {
             ESPrefix epgPrefixTerm = new ESPrefix()
             {
@@ -435,7 +435,7 @@ namespace ElasticSearch.Searcher
 
                 deviceRulesTerms.Value.Add("0");
 
-                if (bAddDeviceRuleID &&
+                if (!bIgnoreDeviceRuleID &&
                     this.SearchDefinitions.deviceRuleId != null &&
                     this.SearchDefinitions.deviceRuleId.Length > 0)
                 {
@@ -444,9 +444,10 @@ namespace ElasticSearch.Searcher
                     {
                         deviceRulesTerms.Value.Add(deviceRuleId.ToString());
                     }
+
+                    mediaFilter.AddChild(deviceRulesTerms);
                 }
 
-                mediaFilter.AddChild(deviceRulesTerms);
 
                 #endregion
 
