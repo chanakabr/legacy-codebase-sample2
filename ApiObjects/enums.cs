@@ -499,5 +499,9 @@ namespace ApiObjects
         META10_BOOL = 40
     }
 
-
+    public enum eDbActionType
+    {
+        Delete,
+        Add
+    }
 }

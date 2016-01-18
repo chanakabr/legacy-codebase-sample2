@@ -8374,7 +8374,7 @@ namespace ConditionalAccess
                         transactionHistory.UserFullName = ODBCWrapper.Utils.GetSafeStr(dr["FIRST_NAME"]) + " " + ODBCWrapper.Utils.GetSafeStr(dr["LAST_NAME"]);
                         domainTransactionsHistoryResponse.TransactionsHistory.Add(transactionHistory);
                     }
-                }
+                }                
                 domainTransactionsHistoryResponse.TransactionsCount = domainTransactionsHistoryResponse.TransactionsHistory.Count;                
                 domainTransactionsHistoryResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
@@ -15033,28 +15033,31 @@ namespace ConditionalAccess
             TvinciAPI.MeidaMaper[] mapper = Utils.GetMediaMapper(m_nGroupID, mediaFiles.ToArray());
             HashSet<int> mappedFileIds = new HashSet<int>();
 
-            // Checked that all mappings match
-            foreach (var mapping in mapper)
+            if (mapper != null)
             {
-                int fileId = mapping.m_nMediaFileID;
-                int assetId = 0;
-
-                if (fileToAsset.TryGetValue(fileId, out assetId))
+                // Checked that all mappings match
+                foreach (var mapping in mapper)
                 {
-                    mappedFileIds.Add(fileId);
+                    int fileId = mapping.m_nMediaFileID;
+                    int assetId = 0;
 
-                    if (mapping.m_nMediaID != assetId)
+                    if (fileToAsset.TryGetValue(fileId, out assetId))
+                    {
+                        mappedFileIds.Add(fileId);
+
+                        if (mapping.m_nMediaID != assetId)
+                        {
+                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.FileToMediaMismatch,
+                                string.Format("File Id does not match media id: file = {0}, media = {1}", fileId, assetId));
+                            return response;
+                        }
+                    }
+                    else
                     {
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.FileToMediaMismatch,
-                            string.Format("File Id does not match media id: file = {0}, media = {1}", fileId, assetId));
+                            string.Format("Could not find asset of file {0}", fileId));
                         return response;
                     }
-                }
-                else
-                {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.FileToMediaMismatch,
-                        string.Format("Could not find asset of file {0}", fileId));
-                    return response;
                 }
             }
 

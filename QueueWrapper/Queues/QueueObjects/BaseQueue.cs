@@ -13,9 +13,7 @@ namespace QueueWrapper
         private static readonly KLogger log = new KLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const int RETRY_LIMIT = 5;
         private const int RECOVERY_TTL_MONTH = 2;
-
         private IQueueImpl m_QueueImpl;
-
         public bool storeForRecovery = false;
 
         public BaseQueue()
@@ -40,7 +38,7 @@ namespace QueueWrapper
 
                     if (celeryData != null && celeryData.ETA.HasValue)
                     {
-                        InsertQueueMessage(celeryData.GroupId, celeryData.id, sMessage, routingKey, celeryData.ETA.Value, this.GetType().ToString());
+                        InsertQueueMessage(celeryData.GroupId, celeryData.RecoveryMessageId, sMessage, routingKey, celeryData.ETA.Value, this.GetType().ToString());
                     }
                 }
             }
