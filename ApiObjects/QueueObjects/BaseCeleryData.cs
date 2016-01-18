@@ -10,11 +10,7 @@ namespace ApiObjects
     [Serializable]
     public class BaseCeleryData : QueueObject
     {
-        #region Consts
-
         public const string CELERY_DATE_FORMAT = "yyyy-MM-ddTHH:mm:ss.ffffffZ";
-        #endregion
-        #region Properties
 
         public string id;
         public string task;
@@ -22,6 +18,25 @@ namespace ApiObjects
         public object kwargs;
         public string eta;
         public string expires;
+
+        // recovery ID is by default the message ID. (could be overridden in descendants)
+        private string _recoveryMessageId = string.Empty;
+
+        [JsonIgnore]
+        public string RecoveryMessageId
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(this._recoveryMessageId))
+                    return this.id;
+                else
+                    return this._recoveryMessageId;
+            }
+            set
+            {
+                this._recoveryMessageId = value;
+            }
+        }
 
         [JsonIgnore]
         public DateTime? ETA
@@ -55,8 +70,6 @@ namespace ApiObjects
             }
         }
 
-        #endregion
-
         public BaseCeleryData()
         {
             kwargs = new object();
@@ -67,7 +80,7 @@ namespace ApiObjects
         {
             kwargs = new object();
             this.task = task;
-            this.id = id;       
+            this.id = id;
             this.args = args;
 
             if (eta != null && eta.HasValue)
