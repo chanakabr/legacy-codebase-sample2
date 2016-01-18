@@ -435,19 +435,18 @@ namespace ElasticSearch.Searcher
 
                 deviceRulesTerms.Value.Add("0");
 
-                if (!bIgnoreDeviceRuleID &&
-                    this.SearchDefinitions.deviceRuleId != null &&
+                if (this.SearchDefinitions.deviceRuleId != null &&
                     this.SearchDefinitions.deviceRuleId.Length > 0)
                 {
 
                     foreach (int deviceRuleId in this.SearchDefinitions.deviceRuleId)
                     {
                         deviceRulesTerms.Value.Add(deviceRuleId.ToString());
-                    }
-
-                    mediaFilter.AddChild(deviceRulesTerms);
+                    }                    
                 }
 
+                if (!bIgnoreDeviceRuleID)
+                    mediaFilter.AddChild(deviceRulesTerms);
 
                 #endregion
 
