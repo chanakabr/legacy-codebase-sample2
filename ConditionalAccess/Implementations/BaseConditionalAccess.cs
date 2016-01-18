@@ -8355,7 +8355,7 @@ namespace ConditionalAccess
 
             try
             {
-                DataTable domainBillingHistory = ConditionalAccessDAL.GetDomainBillingHistory(m_nGroupID, domainID, 0, dStartDate, dEndDate, pageSize, pageIndex);
+                DataTable domainBillingHistory = ConditionalAccessDAL.GetDomainBillingHistory(m_nGroupID, domainID, 0, dStartDate, dEndDate);
                 domainTransactionsHistoryResponse = new DomainTransactionsHistoryResponse();
 
                 if (domainBillingHistory == null || domainBillingHistory.Rows == null || domainBillingHistory.Rows.Count == 0)
@@ -8363,8 +8363,34 @@ namespace ConditionalAccess
                     domainTransactionsHistoryResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no history billing for domain");
                     return domainTransactionsHistoryResponse;
                 }
-                                                
-                foreach (DataRow dr in domainBillingHistory.Rows)
+
+                IEnumerable<DataRow> iterationRows = null;
+                List<DataRow> filteredRows = null;
+
+                if(pageIndex > 0 && pageSize > 0)
+                {                   
+                    int takeTop = pageIndex * pageSize;
+                    Int64 maxTransactionID = (from row in domainBillingHistory.AsEnumerable().Take(takeTop)
+                                                select row.Field<Int64>("ID")).ToList().Min();
+                    filteredRows = (from row in domainBillingHistory.AsEnumerable()
+                                    where (Int64)row["ID"] < maxTransactionID
+                                    select row).Take(pageSize).ToList();
+                }                
+
+                if (filteredRows != null)
+                {
+                    iterationRows = filteredRows;
+                }
+                else if (pageSize > -1)
+                {
+                    iterationRows = domainBillingHistory.AsEnumerable().Take(pageSize);
+                }
+                else
+                {
+                    iterationRows = domainBillingHistory.AsEnumerable();
+                }
+
+                foreach (DataRow dr in iterationRows)
                 {
                     TransactionHistoryContainer transactionHistory = GetBillingTransactionContainerFromDataRow(dr, true);
                     if (transactionHistory != null)
@@ -8373,8 +8399,8 @@ namespace ConditionalAccess
                         transactionHistory.UserFullName = ODBCWrapper.Utils.GetSafeStr(dr["FIRST_NAME"]) + " " + ODBCWrapper.Utils.GetSafeStr(dr["LAST_NAME"]);
                         domainTransactionsHistoryResponse.TransactionsHistory.Add(transactionHistory);
                     }
-                }                
-                domainTransactionsHistoryResponse.TransactionsCount = domainTransactionsHistoryResponse.TransactionsHistory.Count;                
+                }
+                domainTransactionsHistoryResponse.TransactionsCount = domainBillingHistory.Rows.Count;                
                 domainTransactionsHistoryResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
 
