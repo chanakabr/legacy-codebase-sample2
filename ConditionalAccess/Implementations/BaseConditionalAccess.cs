@@ -8344,7 +8344,7 @@ namespace ConditionalAccess
         /// <summary>
         /// Get Domain Billing History
         /// </summary>
-        public virtual DomainTransactionsHistoryResponse GetDomainTransactionsHistory(int domainID, DateTime dStartDate, DateTime dEndDate)
+        public virtual DomainTransactionsHistoryResponse GetDomainTransactionsHistory(int domainID, DateTime dStartDate, DateTime dEndDate, int pageSize, int pageIndex)
         {
             DomainTransactionsHistoryResponse domainTransactionsHistoryResponse = null;            
 
@@ -8355,7 +8355,7 @@ namespace ConditionalAccess
 
             try
             {
-                DataTable domainBillingHistory = ConditionalAccessDAL.GetDomainBillingHistory(m_nGroupID, domainID, 0, dStartDate, dEndDate);
+                DataTable domainBillingHistory = ConditionalAccessDAL.GetDomainBillingHistory(m_nGroupID, domainID, 0, dStartDate, dEndDate, pageSize, pageIndex);
                 domainTransactionsHistoryResponse = new DomainTransactionsHistoryResponse();
 
                 if (domainBillingHistory == null || domainBillingHistory.Rows == null || domainBillingHistory.Rows.Count == 0)

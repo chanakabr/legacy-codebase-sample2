@@ -265,7 +265,7 @@ namespace DAL
 
         }
 
-        public static DataTable GetDomainBillingHistory(int groupID, int domainID, int topNum, DateTime startDate, DateTime endDate)
+        public static DataTable GetDomainBillingHistory(int groupID, int domainID, int topNum, DateTime startDate, DateTime endDate, int pageSize, int pageIndex)
         {
             DataTable dt = null;            
             if (domainID > 0)
@@ -276,7 +276,8 @@ namespace DAL
                     spGet_DomainBillingHistory.SetConnectionKey("MAIN_CONNECTION_STRING");                    
                     spGet_DomainBillingHistory.AddParameter("@GroupID", groupID);
                     spGet_DomainBillingHistory.AddParameter("@DomainID", domainID);
-                    spGet_DomainBillingHistory.AddParameter("@Top", topNum);
+                    spGet_DomainBillingHistory.AddParameter("@PageSize", pageSize);
+                    spGet_DomainBillingHistory.AddParameter("@PageIndex", pageIndex);
                     spGet_DomainBillingHistory.AddParameter("@StartDate", startDate);
                     spGet_DomainBillingHistory.AddParameter("@EndDate", endDate);
                     dt = spGet_DomainBillingHistory.Execute();
