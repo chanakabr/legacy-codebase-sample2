@@ -4367,6 +4367,11 @@ namespace TVPApiServices
                                         type = Tvinci.Data.Loaders.TvinciPlatform.Catalog.eAssetTypes.MEDIA;
                                         break;
                                     }
+                                    case "epg":
+                                    {
+                                        type = eAssetTypes.EPG;
+                                        break;
+                                    }
                                     default:
                                     break;
                                 }
