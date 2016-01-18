@@ -465,7 +465,7 @@ namespace WebAPI.Clients
                 m_sSiteGuid = siteGuid,
                 domainId = domainId,
                 m_oOrderObj = order,
-                m_bAddDeviceRuleID = true
+                m_bIgnoreDeviceRuleID = false
             };
 
             // build failover cache key
@@ -526,7 +526,7 @@ namespace WebAPI.Clients
                 order = order,
                 internalChannelID = channelId.ToString(),
                 filterQuery = filterQuery,
-                m_bAddDeviceRuleID = true
+                m_bIgnoreDeviceRuleID = false
             };
 
             // build failover cache key
