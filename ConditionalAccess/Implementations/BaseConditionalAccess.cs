@@ -5058,8 +5058,8 @@ namespace ConditionalAccess
                             dCurrent = (DateTime)(dataRow["cDate"]);
 
                         DateTime dCreateDate = DateTime.UtcNow;
-                        if (dataRow["CREATE_DATE"] != null && dataRow["CREATE_DATE"] != DBNull.Value)
-                            dCreateDate = (DateTime)(dataRow["CREATE_DATE"]);
+                        if (dataRow["START_DATE"] != null && dataRow["START_DATE"] != DBNull.Value)
+                            dCreateDate = (DateTime)(dataRow["START_DATE"]);
 
                         string billingGuid = ODBCWrapper.Utils.GetSafeStr(dataRow, "BILLING_GUID");
                         PaymentMethod payMet = GetBillingTransMethod(billingTransID, billingGuid);
@@ -5340,7 +5340,7 @@ namespace ConditionalAccess
 
                         DateTime endDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow["END_DATE"]);
                         DateTime dCurrent = ODBCWrapper.Utils.GetDateSafeVal(dataRow["cDate"]);
-                        DateTime createDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow["CREATE_DATE"]);
+                        DateTime createDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow["START_DATE"]);
                         DateTime lastViewDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow["LAST_VIEW_DATE"]);
                         int gracePeriodMinutes = ODBCWrapper.Utils.GetIntSafeVal(dataRow["GRACE_PERIOD_MINUTES"]);
 
