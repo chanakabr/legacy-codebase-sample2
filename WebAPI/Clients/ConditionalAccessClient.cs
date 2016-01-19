@@ -746,5 +746,40 @@ namespace WebAPI.Clients
 
             return true;
         }
+
+        internal List<KalturaPremiumService> GetDomainServices(int groupId, int domainId)
+        {
+            List<KalturaPremiumService> result;
+            WebAPI.ConditionalAccess.DomainServicesResponse response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = ConditionalAccess.GetDomainServices(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            result = Mapper.Map<List<KalturaPremiumService>>(response.Services);
+
+            return result;
+        }
     }
 }

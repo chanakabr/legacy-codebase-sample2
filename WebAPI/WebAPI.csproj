@@ -879,6 +879,8 @@
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
     <Compile Include="Controllers\AppTokenController.cs" />
     <Compile Include="Controllers\AssetController.cs" />
+    <Compile Include="Controllers\HouseholdLimitationsController.cs" />
+    <Compile Include="Controllers\HouseholdPremiumServiceController.cs" />
     <Compile Include="Controllers\ExportTaskController.cs" />
     <Compile Include="Controllers\ExternalChannelProfileController.cs" />
     <Compile Include="Controllers\PartnerConfigurationController.cs">
@@ -977,6 +979,7 @@
     <Compile Include="Models\ConditionalAccess\KalturaBillingTransactionListResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaEntitlementsFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPricesFilter.cs" />
+    <Compile Include="Models\Domains\KalturaHouseholdLimitations.cs" />
     <Compile Include="Models\General\KalturaApiActionPermissionItem.cs" />
     <Compile Include="Models\General\KalturaAppToken.cs" />
     <Compile Include="Models\General\KalturaAppTokenHashType.cs" />

@@ -45,7 +45,14 @@ namespace WebAPI.Models.Domains
         [JsonProperty("concurrent_limit")]
         [XmlElement(ElementName = "concurrent_limit")]
         public int ConcurrentLimit { get; set; }
+    }
 
+
+    /// <summary>
+    /// Device family details
+    /// </summary>
+    public class KalturaHouseholdDeviceFamily : KalturaDeviceFamily
+    {
         /// <summary>
         /// List of all the devices in this family
         /// </summary>

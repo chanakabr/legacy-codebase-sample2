@@ -32,13 +32,20 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive));
 
-            //DeviceContainer to DeviceFamily
-            Mapper.CreateMap<WebAPI.Domains.DeviceContainer, KalturaDeviceFamily>()
+            //DeviceContainer to KalturaHouseholdDeviceFamily
+            Mapper.CreateMap<WebAPI.Domains.DeviceContainer, KalturaHouseholdDeviceFamily>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_deviceFamilyID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_deviceFamilyName))
                 .ForMember(dest => dest.DeviceLimit, opt => opt.MapFrom(src => src.m_deviceLimit))
                 .ForMember(dest => dest.ConcurrentLimit, opt => opt.MapFrom(src => src.m_deviceConcurrentLimit))
                 .ForMember(dest => dest.Devices, opt => opt.MapFrom(src => src.DeviceInstances));
+
+            //DeviceFamilyLimitations to KalturaDeviceFamily
+            Mapper.CreateMap<WebAPI.Domains.DeviceContainer, KalturaDeviceFamily>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_deviceFamilyID))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_deviceFamilyName))
+                .ForMember(dest => dest.DeviceLimit, opt => opt.MapFrom(src => src.m_deviceLimit))
+                .ForMember(dest => dest.ConcurrentLimit, opt => opt.MapFrom(src => src.m_deviceConcurrentLimit));
 
             //Domain
             Mapper.CreateMap<WebAPI.Domains.Domain, KalturaHousehold>()
@@ -48,7 +55,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_sDescription))
                 .ForMember(dest => dest.ConcurrentLimit, opt => opt.MapFrom(src => src.m_nConcurrentLimit))
                 .ForMember(dest => dest.DevicesLimit, opt => opt.MapFrom(src => src.m_nDeviceLimit))
-                .ForMember(dest => dest.DLMID, opt => opt.MapFrom(src => src.m_nLimit))
+                .ForMember(dest => dest.HouseholdLimitationsId, opt => opt.MapFrom(src => src.m_nLimit))
                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.m_sCoGuid))
                 .ForMember(dest => dest.FrequencyNextDeviceAction, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_NextActionFreq)))
                 .ForMember(dest => dest.FrequencyNextUserAction, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_NextUserActionFreq)))
@@ -62,8 +69,21 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.Users, opt => opt.MapFrom(src => src.m_UsersIDs))
                 .ForMember(dest => dest.UsersLimit, opt => opt.MapFrom(src => src.m_nUserLimit))
                 .ForMember(dest => dest.DeviceFamilies, opt => opt.MapFrom(src => src.m_deviceFamilies));
-        }
 
+            //DLM to KalturaHouseholdLimitationModule
+            Mapper.CreateMap<WebAPI.Domains.LimitationsManager, KalturaHouseholdLimitations>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.domianLimitID))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.DomainLimitName))
+                .ForMember(dest => dest.ConcurrentLimit, opt => opt.MapFrom(src => src.Concurrency))
+                .ForMember(dest => dest.DeviceFrequency, opt => opt.MapFrom(src => src.Frequency))
+                .ForMember(dest => dest.DeviceFrequencyDescription, opt => opt.MapFrom(src => src.FrequencyDescription))
+                .ForMember(dest => dest.DeviceLimit, opt => opt.MapFrom(src => src.Quantity))
+                .ForMember(dest => dest.NpvrQuotaInSeconds, opt => opt.MapFrom(src => src.npvrQuotaInSecs))
+                .ForMember(dest => dest.UsersLimit, opt => opt.MapFrom(src => src.nUserLimit))
+                .ForMember(dest => dest.UserFrequency, opt => opt.MapFrom(src => src.UserFrequency))
+                .ForMember(dest => dest.UserFrequencyDescription, opt => opt.MapFrom(src => src.UserFrequencyDescrition))
+                ;
+        }
         private static KalturaHouseholdState ConvertDomainStatus(WebAPI.Domains.DomainStatus type)
         {
             KalturaHouseholdState result;
