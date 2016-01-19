@@ -8,8 +8,7 @@ namespace ApiObjects
 {
     public class UserBundlesResponse
     {
-        public List<int> subscriptions;
-        public List<int> collections;
+        public List<int> channels;
         public Status status;
     }
 }

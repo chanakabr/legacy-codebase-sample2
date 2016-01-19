@@ -79,7 +79,7 @@ namespace ConditionalAccess
         protected abstract bool HandleChargeUserForMediaFileBillingSuccess(string sWSUsername, string sWSPassword, string sSiteGUID, int domianID, TvinciPricing.Subscription relevantSub,
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode,
             string sDeviceName, TvinciBilling.BillingResponse br, string sCustomData, TvinciPricing.PPVModule thePPVModule,
-            long lMediaFileID, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy, ref TvinciBilling.module wsBillingService, 
+            long lMediaFileID, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy, ref TvinciBilling.module wsBillingService,
             string billingGuid = null, DateTime? startDate = null, DateTime? endDate = null);
 
         protected abstract bool HandlePPVBillingSuccess(ref TransactionResponse response, string siteGUID, long houseHoldID, Subscription relevantSub, double price, string currency,
@@ -1852,7 +1852,7 @@ namespace ConditionalAccess
         public virtual bool CancelSubscription(string sSiteGUID, string sSubscriptionCode, Int32 nSubscriptionPurchaseID)
         {
             bool bRet = false;
-            TvinciPricing.Subscription theSub = null;            
+            TvinciPricing.Subscription theSub = null;
             try
             {
                 string sWSUserName = string.Empty;
@@ -1866,7 +1866,7 @@ namespace ConditionalAccess
                         m.Url = sPricingURL;
                     }
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
-                    theSub = m.GetSubscriptionData(sWSUserName, sWSPass, sSubscriptionCode, string.Empty, string.Empty, string.Empty, false);                    
+                    theSub = m.GetSubscriptionData(sWSUserName, sWSPass, sSubscriptionCode, string.Empty, string.Empty, string.Empty, false);
                 }
 
                 if (theSub != null && theSub.m_oUsageModule != null && theSub.m_oSubscriptionPriceCode != null && theSub.m_bIsRecurring)
@@ -5130,12 +5130,12 @@ namespace ConditionalAccess
         {
             PermittedSubscriptionContainer[] response = null;
             int userId, domainID = 0;
-            TvinciUsers.DomainSuspentionStatus userSuspendStatus = TvinciUsers.DomainSuspentionStatus.OK;            
+            TvinciUsers.DomainSuspentionStatus userSuspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
             if (int.TryParse(sSiteGUID, out userId) && Utils.IsUserValid(sSiteGUID, m_nGroupID, ref domainID, ref userSuspendStatus))
             {
-                response = GetUserPermittedSubscriptions(new List<int>() { int.Parse(sSiteGUID) }, false, 0, domainID);                
+                response = GetUserPermittedSubscriptions(new List<int>() { int.Parse(sSiteGUID) }, false, 0, domainID);
             }
-            
+
             return response;
         }
         /// <summary>
@@ -7858,7 +7858,7 @@ namespace ConditionalAccess
                         //Get all user PPV entitlements
                         Utils.InitializeUsersEntitlements(m_nGroupID, domainID, allUsersInDomain, mapper, userEntitlements.userPpvEntitlements);
                         //Get all user bundle entitlements
-                        Utils.InitializeUsersBundles(sUserGUID, domainID, m_nGroupID, allUsersInDomain, sPricingUsername, sPricingPassword, userEntitlements.userBundleEntitlements);
+                        Utils.InitializeUsersBundles(domainID, m_nGroupID, allUsersInDomain, sPricingUsername, sPricingPassword, userEntitlements.userBundleEntitlements);
                     }
 
                     // set max amount of concurrent tasks
@@ -8347,7 +8347,7 @@ namespace ConditionalAccess
         /// </summary>
         public virtual DomainTransactionsHistoryResponse GetDomainTransactionsHistory(int domainID, DateTime dStartDate, DateTime dEndDate, int pageSize, int pageIndex)
         {
-            DomainTransactionsHistoryResponse domainTransactionsHistoryResponse = null;            
+            DomainTransactionsHistoryResponse domainTransactionsHistoryResponse = null;
 
             if (domainID == 0)
             {
@@ -8368,15 +8368,15 @@ namespace ConditionalAccess
                 IEnumerable<DataRow> iterationRows = null;
                 List<DataRow> filteredRows = null;
 
-                if(pageIndex > 0 && pageSize > 0)
-                {                   
+                if (pageIndex > 0 && pageSize > 0)
+                {
                     int takeTop = pageIndex * pageSize;
                     Int64 maxTransactionID = (from row in domainBillingHistory.AsEnumerable().Take(takeTop)
-                                                select row.Field<Int64>("ID")).ToList().Min();
+                                              select row.Field<Int64>("ID")).ToList().Min();
                     filteredRows = (from row in domainBillingHistory.AsEnumerable()
                                     where (Int64)row["ID"] < maxTransactionID
                                     select row).Take(pageSize).ToList();
-                }                
+                }
 
                 if (filteredRows != null)
                 {
@@ -8401,7 +8401,7 @@ namespace ConditionalAccess
                         domainTransactionsHistoryResponse.TransactionsHistory.Add(transactionHistory);
                     }
                 }
-                domainTransactionsHistoryResponse.TransactionsCount = domainBillingHistory.Rows.Count;                
+                domainTransactionsHistoryResponse.TransactionsCount = domainBillingHistory.Rows.Count;
                 domainTransactionsHistoryResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
 
@@ -8506,7 +8506,7 @@ namespace ConditionalAccess
 
                 for (int i = nStartIndex; i < nTopNum; i++)
                 {
-                    theResp.m_Transactions[i] = GetBillingTransactionContainerFromDataRow(dvBillHistory[i].Row, false) as BillingTransactionContainer;                    
+                    theResp.m_Transactions[i] = GetBillingTransactionContainerFromDataRow(dvBillHistory[i].Row, false) as BillingTransactionContainer;
                 } // for
 
                 response.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -8723,7 +8723,7 @@ namespace ConditionalAccess
 
             catch (Exception ex)
             {
-                log.Error("GetBillingTransactionContainerFromDataRow - " + string.Format("DataRow={0}, ex={1} ", dr, ex.Message), ex);                
+                log.Error("GetBillingTransactionContainerFromDataRow - " + string.Format("DataRow={0}, ex={1} ", dr, ex.Message), ex);
             }
 
             finally
@@ -11503,7 +11503,7 @@ namespace ConditionalAccess
                         log.Error("Domain status: " + oDomain.m_DomainStatus.ToString());
                     }
                     else
-                    {                        
+                    {
                         DataTable dtUserPurchases = null;
                         DataRow drUserPurchase = null;
                         string sPurchasingSiteGuid = string.Empty;
@@ -14236,7 +14236,7 @@ namespace ConditionalAccess
                     mediaID, productId.ToString(), string.Empty, string.Empty, userIp, country, string.Empty, deviceName);
 
                 string billingGuid = Guid.NewGuid().ToString();
-               
+
                 // purchase
                 string sWSUserName = string.Empty;
                 string sWSPass = string.Empty;
@@ -14647,11 +14647,11 @@ namespace ConditionalAccess
             ResponseStatus userValidStatus = ResponseStatus.OK;
             long householdId = 0;
             userValidStatus = Utils.ValidateUser(m_nGroupID, siteguid, ref householdId);
-            bool shouldSwitchToMasterUser = false;            
+            bool shouldSwitchToMasterUser = false;
 
             // check if we need to set isSwitchToMasterUser = true so we will update subscription details to master user instead of user where needed
             if (userValidStatus == ResponseStatus.UserDoesNotExist)
-            {                
+            {
                 shouldSwitchToMasterUser = true;
                 householdId = ODBCWrapper.Utils.GetLongSafeVal(subscriptionPurchaseRow, "DOMAIN_ID");
                 string masterSiteGuid = string.Empty;
@@ -14673,7 +14673,7 @@ namespace ConditionalAccess
                 else
                 {
                     log.WarnFormat("SiteGuid: {0} does not exist, changing renew SiteGuid value to MasterSiteGuid: {1}", siteguid, masterSiteGuid);
-                    siteguid = masterSiteGuid;                    
+                    siteguid = masterSiteGuid;
                 }
             }
 
@@ -14760,7 +14760,7 @@ namespace ConditionalAccess
 
             // check if purchased with preview module
             bool isPurchasedWithPreviewModule;
-            isPurchasedWithPreviewModule = ApiDAL.Get_IsPurchasedWithPreviewModuleByBillingGuid(m_nGroupID, billingGuid, (int)purchaseId);            
+            isPurchasedWithPreviewModule = ApiDAL.Get_IsPurchasedWithPreviewModuleByBillingGuid(m_nGroupID, billingGuid, (int)purchaseId);
 
             paymentNumber = Utils.CalcPaymentNumber(numOfPayments, paymentNumber, isPurchasedWithPreviewModule);
             if (numOfPayments > 0 && paymentNumber > numOfPayments)
@@ -14887,7 +14887,7 @@ namespace ConditionalAccess
 
                         // enqueue renew transaction
                         RenewTransactionsQueue queue = new RenewTransactionsQueue();
-                        DateTime nextRenewalDate = endDate.AddMinutes(paymentGateway.RenewalStartMinutes);                        
+                        DateTime nextRenewalDate = endDate.AddMinutes(paymentGateway.RenewalStartMinutes);
                         RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseId, billingGuid, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate), nextRenewalDate);
                         bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
                         if (!enqueueSuccessful)
@@ -14954,7 +14954,7 @@ namespace ConditionalAccess
                             // check if to update siteGuid in subscription_purchases to masterSiteGuid and set renewal to masterSiteGuid
                             if (shouldSwitchToMasterUser)
                             {
-                                ConditionalAccessDAL.Update_SubscriptionPurchaseRenewalSiteGuid(m_nGroupID, billingGuid, (int)purchaseId, siteguid, "CA_CONNECTION_STRING");                                
+                                ConditionalAccessDAL.Update_SubscriptionPurchaseRenewalSiteGuid(m_nGroupID, billingGuid, (int)purchaseId, siteguid, "CA_CONNECTION_STRING");
                             }
 
                             RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseId, billingGuid, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate), nextRenewalDate);
@@ -15175,25 +15175,25 @@ namespace ConditionalAccess
                     switch (type)
                     {
                         case eObjectType.Unknown:
-                        break;
-                        case eObjectType.Media:
-                        {
-                            result = catalog.UpdateIndex(assetsToUpdate.ToArray(), groupId, WS_Catalog.eAction.Update);
                             break;
-                        }
+                        case eObjectType.Media:
+                            {
+                                result = catalog.UpdateIndex(assetsToUpdate.ToArray(), groupId, WS_Catalog.eAction.Update);
+                                break;
+                            }
                         // This case shouldn't happen, but I'll still write this code down
                         case eObjectType.Channel:
-                        {
-                            result = catalog.UpdateChannelIndex(assetsToUpdate.ToArray(), groupId, WS_Catalog.eAction.Update);
-                            break;
-                        }
+                            {
+                                result = catalog.UpdateChannelIndex(assetsToUpdate.ToArray(), groupId, WS_Catalog.eAction.Update);
+                                break;
+                            }
                         case eObjectType.EPG:
-                        {
-                            result = catalog.UpdateEpgIndex(assetsToUpdate.ToArray(), groupId, WS_Catalog.eAction.Update);
-                            break;
-                        }
+                            {
+                                result = catalog.UpdateEpgIndex(assetsToUpdate.ToArray(), groupId, WS_Catalog.eAction.Update);
+                                break;
+                            }
                         default:
-                        break;
+                            break;
                     }
 
                     if (!result)
@@ -15327,7 +15327,7 @@ namespace ConditionalAccess
             List<EntitlementObject> ppvEntitlementsToDelete = new List<EntitlementObject>();
 
             // get ppvs ids by product codes if there are external ppv entitlements
-            Dictionary<long, PPVModule>  ppvsModulesDictionary = GetPpvModulesDataForExternalEntitlements(userId, ref ppvEntitlementsToInsert);
+            Dictionary<long, PPVModule> ppvsModulesDictionary = GetPpvModulesDataForExternalEntitlements(userId, ref ppvEntitlementsToInsert);
 
             var ppvDictionary = DAL.ConditionalAccessDAL.Get_AllUsersEntitlements((int)householdId, null);
             if (ppvDictionary != null && ppvDictionary.Count > 0)
@@ -15342,7 +15342,7 @@ namespace ConditionalAccess
                         if (DateUtils.UnixTimeStampToDateTime(ppvEntitlement.EndDateSeconds) != ppv.endDate || DateUtils.UnixTimeStampToDateTime(ppvEntitlement.StartDateSeconds) != ppv.startDate)
                         {
                             ppvEntitlement.PurchaseId = ppv.ID;
-                            
+
                             // update ppv
                             UpdateReconciledPPVEntitlement(householdId, ppvEntitlement, ppvsModulesDictionary);
                         }
@@ -15471,7 +15471,7 @@ namespace ConditionalAccess
             {
                 //grant entitlements
                 int contentId = 0;
-                
+
                 foreach (var ppv in ppvsToInsert)
                 {
                     if (ppv != null && int.TryParse(ppv.ContentId, out contentId))
@@ -15681,6 +15681,110 @@ namespace ConditionalAccess
                     }
                 }
             }
+        }
+
+        public UserBundlesResponse GetUserBundles(int domainID, int fileTypeID)
+        {
+            UserBundlesResponse response = new UserBundlesResponse()
+            {
+                channels = new List<int>(),
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            string sPricingUsername = string.Empty;
+            string sPricingPassword = string.Empty;
+            Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sPricingUsername, ref sPricingPassword);
+            ConditionalAccess.UserEntitlementsObject.BundleEntitlements bundleEntitlements = new UserEntitlementsObject.BundleEntitlements();
+            Utils.InitializeUsersBundles(domainID, m_nGroupID, new List<int>(), sPricingUsername, sPricingPassword, bundleEntitlements);
+            if (bundleEntitlements != null)
+            {
+                // Get all subscriptions
+                if (bundleEntitlements.FileTypeIdToSubscriptionMappings != null && bundleEntitlements.FileTypeIdToSubscriptionMappings.Count > 0 && fileTypeID > 0)
+                {
+                    // Get subscriptions that don't have specific fileTypeIDs defined
+                    if (bundleEntitlements.FileTypeIdToSubscriptionMappings.ContainsKey(0) && bundleEntitlements.FileTypeIdToSubscriptionMappings[0].Count > 0)
+                    {
+                        foreach (Subscription subscription in bundleEntitlements.FileTypeIdToSubscriptionMappings[0])
+                        {
+                            if (subscription.m_sCodes != null)
+                            {
+                                foreach (BundleCodeContainer bundleCode in subscription.m_sCodes)
+                                {
+                                    int channelID;
+                                    if (int.TryParse(bundleCode.m_sCode, out channelID) && !response.channels.Contains(channelID))
+                                    {
+                                        response.channels.Add(channelID);
+                                    }
+                                }
+                            }
+                        }                        
+                    }
+
+                    // Get subscriptions that have the specific fileTypeID defined
+                    if (bundleEntitlements.FileTypeIdToSubscriptionMappings.ContainsKey(fileTypeID) && bundleEntitlements.FileTypeIdToSubscriptionMappings[fileTypeID].Count > 0)
+                    {
+                        foreach (Subscription subscription in bundleEntitlements.FileTypeIdToSubscriptionMappings[fileTypeID])
+                        {
+                            if (subscription.m_sCodes != null)
+                            {
+                                foreach (BundleCodeContainer bundleCode in subscription.m_sCodes)
+                                {
+                                    int channelID;
+                                    if (int.TryParse(bundleCode.m_sCode, out channelID) && !response.channels.Contains(channelID))
+                                    {
+                                        response.channels.Add(channelID);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Get all collections
+                if (bundleEntitlements.CollectionsData != null && bundleEntitlements.CollectionsData.Count > 0)
+                {
+                    foreach (Collection collection in bundleEntitlements.CollectionsData.Values)
+                    {
+                        if (collection.m_sCodes != null)
+                        {
+                            foreach (BundleCodeContainer bundleCode in collection.m_sCodes)
+                            {
+                                int channelID;
+                                if (int.TryParse(bundleCode.m_sCode, out channelID) && !response.channels.Contains(channelID))
+                                {
+                                    response.channels.Add(channelID);
+                                }
+                            }
+                        }
+                    }                    
+                }
+
+                response.status.Code = (int)eResponseStatus.OK;
+                response.status.Message = eResponseStatus.OK.ToString();
+            }
+
+            return response;
+        }
+
+        public UserPurhcasedAssetsResponse GetUserPurchasedAssets(int domainID, int fileTypeID)
+        {
+            UserPurhcasedAssetsResponse response = new UserPurhcasedAssetsResponse()
+            {
+                assets = new List<KeyValuePair<eAssetTypes,List<string>>>(),
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            ConditionalAccess.UserEntitlementsObject.PPVEntitlements ppvEntitlements = new UserEntitlementsObject.PPVEntitlements();
+            //Utils.InitializeUsersEntitlements(m_nGroupID, domainID, new List<int>(), ,ppvEntitlements);
+            if (ppvEntitlements != null)
+            {
+                // Get all PPV Entitlements
+
+                response.status.Code = (int)eResponseStatus.OK;
+                response.status.Message = eResponseStatus.OK.ToString();
+            }
+
+            return response;
         }
     }
 }
