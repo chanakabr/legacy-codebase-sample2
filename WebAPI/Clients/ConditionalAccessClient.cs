@@ -761,7 +761,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = ConditionalAccess.GetDomainServices(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId);
+                    response = ConditionalAccess.GetDomainServices(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, domainId);
                 }
             }
             catch (Exception ex)

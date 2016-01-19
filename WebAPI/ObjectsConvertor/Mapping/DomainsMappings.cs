@@ -41,11 +41,12 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.Devices, opt => opt.MapFrom(src => src.DeviceInstances));
 
             //DeviceFamilyLimitations to KalturaDeviceFamily
-            Mapper.CreateMap<WebAPI.Domains.DeviceContainer, KalturaDeviceFamily>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_deviceFamilyID))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_deviceFamilyName))
-                .ForMember(dest => dest.DeviceLimit, opt => opt.MapFrom(src => src.m_deviceLimit))
-                .ForMember(dest => dest.ConcurrentLimit, opt => opt.MapFrom(src => src.m_deviceConcurrentLimit));
+            Mapper.CreateMap<WebAPI.Domains.DeviceFamilyLimitations, KalturaHouseholdDeviceFamilyLimitations>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.deviceFamily))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.deviceFamilyName))
+                .ForMember(dest => dest.DeviceLimit, opt => opt.MapFrom(src => src.quantity))
+                .ForMember(dest => dest.ConcurrentLimit, opt => opt.MapFrom(src => src.concurrency))
+                .ForMember(dest => dest.Frequency, opt => opt.MapFrom(src => src.Frequency));
 
             //Domain
             Mapper.CreateMap<WebAPI.Domains.Domain, KalturaHousehold>()
@@ -82,7 +83,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.UsersLimit, opt => opt.MapFrom(src => src.nUserLimit))
                 .ForMember(dest => dest.UserFrequency, opt => opt.MapFrom(src => src.UserFrequency))
                 .ForMember(dest => dest.UserFrequencyDescription, opt => opt.MapFrom(src => src.UserFrequencyDescrition))
-                ;
+                .ForMember(dest => dest.DeviceFamiliesLimitations, opt => opt.MapFrom(src => src.lDeviceFamilyLimitations));
         }
         private static KalturaHouseholdState ConvertDomainStatus(WebAPI.Domains.DomainStatus type)
         {

@@ -101,7 +101,7 @@ namespace WebAPI.Models.Domains
         [JsonProperty("device_families_limitations")]
         [XmlArray(ElementName = "device_families_limitations", IsNullable = true)]
         [XmlArrayItem("item")]
-        public List<KalturaDeviceFamily> DeviceFamiliesLimitations { get; set; }
+        public List<KalturaHouseholdDeviceFamilyLimitations> DeviceFamiliesLimitations { get; set; }
 
     }
 }

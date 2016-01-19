@@ -62,4 +62,18 @@ namespace WebAPI.Models.Domains
         [XmlArrayItem("item")]
         public List<KalturaDevice> Devices { get; set; }
     }
+
+    /// <summary>
+    /// Device family limitations details
+    /// </summary>
+    public class KalturaHouseholdDeviceFamilyLimitations : KalturaDeviceFamily
+    {
+        /// <summary>
+        /// Allowed device change frequency code
+        /// </summary>
+        [DataMember(Name = "frequency")]
+        [JsonProperty("frequency")]
+        [XmlElement(ElementName = "frequency")]
+        public int Frequency { get; set; }
+    }
 }
