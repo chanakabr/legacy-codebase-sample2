@@ -650,24 +650,27 @@ namespace WebAPI.Clients
             // Conversion and paging
 
             // If received valid response
-            if (wsResponse.TransactionsHistory != null && wsResponse.TransactionsCount > 0)
+            if (wsResponse.TransactionsHistory != null)
             {
                 // Set total count
                 clientResponse.TotalCount = wsResponse.TransactionsCount;
                 List<KalturaBillingTransaction> allTransactions = new List<KalturaBillingTransaction>();
 
-                // Convert current user's list of transactions to List of Kaltura objects
-                List<KalturaUserBillingTransaction> pageTransactions = Mapper.Map<List<KalturaUserBillingTransaction>>(wsResponse.TransactionsHistory);
-
-                if (pageTransactions != null && pageTransactions.Count > 0)
+                if( wsResponse.TransactionsCount > 0)
                 {
-                    allTransactions.AddRange(pageTransactions);
-                }
+                    // Convert current user's list of transactions to List of Kaltura objects
+                    List<KalturaUserBillingTransaction> pageTransactions = Mapper.Map<List<KalturaUserBillingTransaction>>(wsResponse.TransactionsHistory);
 
-                // Set paging if page size exists
-                if (pageSize != 0)
-                {
-                    pageTransactions = pageTransactions.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+                    if (pageTransactions != null && pageTransactions.Count > 0)
+                    {
+                        allTransactions.AddRange(pageTransactions);
+                    }
+
+                    // Set paging if page size exists
+                    if (pageSize != 0)
+                    {
+                        pageTransactions = pageTransactions.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+                    }
                 }
 
                 clientResponse.transactions = allTransactions;
