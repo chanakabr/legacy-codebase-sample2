@@ -114,7 +114,7 @@ namespace WebAPI.Controllers
 
             int groupId = KS.GetFromRequest().GroupId;
             string userId = KS.GetFromRequest().UserId;
-            
+
             try
             {
                 // call client
@@ -203,6 +203,64 @@ namespace WebAPI.Controllers
 
         #endregion
 
+        /// <summary>
+        /// Reset a household’s business limitations -device change frequency or the user add/remove frequency
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes: 
+        /// </remarks>        
+        /// <param name="household_frequency_type">Possible values: devices – reset the device change frequency. 
+        /// users – reset the user add/remove frequency</param>        
+        [Route("resetFrequency"), HttpPost]
+        [ApiAuthorize]
+        public KalturaHousehold ResetFrequency(KalturaHouseholdFrequencyType household_frequency_type)
+        {
+            KalturaHousehold household = null;
 
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                household = ClientsManager.DomainsClient().ResetFrequency(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), household_frequency_type);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return household;
+        }
+        
+        /// <summary>
+        /// Update the household name and description    
+        /// </summary>        
+        /// <param name="name">Name for the household</param>
+        /// <param name="description">Description for the household</param>
+        /// <remarks></remarks>
+        [Route("update"), HttpPost]
+        [ApiAuthorize]
+        public KalturaHousehold Update(string name, string description)
+        {
+            KalturaHousehold household = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                household = ClientsManager.DomainsClient().SetDomainInfo(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), name, description);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            if (household == null)
+            {
+                throw new InternalServerErrorException();
+            }
+
+            return household;
+        }
     }
 }

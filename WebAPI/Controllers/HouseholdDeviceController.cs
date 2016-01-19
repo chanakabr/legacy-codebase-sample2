@@ -128,5 +128,32 @@ namespace WebAPI.Controllers
             }
             return new KalturaDeviceRegistrationStatusHolder() { Status = status };
         }
+
+        /// <summary>
+        /// TBD
+        /// </summary>                
+        /// <param name="device_name">Device name</param>
+        /// <param name="udid">Device UDID</param>
+        /// <remarks>Possible status codes: 
+        /// Device not exists = 1019</remarks>
+        [Route("update"), HttpPost]
+        [ApiAuthorize]
+        public bool Update(string device_name, string udid)
+        {
+            bool response = false;            
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                response = ClientsManager.DomainsClient().SetDeviceInfo(groupId, device_name, udid);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return response;
+        }
     }
 }

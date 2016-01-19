@@ -7,8 +7,10 @@ using System.Reflection;
 using System.Web;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
+using WebAPI.Domains;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Mapping.ObjectsConvertor;
 using WebAPI.Models.Domains;
 using WebAPI.Models.General;
 using WebAPI.Models.Users;
@@ -416,5 +418,116 @@ namespace WebAPI.Clients
             return result;
         }
 
+        internal KalturaHousehold ResetFrequency(int groupId, int domainId, KalturaHouseholdFrequencyType householdFrequency)
+        {
+            KalturaHousehold result;
+            WebAPI.Domains.DomainStatusResponse response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    int frequency = DomainsMappings.ConvertKalturaHouseholdFrequency(householdFrequency);
+                    response = Domains.ResetDomainFrequency(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId, frequency);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.DomainResponse == null || response.DomainResponse.m_oDomain == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            result = Mapper.Map<KalturaHousehold>(response.DomainResponse.m_oDomain);
+
+            return result;
+        }        
+
+        internal bool SetDeviceInfo(int groupId, string deviceName, string udid)
+        {
+            WebAPI.Domains.Status response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Domains.SetDeviceInfo(group.DomainsCredentials.Username, group.DomainsCredentials.Password, udid, deviceName);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        internal KalturaHousehold SetDomainInfo(int groupId, int domainId, string name, string description)
+        {
+            KalturaHousehold result = null;
+            WebAPI.Domains.DomainStatusResponse response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Domains.SetDomainInfo(group.DomainsCredentials.Username, group.DomainsCredentials.Password ,domainId,name, description);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.DomainResponse == null || response.DomainResponse.m_oDomain == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            result = Mapper.Map<KalturaHousehold>(response.DomainResponse.m_oDomain);
+
+            return result;
+        }       
     }
 }

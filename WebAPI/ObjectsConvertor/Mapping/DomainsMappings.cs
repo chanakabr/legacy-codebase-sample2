@@ -149,5 +149,26 @@ namespace WebAPI.Mapping.ObjectsConvertor
             }
             return result;
         }
+        
+        public static int ConvertKalturaHouseholdFrequency(KalturaHouseholdFrequencyType householdFrequencyType)
+        {
+            int result;
+
+            switch (householdFrequencyType)
+            {
+                case KalturaHouseholdFrequencyType.devices:
+                    result = 1; 
+                    break;
+                case KalturaHouseholdFrequencyType.users:
+                    result = 2; 
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown household frequency type");
+                    break;
+            }
+
+            return result;
+        }
+    
     }
 }
