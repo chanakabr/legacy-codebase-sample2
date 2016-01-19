@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using TVPApi;
-using TVPPro.SiteManager.TvinciPlatform.Domains;
-using TVPApiModule.Objects.Responses;
-using KLogMonitor;
+﻿using KLogMonitor;
+using System;
 using System.Reflection;
+using TVPApi;
+using TVPApiModule.Objects.Responses;
+using TVPPro.SiteManager.TvinciPlatform.Domains;
 
 namespace TVPApiModule.Services
 {
@@ -332,7 +329,12 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    domain = m_Module.SetDomainInfo(m_wsUserName, m_wsPassword, iDomainID, sDomainName, sDomainDescription);
+                    var response = m_Module.SetDomainInfo(m_wsUserName, m_wsPassword, iDomainID, sDomainName, sDomainDescription);
+
+                    if (response != null)
+                    {
+                        domain = response.DomainResponse;
+                    }
                 }
             }
             catch (Exception ex)
@@ -406,6 +408,7 @@ namespace TVPApiModule.Services
         public DomainResponseObject ResetDomain(int domainID)
         {
             DomainResponseObject response = null;
+
             try
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
@@ -428,7 +431,15 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    response = m_Module.SetDeviceInfo(m_wsUserName, m_wsPassword, udid, deviceName);
+                    var result = m_Module.SetDeviceInfo(m_wsUserName, m_wsPassword, udid, deviceName);
+                    if (result != null && result.Code == 0)
+                    {
+                        response = true;
+                    }
+                    else
+                    {
+                        response = false;
+                    }
                 }
             }
             catch (Exception ex)
@@ -630,7 +641,12 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    domain = m_Module.ResetDomainFrequency(m_wsUserName, m_wsPassword, domainID, frequencyType);
+                    var res = m_Module.ResetDomainFrequency(m_wsUserName, m_wsPassword, domainID, frequencyType);
+
+                    if (res != null)
+                    {
+                        domain = res.DomainResponse;
+                    }
                 }
             }
             catch (Exception ex)
