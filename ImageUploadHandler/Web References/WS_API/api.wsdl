@@ -1239,6 +1239,150 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="InsertKSQLChannel">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="channel" type="tns:KSQLChannel" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="KSQLChannel">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="ID" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="GroupID" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsActive" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="Status" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="AssetTypes" type="tns:ArrayOfInt" />
+          <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Description" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Order" type="tns:OrderObj" />
+          <s:element minOccurs="0" maxOccurs="1" name="FilterQuery" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="filterTree" type="tns:BooleanPhraseNode" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="OrderObj">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="m_eOrderBy" type="tns:OrderBy" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_eOrderDir" type="tns:OrderDir" />
+          <s:element minOccurs="1" maxOccurs="1" name="lu_min_period_id" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sOrderValue" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_bIsSlidingWindowField" type="s:boolean" />
+        </s:sequence>
+      </s:complexType>
+      <s:simpleType name="OrderBy">
+        <s:restriction base="s:string">
+          <s:enumeration value="ID" />
+          <s:enumeration value="VIEWS" />
+          <s:enumeration value="RATING" />
+          <s:enumeration value="VOTES_COUNT" />
+          <s:enumeration value="LIKE_COUNTER" />
+          <s:enumeration value="START_DATE" />
+          <s:enumeration value="NAME" />
+          <s:enumeration value="CREATE_DATE" />
+          <s:enumeration value="META" />
+          <s:enumeration value="RANDOM" />
+          <s:enumeration value="RELATED" />
+          <s:enumeration value="NONE" />
+          <s:enumeration value="RECOMMENDATION" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="OrderDir">
+        <s:restriction base="s:string">
+          <s:enumeration value="ASC" />
+          <s:enumeration value="DESC" />
+          <s:enumeration value="NONE" />
+        </s:restriction>
+      </s:simpleType>
+      <s:complexType name="BooleanPhraseNode" abstract="true" />
+      <s:element name="InsertKSQLChannelResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="InsertKSQLChannelResult" type="tns:KSQLChannelResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="KSQLChannelResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="Channel" type="tns:KSQLChannel" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DeleteKSQLChannel">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="channelId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteKSQLChannelResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DeleteKSQLChannelResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetKSQLChannel">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="channel" type="tns:KSQLChannel" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetKSQLChannelResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SetKSQLChannelResult" type="tns:KSQLChannelResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetKSQLChannel">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="channelId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetKSQLChannelResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetKSQLChannelResult" type="tns:KSQLChannelResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetKSQLChannels">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetKSQLChannelsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetKSQLChannelsResult" type="tns:KSQLChannelResponseList" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="KSQLChannelResponseList">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="Channels" type="tns:ArrayOfKSQLChannel" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfKSQLChannel">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="KSQLChannel" nillable="true" type="tns:KSQLChannel" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="UpdateImageState">
         <s:complexType>
           <s:sequence>
@@ -1268,6 +1412,77 @@
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="1" maxOccurs="1" name="UpdateImageStateResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetExternalEntitlements">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetExternalEntitlementsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetExternalEntitlementsResult" type="tns:OSSAdapterEntitlementsResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="OSSAdapterEntitlementsResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="Entitlements" type="tns:ArrayOfExternalEntitlement" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfExternalEntitlement">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="ExternalEntitlement" nillable="true" type="tns:ExternalEntitlement" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ExternalEntitlement">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="PurchaseId" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="ProductId" type="s:long" />
+          <s:element minOccurs="0" maxOccurs="1" name="ProductCode" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="EntitlementType" type="tns:eTransactionType" />
+          <s:element minOccurs="0" maxOccurs="1" name="ContentId" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="StartDateSeconds" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="EndDateSeconds" type="s:long" />
+        </s:sequence>
+      </s:complexType>
+      <s:simpleType name="eTransactionType">
+        <s:restriction base="s:string">
+          <s:enumeration value="PPV" />
+          <s:enumeration value="Subscription" />
+          <s:enumeration value="Collection" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="ModifyCB">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="bucket" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="key" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="action" type="tns:eDbActionType" />
+            <s:element minOccurs="0" maxOccurs="1" name="data" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="ttlMinutes" type="s:long" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:simpleType name="eDbActionType">
+        <s:restriction base="s:string">
+          <s:enumeration value="Delete" />
+          <s:enumeration value="Add" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="ModifyCBResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="ModifyCBResult" type="s:boolean" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -2385,6 +2600,7 @@
         <s:sequence>
           <s:element minOccurs="1" maxOccurs="1" name="m_nMediaFileID" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="m_nMediaID" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sProductCode" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:element name="MapMediaFilesST">
@@ -2619,11 +2835,115 @@
           <s:enumeration value="AddDeviceToDomain" />
         </s:restriction>
       </s:simpleType>
+      <s:complexType name="ForgotPasswordMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ChangedPinMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sSiteGuid" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sRuleName" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="WelcomeMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPassword" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="CinepolisPurchaseMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPrice" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="PurchaseMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPrice" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sTransactionNumber" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPaymentMethod" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sTaxVal" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sTaxSubtotal" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sTaxAmount" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sInvoiceNum" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sExternalTransationNum" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sAddress" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sUserEmail" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="PurchaseFailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:PurchaseMailRequest" />
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="PurchaseWithPreviewModuleRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:PurchaseMailRequest">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPreviewModuleEndDate" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="PreviewModuleCancelOrRefundRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:PurchaseMailRequest" />
+        </s:complexContent>
+      </s:complexType>
       <s:complexType name="ChangePasswordMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="CinepolisRenewalFailMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="AddUserMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewFirstName" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -2681,28 +3001,6 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="WelcomeMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPassword" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="ChangedPinMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sSiteGuid" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sRuleName" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="SendPasswordMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
@@ -2710,88 +3008,6 @@
               <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sPassword" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="ForgotPasswordMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="CinepolisPurchaseMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPrice" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="AddUserMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewFirstName" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="PurchaseMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPrice" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sTransactionNumber" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPaymentMethod" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sTaxVal" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sTaxSubtotal" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sTaxAmount" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sInvoiceNum" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sExternalTransationNum" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sAddress" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sUserEmail" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="PurchaseWithPreviewModuleRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:PurchaseMailRequest">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPreviewModuleEndDate" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="PreviewModuleCancelOrRefundRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:PurchaseMailRequest" />
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="PurchaseFailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:PurchaseMailRequest" />
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="CinepolisRenewalFailMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -3357,6 +3573,7 @@
           <s:element minOccurs="0" maxOccurs="1" name="START_DATE" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="END_DATE" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="PIC_URL" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="PIC_ID" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="STATUS" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="IS_ACTIVE" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="GROUP_ID" type="s:string" />
@@ -3840,6 +4057,9 @@
       <s:element name="RecommendationEngineSettinsResponse" nillable="true" type="tns:RecommendationEngineSettinsResponse" />
       <s:element name="RecommendationEngineResponse" nillable="true" type="tns:RecommendationEngineResponse" />
       <s:element name="ExternalChannelResponseList" nillable="true" type="tns:ExternalChannelResponseList" />
+      <s:element name="KSQLChannelResponse" nillable="true" type="tns:KSQLChannelResponse" />
+      <s:element name="KSQLChannelResponseList" nillable="true" type="tns:KSQLChannelResponseList" />
+      <s:element name="OSSAdapterEntitlementsResponse" nillable="true" type="tns:OSSAdapterEntitlementsResponse" />
       <s:element name="int" type="s:int" />
       <s:element name="ArrayOfEPGChannelObject" nillable="true" type="tns:ArrayOfEPGChannelObject" />
       <s:element name="AdminAccountUserResponse" nillable="true" type="tns:AdminAccountUserResponse" />
@@ -4169,11 +4389,53 @@
   <wsdl:message name="AddPermissionItemToPermissionSoapOut">
     <wsdl:part name="parameters" element="tns:AddPermissionItemToPermissionResponse" />
   </wsdl:message>
+  <wsdl:message name="InsertKSQLChannelSoapIn">
+    <wsdl:part name="parameters" element="tns:InsertKSQLChannel" />
+  </wsdl:message>
+  <wsdl:message name="InsertKSQLChannelSoapOut">
+    <wsdl:part name="parameters" element="tns:InsertKSQLChannelResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteKSQLChannelSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteKSQLChannel" />
+  </wsdl:message>
+  <wsdl:message name="DeleteKSQLChannelSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteKSQLChannelResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetKSQLChannelSoapIn">
+    <wsdl:part name="parameters" element="tns:SetKSQLChannel" />
+  </wsdl:message>
+  <wsdl:message name="SetKSQLChannelSoapOut">
+    <wsdl:part name="parameters" element="tns:SetKSQLChannelResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetKSQLChannelSoapIn">
+    <wsdl:part name="parameters" element="tns:GetKSQLChannel" />
+  </wsdl:message>
+  <wsdl:message name="GetKSQLChannelSoapOut">
+    <wsdl:part name="parameters" element="tns:GetKSQLChannelResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetKSQLChannelsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetKSQLChannels" />
+  </wsdl:message>
+  <wsdl:message name="GetKSQLChannelsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetKSQLChannelsResponse" />
+  </wsdl:message>
   <wsdl:message name="UpdateImageStateSoapIn">
     <wsdl:part name="parameters" element="tns:UpdateImageState" />
   </wsdl:message>
   <wsdl:message name="UpdateImageStateSoapOut">
     <wsdl:part name="parameters" element="tns:UpdateImageStateResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetExternalEntitlementsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetExternalEntitlements" />
+  </wsdl:message>
+  <wsdl:message name="GetExternalEntitlementsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetExternalEntitlementsResponse" />
+  </wsdl:message>
+  <wsdl:message name="ModifyCBSoapIn">
+    <wsdl:part name="parameters" element="tns:ModifyCB" />
+  </wsdl:message>
+  <wsdl:message name="ModifyCBSoapOut">
+    <wsdl:part name="parameters" element="tns:ModifyCBResponse" />
   </wsdl:message>
   <wsdl:message name="TVAPI_GetTvinciGUIDSoapIn">
     <wsdl:part name="parameters" element="tns:TVAPI_GetTvinciGUID" />
@@ -4938,6 +5200,29 @@
   <wsdl:message name="AddPermissionItemToPermissionHttpPostOut">
     <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
+  <wsdl:message name="DeleteKSQLChannelHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="channelId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="DeleteKSQLChannelHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="GetKSQLChannelHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="channelId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetKSQLChannelHttpPostOut">
+    <wsdl:part name="Body" element="tns:KSQLChannelResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetKSQLChannelsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetKSQLChannelsHttpPostOut">
+    <wsdl:part name="Body" element="tns:KSQLChannelResponseList" />
+  </wsdl:message>
   <wsdl:message name="UpdateImageStateHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -4947,6 +5232,26 @@
     <wsdl:part name="status" type="s:string" />
   </wsdl:message>
   <wsdl:message name="UpdateImageStateHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="GetExternalEntitlementsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetExternalEntitlementsHttpPostOut">
+    <wsdl:part name="Body" element="tns:OSSAdapterEntitlementsResponse" />
+  </wsdl:message>
+  <wsdl:message name="ModifyCBHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="bucket" type="s:string" />
+    <wsdl:part name="key" type="s:string" />
+    <wsdl:part name="action" type="s:string" />
+    <wsdl:part name="data" type="s:string" />
+    <wsdl:part name="ttlMinutes" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ModifyCBHttpPostOut">
     <wsdl:part name="Body" element="tns:boolean" />
   </wsdl:message>
   <wsdl:message name="InsertEPGScheduleHttpPostIn">
@@ -5705,9 +6010,37 @@
       <wsdl:input message="tns:AddPermissionItemToPermissionSoapIn" />
       <wsdl:output message="tns:AddPermissionItemToPermissionSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="InsertKSQLChannel">
+      <wsdl:input message="tns:InsertKSQLChannelSoapIn" />
+      <wsdl:output message="tns:InsertKSQLChannelSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteKSQLChannel">
+      <wsdl:input message="tns:DeleteKSQLChannelSoapIn" />
+      <wsdl:output message="tns:DeleteKSQLChannelSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetKSQLChannel">
+      <wsdl:input message="tns:SetKSQLChannelSoapIn" />
+      <wsdl:output message="tns:SetKSQLChannelSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetKSQLChannel">
+      <wsdl:input message="tns:GetKSQLChannelSoapIn" />
+      <wsdl:output message="tns:GetKSQLChannelSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetKSQLChannels">
+      <wsdl:input message="tns:GetKSQLChannelsSoapIn" />
+      <wsdl:output message="tns:GetKSQLChannelsSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="UpdateImageState">
       <wsdl:input message="tns:UpdateImageStateSoapIn" />
       <wsdl:output message="tns:UpdateImageStateSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetExternalEntitlements">
+      <wsdl:input message="tns:GetExternalEntitlementsSoapIn" />
+      <wsdl:output message="tns:GetExternalEntitlementsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ModifyCB">
+      <wsdl:input message="tns:ModifyCBSoapIn" />
+      <wsdl:output message="tns:ModifyCBSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="TVAPI_GetTvinciGUID">
       <wsdl:input message="tns:TVAPI_GetTvinciGUIDSoapIn" />
@@ -6171,9 +6504,29 @@
       <wsdl:input message="tns:AddPermissionItemToPermissionHttpPostIn" />
       <wsdl:output message="tns:AddPermissionItemToPermissionHttpPostOut" />
     </wsdl:operation>
+    <wsdl:operation name="DeleteKSQLChannel">
+      <wsdl:input message="tns:DeleteKSQLChannelHttpPostIn" />
+      <wsdl:output message="tns:DeleteKSQLChannelHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetKSQLChannel">
+      <wsdl:input message="tns:GetKSQLChannelHttpPostIn" />
+      <wsdl:output message="tns:GetKSQLChannelHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetKSQLChannels">
+      <wsdl:input message="tns:GetKSQLChannelsHttpPostIn" />
+      <wsdl:output message="tns:GetKSQLChannelsHttpPostOut" />
+    </wsdl:operation>
     <wsdl:operation name="UpdateImageState">
       <wsdl:input message="tns:UpdateImageStateHttpPostIn" />
       <wsdl:output message="tns:UpdateImageStateHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetExternalEntitlements">
+      <wsdl:input message="tns:GetExternalEntitlementsHttpPostIn" />
+      <wsdl:output message="tns:GetExternalEntitlementsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ModifyCB">
+      <wsdl:input message="tns:ModifyCBHttpPostIn" />
+      <wsdl:output message="tns:ModifyCBHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="InsertEPGSchedule">
       <wsdl:input message="tns:InsertEPGScheduleHttpPostIn" />
@@ -6859,8 +7212,71 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="InsertKSQLChannel">
+      <soap:operation soapAction="http://api.tvinci.com/InsertKSQLChannel" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteKSQLChannel">
+      <soap:operation soapAction="http://api.tvinci.com/DeleteKSQLChannel" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetKSQLChannel">
+      <soap:operation soapAction="http://api.tvinci.com/SetKSQLChannel" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetKSQLChannel">
+      <soap:operation soapAction="http://api.tvinci.com/GetKSQLChannel" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetKSQLChannels">
+      <soap:operation soapAction="http://api.tvinci.com/GetKSQLChannels" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="UpdateImageState">
       <soap:operation soapAction="http://api.tvinci.com/UpdateImageState" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetExternalEntitlements">
+      <soap:operation soapAction="http://api.tvinci.com/GetExternalEntitlements" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ModifyCB">
+      <soap:operation soapAction="http://api.tvinci.com/ModifyCB" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -8077,8 +8493,71 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="InsertKSQLChannel">
+      <soap12:operation soapAction="http://api.tvinci.com/InsertKSQLChannel" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteKSQLChannel">
+      <soap12:operation soapAction="http://api.tvinci.com/DeleteKSQLChannel" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetKSQLChannel">
+      <soap12:operation soapAction="http://api.tvinci.com/SetKSQLChannel" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetKSQLChannel">
+      <soap12:operation soapAction="http://api.tvinci.com/GetKSQLChannel" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetKSQLChannels">
+      <soap12:operation soapAction="http://api.tvinci.com/GetKSQLChannels" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="UpdateImageState">
       <soap12:operation soapAction="http://api.tvinci.com/UpdateImageState" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetExternalEntitlements">
+      <soap12:operation soapAction="http://api.tvinci.com/GetExternalEntitlements" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ModifyCB">
+      <soap12:operation soapAction="http://api.tvinci.com/ModifyCB" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -9124,8 +9603,53 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="DeleteKSQLChannel">
+      <http:operation location="/DeleteKSQLChannel" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetKSQLChannel">
+      <http:operation location="/GetKSQLChannel" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetKSQLChannels">
+      <http:operation location="/GetKSQLChannels" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="UpdateImageState">
       <http:operation location="/UpdateImageState" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetExternalEntitlements">
+      <http:operation location="/GetExternalEntitlements" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ModifyCB">
+      <http:operation location="/ModifyCB" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>

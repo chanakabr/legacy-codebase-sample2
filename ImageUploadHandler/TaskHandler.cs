@@ -8,12 +8,15 @@ using System.Reflection;
 using System.Text;
 using TVinciShared;
 using ImageUploadHandler.WS_API;
+using ApiObjects;
 
 namespace ImageUploadHandler
 {
     public class TaskHandler : ITaskHandler
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        private const string RECOVERY_MESSAGE_BUCKET = "scheduled_tasks";
 
         public string HandleTask(string data)
         {
@@ -44,7 +47,7 @@ namespace ImageUploadHandler
                 if (string.IsNullOrEmpty(result) || result.ToLower() != "true")
                 {
                     // update image status
-                    UpdateImageStatus(request, eTableStatus.Failed);
+                    UpdateImageStatus(request, WS_API.eTableStatus.Failed);
 
                     throw new Exception(string.Format("error inserting image. data: {0}", data));
                 }
@@ -53,7 +56,13 @@ namespace ImageUploadHandler
                     log.DebugFormat("post image success. {0}", data);
 
                     // update image status
-                    UpdateImageStatus(request, eTableStatus.OK);
+                    UpdateImageStatus(request, WS_API.eTableStatus.OK);
+
+                    // remove from message from recovery queue
+                    string recoveryKey = ImageUploadData.BuildMessageRecoveryKey((ApiObjects.eMediaType)request.MediaType, request.RowId, request.Version);
+
+                    // remove CB document through WS API
+                    RemoveRecoveryMessage(request.GroupId, RECOVERY_MESSAGE_BUCKET, recoveryKey);
                 }
             }
             catch (Exception ex)
@@ -64,7 +73,7 @@ namespace ImageUploadHandler
             return result;
         }
 
-        private static void UpdateImageStatus(RemoteImageUploadRequest request, eTableStatus status)
+        private static void UpdateImageStatus(RemoteImageUploadRequest request, WS_API.eTableStatus status)
         {
             // post success - update ws_api
             string url = WS_Utils.GetTcmConfigValue("WS_API");
@@ -78,19 +87,42 @@ namespace ImageUploadHandler
                 if (!string.IsNullOrEmpty(url))
                     apiClient.Url = url;
 
-                bool success = apiClient.UpdateImageState(username, password, request.RowId, request.Version, (eMediaType)request.MediaType, status);
-                log.DebugFormat("update image state success. RowId: {0}, Version {1}, MediaType: {2}, State: {3}",
-                    request.RowId,                              // {0}
-                    request.Version,                            // {1}
-                    ((eMediaType)request.MediaType).ToString(), // {2}
-                    status.ToString());                         // {3}
+                bool success = apiClient.UpdateImageState(username, password, request.RowId, request.Version, (ImageUploadHandler.WS_API.eMediaType)request.MediaType, status);
 
                 if (!success)
                     throw new Exception(string.Format("Error while updating image status. RowId: {0}, Version {1}, MediaType: {2}, State: {3}",
-                    request.RowId,                              // {0}
-                    request.Version,                            // {1}
-                    ((eMediaType)request.MediaType).ToString(), // {2}
-                    status.ToString()));                        // {3}
+                    request.RowId,                                          // {0}
+                    request.Version,                                        // {1}
+                    ((ApiObjects.eMediaType)request.MediaType).ToString(),  // {2}
+                    status.ToString()));                                    // {3}
+                else
+                    log.DebugFormat("update image state success. RowId: {0}, Version {1}, MediaType: {2}, State: {3}",
+                        request.RowId,                                         // {0}
+                        request.Version,                                       // {1}
+                        ((ApiObjects.eMediaType)request.MediaType).ToString(), // {2}
+                        status.ToString());                                    // {3}
+
+            }
+        }
+
+        private static void RemoveRecoveryMessage(int groupId, string bucket, string key)
+        {
+            // remove CB document through WS API
+            string url = WS_Utils.GetTcmConfigValue("WS_API");
+            string username = string.Empty;
+            string password = string.Empty;
+            TasksCommon.RemoteTasksUtils.GetCredentials(groupId, ref username, ref password, ApiObjects.eWSModules.API);
+
+            using (API apiClient = new API())
+            {
+                if (!string.IsNullOrEmpty(url))
+                    apiClient.Url = url;
+
+                bool success = apiClient.ModifyCB(username, password, bucket, key, WS_API.eDbActionType.Delete, null, 0);
+                if (!success)
+                    log.ErrorFormat("Error while trying to remove CB document. bucket: {0}, key: {1}", bucket, key);
+                else
+                    log.DebugFormat("Successfully removed CB document. bucket: {0}, key: {1}", bucket, key);
             }
         }
 
