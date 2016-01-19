@@ -71,7 +71,7 @@ namespace Catalog
 
             queryParser.QueryType = (oSearch.m_bExact) ? eQueryType.EXACT : eQueryType.BOOLEAN;
 
-            string sQuery = queryParser.BuildSearchQueryString(oSearch.m_bUseDeviceRuleId, oSearch.m_bUseActive);
+            string sQuery = queryParser.BuildSearchQueryString(oSearch.m_bIgnoreDeviceRuleId, oSearch.m_bUseActive);
 
             if (!string.IsNullOrEmpty(sQuery))
             {
@@ -1214,7 +1214,7 @@ namespace Catalog
                 queryParser.SubscriptionsQuery = boolQuery;
             }
 
-            string requestBody = queryParser.BuildSearchQueryString(unifiedSearchDefinitions.shouldAddDeviceRuleID, unifiedSearchDefinitions.shouldAddActive);
+            string requestBody = queryParser.BuildSearchQueryString(unifiedSearchDefinitions.shouldIgnoreDeviceRuleID, unifiedSearchDefinitions.shouldAddActive);
 
             if (!string.IsNullOrEmpty(requestBody))
             {

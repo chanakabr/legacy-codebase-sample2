@@ -35,7 +35,7 @@ namespace ApiObjects.SearchObjects
 
         public bool shouldUseFinalEndDate;
         public bool shouldUseStartDate;
-        public bool shouldAddDeviceRuleID = true;
+        public bool shouldIgnoreDeviceRuleID = false;
         public bool shouldAddActive = true;
 
         public string permittedWatchRules
