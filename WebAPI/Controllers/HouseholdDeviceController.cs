@@ -128,5 +128,36 @@ namespace WebAPI.Controllers
             }
             return new KalturaDeviceRegistrationStatusHolder() { Status = status };
         }
+
+        /// <summary>
+        /// Generates device pin to use when adding a device to household by pin
+        /// </summary>
+        /// <param name="brand_id">Device brand identifier</param>
+        /// <param name="udid">Device UDID</param>
+        /// <returns></returns>
+        [Route("generatePin"), HttpPost]
+        [ApiAuthorize]
+        public KalturaDevicePin GeneratePin(string udid, int brand_id)
+        {
+            KalturaDevicePin devicePin = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            if (string.IsNullOrEmpty(udid))
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "udid cannot be empty");
+            }
+
+            try
+            {
+                // call client
+                devicePin = ClientsManager.DomainsClient().GetPinForDevice(groupId, udid, brand_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return devicePin;
+        }
     }
 }
