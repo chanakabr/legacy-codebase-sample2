@@ -375,6 +375,13 @@ namespace ElasticSearchHandler.IndexBuilders
 
                                 media.geoBlockRule = ODBCWrapper.Utils.ExtractInteger(row, "geo_block_rule_id");
 
+                                string epgIdentifier = ODBCWrapper.Utils.ExtractString(row, "epg_identifier");
+
+                                if (!string.IsNullOrEmpty(epgIdentifier))
+                                {
+                                    media.epgIdentifier = epgIdentifier;
+                                }
+
                                 #endregion
 
                                 #region - get all metas by groupId
