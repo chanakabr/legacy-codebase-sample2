@@ -1162,7 +1162,15 @@ namespace Catalog
                 else
                 {
                     // If there are specific media types, use them
-                    entitlementMediaTypes = definitions.mediaTypes.Select(t => t.ToString()).ToArray();
+                    var selectedMediaTypes = definitions.mediaTypes.Select(t => t.ToString());
+
+                    // Also add linear channel media type so that we get them in the next search
+                    if (definitions.shouldSearchEpg)
+                    {
+                        selectedMediaTypes = selectedMediaTypes.Union(group.linearChannelMediaTypes.Select(t => t.ToString()));
+                    }
+
+                    entitlementMediaTypes = selectedMediaTypes.ToArray();
                 }
 
                 entitlementSearchDefinitions.subscriptionSearchObjects =

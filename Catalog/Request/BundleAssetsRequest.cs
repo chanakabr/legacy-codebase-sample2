@@ -179,7 +179,9 @@ namespace Catalog.Request
                                  GroupsCacheManager.Channel currentChannel = allChannels[channelIndex];
 
                                  if (mediaTypes.Contains<string>("0") || mediaTypes.Contains<string>(currentChannel.m_nMediaType.ToString()) || 
-                                     currentChannel.m_nMediaType.ToString().Equals("0"))
+                                     currentChannel.m_nMediaType.ToString().Equals("0") ||
+                                     currentChannel.m_nMediaType.Contains(0) ||
+                                     currentChannel.m_nMediaType.Select(t => t.ToString()).Intersect(mediaTypes).Count() > 0)
                                  {
                                      if (currentChannel.m_nChannelTypeID == (int)ChannelType.KSQL)
                                      {
