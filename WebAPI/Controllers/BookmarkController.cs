@@ -57,16 +57,16 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Report player position and action for the user on the watched asset. Player position is used to later allow resume watching.
         /// </summary>
-        /// <param name="assetId">Internal identifier of the asset </param>
-        /// <param name="assetType">The type of the asset. Possible values <VOD, nPVR, Catch-Up> </param>
-        /// <param name="fileId">Identifier of the file</param>
-        /// <param name="PlayerAssetData">Data regarding players status for the asset</param>
+        /// <param name="asset_id">Internal identifier of the asset </param>
+        /// <param name="asset_type">The type of the asset</param>
+        /// <param name="file_id">Identifier of the file</param>
+        /// <param name="player_asset_data">Data regarding players status for the asset</param>
         /// <returns></returns>
         /// <remarks>Possible status codes: BadRequest = 500003, ConcurrencyLimitation = 4001, InvalidAssetType = 4021, 
         /// ProgramDoesntExist = 4022, ActionNotRecognized = 4023, InvalidAssetId = 4024,</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize(true)]
-        public bool Add(string assetId, KalturaAssetType assetType, long fileId, KalturaPlayerAssetData PlayerAssetData)
+        public bool Add(string asset_id, KalturaAssetType asset_type, long file_id, KalturaPlayerAssetData player_asset_data)
         {
             bool response = false;
 
@@ -76,7 +76,7 @@ namespace WebAPI.Controllers
                 string udid = KSUtils.ExtractKSPayload().UDID;
                 int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
                 string siteGuid = KS.GetFromRequest().UserId;
-                response = ClientsManager.CatalogClient().AddBookmark(groupId, siteGuid, householdId, udid, assetId, assetType, fileId, PlayerAssetData);
+                response = ClientsManager.CatalogClient().AddBookmark(groupId, siteGuid, householdId, udid, asset_id, asset_type, file_id, player_asset_data);
             }
 
             catch (ClientException ex)
