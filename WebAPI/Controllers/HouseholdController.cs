@@ -284,5 +284,53 @@ namespace WebAPI.Controllers
 
             return household;
         }
+
+        /// <summary>
+        /// Fully delete a household per specified internal or external ID. Delete all of the household information, includinh users, devices, transactions & assets.
+        /// </summary>                
+        /// <param name="filter">Household ID by which to delete a household. Possible values: internal – internal ID ; external – external ID</param>
+        /// <remarks>Possible status codes: 
+        ///</remarks>
+        [Route("deleteByOperator"), HttpPost]
+        [ApiAuthorize]
+        public bool DeleteByOperator(KalturaIdentifierTypeFilter filter)
+        {
+            var ks = KS.GetFromRequest();
+            KalturaHousehold response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            if (string.IsNullOrEmpty(filter.Identifier))
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "identifier cannot be empty");
+            }
+
+            try
+            {
+
+                if (filter.By == KalturaIdentifierTypeBy.internal_id)
+                {
+                    int householdId = 0;
+                    if (int.TryParse(filter.Identifier, out householdId))
+                    {
+                        // call client
+                        return ClientsManager.DomainsClient().RemoveDomain(groupId, householdId);
+                    }
+
+                }
+
+                else if (filter.By == KalturaIdentifierTypeBy.external_id)
+                {
+                    // call client
+                    return ClientsManager.DomainsClient().RemoveDomain(groupId, filter.Identifier);
+                }
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return true;
+        }
     }
 }

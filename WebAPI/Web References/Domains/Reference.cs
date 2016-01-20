@@ -109,6 +109,10 @@ namespace WebAPI.Domains {
         
         private System.Threading.SendOrPostCallback GetDeviceRegistrationStatusOperationCompleted;
         
+        private System.Threading.SendOrPostCallback RemoveDomainByIdOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback RemoveDomainByCoGuidOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -266,6 +270,12 @@ namespace WebAPI.Domains {
         
         /// <remarks/>
         public event GetDeviceRegistrationStatusCompletedEventHandler GetDeviceRegistrationStatusCompleted;
+        
+        /// <remarks/>
+        public event RemoveDomainByIdCompletedEventHandler RemoveDomainByIdCompleted;
+        
+        /// <remarks/>
+        public event RemoveDomainByCoGuidCompletedEventHandler RemoveDomainByCoGuidCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/AddDomain", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -1700,6 +1710,72 @@ namespace WebAPI.Domains {
             if ((this.GetDeviceRegistrationStatusCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.GetDeviceRegistrationStatusCompleted(this, new GetDeviceRegistrationStatusCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/RemoveDomainById", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status RemoveDomainById(string sWSUserName, string sWSPassword, int nDomainID) {
+            object[] results = this.Invoke("RemoveDomainById", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        nDomainID});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void RemoveDomainByIdAsync(string sWSUserName, string sWSPassword, int nDomainID) {
+            this.RemoveDomainByIdAsync(sWSUserName, sWSPassword, nDomainID, null);
+        }
+        
+        /// <remarks/>
+        public void RemoveDomainByIdAsync(string sWSUserName, string sWSPassword, int nDomainID, object userState) {
+            if ((this.RemoveDomainByIdOperationCompleted == null)) {
+                this.RemoveDomainByIdOperationCompleted = new System.Threading.SendOrPostCallback(this.OnRemoveDomainByIdOperationCompleted);
+            }
+            this.InvokeAsync("RemoveDomainById", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        nDomainID}, this.RemoveDomainByIdOperationCompleted, userState);
+        }
+        
+        private void OnRemoveDomainByIdOperationCompleted(object arg) {
+            if ((this.RemoveDomainByIdCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.RemoveDomainByIdCompleted(this, new RemoveDomainByIdCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/RemoveDomainByCoGuid", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status RemoveDomainByCoGuid(string sWSUserName, string sWSPassword, string coGuid) {
+            object[] results = this.Invoke("RemoveDomainByCoGuid", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        coGuid});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void RemoveDomainByCoGuidAsync(string sWSUserName, string sWSPassword, string coGuid) {
+            this.RemoveDomainByCoGuidAsync(sWSUserName, sWSPassword, coGuid, null);
+        }
+        
+        /// <remarks/>
+        public void RemoveDomainByCoGuidAsync(string sWSUserName, string sWSPassword, string coGuid, object userState) {
+            if ((this.RemoveDomainByCoGuidOperationCompleted == null)) {
+                this.RemoveDomainByCoGuidOperationCompleted = new System.Threading.SendOrPostCallback(this.OnRemoveDomainByCoGuidOperationCompleted);
+            }
+            this.InvokeAsync("RemoveDomainByCoGuid", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        coGuid}, this.RemoveDomainByCoGuidOperationCompleted, userState);
+        }
+        
+        private void OnRemoveDomainByCoGuidOperationCompleted(object arg) {
+            if ((this.RemoveDomainByCoGuidCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.RemoveDomainByCoGuidCompleted(this, new RemoveDomainByCoGuidCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -4230,6 +4306,58 @@ namespace WebAPI.Domains {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((DeviceRegistrationStatusResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void RemoveDomainByIdCompletedEventHandler(object sender, RemoveDomainByIdCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class RemoveDomainByIdCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal RemoveDomainByIdCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void RemoveDomainByCoGuidCompletedEventHandler(object sender, RemoveDomainByCoGuidCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class RemoveDomainByCoGuidCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal RemoveDomainByCoGuidCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
             }
         }
     }

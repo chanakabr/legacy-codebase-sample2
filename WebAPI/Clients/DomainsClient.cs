@@ -575,5 +575,69 @@ namespace WebAPI.Clients
 
             return result;
         }
+
+        internal bool RemoveDomain(int groupId, int householdId)
+        {
+            WebAPI.Domains.Status response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Domains.RemoveDomainById(group.DomainsCredentials.Username, group.DomainsCredentials.Password, householdId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        internal bool RemoveDomain(int groupId, string externalId)
+        {
+            WebAPI.Domains.Status response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Domains.RemoveDomainByCoGuid(group.DomainsCredentials.Username, group.DomainsCredentials.Password, externalId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
+        }
     }
 }
