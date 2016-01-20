@@ -1172,7 +1172,8 @@ namespace Catalog
                 entitlementSearchDefinitions.fileType = request.fileType;
 
                 // TODO: Maybe this will be the method that gets the FREE epg channel IDs
-                var entitledChannelIds = EntitledAssetsUtils.GetUserEntitledEpgChannelIds(parentGroupID, request.m_sSiteGuid);
+                var entitledChannelIds = 
+                    EntitledAssetsUtils.GetUserEntitledEpgChannelIds(parentGroupID, request.m_sSiteGuid, definitions, group.linearChannelMediaTypes);
 
                 epgChannelIds.AddRange(entitledChannelIds);
 

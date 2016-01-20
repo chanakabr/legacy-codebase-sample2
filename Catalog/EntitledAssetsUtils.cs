@@ -130,7 +130,9 @@ namespace Catalog
             return result;
         }
 
-        internal static List<int> GetUserEntitledEpgChannelIds(int parentGroupID, string siteGuid)
+        internal static List<int> GetUserEntitledEpgChannelIds(int parentGroupID, string siteGuid, 
+            UnifiedSearchDefinitions originalDefinitions,
+            List<int> linearChannelMediaTypes)
         {
             List<int> result = new List<int>();
 
@@ -142,7 +144,22 @@ namespace Catalog
                 Group group = manager.GetGroup(parentGroupID);
                 UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
 
-                var searchResults = searcher.GetEntitledEpgLinearChannels(group, definitions);
+                // Copy definitons from original object
+                definitions.entitlementSearchDefinitions = originalDefinitions.entitlementSearchDefinitions;
+                definitions.deviceRuleId = originalDefinitions.deviceRuleId;
+                definitions.groupId = parentGroupID;
+                definitions.indexGroupId = parentGroupID;
+                definitions.geoBlockRules = originalDefinitions.geoBlockRules;
+                definitions.permittedWatchRules = originalDefinitions.permittedWatchRules;
+                definitions.shouldSearchMedia = true;
+                definitions.shouldSearchEpg = false;
+                definitions.userTypeID = originalDefinitions.userTypeID;
+
+                // Most important part - tell the definitions to search only entitled assets and only of linear channels
+                definitions.filterPhrase = new BooleanLeaf("entitled_assets", "true", typeof(string), ComparisonOperator.Contains);
+                definitions.mediaTypes = linearChannelMediaTypes;
+
+                result = searcher.GetEntitledEpgLinearChannels(group, definitions);
             }
 
             return result;
