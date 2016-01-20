@@ -517,7 +517,12 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    response = m_Module.GetDomainByCoGuid(m_wsUserName, m_wsPassword, coGuid);
+                    var res = m_Module.GetDomainByCoGuid(m_wsUserName, m_wsPassword, coGuid);
+
+                    if (res != null)
+                    {
+                        response = res.DomainResponse;
+                    }
                 }
             }
             catch (Exception ex)
