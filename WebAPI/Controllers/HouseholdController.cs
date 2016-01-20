@@ -296,7 +296,6 @@ namespace WebAPI.Controllers
         public bool DeleteByOperator(KalturaIdentifierTypeFilter filter)
         {
             var ks = KS.GetFromRequest();
-            KalturaHousehold response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -324,6 +323,35 @@ namespace WebAPI.Controllers
                     // call client
                     return ClientsManager.DomainsClient().RemoveDomain(groupId, filter.Identifier);
                 }
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Suspend a given household service. Sets the household status to “suspended".The household service settings are maintained for later resume
+        /// </summary>                
+        /// <remarks>Possible status codes: 
+        ///</remarks>
+        [Route("suspend"), HttpPost]
+        [ApiAuthorize]
+        public bool Suspend()
+        {
+            var ks = KS.GetFromRequest();
+            KalturaHousehold response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                        // call client
+                return ClientsManager.DomainsClient().Suspend(groupId, (int)domainId);
+
             }
             catch (ClientException ex)
             {
