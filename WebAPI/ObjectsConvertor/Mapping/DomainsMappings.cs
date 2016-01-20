@@ -62,6 +62,10 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.Users, opt => opt.MapFrom(src => src.m_UsersIDs))
                 .ForMember(dest => dest.UsersLimit, opt => opt.MapFrom(src => src.m_nUserLimit))
                 .ForMember(dest => dest.DeviceFamilies, opt => opt.MapFrom(src => src.m_deviceFamilies));
+
+            //string (pin) to KalturaDevicePin
+            Mapper.CreateMap<string, KalturaDevicePin>()
+                .ForMember(dest => dest.Pin, opt => opt.MapFrom(src => src));
         }
 
         private static KalturaHouseholdState ConvertDomainStatus(WebAPI.Domains.DomainStatus type)

@@ -416,5 +416,39 @@ namespace WebAPI.Clients
             return result;
         }
 
+        internal KalturaDevicePin GetPinForDevice(int groupId, string udid, int deviceBrandId)
+        {
+            KalturaDevicePin result;
+            WebAPI.Domains.DevicePinResponse response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Domains.GetPINForDevice(group.DomainsCredentials.Username, group.DomainsCredentials.Password, udid, deviceBrandId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            result = Mapper.Map<KalturaDevicePin>(response.Pin);
+
+            return result;
+        }
     }
 }
