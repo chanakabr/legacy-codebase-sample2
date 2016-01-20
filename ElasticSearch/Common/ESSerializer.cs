@@ -185,7 +185,22 @@ namespace ElasticSearch.Common
 
                 recordBuilder.Append("]");
             }
+
             #endregion
+
+            #region EPG Identifier
+
+            // Add this field only if it has a value
+            if (!string.IsNullOrEmpty(media.epgIdentifier))
+            {
+                recordBuilder.Append(", \"epg_identifier\": \"");
+
+                recordBuilder.Append(media.epgIdentifier);
+
+                recordBuilder.Append("\"");
+            }
+            #endregion
+
             recordBuilder.Append(" }");
 
             return recordBuilder.ToString();

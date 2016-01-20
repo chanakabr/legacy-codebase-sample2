@@ -50,6 +50,11 @@ namespace ApiObjects.SearchObjects
         /// </summary>
         public List<int> freeFileTypes;
 
+        /// <summary>
+        /// EPG identifier (if this is a linear channel)
+        /// </summary>
+        public string epgIdentifier;
+
         #endregion
 
         #region Ctor
@@ -87,6 +92,8 @@ namespace ApiObjects.SearchObjects
             m_dTagValues = new Dictionary<string, Dictionary<long, string>>();
             regions = new List<int>();
             freeFileTypes = new List<int>();
+
+            epgIdentifier = null;
         }
 
         #endregion
@@ -116,7 +123,8 @@ namespace ApiObjects.SearchObjects
                 m_sStartDate = this.m_sStartDate,
                 m_sUpdateDate = this.m_sUpdateDate,
                 m_sUserTypes = this.m_sUserTypes,
-                geoBlockRule = this.geoBlockRule
+                geoBlockRule = this.geoBlockRule,
+                epgIdentifier = this.epgIdentifier
             };
 
             clone.m_dMeatsValues = (from meta in this.m_dMeatsValues select meta).ToDictionary(x => x.Key, x => x.Value);

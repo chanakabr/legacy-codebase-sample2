@@ -958,7 +958,8 @@ namespace Catalog
                                                   DateTime.ParseExact((string)tempToken, DATE_FORMAT, null)),
                                   start_date = ((tempToken = item.SelectToken("fields.start_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
                                                   DateTime.ParseExact((string)tempToken, DATE_FORMAT, null)),
-                                  media_type_id = ((tempToken = item.SelectToken("fields.media_type_id")) == null ? 0 : (int)tempToken)
+                                  media_type_id = ((tempToken = item.SelectToken("fields.media_type_id")) == null ? 0 : (int)tempToken),
+                                  epg_identifier = ((tempToken = item.SelectToken("fields.epg_identifier")) == null ? string.Empty : (string)tempToken),
                               });
                         }
                     }
@@ -2124,10 +2125,15 @@ namespace Catalog
                     {
                         foreach (var asset in assetsDocumentsDecoded)
                         {
-                            result.Add(asset.asset_id);
+                            string epgIdentifier = asset.epg_identifier;
+                            int epgIdentifierInt;
+
+                            if (int.TryParse(epgIdentifier, out epgIdentifierInt))
+                            {
+                                result.Add(epgIdentifierInt);
+                            }
                         }
                     }
-
 
                     #endregion
                 }

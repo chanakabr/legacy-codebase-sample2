@@ -159,6 +159,9 @@ namespace Catalog
                 definitions.filterPhrase = new BooleanLeaf("entitled_assets", "true", typeof(string), ComparisonOperator.Contains);
                 definitions.mediaTypes = linearChannelMediaTypes;
 
+                // Also indicate that we are interested in this field
+                definitions.extraReturnFields.Add("epg_identifier");
+
                 result = searcher.GetEntitledEpgLinearChannels(group, definitions);
             }
 
