@@ -15691,6 +15691,14 @@ namespace ConditionalAccess
                 status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
             };
 
+            // check
+            if (fileTypeID < 1)
+            {
+                response.status.Code = (int)eResponseStatus.InvalidFileType;
+                response.status.Message = eResponseStatus.InvalidFileType.ToString();
+                return response;
+            }
+
             string sPricingUsername = string.Empty;
             string sPricingPassword = string.Empty;
             Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sPricingUsername, ref sPricingPassword);
@@ -15708,6 +15716,7 @@ namespace ConditionalAccess
                         {
                             if (subscription.m_sCodes != null)
                             {
+                                // Get channels from subscriptions
                                 foreach (BundleCodeContainer bundleCode in subscription.m_sCodes)
                                 {
                                     int channelID;
@@ -15727,6 +15736,7 @@ namespace ConditionalAccess
                         {
                             if (subscription.m_sCodes != null)
                             {
+                                // Get channels from subscriptions
                                 foreach (BundleCodeContainer bundleCode in subscription.m_sCodes)
                                 {
                                     int channelID;
@@ -15747,6 +15757,7 @@ namespace ConditionalAccess
                     {
                         if (collection.m_sCodes != null)
                         {
+                            // Get channels from collections
                             foreach (BundleCodeContainer bundleCode in collection.m_sCodes)
                             {
                                 int channelID;
@@ -15774,12 +15785,12 @@ namespace ConditionalAccess
                 status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
             };
 
-            ConditionalAccess.UserEntitlementsObject.PPVEntitlements ppvEntitlements = new UserEntitlementsObject.PPVEntitlements();
-            //Utils.InitializeUsersEntitlements(m_nGroupID, domainID, new List<int>(), ,ppvEntitlements);
-            if (ppvEntitlements != null)
+            // Get all PPV Entitlements
+            List<string> ppvCodes = ConditionalAccessDAL.Get_AllUsersEntitlements(domainID, new List<int>()).Values.Select(x => x.ppvCode.ToString()).ToList();
+            if (ppvCodes != null && ppvCodes.Count > 0)
             {
-                // Get all PPV Entitlements
-
+                // add all ppvCode to the assets of the response
+                response.assets.Add(new KeyValuePair<eAssetTypes, List<string>>(eAssetTypes.MEDIA, ppvCodes));
                 response.status.Code = (int)eResponseStatus.OK;
                 response.status.Message = eResponseStatus.OK.ToString();
             }
