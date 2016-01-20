@@ -909,10 +909,7 @@ namespace Catalog
         {
             List<UnifiedSearchResult> searchResultsList = new List<UnifiedSearchResult>();
             totalItems = 0;
-
-            ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
-            UnifiedSearchDefinitions searchDefinitions = null;
-
+            
             // Group have user types per media  +  siteGuid != empty
             if (!string.IsNullOrEmpty(request.m_sSiteGuid) && Utils.IsGroupIDContainedInConfig(request.m_nGroupID, "GroupIDsWithIUserTypeSeperatedBySemiColon", ';'))
             {
@@ -925,7 +922,9 @@ namespace Catalog
                 request.m_oFilter.m_nUserTypeID = Utils.GetUserType(request.m_sSiteGuid, request.m_nGroupID);
             }
 
-            searchDefinitions = BuildUnifiedSearchObject(request);
+            UnifiedSearchDefinitions searchDefinitions = BuildUnifiedSearchObject(request);
+
+            ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
 
             if (searcher != null)
             {
@@ -1148,7 +1147,7 @@ namespace Catalog
                 entitlementSearchDefinitions.freeAssets =
                     EntitledAssetsUtils.GetFreeAssets(parentGroupID, request.m_sSiteGuid, out freeEpgChannelIds);
                 entitlementSearchDefinitions.entitledPaidForAssets =
-                    EntitledAssetsUtils.GetUserPPVAssets(parentGroupID, request.m_sSiteGuid, out purchasedEpgChannelIds);
+                    EntitledAssetsUtils.GetUserPPVAssets(parentGroupID, request.m_sSiteGuid, request.domainId, request.fileType, out purchasedEpgChannelIds);
 
                 epgChannelIds.AddRange(freeEpgChannelIds);
                 epgChannelIds.AddRange(purchasedEpgChannelIds);
@@ -1167,7 +1166,7 @@ namespace Catalog
                 }
 
                 entitlementSearchDefinitions.subscriptionSearchObjects =
-                    EntitledAssetsUtils.GetUserSubscriptionSearchObjects(request, parentGroupID, request.m_sSiteGuid,
+                    EntitledAssetsUtils.GetUserSubscriptionSearchObjects(request, parentGroupID, request.m_sSiteGuid, request.domainId,
                     request.order, entitlementMediaTypes, definitions.deviceRuleId);
 
                 entitlementSearchDefinitions.fileType = request.fileType;

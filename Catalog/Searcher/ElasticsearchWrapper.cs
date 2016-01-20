@@ -223,7 +223,7 @@ namespace Catalog
             return false;
         }
 
-        public SearchResultsObj SearchSubscriptionMedias(int nSubscriptionGroupId, List<MediaSearchObj> oSearch, int nLangID, bool bUseStartDate, 
+        public SearchResultsObj SearchSubscriptionMedias(int nSubscriptionGroupId, List<MediaSearchObj> oSearch, int nLangID, bool bUseStartDate,
             string sMediaTypes, ApiObjects.SearchObjects.OrderObj oOrderObj, int nPageIndex, int nPageSize)
         {
             SearchResultsObj lSortedMedias = new SearchResultsObj();
@@ -454,7 +454,7 @@ namespace Catalog
                             m_dUpdateDate = item.update_date
                         }).ToList();
                     }
-                } 
+                }
 
                 #endregion
             }
@@ -1206,7 +1206,7 @@ namespace Catalog
                 parentGroupId = unifiedSearchDefinitions.groupId;
             }
 
-            if (unifiedSearchDefinitions.entitlementSearchDefinitions != null && 
+            if (unifiedSearchDefinitions.entitlementSearchDefinitions != null &&
                 unifiedSearchDefinitions.entitlementSearchDefinitions.subscriptionSearchObjects != null)
             {
                 // If we need to search by entitlements, we have A LOT of work to do now
@@ -1951,6 +1951,7 @@ namespace Catalog
         }
 
         #endregion
+
         public List<UnifiedSearchResult> FillUpdateDates(int groupId, List<UnifiedSearchResult> assets, ref int totalItems, int pageSize, int pageIndex)
         {
             List<UnifiedSearchResult> finalList = new List<UnifiedSearchResult>();
@@ -2052,7 +2053,7 @@ namespace Catalog
                     }
                 }
 
-                var validAssets = assets.Where(asset => 
+                var validAssets = assets.Where(asset =>
                     {
                         bool valid = asset.m_dUpdateDate != DateTime.MinValue;
 
@@ -2081,6 +2082,58 @@ namespace Catalog
             }
 
             return finalList;
+        }
+
+        public List<int> GetEntitledEpgLinearChannels(Group group, UnifiedSearchDefinitions definitions)
+        {
+            List<int> result = new List<int>();
+            ESUnifiedQueryBuilder queryParser = new ESUnifiedQueryBuilder(definitions);
+            queryParser.PageIndex = 0;
+            queryParser.PageSize = 0;
+
+            if (definitions.entitlementSearchDefinitions != null &&
+                definitions.entitlementSearchDefinitions.subscriptionSearchObjects != null)
+            {
+                // If we need to search by entitlements, we have A LOT of work to do now
+                BoolQuery boolQuery = BuildMultipleSearchQuery(definitions.entitlementSearchDefinitions.subscriptionSearchObjects, group.m_nParentGroupID);
+                queryParser.SubscriptionsQuery = boolQuery;
+            }
+
+            string requestBody = queryParser.BuildSearchQueryString(definitions.shouldIgnoreDeviceRuleID, definitions.shouldAddActive);
+
+            if (!string.IsNullOrEmpty(requestBody))
+            {
+                int httpStatus = 0;
+
+                string indexes = ESUnifiedQueryBuilder.GetIndexes(definitions, group.m_nParentGroupID);
+                string types = ESUnifiedQueryBuilder.GetTypes(definitions);
+                string url = string.Format("{0}/{1}/{2}/_search", ES_BASE_ADDRESS, indexes, types);
+
+                string queryResultString = m_oESApi.SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, requestBody, true);
+
+                log.DebugFormat("ES request: URL = {0}, body = {1}, result = {2}", url, requestBody, queryResultString);
+
+                if (httpStatus == STATUS_OK)
+                {
+                    #region Process ElasticSearch result
+
+                    int totalItems = 0;
+                    List<ElasticSearchApi.ESAssetDocument> assetsDocumentsDecoded = DecodeAssetSearchJsonObject(queryResultString, ref totalItems);
+
+                    if (assetsDocumentsDecoded != null && assetsDocumentsDecoded.Count > 0)
+                    {
+                        foreach (var asset in assetsDocumentsDecoded)
+                        {
+                            result.Add(asset.asset_id);
+                        }
+                    }
+
+
+                    #endregion
+                }
+            }
+
+            return result;
         }
     }
 

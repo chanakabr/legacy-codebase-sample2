@@ -46,6 +46,8 @@ namespace GroupsCacheManager
                 GetGroupServices(ref newGroup);
 
                 SetGroupDefaults(newGroup);
+
+                newGroup.GetMediaTypes();
             }
 
             //get all PermittedWatchRules by groupID

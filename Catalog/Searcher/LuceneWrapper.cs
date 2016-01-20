@@ -9,6 +9,7 @@ using ApiObjects;
 using Catalog.Response;
 using KLogMonitor;
 using System.Reflection;
+using GroupsCacheManager;
 
 namespace Catalog
 {
@@ -304,6 +305,11 @@ namespace Catalog
         {
             throw new NotImplementedException();
         } 
+
+        public List<int> GetEntitledEpgLinearChannels(Group group, UnifiedSearchDefinitions definitions)
+        {
+            throw new NotImplementedException();
+        }
 
         #endregion
     }

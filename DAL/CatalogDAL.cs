@@ -2834,11 +2834,14 @@ namespace Tvinci.Core.DAL
         /// <param name="groupId"></param>
         /// <param name="idToName"></param>
         /// <param name="nameToId"></param>
-        public static void GetMediaTypes(int groupId, out Dictionary<int, string> idToName, out Dictionary<string, int> nameToId, out Dictionary<int, int> parentMediaTypes)
+        public static void GetMediaTypes(int groupId, out Dictionary<int, string> idToName, 
+            out Dictionary<string, int> nameToId, out Dictionary<int, int> parentMediaTypes,
+            out List<int> linearChannelMediaTypes)
         {
             idToName = new Dictionary<int, string>();
             nameToId = new Dictionary<string, int>();
             parentMediaTypes = new Dictionary<int, int>();
+            linearChannelMediaTypes = new List<int>();
 
             DataTable mediaTypes = GetMediaTypesTable(groupId);
 
@@ -2849,10 +2852,16 @@ namespace Tvinci.Core.DAL
                     int id = ODBCWrapper.Utils.ExtractInteger(mediaType, "ID");
                     string name = ODBCWrapper.Utils.ExtractString(mediaType, "NAME");
                     int parent = ODBCWrapper.Utils.ExtractInteger(mediaType, "PARENT_TYPE_ID");
+                    int isLinear = ODBCWrapper.Utils.ExtractInteger(mediaType, "IS_LINEAR");
 
                     idToName.Add(id, name);
                     nameToId.Add(name, id);
                     parentMediaTypes.Add(id, parent);
+
+                    if (isLinear == 1)
+                    {
+                        linearChannelMediaTypes.Add(id);
+                    }
                 }
             }
         }

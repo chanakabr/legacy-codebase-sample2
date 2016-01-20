@@ -3,6 +3,7 @@ using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using Catalog.Cache;
 using Catalog.Request;
+using Catalog.Response;
 using GroupsCacheManager;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,7 @@ namespace Catalog
 {
     public class EntitledAssetsUtils
     {
-        public static List<BaseSearchObject> GetUserSubscriptionSearchObjects(BaseRequest request, int groupId, string siteGuid, OrderObj order,
+        public static List<BaseSearchObject> GetUserSubscriptionSearchObjects(BaseRequest request, int groupId, string siteGuid, int domainId, OrderObj order,
             string[] mediaTypes = null, int[] deviceRuleIds = null)
         {
             List<BaseSearchObject> result = new List<BaseSearchObject>();
@@ -105,7 +106,7 @@ namespace Catalog
             return result;
         }
 
-        internal static Dictionary<eAssetTypes, List<string>> GetUserPPVAssets(int groupId, string siteGuid, out List<int> epgChannelIds)
+        internal static Dictionary<eAssetTypes, List<string>> GetUserPPVAssets(int groupId, string siteGuid, int domainId, int fileType, out List<int> epgChannelIds)
         {
             Dictionary<eAssetTypes, List<string>> result = new Dictionary<eAssetTypes, List<string>>();
             epgChannelIds = new List<int>();
@@ -153,6 +154,18 @@ namespace Catalog
         internal static List<int> GetUserEntitledEpgChannelIds(int parentGroupID, string siteGuid)
         {
             List<int> result = new List<int>();
+
+            ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+
+            if (searcher != null)
+            {
+
+                GroupManager manager = new GroupManager();
+                Group group = manager.GetGroup(parentGroupID);
+                UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
+
+                var searchResults = searcher.GetEntitledEpgLinearChannels(group, definitions);
+            }
 
             return result;
         }
