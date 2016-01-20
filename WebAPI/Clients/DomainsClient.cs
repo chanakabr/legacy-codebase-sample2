@@ -536,5 +536,44 @@ namespace WebAPI.Clients
 
             return result;
         }
+
+        internal KalturaHousehold GetDomainByCoGuid(int groupId, string externalId)
+        {
+            KalturaHousehold result = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Domains.DomainStatusResponse response = null;            
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Domains.GetDomainByCoGuid(group.DomainsCredentials.Username, group.DomainsCredentials.Password, externalId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null || response.DomainResponse == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.DomainResponse == null || response.DomainResponse.m_oDomain == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            result = Mapper.Map<KalturaHousehold>(response.DomainResponse.m_oDomain);
+
+            return result;
+        }
     }
 }

@@ -734,12 +734,12 @@ namespace WebAPI.Domains {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/GetDomainByCoGuid", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public DomainResponseObject GetDomainByCoGuid(string sWSUserName, string sWSPassword, string sCoGuid) {
+        public DomainStatusResponse GetDomainByCoGuid(string sWSUserName, string sWSPassword, string sCoGuid) {
             object[] results = this.Invoke("GetDomainByCoGuid", new object[] {
                         sWSUserName,
                         sWSPassword,
                         sCoGuid});
-            return ((DomainResponseObject)(results[0]));
+            return ((DomainStatusResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -3550,10 +3550,10 @@ namespace WebAPI.Domains {
         }
         
         /// <remarks/>
-        public DomainResponseObject Result {
+        public DomainStatusResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((DomainResponseObject)(this.results[0]));
+                return ((DomainStatusResponse)(this.results[0]));
             }
         }
     }

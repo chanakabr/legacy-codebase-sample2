@@ -981,11 +981,13 @@
     <Compile Include="Models\ConditionalAccess\KalturaEntitlementsFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPricesFilter.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdFrequencyType.cs" />
+    <Compile Include="Models\General\KalturaIdentifierTypeFilter.cs" />
     <Compile Include="Models\General\KalturaApiActionPermissionItem.cs" />
     <Compile Include="Models\General\KalturaAppToken.cs" />
     <Compile Include="Models\General\KalturaAppTokenHashType.cs" />
     <Compile Include="Models\General\KalturaAppTokenStatus.cs" />
     <Compile Include="Models\General\KalturaGroupPermission.cs" />
+    <Compile Include="Models\General\KalturaIdentifierTypeBy.cs" />
     <Compile Include="Models\General\KalturaLongValue.cs" />
     <Compile Include="Models\General\KalturaBaseResponseProfile.cs" />
     <Compile Include="Models\General\KalturaEntityReferenceBy.cs" />

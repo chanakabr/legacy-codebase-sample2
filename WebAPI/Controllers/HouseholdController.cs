@@ -6,6 +6,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Domains;
+using WebAPI.Models.General;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
 
@@ -58,33 +59,53 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Returns the household model       
+        /// Retrieve household information according to internal or external ID      
         /// </summary>        
+        /// <param name="filter">Specify how to retrieve the household. Possible values: internal – internal ID ; external – external ID</param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. Possible values: "users_base_info", "users_full_info"</param>
-        /// <param name="household_id">Household to get</param>
         /// <remarks>Possible status codes: 
         /// Household does not exist = 1006, Household user failed = 1007</remarks>                
         [Route("getByOperator"), HttpPost]
         [ApiAuthorize]
-        public KalturaHousehold GetByOperator(int household_id, List<KalturaHouseholdWithHolder> with = null)
+        public KalturaHousehold GetByOperator(KalturaIdentifierTypeFilter filter, List<KalturaHouseholdWithHolder> with = null)
         {
             var ks = KS.GetFromRequest();
             KalturaHousehold response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
+            if (string.IsNullOrEmpty(filter.Identifier))
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "identifier cannot be empty");
+            }
+
             if (with == null)
                 with = new List<KalturaHouseholdWithHolder>();
 
             try
             {
-                // call client
-                response = ClientsManager.DomainsClient().GetDomainInfo(groupId, household_id);
+                if (filter.By == KalturaIdentifierTypeBy.internal_id)
+                {
+                    int householdId = 0;
+                    if (int.TryParse(filter.Identifier, out householdId))
+                    {
+                        // call client
+                        response = ClientsManager.DomainsClient().GetDomainInfo(groupId, householdId);
+                    }
+
+                }
+
+                else if (filter.By == KalturaIdentifierTypeBy.external_id)
+                {
+                    // call client
+                    response = ClientsManager.DomainsClient().GetDomainByCoGuid(groupId, filter.Identifier);
+                }
 
                 if (with != null && with.Where(x => x.type == KalturaHouseholdWith.users_base_info || x.type == KalturaHouseholdWith.users_full_info).Count() > 0)
                 {
                     ClientsManager.DomainsClient().EnrichHouseHold(with, response, groupId);
                 }
+
             }
             catch (ClientException ex)
             {
@@ -231,7 +252,7 @@ namespace WebAPI.Controllers
             }
             return household;
         }
-        
+
         /// <summary>
         /// Update the household name and description    
         /// </summary>        

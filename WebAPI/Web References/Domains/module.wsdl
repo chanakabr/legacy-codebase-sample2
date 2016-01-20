@@ -421,7 +421,7 @@
       <s:element name="GetDomainByCoGuidResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetDomainByCoGuidResult" type="tns:DomainResponseObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetDomainByCoGuidResult" type="tns:DomainStatusResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -1384,7 +1384,7 @@
     <wsdl:part name="sCoGuid" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetDomainByCoGuidHttpPostOut">
-    <wsdl:part name="Body" element="tns:DomainResponseObject" />
+    <wsdl:part name="Body" element="tns:DomainStatusResponse" />
   </wsdl:message>
   <wsdl:message name="GetDeviceDomainsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
