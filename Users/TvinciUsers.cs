@@ -1229,7 +1229,7 @@ namespace Users
                 return ret;
             }
 
-            uro.m_user.Save(m_nGroupID, false, false);
+            uro.m_user.Save(m_nGroupID, false, true);
             ret.m_user = uro.m_user;
             ret.m_RespStatus = ResponseStatus.OK;
             return ret;
