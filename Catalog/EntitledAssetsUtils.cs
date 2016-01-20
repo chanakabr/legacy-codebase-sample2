@@ -14,8 +14,8 @@ namespace Catalog
 {
     public class EntitledAssetsUtils
     {
-        public static List<BaseSearchObject> GetUserSubscriptionSearchObjects(BaseRequest request, int groupId, string siteGuid, int domainId, OrderObj order,
-            string[] mediaTypes = null, int[] deviceRuleIds = null)
+        public static List<BaseSearchObject> GetUserSubscriptionSearchObjects(BaseRequest request, int groupId, string siteGuid, int domainId, int fileTypeId,
+            OrderObj order, string[] mediaTypes = null, int[] deviceRuleIds = null)
         {
             List<BaseSearchObject> result = new List<BaseSearchObject>();
 
@@ -52,7 +52,7 @@ namespace Catalog
             // Initialize web service
             using (ws_cas.module cas = new ws_cas.module())
             {
-                var userBundles = cas.GetUserBundles(string.Empty, string.Empty, siteGuid);
+                var userBundles = cas.GetUserBundles(userName, password, domainId, fileTypeId);
 
                 if (userBundles == null || userBundles.status == null)
                 {
@@ -64,35 +64,14 @@ namespace Catalog
                     throw new KalturaException(userBundles.status.Message, userBundles.status.Code);
                 }
 
-                foreach (var subscription in userBundles.subscriptions)
-                {
-                    eBundleType bundleType = eBundleType.SUBSCRIPTION;
+                var channelIds = userBundles.channels;
 
-                    // Get channel IDs of current bundle
-                    List<int> channelIds = Catalog.GetBundleChannelIds(group.m_nParentGroupID, subscription, bundleType);
+                // Get channels from cache
+                List<GroupsCacheManager.Channel> allChannels = groupManager.GetChannels(channelIds.ToList(), group.m_nParentGroupID);
 
-                    // Get channels from cache
-                    List<GroupsCacheManager.Channel> allChannels = groupManager.GetChannels(channelIds, group.m_nParentGroupID);
-
-                    // Build search object for each channel
-                    var subscriptionsSearchObjects = BundleAssetsRequest.BuildBaseSearchObjects(request, group, allChannels, mediaTypes, deviceRuleIds, order);
-                    result.AddRange(subscriptionsSearchObjects);
-                }
-
-                foreach (var collection in userBundles.collections)
-                {
-                    eBundleType bundleType = eBundleType.COLLECTION;
-
-                    // Get channel IDs of current bundle
-                    List<int> channelIds = Catalog.GetBundleChannelIds(group.m_nParentGroupID, collection, bundleType);
-
-                    // Get channels from cache
-                    List<GroupsCacheManager.Channel> allChannels = groupManager.GetChannels(channelIds, group.m_nParentGroupID);
-
-                    // Build search object for each channel
-                    var collectionsSearchObjects = BundleAssetsRequest.BuildBaseSearchObjects(request, group, allChannels, mediaTypes, deviceRuleIds, order);
-                    result.AddRange(collectionsSearchObjects);
-                }
+                // Build search object for each channel
+                var searchObjects = BundleAssetsRequest.BuildBaseSearchObjects(request, group, allChannels, mediaTypes, deviceRuleIds, order);
+                result.AddRange(searchObjects);
             }
 
             return result;
@@ -135,7 +114,7 @@ namespace Catalog
             // Initialize web service
             using (ws_cas.module cas = new ws_cas.module())
             {
-                var purchasedAssets = cas.GetUserPurchasedAssets(userName, password, siteGuid);
+                var purchasedAssets = cas.GetUserPurchasedAssets(userName, password, domainId, fileType);
 
                 if (purchasedAssets == null || purchasedAssets.status == null)
                 {
@@ -146,8 +125,8 @@ namespace Catalog
                 {
                     throw new KalturaException(purchasedAssets.status.Message, purchasedAssets.status.Code);
                 }
-
             }
+
             return result;
         }
 
@@ -159,7 +138,6 @@ namespace Catalog
 
             if (searcher != null)
             {
-
                 GroupManager manager = new GroupManager();
                 Group group = manager.GetGroup(parentGroupID);
                 UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();

@@ -1166,7 +1166,7 @@ namespace Catalog
                 }
 
                 entitlementSearchDefinitions.subscriptionSearchObjects =
-                    EntitledAssetsUtils.GetUserSubscriptionSearchObjects(request, parentGroupID, request.m_sSiteGuid, request.domainId,
+                    EntitledAssetsUtils.GetUserSubscriptionSearchObjects(request, parentGroupID, request.m_sSiteGuid, request.domainId, request.fileType,
                     request.order, entitlementMediaTypes, definitions.deviceRuleId);
 
                 entitlementSearchDefinitions.fileType = request.fileType;

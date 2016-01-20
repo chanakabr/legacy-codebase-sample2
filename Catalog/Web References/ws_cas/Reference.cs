@@ -814,28 +814,30 @@ namespace Catalog.ws_cas {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetUserBundles", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public UserBundlesResponse GetUserBundles(string sWSUserName, string sWSPassword, string siteGuid) {
+        public UserBundlesResponse GetUserBundles(string sWSUserName, string sWSPassword, int domainID, int fileTypeID) {
             object[] results = this.Invoke("GetUserBundles", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        siteGuid});
+                        domainID,
+                        fileTypeID});
             return ((UserBundlesResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void GetUserBundlesAsync(string sWSUserName, string sWSPassword, string siteGuid) {
-            this.GetUserBundlesAsync(sWSUserName, sWSPassword, siteGuid, null);
+        public void GetUserBundlesAsync(string sWSUserName, string sWSPassword, int domainID, int fileTypeID) {
+            this.GetUserBundlesAsync(sWSUserName, sWSPassword, domainID, fileTypeID, null);
         }
         
         /// <remarks/>
-        public void GetUserBundlesAsync(string sWSUserName, string sWSPassword, string siteGuid, object userState) {
+        public void GetUserBundlesAsync(string sWSUserName, string sWSPassword, int domainID, int fileTypeID, object userState) {
             if ((this.GetUserBundlesOperationCompleted == null)) {
                 this.GetUserBundlesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetUserBundlesOperationCompleted);
             }
             this.InvokeAsync("GetUserBundles", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        siteGuid}, this.GetUserBundlesOperationCompleted, userState);
+                        domainID,
+                        fileTypeID}, this.GetUserBundlesOperationCompleted, userState);
         }
         
         private void OnGetUserBundlesOperationCompleted(object arg) {
@@ -847,28 +849,30 @@ namespace Catalog.ws_cas {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetUserPurchasedAssets", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public UserPurhcasedAssetsResponse GetUserPurchasedAssets(string sWSUserName, string sWSPassword, string siteGuid) {
+        public UserPurhcasedAssetsResponse GetUserPurchasedAssets(string sWSUserName, string sWSPassword, int domainID, int fileTypeID) {
             object[] results = this.Invoke("GetUserPurchasedAssets", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        siteGuid});
+                        domainID,
+                        fileTypeID});
             return ((UserPurhcasedAssetsResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void GetUserPurchasedAssetsAsync(string sWSUserName, string sWSPassword, string siteGuid) {
-            this.GetUserPurchasedAssetsAsync(sWSUserName, sWSPassword, siteGuid, null);
+        public void GetUserPurchasedAssetsAsync(string sWSUserName, string sWSPassword, int domainID, int fileTypeID) {
+            this.GetUserPurchasedAssetsAsync(sWSUserName, sWSPassword, domainID, fileTypeID, null);
         }
         
         /// <remarks/>
-        public void GetUserPurchasedAssetsAsync(string sWSUserName, string sWSPassword, string siteGuid, object userState) {
+        public void GetUserPurchasedAssetsAsync(string sWSUserName, string sWSPassword, int domainID, int fileTypeID, object userState) {
             if ((this.GetUserPurchasedAssetsOperationCompleted == null)) {
                 this.GetUserPurchasedAssetsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetUserPurchasedAssetsOperationCompleted);
             }
             this.InvokeAsync("GetUserPurchasedAssets", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        siteGuid}, this.GetUserPurchasedAssetsOperationCompleted, userState);
+                        domainID,
+                        fileTypeID}, this.GetUserPurchasedAssetsOperationCompleted, userState);
         }
         
         private void OnGetUserPurchasedAssetsOperationCompleted(object arg) {
@@ -1545,23 +1549,25 @@ namespace Catalog.ws_cas {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetDomainTransactionsHistory", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public DomainTransactionsHistoryResponse GetDomainTransactionsHistory(string sWSUserName, string sWSPassword, int domainID, System.DateTime dStartDate, System.DateTime dEndDate) {
+        public DomainTransactionsHistoryResponse GetDomainTransactionsHistory(string sWSUserName, string sWSPassword, int domainID, System.DateTime dStartDate, System.DateTime dEndDate, int pageSize, int pageIndex) {
             object[] results = this.Invoke("GetDomainTransactionsHistory", new object[] {
                         sWSUserName,
                         sWSPassword,
                         domainID,
                         dStartDate,
-                        dEndDate});
+                        dEndDate,
+                        pageSize,
+                        pageIndex});
             return ((DomainTransactionsHistoryResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void GetDomainTransactionsHistoryAsync(string sWSUserName, string sWSPassword, int domainID, System.DateTime dStartDate, System.DateTime dEndDate) {
-            this.GetDomainTransactionsHistoryAsync(sWSUserName, sWSPassword, domainID, dStartDate, dEndDate, null);
+        public void GetDomainTransactionsHistoryAsync(string sWSUserName, string sWSPassword, int domainID, System.DateTime dStartDate, System.DateTime dEndDate, int pageSize, int pageIndex) {
+            this.GetDomainTransactionsHistoryAsync(sWSUserName, sWSPassword, domainID, dStartDate, dEndDate, pageSize, pageIndex, null);
         }
         
         /// <remarks/>
-        public void GetDomainTransactionsHistoryAsync(string sWSUserName, string sWSPassword, int domainID, System.DateTime dStartDate, System.DateTime dEndDate, object userState) {
+        public void GetDomainTransactionsHistoryAsync(string sWSUserName, string sWSPassword, int domainID, System.DateTime dStartDate, System.DateTime dEndDate, int pageSize, int pageIndex, object userState) {
             if ((this.GetDomainTransactionsHistoryOperationCompleted == null)) {
                 this.GetDomainTransactionsHistoryOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetDomainTransactionsHistoryOperationCompleted);
             }
@@ -1570,7 +1576,9 @@ namespace Catalog.ws_cas {
                         sWSPassword,
                         domainID,
                         dStartDate,
-                        dEndDate}, this.GetDomainTransactionsHistoryOperationCompleted, userState);
+                        dEndDate,
+                        pageSize,
+                        pageIndex}, this.GetDomainTransactionsHistoryOperationCompleted, userState);
         }
         
         private void OnGetDomainTransactionsHistoryOperationCompleted(object arg) {
@@ -9274,29 +9282,17 @@ namespace Catalog.ws_cas {
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class UserBundlesResponse {
         
-        private int[] subscriptionsField;
-        
-        private int[] collectionsField;
+        private int[] channelsField;
         
         private Status statusField;
         
         /// <remarks/>
-        public int[] subscriptions {
+        public int[] channels {
             get {
-                return this.subscriptionsField;
+                return this.channelsField;
             }
             set {
-                this.subscriptionsField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int[] collections {
-            get {
-                return this.collectionsField;
-            }
-            set {
-                this.collectionsField = value;
+                this.channelsField = value;
             }
         }
         
