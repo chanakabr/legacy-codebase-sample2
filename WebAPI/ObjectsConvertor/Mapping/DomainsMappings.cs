@@ -71,6 +71,10 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.UsersLimit, opt => opt.MapFrom(src => src.m_nUserLimit))
                 .ForMember(dest => dest.DeviceFamilies, opt => opt.MapFrom(src => src.m_deviceFamilies));
 
+            //string (pin) to KalturaDevicePin
+            Mapper.CreateMap<string, KalturaDevicePin>()
+                .ForMember(dest => dest.Pin, opt => opt.MapFrom(src => src));
+
             //DLM to KalturaHouseholdLimitationModule
             Mapper.CreateMap<WebAPI.Domains.LimitationsManager, KalturaHouseholdLimitations>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.domianLimitID))

@@ -459,10 +459,16 @@
       <s:element name="GetPINForDeviceResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetPINForDeviceResult" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetPINForDeviceResult" type="tns:DevicePinResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:complexType name="DevicePinResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Pin" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="RegisterDeviceToDomainWithPIN">
         <s:complexType>
           <s:sequence>
@@ -1002,7 +1008,7 @@
       <s:element name="DomainResponse" nillable="true" type="tns:DomainResponse" />
       <s:element name="int" type="s:int" />
       <s:element name="ArrayOfDomain" nillable="true" type="tns:ArrayOfDomain" />
-      <s:element name="string" nillable="true" type="s:string" />
+      <s:element name="DevicePinResponse" nillable="true" type="tns:DevicePinResponse" />
       <s:element name="DeviceResponse" nillable="true" type="tns:DeviceResponse" />
       <s:element name="boolean" type="s:boolean" />
       <s:element name="ArrayOfInt" nillable="true" type="tns:ArrayOfInt" />
@@ -1401,7 +1407,7 @@
     <wsdl:part name="nBrandID" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetPINForDeviceHttpPostOut">
-    <wsdl:part name="Body" element="tns:string" />
+    <wsdl:part name="Body" element="tns:DevicePinResponse" />
   </wsdl:message>
   <wsdl:message name="RegisterDeviceToDomainWithPINHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
