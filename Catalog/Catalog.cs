@@ -5962,7 +5962,7 @@ namespace Catalog
 
             definitions.deviceRuleId = deviceRules;
 
-            definitions.shouldAddDeviceRuleID = request.m_bAddDeviceRuleID;
+            definitions.shouldIgnoreDeviceRuleID = request.m_bIgnoreDeviceRuleID;
             #endregion
 
             #region Media Types, Permitted Watch Rules, Language

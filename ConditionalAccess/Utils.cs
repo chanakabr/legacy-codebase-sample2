@@ -3627,7 +3627,7 @@ namespace ConditionalAccess
             }
         }
 
-        internal static void InitializeUsersBundles(string sUserGUID, int domainID, int m_nGroupID, List<int> allUsersInDomain, string sPricingUsername, string sPricingPassword, UserEntitlementsObject.BundleEntitlements userBundleEntitlements)
+        internal static void InitializeUsersBundles(int domainID, int m_nGroupID, List<int> allUsersInDomain, string sPricingUsername, string sPricingPassword, UserEntitlementsObject.BundleEntitlements userBundleEntitlements)
         {
             GetAllUserBundles(m_nGroupID, domainID, allUsersInDomain, userBundleEntitlements);
             userBundleEntitlements.FileTypeIdToSubscriptionMappings = new Dictionary<int, List<Subscription>>();
