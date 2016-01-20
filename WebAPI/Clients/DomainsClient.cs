@@ -23,7 +23,7 @@ namespace WebAPI.Clients
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public DomainsClient()
-        { 
+        {
         }
 
         #region Properties
@@ -121,7 +121,7 @@ namespace WebAPI.Clients
             }
         }
 
-        internal KalturaHousehold AddDomain(int groupId, string domainName, string domainDescription, string masterUserId)
+        internal KalturaHousehold AddDomain(int groupId, string domainName, string domainDescription, string masterUserId, string externalId = null)
         {
             KalturaHousehold result = null;
             Group group = GroupsManager.GetGroup(groupId);
@@ -131,7 +131,14 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Domains.AddDomain(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainName, domainDescription, int.Parse(masterUserId));
+                    if (string.IsNullOrEmpty(externalId))
+                    {
+                        response = Domains.AddDomain(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainName, domainDescription, int.Parse(masterUserId));
+                    }
+                    else
+                    {
+                        response = Domains.AddDomainWithCoGuid(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainName, domainDescription, int.Parse(masterUserId), externalId);
+                    }
                 }
             }
             catch (Exception ex)
@@ -457,7 +464,7 @@ namespace WebAPI.Clients
             result = Mapper.Map<KalturaHousehold>(response.DomainResponse.m_oDomain);
 
             return result;
-        }        
+        }
 
         internal bool SetDeviceInfo(int groupId, string deviceName, string udid)
         {
@@ -501,7 +508,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Domains.SetDomainInfo(group.DomainsCredentials.Username, group.DomainsCredentials.Password ,domainId,name, description);
+                    response = Domains.SetDomainInfo(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId, name, description);
                 }
             }
             catch (Exception ex)
@@ -528,6 +535,6 @@ namespace WebAPI.Clients
             result = Mapper.Map<KalturaHousehold>(response.DomainResponse.m_oDomain);
 
             return result;
-        }       
+        }
     }
 }

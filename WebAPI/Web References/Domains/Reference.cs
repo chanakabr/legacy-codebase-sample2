@@ -306,7 +306,7 @@ namespace WebAPI.Domains {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/AddDomainWithCoGuid", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public DomainResponseObject AddDomainWithCoGuid(string sWSUserName, string sWSPassword, string sDomainName, string sDomainDescription, int nMasterUserGuid, string sCoGuid) {
+        public DomainStatusResponse AddDomainWithCoGuid(string sWSUserName, string sWSPassword, string sDomainName, string sDomainDescription, int nMasterUserGuid, string sCoGuid) {
             object[] results = this.Invoke("AddDomainWithCoGuid", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -314,7 +314,7 @@ namespace WebAPI.Domains {
                         sDomainDescription,
                         nMasterUserGuid,
                         sCoGuid});
-            return ((DomainResponseObject)(results[0]));
+            return ((DomainStatusResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -3238,10 +3238,10 @@ namespace WebAPI.Domains {
         }
         
         /// <remarks/>
-        public DomainResponseObject Result {
+        public DomainStatusResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((DomainResponseObject)(this.results[0]));
+                return ((DomainStatusResponse)(this.results[0]));
             }
         }
     }

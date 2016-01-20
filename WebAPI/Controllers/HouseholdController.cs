@@ -104,11 +104,12 @@ namespace WebAPI.Controllers
         /// </summary>        
         /// <param name="name">Name for the household</param>
         /// <param name="description">Description for the household</param>
+        /// <param name="external_id">Unique external ID to identify the household</param>
         /// <remarks>Possible status codes: 
         /// User exists in other household = 1018, Household user failed = 1007</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        public KalturaHousehold Add(string name, string description)
+        public KalturaHousehold Add(string name, string description, string external_id = null)
         {
             KalturaHousehold response = null;
 
@@ -118,7 +119,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.DomainsClient().AddDomain(groupId, name, description, userId);
+                response = ClientsManager.DomainsClient().AddDomain(groupId, name, description, userId, external_id);
             }
             catch (ClientException ex)
             {
