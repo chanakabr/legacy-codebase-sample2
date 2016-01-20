@@ -230,7 +230,7 @@ namespace ElasticSearch.Searcher
             return query;
         }
 
-        public virtual string BuildSearchQueryString(bool bAddDeviceRuleID = true, bool bAddActive = true)
+        public virtual string BuildSearchQueryString(bool bIgnoreDeviceRuleID = true, bool bAddActive = true)
         {
             string sResult = string.Empty;
 
@@ -326,7 +326,7 @@ namespace ElasticSearch.Searcher
             {
                 Key = "device_rule_id"
             };
-            if (bAddDeviceRuleID)
+            if (!bIgnoreDeviceRuleID)
             {
                 deviceRulesTerms.Value.Add("0");
 

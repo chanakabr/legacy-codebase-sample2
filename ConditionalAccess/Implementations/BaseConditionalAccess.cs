@@ -5058,8 +5058,8 @@ namespace ConditionalAccess
                             dCurrent = (DateTime)(dataRow["cDate"]);
 
                         DateTime dCreateDate = DateTime.UtcNow;
-                        if (dataRow["CREATE_DATE"] != null && dataRow["CREATE_DATE"] != DBNull.Value)
-                            dCreateDate = (DateTime)(dataRow["CREATE_DATE"]);
+                        if (dataRow["START_DATE"] != null && dataRow["START_DATE"] != DBNull.Value)
+                            dCreateDate = (DateTime)(dataRow["START_DATE"]);
 
                         string billingGuid = ODBCWrapper.Utils.GetSafeStr(dataRow, "BILLING_GUID");
                         PaymentMethod payMet = GetBillingTransMethod(billingTransID, billingGuid);
@@ -5340,7 +5340,7 @@ namespace ConditionalAccess
 
                         DateTime endDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow["END_DATE"]);
                         DateTime dCurrent = ODBCWrapper.Utils.GetDateSafeVal(dataRow["cDate"]);
-                        DateTime createDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow["CREATE_DATE"]);
+                        DateTime createDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow["START_DATE"]);
                         DateTime lastViewDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow["LAST_VIEW_DATE"]);
                         int gracePeriodMinutes = ODBCWrapper.Utils.GetIntSafeVal(dataRow["GRACE_PERIOD_MINUTES"]);
 
@@ -7857,7 +7857,7 @@ namespace ConditionalAccess
                         //Get all user PPV entitlements
                         Utils.InitializeUsersEntitlements(m_nGroupID, domainID, allUsersInDomain, mapper, userEntitlements.userPpvEntitlements);
                         //Get all user bundle entitlements
-                        Utils.InitializeUsersBundles(sUserGUID, domainID, m_nGroupID, allUsersInDomain, sPricingUsername, sPricingPassword, userEntitlements.userBundleEntitlements);
+                        Utils.InitializeUsersBundles(domainID, m_nGroupID, allUsersInDomain, sPricingUsername, sPricingPassword, userEntitlements.userBundleEntitlements);
                     }
 
                     // set max amount of concurrent tasks
@@ -8344,7 +8344,7 @@ namespace ConditionalAccess
         /// <summary>
         /// Get Domain Billing History
         /// </summary>
-        public virtual DomainTransactionsHistoryResponse GetDomainTransactionsHistory(int domainID, DateTime dStartDate, DateTime dEndDate)
+        public virtual DomainTransactionsHistoryResponse GetDomainTransactionsHistory(int domainID, DateTime dStartDate, DateTime dEndDate, int pageSize, int pageIndex)
         {
             DomainTransactionsHistoryResponse domainTransactionsHistoryResponse = null;            
 
@@ -8363,8 +8363,34 @@ namespace ConditionalAccess
                     domainTransactionsHistoryResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no history billing for domain");
                     return domainTransactionsHistoryResponse;
                 }
-                                                
-                foreach (DataRow dr in domainBillingHistory.Rows)
+
+                IEnumerable<DataRow> iterationRows = null;
+                List<DataRow> filteredRows = null;
+
+                if(pageIndex > 0 && pageSize > 0)
+                {                   
+                    int takeTop = pageIndex * pageSize;
+                    Int64 maxTransactionID = (from row in domainBillingHistory.AsEnumerable().Take(takeTop)
+                                                select row.Field<Int64>("ID")).ToList().Min();
+                    filteredRows = (from row in domainBillingHistory.AsEnumerable()
+                                    where (Int64)row["ID"] < maxTransactionID
+                                    select row).Take(pageSize).ToList();
+                }                
+
+                if (filteredRows != null)
+                {
+                    iterationRows = filteredRows;
+                }
+                else if (pageSize > -1)
+                {
+                    iterationRows = domainBillingHistory.AsEnumerable().Take(pageSize);
+                }
+                else
+                {
+                    iterationRows = domainBillingHistory.AsEnumerable();
+                }
+
+                foreach (DataRow dr in iterationRows)
                 {
                     TransactionHistoryContainer transactionHistory = GetBillingTransactionContainerFromDataRow(dr, true);
                     if (transactionHistory != null)
@@ -8374,8 +8400,7 @@ namespace ConditionalAccess
                         domainTransactionsHistoryResponse.TransactionsHistory.Add(transactionHistory);
                     }
                 }
-                domainTransactionsHistoryResponse.TransactionsHistory.OrderBy(x => x.m_dtActionDate);
-                domainTransactionsHistoryResponse.TransactionsCount = domainTransactionsHistoryResponse.TransactionsHistory.Count;                
+                domainTransactionsHistoryResponse.TransactionsCount = domainBillingHistory.Rows.Count;                
                 domainTransactionsHistoryResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
 
