@@ -179,6 +179,6 @@ namespace WebAPI.Models.Domains
         [JsonProperty("device_families")]
         [XmlArray(ElementName = "device_families", IsNullable = true)]
         [XmlArrayItem("item")]
-        public List<KalturaHouseholdDeviceFamily> DeviceFamilies { get; set; }
+        public List<KalturaDeviceFamily> DeviceFamilies { get; set; }
     }
 }

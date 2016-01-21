@@ -33,7 +33,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive));
 
             //DeviceContainer to KalturaHouseholdDeviceFamily
-            Mapper.CreateMap<WebAPI.Domains.DeviceContainer, KalturaHouseholdDeviceFamily>()
+            Mapper.CreateMap<WebAPI.Domains.DeviceContainer, KalturaDeviceFamily>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_deviceFamilyID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_deviceFamilyName))
                 .ForMember(dest => dest.DeviceLimit, opt => opt.MapFrom(src => src.m_deviceLimit))
