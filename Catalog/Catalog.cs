@@ -632,10 +632,10 @@ namespace Catalog
                                 picObj.m_sSize = string.Format("{0}X{1}", pictureSize.Width, pictureSize.Height);
 
                                 // get ratio string
-                                picObj.ratio = groupRatios.First(x => x.Id == pictureSize.RatioId).Name;
+                                picObj.ratio = ratio.Name;
 
                                 // get picture id: <pic_base_url>_<ratio_id>
-                                picObj.id = string.Format("{0}_{1}", Path.GetFileNameWithoutExtension(pic.BaseUrl), pic.RatioId);
+                                picObj.id = string.Format("{0}_{1}", Path.GetFileNameWithoutExtension(pic.BaseUrl), ratio.Id);
 
                                 // get version: if ratio_id exists in pictures table => get its version
                                 picObj.version = pic.Version;

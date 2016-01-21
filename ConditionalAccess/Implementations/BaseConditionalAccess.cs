@@ -7849,7 +7849,7 @@ namespace ConditionalAccess
                         //Get all user PPV entitlements
                         Utils.InitializeUsersEntitlements(m_nGroupID, domainID, allUsersInDomain, mapper, userEntitlements.userPpvEntitlements);
                         //Get all user bundle entitlements
-                        Utils.InitializeUsersBundles(sUserGUID, domainID, m_nGroupID, allUsersInDomain, sPricingUsername, sPricingPassword, userEntitlements.userBundleEntitlements);
+                        Utils.InitializeUsersBundles(domainID, m_nGroupID, allUsersInDomain, sPricingUsername, sPricingPassword, userEntitlements.userBundleEntitlements);
                     }
 
                     // set max amount of concurrent tasks
