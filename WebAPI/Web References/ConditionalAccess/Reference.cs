@@ -575,22 +575,23 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetUserEntitlements", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Entitlements GetUserEntitlements(string sWSUserName, string sWSPassword, string sSiteGUID, eTransactionType type) {
+        public Entitlements GetUserEntitlements(string sWSUserName, string sWSPassword, string sSiteGUID, eTransactionType type, bool isExpired) {
             object[] results = this.Invoke("GetUserEntitlements", new object[] {
                         sWSUserName,
                         sWSPassword,
                         sSiteGUID,
-                        type});
+                        type,
+                        isExpired});
             return ((Entitlements)(results[0]));
         }
         
         /// <remarks/>
-        public void GetUserEntitlementsAsync(string sWSUserName, string sWSPassword, string sSiteGUID, eTransactionType type) {
-            this.GetUserEntitlementsAsync(sWSUserName, sWSPassword, sSiteGUID, type, null);
+        public void GetUserEntitlementsAsync(string sWSUserName, string sWSPassword, string sSiteGUID, eTransactionType type, bool isExpired) {
+            this.GetUserEntitlementsAsync(sWSUserName, sWSPassword, sSiteGUID, type, isExpired, null);
         }
         
         /// <remarks/>
-        public void GetUserEntitlementsAsync(string sWSUserName, string sWSPassword, string sSiteGUID, eTransactionType type, object userState) {
+        public void GetUserEntitlementsAsync(string sWSUserName, string sWSPassword, string sSiteGUID, eTransactionType type, bool isExpired, object userState) {
             if ((this.GetUserEntitlementsOperationCompleted == null)) {
                 this.GetUserEntitlementsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetUserEntitlementsOperationCompleted);
             }
@@ -598,7 +599,8 @@ namespace WebAPI.ConditionalAccess {
                         sWSUserName,
                         sWSPassword,
                         sSiteGUID,
-                        type}, this.GetUserEntitlementsOperationCompleted, userState);
+                        type,
+                        isExpired}, this.GetUserEntitlementsOperationCompleted, userState);
         }
         
         private void OnGetUserEntitlementsOperationCompleted(object arg) {
@@ -610,22 +612,23 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetDomainEntitlements", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Entitlements GetDomainEntitlements(string sWSUserName, string sWSPassword, int domainId, eTransactionType type) {
+        public Entitlements GetDomainEntitlements(string sWSUserName, string sWSPassword, int domainId, eTransactionType type, bool isExpired) {
             object[] results = this.Invoke("GetDomainEntitlements", new object[] {
                         sWSUserName,
                         sWSPassword,
                         domainId,
-                        type});
+                        type,
+                        isExpired});
             return ((Entitlements)(results[0]));
         }
         
         /// <remarks/>
-        public void GetDomainEntitlementsAsync(string sWSUserName, string sWSPassword, int domainId, eTransactionType type) {
-            this.GetDomainEntitlementsAsync(sWSUserName, sWSPassword, domainId, type, null);
+        public void GetDomainEntitlementsAsync(string sWSUserName, string sWSPassword, int domainId, eTransactionType type, bool isExpired) {
+            this.GetDomainEntitlementsAsync(sWSUserName, sWSPassword, domainId, type, isExpired, null);
         }
         
         /// <remarks/>
-        public void GetDomainEntitlementsAsync(string sWSUserName, string sWSPassword, int domainId, eTransactionType type, object userState) {
+        public void GetDomainEntitlementsAsync(string sWSUserName, string sWSPassword, int domainId, eTransactionType type, bool isExpired, object userState) {
             if ((this.GetDomainEntitlementsOperationCompleted == null)) {
                 this.GetDomainEntitlementsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetDomainEntitlementsOperationCompleted);
             }
@@ -633,7 +636,8 @@ namespace WebAPI.ConditionalAccess {
                         sWSUserName,
                         sWSPassword,
                         domainId,
-                        type}, this.GetDomainEntitlementsOperationCompleted, userState);
+                        type,
+                        isExpired}, this.GetDomainEntitlementsOperationCompleted, userState);
         }
         
         private void OnGetDomainEntitlementsOperationCompleted(object arg) {
@@ -1427,23 +1431,25 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetDomainTransactionsHistory", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public DomainTransactionsHistoryResponse GetDomainTransactionsHistory(string sWSUserName, string sWSPassword, int domainID, System.DateTime dStartDate, System.DateTime dEndDate) {
+        public DomainTransactionsHistoryResponse GetDomainTransactionsHistory(string sWSUserName, string sWSPassword, int domainID, System.DateTime dStartDate, System.DateTime dEndDate, int pageSize, int pageIndex) {
             object[] results = this.Invoke("GetDomainTransactionsHistory", new object[] {
                         sWSUserName,
                         sWSPassword,
                         domainID,
                         dStartDate,
-                        dEndDate});
+                        dEndDate,
+                        pageSize,
+                        pageIndex});
             return ((DomainTransactionsHistoryResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void GetDomainTransactionsHistoryAsync(string sWSUserName, string sWSPassword, int domainID, System.DateTime dStartDate, System.DateTime dEndDate) {
-            this.GetDomainTransactionsHistoryAsync(sWSUserName, sWSPassword, domainID, dStartDate, dEndDate, null);
+        public void GetDomainTransactionsHistoryAsync(string sWSUserName, string sWSPassword, int domainID, System.DateTime dStartDate, System.DateTime dEndDate, int pageSize, int pageIndex) {
+            this.GetDomainTransactionsHistoryAsync(sWSUserName, sWSPassword, domainID, dStartDate, dEndDate, pageSize, pageIndex, null);
         }
         
         /// <remarks/>
-        public void GetDomainTransactionsHistoryAsync(string sWSUserName, string sWSPassword, int domainID, System.DateTime dStartDate, System.DateTime dEndDate, object userState) {
+        public void GetDomainTransactionsHistoryAsync(string sWSUserName, string sWSPassword, int domainID, System.DateTime dStartDate, System.DateTime dEndDate, int pageSize, int pageIndex, object userState) {
             if ((this.GetDomainTransactionsHistoryOperationCompleted == null)) {
                 this.GetDomainTransactionsHistoryOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetDomainTransactionsHistoryOperationCompleted);
             }
@@ -1452,7 +1458,9 @@ namespace WebAPI.ConditionalAccess {
                         sWSPassword,
                         domainID,
                         dStartDate,
-                        dEndDate}, this.GetDomainTransactionsHistoryOperationCompleted, userState);
+                        dEndDate,
+                        pageSize,
+                        pageIndex}, this.GetDomainTransactionsHistoryOperationCompleted, userState);
         }
         
         private void OnGetDomainTransactionsHistoryOperationCompleted(object arg) {

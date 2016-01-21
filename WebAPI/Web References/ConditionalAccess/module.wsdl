@@ -39,6 +39,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sSiteGUID" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="type" type="tns:eTransactionType" />
+            <s:element minOccurs="1" maxOccurs="1" name="isExpired" type="s:boolean" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -115,6 +116,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:int" />
             <s:element minOccurs="1" maxOccurs="1" name="type" type="tns:eTransactionType" />
+            <s:element minOccurs="1" maxOccurs="1" name="isExpired" type="s:boolean" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -821,6 +823,8 @@
             <s:element minOccurs="1" maxOccurs="1" name="domainID" type="s:int" />
             <s:element minOccurs="1" maxOccurs="1" name="dStartDate" type="s:dateTime" />
             <s:element minOccurs="1" maxOccurs="1" name="dEndDate" type="s:dateTime" />
+            <s:element minOccurs="1" maxOccurs="1" name="pageSize" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="pageIndex" type="s:int" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -3514,6 +3518,7 @@
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="sSiteGUID" type="s:string" />
     <wsdl:part name="type" type="s:string" />
+    <wsdl:part name="isExpired" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetUserEntitlementsHttpPostOut">
     <wsdl:part name="Body" element="tns:Entitlements" />
@@ -3523,6 +3528,7 @@
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="domainId" type="s:string" />
     <wsdl:part name="type" type="s:string" />
+    <wsdl:part name="isExpired" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetDomainEntitlementsHttpPostOut">
     <wsdl:part name="Body" element="tns:Entitlements" />
@@ -3703,6 +3709,8 @@
     <wsdl:part name="domainID" type="s:string" />
     <wsdl:part name="dStartDate" type="s:string" />
     <wsdl:part name="dEndDate" type="s:string" />
+    <wsdl:part name="pageSize" type="s:string" />
+    <wsdl:part name="pageIndex" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetDomainTransactionsHistoryHttpPostOut">
     <wsdl:part name="Body" element="tns:DomainTransactionsHistoryResponse" />

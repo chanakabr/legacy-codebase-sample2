@@ -21,7 +21,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: 
         /// Household suspended = 1009, Invalid purchase = 3000, Cancellation window period expired = 3001, Content already consumed = 3005</remarks>
         [Route("cancel"), HttpPost]
-        [ApiAuthorize]        
+        [ApiAuthorize]
         public bool Cancel(int asset_id, KalturaTransactionType transaction_type)
         {
             bool response = false;
@@ -144,10 +144,11 @@ namespace WebAPI.Controllers
         /// Gets all the entitled media items for a household
         /// </summary>        
         /// <param name="filter">Request filter</param>
+        /// <param name="expired">When provided – returns also the expired items. Possible values: True – return also the expired items ; False – return only the active entitlements </param>
         /// <remarks></remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaEntitlementListResponse List(KalturaEntitlementsFilter filter)
+        public KalturaEntitlementListResponse List(KalturaEntitlementsFilter filter, bool? expired = null)
         {
             List<KalturaEntitlement> response = new List<KalturaEntitlement>();
 
@@ -164,10 +165,24 @@ namespace WebAPI.Controllers
                 switch (filter.By)
                 {
                     case KalturaEntityReferenceBy.user:
-                        response = ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, KS.GetFromRequest().UserId, filter.EntitlementType);
+                        {
+                            if (expired.HasValue && expired.Value)
+                            {
+                                response = ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, KS.GetFromRequest().UserId, filter.EntitlementType, true);
+                            }
+                            else
+                                response = ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, KS.GetFromRequest().UserId, filter.EntitlementType);
+                        }
                         break;
                     case KalturaEntityReferenceBy.household:
-                        response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), filter.EntitlementType);
+                        {
+                            if (expired.HasValue && expired.Value)
+                            {
+                                response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), filter.EntitlementType, true);
+                            }
+                            else
+                                response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), filter.EntitlementType);
+                        }
                         break;
                     default:
                         throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "unknown reference type");
@@ -203,7 +218,7 @@ namespace WebAPI.Controllers
             string userId = KS.GetFromRequest().UserId;
 
             long domainID = HouseholdUtils.GetHouseholdIDByKS(groupId);
-            
+
             try
             {
                 // call client
