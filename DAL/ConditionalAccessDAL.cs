@@ -626,7 +626,7 @@ namespace DAL
         }
 
         public static bool Get_AllUsersPurchases(List<int> p_lstUserIDs, List<int> p_lstFileIds, int p_nFileID, string p_sPPVCode, ref int p_nPPVID, ref string p_sSubCode,
-            ref string p_sPPCode, ref int p_nWaiver, ref DateTime p_dCreateDate, ref string p_sPurchasedBySiteGuid, ref int p_nPurchasedAsMediaFileID, ref DateTime? p_dtStartDate)
+            ref string p_sPPCode, ref int p_nWaiver, ref DateTime p_dCreateDate, ref string p_sPurchasedBySiteGuid, ref int p_nPurchasedAsMediaFileID, ref DateTime? p_dtStartDate, int domainID)
         {
             bool res = false;
             ODBCWrapper.StoredProcedure spGet_AllUsersPurchases = new ODBCWrapper.StoredProcedure("Get_AllUsersPurchases");
@@ -634,6 +634,7 @@ namespace DAL
             spGet_AllUsersPurchases.AddIDListParameter<int>("@UserIDs", p_lstUserIDs, "Id");
             spGet_AllUsersPurchases.AddIDListParameter<int>("@FileIDs", p_lstFileIds, "Id");
             spGet_AllUsersPurchases.AddParameter("@nMediaFileID", p_nFileID);
+            spGet_AllUsersPurchases.AddParameter("@DomainID", domainID);
 
             DataSet ds = spGet_AllUsersPurchases.ExecuteDataSet();
 
@@ -711,12 +712,13 @@ namespace DAL
             return null;
         }
 
-        public static DataTable Get_SubscriptionBySubscriptionCodeAndUserIDs(List<int> UserIDs, string subscriptionCode)
+        public static DataTable Get_SubscriptionBySubscriptionCodeAndUserIDs(List<int> UserIDs, string subscriptionCode, int domainID)
         {
             ODBCWrapper.StoredProcedure spGet_SubscriptionBySubscriptionCodeAndUserIDs = new ODBCWrapper.StoredProcedure("Get_SubscriptionBySubscriptionCodeAndUserIDs");
             spGet_SubscriptionBySubscriptionCodeAndUserIDs.SetConnectionKey("CONNECTION_STRING");
             spGet_SubscriptionBySubscriptionCodeAndUserIDs.AddIDListParameter<int>("@usersList", UserIDs, "Id");
             spGet_SubscriptionBySubscriptionCodeAndUserIDs.AddParameter("@subscriptionCode", subscriptionCode);
+            spGet_SubscriptionBySubscriptionCodeAndUserIDs.AddParameter("@DomainID", domainID);
 
             DataSet ds = spGet_SubscriptionBySubscriptionCodeAndUserIDs.ExecuteDataSet();
 
@@ -777,13 +779,14 @@ namespace DAL
             return null;
         }
 
-        public static DataTable Get_PreviewModuleDataForEntitlementCalc(int nGroupID, string sSiteGuid, string sSubCode)
+        public static DataTable Get_PreviewModuleDataForEntitlementCalc(int nGroupID, string sSiteGuid, string sSubCode, int domainID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PreviewModuleDataForEntitlementCalc");
             sp.SetConnectionKey("CONNECTION_STRING");
             sp.AddParameter("@GroupID", nGroupID);
             sp.AddParameter("@SiteGuid", sSiteGuid);
             sp.AddParameter("@SubscriptionCode", sSubCode);
+            sp.AddParameter("@DomainID", domainID);
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 return ds.Tables[0];
@@ -1255,13 +1258,14 @@ namespace DAL
             return res;
         }
 
-        public static DataSet Get_AllBundlesInfoByUserIDs(List<int> lstUsers, List<int> lstFileTypes, int nGroupID)
+        public static DataSet Get_AllBundlesInfoByUserIDs(List<int> lstUsers, List<int> lstFileTypes, int nGroupID, int domainID)
         {
             StoredProcedure sp = new StoredProcedure("Get_AllBundlesInfoByUserIDs");
             sp.SetConnectionKey("CONNECTION_STRING");
             sp.AddIDListParameter("@Users", lstUsers, "ID");
             sp.AddIDListParameter("@FileTypes", lstFileTypes, "ID");
             sp.AddParameter("@Group_id", nGroupID);
+            sp.AddParameter("@DomainID", domainID);
 
             return sp.ExecuteDataSet();
         }
