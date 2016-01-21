@@ -50,10 +50,10 @@ namespace WebAPI.Models.Domains
         /// <summary>
         /// Household limitation module identifier
         /// </summary>
-        [DataMember(Name = "dlm_id")]
-        [JsonProperty("dlm_id")]
-        [XmlElement(ElementName = "dlm_id")]
-        public int DLMID { get; set; }
+        [DataMember(Name = "household_limitations_id")]
+        [JsonProperty("household_limitations_id")]
+        [XmlElement(ElementName = "household_limitations_id")]
+        public int HouseholdLimitationsId { get; set; }
 
         /// <summary>
         /// The max number of the devices that can be added to the household
@@ -179,6 +179,6 @@ namespace WebAPI.Models.Domains
         [JsonProperty("device_families")]
         [XmlArray(ElementName = "device_families", IsNullable = true)]
         [XmlArrayItem("item")]
-        public List<KalturaDeviceFamily> DeviceFamilies { get; set; }
+        public List<KalturaHouseholdDeviceFamily> DeviceFamilies { get; set; }
     }
 }

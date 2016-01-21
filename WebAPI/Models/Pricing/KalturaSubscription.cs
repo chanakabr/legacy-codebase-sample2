@@ -167,12 +167,12 @@ namespace WebAPI.Models.Pricing
         public KalturaPreviewModule PreviewModule { get; set; }
 
         /// <summary>
-        /// The domain limitation module identifier associated with this subscription
+        /// The household limitation module identifier associated with this subscription
         /// </summary>
-        [DataMember(Name = "dlm_id")]
-        [JsonProperty("dlm_id")]
-        [XmlElement(ElementName = "dlm_id")]
-        public int DlmId { get; set; }
+        [DataMember(Name = "household_limitations_id")]
+        [JsonProperty("household_limitations_id")]
+        [XmlElement(ElementName = "household_limitations_id")]
+        public int HouseholdLimitationsId { get; set; }
 
         /// <summary>
         /// The subscription grace period in minutes

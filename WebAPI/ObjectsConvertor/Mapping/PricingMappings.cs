@@ -108,7 +108,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => src.m_fictivicMediaID))
                .ForMember(dest => dest.PremiumServices, opt => opt.MapFrom(src => src.m_lServices))
                .ForMember(dest => dest.PricePlans, opt => opt.MapFrom(src => src.m_MultiSubscriptionUsageModule))
-               .ForMember(dest => dest.DlmId, opt => opt.MapFrom(src => src.m_nDomainLimitationModule))
+               .ForMember(dest => dest.HouseholdLimitationsId, opt => opt.MapFrom(src => src.m_nDomainLimitationModule))
                .ForMember(dest => dest.RenewalsNumber, opt => opt.MapFrom(src => src.m_nNumberOfRecPeriods))
                .ForMember(dest => dest.CouponsGroup, opt => opt.MapFrom(src => src.m_oCouponsGroup))
                .ForMember(dest => dest.DiscountModule, opt => opt.MapFrom(src => src.m_oExtDisountModule))
