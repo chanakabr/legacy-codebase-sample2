@@ -810,13 +810,13 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/GetPINForDevice", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public string GetPINForDevice(string sWSUserName, string sWSPassword, string sDeviceUDID, int nBrandID) {
+        public DevicePinResponse GetPINForDevice(string sWSUserName, string sWSPassword, string sDeviceUDID, int nBrandID) {
             object[] results = this.Invoke("GetPINForDevice", new object[] {
                         sWSUserName,
                         sWSPassword,
                         sDeviceUDID,
                         nBrandID});
-            return ((string)(results[0]));
+            return ((DevicePinResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -3087,6 +3087,39 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
+    public partial class DevicePinResponse {
+        
+        private string pinField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        public string Pin {
+            get {
+                return this.pinField;
+            }
+            set {
+                this.pinField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://domains.tvinci.com/")]
     public partial class DomainResponse {
         
         private Domain domainField;
@@ -3678,10 +3711,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         }
         
         /// <remarks/>
-        public string Result {
+        public DevicePinResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((string)(this.results[0]));
+                return ((DevicePinResponse)(this.results[0]));
             }
         }
     }
