@@ -632,10 +632,10 @@ namespace Catalog
                                 picObj.m_sSize = string.Format("{0}X{1}", pictureSize.Width, pictureSize.Height);
 
                                 // get ratio string
-                                picObj.ratio = groupRatios.First(x => x.Id == pictureSize.RatioId).Name;
+                                picObj.ratio = ratio.Name;
 
                                 // get picture id: <pic_base_url>_<ratio_id>
-                                picObj.id = string.Format("{0}_{1}", Path.GetFileNameWithoutExtension(pic.BaseUrl), pic.RatioId);
+                                picObj.id = string.Format("{0}_{1}", Path.GetFileNameWithoutExtension(pic.BaseUrl), ratio.Id);
 
                                 // get version: if ratio_id exists in pictures table => get its version
                                 picObj.version = pic.Version;
@@ -1149,8 +1149,15 @@ namespace Catalog
                 entitlementSearchDefinitions.entitledPaidForAssets =
                     EntitledAssetsUtils.GetUserPPVAssets(parentGroupID, request.m_sSiteGuid, request.domainId, request.fileType, out purchasedEpgChannelIds);
 
-                epgChannelIds.AddRange(freeEpgChannelIds);
-                epgChannelIds.AddRange(purchasedEpgChannelIds);
+                if (freeEpgChannelIds != null)
+                {
+                    epgChannelIds.AddRange(freeEpgChannelIds);
+                }
+
+                if (purchasedEpgChannelIds != null)
+                {
+                    epgChannelIds.AddRange(purchasedEpgChannelIds);
+                }
 
                 string[] entitlementMediaTypes = null;
 
@@ -1177,7 +1184,9 @@ namespace Catalog
                     EntitledAssetsUtils.GetUserSubscriptionSearchObjects(request, parentGroupID, request.m_sSiteGuid, request.domainId, request.fileType,
                     request.order, entitlementMediaTypes, definitions.deviceRuleId);
 
-                entitlementSearchDefinitions.fileType = request.fileType;
+                // Conver the file type that we received in request (taken from groups_media_type)
+                // into the file type that the media file knows (based on the table media_files)
+                entitlementSearchDefinitions.fileType = group.groupMediaFileTypeToFileType[request.fileType];
 
                 // TODO: Maybe this will be the method that gets the FREE epg channel IDs
                 var entitledChannelIds = 

@@ -4214,5 +4214,25 @@ namespace Tvinci.Core.DAL
             }
             return ratios;
         }
+
+        public static DataTable GetGroupsMediaType(string subGroups)
+        {
+            DataTable result = null;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+
+            //selectQuery += "select " + sFieldName + " from " + sTable + " where ";
+            selectQuery += "SELECT ID, MEDIA_TYPE_ID FROM groups_media_type WHERE GROUP_ID IN (" + subGroups + ") ";
+            selectQuery += "AND IS_ACTIVE = 1 AND STATUS = 1";
+
+            if (selectQuery.Execute("query", true) != null)
+            {
+                result = selectQuery.Table("query");
+            }
+
+            selectQuery.Finish();
+            selectQuery = null;
+
+            return result;
+        }
     }
 }

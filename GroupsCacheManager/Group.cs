@@ -111,6 +111,13 @@ namespace GroupsCacheManager
         /// </summary>
         [JsonProperty("linear_channel_media_types")]
         public List<int> linearChannelMediaTypes;
+
+        /// <summary>
+        /// Mapping based on the table groups_media_type
+        /// </summary>
+        [JsonProperty("group_media_file_type_to_file_type")]
+        public Dictionary<int, int> groupMediaFileTypeToFileType;
+
         #endregion
 
         #region CTOR
@@ -138,6 +145,7 @@ namespace GroupsCacheManager
             this.mediaTypesNameToId = new Dictionary<string, int>();
             this.channelIDs = new HashSet<int>();
             this.linearChannelMediaTypes = new List<int>();
+            this.groupMediaFileTypeToFileType = new Dictionary<int, int>();
         }
 
         public List<long> GetOperatorChannelIDs(int nOperatorID)
