@@ -229,15 +229,33 @@ public partial class adm_subscription_channels : System.Web.UI.Page
         selectQuery += "group_id " + PageUtils.GetFullChildGroupsStr(nCommerceGroupID, "");
         if (selectQuery.Execute("query", true) != null)
         {
-            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+            var defaultView = selectQuery.Table("query").DefaultView;
+
+            Int32 nCount = defaultView.Count;
             for (int i = 0; i < nCount; i++)
             {
-                string sID = selectQuery.Table("query").DefaultView[i].Row["ID"].ToString();
-                string sGroupID = selectQuery.Table("query").DefaultView[i].Row["group_ID"].ToString();
+                var currentRow = defaultView[i].Row;
+
+                string sID = currentRow["ID"].ToString();
+                string sGroupID = currentRow["group_ID"].ToString();
                 string sTitle = "";
-                if (selectQuery.Table("query").DefaultView[i].Row["ADMIN_NAME"] != null &&
-                    selectQuery.Table("query").DefaultView[i].Row["ADMIN_NAME"] != DBNull.Value)
-                    sTitle = selectQuery.Table("query").DefaultView[i].Row["ADMIN_NAME"].ToString();
+
+                object adminNameValue = currentRow["ADMIN_NAME"];
+                if (adminNameValue != null &&
+                    adminNameValue != DBNull.Value)
+                {
+                    sTitle = adminNameValue.ToString();
+                }
+
+                if (string.IsNullOrEmpty(sTitle))
+                {
+                    object nameValue = currentRow["NAME"];
+
+                    if (nameValue != null && nameValue != DBNull.Value)
+                    {
+                        sTitle = string.Format("{0} - {1}", sID, nameValue);
+                    }
+                }
 
                 string sGroupName = ODBCWrapper.Utils.GetTableSingleVal("groups", "GROUP_NAME", int.Parse(sGroupID)).ToString();
                 sTitle += "(" + sGroupName.ToString() + ")";
