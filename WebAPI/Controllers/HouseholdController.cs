@@ -342,8 +342,6 @@ namespace WebAPI.Controllers
         public bool Suspend()
         {
             var ks = KS.GetFromRequest();
-            KalturaHousehold response = null;
-
             int groupId = KS.GetFromRequest().GroupId;
 
             try
@@ -351,6 +349,34 @@ namespace WebAPI.Controllers
                 var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
                         // call client
                 return ClientsManager.DomainsClient().Suspend(groupId, (int)domainId);
+
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Resumed a given household service to its previous service settings
+        /// </summary>                
+        /// <remarks>Possible status codes: 
+        /// Domain already active = 1013
+        ///</remarks>
+        [Route("resume"), HttpPost]
+        [ApiAuthorize]
+        public bool Resume()
+        {
+            var ks = KS.GetFromRequest();
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                // call client
+                return ClientsManager.DomainsClient().Resume(groupId, (int)domainId);
 
             }
             catch (ClientException ex)
