@@ -372,7 +372,9 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    pin = m_Module.GetPINForDevice(m_wsUserName, m_wsPassword, udid, devBrandID);
+                    var response = m_Module.GetPINForDevice(m_wsUserName, m_wsPassword, udid, devBrandID);
+                    if (response != null)
+                        pin = response.Pin;
                 }
             }
             catch (Exception ex)

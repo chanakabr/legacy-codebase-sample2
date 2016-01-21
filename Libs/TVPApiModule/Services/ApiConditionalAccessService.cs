@@ -877,7 +877,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    DomainTransactionsHistoryResponse response = m_Module.GetDomainTransactionsHistory(m_wsUserName, m_wsPassword, domainID, startDate, endDate);
+                    DomainTransactionsHistoryResponse response = m_Module.GetDomainTransactionsHistory(m_wsUserName, m_wsPassword, domainID, startDate, endDate, -1, -1);
                     if (response != null)
                     {
                         retVal = new Objects.Responses.ConditionalAccess.DomainTransactionsHistoryResponse(response);
