@@ -189,7 +189,7 @@ namespace WebAPI.Filters
 
                                     methodParams.Add(reqParams[p.Name].ToObject(t));
                                 }
-                                catch (Exception ex)
+                                catch (Exception)
                                 {
                                     createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidActionParameters, string.Format("Invalid parameter format {0}", p.Name));
                                     return;
@@ -198,7 +198,7 @@ namespace WebAPI.Filters
 
                             HttpContext.Current.Items.Add(REQUEST_METHOD_PARAMETERS, methodParams);
                         }
-                        catch (JsonReaderException ex)
+                        catch (JsonReaderException)
                         {
                             createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidJSONRequest, "Invalid JSON");
                             return;
@@ -546,7 +546,7 @@ namespace WebAPI.Filters
                 encryptedDataStr = System.Text.Encoding.ASCII.GetString(encryptedData);
                 ksParts = encryptedDataStr.Split('|');
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidKS, "Invalid KS format");
                 return;
