@@ -15688,16 +15688,16 @@ namespace ConditionalAccess
             UserBundlesResponse response = new UserBundlesResponse()
             {
                 channels = new List<int>(),
-                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+                status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
             };
 
-            // check
-            if (fileTypeIDs == null)
+            // Validate the fileTypeIDs
+            if (!Utils.ValidateFileTypesConatainedInGroup(m_nGroupID, fileTypeIDs))
             {
                 response.status.Code = (int)eResponseStatus.InvalidFileType;
                 response.status.Message = eResponseStatus.InvalidFileType.ToString();
                 return response;
-            }
+            }             
 
             string sPricingUsername = string.Empty;
             string sPricingPassword = string.Empty;
@@ -15787,6 +15787,14 @@ namespace ConditionalAccess
                 assets = new List<KeyValuePair<eAssetTypes, List<string>>>(),
                 status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
             };
+
+            // Validate the fileTypeIDs
+            if (!Utils.ValidateFileTypesConatainedInGroup(m_nGroupID, fileTypeIDs))
+            {
+                response.status.Code = (int)eResponseStatus.InvalidFileType;
+                response.status.Message = eResponseStatus.InvalidFileType.ToString();
+                return response;
+            }
 
             try
             {

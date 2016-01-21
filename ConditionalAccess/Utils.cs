@@ -3982,5 +3982,25 @@ namespace ConditionalAccess
             }
         }
 
+        internal static bool ValidateFileTypesConatainedInGroup(int m_nGroupID, int[] fileTypeIDs)
+        {
+            bool isContained = false;
+            if (fileTypeIDs != null)                            
+            {
+                // Get all the group file types
+                Dictionary<int, int> groupFileTypes = ConditionalAccessDAL.Get_GroupMediaTypesIDs(m_nGroupID);
+                if (groupFileTypes != null && groupFileTypes.Count > 0)
+                {
+                    // Validate that all the fileTypeIDs in the request are contained in the groupFileTypes
+                    if (groupFileTypes.Keys.Intersect(fileTypeIDs).Count() == fileTypeIDs.Length)
+                    {
+                        isContained = true;
+                    }
+                }
+            }
+
+            return isContained;
+        }
+
     }
 }
