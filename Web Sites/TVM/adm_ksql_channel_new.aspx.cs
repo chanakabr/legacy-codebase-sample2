@@ -40,7 +40,32 @@ public partial class adm_ksql_channel_new : System.Web.UI.Page
                 var form = HttpContext.Current.Request.Form;
 
                 // the filter expression is the 9th input field
-                string filterExpression = form["9_val"];
+                string filterExpression = form["8_val"];
+                string fieldName = "KSQL_FILTER";
+
+                bool finish = false;
+                int counter = 0;
+
+                // Find the field that is KSQL filter. This is because sometimes the number changes and I don't know which field it is exactly
+                while (!finish)
+                {
+                    string currentField = form[counter + "_field"];
+                    string currentFieldType = form[counter + "_type"];
+
+                    if (string.IsNullOrEmpty(currentFieldType))
+                    {
+                        finish = true;
+                    }
+                    else if (currentField == fieldName)
+                    {
+                        finish = true;
+                        filterExpression = form[counter + "_val"];
+                    }
+                    else
+                    {
+                        counter++;
+                    }
+                }
 
                 bool validExpression = true;
 
