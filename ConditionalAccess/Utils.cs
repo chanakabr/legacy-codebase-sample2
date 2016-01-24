@@ -1920,14 +1920,11 @@ namespace ConditionalAccess
                                         relevantSub = TVinciShared.ObjectCopier.Clone<TvinciPricing.Subscription>((TvinciPricing.Subscription)(s));
                                         theReason = PriceReason.GeoCommerceBlocked;
                                     }
-                                    else
+                                    else if (IsItemPurchased(price, subp, ppvModule) && !shouldIgnoreBundlePurchases)
                                     {
-                                        if (IsItemPurchased(price, subp, ppvModule) && !shouldIgnoreBundlePurchases)
-                                        {
-                                            price = TVinciShared.ObjectCopier.Clone<TvinciPricing.Price>((TvinciPricing.Price)(subp));
-                                            relevantSub = TVinciShared.ObjectCopier.Clone<TvinciPricing.Subscription>((TvinciPricing.Subscription)(s));
-                                            theReason = PriceReason.SubscriptionPurchased;
-                                        }
+                                        price = TVinciShared.ObjectCopier.Clone<TvinciPricing.Price>((TvinciPricing.Price)(subp));
+                                        relevantSub = TVinciShared.ObjectCopier.Clone<TvinciPricing.Subscription>((TvinciPricing.Subscription)(s));
+                                        theReason = PriceReason.SubscriptionPurchased;
 
                                         bEnd = true;
                                         break;
@@ -1936,7 +1933,7 @@ namespace ConditionalAccess
                             }
 
                             //cancellationWindow by relevantSub
-                            if (relevantSub.m_MultiSubscriptionUsageModule != null && relevantSub.m_MultiSubscriptionUsageModule.Count() > 0)
+                            if (relevantSub != null && relevantSub.m_MultiSubscriptionUsageModule != null && relevantSub.m_MultiSubscriptionUsageModule.Count() > 0)
                             {
                                 if (subsPurchase.ContainsKey(relevantSub.m_SubscriptionCode))
                                 {
