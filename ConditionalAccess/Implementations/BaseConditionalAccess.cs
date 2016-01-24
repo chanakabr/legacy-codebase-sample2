@@ -3850,7 +3850,7 @@ namespace ConditionalAccess
             Int32 nRelPP = ExtractRelevantPrePaidID(price);
 
             int domainID = 0;
-            List<int> lUsersIds = Utils.GetAllUsersDomainBySiteGUID(sSiteGUID, m_nGroupID, ref domainID);
+            List<int> lUsersIds = Utils.GetAllUsersInDomainBySiteGUIDIncludeDeleted(sSiteGUID, m_nGroupID, ref domainID);
 
             if (IsPurchasedAsPurePPV(price))
             {

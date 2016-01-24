@@ -2163,6 +2163,55 @@ namespace ConditionalAccess
             return lDomainsUsers;
         }
 
+        internal static List<int> GetAllUsersInDomainBySiteGUIDIncludeDeleted(string sSiteGUID, Int32 nGroupID, ref int domainID)
+        {
+            List<int> lDomainsUsers = new List<int>();
+
+            if (string.IsNullOrEmpty(sSiteGUID) || sSiteGUID.Equals("0"))
+            {
+                return lDomainsUsers;
+            }
+
+            using (TvinciUsers.UsersService u = new TvinciUsers.UsersService())
+            {
+                string sUsersUsername = string.Empty;
+                string sUsersPassword = string.Empty;
+                string sDomainsUsername = string.Empty;
+                string sDomainsPassword = string.Empty;
+                GetUsersAndDomainsCredentials(nGroupID, ref sUsersUsername, ref sUsersPassword, ref sDomainsUsername, ref sDomainsPassword);
+
+                string sWSURL = Utils.GetWSURL("users_ws");
+                if (!string.IsNullOrEmpty(sWSURL))
+                {
+                    u.Url = sWSURL;
+                }
+                TvinciUsers.UserResponseObject userResponseObj = u.GetUserData(sUsersUsername, sUsersPassword, sSiteGUID, string.Empty);
+
+                if (userResponseObj.m_RespStatus == TvinciUsers.ResponseStatus.OK && userResponseObj.m_user.m_domianID != 0)
+                {
+                    domainID = userResponseObj.m_user.m_domianID;
+                    Dictionary<int, int> allUsersFromDB = DomainDal.GetUsersInDomainIncludeDeleted(domainID, nGroupID);
+                    if (allUsersFromDB != null)
+                    {
+                        lDomainsUsers = allUsersFromDB.Keys.ToList();
+                    }
+                    else
+                    {
+                        lDomainsUsers.Add(int.Parse(sSiteGUID));
+                    }
+                }
+                else
+                {
+                    lDomainsUsers.Add(int.Parse(sSiteGUID));
+                }
+            }
+
+            //change the user pending to users without (-1)
+            lDomainsUsers = lDomainsUsers.ConvertAll(x => Math.Abs(x));
+
+            return lDomainsUsers;
+        }
+
         private static List<int> GetDomainsUsers(int nDomainID, Int32 nGroupID)
         {
             return GetDomainsUsers(nDomainID, nGroupID, string.Empty, string.Empty, true);
