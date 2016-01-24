@@ -1358,7 +1358,7 @@ namespace ConditionalAccess
                 int domainID = 0;
                 List<int> lUsersIds = ConditionalAccess.Utils.GetAllUsersDomainBySiteGUID(sSiteGUID, nGroupID, ref domainID);
 
-                DataTable dt = ConditionalAccessDAL.Get_CollectionByCollectionCodeAndUserIDs(lUsersIds, sColCode);
+                DataTable dt = ConditionalAccessDAL.Get_CollectionByCollectionCodeAndUserIDs(lUsersIds, sColCode, domainID);
 
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
