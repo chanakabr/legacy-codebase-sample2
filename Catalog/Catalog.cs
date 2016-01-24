@@ -5644,7 +5644,7 @@ namespace Catalog
                     // If it is a leaf, just replace the field name
                     if (node.type == BooleanNodeType.Leaf)
                     {
-                        TreatLeaf(request, ref filterTree, definitions, group, node);
+                        TreatLeaf(request, ref filterTree, definitions, group, node, parentMapping);
                     }
                     else if (node.type == BooleanNodeType.Parent)
                     {
@@ -5669,10 +5669,9 @@ namespace Catalog
         /// <param name="definitions"></param>
         /// <param name="group"></param>
         /// <param name="node"></param>
-        private static void TreatLeaf(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions, Group group, BooleanPhraseNode node)
+        private static void TreatLeaf(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions,
+            Group group, BooleanPhraseNode node, Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping)
         {
-            Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping = new Dictionary<BooleanPhraseNode, BooleanPhrase>();
-
             // initialize maximum nGram member only once - when this is negative it is still not set
             if (maxNGram < 0)
             {
