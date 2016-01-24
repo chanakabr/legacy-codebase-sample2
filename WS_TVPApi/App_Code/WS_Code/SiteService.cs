@@ -699,7 +699,7 @@ namespace TVPApiServices
                 {
                     //XXX: Do the UDID empty stuff
                     IImplementation impl = WSUtils.GetImplementation(groupID, initObj);
-                    responseData = impl.SignIn(userName, password);
+                    responseData = impl.SignIn(userName, password, System.Web.HttpContext.Current.Request.Headers);
 
                     // if sign in successful and tokenization enabled - generate access token and add it to headers
                     AuthorizationManager.Instance.AddTokenToHeadersForValidNotAdminUser(responseData, groupID, initObj.UDID);
@@ -1474,7 +1474,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = AuthorizationManager.Instance.RefreshAccessToken(refreshToken, initObj.Token, groupID, initObj.Platform);
+                    response = AuthorizationManager.Instance.RefreshAccessToken(refreshToken, initObj.Token, groupID, initObj.Platform, initObj.UDID);
                 }
                 catch (Exception ex)
                 {
@@ -1508,7 +1508,7 @@ namespace TVPApiServices
                 }
                 try
                 {
-                    response = AuthorizationManager.Instance.UpdateUserInToken(initObj.Token, siteGuid, groupID);
+                    response = AuthorizationManager.Instance.UpdateUserInToken(initObj.Token, siteGuid, groupID, initObj.UDID);
                 }
                 catch (Exception ex)
                 {
