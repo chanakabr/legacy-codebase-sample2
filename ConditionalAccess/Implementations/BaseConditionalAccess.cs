@@ -8348,51 +8348,49 @@ namespace ConditionalAccess
         /// </summary>
         public virtual DomainTransactionsHistoryResponse GetDomainTransactionsHistory(int domainID, DateTime dStartDate, DateTime dEndDate, int pageSize, int pageIndex)
         {
-            DomainTransactionsHistoryResponse domainTransactionsHistoryResponse = null;            
+            DomainTransactionsHistoryResponse domainTransactionsHistoryResponse = new DomainTransactionsHistoryResponse();       
 
             if (domainID == 0)
             {
+                domainTransactionsHistoryResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Invalid DomainID");
+                domainTransactionsHistoryResponse.TransactionsCount = 0;
                 return domainTransactionsHistoryResponse;
             }
 
             try
             {
-                DataTable domainBillingHistory = ConditionalAccessDAL.GetDomainBillingHistory(m_nGroupID, domainID, 0, dStartDate, dEndDate);
-                domainTransactionsHistoryResponse = new DomainTransactionsHistoryResponse();
+                if (pageSize <= 0)
+                {
+                    domainTransactionsHistoryResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "PageSize must be above 0");
+                    domainTransactionsHistoryResponse.TransactionsCount = 0;
+                    return domainTransactionsHistoryResponse;
+                }
+
+                DataTable domainBillingHistory = ConditionalAccessDAL.GetDomainBillingHistory(m_nGroupID, domainID, 0, dStartDate, dEndDate);                
 
                 if (domainBillingHistory == null || domainBillingHistory.Rows == null || domainBillingHistory.Rows.Count == 0)
                 {
                     domainTransactionsHistoryResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no history billing for domain");
+                    domainTransactionsHistoryResponse.TransactionsCount = 0;
                     return domainTransactionsHistoryResponse;
-                }
+                }                
+                List<DataRow> filteredRows = new List<DataRow>();
 
-                IEnumerable<DataRow> iterationRows = null;
-                List<DataRow> filteredRows = null;
-
-                if(pageIndex > 0 && pageSize > 0)
+                if(pageIndex > 0)
                 {                   
                     int takeTop = pageIndex * pageSize;
                     Int64 maxTransactionID = (from row in domainBillingHistory.AsEnumerable().Take(takeTop)
                                                 select row.Field<Int64>("ID")).ToList().Min();
                     filteredRows = (from row in domainBillingHistory.AsEnumerable()
                                     where (Int64)row["ID"] < maxTransactionID
-                                    select row).Take(pageSize).ToList();
-                }                
-
-                if (filteredRows != null)
-                {
-                    iterationRows = filteredRows;
+                                    select row).Take(pageSize).ToList();                    
                 }
-                else if (pageSize > -1)
+                else 
                 {
-                    iterationRows = domainBillingHistory.AsEnumerable().Take(pageSize);
-                }
-                else
-                {
-                    iterationRows = domainBillingHistory.AsEnumerable();
+                    filteredRows.AddRange(domainBillingHistory.AsEnumerable().Take(pageSize));
                 }
 
-                foreach (DataRow dr in iterationRows)
+                foreach (DataRow dr in filteredRows)
                 {
                     TransactionHistoryContainer transactionHistory = GetBillingTransactionContainerFromDataRow(dr, true);
                     if (transactionHistory != null)
