@@ -50,14 +50,6 @@
       <HintPath>..\packages\CouchbaseNetClient.1.3.11\lib\net40\Couchbase.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Enyim.Caching, Version=1.3.11.0, Culture=neutral, PublicKeyToken=05e9c6b5a9ec94c2, processorArchitecture=MSIL">
       <HintPath>..\packages\CouchbaseNetClient.1.3.11\lib\net40\Enyim.Caching.dll</HintPath>
       <Private>True</Private>
@@ -340,9 +332,6 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\Catalog\Service72.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service73.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\Catalog\Service8.xsd">
@@ -672,6 +661,9 @@
     <Content Include="Web References\Domains\DeviceRegistrationStatusResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\Domains\DevicePinResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\Domains\module.disco" />
     <Content Include="Web References\Pricing\Campaign.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -882,6 +874,8 @@
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
     <Compile Include="Controllers\AppTokenController.cs" />
     <Compile Include="Controllers\AssetController.cs" />
+    <Compile Include="Controllers\HouseholdLimitationsController.cs" />
+    <Compile Include="Controllers\HouseholdPremiumServiceController.cs" />
     <Compile Include="Controllers\ExportTaskController.cs" />
     <Compile Include="Controllers\ExternalChannelProfileController.cs" />
     <Compile Include="Controllers\PartnerConfigurationController.cs">
@@ -981,13 +975,15 @@
     <Compile Include="Models\ConditionalAccess\KalturaEntitlementsFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPricesFilter.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdFrequencyType.cs" />
-    <Compile Include="Models\General\KalturaIdentifierTypeFilter.cs" />
+    <Compile Include="Models\Domains\KalturaHouseholdLimitations.cs" />
+    <Compile Include="Models\Domains\KalturaDevicePin.cs" />
     <Compile Include="Models\General\KalturaApiActionPermissionItem.cs" />
     <Compile Include="Models\General\KalturaAppToken.cs" />
     <Compile Include="Models\General\KalturaAppTokenHashType.cs" />
     <Compile Include="Models\General\KalturaAppTokenStatus.cs" />
     <Compile Include="Models\General\KalturaGroupPermission.cs" />
     <Compile Include="Models\General\KalturaIdentifierTypeBy.cs" />
+    <Compile Include="Models\General\KalturaIdentifierTypeFilter.cs" />
     <Compile Include="Models\General\KalturaLongValue.cs" />
     <Compile Include="Models\General\KalturaBaseResponseProfile.cs" />
     <Compile Include="Models\General\KalturaEntityReferenceBy.cs" />

@@ -50,10 +50,10 @@ namespace WebAPI.Models.Domains
         /// <summary>
         /// Household limitation module identifier
         /// </summary>
-        [DataMember(Name = "dlm_id")]
-        [JsonProperty("dlm_id")]
-        [XmlElement(ElementName = "dlm_id")]
-        public int DLMID { get; set; }
+        [DataMember(Name = "household_limitations_id")]
+        [JsonProperty("household_limitations_id")]
+        [XmlElement(ElementName = "household_limitations_id")]
+        public int HouseholdLimitationsId { get; set; }
 
         /// <summary>
         /// The max number of the devices that can be added to the household

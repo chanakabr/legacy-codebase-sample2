@@ -44,7 +44,7 @@ namespace WebAPI.Controllers
                     encryptedDataStr = System.Text.Encoding.ASCII.GetString(encryptedData);
                     ksParts = encryptedDataStr.Split('|');
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.InvalidKS, "Invalid KS format");
                 }

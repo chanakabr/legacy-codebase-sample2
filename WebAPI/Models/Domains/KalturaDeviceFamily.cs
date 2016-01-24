@@ -12,7 +12,7 @@ namespace WebAPI.Models.Domains
     /// <summary>
     /// Device family details
     /// </summary>
-    public class KalturaDeviceFamily : KalturaOTTObject
+    public class KalturaDeviceFamilyBase : KalturaOTTObject
     {
         /// <summary>
         /// Device family identifier
@@ -45,7 +45,14 @@ namespace WebAPI.Models.Domains
         [JsonProperty("concurrent_limit")]
         [XmlElement(ElementName = "concurrent_limit")]
         public int ConcurrentLimit { get; set; }
+    }
 
+
+    /// <summary>
+    /// Device family details
+    /// </summary>
+    public class KalturaDeviceFamily : KalturaDeviceFamilyBase
+    {
         /// <summary>
         /// List of all the devices in this family
         /// </summary>
@@ -54,5 +61,19 @@ namespace WebAPI.Models.Domains
         [XmlArray(ElementName = "devices", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaDevice> Devices { get; set; }
+    }
+
+    /// <summary>
+    /// Device family limitations details
+    /// </summary>
+    public class KalturaHouseholdDeviceFamilyLimitations : KalturaDeviceFamilyBase
+    {
+        /// <summary>
+        /// Allowed device change frequency code
+        /// </summary>
+        [DataMember(Name = "frequency")]
+        [JsonProperty("frequency")]
+        [XmlElement(ElementName = "frequency")]
+        public int Frequency { get; set; }
     }
 }

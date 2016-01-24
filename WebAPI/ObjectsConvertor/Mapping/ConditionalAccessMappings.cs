@@ -185,6 +185,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
               ;
             #endregion
 
+            // ServiceObject to KalturaPremiumService
+            Mapper.CreateMap<ConditionalAccess.ServiceObject, Models.ConditionalAccess.KalturaPremiumService>()
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+
         }
 
         // TransactionType to eTransactionType

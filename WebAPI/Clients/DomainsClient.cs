@@ -7,7 +7,6 @@ using System.Reflection;
 using System.Web;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
-using WebAPI.Domains;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Mapping.ObjectsConvertor;
@@ -425,6 +424,76 @@ namespace WebAPI.Clients
             return result;
         }
 
+        internal KalturaDevicePin GetPinForDevice(int groupId, string udid, int deviceBrandId)
+        {
+            KalturaDevicePin result;
+            WebAPI.Domains.DevicePinResponse response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Domains.GetPINForDevice(group.DomainsCredentials.Username, group.DomainsCredentials.Password, udid, deviceBrandId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            result = Mapper.Map<KalturaDevicePin>(response.Pin);
+
+            return result;
+        }
+
+        internal KalturaHouseholdLimitations GetDomainLimitationModule(int groupId, int dlmId)
+        {
+            KalturaHouseholdLimitations result;
+            WebAPI.Domains.DLMResponse response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Domains.GetDLM(group.DomainsCredentials.Username, group.DomainsCredentials.Password, dlmId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.resp == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.resp.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.resp.Code, response.resp.Message);
+            }
+
+            result = Mapper.Map<KalturaHouseholdLimitations>(response.dlm);
+
+            return result;
+        }
+
         internal KalturaHousehold ResetFrequency(int groupId, int domainId, KalturaHouseholdFrequencyType householdFrequency)
         {
             KalturaHousehold result;
@@ -542,7 +611,7 @@ namespace WebAPI.Clients
             KalturaHousehold result = null;
             Group group = GroupsManager.GetGroup(groupId);
 
-            WebAPI.Domains.DomainStatusResponse response = null;            
+            WebAPI.Domains.DomainStatusResponse response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
