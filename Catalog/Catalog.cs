@@ -1140,38 +1140,6 @@ namespace Catalog
             return definitions;
         }
 
-        private static void ReplaceLeafWithPhrase(UnifiedSearchRequest request,
-            Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping, BooleanLeaf leaf, BooleanPhraseNode newPhrase)
-        {
-            // If there is a parent to this leaf - remove the old leaf and add the new phrase instead of it
-            if (parentMapping.ContainsKey(leaf))
-            {
-                parentMapping[leaf].nodes.Remove(leaf);
-                parentMapping[leaf].nodes.Add(newPhrase);
-            }
-            else
-            // If it doesn't exist in the mapping, it's probably the root
-            {
-                request.filterTree = newPhrase;
-            }
-        }
-
-        private static void ReplaceLeafWithPhrase(BaseRequest request, ref BooleanPhraseNode filterTree,
-            Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping, BooleanLeaf leaf, BooleanPhraseNode newPhrase)
-        {
-            // If there is a parent to this leaf - remove the old leaf and add the new phrase instead of it
-            if (parentMapping.ContainsKey(leaf))
-            {
-                parentMapping[leaf].nodes.Remove(leaf);
-                parentMapping[leaf].nodes.Add(newPhrase);
-            }
-            else
-            // If it doesn't exist in the mapping, it's probably the root
-            {
-                filterTree = newPhrase;
-            }
-        }
-
         private static void GetParentalRulesTags(int groupId, string siteGuid,
             out Dictionary<string, List<string>> mediaTags, out Dictionary<string, List<string>> epgTags)
         {
@@ -5736,7 +5704,7 @@ namespace Catalog
 
                     BooleanPhrase newPhrase = new BooleanPhrase(newList, eCutType.Or);
 
-                    Catalog.ReplaceLeafWithPhrase(request, ref filterTree, parentMapping, leaf, newPhrase);
+                    BooleanPhraseNode.ReplaceLeafWithPhrase(ref filterTree, parentMapping, leaf, newPhrase);
                 }
             }
             else if (searchKeys.Count == 1)
@@ -5803,7 +5771,7 @@ namespace Catalog
 												},
                                 eCutType.And);
 
-                            Catalog.ReplaceLeafWithPhrase(request, ref filterTree, parentMapping, leaf, newPhrase);
+                            BooleanPhraseNode.ReplaceLeafWithPhrase(ref filterTree, parentMapping, leaf, newPhrase);
                         }
                         else
                         {
@@ -5866,7 +5834,7 @@ namespace Catalog
                             BooleanPhrase orPhrase = new BooleanPhrase(newOrNodes, eCutType.Or);
 
                             // Replace the original leaf (parental_rules='true') with the new phrase
-                            Catalog.ReplaceLeafWithPhrase(request, ref filterTree, parentMapping, leaf, orPhrase);
+                            BooleanPhraseNode.ReplaceLeafWithPhrase(ref filterTree, parentMapping, leaf, orPhrase);
                         }
                         else
                         {
