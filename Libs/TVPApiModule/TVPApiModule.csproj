@@ -75,9 +75,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\TVinciCommon\External\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="Logger">
-      <HintPath>..\..\..\TVinciCommon\External\Logger.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\..\tvincicommon\External\Newtonsoft.Json.dll</HintPath>
     </Reference>
