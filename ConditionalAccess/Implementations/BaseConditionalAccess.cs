@@ -13228,7 +13228,7 @@ namespace ConditionalAccess
                 TvinciPricing.PrePaidModule relevantPP = null;
                 TvinciPricing.Price oPrice = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(contentId, thePPVModule, siteguid, coupon, m_nGroupID,
                                                                                               ref ePriceReason, ref relevantSub, ref relevantCol, ref relevantPP,
-                                                                                              string.Empty, string.Empty, deviceName);
+                                                                                              string.Empty, string.Empty, deviceName, true);
 
                 if (ePriceReason == PriceReason.ForPurchase ||
                    (ePriceReason == PriceReason.SubscriptionPurchased && oPrice.m_dPrice > 0))
