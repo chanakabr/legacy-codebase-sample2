@@ -1580,7 +1580,7 @@ namespace ConditionalAccess
             }
             if (!string.IsNullOrEmpty(sSiteGUID))
             {
-                allUsersInDomain = GetAllUsersDomainBySiteGUID(sSiteGUID, nGroupID, ref domainID);
+                allUsersInDomain = GetAllUsersInDomainBySiteGUIDIncludeDeleted(sSiteGUID, nGroupID, ref domainID);
 
                 if (ppvModule != null && ppvModule.m_relatedFileTypes != null && ppvModule.m_relatedFileTypes.Length > 0)
                 {
