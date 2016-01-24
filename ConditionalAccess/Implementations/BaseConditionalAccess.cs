@@ -3850,7 +3850,8 @@ namespace ConditionalAccess
 
             Int32 nRelPP = ExtractRelevantPrePaidID(price);
 
-            List<int> lUsersIds = Utils.GetAllUsersDomainBySiteGUID(sSiteGUID, m_nGroupID);
+            int domainID = 0;
+            List<int> lUsersIds = Utils.GetAllUsersDomainBySiteGUID(sSiteGUID, m_nGroupID, ref domainID);
 
             if (IsPurchasedAsPurePPV(price))
             {
@@ -7845,10 +7846,10 @@ namespace ConditionalAccess
                 {
                     ret = new MediaFileItemPricesContainer[oModules.Length];
                     TvinciAPI.MeidaMaper[] mapper = null;
-                    List<int> allUsersInDomain = Utils.GetAllUsersDomainBySiteGUID(sUserGUID, m_nGroupID);
-                    TvinciUsers.DomainSuspentionStatus userSuspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
-                    UserEntitlementsObject userEntitlements = new UserEntitlementsObject();
                     int domainID = 0;
+                    List<int> allUsersInDomain = Utils.GetAllUsersDomainBySiteGUID(sUserGUID, m_nGroupID, ref domainID);
+                    TvinciUsers.DomainSuspentionStatus userSuspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
+                    UserEntitlementsObject userEntitlements = new UserEntitlementsObject();                    
 
                     // check if user is valid
                     if (Utils.IsUserValid(sUserGUID, m_nGroupID, ref domainID, ref userSuspendStatus) && userSuspendStatus == TvinciUsers.DomainSuspentionStatus.OK)
@@ -7921,7 +7922,7 @@ namespace ConditionalAccess
                                 TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, validMediaFiles[nMediaFileID], ppvModules[j].PPVModule, sUserGUID, sCouponCode, m_nGroupID,
                                     ppvModules[j].IsValidForPurchase, ref theReason, ref relevantSub, ref relevantCol, ref relevantPrePaid, ref sFirstDeviceNameFound, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME,
                                     sClientIP, null, allUsersInDomain, nMediaFileTypeID, sAPIUsername, sAPIPassword, sPricingUsername, sPricingPassword, ref bCancellationWindow, ref purchasedBySiteGuid,
-                                    ref purchasedAsMediaFileID, ref relatedMediaFileIDs, ref dtEntitlementStartDate, ref dtEntitlementEndDate, ref dtDiscountEndDate, userEntitlements, mediaID, userSuspendStatus, false);
+                                    ref purchasedAsMediaFileID, ref relatedMediaFileIDs, ref dtEntitlementStartDate, ref dtEntitlementEndDate, ref dtDiscountEndDate, domainID, userEntitlements, mediaID, userSuspendStatus, false);
 
                                 sProductCode = mediaFilesProductCode[nMediaFileID];
 
@@ -8091,7 +8092,8 @@ namespace ConditionalAccess
             if (!string.IsNullOrEmpty(sSiteGuid) && Int64.TryParse(sSiteGuid, out lSiteGuid) && lSiteGuid > 0 && IsExistPPVModule(oModules))
             {
                 mediaFileTypesMapping = ConditionalAccessDAL.Get_GroupMediaTypesIDs(m_nGroupID);
-                allUsersInDomain = Utils.GetAllUsersDomainBySiteGUID(sSiteGuid, m_nGroupID);
+                int domainID = 0;
+                allUsersInDomain = Utils.GetAllUsersDomainBySiteGUID(sSiteGuid, m_nGroupID, ref domainID);
             }
             else
             {
@@ -10265,7 +10267,8 @@ namespace ConditionalAccess
                             int nFullLifeCycle = 0;
                             DateTime dtViewDate = new DateTime();
                             DateTime dtNow = DateTime.UtcNow;
-                            List<int> lstUsersIds = Utils.GetAllUsersDomainBySiteGUID(p_sSiteGUID, m_nGroupID);
+                            int domainID = 0;
+                            List<int> lstUsersIds = Utils.GetAllUsersDomainBySiteGUID(p_sSiteGUID, m_nGroupID, ref domainID);
                             List<int> lstRelatedMediaFiles = GetRelatedMediaFiles(objPrice, nMediaFileID);
                             DateTime? dtEntitlementStartDate = GetStartDate(objPrice);
                             DateTime? dtEntitlementEndDate = GetEndDate(objPrice);
