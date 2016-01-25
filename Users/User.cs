@@ -633,7 +633,7 @@ namespace Users
 
                     if (!saved) { return (-1); }
 
-                    if (m_oDynamicData.m_sUserData != null)
+                    if (m_oDynamicData != null && m_oDynamicData.m_sUserData != null)
                     {
                         saved = m_oDynamicData.Save(userID);
 
