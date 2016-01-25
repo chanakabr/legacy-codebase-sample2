@@ -87,7 +87,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Insert new KSQL channel for partner
+        /// Insert new channel for partner. Currently supports only KSQL channel
         /// </summary>
         /// <remarks>
         /// Possible status codes:     
@@ -97,9 +97,9 @@ namespace WebAPI.Controllers
         /// <param name="channel">KSQL channel Object</param>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        public KalturaKSQLChannelProfile Add(KalturaKSQLChannelProfile channel)
+        public KalturaChannelProfile Add(KalturaChannelProfile channel)
         {
-            KalturaKSQLChannelProfile response = null;
+            KalturaChannelProfile response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -117,7 +117,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Update KSQL channel details
+        /// Update channel details. Currently supports only KSQL channel
         /// </summary>
         /// <remarks>
         /// Possible status codes:
@@ -128,9 +128,9 @@ namespace WebAPI.Controllers
         /// <param name="channel">KSQL channel Object</param>       
         [Route("update"), HttpPost]
         [ApiAuthorize]
-        public KalturaKSQLChannelProfile Update(KalturaKSQLChannelProfile channel)
+        public KalturaChannelProfile Update(KalturaChannelProfile channel)
         {
-            KalturaKSQLChannelProfile response = null;
+            KalturaChannelProfile response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
