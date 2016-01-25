@@ -26,7 +26,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaAssetsBookmarksResponse List(KalturaAssetsBookmarksFilter filter)
+        public KalturaAssetsBookmarksResponse List(KalturaAssetsFilter filter)
         {
             KalturaAssetsBookmarksResponse response = null;
 
