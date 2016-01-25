@@ -1511,9 +1511,10 @@ namespace DAL
 
         }
 
-        public static bool Insert_NewHomeNetwork(int nGroupID, string sNetworkID, long lDomainID, string sName,
-            string sDesc, bool bIsActive, DateTime dtCreateDate)
+        public static DataTable Insert_NewHomeNetwork(int nGroupID, string sNetworkID, long lDomainID, string sName, string sDesc, bool bIsActive, DateTime dtCreateDate)
         {
+            DataTable dt = null;
+
             StoredProcedure sp = new StoredProcedure("Insert_NewHomeNetwork");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@GroupID", nGroupID);
@@ -1524,7 +1525,13 @@ namespace DAL
             sp.AddParameter("@IsActive", bIsActive);
             sp.AddParameter("@CreateDate", dtCreateDate);
 
-            return sp.ExecuteReturnValue<long>() > 0;
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                dt = ds.Tables[0];
+            }
+
+            return dt;
         }
 
         public static bool Get_ProximityDetectionDataForUpdating(int nGroupID, long lDomainID, string sNetworkID, ref int quantity, ref int frequency, ref DateTime lastDeactivationDate, ref DataTable homeNetworksTable)
