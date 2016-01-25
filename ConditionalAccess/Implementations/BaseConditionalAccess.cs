@@ -15827,7 +15827,7 @@ namespace ConditionalAccess
                                 }
 
                                 // PPV has one of the requested file types, add PPV purchased mediaFile to list
-                                if (ppvModule.m_relatedFileTypes != null && ppvModule.m_relatedFileTypes.Length > 0)
+                                else if (ppvModule.m_relatedFileTypes.Length > 0)
                                 {
                                     int[] relevantFileTypes = ppvModule.m_relatedFileTypes.Intersect(fileTypeIDs).ToArray();
                                     if (relevantFileTypes != null && relevantFileTypes.Length > 0)
