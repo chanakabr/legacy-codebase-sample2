@@ -207,7 +207,8 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    network = m_Module.UpdateDomainHomeNetwork(m_wsUserName, m_wsPassword, domainId, networkId, networkName, networkDesc, isActive);
+                    var res = m_Module.UpdateDomainHomeNetwork(m_wsUserName, m_wsPassword, domainId, networkId, networkName, networkDesc, isActive);
+                    network = ConvertStatusToNetworkResponseObject(res);
                 }
             }
             catch (Exception ex)
@@ -218,6 +219,66 @@ namespace TVPApiModule.Services
             return network;
         }
 
+        private NetworkResponseObject ConvertStatusToNetworkResponseObject(TVPPro.SiteManager.TvinciPlatform.Domains.Status res)
+        {
+            NetworkResponseObject response = new NetworkResponseObject()
+            {
+                bSuccess = false,
+                eReason = NetworkResponseStatus.Error
+            };
+
+            if (res != null)
+            {
+                switch (res.Code)
+                {
+                    case 0:
+                        {
+                            response.bSuccess = true;
+                            response.eReason = NetworkResponseStatus.OK;
+                        }
+                        break;
+                    case 6016:
+                        {
+                            response.bSuccess = false;
+                            response.eReason = NetworkResponseStatus.InvalidInput;
+                        }
+                        break;
+                    case 1031:
+                        {
+                            response.bSuccess = false;
+                            response.eReason = NetworkResponseStatus.NetworkExists;
+                        }
+                        break;
+                    case 1032:
+                        {
+                            response.bSuccess = false;
+                            response.eReason = NetworkResponseStatus.QuantityLimitation;
+                        }
+                        break;
+                    case 1033:
+                        {
+                            response.bSuccess = false;
+                            response.eReason = NetworkResponseStatus.NetworkDoesNotExist;
+                        }
+                        break;
+                    case 1034:
+                        {
+                            response.bSuccess = false;
+                            response.eReason = NetworkResponseStatus.FrequencyLimitation;
+                        }
+                        break;
+                    default:
+                        {
+                            response.bSuccess = false;
+                            response.eReason = NetworkResponseStatus.Error;
+                        }
+                        break;
+                }
+            }
+
+            return response;
+        }
+
         public NetworkResponseObject RemoveDomainHomeNetwork(long domainId, string networkId)
         {
             NetworkResponseObject network = null;
@@ -226,7 +287,9 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    network = m_Module.RemoveDomainHomeNetwork(m_wsUserName, m_wsPassword, domainId, networkId);
+                    var res = m_Module.RemoveDomainHomeNetwork(m_wsUserName, m_wsPassword, domainId, networkId);
+                    network = ConvertStatusToNetworkResponseObject(res);
+
                 }
             }
             catch (Exception ex)
@@ -245,7 +308,9 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    homeNetworks = m_Module.GetDomainHomeNetworks(m_wsUserName, m_wsPassword, domainId);
+                    var res = m_Module.GetDomainHomeNetworks(m_wsUserName, m_wsPassword, domainId);
+                    if (res != null)
+                        homeNetworks = res.HomeNetworks;
                 }
             }
             catch (Exception ex)
