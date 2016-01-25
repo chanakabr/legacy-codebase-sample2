@@ -948,7 +948,7 @@
     <Compile Include="Models\Billing\KalturaHouseholdPaymentGatewaySelectedBy.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGatewayConfiguration.cs" />
     <Compile Include="Models\Catalog\KalturaAssetBookmark.cs" />
-    <Compile Include="Models\Catalog\KalturaAssetsBookmarksFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetsFilter.cs" />
     <Compile Include="Models\Catalog\KalturaEPGChannelAssetsListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaEPGChannelAssets.cs" />
     <Compile Include="Models\Catalog\KalturaEpgChannelFilter.cs" />
