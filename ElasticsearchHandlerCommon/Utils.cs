@@ -542,7 +542,7 @@ namespace ElasticsearchTasksCommon
                     // If it is a leaf, just replace the field name
                     if (node.type == BooleanNodeType.Leaf)
                     {
-                        TreatLeaf(ref filterTree, definitions, group, node);
+                        TreatLeaf(ref filterTree, definitions, group, node, parentMapping);
                     }
                     else if (node.type == BooleanNodeType.Parent)
                     {
@@ -567,20 +567,15 @@ namespace ElasticsearchTasksCommon
         /// <param name="definitions"></param>
         /// <param name="group"></param>
         /// <param name="node"></param>
-        private static void TreatLeaf(ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions, Group group, BooleanPhraseNode node)
+        private static void TreatLeaf(ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions,
+            Group group, BooleanPhraseNode node, Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping)
         {
-            Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping = new Dictionary<BooleanPhraseNode, BooleanPhrase>();
-
             // initialize maximum nGram member only once - when this is negative it is still not set
             if (maxNGram < 0)
             {
                 maxNGram = TVinciShared.WS_Utils.GetTcmIntValue("max_ngram");
             }
-
-            List<int> geoBlockRules = null;
-            Dictionary<string, List<string>> mediaParentalRulesTags = null;
-            Dictionary<string, List<string>> epgParentalRulesTags = null;
-
+            
             BooleanLeaf leaf = node as BooleanLeaf;
             bool isTagOrMeta;
 
