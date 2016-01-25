@@ -17,10 +17,10 @@ namespace WebAPI.Models.Domains
         /// <summary>
         /// Home network identifier
         /// </summary>
-        [DataMember(Name = "id")]
-        [JsonProperty("id")]
-        [XmlElement(ElementName = "id")]
-        public long Id { get; set; }
+        [DataMember(Name = "external_id")]
+        [JsonProperty("external_id")]
+        [XmlElement(ElementName = "external_id")]
+        public string ExternalId { get; set; }
 
         /// <summary>
         /// Home network name
@@ -37,14 +37,6 @@ namespace WebAPI.Models.Domains
         [JsonProperty("description")]
         [XmlElement(ElementName = "description")]
         public string Description { get; set; }
-
-        /// <summary>
-        /// Home network creation date (epoch)
-        /// </summary>
-        [DataMember(Name = "create_date")]
-        [JsonProperty("create_date")]
-        [XmlElement(ElementName = "create_date")]
-        public long CreateDate { get; set; }
 
         /// <summary>
         /// Is home network is active

@@ -26,10 +26,9 @@ namespace WebAPI.Mapping.ObjectsConvertor
 
             //HomeNetwork
             Mapper.CreateMap<WebAPI.Domains.HomeNetwork, KalturaHomeNetwork>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.UID))
+                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.UID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive));
 
             //DeviceContainer to KalturaHouseholdDeviceFamily
