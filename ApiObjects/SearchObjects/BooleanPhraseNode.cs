@@ -30,7 +30,6 @@ namespace ApiObjects.SearchObjects
         {
         }
 
-
         #region Parse Expression
 
         // returns tree representing the search expression 
@@ -408,6 +407,26 @@ namespace ApiObjects.SearchObjects
             }
 
             return true;
+        }
+
+        #endregion
+
+        #region Statis Methods
+
+        public static void ReplaceLeafWithPhrase(ref BooleanPhraseNode filterTree,
+            Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping, BooleanLeaf leaf, BooleanPhraseNode newPhrase)
+        {
+            // If there is a parent to this leaf - remove the old leaf and add the new phrase instead of it
+            if (parentMapping.ContainsKey(leaf))
+            {
+                parentMapping[leaf].nodes.Remove(leaf);
+                parentMapping[leaf].nodes.Add(newPhrase);
+            }
+            else
+            // If it doesn't exist in the mapping, it's probably the root
+            {
+                filterTree = newPhrase;
+            }
         }
 
         #endregion

@@ -626,7 +626,7 @@ namespace DAL
         }
 
         public static bool Get_AllUsersPurchases(List<int> p_lstUserIDs, List<int> p_lstFileIds, int p_nFileID, string p_sPPVCode, ref int p_nPPVID, ref string p_sSubCode,
-            ref string p_sPPCode, ref int p_nWaiver, ref DateTime p_dCreateDate, ref string p_sPurchasedBySiteGuid, ref int p_nPurchasedAsMediaFileID, ref DateTime? p_dtStartDate, int domainID)
+            ref string p_sPPCode, ref int p_nWaiver, ref DateTime p_dCreateDate, ref string p_sPurchasedBySiteGuid, ref int p_nPurchasedAsMediaFileID, ref DateTime? p_dtStartDate, int domainID = 0)
         {
             bool res = false;
             ODBCWrapper.StoredProcedure spGet_AllUsersPurchases = new ODBCWrapper.StoredProcedure("Get_AllUsersPurchases");
@@ -712,7 +712,7 @@ namespace DAL
             return null;
         }
 
-        public static DataTable Get_SubscriptionBySubscriptionCodeAndUserIDs(List<int> UserIDs, string subscriptionCode, int domainID)
+        public static DataTable Get_SubscriptionBySubscriptionCodeAndUserIDs(List<int> UserIDs, string subscriptionCode, int domainID = 0)
         {
             ODBCWrapper.StoredProcedure spGet_SubscriptionBySubscriptionCodeAndUserIDs = new ODBCWrapper.StoredProcedure("Get_SubscriptionBySubscriptionCodeAndUserIDs");
             spGet_SubscriptionBySubscriptionCodeAndUserIDs.SetConnectionKey("CONNECTION_STRING");
@@ -727,12 +727,13 @@ namespace DAL
             return null;
         }
 
-        public static DataTable Get_CollectionByCollectionCodeAndUserIDs(List<int> UserIDs, string collectionCode)
+        public static DataTable Get_CollectionByCollectionCodeAndUserIDs(List<int> UserIDs, string collectionCode, int domainID = 0)
         {
             ODBCWrapper.StoredProcedure spGet_CollectionByCollectionCodeAndUserIDs = new ODBCWrapper.StoredProcedure("Get_CollectionByCollectionCodeAndUserIDs");
             spGet_CollectionByCollectionCodeAndUserIDs.SetConnectionKey("CONNECTION_STRING");
             spGet_CollectionByCollectionCodeAndUserIDs.AddIDListParameter<int>("@usersList", UserIDs, "Id");
             spGet_CollectionByCollectionCodeAndUserIDs.AddParameter("@collectionCode", collectionCode);
+            spGet_CollectionByCollectionCodeAndUserIDs.AddParameter("@DomainID", domainID);
 
             DataSet ds = spGet_CollectionByCollectionCodeAndUserIDs.ExecuteDataSet();
 
@@ -779,7 +780,7 @@ namespace DAL
             return null;
         }
 
-        public static DataTable Get_PreviewModuleDataForEntitlementCalc(int nGroupID, string sSiteGuid, string sSubCode, int domainID)
+        public static DataTable Get_PreviewModuleDataForEntitlementCalc(int nGroupID, string sSiteGuid, string sSubCode, int domainID = 0)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PreviewModuleDataForEntitlementCalc");
             sp.SetConnectionKey("CONNECTION_STRING");
@@ -1090,7 +1091,7 @@ namespace DAL
         }
 
 
-        public static bool CancelPPVPurchaseTransaction(string sSiteGuid, int nAssetID, int domainID)
+        public static bool CancelPPVPurchaseTransaction(string sSiteGuid, int nAssetID, int domainID = 0)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("CancelPPVPurchaseTransaction");
             sp.SetConnectionKey("CONNECTION_STRING");
@@ -1102,7 +1103,7 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static bool CancelSubscriptionPurchaseTransaction(string sSiteGuid, int nAssetID, int domainID)
+        public static bool CancelSubscriptionPurchaseTransaction(string sSiteGuid, int nAssetID, int domainID = 0)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("CancelSubscriptionPurchaseTransaction");
             sp.SetConnectionKey("CONNECTION_STRING");
@@ -1114,7 +1115,7 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static bool CancelCollectionPurchaseTransaction(string sSiteGuid, int nAssetID, int domainID)
+        public static bool CancelCollectionPurchaseTransaction(string sSiteGuid, int nAssetID, int domainID = 0)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("CancelCollectionPurchaseTransaction");
             sp.SetConnectionKey("CONNECTION_STRING");
@@ -1126,7 +1127,7 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static bool WaiverPPVPurchaseTransaction(string sSiteGuid, int nAssetID, int domainID)
+        public static bool WaiverPPVPurchaseTransaction(string sSiteGuid, int nAssetID, int domainID = 0)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("WaiverPPVPurchaseTransaction");
             sp.SetConnectionKey("CONNECTION_STRING");
@@ -1138,7 +1139,7 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static bool WaiverSubscriptionPurchaseTransaction(string sSiteGuid, int nAssetID, int domainID)
+        public static bool WaiverSubscriptionPurchaseTransaction(string sSiteGuid, int nAssetID, int domainID = 0)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("WaiverSubscriptionPurchaseTransaction");
             sp.SetConnectionKey("CONNECTION_STRING");
@@ -1150,7 +1151,7 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static bool WaiverCollectionPurchaseTransaction(string sSiteGuid, int nAssetID, int domainID)
+        public static bool WaiverCollectionPurchaseTransaction(string sSiteGuid, int nAssetID, int domainID = 0)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("WaiverCollectionPurchaseTransaction");
             sp.SetConnectionKey("CONNECTION_STRING");
@@ -1258,7 +1259,7 @@ namespace DAL
             return res;
         }
 
-        public static DataSet Get_AllBundlesInfoByUserIDs(List<int> lstUsers, List<int> lstFileTypes, int nGroupID, int domainID)
+        public static DataSet Get_AllBundlesInfoByUserIDs(List<int> lstUsers, List<int> lstFileTypes, int nGroupID, int domainID = 0)
         {
             StoredProcedure sp = new StoredProcedure("Get_AllBundlesInfoByUserIDs");
             sp.SetConnectionKey("CONNECTION_STRING");
@@ -1572,13 +1573,14 @@ namespace DAL
         }
 
         public static DataTable Get_AllPPVPurchasesByUserIDsAndMediaFileIDs(long groupID, List<int> relatedMediaFileIDs,
-            List<int> userIDs)
+            List<int> userIDs, int domainID = 0)
         {
             StoredProcedure sp = new StoredProcedure("Get_AllPPVPurchasesByUserIDsAndMediaFileIDs");
             sp.SetConnectionKey("CONNECTION_STRING");
             sp.AddIDListParameter<int>("@RelatedMediaFileIDs", relatedMediaFileIDs, "Id");
             sp.AddIDListParameter<int>("@UserIDs", userIDs, "Id");
             sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@DomainID", domainID);
 
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)

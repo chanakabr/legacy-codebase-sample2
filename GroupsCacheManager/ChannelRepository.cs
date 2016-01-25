@@ -352,6 +352,7 @@ namespace GroupsCacheManager
                 channel.m_nGroupID = channelGroupId;
                 channel.m_nParentGroupID = group.m_nParentGroupID;
                 channel.m_nChannelTypeID = ODBCWrapper.Utils.GetIntSafeVal(rowData["channel_type"]);
+                channel.m_sName = ODBCWrapper.Utils.ExtractString(rowData, "name");
 
                 ChannelType channelType = ChannelType.None;
 
