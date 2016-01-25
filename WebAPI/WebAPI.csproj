@@ -943,7 +943,7 @@
     <Compile Include="Models\API\KalturaRecommendationProfile.cs" />
     <Compile Include="Models\API\KalturaRuleType.cs" />
     <Compile Include="Models\API\KalturaUserRoleFilter.cs" />
-    <Compile Include="Models\API\KSQLChannel\KalturaKSQLChannelProfile.cs" />
+    <Compile Include="Models\API\KalturaChannelProfile.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGateway.cs" />
     <Compile Include="Models\Billing\KalturaHouseholdPaymentGatewaySelectedBy.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGatewayConfiguration.cs" />
@@ -1234,6 +1234,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Models\API\KSQLChannel\" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
