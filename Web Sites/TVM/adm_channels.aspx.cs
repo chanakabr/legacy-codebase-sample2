@@ -354,7 +354,7 @@ FROM   (SELECT lct.description AS 'channel_type',
     public void UpdateOnOffStatus(string theTableName, string sID, string sStatus)
     {
         Int32 nGroupID = LoginManager.GetLoginGroupID();
-        List<int> idsToUpdate = new List<int>();
+        List<int> idsToUpdate = new List<int>() { int.Parse(sID) };
 
         eAction eAction;
         int nAction = int.Parse(sStatus);
