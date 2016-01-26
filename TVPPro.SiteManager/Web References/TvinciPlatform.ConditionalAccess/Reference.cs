@@ -575,23 +575,25 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetUserEntitlements", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Entitlements GetUserEntitlements(string sWSUserName, string sWSPassword, string sSiteGUID, eTransactionType type, bool isExpired) {
+        public Entitlements GetUserEntitlements(string sWSUserName, string sWSPassword, string sSiteGUID, eTransactionType type, bool isExpired, int pageSize, int pageIndex) {
             object[] results = this.Invoke("GetUserEntitlements", new object[] {
                         sWSUserName,
                         sWSPassword,
                         sSiteGUID,
                         type,
-                        isExpired});
+                        isExpired,
+                        pageSize,
+                        pageIndex});
             return ((Entitlements)(results[0]));
         }
         
         /// <remarks/>
-        public void GetUserEntitlementsAsync(string sWSUserName, string sWSPassword, string sSiteGUID, eTransactionType type, bool isExpired) {
-            this.GetUserEntitlementsAsync(sWSUserName, sWSPassword, sSiteGUID, type, isExpired, null);
+        public void GetUserEntitlementsAsync(string sWSUserName, string sWSPassword, string sSiteGUID, eTransactionType type, bool isExpired, int pageSize, int pageIndex) {
+            this.GetUserEntitlementsAsync(sWSUserName, sWSPassword, sSiteGUID, type, isExpired, pageSize, pageIndex, null);
         }
         
         /// <remarks/>
-        public void GetUserEntitlementsAsync(string sWSUserName, string sWSPassword, string sSiteGUID, eTransactionType type, bool isExpired, object userState) {
+        public void GetUserEntitlementsAsync(string sWSUserName, string sWSPassword, string sSiteGUID, eTransactionType type, bool isExpired, int pageSize, int pageIndex, object userState) {
             if ((this.GetUserEntitlementsOperationCompleted == null)) {
                 this.GetUserEntitlementsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetUserEntitlementsOperationCompleted);
             }
@@ -600,7 +602,9 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
                         sWSPassword,
                         sSiteGUID,
                         type,
-                        isExpired}, this.GetUserEntitlementsOperationCompleted, userState);
+                        isExpired,
+                        pageSize,
+                        pageIndex}, this.GetUserEntitlementsOperationCompleted, userState);
         }
         
         private void OnGetUserEntitlementsOperationCompleted(object arg) {
@@ -612,23 +616,25 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetDomainEntitlements", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Entitlements GetDomainEntitlements(string sWSUserName, string sWSPassword, int domainId, eTransactionType type, bool isExpired) {
+        public Entitlements GetDomainEntitlements(string sWSUserName, string sWSPassword, int domainId, eTransactionType type, bool isExpired, int pageSize, int pageIndex) {
             object[] results = this.Invoke("GetDomainEntitlements", new object[] {
                         sWSUserName,
                         sWSPassword,
                         domainId,
                         type,
-                        isExpired});
+                        isExpired,
+                        pageSize,
+                        pageIndex});
             return ((Entitlements)(results[0]));
         }
         
         /// <remarks/>
-        public void GetDomainEntitlementsAsync(string sWSUserName, string sWSPassword, int domainId, eTransactionType type, bool isExpired) {
-            this.GetDomainEntitlementsAsync(sWSUserName, sWSPassword, domainId, type, isExpired, null);
+        public void GetDomainEntitlementsAsync(string sWSUserName, string sWSPassword, int domainId, eTransactionType type, bool isExpired, int pageSize, int pageIndex) {
+            this.GetDomainEntitlementsAsync(sWSUserName, sWSPassword, domainId, type, isExpired, pageSize, pageIndex, null);
         }
         
         /// <remarks/>
-        public void GetDomainEntitlementsAsync(string sWSUserName, string sWSPassword, int domainId, eTransactionType type, bool isExpired, object userState) {
+        public void GetDomainEntitlementsAsync(string sWSUserName, string sWSPassword, int domainId, eTransactionType type, bool isExpired, int pageSize, int pageIndex, object userState) {
             if ((this.GetDomainEntitlementsOperationCompleted == null)) {
                 this.GetDomainEntitlementsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetDomainEntitlementsOperationCompleted);
             }
@@ -637,7 +643,9 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
                         sWSPassword,
                         domainId,
                         type,
-                        isExpired}, this.GetDomainEntitlementsOperationCompleted, userState);
+                        isExpired,
+                        pageSize,
+                        pageIndex}, this.GetDomainEntitlementsOperationCompleted, userState);
         }
         
         private void OnGetDomainEntitlementsOperationCompleted(object arg) {
