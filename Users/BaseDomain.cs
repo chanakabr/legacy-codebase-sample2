@@ -1136,7 +1136,7 @@ namespace Users
 
             if (nullifiedExistingNetwork == null)
             {
-                res = new ApiObjects.Response.Status((int)NetworkResponseStatus.NetworkDoesNotExist, "Home network does not exist");
+                res = new ApiObjects.Response.Status((int)eResponseStatus.HomeNetworkDoesNotExist, "Home network does not exist");
                 retVal = false;
 
                 return retVal;
@@ -1399,7 +1399,7 @@ namespace Users
             return response;
         }
 
-        public virtual HomeNetworkResponse AddDomainHomeNetwork(long domainId, string externalId, string name, string description)
+        public virtual HomeNetworkResponse AddDomainHomeNetwork(long domainId, string externalId, string name, string description, bool isActive)
         {
             HomeNetworkResponse response = new HomeNetworkResponse()
             {
@@ -1413,11 +1413,11 @@ namespace Users
             // check network id is valid
             if (string.IsNullOrEmpty(externalId))
             {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExternalIdentifierRequired);
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExternalIdentifierRequired, "External identifier is required");
                 return response;
             }
 
-            HomeNetwork candidate = new HomeNetwork(name, externalId, description, DateTime.UtcNow, true);
+            HomeNetwork candidate = new HomeNetwork(name, externalId, description, DateTime.UtcNow, isActive);
             DataTable dt = null;
             if (!DomainDal.Get_ProximityDetectionDataForInsertion(m_nGroupID, domainId, ref numOfAllowedNetworks, ref dt))
             {
