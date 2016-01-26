@@ -501,13 +501,19 @@ namespace WebAPI.Controllers
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <param name="language">Language code</param>
+        /// <param name="filter_query"><![CDATA[
+        /// Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
+        /// Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date.
+        /// Comparison operators: for numerical fields =, >, >=, <, <=. For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with). Logical conjunction: and, or. 
+        /// Search values are limited to 20 characters each.
+        /// (maximum length of entire filter is 1024 characters)]]</param>
         /// <remarks>Possible status codes: 
         /// BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, 
         /// </remarks>
         [Route("channel"), HttpPost]
         [ApiAuthorize]
         public KalturaAssetInfoListResponse Channel(int id, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null,
-            KalturaFilterPager pager = null, string language = null)
+            KalturaFilterPager pager = null, string language = null, string filter_query = null)
         {
             KalturaAssetInfoListResponse response = null;
 
@@ -531,7 +537,7 @@ namespace WebAPI.Controllers
 
                 var withList = with.Select(x => x.type).ToList();
                 response = ClientsManager.CatalogClient().GetChannelAssets(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
-                    pager.PageIndex, pager.PageSize, withList, id, order_by, string.Empty);
+                    pager.PageIndex, pager.PageSize, withList, id, order_by, filter_query);
             }
             catch (ClientException ex)
             {

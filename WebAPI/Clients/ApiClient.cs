@@ -2185,10 +2185,10 @@ namespace WebAPI.Clients
 
 
         #region KSQL Channel
-        internal KalturaKSQLChannelProfile InsertKSQLChannel(int groupId, KalturaKSQLChannelProfile channel)
+        internal KalturaChannelProfile InsertKSQLChannel(int groupId, KalturaChannelProfile channel)
         {
             WebAPI.Api.KSQLChannelResponse response = null;
-            KalturaKSQLChannelProfile profile = null;
+            KalturaChannelProfile profile = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -2216,14 +2216,14 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.Status.Code, response.Status.Message);
             }
 
-            profile = Mapper.Map<Models.API.KalturaKSQLChannelProfile>(response.Channel);
+            profile = Mapper.Map<Models.API.KalturaChannelProfile>(response.Channel);
             return profile;
         }
 
-        internal KalturaKSQLChannelProfile SetKSQLChannel(int groupId, KalturaKSQLChannelProfile channel)
+        internal KalturaChannelProfile SetKSQLChannel(int groupId, KalturaChannelProfile channel)
         {
             WebAPI.Api.KSQLChannelResponse response = null;
-            KalturaKSQLChannelProfile profile = null;
+            KalturaChannelProfile profile = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -2251,7 +2251,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.Status.Code, response.Status.Message);
             }
 
-            profile = Mapper.Map<KalturaKSQLChannelProfile>(response.Channel);
+            profile = Mapper.Map<KalturaChannelProfile>(response.Channel);
             return profile;
         }
 
@@ -2285,9 +2285,9 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaKSQLChannelProfile GetKSQLChannel(int groupId, int channelId)
+        internal KalturaChannelProfile GetKSQLChannel(int groupId, int channelId)
         {
-            KalturaKSQLChannelProfile profile = null;
+            KalturaChannelProfile profile = null;
             WebAPI.Api.KSQLChannelResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
@@ -2315,7 +2315,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.Status.Code, response.Status.Message);
             }
 
-            profile = Mapper.Map<KalturaKSQLChannelProfile>(response.Channel);
+            profile = Mapper.Map<KalturaChannelProfile>(response.Channel);
 
             return profile;
         }

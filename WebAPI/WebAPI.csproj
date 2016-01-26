@@ -874,6 +874,7 @@
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
     <Compile Include="Controllers\AppTokenController.cs" />
     <Compile Include="Controllers\AssetController.cs" />
+    <Compile Include="Controllers\VersionController.cs" />
     <Compile Include="Controllers\HouseholdLimitationsController.cs" />
     <Compile Include="Controllers\HouseholdPremiumServiceController.cs" />
     <Compile Include="Controllers\ExportTaskController.cs" />
@@ -943,12 +944,12 @@
     <Compile Include="Models\API\KalturaRecommendationProfile.cs" />
     <Compile Include="Models\API\KalturaRuleType.cs" />
     <Compile Include="Models\API\KalturaUserRoleFilter.cs" />
-    <Compile Include="Models\API\KSQLChannel\KalturaKSQLChannelProfile.cs" />
+    <Compile Include="Models\API\KalturaChannelProfile.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGateway.cs" />
     <Compile Include="Models\Billing\KalturaHouseholdPaymentGatewaySelectedBy.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGatewayConfiguration.cs" />
     <Compile Include="Models\Catalog\KalturaAssetBookmark.cs" />
-    <Compile Include="Models\Catalog\KalturaAssetsBookmarksFilter.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetsFilter.cs" />
     <Compile Include="Models\Catalog\KalturaEPGChannelAssetsListResponse.cs" />
     <Compile Include="Models\Catalog\KalturaEPGChannelAssets.cs" />
     <Compile Include="Models\Catalog\KalturaEpgChannelFilter.cs" />
@@ -977,6 +978,7 @@
     <Compile Include="Models\Domains\KalturaHouseholdFrequencyType.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdLimitations.cs" />
     <Compile Include="Models\Domains\KalturaDevicePin.cs" />
+    <Compile Include="Models\General\KalturaProjectVersion.cs" />
     <Compile Include="Models\General\KalturaApiActionPermissionItem.cs" />
     <Compile Include="Models\General\KalturaAppToken.cs" />
     <Compile Include="Models\General\KalturaAppTokenHashType.cs" />
@@ -1237,6 +1239,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Models\API\KSQLChannel\" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />

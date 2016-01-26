@@ -13,7 +13,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// KSQL Channel
     /// </summary>
-    public class KalturaKSQLChannelProfile : KalturaOTTObject
+    public class KalturaChannelProfile : KalturaOTTObject
     {
         /// <summary>
         /// Channel id
