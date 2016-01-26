@@ -432,6 +432,9 @@ namespace Users
                     m_domianID = user.m_domianID;
                     m_eUserState = user.m_eUserState;
                     m_eSuspendState = user.m_eSuspendState;
+                    m_nSSOOperatorID = user.m_nSSOOperatorID;
+                    m_isDomainMaster = user.m_isDomainMaster;
+                    m_eSuspendState = user.m_eSuspendState;
                     res = true;
                 }
                 else
