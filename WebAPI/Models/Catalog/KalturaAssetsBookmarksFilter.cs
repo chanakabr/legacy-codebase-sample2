@@ -15,7 +15,7 @@ namespace WebAPI.Models.Catalog
     /// Filtering Assets requests
     /// </summary>
     [Serializable]
-    public class KalturaAssetsBookmarksFilter : KalturaOTTObject
+    public class KalturaAssetsFilter : KalturaOTTObject
     {
 
         /// <summary>
