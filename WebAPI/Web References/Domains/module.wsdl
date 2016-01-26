@@ -1048,6 +1048,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="sNetworkID" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sNetworkName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sNetworkDesc" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="isActive" type="s:boolean" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -1745,6 +1746,7 @@
     <wsdl:part name="sNetworkID" type="s:string" />
     <wsdl:part name="sNetworkName" type="s:string" />
     <wsdl:part name="sNetworkDesc" type="s:string" />
+    <wsdl:part name="isActive" type="s:string" />
   </wsdl:message>
   <wsdl:message name="AddDomainHomeNetworkHttpPostOut">
     <wsdl:part name="Body" element="tns:HomeNetworkResponse" />

@@ -773,7 +773,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaHomeNetwork AddDomainHomeNetwork(int groupId, long domainId, string externalId, string name, string description)
+        internal KalturaHomeNetwork AddDomainHomeNetwork(int groupId, long domainId, string externalId, string name, string description, bool isActive)
         {
             KalturaHomeNetwork result;
             WebAPI.Domains.HomeNetworkResponse response = null;
@@ -784,7 +784,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Domains.AddDomainHomeNetwork(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId, externalId, name, description);
+                    response = Domains.AddDomainHomeNetwork(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId, externalId, name, description, isActive);
                 }
             }
             catch (Exception ex)

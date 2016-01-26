@@ -21,6 +21,8 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="home_network">Home network to add</param>
         /// <remarks>
+        /// Possible status codes:
+        /// Home network already exists = 1031, Home network limitation = 1032, External identifier is required = 6016
         /// </remarks>
         /// <returns></returns>
         [Route("add"), HttpPost]
@@ -34,7 +36,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.DomainsClient().AddDomainHomeNetwork(groupId, householdId, home_network.ExternalId, home_network.Name, home_network.Description);
+                response = ClientsManager.DomainsClient().AddDomainHomeNetwork(groupId, householdId, home_network.ExternalId, home_network.Name, home_network.Description, home_network.IsActive);
             }
             catch (ClientException ex)
             {
@@ -76,6 +78,8 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="home_network">Home network to update</param>
         /// <remarks>
+        /// Possible status codes:
+        /// Home network does not exist = 1033, External identifier is required = 6016
         /// </remarks>
         /// <returns></returns>
         [Route("update"), HttpPost]
@@ -104,6 +108,8 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="external_id">The network to update</param>
         /// <remarks>
+        /// Possible status codes:
+        /// Home network does not exist = 1033, Home network frequency limitation = 1034, External identifier is required = 6016
         /// </remarks>
         /// <returns></returns>
         [Route("delete"), HttpPost]
