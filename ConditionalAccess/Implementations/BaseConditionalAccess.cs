@@ -3841,7 +3841,8 @@ namespace ConditionalAccess
 
             Int32 nRelPP = ExtractRelevantPrePaidID(price);
 
-            List<int> lUsersIds = Utils.GetAllUsersDomainBySiteGUID(sSiteGUID, m_nGroupID);
+            int domainID = 0;
+            List<int> lUsersIds = Utils.GetAllUsersInDomainBySiteGUIDIncludeDeleted(sSiteGUID, m_nGroupID, ref domainID);
 
             if (IsPurchasedAsPurePPV(price))
             {
@@ -3864,14 +3865,14 @@ namespace ConditionalAccess
                 {
                     //sRelSub - the subscription that caused the price to be lower
 
-                    nPPVID = GetActivePPVPurchaseID(price.m_oItemPrices[0].m_lPurchasedMediaFileID > 0 ? new List<int>(1) { price.m_oItemPrices[0].m_lPurchasedMediaFileID } : new List<int>(1) { nMediaFileID }, ref sRelSub, lUsersIds);
+                    nPPVID = GetActivePPVPurchaseID(price.m_oItemPrices[0].m_lPurchasedMediaFileID > 0 ? new List<int>(1) { price.m_oItemPrices[0].m_lPurchasedMediaFileID } : new List<int>(1) { nMediaFileID }, ref sRelSub, lUsersIds, domainID);
                     if (nPPVID == 0 && !string.IsNullOrEmpty(couponCode))
                     {
                         InsertPPVPurchases(sSiteGUID, nMediaFileID, price.m_oItemPrices[0].m_oPrice.m_dPrice,
                             price.m_oItemPrices[0].m_oPrice.m_oCurrency.m_sCurrencyCD3, sRelSub, 0, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sPPVMCd,
                             couponCode, sUserIP);
 
-                        nPPVID = GetActivePPVPurchaseID(new List<int>(1) { nMediaFileID }, ref sRelSub, lUsersIds);
+                        nPPVID = GetActivePPVPurchaseID(new List<int>(1) { nMediaFileID }, ref sRelSub, lUsersIds, domainID);
                     }
 
                     UpdatePPVPurchases(nPPVID, price.m_oItemPrices[0].m_sPPVModuleCode, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME);
@@ -3929,7 +3930,7 @@ namespace ConditionalAccess
                     if (nIsCreditDownloaded1 == 1)
                     {
                         string sRelSub = string.Empty;
-                        nPPVID = GetActivePPVPurchaseID(price.m_oItemPrices[0].m_lPurchasedMediaFileID > 0 ? new List<int>(1) { price.m_oItemPrices[0].m_lPurchasedMediaFileID } : new List<int>(1) { nMediaFileID }, ref sRelSub, lUsersIds);
+                        nPPVID = GetActivePPVPurchaseID(price.m_oItemPrices[0].m_lPurchasedMediaFileID > 0 ? new List<int>(1) { price.m_oItemPrices[0].m_lPurchasedMediaFileID } : new List<int>(1) { nMediaFileID }, ref sRelSub, lUsersIds, domainID);
 
                         if (nPPVID == 0 && !string.IsNullOrEmpty(couponCode))
                         {
@@ -3937,7 +3938,7 @@ namespace ConditionalAccess
                                 price.m_oItemPrices[0].m_oPrice.m_oCurrency.m_sCurrencyCD3, sRelSub, 0, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME,
                                 price.m_oItemPrices[0].m_sPPVModuleCode, couponCode, sUserIP);
 
-                            nPPVID = GetActivePPVPurchaseID(new List<int>(1) { nMediaFileID }, ref sRelSub, lUsersIds);
+                            nPPVID = GetActivePPVPurchaseID(new List<int>(1) { nMediaFileID }, ref sRelSub, lUsersIds, domainID);
                         }
 
                         UpdatePPVPurchases(nPPVID, price.m_oItemPrices[0].m_sPPVModuleCode, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME);
@@ -3992,7 +3993,7 @@ namespace ConditionalAccess
                     if (nIsCreditDownloaded1 == 1)
                     {
                         string sRelCol = string.Empty;
-                        nPPVID = GetActivePPVPurchaseID(price.m_oItemPrices[0].m_lPurchasedMediaFileID > 0 ? new List<int>(1) { price.m_oItemPrices[0].m_lPurchasedMediaFileID } : new List<int>(1) { nMediaFileID }, ref sRelCol, lUsersIds);
+                        nPPVID = GetActivePPVPurchaseID(price.m_oItemPrices[0].m_lPurchasedMediaFileID > 0 ? new List<int>(1) { price.m_oItemPrices[0].m_lPurchasedMediaFileID } : new List<int>(1) { nMediaFileID }, ref sRelCol, lUsersIds, domainID);
 
                         if (nPPVID == 0 && !string.IsNullOrEmpty(couponCode))
                         {
@@ -4000,7 +4001,7 @@ namespace ConditionalAccess
                                 price.m_oItemPrices[0].m_oPrice.m_oCurrency.m_sCurrencyCD3, sRelCol, 0, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME,
                                 price.m_oItemPrices[0].m_sPPVModuleCode, couponCode, sUserIP);
 
-                            nPPVID = GetActivePPVPurchaseID(new List<int>(1) { nMediaFileID }, ref sRelCol, lUsersIds);
+                            nPPVID = GetActivePPVPurchaseID(new List<int>(1) { nMediaFileID }, ref sRelCol, lUsersIds, domainID);
                         }
 
                         UpdatePPVPurchases(nPPVID, price.m_oItemPrices[0].m_sPPVModuleCode, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME);
@@ -4230,10 +4231,10 @@ namespace ConditionalAccess
             }
         }
 
-        private Int32 GetActivePPVPurchaseID(List<int> relatedMediaFileIDs, ref string sRelSub, List<int> lUsersIds)
+        private Int32 GetActivePPVPurchaseID(List<int> relatedMediaFileIDs, ref string sRelSub, List<int> lUsersIds, int domainID)
         {
             Int32 nRet = 0;
-            DataTable dt = ConditionalAccessDAL.Get_AllPPVPurchasesByUserIDsAndMediaFileIDs(m_nGroupID, relatedMediaFileIDs, lUsersIds);
+            DataTable dt = ConditionalAccessDAL.Get_AllPPVPurchasesByUserIDsAndMediaFileIDs(m_nGroupID, relatedMediaFileIDs, lUsersIds, domainID);
 
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
@@ -8105,10 +8106,10 @@ namespace ConditionalAccess
                 {
                     ret = new MediaFileItemPricesContainer[oModules.Length];
                     TvinciAPI.MeidaMaper[] mapper = null;
-                    List<int> allUsersInDomain = Utils.GetAllUsersDomainBySiteGUID(sUserGUID, m_nGroupID);
-                    TvinciUsers.DomainSuspentionStatus userSuspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
-                    UserEntitlementsObject userEntitlements = new UserEntitlementsObject();
                     int domainID = 0;
+                    List<int> allUsersInDomain = Utils.GetAllUsersDomainBySiteGUID(sUserGUID, m_nGroupID, ref domainID);
+                    TvinciUsers.DomainSuspentionStatus userSuspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
+                    UserEntitlementsObject userEntitlements = new UserEntitlementsObject();                    
 
                     // check if user is valid
                     if (Utils.IsUserValid(sUserGUID, m_nGroupID, ref domainID, ref userSuspendStatus) && userSuspendStatus == TvinciUsers.DomainSuspentionStatus.OK)
@@ -8181,7 +8182,7 @@ namespace ConditionalAccess
                                 TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, validMediaFiles[nMediaFileID], ppvModules[j].PPVModule, sUserGUID, sCouponCode, m_nGroupID,
                                     ppvModules[j].IsValidForPurchase, ref theReason, ref relevantSub, ref relevantCol, ref relevantPrePaid, ref sFirstDeviceNameFound, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME,
                                     sClientIP, null, allUsersInDomain, nMediaFileTypeID, sAPIUsername, sAPIPassword, sPricingUsername, sPricingPassword, ref bCancellationWindow, ref purchasedBySiteGuid,
-                                    ref purchasedAsMediaFileID, ref relatedMediaFileIDs, ref dtEntitlementStartDate, ref dtEntitlementEndDate, ref dtDiscountEndDate, userEntitlements, mediaID, userSuspendStatus, false);
+                                    ref purchasedAsMediaFileID, ref relatedMediaFileIDs, ref dtEntitlementStartDate, ref dtEntitlementEndDate, ref dtDiscountEndDate, domainID, userEntitlements, mediaID, userSuspendStatus, false);
 
                                 sProductCode = mediaFilesProductCode[nMediaFileID];
 
@@ -8351,7 +8352,8 @@ namespace ConditionalAccess
             if (!string.IsNullOrEmpty(sSiteGuid) && Int64.TryParse(sSiteGuid, out lSiteGuid) && lSiteGuid > 0 && IsExistPPVModule(oModules))
             {
                 mediaFileTypesMapping = ConditionalAccessDAL.Get_GroupMediaTypesIDs(m_nGroupID);
-                allUsersInDomain = Utils.GetAllUsersDomainBySiteGUID(sSiteGuid, m_nGroupID);
+                int domainID = 0;
+                allUsersInDomain = Utils.GetAllUsersDomainBySiteGUID(sSiteGuid, m_nGroupID, ref domainID);
             }
             else
             {
@@ -8607,29 +8609,36 @@ namespace ConditionalAccess
         /// </summary>
         public virtual DomainTransactionsHistoryResponse GetDomainTransactionsHistory(int domainID, DateTime dStartDate, DateTime dEndDate, int pageSize, int pageIndex)
         {
-            DomainTransactionsHistoryResponse domainTransactionsHistoryResponse = null;
+            DomainTransactionsHistoryResponse domainTransactionsHistoryResponse = new DomainTransactionsHistoryResponse();       
 
             if (domainID == 0)
             {
+                domainTransactionsHistoryResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Invalid DomainID");
+                domainTransactionsHistoryResponse.TransactionsCount = 0;
                 return domainTransactionsHistoryResponse;
             }
 
             try
             {
-                DataTable domainBillingHistory = ConditionalAccessDAL.GetDomainBillingHistory(m_nGroupID, domainID, 0, dStartDate, dEndDate);
-                domainTransactionsHistoryResponse = new DomainTransactionsHistoryResponse();
+                if (pageSize <= 0)
+                {
+                    domainTransactionsHistoryResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "PageSize must be above 0");
+                    domainTransactionsHistoryResponse.TransactionsCount = 0;
+                    return domainTransactionsHistoryResponse;
+                }
+
+                DataTable domainBillingHistory = ConditionalAccessDAL.GetDomainBillingHistory(m_nGroupID, domainID, 0, dStartDate, dEndDate);                
 
                 if (domainBillingHistory == null || domainBillingHistory.Rows == null || domainBillingHistory.Rows.Count == 0)
                 {
                     domainTransactionsHistoryResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no history billing for domain");
+                    domainTransactionsHistoryResponse.TransactionsCount = 0;
                     return domainTransactionsHistoryResponse;
-                }
+                }                
+                List<DataRow> filteredRows = new List<DataRow>();
 
-                IEnumerable<DataRow> iterationRows = null;
-                List<DataRow> filteredRows = null;
-
-                if (pageIndex > 0 && pageSize > 0)
-                {
+                if(pageIndex > 0)
+                {                   
                     int takeTop = pageIndex * pageSize;
                     Int64 maxTransactionID = (from row in domainBillingHistory.AsEnumerable().Take(takeTop)
                                               select row.Field<Int64>("ID")).ToList().Min();
@@ -8637,21 +8646,12 @@ namespace ConditionalAccess
                                     where (Int64)row["ID"] < maxTransactionID
                                     select row).Take(pageSize).ToList();
                 }
-
-                if (filteredRows != null)
+                else 
                 {
-                    iterationRows = filteredRows;
-                }
-                else if (pageSize > -1)
-                {
-                    iterationRows = domainBillingHistory.AsEnumerable().Take(pageSize);
-                }
-                else
-                {
-                    iterationRows = domainBillingHistory.AsEnumerable();
+                    filteredRows.AddRange(domainBillingHistory.AsEnumerable().Take(pageSize));
                 }
 
-                foreach (DataRow dr in iterationRows)
+                foreach (DataRow dr in filteredRows)
                 {
                     TransactionHistoryContainer transactionHistory = GetBillingTransactionContainerFromDataRow(dr, true);
                     if (transactionHistory != null)
@@ -10525,7 +10525,8 @@ namespace ConditionalAccess
                             int nFullLifeCycle = 0;
                             DateTime dtViewDate = new DateTime();
                             DateTime dtNow = DateTime.UtcNow;
-                            List<int> lstUsersIds = Utils.GetAllUsersDomainBySiteGUID(p_sSiteGUID, m_nGroupID);
+                            int domainID = 0;
+                            List<int> lstUsersIds = Utils.GetAllUsersDomainBySiteGUID(p_sSiteGUID, m_nGroupID, ref domainID);
                             List<int> lstRelatedMediaFiles = GetRelatedMediaFiles(objPrice, nMediaFileID);
                             DateTime? dtEntitlementStartDate = GetStartDate(objPrice);
                             DateTime? dtEntitlementEndDate = GetEndDate(objPrice);
@@ -14517,7 +14518,7 @@ namespace ConditionalAccess
                 TvinciPricing.PrePaidModule relevantPP = null;
                 TvinciPricing.Price oPrice = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(contentId, thePPVModule, siteguid, string.Empty, m_nGroupID,
                                                                                               ref ePriceReason, ref relevantSub, ref relevantCol, ref relevantPP,
-                                                                                              string.Empty, string.Empty, deviceName);
+                                                                                              string.Empty, string.Empty, deviceName, true);
 
                 if (ePriceReason != PriceReason.ForPurchase && !(ePriceReason == PriceReason.SubscriptionPurchased && oPrice.m_dPrice > 0))
                 {

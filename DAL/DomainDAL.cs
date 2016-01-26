@@ -16,6 +16,7 @@ namespace DAL
         private const string SP_GET_USER_EXISTS_IN_DOMAIN = "Get_UserExistsInDomain";
         private const string SP_GET_USER_IN_DOMAIN = "Get_UserInDomain";
         private const string SP_GET_USERS_IN_DOMAIN = "Get_UsersInDomain";
+        private const string SP_GET_USERS_IN_DOMAIN_INCLUDE_DELETED = "Get_UserInDomainInIncludeDeleted";
         private const string SP_GET_DOMAIN_SETTINGS = "sp_GetDomainSettings";
         private const string SP_GET_DEVICE_FAMILIES_LIMITS = "sp_GetDeviceFamiliesLimits";
         private const string SP_GET_DOMAIN_IDS_BY_EMAIL = "sp_GetDomainIDsByEmail";
@@ -387,6 +388,42 @@ namespace DAL
             spGetUsersInDomain.AddParameter("@groupID", nGroupID);
             spGetUsersInDomain.AddParameter("@status", status);
             spGetUsersInDomain.AddParameter("@isActive", isActive);
+
+            DataSet ds = spGetUsersInDomain.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                int nCount = ds.Tables[0].DefaultView.Count;
+
+                for (int i = 0; i < nCount; i++)
+                {
+                    int nUserId = int.Parse(ds.Tables[0].DefaultView[i].Row["user_id"].ToString());
+                    int nUserType = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].DefaultView[i], "is_master");
+
+                    dTypedUsers[nUserId] = nUserType;
+                }
+            }
+
+            return dTypedUsers;
+        }
+
+        /// <summary>
+        /// Returns user-type duples in a domain. The Master user(s) is always returned first
+        /// </summary>
+        /// <param name="nDomainID"></param>
+        /// <param name="nGroupID"></param>
+        /// <param name="status"></param>
+        /// <param name="isActive"></param>
+        /// <returns></returns>
+        public static Dictionary<int, int> GetUsersInDomainIncludeDeleted(int nDomainID, int nGroupID)
+        {
+            Dictionary<int, int> dTypedUsers = new Dictionary<int, int>();
+
+            ODBCWrapper.StoredProcedure spGetUsersInDomain = new ODBCWrapper.StoredProcedure(SP_GET_USERS_IN_DOMAIN_INCLUDE_DELETED);
+            spGetUsersInDomain.SetConnectionKey("USERS_CONNECTION_STRING");
+
+            spGetUsersInDomain.AddParameter("@domainID", nDomainID);
+            spGetUsersInDomain.AddParameter("@groupID", nGroupID);
 
             DataSet ds = spGetUsersInDomain.ExecuteDataSet();
 
