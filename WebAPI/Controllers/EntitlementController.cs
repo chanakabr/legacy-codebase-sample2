@@ -144,11 +144,10 @@ namespace WebAPI.Controllers
         /// Gets all the entitled media items for a household
         /// </summary>        
         /// <param name="filter">Request filter</param>
-        /// <param name="expired">When provided – returns also the expired items. Possible values: True – return also the expired items ; False – return only the active entitlements </param>
         /// <remarks></remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaEntitlementListResponse List(KalturaEntitlementsFilter filter, bool? expired = null)
+        public KalturaEntitlementListResponse List(KalturaEntitlementsFilter filter)
         {
             List<KalturaEntitlement> response = new List<KalturaEntitlement>();
 
@@ -166,22 +165,60 @@ namespace WebAPI.Controllers
                 {
                     case KalturaEntityReferenceBy.user:
                         {
-                            if (expired.HasValue && expired.Value)
-                            {
-                                response = ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, KS.GetFromRequest().UserId, filter.EntitlementType, true);
-                            }
-                            else
-                                response = ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, KS.GetFromRequest().UserId, filter.EntitlementType);
+                            response = ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, KS.GetFromRequest().UserId, filter.EntitlementType);
                         }
                         break;
                     case KalturaEntityReferenceBy.household:
                         {
-                            if (expired.HasValue && expired.Value)
-                            {
-                                response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), filter.EntitlementType, true);
-                            }
-                            else
-                                response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), filter.EntitlementType);
+                            response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), filter.EntitlementType);
+                        }
+                        break;
+                    default:
+                        throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "unknown reference type");
+                }
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return new KalturaEntitlementListResponse() { Entitlements = response, TotalCount = response.Count };
+        }
+
+        /// <summary>
+        /// Retrieve the household’s expired entitlements – PPV and subscriptions. Response is ordered by expiry date
+        /// </summary>        
+        /// <param name="filter">Request filter</param>
+        /// <param name="pager">Paging the request</param>
+        /// <remarks></remarks>
+        [Route("listExpired"), HttpPost]
+        [ApiAuthorize]
+        public KalturaEntitlementListResponse ListExpired(KalturaEntitlementsFilter filter, KalturaFilterPager pager = null)
+        {
+            List<KalturaEntitlement> response = new List<KalturaEntitlement>();
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            if (filter == null)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter cannot be null");
+            }
+            if (pager == null)
+                pager = new KalturaFilterPager();
+
+            try
+            {
+                // call client
+                switch (filter.By)
+                {
+                    case KalturaEntityReferenceBy.user:
+                        {
+                            response = ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, KS.GetFromRequest().UserId, filter.EntitlementType, true, pager.PageSize, pager.PageIndex);
+                        }
+                        break;
+                    case KalturaEntityReferenceBy.household:
+                        {
+                            response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), filter.EntitlementType, true, pager.PageSize, pager.PageIndex);
                         }
                         break;
                     default:
