@@ -47,18 +47,32 @@ namespace ApiObjects.SearchObjects
     public class OrderObj
     {
         [DataMember]
+        [JsonProperty()]
         public OrderBy m_eOrderBy;
         [DataMember]
+        [JsonProperty()]
         public OrderDir m_eOrderDir;
         [DataMember]
-        public string m_sOrderValue { get; set; }
+        [JsonProperty()]
+        public string m_sOrderValue
+        {
+            get;
+            set;
+        }
 
         //SlidingWindow
         [DataMember]
+        [JsonProperty()]
         public int lu_min_period_id;
         [DataMember]
-        public bool m_bIsSlidingWindowField { get; set; }
+        [JsonProperty()]
+        public bool m_bIsSlidingWindowField
+        {
+            get;
+            set;
+        }
 
+        [JsonProperty()]
         public DateTime m_dSlidingWindowStartTimeField
         {
             get { return GetSlidingWindowStart(lu_min_period_id); }

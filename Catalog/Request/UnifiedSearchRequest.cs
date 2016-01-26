@@ -47,6 +47,9 @@ namespace Catalog.Request
         [DataMember]
         public int fileType;
 
+        [DataMember]
+        public string requestId;
+
         #endregion
 
         #region Ctor
@@ -155,6 +158,12 @@ namespace Catalog.Request
 
                 CheckSignature(baseRequest);
 
+                // If this is a new request - generate a new GUID for it
+                if (string.IsNullOrEmpty(request.requestId))
+                {
+                    request.requestId = Guid.NewGuid().ToString();
+                }
+
                 int totalItems = 0;
                 int to = 0;
                 List<UnifiedSearchResult> assetsResults = Catalog.GetAssetIdFromSearcher(request, ref totalItems, ref to);
@@ -170,6 +179,9 @@ namespace Catalog.Request
                 {
                     response.to = to;
                 }
+
+                // Response request Id is identical to request's request Id
+                response.requestId = request.requestId;
 
                 response.status.Code = (int)eResponseStatus.OK;
             }

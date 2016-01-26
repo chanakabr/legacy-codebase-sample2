@@ -12,6 +12,7 @@ namespace ApiObjects.SearchObjects
     /// Representing the abstract class of a node in a tree-boolean phrase
     /// </summary>
     [DataContract]
+    [Serializable]
     public abstract class BooleanPhraseNode
     {
         #region Consts

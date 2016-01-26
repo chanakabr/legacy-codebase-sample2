@@ -23,6 +23,9 @@ namespace Catalog.Response
         [DataMember]
         public ApiObjects.Response.Status status;
 
+        [DataMember]
+        public string requestId;
+
         /// <summary>
         /// Last search document offset/index the response contains
         /// </summary>
