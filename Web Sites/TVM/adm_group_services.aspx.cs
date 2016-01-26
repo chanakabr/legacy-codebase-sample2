@@ -133,7 +133,7 @@ public partial class adm_group_services : System.Web.UI.Page
         Int32 nCommerceGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("groups", "COMMERCE_GROUP_ID", nLogedInGroupID).ToString());
         if (nCommerceGroupID == 0)
             nCommerceGroupID = LoginManager.GetLoginGroupID();
-        selectQuery += " group_id " + PageUtils.GetFullChildGroupsStr(nCommerceGroupID, "");
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nCommerceGroupID);
         if (selectQuery.Execute("query", true) != null)
         {
             Int32 nCount = selectQuery.Table("query").DefaultView.Count;
@@ -172,12 +172,13 @@ public partial class adm_group_services : System.Web.UI.Page
 
     public string initDualObj()
     {
-        string sRet = "";
-        sRet += "Current Sevices";
-        sRet += "~~|~~";
-        sRet += "Available Services";
-        sRet += "~~|~~";
-        sRet += "<root>";
+        Dictionary<string, object> dualList = new Dictionary<string, object>();
+        dualList.Add("FirstListTitle", "Current Services");
+        dualList.Add("SecondListTitle", "Available Services");
+
+        object[] resultData = null;
+        List<object> premiumServices = new List<object>();
+
         ODBCWrapper.DataSetSelectQuery servicesSelectQuery = new ODBCWrapper.DataSetSelectQuery();
         servicesSelectQuery.SetConnectionKey("CONNECTION_STRING");
         servicesSelectQuery += "select ID, DESCRIPTION from lu_services where status=1 ";
@@ -187,10 +188,8 @@ public partial class adm_group_services : System.Web.UI.Page
             ODBCWrapper.DataSetSelectQuery groupServicesSelectQuery = new ODBCWrapper.DataSetSelectQuery();
             groupServicesSelectQuery.SetConnectionKey("CONNECTION_STRING");
             groupServicesSelectQuery += "select ID, SERVICE_ID from groups_services where status = 1 and is_active = 1 and ";
-            Int32 nCommerceGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("groups", "COMMERCE_GROUP_ID", LoginManager.GetLoginGroupID()).ToString());
-            if (nCommerceGroupID == 0)
-                nCommerceGroupID = LoginManager.GetLoginGroupID();
-            groupServicesSelectQuery += " group_id " + PageUtils.GetFullChildGroupsStr(nCommerceGroupID, "");
+            groupServicesSelectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", LoginManager.GetLoginGroupID());
+
             if (groupServicesSelectQuery.Execute("query", true) != null)
             {
 
@@ -200,10 +199,20 @@ public partial class adm_group_services : System.Web.UI.Page
                     string sID = ODBCWrapper.Utils.GetStrSafeVal(servicesSelectQuery, "ID", i);
                     string sTitle = ODBCWrapper.Utils.GetStrSafeVal(servicesSelectQuery, "DESCRIPTION", i);
                     DataRow drService = groupServicesSelectQuery.Table("query").Select(string.Format("SERVICE_ID = {0}", sID)).FirstOrDefault();
+                    bool isInList = false;
                     if (drService != null)
-                        sRet += "<item id=\"" + sID + "\"  title=\"" + sTitle + "\" description=\"" + sTitle + "\" inList=\"true\" />";
-                    else
-                        sRet += "<item id=\"" + sID + "\"  title=\"" + sTitle + "\" description=\"" + sTitle + "\" inList=\"false\" />";
+                    {
+                        isInList = true;
+                    }
+
+                    var data = new
+                    {
+                        ID = sID,
+                        Title = sTitle,
+                        Description = sTitle,
+                        InList = isInList
+                    };
+                    premiumServices.Add(data);
                 }
             }
             groupServicesSelectQuery.Finish();
@@ -212,9 +221,14 @@ public partial class adm_group_services : System.Web.UI.Page
         servicesSelectQuery.Finish();
         servicesSelectQuery = null;
 
+        resultData = new object[premiumServices.Count];
+        resultData = premiumServices.ToArray();
 
-        sRet += "</root>";
-        return sRet;
+        dualList.Add("Data", resultData);
+        dualList.Add("pageName", "adm_group_services.aspx");
+        dualList.Add("withCalendar", false);
+
+        return dualList.ToJSON();
     }
 }
 
