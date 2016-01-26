@@ -57,6 +57,8 @@ namespace WebAPI.Api {
         
         private System.Threading.SendOrPostCallback GetExternalEntitlementsOperationCompleted;
         
+        private System.Threading.SendOrPostCallback ModifyCBOperationCompleted;
+        
         private System.Threading.SendOrPostCallback TVAPI_GetTvinciGUIDOperationCompleted;
         
         private System.Threading.SendOrPostCallback TVAPI_GetMediasOperationCompleted;
@@ -389,6 +391,9 @@ namespace WebAPI.Api {
         
         /// <remarks/>
         public event GetExternalEntitlementsCompletedEventHandler GetExternalEntitlementsCompleted;
+        
+        /// <remarks/>
+        public event ModifyCBCompletedEventHandler ModifyCBCompleted;
         
         /// <remarks/>
         public event TVAPI_GetTvinciGUIDCompletedEventHandler TVAPI_GetTvinciGUIDCompleted;
@@ -1190,29 +1195,27 @@ namespace WebAPI.Api {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetExternalEntitlements", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public OSSAdapterEntitlementsResponse GetExternalEntitlements(string sWSUserName, string sWSPassword, int ossAdapterId, string userId) {
+        public OSSAdapterEntitlementsResponse GetExternalEntitlements(string sWSUserName, string sWSPassword, string userId) {
             object[] results = this.Invoke("GetExternalEntitlements", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        ossAdapterId,
                         userId});
             return ((OSSAdapterEntitlementsResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void GetExternalEntitlementsAsync(string sWSUserName, string sWSPassword, int ossAdapterId, string userId) {
-            this.GetExternalEntitlementsAsync(sWSUserName, sWSPassword, ossAdapterId, userId, null);
+        public void GetExternalEntitlementsAsync(string sWSUserName, string sWSPassword, string userId) {
+            this.GetExternalEntitlementsAsync(sWSUserName, sWSPassword, userId, null);
         }
         
         /// <remarks/>
-        public void GetExternalEntitlementsAsync(string sWSUserName, string sWSPassword, int ossAdapterId, string userId, object userState) {
+        public void GetExternalEntitlementsAsync(string sWSUserName, string sWSPassword, string userId, object userState) {
             if ((this.GetExternalEntitlementsOperationCompleted == null)) {
                 this.GetExternalEntitlementsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetExternalEntitlementsOperationCompleted);
             }
             this.InvokeAsync("GetExternalEntitlements", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        ossAdapterId,
                         userId}, this.GetExternalEntitlementsOperationCompleted, userState);
         }
         
@@ -1220,6 +1223,47 @@ namespace WebAPI.Api {
             if ((this.GetExternalEntitlementsCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.GetExternalEntitlementsCompleted(this, new GetExternalEntitlementsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/ModifyCB", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public bool ModifyCB(string sWSUserName, string sWSPassword, string bucket, string key, eDbActionType action, string data, long ttlMinutes) {
+            object[] results = this.Invoke("ModifyCB", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        bucket,
+                        key,
+                        action,
+                        data,
+                        ttlMinutes});
+            return ((bool)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void ModifyCBAsync(string sWSUserName, string sWSPassword, string bucket, string key, eDbActionType action, string data, long ttlMinutes) {
+            this.ModifyCBAsync(sWSUserName, sWSPassword, bucket, key, action, data, ttlMinutes, null);
+        }
+        
+        /// <remarks/>
+        public void ModifyCBAsync(string sWSUserName, string sWSPassword, string bucket, string key, eDbActionType action, string data, long ttlMinutes, object userState) {
+            if ((this.ModifyCBOperationCompleted == null)) {
+                this.ModifyCBOperationCompleted = new System.Threading.SendOrPostCallback(this.OnModifyCBOperationCompleted);
+            }
+            this.InvokeAsync("ModifyCB", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        bucket,
+                        key,
+                        action,
+                        data,
+                        ttlMinutes}, this.ModifyCBOperationCompleted, userState);
+        }
+        
+        private void OnModifyCBOperationCompleted(object arg) {
+            if ((this.ModifyCBCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.ModifyCBCompleted(this, new ModifyCBCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -3245,13 +3289,13 @@ namespace WebAPI.Api {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/CleanUserHistory", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public bool CleanUserHistory(string sWSUserName, string sWSPassword, string siteGuid, int[] lMediaIDs) {
+        public Status CleanUserHistory(string sWSUserName, string sWSPassword, string siteGuid, int[] lMediaIDs) {
             object[] results = this.Invoke("CleanUserHistory", new object[] {
                         sWSUserName,
                         sWSPassword,
                         siteGuid,
                         lMediaIDs});
-            return ((bool)(results[0]));
+            return ((Status)(results[0]));
         }
         
         /// <remarks/>
@@ -7800,6 +7844,8 @@ namespace WebAPI.Api {
         
         private string pIC_URLField;
         
+        private int pIC_IDField;
+        
         private string sTATUSField;
         
         private string iS_ACTIVEField;
@@ -7901,6 +7947,16 @@ namespace WebAPI.Api {
             }
             set {
                 this.pIC_URLField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int PIC_ID {
+            get {
+                return this.pIC_IDField;
+            }
+            set {
+                this.pIC_IDField = value;
             }
         }
         
@@ -10061,6 +10117,8 @@ namespace WebAPI.Api {
         
         private int m_nMediaIDField;
         
+        private string m_sProductCodeField;
+        
         /// <remarks/>
         public int m_nMediaFileID {
             get {
@@ -10078,6 +10136,16 @@ namespace WebAPI.Api {
             }
             set {
                 this.m_nMediaIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sProductCode {
+            get {
+                return this.m_sProductCodeField;
+            }
+            set {
+                this.m_sProductCodeField = value;
             }
         }
     }
@@ -12728,43 +12796,49 @@ namespace WebAPI.Api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class Entitlement {
+    public partial class ExternalEntitlement {
         
-        private string aliasField;
+        private long purchaseIdField;
         
-        private string productIdField;
+        private long productIdField;
+        
+        private string productCodeField;
         
         private eTransactionType entitlementTypeField;
         
         private string contentIdField;
         
-        private double priceField;
+        private long startDateSecondsField;
         
-        private string currencyCodeField;
-        
-        private System.DateTime startDateField;
-        
-        private System.DateTime endDateField;
-        
-        private string uDIDField;
+        private long endDateSecondsField;
         
         /// <remarks/>
-        public string Alias {
+        public long PurchaseId {
             get {
-                return this.aliasField;
+                return this.purchaseIdField;
             }
             set {
-                this.aliasField = value;
+                this.purchaseIdField = value;
             }
         }
         
         /// <remarks/>
-        public string ProductId {
+        public long ProductId {
             get {
                 return this.productIdField;
             }
             set {
                 this.productIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string ProductCode {
+            get {
+                return this.productCodeField;
+            }
+            set {
+                this.productCodeField = value;
             }
         }
         
@@ -12789,52 +12863,22 @@ namespace WebAPI.Api {
         }
         
         /// <remarks/>
-        public double Price {
+        public long StartDateSeconds {
             get {
-                return this.priceField;
+                return this.startDateSecondsField;
             }
             set {
-                this.priceField = value;
+                this.startDateSecondsField = value;
             }
         }
         
         /// <remarks/>
-        public string CurrencyCode {
+        public long EndDateSeconds {
             get {
-                return this.currencyCodeField;
+                return this.endDateSecondsField;
             }
             set {
-                this.currencyCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime StartDate {
-            get {
-                return this.startDateField;
-            }
-            set {
-                this.startDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime EndDate {
-            get {
-                return this.endDateField;
-            }
-            set {
-                this.endDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string UDID {
-            get {
-                return this.uDIDField;
-            }
-            set {
-                this.uDIDField = value;
+                this.endDateSecondsField = value;
             }
         }
     }
@@ -12865,7 +12909,7 @@ namespace WebAPI.Api {
         
         private Status statusField;
         
-        private Entitlement[] entitlementsField;
+        private ExternalEntitlement[] entitlementsField;
         
         /// <remarks/>
         public Status Status {
@@ -12878,7 +12922,7 @@ namespace WebAPI.Api {
         }
         
         /// <remarks/>
-        public Entitlement[] Entitlements {
+        public ExternalEntitlement[] Entitlements {
             get {
                 return this.entitlementsField;
             }
@@ -13571,6 +13615,19 @@ namespace WebAPI.Api {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public enum eDbActionType {
+        
+        /// <remarks/>
+        Delete,
+        
+        /// <remarks/>
+        Add,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public enum UserStatus {
         
         /// <remarks/>
@@ -13980,6 +14037,32 @@ namespace WebAPI.Api {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((OSSAdapterEntitlementsResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void ModifyCBCompletedEventHandler(object sender, ModifyCBCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class ModifyCBCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal ModifyCBCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public bool Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((bool)(this.results[0]));
             }
         }
     }
@@ -15490,10 +15573,10 @@ namespace WebAPI.Api {
         }
         
         /// <remarks/>
-        public bool Result {
+        public Status Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((bool)(this.results[0]));
+                return ((Status)(this.results[0]));
             }
         }
     }
