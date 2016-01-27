@@ -11806,18 +11806,22 @@ namespace ConditionalAccess
 
         /*This method shall set the waiver flag on the user entitlement table (susbcriptions/ppv/collection_purchases) 
          * and the waiver_date field to the current date.*/
-        public virtual bool WaiverTransaction(string sSiteGuid, int nAssetID, eTransactionType transactionType)
+        public virtual ApiObjects.Response.Status WaiverTransaction(string sSiteGuid, int nAssetID, eTransactionType transactionType)
         {
-            bool bRes = false;
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+            bool result = false;
             System.Data.DataTable dt = null;
 
             try
             {
                 // Get domainID to support waiver a transaction made by a deleted user (not the current p_sSiteGuid)
                 long domainid = 0;
-                if (Utils.ValidateUser(m_nGroupID, sSiteGuid, ref domainid) != ResponseStatus.OK || domainid == 0)
+                ResponseStatus responseStatus = Utils.ValidateUser(m_nGroupID, sSiteGuid, ref domainid);
+                if (responseStatus != ResponseStatus.OK || domainid == 0)
                 {
-                    return false;
+                    status = SetResponseStatus(responseStatus);
+                    log.ErrorFormat("User validation failed: {0}, sSiteGuid: {1}", status.Message, sSiteGuid);
+                    return status;
                 }
 
                 bool bCancellationWindow = GetCancellationWindow(nAssetID, transactionType, ref dt, (int)domainid);
@@ -11828,22 +11832,23 @@ namespace ConditionalAccess
                     switch (transactionType)
                     {
                         case eTransactionType.PPV:
-                            bRes = ConditionalAccessDAL.WaiverPPVPurchaseTransaction(sSiteGuid, nAssetID, (int)domainid);
+                            result = ConditionalAccessDAL.WaiverPPVPurchaseTransaction(sSiteGuid, nAssetID, (int)domainid);                            
                             break;
                         case eTransactionType.Subscription:
-                            bRes = ConditionalAccessDAL.WaiverSubscriptionPurchaseTransaction(sSiteGuid, nAssetID, (int)domainid);
+                            result = ConditionalAccessDAL.WaiverSubscriptionPurchaseTransaction(sSiteGuid, nAssetID, (int)domainid);
                             break;
                         case eTransactionType.Collection:
-                            bRes = ConditionalAccessDAL.WaiverCollectionPurchaseTransaction(sSiteGuid, nAssetID, (int)domainid);
+                            result = ConditionalAccessDAL.WaiverCollectionPurchaseTransaction(sSiteGuid, nAssetID, (int)domainid);
                             break;
                         default:
-                            return false;
+                            result = false;
+                            break;
                     }
                 }
 
-
-                if (bRes)
+                if (result)
                 {
+                    status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK, Message = "OK" };
                     WriteToUserLog(sSiteGuid, string.Format("user :{0} waiver cancellation for {1} item :{2}", sSiteGuid, Enum.GetName(typeof(eTransactionType), transactionType), nAssetID));
                 }
             }
@@ -11862,7 +11867,7 @@ namespace ConditionalAccess
                 #endregion
             }
 
-            return bRes;
+            return status;
         }
 
         private bool TryGetFileUrlLinks(int mediaFileID, string userIP, string siteGuid, ref string mainUrl, ref string altUrl,
