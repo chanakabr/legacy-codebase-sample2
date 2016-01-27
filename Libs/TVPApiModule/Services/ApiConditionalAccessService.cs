@@ -1121,9 +1121,10 @@ namespace TVPApiModule.Services
 
             try
             {
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
+                var result = m_Module.WaiverTransaction(m_wsUserName, m_wsPassword, siteGuid, assetId, transactionType);
+                if (result.Code == 0)
                 {
-                    isWaiverTransactionSucceeded = m_Module.WaiverTransaction(m_wsUserName, m_wsPassword, siteGuid, assetId, transactionType);
+                    isWaiverTransactionSucceeded = true;
                 }
             }
             catch (Exception ex)
