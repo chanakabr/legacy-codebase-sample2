@@ -33,7 +33,7 @@ namespace CachingHelpers
         #region Private Members
 
         protected ICachingService cacheService = null;
-        protected readonly double cacheTime;
+        protected double cacheTime;
         protected string cacheGroupConfiguration;
         protected string version;
 

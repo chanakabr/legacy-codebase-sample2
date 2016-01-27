@@ -244,8 +244,13 @@ namespace Catalog
 
         public UnifiedSearchDefinitions GetDefinitions(UnifiedSearchRequest request)
         {
+            // Make sure every time that cache time is 10 minutes
+            this.cacheTime = 10;
+
             string mutexName = string.Concat("Search Definitions GID_", request.m_nGroupID);
-            string cacheKey = string.Format("{0}_{1}_{2}", "Search_Definitions", request.m_sSiteGuid, request.requestId);
+            string cacheKey = 
+                string.Format("{0}_{1}_{2}_{3}", 
+                this.version, "Search_Definitions", request.m_sSiteGuid, request.requestId);
 
             return this.Get(cacheKey, mutexName, request);
         }
