@@ -4206,14 +4206,14 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/WaiverTransaction", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public bool WaiverTransaction(string sWSUserName, string sWSPassword, string sSiteGuid, int nAssetID, eTransactionType transactionType) {
+        public Status WaiverTransaction(string sWSUserName, string sWSPassword, string sSiteGuid, int nAssetID, eTransactionType transactionType) {
             object[] results = this.Invoke("WaiverTransaction", new object[] {
                         sWSUserName,
                         sWSPassword,
                         sSiteGuid,
                         nAssetID,
                         transactionType});
-            return ((bool)(results[0]));
+            return ((Status)(results[0]));
         }
         
         /// <remarks/>
@@ -11768,10 +11768,10 @@ namespace WebAPI.ConditionalAccess {
         }
         
         /// <remarks/>
-        public bool Result {
+        public Status Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((bool)(this.results[0]));
+                return ((Status)(this.results[0]));
             }
         }
     }

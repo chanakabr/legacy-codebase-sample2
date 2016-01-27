@@ -142,5 +142,52 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        /// <summary>
+        /// This method shall set the waiver flag on the user entitlement table and the waiver date field to the current date.
+        /// </summary>
+        /// <param name="asset_id">Asset identifier</param>        
+        /// <param name="transaction_type">The transaction type</param>
+        /// <remarks>Possible status codes: 
+        ///  User suspended = 2001
+        /// </remarks>
+        [Route("waiver"), HttpPost]
+        [ApiAuthorize]
+        public bool Waiver(int asset_id, KalturaTransactionType transaction_type)
+        {
+            bool response = false;
+
+            int groupId = KS.GetFromRequest().GroupId;
+            try
+            {
+
+                // get domain       
+                var domain = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+                // check if the user performing the action is domain master
+                if (domain == 0)
+                {
+                    throw new ForbiddenException();
+                }
+
+                if (asset_id == 0)
+                {
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_id not valid");
+                }
+
+                // call client
+                response = ClientsManager.ConditionalAccessClient().WaiverTransaction(groupId, (int)domain, KS.GetFromRequest().UserId, asset_id, transaction_type);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            if (response == false)
+            {
+                throw new InternalServerErrorException();
+            }
+            return response;
+        }
     }
 }

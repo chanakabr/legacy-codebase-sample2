@@ -821,6 +821,8 @@
             <s:element minOccurs="1" maxOccurs="1" name="domainID" type="s:int" />
             <s:element minOccurs="1" maxOccurs="1" name="dStartDate" type="s:dateTime" />
             <s:element minOccurs="1" maxOccurs="1" name="dEndDate" type="s:dateTime" />
+            <s:element minOccurs="1" maxOccurs="1" name="pageSize" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="pageIndex" type="s:int" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -2334,7 +2336,7 @@
       <s:element name="WaiverTransactionResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="1" maxOccurs="1" name="WaiverTransactionResult" type="s:boolean" />
+            <s:element minOccurs="0" maxOccurs="1" name="WaiverTransactionResult" type="tns:Status" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -3703,6 +3705,8 @@
     <wsdl:part name="domainID" type="s:string" />
     <wsdl:part name="dStartDate" type="s:string" />
     <wsdl:part name="dEndDate" type="s:string" />
+    <wsdl:part name="pageSize" type="s:string" />
+    <wsdl:part name="pageIndex" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetDomainTransactionsHistoryHttpPostOut">
     <wsdl:part name="Body" element="tns:DomainTransactionsHistoryResponse" />
@@ -4521,7 +4525,7 @@
     <wsdl:part name="transactionType" type="s:string" />
   </wsdl:message>
   <wsdl:message name="WaiverTransactionHttpPostOut">
-    <wsdl:part name="Body" element="tns:boolean" />
+    <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
   <wsdl:message name="GetLicensedLinksHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />

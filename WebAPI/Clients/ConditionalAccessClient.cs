@@ -4,18 +4,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Web;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
+using WebAPI.ConditionalAccess;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using WebAPI.Models.ConditionalAccess;
-using WebAPI.Models.General;
-using WebAPI.Models.Pricing;
-using WebAPI.Utils;
-using WebAPI.ConditionalAccess;
-using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Models.Catalog;
+using WebAPI.Models.ConditionalAccess;
+using WebAPI.Models.Pricing;
+using WebAPI.ObjectsConvertor.Mapping;
+using WebAPI.Utils;
 
 namespace WebAPI.Clients
 {
@@ -656,7 +654,7 @@ namespace WebAPI.Clients
                 clientResponse.TotalCount = wsResponse.TransactionsCount;
                 List<KalturaBillingTransaction> allTransactions = new List<KalturaBillingTransaction>();
 
-                if( wsResponse.TransactionsCount > 0)
+                if (wsResponse.TransactionsCount > 0)
                 {
                     // Convert current user's list of transactions to List of Kaltura objects
                     List<KalturaUserBillingTransaction> pageTransactions = Mapper.Map<List<KalturaUserBillingTransaction>>(wsResponse.TransactionsHistory);
@@ -783,6 +781,43 @@ namespace WebAPI.Clients
             result = Mapper.Map<List<KalturaPremiumService>>(response.Services);
 
             return result;
+        }
+
+        internal bool WaiverTransaction(int groupId, int householdID, string userId, int assetId, KalturaTransactionType kalTuraTransactioType)
+        {
+            WebAPI.ConditionalAccess.Status response = null;
+
+            // get group ID
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                // convert local enumerator, to web service enumerator
+                WebAPI.ConditionalAccess.eTransactionType transactionType = ConditionalAccessMappings.ConvertTransactionType(kalTuraTransactioType);
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    response = ConditionalAccess.WaiverTransaction(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, assetId, transactionType);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
         }
     }
 }
