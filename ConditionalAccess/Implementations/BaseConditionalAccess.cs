@@ -11806,8 +11806,9 @@ namespace ConditionalAccess
 
         /*This method shall set the waiver flag on the user entitlement table (susbcriptions/ppv/collection_purchases) 
          * and the waiver_date field to the current date.*/
-        public virtual bool WaiverTransaction(string sSiteGuid, int nAssetID, eTransactionType transactionType)
+        public virtual ApiObjects.Response.Status WaiverTransaction(string sSiteGuid, int nAssetID, eTransactionType transactionType)
         {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = "Error" };
             bool bRes = false;
             System.Data.DataTable dt = null;
 
@@ -11815,9 +11816,12 @@ namespace ConditionalAccess
             {
                 // Get domainID to support waiver a transaction made by a deleted user (not the current p_sSiteGuid)
                 long domainid = 0;
-                if (Utils.ValidateUser(m_nGroupID, sSiteGuid, ref domainid) != ResponseStatus.OK || domainid == 0)
+                ResponseStatus responseStatus = Utils.ValidateUser(m_nGroupID, sSiteGuid, ref domainid);
+                if (responseStatus != ResponseStatus.OK || domainid == 0)
                 {
-                    return false;
+                    status = SetResponseStatus(responseStatus);
+                    log.ErrorFormat("User validation failed: {0}, sSiteGuid: {1}", status.Message, sSiteGuid);
+                    return status;
                 }
 
                 bool bCancellationWindow = GetCancellationWindow(nAssetID, transactionType, ref dt, (int)domainid);
@@ -11837,13 +11841,15 @@ namespace ConditionalAccess
                             bRes = ConditionalAccessDAL.WaiverCollectionPurchaseTransaction(sSiteGuid, nAssetID, (int)domainid);
                             break;
                         default:
-                            return false;
+                            bRes = false;
+                            break;
                     }
                 }
 
 
                 if (bRes)
                 {
+                    status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK, Message = "OK" };
                     WriteToUserLog(sSiteGuid, string.Format("user :{0} waiver cancellation for {1} item :{2}", sSiteGuid, Enum.GetName(typeof(eTransactionType), transactionType), nAssetID));
                 }
             }
@@ -11862,7 +11868,7 @@ namespace ConditionalAccess
                 #endregion
             }
 
-            return bRes;
+            return status;
         }
 
         private bool TryGetFileUrlLinks(int mediaFileID, string userIP, string siteGuid, ref string mainUrl, ref string altUrl,
