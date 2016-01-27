@@ -4177,6 +4177,9 @@ namespace TvinciImporter
                 string sName = GetItemParameterVal(ref theItem, "name");
                 string sMLHandling = GetItemParameterVal(ref theItem, "ml_handling");
 
+                if (string.IsNullOrEmpty(sName))
+                    continue;
+
                 TranslatorStringHolder metaHolder = new TranslatorStringHolder();
                 XmlNodeList theContainers = theItem.SelectNodes("container");
                 Int32 nCount1 = theContainers.Count;
