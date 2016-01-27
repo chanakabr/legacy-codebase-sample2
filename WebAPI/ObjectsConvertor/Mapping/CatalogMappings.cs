@@ -121,6 +121,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sName))
                 .ForMember(dest => dest.AssetTypes, opt => opt.MapFrom(src => src.m_nMediaType))
                 .ForMember(dest => dest.FilterExpression, opt => opt.MapFrom(src => src.filterQuery))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_sDescription))
                 ;
 
             //CategoryResponse to Category
