@@ -41,7 +41,20 @@ public partial class adm_wp_rules_new : System.Web.UI.Page
                 Session["watch_permission_id"] = 0;
 
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
+            {
                 DBManipulator.DoTheWork();
+
+                Int32 groupId = LoginManager.GetLoginGroupID();
+                int parentGroupId = Convert.ToInt32(ODBCWrapper.Utils.GetTableSingleVal("groups", "parent_group_id", groupId));
+
+                if (parentGroupId != 0)
+                {
+                    groupId = parentGroupId;
+                }
+
+                GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
+                groupManager.UpdateGroup(groupId);
+            }
         }
     }
 
