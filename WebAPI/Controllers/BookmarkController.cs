@@ -18,7 +18,9 @@ namespace WebAPI.Controllers
     public class BookmarkController : ApiController
     {
         /// <summary>
-        /// Returns the last position (in seconds) in a media or nPVR asset until which a user in the household watched
+        /// Returns player position record/s for the requested asset and the requesting user. 
+        /// If default user makes the request – player position records are provided for all of the users in the household.
+        /// If non-default user makes the request - player position records are provided for the requesting user and the default user of the household.
         /// </summary>
         /// <param name="filter">Filter option for the last position</param>
         /// <returns></returns>

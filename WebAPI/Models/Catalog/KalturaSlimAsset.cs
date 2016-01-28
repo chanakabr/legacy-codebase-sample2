@@ -18,7 +18,7 @@ namespace WebAPI.Models.Catalog
     {
 
         /// <summary>
-        /// Assets identifier
+        /// Internal identifier of the asset
         /// </summary>
         [DataMember(Name = "id")]
         [JsonProperty(PropertyName = "id")]
@@ -26,7 +26,7 @@ namespace WebAPI.Models.Catalog
         public string Id { get; set; }
 
         /// <summary>
-        /// Assets type
+        /// The type of the asset. Possible values: media, recording, epg
         /// </summary>
         [DataMember(Name = "type")]
         [JsonProperty(PropertyName = "type")]
