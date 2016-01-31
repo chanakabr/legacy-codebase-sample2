@@ -395,7 +395,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get external related media info")]
-        public TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetExternalRelatedMedias(InitializationObject initObj, int assetID, string picSize, int pageSize, int pageIndex, int[] filter_types, string freeParam, List<string> with)
+        public TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetExternalRelatedMedias(InitializationObject initObj, int assetID, int pageSize, int pageIndex, int[] filter_types, string freeParam, List<string> with)
         {
             TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId ret = null;
             HashSet<string> validWithValues = new HashSet<string>() { "images", "stats", "files" };
