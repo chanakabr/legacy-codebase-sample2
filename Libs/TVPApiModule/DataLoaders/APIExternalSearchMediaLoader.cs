@@ -113,8 +113,7 @@ namespace TVPApi
                     Platform.ToString(),
                     SiteHelper.GetClientIP(),
                     PageSize,
-                    PageIndex,
-                    PicSize)
+                    PageIndex)
                 {
                     DeviceId = DeviceUDID,
                     OnlyActiveMedia = true,

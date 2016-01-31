@@ -697,13 +697,13 @@ namespace TVPApi
             return GetMediaExternalRelatedList(initObj, account.TVMUser, account.TVMPass, mediaID, picSize, pageSize, pageIndex, groupID, reqMediaTypes, freeParam, with);
         }
 
-        public static TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetExternalSearchMediaList(InitializationObject initObj, string query, string picSize, int pageSize, int pageIndex, int groupID, int[] reqMediaTypes = null, List<string> with = null)
+        public static TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetExternalSearchMediaList(InitializationObject initObj, string query, int pageSize, int pageIndex, int groupID, int[] reqMediaTypes = null, List<string> with = null)
         {
             TVMAccountType account; ;
 
             account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Parent);
 
-            return GetMediaExternalSearchList(initObj, account.TVMUser, account.TVMPass, query, picSize, pageSize, pageIndex, groupID, OrderBy.None, reqMediaTypes, with);
+            return GetMediaExternalSearchList(initObj, account.TVMUser, account.TVMPass, query, pageSize, pageIndex, groupID, OrderBy.None, reqMediaTypes, with);
         }
 
         public static List<Media> GetRelatedMediaList(InitializationObject initObj, int mediaID, int mediaType, string picSize, int pageSize, int pageIndex, int groupID, ref long mediaCount)
@@ -1199,7 +1199,7 @@ namespace TVPApi
             return ret;
         }
 
-        public static TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetMediaExternalSearchList(InitializationObject initObj, string user, string pass, string query, string picSize, int pageSize, int pageIndex, int groupID, OrderBy orderBy, int[] reqMediaTypes = null, List<string> with = null)
+        public static TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetMediaExternalSearchList(InitializationObject initObj, string user, string pass, string query, int pageSize, int pageIndex, int groupID, OrderBy orderBy, int[] reqMediaTypes = null, List<string> with = null)
         {
             List<BaseObject> mediaInfo;
 
@@ -1207,7 +1207,6 @@ namespace TVPApi
             {
                 GroupID = groupID,
                 Platform = initObj.Platform,
-                PicSize = picSize,
                 WithInfo = true,
                 PageSize = pageSize,
                 PageIndex = pageIndex,

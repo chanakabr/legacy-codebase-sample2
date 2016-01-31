@@ -29,8 +29,8 @@ namespace TVPApiModule.CatalogLoaders
         public int GroupIDParent { get; set; }
 
         #region Constructors
-        public APIExternalSearchMediaLoader(string query, List<int> mediaTypes, int groupID, int groupIDParent, string platform, string userIP, int pageSize, int pageIndex, string picSize)
-            : base(query, mediaTypes, groupID, userIP, pageSize, pageIndex, picSize)
+        public APIExternalSearchMediaLoader(string query, List<int> mediaTypes, int groupID, int groupIDParent, string platform, string userIP, int pageSize, int pageIndex)
+            : base(query, mediaTypes, groupID, userIP, pageSize, pageIndex)
         {
             overrideExecuteAdapter += ApiExecuteMultiMediaAdapter;
             GroupIDParent = groupIDParent;
