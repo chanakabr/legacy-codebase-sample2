@@ -181,7 +181,7 @@ namespace TVPPro.SiteManager.DataLoaders
         {
             if (bool.TryParse(ConfigurationManager.AppSettings["ShouldUseNewCache"], out m_bShouldUseCache) && m_bShouldUseCache)
             {
-                m_oCatalogExternalSearchLoader = new ExternalSearchMediaLoader(Query, new List<int>(), TvmUser, SiteHelper.GetClientIP(), PageSize, PageIndex, PicSize)
+                m_oCatalogExternalSearchLoader = new ExternalSearchMediaLoader(Query, new List<int>(), TvmUser, SiteHelper.GetClientIP(), PageSize, PageIndex)
                 {
                     DeviceId = DeviceUDID,
                     Language = int.Parse(TechnicalManager.GetLanguageID().ToString()),

@@ -21,15 +21,15 @@ namespace TVPPro.SiteManager.CatalogLoaders
         public Status Status { get; set; }
 
         #region Constructors
-        public ExternalSearchMediaLoader(string query, List<int> mediaTypes, int groupID, string userIP, int pageSize, int pageIndex, string picSize)
-            : base(groupID, userIP, pageSize, pageIndex, picSize)
+        public ExternalSearchMediaLoader(string query, List<int> mediaTypes, int groupID, string userIP, int pageSize, int pageIndex)
+            : base(groupID, userIP, pageSize, pageIndex, "0")
         {
             MediaTypes = mediaTypes;
             Query = query;
         }
 
-        public ExternalSearchMediaLoader(string query, List<int> mediaTypes, string userName, string userIP, int pageSize, int pageIndex, string picSize)
-            : this(query, mediaTypes, PageData.Instance.GetTVMAccountByUserName(userName).BaseGroupID, userIP, pageSize, pageIndex, picSize)
+        public ExternalSearchMediaLoader(string query, List<int> mediaTypes, string userName, string userIP, int pageSize, int pageIndex)
+            : this(query, mediaTypes, PageData.Instance.GetTVMAccountByUserName(userName).BaseGroupID, userIP, pageSize, pageIndex)
         {
         }
         #endregion
