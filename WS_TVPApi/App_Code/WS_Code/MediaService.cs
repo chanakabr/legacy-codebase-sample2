@@ -420,7 +420,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    ret = MediaHelper.GetExternalRelatedMediaList(initObj, assetID, picSize, pageSize, pageIndex, groupID, filter_types, freeParam, with);
+                    ret = MediaHelper.GetExternalRelatedMediaList(initObj, assetID, pageSize, pageIndex, groupID, filter_types, freeParam, with);
                 }
                 catch (Exception ex)
                 {
