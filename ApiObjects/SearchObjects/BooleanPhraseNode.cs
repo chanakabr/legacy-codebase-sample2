@@ -197,7 +197,6 @@ namespace ApiObjects.SearchObjects
             return comparisonOperator;
         }
 
-
         // returns a list of tokens when each token represents one of the following:
         //   operand - "(or" or "(and" 
         //   quote - the search value - the expression between the '' (in the example it's 'brad pitt')
