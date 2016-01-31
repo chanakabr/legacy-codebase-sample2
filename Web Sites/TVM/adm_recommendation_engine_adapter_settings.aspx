@@ -108,7 +108,7 @@
 									</td>
 								</tr>
 								<tr>
-									<td onclick='window.document.location.href="adm_payment_gateway.aspx?search_save=1";'><a href="#" class="btn_back"></a></td>
+									<td onclick='window.document.location.href="adm_recommendation_engine_adapter.aspx?search_save=1";'><a href="#" class="btn_back"></a></td>
 								</tr>
 							</table>
 						</td>
