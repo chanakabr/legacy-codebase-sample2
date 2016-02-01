@@ -60,7 +60,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "device_frequency_description")]
         [JsonProperty("device_frequency_description")]
         [XmlElement(ElementName = "device_frequency_description")]
-        public int DeviceFrequencyDescription { get; set; }
+        public string DeviceFrequencyDescription { get; set; }
 
         /// <summary>
         /// Allowed user change frequency code
@@ -76,7 +76,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "user_frequency_description")]
         [JsonProperty("user_frequency_description")]
         [XmlElement(ElementName = "user_frequency_description")]
-        public int UserFrequencyDescription { get; set; }
+        public string UserFrequencyDescription { get; set; }
 
         /// <summary>
         /// Allowed NPVR Quota in Seconds
