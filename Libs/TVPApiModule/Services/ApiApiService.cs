@@ -422,7 +422,15 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    res = m_Module.CleanUserHistory(m_wsUserName, m_wsPassword, siteGuid, mediaIDs);
+                    var status = m_Module.CleanUserHistory(m_wsUserName, m_wsPassword, siteGuid, mediaIDs);
+                    if (status != null && status.Code == 0)
+                    {
+                        res = true;
+                    }
+                    else
+                    {
+                        res = false;
+                    }
                 }
             }
             catch (Exception ex)
