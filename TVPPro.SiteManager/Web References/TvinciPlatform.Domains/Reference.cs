@@ -1786,24 +1786,25 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://domains.tvinci.com/AddDomainHomeNetwork", RequestNamespace="http://domains.tvinci.com/", ResponseNamespace="http://domains.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public HomeNetworkResponse AddDomainHomeNetwork(string sWSUsername, string sWSPassword, long lDomainID, string sNetworkID, string sNetworkName, string sNetworkDesc) {
+        public HomeNetworkResponse AddDomainHomeNetwork(string sWSUsername, string sWSPassword, long lDomainID, string sNetworkID, string sNetworkName, string sNetworkDesc, bool isActive) {
             object[] results = this.Invoke("AddDomainHomeNetwork", new object[] {
                         sWSUsername,
                         sWSPassword,
                         lDomainID,
                         sNetworkID,
                         sNetworkName,
-                        sNetworkDesc});
+                        sNetworkDesc,
+                        isActive});
             return ((HomeNetworkResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void AddDomainHomeNetworkAsync(string sWSUsername, string sWSPassword, long lDomainID, string sNetworkID, string sNetworkName, string sNetworkDesc) {
-            this.AddDomainHomeNetworkAsync(sWSUsername, sWSPassword, lDomainID, sNetworkID, sNetworkName, sNetworkDesc, null);
+        public void AddDomainHomeNetworkAsync(string sWSUsername, string sWSPassword, long lDomainID, string sNetworkID, string sNetworkName, string sNetworkDesc, bool isActive) {
+            this.AddDomainHomeNetworkAsync(sWSUsername, sWSPassword, lDomainID, sNetworkID, sNetworkName, sNetworkDesc, isActive, null);
         }
         
         /// <remarks/>
-        public void AddDomainHomeNetworkAsync(string sWSUsername, string sWSPassword, long lDomainID, string sNetworkID, string sNetworkName, string sNetworkDesc, object userState) {
+        public void AddDomainHomeNetworkAsync(string sWSUsername, string sWSPassword, long lDomainID, string sNetworkID, string sNetworkName, string sNetworkDesc, bool isActive, object userState) {
             if ((this.AddDomainHomeNetworkOperationCompleted == null)) {
                 this.AddDomainHomeNetworkOperationCompleted = new System.Threading.SendOrPostCallback(this.OnAddDomainHomeNetworkOperationCompleted);
             }
@@ -1813,7 +1814,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.Domains {
                         lDomainID,
                         sNetworkID,
                         sNetworkName,
-                        sNetworkDesc}, this.AddDomainHomeNetworkOperationCompleted, userState);
+                        sNetworkDesc,
+                        isActive}, this.AddDomainHomeNetworkOperationCompleted, userState);
         }
         
         private void OnAddDomainHomeNetworkOperationCompleted(object arg) {
