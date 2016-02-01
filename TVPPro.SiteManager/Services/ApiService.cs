@@ -214,7 +214,16 @@ namespace TVPPro.SiteManager.Services
                 siteGuid = siteGuid = UsersService.Instance.GetUserID();
                 wsUserName = PlatformServicesConfiguration.Instance.Data.ApiService.DefaultUser;
                 wsPassword = PlatformServicesConfiguration.Instance.Data.ApiService.DefaultPassword;
-                res = m_Module.CleanUserHistory(wsUserName, wsPassword, siteGuid, mediaIDs);
+                var status = m_Module.CleanUserHistory(wsUserName, wsPassword, siteGuid, mediaIDs);
+
+                if (status != null && status.Code == 0)
+                {
+                    res = true;
+                }
+                else
+                {
+                    res = false;
+                }
             }
             catch (Exception ex)
             {
