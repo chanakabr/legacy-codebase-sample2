@@ -160,9 +160,9 @@ namespace Users
             return oDomainResponseObject;
         }
 
-        protected override NetworkResponseObject RemoveDomainHomeNetworkInner(long lDomainID, int numOfAllowedNetworks,
+        protected override ApiObjects.Response.Status RemoveDomainHomeNetworkInner(long lDomainID, int numOfAllowedNetworks,
             int numOfActiveNetworks, int frequency, HomeNetwork candidate,
-            HomeNetwork existingNetwork, DateTime dtLastDeactivationDate, ref NetworkResponseObject res)
+            HomeNetwork existingNetwork, DateTime dtLastDeactivationDate, ref ApiObjects.Response.Status res)
         {
             if (IsSatisfiesFrequencyConstraint(dtLastDeactivationDate, frequency) || !existingNetwork.IsActive)
             {
@@ -170,8 +170,7 @@ namespace Users
                 // is to remove a de-activated home network
                 if (DomainDal.Update_HomeNetworkWithDeactivationDate(lDomainID, existingNetwork.UID, m_nGroupID, existingNetwork.Name, existingNetwork.Description, false))
                 {
-                    res.eReason = NetworkResponseStatus.OK;
-                    res.bSuccess = true;
+                    res = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, ApiObjects.Response.eResponseStatus.OK.ToString());
                 }
                 else
                 {
@@ -179,39 +178,33 @@ namespace Users
 
                     log.Error("RemoveDomainHomeNetworkInner - " + GetUpdateHomeNetworkErrMsg("Failed to delete in DB. ", lDomainID, existingNetwork, frequency, numOfAllowedNetworks, numOfActiveNetworks));
 
-                    res.eReason = NetworkResponseStatus.Error;
-                    res.bSuccess = false;
+                    res = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
                 }
             }
             else
             {
                 // does not satisfy the frequency constraint. return frequency err
-                res.eReason = NetworkResponseStatus.FrequencyLimitation;
-                res.bSuccess = false;
+                res = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.HomeNetworkFrequency, "Home network frequency limitation");
             }
 
             return res;
         }
 
-        protected override NetworkResponseObject UpdateDomainHomeNetworkInner(long lDomainID, int numOfAllowedNetworks, int numOfActiveNetworks,
-            int frequency, HomeNetwork candidate, HomeNetwork existingNetwork, DateTime dtLastDeactivationDate, ref NetworkResponseObject res)
+        protected override ApiObjects.Response.Status UpdateDomainHomeNetworkInner(long lDomainID, int numOfAllowedNetworks, int numOfActiveNetworks,
+            int frequency, HomeNetwork candidate, HomeNetwork existingNetwork, DateTime dtLastDeactivationDate, ref ApiObjects.Response.Status res)
         {
             if (candidate.IsActive == existingNetwork.IsActive)
             {
                 // no changes of network activeness. just update in DB name and desc
                 if (DomainDal.Update_HomeNetworkWithoutDeactivationDate(lDomainID, candidate.UID, m_nGroupID, candidate.Name, candidate.Description, candidate.IsActive))
                 {
-                    res.eReason = NetworkResponseStatus.OK;
-                    res.bSuccess = true;
+                    res = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, ApiObjects.Response.eResponseStatus.OK.ToString());
                 }
                 else
                 {
                     // failed to update in db. log and return error
                     log.Error("UpdateDomainHomeNetworkInner - " + GetUpdateHomeNetworkErrMsg("DB failed to update. In if candidate.IsActive == existingHomeNetwork.IsActive", lDomainID, candidate, frequency, numOfAllowedNetworks, numOfActiveNetworks));
-
-
-                    res.eReason = NetworkResponseStatus.Error;
-                    res.bSuccess = false;
+                    res = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
                 }
             }
             else
@@ -225,25 +218,20 @@ namespace Users
                         // we can activate the home network. update data in db.
                         if (DomainDal.Update_HomeNetworkWithoutDeactivationDate(lDomainID, candidate.UID, m_nGroupID, candidate.Name, candidate.Description, candidate.IsActive))
                         {
-                            res.eReason = NetworkResponseStatus.OK;
-                            res.bSuccess = true;
+                            res = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, ApiObjects.Response.eResponseStatus.OK.ToString());
                         }
                         else
                         {
                             // failed to update db. log and return error
                             log.Error("UpdateDomainHomeNetworkInner - " + GetUpdateHomeNetworkErrMsg("DB failed to update", lDomainID, candidate, frequency, numOfAllowedNetworks, numOfActiveNetworks));
-
-                            res.eReason = NetworkResponseStatus.Error;
-                            res.bSuccess = false;
+                            res = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
                         }
 
                     }
                     else
                     {
                         // we cannot activate the home network. return quantity error
-
-                        res.eReason = NetworkResponseStatus.QuantityLimitation;
-                        res.bSuccess = false;
+                        res = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.HomeNetworkLimitation, "Home networks exceeded limit");
                     }
                 }
                 else
@@ -255,23 +243,20 @@ namespace Users
                         // satsfies the frequency constraint. update data in db.
                         if (DomainDal.Update_HomeNetworkWithDeactivationDate(lDomainID, candidate.UID, m_nGroupID, candidate.Name, candidate.Description, true))
                         {
-                            res.eReason = NetworkResponseStatus.OK;
-                            res.bSuccess = true;
+                            res = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, ApiObjects.Response.eResponseStatus.OK.ToString());
                         }
                         else
                         {
                             // failed to update data in db. log and return error
                             log.Error("UpdateDomainHomeNetworkInner - " + GetUpdateHomeNetworkErrMsg("DB failed to update", lDomainID, candidate, frequency, numOfAllowedNetworks, numOfActiveNetworks));
+                            res = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
 
-                            res.eReason = NetworkResponseStatus.Error;
-                            res.bSuccess = false;
                         }
                     }
                     else
                     {
                         // does not satisfy the frequency constraint. return frequency error
-                        res.eReason = NetworkResponseStatus.FrequencyLimitation;
-                        res.bSuccess = false;
+                        res = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.HomeNetworkFrequency, "Home network frequency limitation");
                     }
                 }
             }
