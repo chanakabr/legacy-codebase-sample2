@@ -174,7 +174,7 @@ namespace TVPPro.SiteManager.Services
                 {
                     domain = res.DomainResponse;
                 }
-                
+
             }
             catch (Exception ex)
             {
@@ -212,7 +212,15 @@ namespace TVPPro.SiteManager.Services
 
             try
             {
-                bRes = m_Module.SetDeviceInfo(wsUserName, wsPassword, udid, deviceName);
+                var res = m_Module.SetDeviceInfo(wsUserName, wsPassword, udid, deviceName);
+                if (res != null && res.Code == 0)
+                {
+                    bRes = true;
+                }
+                else
+                {
+                    bRes = false;
+                }
             }
             catch (Exception e)
             {
