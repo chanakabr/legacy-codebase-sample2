@@ -9,6 +9,7 @@ using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Mapping.ObjectsConvertor;
 using WebAPI.Models.Domains;
 using WebAPI.Models.General;
 using WebAPI.Models.Users;
@@ -119,7 +120,7 @@ namespace WebAPI.Clients
             }
         }
 
-        internal KalturaHousehold AddDomain(int groupId, string domainName, string domainDescription, string masterUserId)
+        internal KalturaHousehold AddDomain(int groupId, string domainName, string domainDescription, string masterUserId, string externalId = null)
         {
             KalturaHousehold result = null;
             Group group = GroupsManager.GetGroup(groupId);
@@ -129,7 +130,14 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Domains.AddDomain(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainName, domainDescription, int.Parse(masterUserId));
+                    if (string.IsNullOrEmpty(externalId))
+                    {
+                        response = Domains.AddDomain(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainName, domainDescription, int.Parse(masterUserId));
+                    }
+                    else
+                    {
+                        response = Domains.AddDomainWithCoGuid(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainName, domainDescription, int.Parse(masterUserId), externalId);
+                    }
                 }
             }
             catch (Exception ex)
@@ -485,5 +493,420 @@ namespace WebAPI.Clients
 
             return result;
         }
+
+        internal KalturaHousehold ResetFrequency(int groupId, int domainId, KalturaHouseholdFrequencyType householdFrequency)
+        {
+            KalturaHousehold result;
+            WebAPI.Domains.DomainStatusResponse response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    int frequency = DomainsMappings.ConvertKalturaHouseholdFrequency(householdFrequency);
+                    response = Domains.ResetDomainFrequency(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId, frequency);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.DomainResponse == null || response.DomainResponse.m_oDomain == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            result = Mapper.Map<KalturaHousehold>(response.DomainResponse.m_oDomain);
+
+            return result;
+        }
+
+        internal bool SetDeviceInfo(int groupId, string deviceName, string udid)
+        {
+            WebAPI.Domains.Status response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Domains.SetDeviceInfo(group.DomainsCredentials.Username, group.DomainsCredentials.Password, udid, deviceName);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        internal KalturaHousehold SetDomainInfo(int groupId, int domainId, string name, string description)
+        {
+            KalturaHousehold result = null;
+            WebAPI.Domains.DomainStatusResponse response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Domains.SetDomainInfo(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId, name, description);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.DomainResponse == null || response.DomainResponse.m_oDomain == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            result = Mapper.Map<KalturaHousehold>(response.DomainResponse.m_oDomain);
+
+            return result;
+        }
+
+        internal KalturaHousehold GetDomainByCoGuid(int groupId, string externalId)
+        {
+            KalturaHousehold result = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Domains.DomainStatusResponse response = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Domains.GetDomainByCoGuid(group.DomainsCredentials.Username, group.DomainsCredentials.Password, externalId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null || response.DomainResponse == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.DomainResponse == null || response.DomainResponse.m_oDomain == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            result = Mapper.Map<KalturaHousehold>(response.DomainResponse.m_oDomain);
+
+            return result;
+        }
+
+        internal bool RemoveDomain(int groupId, int householdId)
+        {
+            WebAPI.Domains.Status response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Domains.RemoveDomainById(group.DomainsCredentials.Username, group.DomainsCredentials.Password, householdId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        internal bool RemoveDomain(int groupId, string externalId)
+        {
+            WebAPI.Domains.Status response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Domains.RemoveDomainByCoGuid(group.DomainsCredentials.Username, group.DomainsCredentials.Password, externalId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        internal bool Suspend(int groupId, int domainId)
+        {
+            WebAPI.Domains.Status response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Domains.SuspendDomain(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        internal bool Resume(int groupId, int domainId)
+        {
+            WebAPI.Domains.Status response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Domains.ResumeDomain(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        internal KalturaHomeNetwork AddDomainHomeNetwork(int groupId, long domainId, string externalId, string name, string description, bool isActive)
+        {
+            KalturaHomeNetwork result;
+            WebAPI.Domains.HomeNetworkResponse response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Domains.AddDomainHomeNetwork(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId, externalId, name, description, isActive);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            result = Mapper.Map<KalturaHomeNetwork>(response.HomeNetwork);
+
+            return result;
+        }
+
+        internal List<KalturaHomeNetwork> GetDomainHomeNetworks(int groupId, long domainId)
+        {
+            List<KalturaHomeNetwork> result;
+            WebAPI.Domains.HomeNetworksResponse response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Domains.GetDomainHomeNetworks(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            result = Mapper.Map<List<KalturaHomeNetwork>>(response.HomeNetworks);
+
+            return result;
+        }
+
+        internal bool UpdateDomainHomeNetwork(int groupId, long domainId, string externalId, string name, string description, bool isActive)
+        {
+            WebAPI.Domains.Status response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Domains.UpdateDomainHomeNetwork(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId, externalId, name, description, isActive);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        internal bool RemoveDomainHomeNetwork(int groupId, long domainId, string externalId)
+        {
+            WebAPI.Domains.Status response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Domains.RemoveDomainHomeNetwork(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId, externalId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling domains service. ws address: {0}, exception: {1}", Domains.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+
     }
 }

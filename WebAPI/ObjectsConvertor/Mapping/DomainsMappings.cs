@@ -26,10 +26,9 @@ namespace WebAPI.Mapping.ObjectsConvertor
 
             //HomeNetwork
             Mapper.CreateMap<WebAPI.Domains.HomeNetwork, KalturaHomeNetwork>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.UID))
+                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.UID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive));
 
             //DeviceContainer to KalturaHouseholdDeviceFamily
@@ -174,5 +173,26 @@ namespace WebAPI.Mapping.ObjectsConvertor
             }
             return result;
         }
+        
+        public static int ConvertKalturaHouseholdFrequency(KalturaHouseholdFrequencyType householdFrequencyType)
+        {
+            int result;
+
+            switch (householdFrequencyType)
+            {
+                case KalturaHouseholdFrequencyType.devices:
+                    result = 1; 
+                    break;
+                case KalturaHouseholdFrequencyType.users:
+                    result = 2; 
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown household frequency type");
+                    break;
+            }
+
+            return result;
+        }
+    
     }
 }

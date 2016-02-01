@@ -2320,5 +2320,51 @@ namespace WebAPI.Clients
             return profile;
         }
         #endregion
+
+        internal bool CleanUserHistory(int groupId, string userId, List<Models.Catalog.KalturaSlimAsset> assetsList)
+        {
+            bool success = false;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            WebAPI.Api.Status response = null;
+            int mediaId = 0;
+            List<int> mediaIds = new List<int>();            
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    if (assetsList != null)
+                    {
+                       mediaIds = assetsList.Where(assetType => assetType.Type == Models.Catalog.KalturaAssetType.media
+                            && int.TryParse(assetType.Id, out mediaId)).Select(x => int.Parse(x.Id)).ToList();
+                    }
+
+                    response = Api.CleanUserHistory(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, mediaIds.ToArray());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+            else
+            {
+                success = true;
+            }
+
+            return success;
+        }
     }
 }

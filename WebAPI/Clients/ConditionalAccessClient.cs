@@ -487,8 +487,7 @@ namespace WebAPI.Clients
 
         //    return entitlements;
         //}
-
-        internal List<KalturaEntitlement> GetDomainEntitlements(int groupId, int domainId, KalturaTransactionType type)
+        internal List<KalturaEntitlement> GetDomainEntitlements(int groupId, int domainId, KalturaTransactionType type, bool isExpired = false, int pageSize = 500, int pageIndex = 0)
         {
             List<KalturaEntitlement> entitlements = null;
             Entitlements wsResponse = null;
@@ -504,7 +503,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    wsResponse = ConditionalAccess.GetDomainEntitlements(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, domainId, wsType);
+                    wsResponse = ConditionalAccess.GetDomainEntitlements(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, domainId, wsType, isExpired, pageSize, pageIndex);
                 }
             }
             catch (Exception ex)
@@ -531,7 +530,7 @@ namespace WebAPI.Clients
             return entitlements;
         }
 
-        internal List<KalturaEntitlement> GetUserEntitlements(int groupId, string userId, KalturaTransactionType type)
+        internal List<KalturaEntitlement> GetUserEntitlements(int groupId, string userId, KalturaTransactionType type, bool isExpired = false, int pageSize = 50, int pageIndex = 0)
         {
             List<KalturaEntitlement> entitlements = null;
             Entitlements wsResponse = null;
@@ -547,7 +546,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    wsResponse = ConditionalAccess.GetUserEntitlements(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, wsType);
+                    wsResponse = ConditionalAccess.GetUserEntitlements(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, wsType, isExpired, pageSize, pageIndex);
                 }
             }
             catch (Exception ex)

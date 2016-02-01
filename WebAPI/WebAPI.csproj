@@ -637,9 +637,6 @@
     <Content Include="Web References\Domains\DomainResponseStatus.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Domains\HomeNetwork.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
     <Content Include="Web References\Domains\DomainResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -662,6 +659,12 @@
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\Domains\DevicePinResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Domains\HomeNetworkResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Domains\HomeNetworksResponse1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <None Include="Web References\Domains\module.disco" />
@@ -874,6 +877,7 @@
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
     <Compile Include="Controllers\AppTokenController.cs" />
     <Compile Include="Controllers\AssetController.cs" />
+    <Compile Include="Controllers\HomeNetworkController.cs" />
     <Compile Include="Controllers\VersionController.cs" />
     <Compile Include="Controllers\HouseholdLimitationsController.cs" />
     <Compile Include="Controllers\HouseholdPremiumServiceController.cs" />
@@ -975,6 +979,7 @@
     <Compile Include="Models\ConditionalAccess\KalturaBillingTransactionListResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaEntitlementsFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPricesFilter.cs" />
+    <Compile Include="Models\Domains\KalturaHouseholdFrequencyType.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdLimitations.cs" />
     <Compile Include="Models\Domains\KalturaDevicePin.cs" />
     <Compile Include="Models\General\KalturaProjectVersion.cs" />
@@ -983,6 +988,8 @@
     <Compile Include="Models\General\KalturaAppTokenHashType.cs" />
     <Compile Include="Models\General\KalturaAppTokenStatus.cs" />
     <Compile Include="Models\General\KalturaGroupPermission.cs" />
+    <Compile Include="Models\General\KalturaIdentifierTypeBy.cs" />
+    <Compile Include="Models\General\KalturaIdentifierTypeFilter.cs" />
     <Compile Include="Models\General\KalturaLongValue.cs" />
     <Compile Include="Models\General\KalturaBaseResponseProfile.cs" />
     <Compile Include="Models\General\KalturaEntityReferenceBy.cs" />

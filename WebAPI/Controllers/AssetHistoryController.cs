@@ -82,5 +82,32 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        /// <summary>
+        /// Clean the user’s viewing history
+        /// </summary>
+        /// <param name="filter">List of assets identifier</param>
+        /// <returns></returns>
+        [Route("clean"), HttpPost]
+        [ApiAuthorize]
+        public bool Clean(KalturaAssetsFilter filter = null)
+        {
+            var ks = KS.GetFromRequest();
+            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
+
+            try
+            {
+                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                // call client
+                return ClientsManager.ApiClient().CleanUserHistory(groupId, userId, filter.Assets);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return true;
+        }
     }
 }

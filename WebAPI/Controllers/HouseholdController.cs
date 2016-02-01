@@ -6,6 +6,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Domains;
+using WebAPI.Models.General;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
 
@@ -58,33 +59,53 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Returns the household model       
+        /// Retrieve household information according to internal or external ID      
         /// </summary>        
+        /// <param name="filter">Specify how to retrieve the household. Possible values: internal – internal ID ; external – external ID</param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. Possible values: "users_base_info", "users_full_info"</param>
-        /// <param name="household_id">Household to get</param>
         /// <remarks>Possible status codes: 
         /// Household does not exist = 1006, Household user failed = 1007</remarks>                
         [Route("getByOperator"), HttpPost]
         [ApiAuthorize]
-        public KalturaHousehold GetByOperator(int household_id, List<KalturaHouseholdWithHolder> with = null)
+        public KalturaHousehold GetByOperator(KalturaIdentifierTypeFilter filter, List<KalturaHouseholdWithHolder> with = null)
         {
             var ks = KS.GetFromRequest();
             KalturaHousehold response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
+            if (string.IsNullOrEmpty(filter.Identifier))
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "identifier cannot be empty");
+            }
+
             if (with == null)
                 with = new List<KalturaHouseholdWithHolder>();
 
             try
             {
-                // call client
-                response = ClientsManager.DomainsClient().GetDomainInfo(groupId, household_id);
+                if (filter.By == KalturaIdentifierTypeBy.internal_id)
+                {
+                    int householdId = 0;
+                    if (int.TryParse(filter.Identifier, out householdId))
+                    {
+                        // call client
+                        response = ClientsManager.DomainsClient().GetDomainInfo(groupId, householdId);
+                    }
+
+                }
+
+                else if (filter.By == KalturaIdentifierTypeBy.external_id)
+                {
+                    // call client
+                    response = ClientsManager.DomainsClient().GetDomainByCoGuid(groupId, filter.Identifier);
+                }
 
                 if (with != null && with.Where(x => x.type == KalturaHouseholdWith.users_base_info || x.type == KalturaHouseholdWith.users_full_info).Count() > 0)
                 {
                     ClientsManager.DomainsClient().EnrichHouseHold(with, response, groupId);
                 }
+
             }
             catch (ClientException ex)
             {
@@ -104,21 +125,22 @@ namespace WebAPI.Controllers
         /// </summary>        
         /// <param name="name">Name for the household</param>
         /// <param name="description">Description for the household</param>
+        /// <param name="external_id">Unique external ID to identify the household</param>
         /// <remarks>Possible status codes: 
         /// User exists in other household = 1018, Household user failed = 1007</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        public KalturaHousehold Add(string name, string description)
+        public KalturaHousehold Add(string name, string description, string external_id = null)
         {
             KalturaHousehold response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
             string userId = KS.GetFromRequest().UserId;
-            
+
             try
             {
                 // call client
-                response = ClientsManager.DomainsClient().AddDomain(groupId, name, description, userId);
+                response = ClientsManager.DomainsClient().AddDomain(groupId, name, description, userId, external_id);
             }
             catch (ClientException ex)
             {
@@ -203,6 +225,166 @@ namespace WebAPI.Controllers
 
         #endregion
 
+        /// <summary>
+        /// Reset a household’s business limitations -device change frequency or the user add/remove frequency
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes: 
+        /// </remarks>        
+        /// <param name="household_frequency_type">Possible values: devices – reset the device change frequency. 
+        /// users – reset the user add/remove frequency</param>        
+        [Route("resetFrequency"), HttpPost]
+        [ApiAuthorize]
+        public KalturaHousehold ResetFrequency(KalturaHouseholdFrequencyType household_frequency_type)
+        {
+            KalturaHousehold household = null;
 
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                household = ClientsManager.DomainsClient().ResetFrequency(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), household_frequency_type);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return household;
+        }
+
+        /// <summary>
+        /// Update the household name and description    
+        /// </summary>        
+        /// <param name="name">Name for the household</param>
+        /// <param name="description">Description for the household</param>
+        /// <remarks></remarks>
+        [Route("update"), HttpPost]
+        [ApiAuthorize]
+        public KalturaHousehold Update(string name, string description)
+        {
+            KalturaHousehold household = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                household = ClientsManager.DomainsClient().SetDomainInfo(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), name, description);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            if (household == null)
+            {
+                throw new InternalServerErrorException();
+            }
+
+            return household;
+        }
+
+        /// <summary>
+        /// Fully delete a household per specified internal or external ID. Delete all of the household information, includinh users, devices, transactions & assets.
+        /// </summary>                
+        /// <param name="filter">Household ID by which to delete a household. Possible values: internal – internal ID ; external – external ID</param>
+        /// <remarks>Possible status codes: 
+        ///</remarks>
+        [Route("deleteByOperator"), HttpPost]
+        [ApiAuthorize]
+        public bool DeleteByOperator(KalturaIdentifierTypeFilter filter)
+        {
+            var ks = KS.GetFromRequest();
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            if (string.IsNullOrEmpty(filter.Identifier))
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "identifier cannot be empty");
+            }
+
+            try
+            {
+
+                if (filter.By == KalturaIdentifierTypeBy.internal_id)
+                {
+                    int householdId = 0;
+                    if (int.TryParse(filter.Identifier, out householdId))
+                    {
+                        // call client
+                        return ClientsManager.DomainsClient().RemoveDomain(groupId, householdId);
+                    }
+
+                }
+
+                else if (filter.By == KalturaIdentifierTypeBy.external_id)
+                {
+                    // call client
+                    return ClientsManager.DomainsClient().RemoveDomain(groupId, filter.Identifier);
+                }
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Suspend a given household service. Sets the household status to “suspended".The household service settings are maintained for later resume
+        /// </summary>                
+        /// <remarks>Possible status codes: 
+        ///</remarks>
+        [Route("suspend"), HttpPost]
+        [ApiAuthorize]
+        public bool Suspend()
+        {
+            var ks = KS.GetFromRequest();
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                        // call client
+                return ClientsManager.DomainsClient().Suspend(groupId, (int)domainId);
+
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Resumed a given household service to its previous service settings
+        /// </summary>                
+        /// <remarks>Possible status codes: 
+        /// Domain already active = 1013
+        ///</remarks>
+        [Route("resume"), HttpPost]
+        [ApiAuthorize]
+        public bool Resume()
+        {
+            var ks = KS.GetFromRequest();
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                // call client
+                return ClientsManager.DomainsClient().Resume(groupId, (int)domainId);
+
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return true;
+        }
     }
 }
