@@ -14,6 +14,18 @@ namespace Catalog
 {
     public class UnifiedSearchDefinitionsCache : BaseCacheHelper<UnifiedSearchDefinitions>
     {
+        #region Ctor
+
+        public UnifiedSearchDefinitionsCache()
+            : base()
+        {
+            this.OnErrorOccurred += UnifiedSearchDefinitionsCache_OnErrorOccurred;
+        }
+
+        #endregion
+
+        #region Override Methods
+        
         protected override UnifiedSearchDefinitions BuildValue(params object[] parameters)
         {
             UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
@@ -242,6 +254,10 @@ namespace Catalog
             return definitions;
         }
 
+        #endregion
+
+        #region Public Methods
+
         public UnifiedSearchDefinitions GetDefinitions(UnifiedSearchRequest request)
         {
             // Make sure every time that cache time is 10 minutes
@@ -254,5 +270,23 @@ namespace Catalog
 
             return this.Get(cacheKey, mutexName, request);
         }
+
+        #endregion
+
+        #region Event Handling
+
+        /// <summary>
+        /// Throw upwards the kaltura exception - to maintain the status code
+        /// </summary>
+        /// <param name="ex"></param>
+        private void UnifiedSearchDefinitionsCache_OnErrorOccurred(Exception ex)
+        {
+            if (ex is KalturaException)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
     }
 }

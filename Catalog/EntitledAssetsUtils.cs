@@ -52,7 +52,11 @@ namespace Catalog
             // Initialize web service
             using (ws_cas.module cas = new ws_cas.module())
             {
-                var userBundles = cas.GetUserBundles(userName, password, domainId, fileTypeId);
+                string url = Utils.GetWSURL("ws_cas");
+                cas.Url = url;
+
+                var userBundles = cas.GetUserBundles(userName, password, domainId, 
+                    new int[] { fileTypeId });
 
                 if (userBundles == null || userBundles.status == null)
                 {
@@ -114,7 +118,11 @@ namespace Catalog
             // Initialize web service
             using (ws_cas.module cas = new ws_cas.module())
             {
-                var purchasedAssets = cas.GetUserPurchasedAssets(userName, password, domainId, fileType);
+                string url = Utils.GetWSURL("ws_cas");
+                cas.Url = url;
+
+                var purchasedAssets = cas.GetUserPurchasedAssets(userName, password, domainId, 
+                    new int[] { fileType });
 
                 if (purchasedAssets == null || purchasedAssets.status == null)
                 {

@@ -814,22 +814,22 @@ namespace Catalog.ws_cas {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetUserBundles", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public UserBundlesResponse GetUserBundles(string sWSUserName, string sWSPassword, int domainID, int fileTypeID) {
+        public UserBundlesResponse GetUserBundles(string sWSUserName, string sWSPassword, int domainID, int[] fileTypeIDs) {
             object[] results = this.Invoke("GetUserBundles", new object[] {
                         sWSUserName,
                         sWSPassword,
                         domainID,
-                        fileTypeID});
+                        fileTypeIDs});
             return ((UserBundlesResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void GetUserBundlesAsync(string sWSUserName, string sWSPassword, int domainID, int fileTypeID) {
-            this.GetUserBundlesAsync(sWSUserName, sWSPassword, domainID, fileTypeID, null);
+        public void GetUserBundlesAsync(string sWSUserName, string sWSPassword, int domainID, int[] fileTypeIDs) {
+            this.GetUserBundlesAsync(sWSUserName, sWSPassword, domainID, fileTypeIDs, null);
         }
         
         /// <remarks/>
-        public void GetUserBundlesAsync(string sWSUserName, string sWSPassword, int domainID, int fileTypeID, object userState) {
+        public void GetUserBundlesAsync(string sWSUserName, string sWSPassword, int domainID, int[] fileTypeIDs, object userState) {
             if ((this.GetUserBundlesOperationCompleted == null)) {
                 this.GetUserBundlesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetUserBundlesOperationCompleted);
             }
@@ -837,7 +837,7 @@ namespace Catalog.ws_cas {
                         sWSUserName,
                         sWSPassword,
                         domainID,
-                        fileTypeID}, this.GetUserBundlesOperationCompleted, userState);
+                        fileTypeIDs}, this.GetUserBundlesOperationCompleted, userState);
         }
         
         private void OnGetUserBundlesOperationCompleted(object arg) {
@@ -849,22 +849,22 @@ namespace Catalog.ws_cas {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetUserPurchasedAssets", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public UserPurhcasedAssetsResponse GetUserPurchasedAssets(string sWSUserName, string sWSPassword, int domainID, int fileTypeID) {
+        public UserPurhcasedAssetsResponse GetUserPurchasedAssets(string sWSUserName, string sWSPassword, int domainID, int[] fileTypeIDs) {
             object[] results = this.Invoke("GetUserPurchasedAssets", new object[] {
                         sWSUserName,
                         sWSPassword,
                         domainID,
-                        fileTypeID});
+                        fileTypeIDs});
             return ((UserPurhcasedAssetsResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void GetUserPurchasedAssetsAsync(string sWSUserName, string sWSPassword, int domainID, int fileTypeID) {
-            this.GetUserPurchasedAssetsAsync(sWSUserName, sWSPassword, domainID, fileTypeID, null);
+        public void GetUserPurchasedAssetsAsync(string sWSUserName, string sWSPassword, int domainID, int[] fileTypeIDs) {
+            this.GetUserPurchasedAssetsAsync(sWSUserName, sWSPassword, domainID, fileTypeIDs, null);
         }
         
         /// <remarks/>
-        public void GetUserPurchasedAssetsAsync(string sWSUserName, string sWSPassword, int domainID, int fileTypeID, object userState) {
+        public void GetUserPurchasedAssetsAsync(string sWSUserName, string sWSPassword, int domainID, int[] fileTypeIDs, object userState) {
             if ((this.GetUserPurchasedAssetsOperationCompleted == null)) {
                 this.GetUserPurchasedAssetsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetUserPurchasedAssetsOperationCompleted);
             }
@@ -872,7 +872,7 @@ namespace Catalog.ws_cas {
                         sWSUserName,
                         sWSPassword,
                         domainID,
-                        fileTypeID}, this.GetUserPurchasedAssetsOperationCompleted, userState);
+                        fileTypeIDs}, this.GetUserPurchasedAssetsOperationCompleted, userState);
         }
         
         private void OnGetUserPurchasedAssetsOperationCompleted(object arg) {
@@ -4328,14 +4328,14 @@ namespace Catalog.ws_cas {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/WaiverTransaction", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public bool WaiverTransaction(string sWSUserName, string sWSPassword, string sSiteGuid, int nAssetID, eTransactionType transactionType) {
+        public Status WaiverTransaction(string sWSUserName, string sWSPassword, string sSiteGuid, int nAssetID, eTransactionType transactionType) {
             object[] results = this.Invoke("WaiverTransaction", new object[] {
                         sWSUserName,
                         sWSPassword,
                         sSiteGuid,
                         nAssetID,
                         transactionType});
-            return ((bool)(results[0]));
+            return ((Status)(results[0]));
         }
         
         /// <remarks/>
@@ -12075,10 +12075,10 @@ namespace Catalog.ws_cas {
         }
         
         /// <remarks/>
-        public bool Result {
+        public Status Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((bool)(this.results[0]));
+                return ((Status)(this.results[0]));
             }
         }
     }

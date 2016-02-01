@@ -318,6 +318,7 @@ namespace ApiObjects.SearchObjects
     }
 
     [DataContract]
+    [Serializable]
     public enum CutWith
     {
         [EnumMember]

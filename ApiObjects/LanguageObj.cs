@@ -6,7 +6,6 @@ using System.Text;
 
 namespace ApiObjects
 {
-
     [Serializable]
     public class LanguageObj
     {
