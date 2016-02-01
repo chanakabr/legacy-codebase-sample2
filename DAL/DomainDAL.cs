@@ -1552,7 +1552,7 @@ namespace DAL
         {
             DataTable dt = null;
 
-            StoredProcedure sp = new StoredProcedure("Insert_NewHomeNetwork");
+            StoredProcedure sp = new StoredProcedure("Insert_NewHomeNetwork_New");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@GroupID", nGroupID);
             sp.AddParameter("@NetworkID", sNetworkID);
