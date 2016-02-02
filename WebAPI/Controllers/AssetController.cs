@@ -392,7 +392,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Return list of assets that are related to a provided asset ID. Returned assets can be within multi asset types or be of same type as the provided asset. Support on-demand, per asset enrichment. Related assets are provided from the external source (e.g. external recommendation engine). Maximum number of returned assets – 20, using paging <br />        
         /// </summary>        
-        /// <param name="media_id">The ID of the asset for which to return related assets</param>
+        /// <param name="asset_id">The ID of the asset for which to return related assets</param>
         /// <param name="filter_type_ids">The type of related assets to return. Possible values: ALL – include all asset types ; any media type ID (according to media type IDs defined dynamically in the system). If ommited = ALL.</param>        
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
@@ -402,7 +402,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Route("relatedExternal"), HttpPost]
         [ApiAuthorize]
-        public KalturaAssetInfoListResponse RelatedExternal(int media_id, KalturaFilterPager pager = null, List<KalturaIntegerValue> filter_type_ids = null, int utc_offset = 0,
+        public KalturaAssetInfoListResponse RelatedExternal(int asset_id, KalturaFilterPager pager = null, List<KalturaIntegerValue> filter_type_ids = null, int utc_offset = 0,
             List<KalturaCatalogWithHolder> with = null, string language = null, string freeParam = null)
         {
             KalturaAssetInfoListResponse response = null;
@@ -430,7 +430,7 @@ namespace WebAPI.Controllers
                 string userID = KS.GetFromRequest().UserId;
 
                 response = ClientsManager.CatalogClient().GetRelatedMediaExternal(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
-                    language, pager.PageIndex, pager.PageSize, media_id, filter_type_ids.Select(x => x.value).ToList(), utc_offset, with.Select(x => x.type).ToList(), freeParam);
+                    language, pager.PageIndex, pager.PageSize, asset_id, filter_type_ids.Select(x => x.value).ToList(), utc_offset, with.Select(x => x.type).ToList(), freeParam);
             }
             catch (ClientException ex)
             {
