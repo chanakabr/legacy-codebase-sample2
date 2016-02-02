@@ -4,11 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Data;
 using ODBCWrapper;
+using KLogMonitor;
+using System.Reflection;
 
 namespace DAL
 {
     public class PricingDAL
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public static DataTable Get_PPVModuleListForMediaFiles(int nGroupID, List<int> mediaFileList)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PPVModuleListForMediaFiles");
@@ -666,11 +670,206 @@ namespace DAL
             spPPVModuleData.SetConnectionKey("pricing_connection");
 
             spPPVModuleData.AddParameter("@GroupID", nGroupID);
-            spPPVModuleData.AddIDListParameter("@PPVModulesIDs", ppmModulesIDs, "ID");            
+            spPPVModuleData.AddIDListParameter("@PPVModulesIDs", ppmModulesIDs, "ID");
 
             return spPPVModuleData.Execute();
         }
 
+
+        public static int Insert_NewPriceCode(int groupID, string code, double price, int currencyID, string alias)
+        {
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Insert_NewPriceCode");
+                sp.SetConnectionKey("pricing_connection");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@PriceCode", code);
+                sp.AddParameter("@Price", price);
+                sp.AddParameter("@CurrencyID", currencyID);
+                sp.AddParameter("@Date", DateTime.UtcNow);               
+                sp.AddParameter("@alias", alias);                
+
+                return sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                HandleException(string.Empty, ex);
+            }
+            return 999;
+        }
+
+        private static void HandleException(string message, Exception ex)
+        {
+            log.Error(message, ex);
+        }
+
+
+
+        public static int Insert_NewDiscountCode(int groupID, string code, double price, int currencyID, double percent, int relationType, DateTime startDate, DateTime endDate, int algoType, int ntimes, string alias)
+        {
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Insert_NewDiscountCode");
+                sp.SetConnectionKey("pricing_connection");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@DiscountCode", code);
+                sp.AddParameter("@Price", price);
+                sp.AddParameter("@CurrencyID", currencyID);
+                sp.AddParameter("@Percent", percent);
+                sp.AddParameter("@RelationType", relationType);
+                sp.AddParameter("@StartDate", startDate);
+                sp.AddParameter("@EndDate", endDate);
+                sp.AddParameter("@AlgoType", algoType);
+                sp.AddParameter("@Ntimes", ntimes);
+                sp.AddParameter("@Date", DateTime.UtcNow);
+                sp.AddParameter("@alias", alias);
+
+                return sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                HandleException(string.Empty, ex);
+            }
+            return 999;
+        }
+
+        public static int InsertCouponGroup(int groupID, string groupName, int discountCode, DateTime startDate, DateTime endDate, int maxUseCountForCoupon, int maxRecurringUsesCountForCoupon, int financialEntityID, string alias)
+        {
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Insert_NewCouponGroup");
+                sp.SetConnectionKey("pricing_connection");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@GroupName", groupName);
+                sp.AddParameter("@DiscountCode", discountCode);
+                sp.AddParameter("@StartDate", startDate);
+                sp.AddParameter("@EndDate", endDate);
+                sp.AddParameter("@MaxUseCountForCoupon", maxUseCountForCoupon);
+                sp.AddParameter("@MaxRecrringUses", maxRecurringUsesCountForCoupon);
+                sp.AddParameter("@FinancialEntityID", financialEntityID);
+                sp.AddParameter("@Date", DateTime.UtcNow);
+                sp.AddParameter("@alias", alias);
+
+                return sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                HandleException(string.Empty, ex);
+            }
+            return 999;
+        }
+
+        public static int InsertUsageModule(int groupID, string virtualName, int viewLifeCycle, int maxUsageModuleLifeCycle, int maxNumberOfViews,bool waiver, int waiverPeriod, bool isOfflinePlayBack,
+            int ext_discount_id, int internal_discount_id, int pricing_id, int coupon_id, int type,  int subscription_only, int is_renew, int num_of_rec_periods, int device_limit_id, string alias)
+        {
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Insert_NewUsageModule");
+                sp.SetConnectionKey("pricing_connection");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@Name", virtualName);
+                sp.AddParameter("@viewLifeCycle", viewLifeCycle);
+                sp.AddParameter("@maxUsageModuleLifeCycle", maxUsageModuleLifeCycle);
+                sp.AddParameter("@maxNumberOfViews", maxNumberOfViews);
+               // multi usage module
+                if (type == 2)
+                {
+                    sp.AddParameter("@ext_discount_id", ext_discount_id);
+                    sp.AddParameter("@internal_discount_id", internal_discount_id);
+                    sp.AddParameter("@pricing_id", pricing_id);
+                    sp.AddParameter("@coupon_id", coupon_id);
+                    sp.AddParameter("@type", type);
+                    sp.AddParameter("@subscription_only", subscription_only);
+                    sp.AddParameter("@is_renew", is_renew);
+                    sp.AddParameter("@num_of_rec_periods", num_of_rec_periods);
+                    sp.AddParameter("@device_limit_id", device_limit_id);
+                }
+                //Regulation cancelation
+                sp.AddParameter("@waiver", waiver==true? 1:0);
+                sp.AddParameter("@waiverPeriod", waiverPeriod);
+
+                sp.AddParameter("@isOfflinePlayBack", isOfflinePlayBack == true ? 1 : 0);
+                sp.AddParameter("@Date", DateTime.UtcNow);
+                sp.AddParameter("@alias", alias);
+
+                return sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                HandleException(string.Empty, ex);
+            }
+            return 999;
+        }
+
+        public static int InserPPVModule(int groupID, string ppvName, int usageModuleCode, string couponGroupCode, int discountModuleCode, int priceCode, bool subscriptionOnly, bool firstDeviceLimitation, 
+            Dictionary<string, List<string>> descriptionDict, string productCode, string alias)
+        {
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Inser_NewPPVModule");
+                sp.SetConnectionKey("pricing_connection");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@ppvName", ppvName);
+                sp.AddParameter("@usageModuleCode", usageModuleCode);
+                sp.AddParameter("@couponGroupCode", couponGroupCode);
+                sp.AddParameter("@discountModuleCode", discountModuleCode);
+                sp.AddParameter("@priceCode", priceCode);
+                sp.AddParameter("@subscriptionOnly", subscriptionOnly== true? 1:0);
+                sp.AddParameter("@firstDeviceLimitation", firstDeviceLimitation == true ? 1 : 0);
+                sp.AddParameter("@productCode", productCode);
+                sp.AddKeyValueListParameter<string, string>("@descriptionDict", descriptionDict, "key", "value");
+                sp.AddParameter("@Date", DateTime.UtcNow);
+                sp.AddParameter("@alias", alias);
+
+                return sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                HandleException(string.Empty, ex);
+            }
+            return 999;   
+        }
+
+        public static bool CheckAliasIsUniqe(int groupID, string alias, string tableName)
+        {
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Check_AliasIsUniqe");
+                sp.SetConnectionKey("pricing_connection");
+                sp.AddParameter("@groupID", groupID);
+                sp.AddParameter("@alias", alias);
+                sp.AddParameter("@tableName", tableName);
+
+                return sp.ExecuteReturnValue<bool>();
+            }
+            catch (Exception ex)
+            {
+                HandleException(string.Empty, ex);
+            }
+            return false;   
+        }
+
+        public static int InsertPreviewModule(int groupID, string name, int fullLifeCycle, int nonRenewPeriod, string alias)
+        {
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Insert_NewPreviewModule");
+                sp.SetConnectionKey("pricing_connection");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@Name", name);
+                sp.AddParameter("@FullLifeCycle", fullLifeCycle);
+                sp.AddParameter("@NonRenewPeriod", nonRenewPeriod);
+                sp.AddParameter("@Alias", alias);
+                sp.AddParameter("@Date", DateTime.UtcNow);
+
+                return sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                HandleException(string.Empty, ex);
+            }
+            return 999;   
+        }
     }
 }
 
