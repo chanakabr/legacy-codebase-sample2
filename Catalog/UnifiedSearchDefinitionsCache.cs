@@ -215,9 +215,12 @@ namespace Catalog
                     EntitledAssetsUtils.GetUserSubscriptionSearchObjects(request, parentGroupID, request.m_sSiteGuid, request.domainId, request.fileType,
                     request.order, entitlementMediaTypes, definitions.deviceRuleId);
 
-                // Conver the file type that we received in request (taken from groups_media_type)
-                // into the file type that the media file knows (based on the table media_files)
-                entitlementSearchDefinitions.fileType = group.groupMediaFileTypeToFileType[request.fileType];
+                if (group.groupMediaFileTypeToFileType != null)
+                {
+                    // Convert the file type that we received in request (taken from groups_media_type)
+                    // into the file type that the media file knows (based on the table media_files)
+                    entitlementSearchDefinitions.fileType = group.groupMediaFileTypeToFileType[request.fileType];
+                }
 
                 // TODO: Maybe this will be the method that gets the FREE epg channel IDs
                 var entitledChannelIds =
