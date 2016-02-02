@@ -409,9 +409,9 @@ namespace WebAPI.Controllers
 
             int groupId = KS.GetFromRequest().GroupId;
 
-            if (media_id == 0)
+            if (asset_id == 0)
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "media_id cannot be 0");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_id cannot be 0");
             }
 
             if (with == null)
