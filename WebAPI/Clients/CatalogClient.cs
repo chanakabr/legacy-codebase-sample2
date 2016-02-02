@@ -454,6 +454,7 @@ namespace WebAPI.Clients
                 {
                     m_sDeviceId = udid,
                     m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                    m_bUseStartDate = true,
                 },
                 m_lFilterTags = filterTags,
                 m_eFilterCutWith = CatalogConvertor.ConvertCutWith(cutWith),
@@ -516,6 +517,7 @@ namespace WebAPI.Clients
                 {
                     m_sDeviceId = udid,
                     m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                    m_bUseStartDate = true,
                 },
                 m_sUserIP = Utils.Utils.GetClientIP(),
                 m_nGroupID = groupId,
