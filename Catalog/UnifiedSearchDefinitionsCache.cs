@@ -105,13 +105,16 @@ namespace Catalog
 
             HashSet<int> mediaTypes = new HashSet<int>(group.GetMediaTypes());
 
-            // Validate that the media types in the "assetTypes" list exist in the group's list of media types
-            foreach (var mediaType in definitions.mediaTypes)
+            if (mediaTypes != null)
             {
-                // If one of them doesn't exist, throw an exception that says the request is bad
-                if (!mediaTypes.Contains(mediaType))
+                // Validate that the media types in the "assetTypes" list exist in the group's list of media types
+                foreach (var mediaType in definitions.mediaTypes)
                 {
-                    throw new KalturaException(string.Format("Invalid media type was sent: {0}", mediaType), (int)eResponseStatus.BadSearchRequest);
+                    // If one of them doesn't exist, throw an exception that says the request is bad
+                    if (!mediaTypes.Contains(mediaType))
+                    {
+                        throw new KalturaException(string.Format("Invalid media type was sent: {0}", mediaType), (int)eResponseStatus.BadSearchRequest);
+                    }
                 }
             }
 
