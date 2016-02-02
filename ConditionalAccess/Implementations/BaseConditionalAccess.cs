@@ -5611,6 +5611,8 @@ namespace ConditionalAccess
                         entitlementsResponse.entitelments.Add(entitlement);
                     }
                 }
+
+                entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
             {
@@ -12899,6 +12901,7 @@ namespace ConditionalAccess
                         }
                     }
                 }
+                entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
             {
