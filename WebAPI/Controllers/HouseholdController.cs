@@ -335,7 +335,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Suspend a given household service. Sets the household status to “suspended".The household service settings are maintained for later resume
         /// </summary>                
-        /// <remarks>Possible status codes: 
+        /// <remarks>Possible status codes: Domain already suspended = 1012
         ///</remarks>
         [Route("suspend"), HttpPost]
         [ApiAuthorize]
@@ -347,7 +347,7 @@ namespace WebAPI.Controllers
             try
             {
                 var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
-                        // call client
+                // call client
                 return ClientsManager.DomainsClient().Suspend(groupId, (int)domainId);
 
             }
