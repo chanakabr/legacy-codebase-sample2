@@ -267,10 +267,18 @@ namespace WebAPI.Controllers
 
             int groupId = KS.GetFromRequest().GroupId;
 
+            var householdId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+            // no household to update - return forbidden
+            if (householdId == 0)
+            {
+                throw new UnauthorizedException((int)WebAPI.Managers.Models.StatusCode.ServiceForbidden, "Service Forbidden");
+            }
+
             try
             {
                 // call client
-                household = ClientsManager.DomainsClient().SetDomainInfo(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), name, description);
+                household = ClientsManager.DomainsClient().SetDomainInfo(groupId, (int)householdId, name, description);
             }
             catch (ClientException ex)
             {
