@@ -16,7 +16,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Immediately cancel a subscription, PPV or collection. Cancel is possible only if within cancellation window and content not already consumed
         /// </summary>                
-        /// <param name="asset_id">Asset identifier to cancel</param>        
+        /// <param name="asset_id">The mediaFileID to cancel</param>        
         /// <param name="transaction_type">The transaction type for the cancelation</param>
         /// <remarks>Possible status codes: 
         /// Household suspended = 1009, Invalid purchase = 3000, Cancellation window period expired = 3001, Content already consumed = 3005</remarks>
@@ -62,7 +62,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Immediately cancel a subscription, PPV or collection. Cancel applies regardless of cancellation window and content consumption status
         /// </summary>                
-        /// <param name="asset_id">Asset identifier to cancel</param>        
+        /// <param name="asset_id">The mediaFileID to cancel</param>        
         /// <param name="transaction_type">The transaction type for the cancelation</param>
         /// <remarks>Possible status codes: 
         /// Household suspended = 1009, Invalid purchase = 3000</remarks>
