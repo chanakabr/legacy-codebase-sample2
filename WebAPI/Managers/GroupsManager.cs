@@ -15,6 +15,7 @@ using System.Reflection;
 using KLogMonitor;
 using WebAPI.Managers.Models;
 using WebAPI.Managers;
+using WebAPI.Models.API;
 
 namespace WebAPI.ClientManagers
 {
@@ -45,7 +46,7 @@ namespace WebAPI.ClientManagers
             }
         }
 
-        public static Group GetGroup(int groupId)
+        public static Group GetGroup(int groupId, HttpContext context = null)
         {
             if (instance == null)
                 instance = new GroupsManager();
@@ -53,19 +54,26 @@ namespace WebAPI.ClientManagers
             string groupKey = string.Format(groupKeyFormat, groupId);
             Group tempGroup = null;
 
-            if (HttpContext.Current.Cache.Get(groupKey) == null)
+            if ((context == null && HttpContext.Current.Cache.Get(groupKey) == null) || (context != null && context.Cache.Get(groupKey) == null))
             {
                 if (syncLock.TryEnterWriteLock(10000))
                 {
                     try
                     {
-                        if (HttpContext.Current.Cache.Get(groupKey) == null)
+                        if ((context == null && HttpContext.Current.Cache.Get(groupKey) == null) || (context != null && context.Cache.Get(groupKey) == null))
                         {
                             Group group = createNewInstance(groupId);
 
                             if (group != null)
                             {
-                                HttpContext.Current.Cache.Add(groupKey, group, null, DateTime.UtcNow.AddSeconds(groupCacheTtlSeconds), System.Web.Caching.Cache.NoSlidingExpiration, System.Web.Caching.CacheItemPriority.Default, null);
+                                if (context == null)
+                                {
+                                    HttpContext.Current.Cache.Add(groupKey, group, null, DateTime.UtcNow.AddSeconds(groupCacheTtlSeconds), System.Web.Caching.Cache.NoSlidingExpiration, System.Web.Caching.CacheItemPriority.Default, null);
+                                }
+                                else
+                                {
+                                    context.Cache.Add(groupKey, group, null, DateTime.UtcNow.AddSeconds(groupCacheTtlSeconds), System.Web.Caching.Cache.NoSlidingExpiration, System.Web.Caching.CacheItemPriority.Default, null);
+                                }
                             }
                         }
                     }
@@ -86,7 +94,17 @@ namespace WebAPI.ClientManagers
             {
                 try
                 {
-                    var res = HttpContext.Current.Cache.Get(groupKey);
+                    object res = null;
+
+                    if (context == null)
+                    {
+                        res = HttpContext.Current.Cache.Get(groupKey);
+                    }
+                    else
+                    {
+                        res = context.Cache.Get(groupKey);
+                    }
+
                     if (res != null && res is Group)
                     {
                         tempGroup = res as Group;
@@ -109,33 +127,50 @@ namespace WebAPI.ClientManagers
         private static Group createNewInstance(int groupId)
         {
             Group group = null;
+            List<KalturaUserRole> roles = null;
 
-            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE) { Database = CouchbaseBucket.Groups.ToString(), QueryType = KLogEnums.eDBQueryType.SELECT })
+            // if the group is not default group - get configuration from CB and languages
+            if (groupId != 0)
             {
-                group = CouchbaseManager.GetInstance(CouchbaseBucket.Groups).GetJson<Group>(string.Format(groupKeyFormat, groupId));
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE) { Database = CouchbaseBucket.Groups.ToString(), QueryType = KLogEnums.eDBQueryType.SELECT })
+                {
+                    group = CouchbaseManager.GetInstance(CouchbaseBucket.Groups).GetJson<Group>(string.Format(groupKeyFormat, groupId));
+                }
+
+                if (group == null)
+                {
+                    log.Warn("failed to get group cache from Couchbase");
+                    throw new Exception();
+                }
+
+                // get group languages
+                var languages = ClientsManager.ApiClient().GetGroupLanguages(group.ApiCredentials.Username, group.ApiCredentials.Password);
+                if (languages != null)
+                    group.Languages = Mapper.Map<List<Language>>(languages);
+
+
+                // get group roles
+                roles = ClientsManager.ApiClient().GetRoles(group.ApiCredentials.Username, group.ApiCredentials.Password);
+            }
+            else
+            {
+                group = new Group();
+
+                // get default roles scheme for default group
+                roles = ClientsManager.ApiClient().GetRoles();
             }
 
-            if (group == null)
+            if (roles != null)
             {
-                log.Warn("failed to get group cache from Couchbase");
-                throw new Exception();
+                // build dictionary permission items - roles with groups dictionary, for easy access
+                group.PermissionItemsRolesMapping = RolesManager.BuildPermissionItemsDictionary(roles);
+                group.RolesIdsNamesMapping = roles.ToDictionary(dr => dr.Id, dr => dr.Name);
             }
-
-            // get group languages
-            var languages = ClientsManager.ApiClient().GetGroupLanguages(group.ApiCredentials.Username, group.ApiCredentials.Password);
-            if (languages != null)
-                group.Languages = Mapper.Map<List<Language>>(languages);
-
-            // get group roles
-            var roles = ClientsManager.ApiClient().GetRoles(group.ApiCredentials.Username, group.ApiCredentials.Password);
-            
-            // build dictionary action permission items - roles with groups dictionary, for easy access
-            group.ActionPermissionItemsDictionary = RolesManager.BuildPermissionItemsDictionary(roles);
 
             return group;
         }
 
-        
+
     }
-       
+
 }

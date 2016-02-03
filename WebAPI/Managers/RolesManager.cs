@@ -46,7 +46,7 @@ namespace WebAPI.Managers
                         if (permissionItem is KalturaApiActionPermissionItem)
                         {
                             apiActionPermissionItem = (KalturaApiActionPermissionItem)permissionItem;
-                            
+
                             // build the service action key
                             serviceActionPair = string.Format("{0}_{1}", apiActionPermissionItem.Service, apiActionPermissionItem.Action).ToLower();
 
@@ -87,13 +87,13 @@ namespace WebAPI.Managers
         internal static bool IsActionPermitedForRoles(int groupId, string service, string action, List<long> roleIds, out string usersGroup)
         {
             usersGroup = null;
-            StringBuilder usersGroupStringBuilder = new StringBuilder(); 
+            StringBuilder usersGroupStringBuilder = new StringBuilder();
 
             // build the key for the service action key for roles schema (permission items - roles dictionary)
             string serviceActionKey = string.Format("{0}_{1}", service, action).ToLower();
 
             // get group's roles schema
-            var actionPermissionItemsDictionary = GroupsManager.GetGroup(groupId).ActionPermissionItemsDictionary; 
+            var actionPermissionItemsDictionary = GroupsManager.GetGroup(groupId).PermissionItemsRolesMapping;
 
             // if the permission for the action is not defined in the schema - return false
             if (!actionPermissionItemsDictionary.ContainsKey(serviceActionKey))

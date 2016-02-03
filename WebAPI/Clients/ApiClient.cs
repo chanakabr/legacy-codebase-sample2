@@ -1988,6 +1988,19 @@ namespace WebAPI.Clients
             return GetRoles(group.ApiCredentials.Username, group.ApiCredentials.Password, roleIds);
         }
 
+        internal List<KalturaUserRole> GetRoles()
+        {
+            try
+            {
+                return GetRoles("api_1", "11111");
+            }
+            catch (Exception ex)
+            {
+                log.Error("Failed to get roles for default group (api_1)", ex);
+                return null;
+            }
+        }
+
         internal List<KalturaPermission> GetPermissions(int groupId, long[] ids)
         {
             List<KalturaPermission> permissions = new List<KalturaPermission>();

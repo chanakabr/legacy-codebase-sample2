@@ -11,7 +11,7 @@ namespace WebAPI.Managers.Models
     [Serializable]
     public class Group
     {
-        [DataMember(Name="user_secret")]
+        [DataMember(Name = "user_secret")]
         [JsonProperty(PropertyName = "user_secret")]
         public string UserSecret { get; set; }
 
@@ -91,6 +91,9 @@ namespace WebAPI.Managers.Models
         public List<Language> Languages { get; set; }
 
         [JsonIgnore]
-        public Dictionary<string, Dictionary<long, string>> ActionPermissionItemsDictionary { get; set; }
+        public Dictionary<string, Dictionary<long, string>> PermissionItemsRolesMapping { get; set; }
+
+        [JsonIgnore]
+        public Dictionary<long, string> RolesIdsNamesMapping { get; set; }
     }
 }

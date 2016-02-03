@@ -390,30 +390,29 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Returns related media from external recommendation engine by media identifier<br />        
+        /// Return list of assets that are related to a provided asset ID. Returned assets can be within multi asset types or be of same type as the provided asset. Support on-demand, per asset enrichment. Related assets are provided from the external source (e.g. external recommendation engine). Maximum number of returned assets – 20, using paging <br />        
         /// </summary>        
-        /// <param name="media_id">Media identifier</param>
-        /// <param name="filter_type_ids">Related media types list - possible values:
-        /// any media type ID (according to media type IDs defined dynamically in the system).
-        /// If omitted – all types should be included.</param>        
+        /// <param name="asset_id">The ID of the asset for which to return related assets</param>
+        /// <param name="filter_type_ids">The type of related assets to return. Possible values: ALL – include all asset types ; any media type ID (according to media type IDs defined dynamically in the system). If ommited = ALL.</param>        
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
-        /// <param name="pager">Paging filter</param>
-        /// <param name="language">Language code</param>        
-        /// /// <param name="utcOffset">UTC Offset</param>        
+        /// <param name="pager">Paging filter - Page number to return. If omitted returns first page. Number of assets to return per page. Possible range 5 ≤ size ≥ 20. If omitted – 5 is used. Value greater than 20 will set to 20</param>
+        /// <param name="language">3 letter code (ISO 639-2) that represent the user language. If provided – may be used to further fine tune the returned collection. If omitted – partner’s default language is used</param>        
+        /// <param name="utc_offset">Client’s offset from UTC. Format: +/-HH:MM. Example (client located at NY - EST): “-05:00”. If provided – may be used to further fine tune the returned collection</param>        
+        /// <param name="free_param">Suplimentry data that the client can provide the external recommnedation engine</param>        
         /// <remarks></remarks>
         [Route("relatedExternal"), HttpPost]
         [ApiAuthorize]
-        public KalturaAssetInfoListResponse RelatedExternal(int media_id, KalturaFilterPager pager = null, List<KalturaIntegerValue> filter_type_ids = null, int utcOffset = 0,
-            List<KalturaCatalogWithHolder> with = null, string language = null, string freeParam = null)
+        public KalturaAssetInfoListResponse RelatedExternal(int asset_id, KalturaFilterPager pager = null, List<KalturaIntegerValue> filter_type_ids = null, int utc_offset = 0,
+            List<KalturaCatalogWithHolder> with = null, string language = null, string free_param = null)
         {
             KalturaAssetInfoListResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
-            if (media_id == 0)
+            if (asset_id == 0)
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "media_id cannot be 0");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "asset_id cannot be 0");
             }
 
             if (with == null)
@@ -432,7 +431,7 @@ namespace WebAPI.Controllers
                 string userID = KS.GetFromRequest().UserId;
 
                 response = ClientsManager.CatalogClient().GetRelatedMediaExternal(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
-                    language, pager.PageIndex, pager.PageSize, media_id, filter_type_ids.Select(x => x.value).ToList(), utcOffset, with.Select(x => x.type).ToList(), freeParam);
+                    language, pager.PageIndex, pager.PageSize, asset_id, filter_type_ids.Select(x => x.value).ToList(), utc_offset, with.Select(x => x.type).ToList(), free_param);
             }
             catch (ClientException ex)
             {
@@ -453,11 +452,11 @@ namespace WebAPI.Controllers
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <param name="pager">Paging filter - Page number to return. If omitted returns first page. Number of assets to return per page. Possible range 5 ≤ size ≥ 20. If omitted – 10 is used. Value greater than 20 will set to 20.</param>
         /// <param name="language">3 letter code (ISO 639-2) that represent the user language. If provided – may be used to further fine tune the returned collection. If omitted – partner’s default language is used</param>    
-        /// <param name="utcOffset">Client’s offset from UTC. Format: +/-HH:MM. Example (client located at NY - EST): “-05:00”. If provided – may be used to further fine tune the returned collection</param>  
+        /// <param name="utc_offset">Client’s offset from UTC. Format: +/-HH:MM. Example (client located at NY - EST): “-05:00”. If provided – may be used to further fine tune the returned collection</param>  
         /// <remarks></remarks>
         [Route("searchExternal"), HttpPost]
         [ApiAuthorize]
-        public KalturaAssetInfoListResponse searchExternal(string query, KalturaFilterPager pager = null, List<KalturaIntegerValue> filter_type_ids = null, int utcOffset = 0,
+        public KalturaAssetInfoListResponse searchExternal(string query, KalturaFilterPager pager = null, List<KalturaIntegerValue> filter_type_ids = null, int utc_offset = 0,
             List<KalturaCatalogWithHolder> with = null, string language = null)
         {
             KalturaAssetInfoListResponse response = null;
@@ -480,7 +479,7 @@ namespace WebAPI.Controllers
                 string userID = KS.GetFromRequest().UserId;
 
                 response = ClientsManager.CatalogClient().GetSearchMediaExternal(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
-                    language, pager.PageIndex, pager.PageSize, query, filter_type_ids.Select(x => x.value).ToList(), utcOffset, with.Select(x => x.type).ToList());
+                    language, pager.PageIndex, pager.PageSize, query, filter_type_ids.Select(x => x.value).ToList(), utc_offset, with.Select(x => x.type).ToList());
             }
             catch (ClientException ex)
             {
