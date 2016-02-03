@@ -290,10 +290,8 @@ namespace AdapterControllers
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                     {
                         //call Adapter get related recommendations - after it is configured
-                        adapterResponse = adapterClient.GetRelatedRecommendations(engine.ID,
-                            nMediaID, nMediaTypeID, 
-                            enrichmentsList.ToArray(), freeParam, filterTypeIDs.ToArray(),nPageIndex, nPageSize,
-                            unixTimestamp,
+                        adapterResponse = adapterClient.GetRelatedRecommendations(engine.ID, nMediaID, nMediaTypeID, 
+                            enrichmentsList.ToArray(), freeParam, filterTypeIDs.ToArray(),nPageIndex, nPageSize, unixTimestamp,
                             System.Convert.ToBase64String(
                                 EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
                     }
