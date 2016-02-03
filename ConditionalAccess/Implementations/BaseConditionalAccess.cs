@@ -1,31 +1,23 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Configuration;
-using System.Web;
-using ConditionalAccess.TvinciUsers;
-using System.Xml.Serialization;
-using System.IO;
-using System.Xml;
-using System.Data;
-using DAL;
-using M1BL;
-using System.Collections;
-using Tvinci.Core.DAL;
 using ApiObjects;
-using QueueWrapper;
-using Newtonsoft.Json;
+using ApiObjects.Billing;
 using ApiObjects.MediaIndexingObjects;
-using GroupsCacheManager;
-using ConditionalAccess.TvinciPricing;
 using ApiObjects.Response;
 using ConditionalAccess.Response;
+using ConditionalAccess.TvinciPricing;
+using ConditionalAccess.TvinciUsers;
+using DAL;
+using GroupsCacheManager;
 using KLogMonitor;
+using QueueWrapper;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using System.Reflection;
-using ApiObjects.Billing;
-using TVinciShared;
+using System.Text;
 using System.Threading.Tasks;
+using TVinciShared;
 
 namespace ConditionalAccess
 {
@@ -5124,6 +5116,166 @@ namespace ConditionalAccess
             return ret;
 
         }
+
+        /// <summary>
+        /// Get User Permitted Items
+        /// </summary>
+        public virtual Entitlements GetUsersEntitlementPPVItems(List<int> lUsersIDs, bool isExpired, int domainID = 0, bool shouldCheckByDomain = true, int pageSize = 500, int pageIndex = 0)
+        {
+            Entitlements entitlementsResponse = new Entitlements();
+            List<int> mediaFileIds = new List<int>();
+            try
+            {
+                // Get domainID from one of the users
+                if (shouldCheckByDomain && domainID == 0 && lUsersIDs.Count > 0)
+                {
+                    UserResponseObject user = Utils.GetExistUser(lUsersIDs.First().ToString(), m_nGroupID);
+                    if (user != null && user.m_RespStatus == ResponseStatus.OK && user.m_user != null)
+                    {
+                        domainID = user.m_user.m_domianID;
+                    }
+                }
+
+                DataTable allPPVModules = ConditionalAccessDAL.Get_All_Users_PPV_modules(lUsersIDs, isExpired, domainID);
+                if (allPPVModules == null || allPPVModules.Rows == null || allPPVModules.Rows.Count == 0)
+                {
+                    entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no permitted items");
+                    return entitlementsResponse;
+                }
+
+                //Get Iteration Rows according page size and index
+                IEnumerable<DataRow> iterationRows = GetIterationRows(pageSize, pageIndex, allPPVModules);
+
+                Entitlement entitlement = null;
+                foreach (DataRow dr in iterationRows)
+                {
+                    entitlement = CreatePPVEntitelment(dr);
+                    if (entitlement != null)
+                    {
+                        if (!mediaFileIds.Contains(entitlement.mediaFileID))
+                        {
+                            mediaFileIds.Add(entitlement.mediaFileID);
+                        }
+                        entitlementsResponse.entitelments.Add(entitlement);
+                    }
+                }
+
+                TvinciAPI.MeidaMaper[] mapper = Utils.GetMediaMapper(m_nGroupID, mediaFileIds.ToArray());
+
+
+                foreach (Entitlement entitlementRes in entitlementsResponse.entitelments)
+                {
+                    int mediaID = mapper.Where(x => x.m_nMediaFileID == entitlementRes.mediaFileID).FirstOrDefault().m_nMediaID;
+                    entitlementRes.mediaID = mediaID;
+                }
+
+                entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception at GetUserPermittedItems. {0} - " , ex);
+                entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            }
+            return entitlementsResponse;
+        }
+
+        private static IEnumerable<DataRow> GetIterationRows(int pageSize, int pageIndex, DataTable usersPermittedItems)
+        {
+            IEnumerable<DataRow> iterationRows = null;
+            List<DataRow> filteredRows = null;
+
+            if (pageIndex > 0 && pageSize > 0)
+            {
+                int takeTop = pageIndex * pageSize;
+                Int64 maxTransactionID = (from row in usersPermittedItems.AsEnumerable().Take(takeTop)
+                                          select row.Field<Int64>("ID")).ToList().Min();
+                filteredRows = (from row in usersPermittedItems.AsEnumerable()
+                                where (Int64)row["ID"] < maxTransactionID
+                                select row).Take(pageSize).ToList();
+            }
+
+            if (filteredRows != null)
+            {
+                iterationRows = filteredRows;
+            }
+            else if (pageSize > -1)
+            {
+                iterationRows = usersPermittedItems.AsEnumerable().Take(pageSize);
+            }
+            else
+            {
+                iterationRows = usersPermittedItems.AsEnumerable();
+            }
+            return iterationRows;
+        }
+
+        private Entitlement CreatePPVEntitelment(DataRow dataRow)
+        {
+            TvinciPricing.UsageModule oUsageModule = null;
+            Entitlement entitlement = new Entitlement();
+
+            entitlement.type = eTransactionType.PPV;
+            entitlement.entitlementId = ODBCWrapper.Utils.GetSafeStr(dataRow, "ppv");
+            entitlement.currentUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "NUM_OF_USES");
+
+            entitlement.endDate = new DateTime(2099, 1, 1);
+            if (dataRow["END_DATE"] != null && dataRow["END_DATE"] != DBNull.Value)
+                entitlement.endDate = (DateTime)(dataRow["END_DATE"]);
+
+            entitlement.currentDate = DateTime.UtcNow;
+            if (dataRow["cDate"] != null && dataRow["cDate"] != DBNull.Value)
+                entitlement.currentDate = (DateTime)(dataRow["cDate"]);
+
+            entitlement.lastViewDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow["LAST_VIEW_DATE"]);
+
+            entitlement.purchaseDate = DateTime.UtcNow;
+            if (dataRow["START_DATE"] != null && dataRow["START_DATE"] != DBNull.Value)
+                entitlement.purchaseDate = (DateTime)(dataRow["START_DATE"]);
+
+            entitlement.purchaseID = (int)ODBCWrapper.Utils.GetLongSafeVal(dataRow, "ID");
+            entitlement.paymentMethod = GetBillingTransMethod(ODBCWrapper.Utils.GetIntSafeVal(dataRow, "billing_transaction_id"), ODBCWrapper.Utils.GetSafeStr(dataRow, "BILLING_GUID"));
+            entitlement.deviceUDID = ODBCWrapper.Utils.GetSafeStr(dataRow, "device_name");
+            if (!string.IsNullOrEmpty(entitlement.deviceUDID))
+            {
+                entitlement.deviceName = GetDeviceName(entitlement.deviceUDID);
+            }
+
+            if (ODBCWrapper.Utils.GetIntSafeVal(dataRow, "WAIVER") == 0 &&
+                entitlement.lastViewDate < entitlement.purchaseDate)// user didn't waiver yet and didn't use the PPV yet
+            {
+                bool cancellationWindow = false;
+                IsCancellationWindow(ref oUsageModule, entitlement.entitlementId, entitlement.purchaseDate, ref cancellationWindow, eTransactionType.PPV);
+                entitlement.cancelWindow = cancellationWindow;
+            }
+
+            entitlement.maxUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "MAX_NUM_OF_USES");
+            entitlement.mediaFileID = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "MEDIA_FILE_ID");
+            entitlement.mediaID = 0;
+
+            return entitlement;
+
+        }
+
+        private static string GetDeviceName(string deviceUDID)
+        {
+            string deviceName = string.Empty;
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += " select name from devices where ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("device_id", "=", deviceUDID);
+            selectQuery.SetConnectionKey("users_connection");
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                    deviceName = selectQuery.Table("query").DefaultView[0].Row["name"].ToString();
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+
+            return deviceName;
+        }
+
         /// <summary>
         /// Get User Permitted Subscriptions
         /// </summary>
@@ -5422,6 +5574,117 @@ namespace ConditionalAccess
                 ret = null;
             }
             return ret;
+        }
+
+        private Entitlements GetUsersEntitlementSubscriptionsItems(List<int> userIds, bool isExpired, int domainID, bool shouldCheckByDomain, int pageSize, int pageIndex)
+        {
+            Entitlements entitlementsResponse = new Entitlements();
+
+            try
+            {
+                // Get domainID from one of the users
+                if (shouldCheckByDomain && domainID == 0 && userIds.Count > 0)
+                {
+                    UserResponseObject user = Utils.GetExistUser(userIds.First().ToString(), m_nGroupID);
+                    if (user != null && user.m_RespStatus == ResponseStatus.OK && user.m_user != null)
+                    {
+                        domainID = user.m_user.m_domianID;
+                    }
+                }
+
+                DataTable allSubscriptionsPurchases = ConditionalAccessDAL.Get_UsersPermittedSubscriptions(userIds, isExpired, domainID);
+
+                if (allSubscriptionsPurchases == null || allSubscriptionsPurchases.Rows == null || allSubscriptionsPurchases.Rows.Count == 0)
+                {
+                    entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no permitted items");
+                    return entitlementsResponse;
+                }
+
+                //Get Iteration Rows according page size and index
+                IEnumerable<DataRow> iterationRows = GetIterationRows(pageSize, pageIndex, allSubscriptionsPurchases);
+
+                Entitlement entitlement = null;
+                foreach (DataRow dr in iterationRows)
+                {
+                    entitlement = CreateSubscriptionEntitelment(dr, isExpired);
+                    if (entitlement != null)
+                    {
+                        entitlementsResponse.entitelments.Add(entitlement);
+                    }
+                }
+
+                entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception at GetUserPermittedSubscriptions. {0} - " , ex);
+                entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            }
+            return entitlementsResponse;
+        }
+
+        private Entitlement CreateSubscriptionEntitelment(DataRow dataRow, bool isExpired)
+        {
+            TvinciPricing.UsageModule oUsageModule = null;
+            Entitlement entitlement = new Entitlement();
+
+            entitlement.type = eTransactionType.Subscription;
+            entitlement.entitlementId = ODBCWrapper.Utils.GetSafeStr(dataRow, "SUBSCRIPTION_CODE");
+            entitlement.currentUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "NUM_OF_USES");
+            entitlement.maxUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "MAX_NUM_OF_USES");
+
+            DateTime endDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "END_DATE");
+            entitlement.purchaseDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "START_DATE");
+            entitlement.lastViewDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "LAST_VIEW_DATE");
+
+            // check whether subscription is in its grace period
+            int gracePeriodMinutes = ODBCWrapper.Utils.GetIntSafeVal(dataRow["GRACE_PERIOD_MINUTES"]);
+            entitlement.IsInGracePeriod = false;
+            if (!isExpired && endDate < DateTime.UtcNow)
+            {
+                endDate = endDate.AddMinutes(gracePeriodMinutes);
+                entitlement.IsInGracePeriod = true;
+            }
+
+            entitlement.recurringStatus = false;
+            entitlement.nextRenewalDate = DateTime.MaxValue;
+            if (ODBCWrapper.Utils.GetIntSafeVal(dataRow, "IS_RECURRING_STATUS") == 1)
+            {
+                entitlement.recurringStatus = true;
+                entitlement.nextRenewalDate = endDate;
+            }
+
+            if (isExpired && entitlement.maxUses != 0 && entitlement.currentUses >= entitlement.maxUses)
+            {
+                endDate = entitlement.lastViewDate;
+            }
+
+            entitlement.isRenewable = false;
+            if (ODBCWrapper.Utils.GetIntSafeVal(dataRow["IS_RECURRING"]) == 1)
+                entitlement.isRenewable = true;
+
+            entitlement.endDate = endDate;
+            entitlement.currentDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "cDate");
+
+            if (ODBCWrapper.Utils.GetIntSafeVal(dataRow, "WAIVER") == 0 &&
+               entitlement.lastViewDate < entitlement.purchaseDate)// user didn't waiver yet and didn't use the PPV yet
+            {
+                bool cancellationWindow = false;
+                IsCancellationWindow(ref oUsageModule, entitlement.entitlementId, entitlement.purchaseDate, ref cancellationWindow, eTransactionType.Subscription);
+                entitlement.cancelWindow = cancellationWindow;
+            }
+
+            entitlement.purchaseID = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "ID");
+            entitlement.paymentMethod = GetBillingTransMethod(ODBCWrapper.Utils.GetIntSafeVal(dataRow, "billing_transaction_id"), ODBCWrapper.Utils.GetSafeStr(dataRow, "BILLING_GUID"));
+            entitlement.deviceUDID = ODBCWrapper.Utils.GetSafeStr(dataRow, "device_name");
+            entitlement.deviceName = string.Empty;
+            if (!string.IsNullOrEmpty(entitlement.deviceUDID))
+            {
+                entitlement.deviceName = GetDeviceName(entitlement.deviceUDID);
+            }
+
+            entitlement.mediaFileID = 0;
+            return entitlement;
         }
 
         /// <summary>
@@ -12560,7 +12823,7 @@ namespace ConditionalAccess
         /// <summary>
         /// Get users' entitlements (PPV or subscriptions or collections)
         /// </summary>
-        public virtual Entitlements GetUsersEntitlements(int domainID, List<int> userIds, eTransactionType type, bool isExpired = false, int numOfItems = 0, bool shouldCheckByDomain = true)
+        public virtual Entitlements GetUsersEntitlements(int domainID, List<int> userIds, eTransactionType type, bool isExpired = false, int numOfItems = 0, bool shouldCheckByDomain = true, int pageSize = 500, int pageIndex = 0)
         {
             Entitlements response = new Entitlements();
             response.status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
@@ -12572,55 +12835,21 @@ namespace ConditionalAccess
 
             try
             {
-
                 switch (type)
                 {
                     case eTransactionType.PPV:
                         {
-                            PermittedMediaContainer[] pmc = GetUserPermittedItems(userIds, false, 0, domainID, shouldCheckByDomain);
-                            if (pmc != null)
-                            {
-                                // fill Entitlement object
-                                response.status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, "OK");
-                                response.entitelments = new List<Entitlement>();
-                                foreach (PermittedMediaContainer item in pmc)
-                                {
-                                    Entitlement ent = new Entitlement(item);
-                                    response.entitelments.Add(ent);
-                                }
-                            }
+                            response = GetUsersEntitlementPPVItems(userIds, isExpired, domainID, shouldCheckByDomain, pageSize, pageIndex);
                             break;
                         }
                     case eTransactionType.Subscription:
                         {
-                            PermittedSubscriptionContainer[] psc = GetUserPermittedSubscriptions(userIds, false, 0, domainID, shouldCheckByDomain);
-                            if (psc != null)
-                            {
-                                // fill Entitlement object
-                                response.status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, "OK");
-                                response.entitelments = new List<Entitlement>();
-                                foreach (PermittedSubscriptionContainer item in psc)
-                                {
-                                    Entitlement ent = new Entitlement(item);
-                                    response.entitelments.Add(ent);
-                                }
-                            }
-                            break;
+                            response = GetUsersEntitlementSubscriptionsItems(userIds, isExpired, domainID, shouldCheckByDomain, pageSize, pageIndex);                            
+                            break; 
                         }
                     case eTransactionType.Collection:
                         {
-                            PermittedCollectionContainer[] pcc = GetUserPermittedCollections(userIds, false, 0, domainID, shouldCheckByDomain);
-                            if (pcc != null)
-                            {
-                                // fill Entitlement object
-                                response.status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, "OK");
-                                response.entitelments = new List<Entitlement>();
-                                foreach (PermittedCollectionContainer item in pcc)
-                                {
-                                    Entitlement ent = new Entitlement(item);
-                                    response.entitelments.Add(ent);
-                                }
-                            }
+                            response = GetUsersEntitlementCollectionsItems(userIds, isExpired, domainID, shouldCheckByDomain, pageSize, pageIndex);                           
                             break;
                         }
                     default:
@@ -12636,13 +12865,99 @@ namespace ConditionalAccess
             return response;
         }
 
-        public virtual Entitlements GetUserEntitlements(string siteGuid, eTransactionType type)
+        private Entitlements GetUsersEntitlementCollectionsItems(List<int> userIds, bool isExpired, int domainID, bool shouldCheckByDomain, int pageSize, int pageIndex)
+        {
+            Entitlements entitlementsResponse = new Entitlements();
+            try
+            {
+                // Get domainID from one of the users
+                if (shouldCheckByDomain && domainID == 0 && userIds.Count > 0)
+                {
+                    UserResponseObject user = Utils.GetExistUser(userIds.First().ToString(), m_nGroupID);
+                    if (user != null && user.m_RespStatus == ResponseStatus.OK && user.m_user != null)
+                    {
+                        domainID = user.m_user.m_domianID;
+                    }
+                }
+
+                DataTable allCollectionsPurchases = ConditionalAccessDAL.Get_UsersPermittedCollections(userIds, isExpired, domainID);
+                if (allCollectionsPurchases == null || allCollectionsPurchases.Rows == null || allCollectionsPurchases.Rows.Count == 0)
+                {
+                    entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no permitted items");
+                    return entitlementsResponse;
+                }
+
+                //Get Iteration Rows according page size and index
+                IEnumerable<DataRow> iterationRows = GetIterationRows(pageSize, pageIndex, allCollectionsPurchases);
+
+                Entitlement entitlement = null;
+                foreach (DataRow dr in iterationRows)
+                {
+                    entitlement = CreateCollectionEntitelment(dr, isExpired);
+                    if (entitlement != null)
+                    {
+                        if (entitlement != null)
+                        {
+                            entitlementsResponse.entitelments.Add(entitlement);
+                        }
+                    }
+                }
+                entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception at GetUserPermittedCollections {0} - ", ex);
+                entitlementsResponse.status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
+            }
+            return entitlementsResponse;
+        }
+
+        private Entitlement CreateCollectionEntitelment(DataRow dataRow, bool isExpired)
+        {
+            TvinciPricing.UsageModule oUsageModule = null;
+            Entitlement entitlement = new Entitlement();
+
+            entitlement.type = eTransactionType.Collection;
+            entitlement.entitlementId = ODBCWrapper.Utils.GetSafeStr(dataRow,"COLLECTION_CODE");
+
+            entitlement.endDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "END_DATE");
+            int maxUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow,"MAX_NUM_OF_USES");
+            int currentUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow,"NUM_OF_USES");
+            entitlement.lastViewDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow,"LAST_VIEW_DATE");
+
+            if (isExpired && maxUses != 0 && currentUses >= maxUses)
+            {
+                entitlement.endDate = entitlement.lastViewDate;
+            }
+
+            entitlement.currentDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow,"cDate");
+            entitlement.purchaseDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow,"CREATE_DATE");
+            entitlement.purchaseID = ODBCWrapper.Utils.GetIntSafeVal(dataRow,"ID");
+            entitlement.paymentMethod = GetBillingTransMethod(ODBCWrapper.Utils.GetIntSafeVal(dataRow, "billing_transaction_id"), ODBCWrapper.Utils.GetSafeStr(dataRow, "BILLING_GUID"));
+            entitlement.deviceUDID = ODBCWrapper.Utils.GetSafeStr(dataRow,"device_name");
+            entitlement.deviceName = string.Empty;
+            if (!string.IsNullOrEmpty(entitlement.deviceUDID))
+            {
+                entitlement.deviceName = GetDeviceName(entitlement.deviceUDID);
+            }
+            
+            if (ODBCWrapper.Utils.GetIntSafeVal(dataRow, "WAIVER") == 0 &&
+              entitlement.lastViewDate < entitlement.purchaseDate)// user didn't waiver yet and didn't use the PPV yet
+            {
+                bool cancellationWindow = false;
+                IsCancellationWindow(ref oUsageModule, entitlement.entitlementId, entitlement.purchaseDate, ref cancellationWindow, eTransactionType.Subscription);
+                entitlement.cancelWindow = cancellationWindow;
+            }
+            return entitlement;
+        }
+
+        public virtual Entitlements GetUserEntitlements(string siteGuid, eTransactionType type, bool isExpired = false, int pageSize = 500, int pageIndex = 0)
         {
             int userId, domainID = 0;
             TvinciUsers.DomainSuspentionStatus userSuspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
             if (int.TryParse(siteGuid, out userId) && Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID, ref userSuspendStatus))
             {
-                return GetUsersEntitlements(domainID, new List<int>() { userId }, type, false, 0, false);
+                return GetUsersEntitlements(domainID, new List<int>() { userId }, type, isExpired, 0, false, pageSize, pageIndex);
             }
             else
             {
@@ -12652,10 +12967,10 @@ namespace ConditionalAccess
             }
         }
 
-        public virtual Entitlements GetDomainEntitlements(int domainId, eTransactionType type)
+        public virtual Entitlements GetDomainEntitlements(int domainId, eTransactionType type, bool isExpired = false, int pageSize = 500, int pageIndex = 0)
         {
             List<int> intUsersList = GetDomainsUsers(domainId);
-            return GetUsersEntitlements(domainId, intUsersList, type);
+            return GetUsersEntitlements(domainId, intUsersList, type, isExpired);
         }
 
         /// <summary>

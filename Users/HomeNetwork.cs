@@ -59,4 +59,18 @@ namespace Users
             return sb.ToString();
         }
     }
+
+    public class HomeNetworksResponse
+    {
+        public ApiObjects.Response.Status Status { get; set; }
+
+        public List<HomeNetwork> HomeNetworks { get; set; }
+    }
+
+    public class HomeNetworkResponse
+    {
+        public ApiObjects.Response.Status Status { get; set; }
+
+        public HomeNetwork HomeNetwork { get; set; }
+    }
 }

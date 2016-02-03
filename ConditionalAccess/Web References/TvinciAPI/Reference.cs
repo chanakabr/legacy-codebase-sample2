@@ -57,6 +57,8 @@ namespace ConditionalAccess.TvinciAPI {
         
         private System.Threading.SendOrPostCallback GetExternalEntitlementsOperationCompleted;
         
+        private System.Threading.SendOrPostCallback ModifyCBOperationCompleted;
+        
         private System.Threading.SendOrPostCallback TVAPI_GetTvinciGUIDOperationCompleted;
         
         private System.Threading.SendOrPostCallback TVAPI_GetMediasOperationCompleted;
@@ -389,6 +391,9 @@ namespace ConditionalAccess.TvinciAPI {
         
         /// <remarks/>
         public event GetExternalEntitlementsCompletedEventHandler GetExternalEntitlementsCompleted;
+        
+        /// <remarks/>
+        public event ModifyCBCompletedEventHandler ModifyCBCompleted;
         
         /// <remarks/>
         public event TVAPI_GetTvinciGUIDCompletedEventHandler TVAPI_GetTvinciGUIDCompleted;
@@ -1218,6 +1223,47 @@ namespace ConditionalAccess.TvinciAPI {
             if ((this.GetExternalEntitlementsCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.GetExternalEntitlementsCompleted(this, new GetExternalEntitlementsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/ModifyCB", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public bool ModifyCB(string sWSUserName, string sWSPassword, string bucket, string key, eDbActionType action, string data, long ttlMinutes) {
+            object[] results = this.Invoke("ModifyCB", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        bucket,
+                        key,
+                        action,
+                        data,
+                        ttlMinutes});
+            return ((bool)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void ModifyCBAsync(string sWSUserName, string sWSPassword, string bucket, string key, eDbActionType action, string data, long ttlMinutes) {
+            this.ModifyCBAsync(sWSUserName, sWSPassword, bucket, key, action, data, ttlMinutes, null);
+        }
+        
+        /// <remarks/>
+        public void ModifyCBAsync(string sWSUserName, string sWSPassword, string bucket, string key, eDbActionType action, string data, long ttlMinutes, object userState) {
+            if ((this.ModifyCBOperationCompleted == null)) {
+                this.ModifyCBOperationCompleted = new System.Threading.SendOrPostCallback(this.OnModifyCBOperationCompleted);
+            }
+            this.InvokeAsync("ModifyCB", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        bucket,
+                        key,
+                        action,
+                        data,
+                        ttlMinutes}, this.ModifyCBOperationCompleted, userState);
+        }
+        
+        private void OnModifyCBOperationCompleted(object arg) {
+            if ((this.ModifyCBCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.ModifyCBCompleted(this, new ModifyCBCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -3243,13 +3289,13 @@ namespace ConditionalAccess.TvinciAPI {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/CleanUserHistory", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public bool CleanUserHistory(string sWSUserName, string sWSPassword, string siteGuid, int[] lMediaIDs) {
+        public Status CleanUserHistory(string sWSUserName, string sWSPassword, string siteGuid, int[] lMediaIDs) {
             object[] results = this.Invoke("CleanUserHistory", new object[] {
                         sWSUserName,
                         sWSPassword,
                         siteGuid,
                         lMediaIDs});
-            return ((bool)(results[0]));
+            return ((Status)(results[0]));
         }
         
         /// <remarks/>
@@ -13569,6 +13615,19 @@ namespace ConditionalAccess.TvinciAPI {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public enum eDbActionType {
+        
+        /// <remarks/>
+        Delete,
+        
+        /// <remarks/>
+        Add,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public enum UserStatus {
         
         /// <remarks/>
@@ -13978,6 +14037,32 @@ namespace ConditionalAccess.TvinciAPI {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((OSSAdapterEntitlementsResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void ModifyCBCompletedEventHandler(object sender, ModifyCBCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class ModifyCBCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal ModifyCBCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public bool Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((bool)(this.results[0]));
             }
         }
     }
@@ -15488,10 +15573,10 @@ namespace ConditionalAccess.TvinciAPI {
         }
         
         /// <remarks/>
-        public bool Result {
+        public Status Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((bool)(this.results[0]));
+                return ((Status)(this.results[0]));
             }
         }
     }

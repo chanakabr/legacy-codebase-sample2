@@ -1,7 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Users.Cache;
 
 namespace Users
@@ -24,8 +22,9 @@ namespace Users
             return device.GetPINForDevice();
         }
 
-        public override bool SetDeviceInfo(int nGroupID, string sDeviceUDID, string sDeviceName)
+        public override ApiObjects.Response.Status SetDeviceInfo(int nGroupID, string sDeviceUDID, string sDeviceName)
         {
+            ApiObjects.Response.Status status = null;
             Device device = new Device(sDeviceUDID, 0, nGroupID, sDeviceName);
             device.Initialize(sDeviceUDID);
             bool isSetSucceeded = device.SetDeviceInfo(sDeviceName);
@@ -34,6 +33,7 @@ namespace Users
             // domain should be remove from the cache 
             if (isSetSucceeded)
             {
+                status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "OK");
                 Users.BaseDomain baseDomain = null;
                 Utils.GetBaseDomainsImpl(ref baseDomain, nGroupID);
 
@@ -51,11 +51,22 @@ namespace Users
                     }
                 }
             }
+            else
+            {
+                if (device != null)
+                {
+                    status = Utils.ConvertDeviceStateToResponseObject(device.m_state);
+                }
+                else
+                {
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Error");
+                }
+            }
 
-            return isSetSucceeded;
+            return status;
         }
 
-        public override DeviceResponseObject  GetDeviceInfo(int nGroupID, string sID, bool bIsUDID)
+        public override DeviceResponseObject GetDeviceInfo(int nGroupID, string sID, bool bIsUDID)
         {
             DeviceResponseObject ret = new DeviceResponseObject();
             bool result = false;
@@ -67,7 +78,7 @@ namespace Users
             else
             {
                 int nID = 0;
-                bool parseResult = int.TryParse(sID, out nID); 
+                bool parseResult = int.TryParse(sID, out nID);
                 if (parseResult)
                 {
                     result = device.Initialize(nID);
@@ -80,14 +91,14 @@ namespace Users
             }
             else
             {
-                if (device.m_state == DeviceState.Error || device.m_state == DeviceState.UnActivated )
+                if (device.m_state == DeviceState.Error || device.m_state == DeviceState.UnActivated)
                 {
                     ret.m_oDeviceResponseStatus = DeviceResponseStatus.Error;
                 }
                 else if (device.m_state == DeviceState.NotExists)
                 {
-                    ret.m_oDeviceResponseStatus = DeviceResponseStatus.DeviceNotExists;  
-                } 
+                    ret.m_oDeviceResponseStatus = DeviceResponseStatus.DeviceNotExists;
+                }
                 else
                 {
                     ret.m_oDeviceResponseStatus = DeviceResponseStatus.OK;
