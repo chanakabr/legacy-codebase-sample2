@@ -59,7 +59,6 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.m_sCoGuid))
                 .ForMember(dest => dest.FrequencyNextDeviceAction, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_NextActionFreq)))
                 .ForMember(dest => dest.FrequencyNextUserAction, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_NextUserActionFreq)))
-                .ForMember(dest => dest.HomeNetworks, opt => opt.MapFrom(src => src.m_homeNetworks))
                 .ForMember(dest => dest.IsFrequencyEnabled, opt => opt.MapFrom(src => src.m_frequencyFlag))
                 .ForMember(dest => dest.MasterUsers, opt => opt.MapFrom(src => src.m_masterGUIDs))
                 .ForMember(dest => dest.PendingUsers, opt => opt.MapFrom(src => src.m_PendingUsersIDs))

@@ -164,15 +164,6 @@ namespace WebAPI.Models.Domains
         public KalturaHouseholdRestriction Restriction { get; set; }
 
         /// <summary>
-        /// Household home networks
-        /// </summary>
-        [DataMember(Name = "home_networks")]
-        [JsonProperty("home_networks")]
-        [XmlArray(ElementName = "home_networks", IsNullable = true)]
-        [XmlArrayItem("item")]
-        public List<KalturaHomeNetwork> HomeNetworks { get; set; }
-
-        /// <summary>
         /// Household device families
         /// </summary>
         [DataMember(Name = "device_families")]
