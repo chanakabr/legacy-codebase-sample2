@@ -145,6 +145,7 @@ namespace ApiObjects.Response
         ExportFrequencyMinValue = 5018,
         AliasMustBeUnique = 5019, 
         AliasRequired = 5020,
+        UserParentalRuleNotExists = 5021,
 
         // Billing 6000 - 6999
         IncorrectPrice = 6000,
