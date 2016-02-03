@@ -107,7 +107,8 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="by">Reference type to filter by</param>
         /// <remarks>Possible status codes: 
-        /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001, Invalid rule = 5003</remarks>
+        /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001, Invalid rule = 5003, 
+        /// trying to cancel a default rule = 5021 </remarks>
         /// <param name="rule_id">Rule Identifier</param>
         /// <returns>Success or failure and reason</returns>
         [Route("disable"), HttpPost]
