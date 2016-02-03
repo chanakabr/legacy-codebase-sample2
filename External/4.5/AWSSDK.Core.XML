@@ -410,6 +410,11 @@
             The Asia Pacific (Tokyo) endpoint.
             </summary>
         </member>
+        <member name="F:Amazon.RegionEndpoint.APNortheast2">
+            <summary>
+            The Asia Pacific (Seoul) endpoint.
+            </summary>
+        </member>
         <member name="F:Amazon.RegionEndpoint.APSoutheast1">
             <summary>
             The Asia Pacific (Singapore) endpoint.
@@ -2163,6 +2168,34 @@
             <summary>
             Location of the profiles, if used.
             </summary>
+        </member>
+        <member name="M:Amazon.Runtime.StoredProfileAWSCredentials.IsProfileKnown(System.String,System.String)">
+            <summary>
+            Tests if a profile has been registered in either the SDK store or the
+            specified credential file. If profilesLocation is null/empty, the SDK 
+            store is searched for the profile data first before testing the default 
+            location of the ini-format credential file.
+            </summary>
+            <param name="profileName">The name of the profile to test</param>
+            <param name="profilesLocation">
+            If null/empty, the SDK store is searched for the named profile otherwise
+            the ini-format credential file at the specified location is inspected.
+            </param>
+            <returns>True if a profile with the specified name has been registered.</returns>
+        </member>
+        <member name="M:Amazon.Runtime.StoredProfileAWSCredentials.CanCreateFrom(System.String,System.String)">
+            <summary>
+            Tests if an instance can be created from the persisted profile data.
+            If profilesLocation is null/empty, the SDK store is searched for the
+            profile data first before testing the default location of the ini-format
+            credential file.
+            </summary>
+            <param name="profileName">The name of the profile to test</param>
+            <param name="profilesLocation">
+            If null/empty, the SDK store is searched for the named profile otherwise
+            the ini-format credential file at the specified location is inspected.
+            </param>
+            <returns>True if the persisted data would yield a valid credentials instance.</returns>
         </member>
         <member name="M:Amazon.Runtime.StoredProfileAWSCredentials.DetermineCredentialsFilePath(System.String)">
             <summary>
@@ -5312,18 +5345,6 @@
             <param name="executionContext">The execution context, it contains the
             request and response context.</param>
         </member>
-        <member name="M:Amazon.Runtime.Internal.RuntimeAsyncResult.Dispose(System.Boolean)">
-            <summary>
-            Implements the Dispose pattern
-            </summary>
-            <param name="disposing">Whether this object is being disposed via a call to Dispose
-            or garbage collected.</param>
-        </member>
-        <member name="M:Amazon.Runtime.Internal.RuntimeAsyncResult.Dispose">
-            <summary>
-            Disposes of all managed and unmanaged resources.
-            </summary>
-        </member>
         <member name="T:Amazon.Runtime.Internal.RuntimePipeline">
             <summary>
             A runtime pipeline contains a collection of handlers which represent
@@ -6121,6 +6142,18 @@
             Prepares the request for retry.
             </summary>
             <param name="requestContext">Request context containing the state of the request.</param>
+        </member>
+        <member name="M:Amazon.Runtime.Internal.RuntimeAsyncResult.Dispose(System.Boolean)">
+            <summary>
+            Implements the Dispose pattern
+            </summary>
+            <param name="disposing">Whether this object is being disposed via a call to Dispose
+            or garbage collected.</param>
+        </member>
+        <member name="M:Amazon.Runtime.Internal.RuntimeAsyncResult.Dispose">
+            <summary>
+            Disposes of all managed and unmanaged resources.
+            </summary>
         </member>
         <member name="T:Amazon.Runtime.Internal.ClientContextConfig">
             <summary>
@@ -7404,14 +7437,14 @@
         </member>
         <member name="M:Amazon.Util.ProfileManager.GetProfile(System.String)">
             <summary>
-            Returns the profile with the specified name, if it has been registered.
+            Returns the profile with the specified name, if it has been registered in the SDK store.
             </summary>
             <param name="profileName">The name of the registered profile</param>
             <returns>The loaded profile data</returns>
         </member>
         <member name="M:Amazon.Util.ProfileManager.GetProfile``1(System.String)">
             <summary>
-            Returns the persisted data a profile of the specified type T.
+            Returns the persisted data in the SDK store as a profile of the specified type T.
             </summary>
             <param name="profileName">The name of the profile holding the settings.</param>
             <returns>The loaded profile. An exception is thrown if the profile could not be loaded.</returns>
