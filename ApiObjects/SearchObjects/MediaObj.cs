@@ -51,6 +51,11 @@ namespace ApiObjects.SearchObjects
         public List<int> freeFileTypes;
 
         /// <summary>
+        /// If the media is free or not
+        /// </summary>
+        public bool isFree;
+
+        /// <summary>
         /// EPG identifier (if this is a linear channel)
         /// </summary>
         public string epgIdentifier;
