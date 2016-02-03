@@ -161,7 +161,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// TBD
+        /// Update the name of the device by UDID
         /// </summary>                
         /// <param name="device_name">Device name</param>
         /// <param name="udid">Device UDID</param>
@@ -177,6 +177,13 @@ namespace WebAPI.Controllers
 
             try
             {
+                // check device registration status - return forbidden if device not in domain        
+                var deviceRegistrationStatus = ClientsManager.DomainsClient().GetDeviceRegistrationStatus(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
+                if (deviceRegistrationStatus != KalturaDeviceRegistrationStatus.registered)
+                {
+                    throw new UnauthorizedException((int)WebAPI.Managers.Models.StatusCode.ServiceForbidden, "Service Forbidden");
+                }
+
                 // call client
                 response = ClientsManager.DomainsClient().SetDeviceInfo(groupId, device_name, udid);
             }
