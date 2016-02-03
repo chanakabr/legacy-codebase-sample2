@@ -1572,13 +1572,14 @@ namespace DAL
             return dt;
         }
 
-        public static bool Get_ProximityDetectionDataForUpdating(int nGroupID, long lDomainID, string sNetworkID, ref int quantity, ref int frequency, ref DateTime lastDeactivationDate, ref DataTable homeNetworksTable)
+        public static bool Get_ProximityDetectionDataForUpdating(int nGroupID, long lDomainID, string sNetworkID, ref int quantity, ref int frequency, ref DateTime lastDeactivationDate, ref DataTable homeNetworksTable, long dlmId = 0)
         {
             bool res = false;
             StoredProcedure sp = new StoredProcedure("Get_ProximityDetectionDataForUpdating");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@GroupID", nGroupID);
             sp.AddParameter("@DomainID", lDomainID);
+            sp.AddParameter("@dlmId", dlmId);
 
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
