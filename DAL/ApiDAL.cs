@@ -1681,6 +1681,7 @@ namespace DAL
             storedProcedure.AddParameter("@SiteGuid", siteGuid);
             storedProcedure.AddParameter("@RuleID", ruleId);
             storedProcedure.AddParameter("@IsActive", isActive);
+            storedProcedure.AddParameter("@GroupID", groupId);
 
             newId = storedProcedure.ExecuteReturnValue<int>();
 
@@ -1696,6 +1697,7 @@ namespace DAL
             storedProcedure.AddParameter("@DomainID", domainId);
             storedProcedure.AddParameter("@RuleID", ruleId);
             storedProcedure.AddParameter("@IsActive", isActive);
+            storedProcedure.AddParameter("@GroupID", groupId);
 
             newId = storedProcedure.ExecuteReturnValue<int>();
 
