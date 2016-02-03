@@ -1121,7 +1121,12 @@ namespace Users
 
             nullifiedCandidate = new HomeNetwork(sNetworkName, sNetworkID, sNetworkDesc, DateTime.UtcNow, bIsActive);
 
-            if (!DomainDal.Get_ProximityDetectionDataForUpdating(m_nGroupID, lDomainID, sNetworkID, ref numOfAllowedNetworks, ref frequency, ref dtLastDeactivationDate, ref dt))
+            //get domain dlm
+            DomainsCache oDomainsCache = DomainsCache.Instance();
+            Domain domain = oDomainsCache.GetDomain((int)lDomainID, m_nGroupID);
+            long dlmId = domain.m_nLimit;
+
+            if (!DomainDal.Get_ProximityDetectionDataForUpdating(m_nGroupID, lDomainID, sNetworkID, ref numOfAllowedNetworks, ref frequency, ref dtLastDeactivationDate, ref dt, dlmId))
             {
                 // failed to extract data from db. log and return err
                 log.Debug("UpdateRemoveHomeNetworkCommon - " + GetUpdateHomeNetworkErrMsg("DomainDal.Get_ProximityDetectionDataForUpdating failed.", lDomainID, nullifiedCandidate, frequency, numOfAllowedNetworks, numOfActiveNetworks));
