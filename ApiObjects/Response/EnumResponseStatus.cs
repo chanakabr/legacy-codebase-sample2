@@ -42,6 +42,10 @@ namespace ApiObjects.Response
         DuplicatePin = 1028,
         UserAlreadyInDomain = 1029,
         NotAllowedToDelete = 1030,
+        HomeNetworkAlreadyExists = 1031,
+        HomeNetworkLimitation = 1032,
+        HomeNetworkDoesNotExist = 1033,
+        HomeNetworkFrequency = 1034,
 
         // User Section 2000 - 2999
         UserDoesNotExist = 2000,

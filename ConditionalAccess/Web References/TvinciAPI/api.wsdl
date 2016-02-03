@@ -427,6 +427,32 @@
           <s:enumeration value="Collection" />
         </s:restriction>
       </s:simpleType>
+      <s:element name="ModifyCB">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="bucket" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="key" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="action" type="tns:eDbActionType" />
+            <s:element minOccurs="0" maxOccurs="1" name="data" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="ttlMinutes" type="s:long" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:simpleType name="eDbActionType">
+        <s:restriction base="s:string">
+          <s:enumeration value="Delete" />
+          <s:enumeration value="Add" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="ModifyCBResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="ModifyCBResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="TVAPI_GetTvinciGUID">
         <s:complexType>
           <s:sequence>
@@ -2355,7 +2381,7 @@
       <s:element name="CleanUserHistoryResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="1" maxOccurs="1" name="CleanUserHistoryResult" type="s:boolean" />
+            <s:element minOccurs="0" maxOccurs="1" name="CleanUserHistoryResult" type="tns:Status" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -4147,6 +4173,12 @@
   <wsdl:message name="GetExternalEntitlementsSoapOut">
     <wsdl:part name="parameters" element="tns:GetExternalEntitlementsResponse" />
   </wsdl:message>
+  <wsdl:message name="ModifyCBSoapIn">
+    <wsdl:part name="parameters" element="tns:ModifyCB" />
+  </wsdl:message>
+  <wsdl:message name="ModifyCBSoapOut">
+    <wsdl:part name="parameters" element="tns:ModifyCBResponse" />
+  </wsdl:message>
   <wsdl:message name="TVAPI_GetTvinciGUIDSoapIn">
     <wsdl:part name="parameters" element="tns:TVAPI_GetTvinciGUID" />
   </wsdl:message>
@@ -4974,6 +5006,18 @@
   </wsdl:message>
   <wsdl:message name="GetExternalEntitlementsHttpPostOut">
     <wsdl:part name="Body" element="tns:OSSAdapterEntitlementsResponse" />
+  </wsdl:message>
+  <wsdl:message name="ModifyCBHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="bucket" type="s:string" />
+    <wsdl:part name="key" type="s:string" />
+    <wsdl:part name="action" type="s:string" />
+    <wsdl:part name="data" type="s:string" />
+    <wsdl:part name="ttlMinutes" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ModifyCBHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
   </wsdl:message>
   <wsdl:message name="InsertEPGScheduleHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -5822,6 +5866,10 @@
       <wsdl:input message="tns:GetExternalEntitlementsSoapIn" />
       <wsdl:output message="tns:GetExternalEntitlementsSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="ModifyCB">
+      <wsdl:input message="tns:ModifyCBSoapIn" />
+      <wsdl:output message="tns:ModifyCBSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="TVAPI_GetTvinciGUID">
       <wsdl:input message="tns:TVAPI_GetTvinciGUIDSoapIn" />
       <wsdl:output message="tns:TVAPI_GetTvinciGUIDSoapOut" />
@@ -6364,6 +6412,10 @@
       <wsdl:input message="tns:GetExternalEntitlementsHttpPostIn" />
       <wsdl:output message="tns:GetExternalEntitlementsHttpPostOut" />
     </wsdl:operation>
+    <wsdl:operation name="ModifyCB">
+      <wsdl:input message="tns:ModifyCBHttpPostIn" />
+      <wsdl:output message="tns:ModifyCBHttpPostOut" />
+    </wsdl:operation>
     <wsdl:operation name="InsertEPGSchedule">
       <wsdl:input message="tns:InsertEPGScheduleHttpPostIn" />
       <wsdl:output message="tns:InsertEPGScheduleHttpPostOut" />
@@ -6829,6 +6881,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetExternalEntitlements">
       <soap:operation soapAction="http://api.tvinci.com/GetExternalEntitlements" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ModifyCB">
+      <soap:operation soapAction="http://api.tvinci.com/ModifyCB" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -8108,6 +8169,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="ModifyCB">
+      <soap12:operation soapAction="http://api.tvinci.com/ModifyCB" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="TVAPI_GetTvinciGUID">
       <soap12:operation soapAction="http://api.tvinci.com/TVAPI_GetTvinciGUID" style="document" />
       <wsdl:input>
@@ -9326,6 +9396,15 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="ModifyCB">
+      <http:operation location="/ModifyCB" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="InsertEPGSchedule">
       <http:operation location="/InsertEPGSchedule" />
       <wsdl:input>
@@ -10121,13 +10200,13 @@
   </wsdl:binding>
   <wsdl:service name="API">
     <wsdl:port name="APISoap" binding="tns:APISoap">
-      <soap:address location="http://localhost/ws_api/api.asmx" />
+      <soap:address location="http://localhost/WS_api/api.asmx" />
     </wsdl:port>
     <wsdl:port name="APISoap12" binding="tns:APISoap12">
-      <soap12:address location="http://localhost/ws_api/api.asmx" />
+      <soap12:address location="http://localhost/WS_api/api.asmx" />
     </wsdl:port>
     <wsdl:port name="APIHttpPost" binding="tns:APIHttpPost">
-      <http:address location="http://localhost/ws_api/api.asmx" />
+      <http:address location="http://localhost/WS_api/api.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

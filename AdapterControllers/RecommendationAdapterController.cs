@@ -260,8 +260,8 @@ namespace AdapterControllers
                 {
                     //call Adapter get channel recommendations
                     adapterResponse = adapterClient.GetRelatedRecommendations(engine.ID,
-                        nMediaID, nMediaTypeID, siteGuid, deviceId, language,
-                        enrichmentsList.ToArray(), freeParam, filterTypeIDs.ToArray(), utcOffset, nPageIndex, nPageSize,
+                        nMediaID, nMediaTypeID,
+                        enrichmentsList.ToArray(), freeParam, filterTypeIDs.ToArray(), nPageIndex, nPageSize,
                         unixTimestamp,
                         System.Convert.ToBase64String(
                             EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
@@ -290,10 +290,8 @@ namespace AdapterControllers
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                     {
                         //call Adapter get related recommendations - after it is configured
-                        adapterResponse = adapterClient.GetRelatedRecommendations(engine.ID,
-                            nMediaID, nMediaTypeID, siteGuid, deviceId, language,
-                            enrichmentsList.ToArray(), freeParam, filterTypeIDs.ToArray(), utcOffset, nPageIndex, nPageSize,
-                            unixTimestamp,
+                        adapterResponse = adapterClient.GetRelatedRecommendations(engine.ID, nMediaID, nMediaTypeID, 
+                            enrichmentsList.ToArray(), freeParam, filterTypeIDs.ToArray(),nPageIndex, nPageSize, unixTimestamp,
                             System.Convert.ToBase64String(
                                 EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
                     }
@@ -382,8 +380,8 @@ namespace AdapterControllers
                 {
                     //call Adapter get channel recommendations
                     adapterResponse = adapterClient.GetSearchRecommendations(engine.ID,
-                        query, siteGuid, deviceId, language,
-                        enrichmentsList.ToArray(), filterTypeIDs.ToArray(), utcOffset, nPageIndex, nPageSize,
+                        query,
+                        enrichmentsList.ToArray(), filterTypeIDs.ToArray(), nPageIndex, nPageSize,
                         unixTimestamp,
                         System.Convert.ToBase64String(
                             EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
@@ -413,8 +411,8 @@ namespace AdapterControllers
                     {
                         //call Adapter get Search recommendations - after it is configured
                         adapterResponse = adapterClient.GetSearchRecommendations(engine.ID,
-                            query, siteGuid, deviceId, language,
-                            enrichmentsList.ToArray(), filterTypeIDs.ToArray(), utcOffset, nPageIndex, nPageSize,
+                            query,
+                            enrichmentsList.ToArray(), filterTypeIDs.ToArray(), nPageIndex, nPageSize,
                             unixTimestamp,
                             System.Convert.ToBase64String(
                                 EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));

@@ -930,7 +930,7 @@ namespace Users
                     break;
                 case DeviceResponseStatus.DeviceNotExists:
                     result.Code = (int)eResponseStatus.DeviceNotExists;
-                    result.Message = "Device des not exists";
+                    result.Message = "Device does not exists";
                     break;
                 case DeviceResponseStatus.OK:
                     result.Code = (int)eResponseStatus.OK;
@@ -940,6 +940,39 @@ namespace Users
                     result.Code = (int)eResponseStatus.ExceededLimit;
                     result.Message = "Exceeded limit";
                     break;
+                default:
+                    result.Code = (int)eResponseStatus.Error;
+                    result.Message = "Error";
+                    break;
+            }
+
+            return result;
+        }
+
+        internal static ApiObjects.Response.Status ConvertDeviceStateToResponseObject(DeviceState deviceState)
+        {
+            ApiObjects.Response.Status result = new ApiObjects.Response.Status();
+
+            switch (deviceState)
+            {
+                case DeviceState.NotExists:
+                     result.Code = (int)eResponseStatus.DeviceNotExists;
+                    result.Message = "Device does not exists";
+                    break;
+                //case DeviceState.Pending:
+                //    result.Code = (int)eResponseStatus.dev;
+                //    result.Message = "Device des not exists";
+                //    break;
+                //case DeviceState.Activated:
+                //     result.Code = (int)eResponseStatus.DeviceNotExists;
+                //    result.Message = "Device des not exists";
+                //    break;
+                //case DeviceState.UnActivated:
+                //     result.Code = (int)eResponseStatus.DeviceNotExists;
+                //    result.Message = "Device des not exists";
+                //    break;
+                case DeviceState.UnKnown:
+                case DeviceState.Error:
                 default:
                     result.Code = (int)eResponseStatus.Error;
                     result.Message = "Error";
@@ -969,7 +1002,7 @@ namespace Users
             selectQuery = null;
 
             return isAllowed;
-        }
+        }      
     }
 
 }
