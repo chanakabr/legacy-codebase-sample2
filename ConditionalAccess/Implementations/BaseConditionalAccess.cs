@@ -15932,5 +15932,10 @@ namespace ConditionalAccess
                 }
             }
         }
+
+        public ApiObjects.Response.Status SetEntitlement(string userId, long householdId, string state, string paymentGatewayReferenceID, string paymentGatewayResponseCode, int customDataId, int paymentGatewayId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
