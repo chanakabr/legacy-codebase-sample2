@@ -15935,7 +15935,27 @@ namespace ConditionalAccess
 
         public ApiObjects.Response.Status SetEntitlement(string userId, long householdId, string state, string paymentGatewayReferenceID, string paymentGatewayResponseCode, int customDataId, int paymentGatewayId)
         {
-            throw new NotImplementedException();
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status();
+
+            try
+            {
+                // 1. validate user & HH
+                // 2. Get Custom Data by Id  
+                //    check the status  ( ref C:\Source\Master\ws_billing\adyen_api.aspx.cs)
+                // 3. go to ws_billing ( new method) ( write to payment Gateway transaction)
+                // 4. grant entitlement accroding to ppv/ sub..
+                // ref method purchase and grant Entitlement 
+
+
+                response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                return response;
+            }
+            catch (Exception ex)
+            {
+                log.Error("SetEntitlement ", ex);
+                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "error SetEntitlement");
+                return response;
+            }
         }
     }
 }
