@@ -15,22 +15,17 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/version/action")]
+    [RoutePrefix("api_v3/version")]
     public class VersionController : ApiController
     {
         /// <summary>
         /// Returns information about the current version
         /// </summary>
-        /// </remarks>
-        [Route("get"), HttpPost]
-        [ApiAuthorize]
-        public KalturaProjectVersion Get()
+        [Route(""), HttpGet, HttpPost]
+        [ApiExplorerSettings(IgnoreApi = true)]
+        public string Get()
         {
-            KalturaProjectVersion version = new KalturaProjectVersion();
-
-            version.Version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
-
-            return version;
+            return Assembly.GetExecutingAssembly().GetName().Version.ToString();
         }
     }
 }

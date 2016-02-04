@@ -95,6 +95,14 @@ namespace WebAPI.Filters
         {
             string currentAction;
             string currentController;
+            
+            // version request
+            if (actionContext.Request.GetRouteData().Route.RouteTemplate == "api_v3/version" && (actionContext.Request.Method == HttpMethod.Post) || (actionContext.Request.Method == HttpMethod.Get))
+            {
+                base.OnActionExecuting(actionContext);
+                return;
+            }
+
             if (actionContext.Request.Method == HttpMethod.Post)
             {
                 var rd = actionContext.ControllerContext.RouteData;
