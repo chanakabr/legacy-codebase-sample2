@@ -341,6 +341,9 @@ namespace Users.Cache
                 bool bInsert = false;
                 oLimitationsManager = DomainFactory.GetDLM(nGroupID, nDomainLimitID);
 
+                if (oLimitationsManager == null)
+                    return false; 
+
                 for (int i = 0; i < 3 && !bInsert; i++)
                 {
                     //try insert to Cache                                              

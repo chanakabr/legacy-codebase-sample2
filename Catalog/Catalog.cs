@@ -5923,12 +5923,6 @@ namespace Catalog
             }
             else
             {
-                // if it contains only 0 - it means search all
-                if (definitions.mediaTypes != null && definitions.mediaTypes.Count == 1 && definitions.mediaTypes.Contains(0))
-                {
-                    definitions.mediaTypes.Remove(0);
-                }
-
                 definitions.shouldSearchMedia = true;
 
                 #region Channel Tags
@@ -6018,6 +6012,21 @@ namespace Catalog
                     // if there are no tags:
                     // filter everything out
                     emptyRequest = true;
+                }
+
+                if (definitions.mediaTypes != null)
+                {
+                    if (definitions.mediaTypes.Count > 0)
+                    {
+                        // If there is at least one media type - it is not an empty request
+                        emptyRequest = false;
+
+                        // if it contains ONLY 0 - it means search all
+                        if (definitions.mediaTypes.Count == 1 && definitions.mediaTypes.Contains(0))
+                        {
+                            definitions.mediaTypes.Remove(0);
+                        }
+                    }
                 }
 
                 #endregion

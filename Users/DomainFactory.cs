@@ -180,12 +180,13 @@ namespace Users
                 DataSet ds = DomainDal.Get_GroupLimitsAndDeviceFamilies(nGroupID, nDomainLimitID);
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
-                    oLimitationsManager = new LimitationsManager();
 
                     #region GroupLevel + DLM Level
                     if (ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0 &&
                         ds.Tables[1] != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
                     {
+                        oLimitationsManager = new LimitationsManager();
+
                         DataRow drGroup = ds.Tables[0].Rows[0];
                         DataRow drDLM = ds.Tables[1].Rows[0];
                         if (drGroup != null && drDLM != null)
@@ -208,7 +209,7 @@ namespace Users
                     #endregion
 
                     #region DeviceFamily
-                    if (ds.Tables.Count >= 4)
+                    if (oLimitationsManager != null && ds.Tables.Count >= 4)
                     {
                         DataTable dt = ds.Tables[2];
                         DataTable dtSpecificLimits = ds.Tables[3];
