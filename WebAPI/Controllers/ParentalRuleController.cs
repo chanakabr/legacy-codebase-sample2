@@ -103,7 +103,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Disable a parental rules for a user  
+        /// Disables a parental rule that was previously defined by the household master. Disable can be at specific user or household level.  
         /// </summary>
         /// <param name="by">Reference type to filter by</param>
         /// <remarks>Possible status codes: 
@@ -144,7 +144,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Disable a default parental rules for a user    
+        /// Disables a parental rule that was defined at account level. Disable can be at specific user or household level.
         /// </summary>
         /// <remarks>
         /// Possible status codes: Bad, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
