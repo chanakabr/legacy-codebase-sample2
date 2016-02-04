@@ -3908,11 +3908,18 @@ namespace Catalog
             bool bMedia = false;
             long ipVal = 0;
 
+            countryID = ElasticSearch.Utilities.IpToCountry.GetCountryByIp(userIP);            
+            if (countryID > 0)
+            {
+                bIP = true;
+            }
+
             if (!TVinciShared.WS_Utils.GetTcmBoolValue("CATALOG_HIT_CACHE"))
             {
-                ipVal = ParseIPOutOfString(userIP);
-                return CatalogDAL.Get_MediaMarkHitInitialData(mediaID, mediaFileID, ipVal, ref countryID, ref ownerGroupID, ref cdnID, ref qualityID,
-                    ref formatID, ref mediaTypeID, ref billingTypeID, ref fileDuration);
+                //ipVal = ParseIPOutOfString(userIP);
+                return CatalogDAL.GetMediaPlayData(mediaID, mediaFileID, ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID);
+                //return CatalogDAL.Get_MediaMarkHitInitialData(mediaID, mediaFileID, ipVal, ref countryID, ref ownerGroupID, ref cdnID, ref qualityID,
+                //    ref formatID, ref mediaTypeID, ref billingTypeID, ref fileDuration);
             }
 
             #region  try get values from catalog cache
@@ -3924,13 +3931,13 @@ namespace Catalog
             }
 
             CatalogCache catalogCache = CatalogCache.Instance();
-            string ipKey = string.Format("{0}_userIP_{1}", eWSModules.CATALOG, userIP);
-            object oCountryID = catalogCache.Get(ipKey);
-            if (oCountryID != null)
-            {
-                countryID = (int)oCountryID;
-                bIP = true;
-            }
+            //string ipKey = string.Format("{0}_userIP_{1}", eWSModules.CATALOG, userIP);
+            //object oCountryID = catalogCache.Get(ipKey);
+            //if (oCountryID != null)
+            //{
+            //    countryID = (int)oCountryID;
+            //    bIP = true;
+            //}
 
             string m_mf_Key = string.Format("{0}_media_{1}_mediaFile_{2}", eWSModules.CATALOG, mediaID, mediaFileID);
             List<KeyValuePair<string, int>> lMedia = catalogCache.Get<List<KeyValuePair<string, int>>>(m_mf_Key);
@@ -3946,41 +3953,43 @@ namespace Catalog
                 res = true;
             }
             else // not found in cache 
-            {
-                if (!bIP && !bMedia)
-                {
+            {                
+                //if (!bIP && !bMedia)
+                //{
+                //    //ipVal = ParseIPOutOfString(userIP);
+                //    if (CatalogDAL.Get_MediaMarkHitInitialData(mediaID, mediaFileID, ipVal, ref countryID, ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID, ref  fileDuration))
+                //    {                        
+                //        catalogCache.Set(ipKey, countryID, cacheTime);
+                //        InitMediaMarkHitDataToCache(ownerGroupID, cdnID, qualityID, formatID, mediaTypeID, billingTypeID, fileDuration, ref lMedia);
+                //        catalogCache.Set(m_mf_Key, lMedia, cacheTime);
+                //        res = true;
+                //    }
+                //}
+                //else
+                //{
+
+                // get countryID from DB because getting it from ES already failed
+                if (!bIP)
+                {                    
                     ipVal = ParseIPOutOfString(userIP);
-                    if (CatalogDAL.Get_MediaMarkHitInitialData(mediaID, mediaFileID, ipVal, ref countryID, ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID, ref  fileDuration))
+                    if (ipVal > 0)
                     {
+                        CatalogDAL.Get_IPCountryCode(ipVal, ref countryID);
+                        string ipKey = string.Format("{0}_userIP_{1}", eWSModules.CATALOG, userIP);
                         catalogCache.Set(ipKey, countryID, cacheTime);
+                        res = true;
+                    }
+                }
+                if (!bMedia)
+                {
+                    res = false;
+                    if (CatalogDAL.GetMediaPlayData(mediaID, mediaFileID, ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID))
+                    {
                         InitMediaMarkHitDataToCache(ownerGroupID, cdnID, qualityID, formatID, mediaTypeID, billingTypeID, fileDuration, ref lMedia);
                         catalogCache.Set(m_mf_Key, lMedia, cacheTime);
                         res = true;
                     }
-                }
-                else
-                {
-                    if (!bIP)
-                    {
-                        ipVal = ParseIPOutOfString(userIP);
-                        if (ipVal > 0)
-                        {
-                            CatalogDAL.Get_IPCountryCode(ipVal, ref countryID);
-                            catalogCache.Set(ipKey, countryID, cacheTime);
-                            res = true;
-                        }
-                    }
-                    if (!bMedia)
-                    {
-                        res = false;
-                        if (CatalogDAL.GetMediaPlayData(mediaID, mediaFileID, ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID))
-                        {
-                            InitMediaMarkHitDataToCache(ownerGroupID, cdnID, qualityID, formatID, mediaTypeID, billingTypeID, fileDuration, ref lMedia);
-                            catalogCache.Set(m_mf_Key, lMedia, cacheTime);
-                            res = true;
-                        }
-                    }
-                }
+                }                
             }
 
             return res;
