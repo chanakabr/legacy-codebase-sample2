@@ -1255,12 +1255,12 @@ namespace DAL
             return res;
         }
 
-        public static List<PaymentGatewayBase> GetHouseholdPaymentGateways(int groupID, long householdId, int? selected, int status = 1, int isActive = 1)
+        public static List<PaymentGatewaySelectedBy> GetHouseholdPaymentGateways(int groupID, long householdId, int? selected, int status = 1, int isActive = 1)
         {
-            List<PaymentGatewayBase> res = new List<PaymentGatewayBase>();
+            List<PaymentGatewaySelectedBy> res = new List<PaymentGatewaySelectedBy>();
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_HouseholdPaymentGatewayList");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_HouseholdPaymentGatewayList1");
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
                 sp.AddParameter("@groupID", groupID);
                 sp.AddParameter("@houseHoldID", householdId);
@@ -1276,16 +1276,27 @@ namespace DAL
                     DataTable dtPG = ds.Tables[0];
                     if (dtPG != null && dtPG.Rows != null && dtPG.Rows.Count > 0)
                     {
-                        PaymentGatewayBase pgw = null;
+                        PaymentGatewaySelectedBy paymentGateway = null;
+                        int isDefault = 0;
                         foreach (DataRow dr in dtPG.Rows)
                         {
-                            pgw = new PaymentGatewayBase();
-                            pgw.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
-                            pgw.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
-                            int isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default");
-                            pgw.IsDefault = isDefault == 1 ? true : false;
+                            paymentGateway = new PaymentGatewaySelectedBy();
+                            paymentGateway.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+                            paymentGateway.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
+                            int household = ODBCWrapper.Utils.GetIntSafeVal(dr, "house_hold_id");
+                            if (household > 0)
+                            {
+                                isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "selected");
+                                paymentGateway.By = ApiObjects.eHouseholdPaymentGatewaySelectedBy.Household;
+                            }
+                            else
+                            {
+                                isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default");
+                                paymentGateway.By = ApiObjects.eHouseholdPaymentGatewaySelectedBy.Account;
+                            }
+                            paymentGateway.IsDefault = isDefault == 1 ? true : false;
 
-                            res.Add(pgw);
+                            res.Add(paymentGateway);
                         }
                     }
                 }
@@ -1293,7 +1304,7 @@ namespace DAL
             catch (Exception ex)
             {
                 log.Error(string.Empty, ex);
-                res = new List<PaymentGatewayBase>();
+                res = new List<PaymentGatewaySelectedBy>();
             }
             return res;
         }
@@ -1818,12 +1829,12 @@ namespace DAL
                 if (isActive.HasValue)
                 {
                     sp.AddParameter("@isActive", isActive.Value);
-                } 
-                
+                }
+
                 DataSet ds = sp.ExecuteDataSet();
 
-                res = CreatePaymentGateway(ds); 
-                
+                res = CreatePaymentGateway(ds);
+
             }
             catch (Exception ex)
             {
