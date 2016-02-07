@@ -14,6 +14,7 @@ using ApiObjects.Epg;
 using ApiObjects.SearchObjects;
 using KLogMonitor;
 using System.Reflection;
+using ApiObjects.PlayCycle;
 
 namespace Tvinci.Core.DAL
 {
@@ -22,6 +23,7 @@ namespace Tvinci.Core.DAL
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly string CB_MEDIA_MARK_DESGIN = ODBCWrapper.Utils.GetTcmConfigValue("cb_media_mark_design");
         private static readonly string CB_EPG_DOCUMENT_EXPIRY = ODBCWrapper.Utils.GetTcmConfigValue("epg_doc_expiry");
+        private static readonly string CB_PLAYCYCLE_DOC_EXPIRY_MS = ODBCWrapper.Utils.GetTcmConfigValue("playCycle_doc_expiry_ms");
         private const int RETRY_LIMIT = 5;        
 
         public static DataSet Get_MediaDetails(int nGroupID, int nMediaID, string sSiteGuid, bool bOnlyActiveMedia, int nLanguage, string sEndDate, bool bUseStartDate, List<int> lSubGroupTree)
@@ -4204,6 +4206,93 @@ namespace Tvinci.Core.DAL
                 log.ErrorFormat("Error while trying to get group ratios. GID: {0}, ex: {1}", groupID, ex);
             }
             return ratios;
+        }
+
+        public static bool InsertOrUpdatePlayCycle(int userID, int mediaID, int MediaFileID, int groupID, string UDID, int platform, int mediaConcurrencyRuleID)
+        {
+            CouchbaseClient cbClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.SOCIAL);
+            int limitRetries = RETRY_LIMIT;            
+            bool isSuccessful = false;
+            Random sleepVal = new Random();
+            string playCycleKey = Guid.NewGuid().ToString();
+            try                
+            {
+                string docKey = UtilsDal.GetPlayCycleKey(userID, mediaID, MediaFileID, groupID, UDID, platform);
+                TimeSpan TTL;
+                if (TimeSpan.TryParse(CB_PLAYCYCLE_DOC_EXPIRY_MS, out TTL))
+                {
+                    while (limitRetries >= 0)
+                    {
+                        Enyim.Caching.Memcached.CasResult<PlayCycleSession> casGetResult = cbClient.GetWithCas<PlayCycleSession>(docKey);
+                        if (casGetResult.StatusCode == 0)
+                        {                
+                            PlayCycleSession playCycleSession = casGetResult.Result;
+                            if (playCycleSession != null)
+                            {
+                                playCycleSession.MediaConcurrencyRuleID = mediaConcurrencyRuleID;
+                                playCycleSession.CreateDateMs = Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                                playCycleSession.PlayCycleKey = playCycleKey;
+                                Enyim.Caching.Memcached.CasResult<bool> casResult = cbClient.Cas(Enyim.Caching.Memcached.StoreMode.Set, docKey, playCycleSession, TTL, casGetResult.Cas);
+                                if (casResult.StatusCode == 0 && casResult.Result)
+                                {
+                                    isSuccessful = true;
+                                }
+                            }
+                        }
+
+                        if (!isSuccessful)
+                        {
+                            Thread.Sleep(sleepVal.Next(50));
+                            limitRetries--;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed InsertOrUpdatePlayCycle, userId: {0}, mediaID: {1}, groupID: {2}, UDID: {3}, platform: {4}, mediaConcurrencyRuleID: {5}, playCycleKey: {6}, Exception: {7}", 
+                                 userID, mediaID, MediaFileID, groupID, UDID, platform, mediaConcurrencyRuleID, playCycleKey, ex.Message);                
+            }
+
+            return isSuccessful;
+        }        
+
+        public static PlayCycleSession Get_UsersPlayCycle(int userID, int mediaID, int MediaFileID, int groupID, string UDID, int platform)
+        {
+            CouchbaseClient cbClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.SOCIAL);
+            int limitRetries = RETRY_LIMIT;            
+            Random sleepVal = new Random();
+            PlayCycleSession playCycleSession = null;
+            try
+            {
+                string docKey = UtilsDal.GetPlayCycleKey(userID, mediaID, MediaFileID, groupID, UDID, platform);
+                double TTL;
+                if (double.TryParse(CB_PLAYCYCLE_DOC_EXPIRY_MS, out TTL))
+                {
+                    while (limitRetries >= 0)
+                    {
+                        Enyim.Caching.Memcached.CasResult<PlayCycleSession> casGetResult = cbClient.GetWithCas<PlayCycleSession>(docKey, DateTime.UtcNow.AddMilliseconds(TTL));
+                        if (casGetResult.StatusCode == 0)
+                        {
+                            playCycleSession = casGetResult.Result;
+                            if (playCycleSession != null)
+                            {
+                                return playCycleSession;
+                            }
+                        }
+
+                        Thread.Sleep(sleepVal.Next(50));
+                        limitRetries--;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed InsertOrUpdatePlayCycle, userId: {0}, mediaID: {1}, mediaFileID: {2}, groupID: {3}, UDID: {4}, platform: {5}, Exception: {6}",
+                                 userID, mediaID, MediaFileID, groupID, UDID, platform, ex.Message);
+            }
+
+            return playCycleSession;
         }
     }
 }

@@ -690,5 +690,10 @@ namespace DAL
         {
             return string.Format("u{0}_epg{1}", userID, epgID);
         }
+
+        public static string GetPlayCycleKey(int userID, int mediaID, int MediaFileID, int groupID, string UDID, int platform)
+        {
+            return string.Format("g{0}_u{1}_m{2}_mf{3}_d{4}_p{5}", groupID, userID, mediaID, MediaFileID, UDID, platform);
+        }
     }
 }
