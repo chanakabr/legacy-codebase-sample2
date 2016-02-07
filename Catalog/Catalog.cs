@@ -5718,13 +5718,39 @@ namespace Catalog
                     else if (searchKeyLowered == ESUnifiedQueryBuilder.ENTITLED_ASSETS_FIELD)
                     {
                         // Same as geo_block: it is a personal filter that currently will work only with "true".
-                        if (leaf.operand != ComparisonOperator.Equals || leaf.value.ToString().ToLower() != "true")
+                        if (leaf.operand != ComparisonOperator.Equals)
                         {
                             throw new KalturaException("Invalid search value or operator was sent for entitled_assets", (int)eResponseStatus.BadSearchRequest);
                         }
 
-                        // initialize inner definitions object, this will indicate that we search by entitlement
+                        string loweredValue = leaf.value.ToString().ToLower();
+
                         definitions.entitlementSearchDefinitions = new EntitlementSearchDefinitions();
+
+                        switch (loweredValue)
+                        {
+                            case ("free"):
+                            {
+                                definitions.entitlementSearchDefinitions.shouldGetFreeAssets = true;
+                                break;
+                            }
+                            case ("entitled"):
+                            {
+                                definitions.entitlementSearchDefinitions.shouldGetPurchasedAssets = true;
+                                break;
+                            }
+                            case ("both"):
+                            {
+                                definitions.entitlementSearchDefinitions.shouldGetFreeAssets = true;
+                                definitions.entitlementSearchDefinitions.shouldGetPurchasedAssets = true;
+                                break;
+                            }
+                            default:
+                            {
+                                definitions.entitlementSearchDefinitions = null;
+                                throw new KalturaException("Invalid search value or operator was sent for entitled_assets", (int)eResponseStatus.BadSearchRequest);
+                            }
+                        }
 
                         // I mock a "contains" operator so that the query builder will know it is a not-exact search
                         leaf.operand = ComparisonOperator.Contains;

@@ -174,14 +174,21 @@ namespace Catalog
                 var entitlementSearchDefinitions = definitions.entitlementSearchDefinitions;
 
                 List<int> epgChannelIds = new List<int>();
-                List<int> freeEpgChannelIds;
-                List<int> purchasedEpgChannelIds;
+                List<int> freeEpgChannelIds = null;
+                List<int> purchasedEpgChannelIds = null;
 
                 // TODO: Maybe we won't use this (getting free assets) method eventually!
-                entitlementSearchDefinitions.freeAssets =
-                    EntitledAssetsUtils.GetFreeAssets(parentGroupID, request.m_sSiteGuid, out freeEpgChannelIds);
-                entitlementSearchDefinitions.entitledPaidForAssets =
-                    EntitledAssetsUtils.GetUserPPVAssets(parentGroupID, request.m_sSiteGuid, request.domainId, request.fileType, out purchasedEpgChannelIds);
+                if (entitlementSearchDefinitions.shouldGetFreeAssets)
+                {
+                    entitlementSearchDefinitions.freeAssets =
+                        EntitledAssetsUtils.GetFreeAssets(parentGroupID, request.m_sSiteGuid, out freeEpgChannelIds);
+                }
+
+                if (entitlementSearchDefinitions.shouldGetPurchasedAssets)
+                {
+                    entitlementSearchDefinitions.entitledPaidForAssets =
+                       EntitledAssetsUtils.GetUserPPVAssets(parentGroupID, request.m_sSiteGuid, request.domainId, request.fileType, out purchasedEpgChannelIds);
+                }
 
                 if (freeEpgChannelIds != null)
                 {
@@ -214,11 +221,14 @@ namespace Catalog
                     entitlementMediaTypes = selectedMediaTypes.ToArray();
                 }
 
-                entitlementSearchDefinitions.subscriptionSearchObjects =
-                    EntitledAssetsUtils.GetUserSubscriptionSearchObjects(request, parentGroupID, request.m_sSiteGuid, request.domainId, request.fileType,
-                    request.order, entitlementMediaTypes, definitions.deviceRuleId);
+                if (entitlementSearchDefinitions.shouldGetPurchasedAssets)
+                {
+                    entitlementSearchDefinitions.subscriptionSearchObjects =
+                        EntitledAssetsUtils.GetUserSubscriptionSearchObjects(request, parentGroupID, request.m_sSiteGuid, request.domainId, request.fileType,
+                        request.order, entitlementMediaTypes, definitions.deviceRuleId);
+                }
 
-                if (group.groupMediaFileTypeToFileType != null)
+                if (group.groupMediaFileTypeToFileType != null && entitlementSearchDefinitions.shouldGetFreeAssets)
                 {
                     // Convert the file type that we received in request (taken from groups_media_type)
                     // into the file type that the media file knows (based on the table media_files)

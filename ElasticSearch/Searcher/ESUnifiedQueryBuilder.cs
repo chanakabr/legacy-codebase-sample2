@@ -1516,11 +1516,16 @@ namespace ElasticSearch.Searcher
                 }
             };
 
-            ESTerm fileTypeTerm = new ESTerm(true)
+            ESTerm fileTypeTerm = null;
+
+            if (this.SearchDefinitions.entitlementSearchDefinitions.fileType > 0)
             {
-                Key = "free_file_types",
-                Value = this.SearchDefinitions.entitlementSearchDefinitions.fileType.ToString()
-            };
+                fileTypeTerm = new ESTerm(true)
+                    {
+                        Key = "free_file_types",
+                        Value = this.SearchDefinitions.entitlementSearchDefinitions.fileType.ToString()
+                    };
+            }
 
             // EPG Channel IDs
             if (this.SearchDefinitions.entitlementSearchDefinitions.epgChannelIds != null)
@@ -1539,7 +1544,11 @@ namespace ElasticSearch.Searcher
             result.AddChild(this.SubscriptionsQuery, CutWith.OR);
             result.AddChild(specificAssetsTerm, CutWith.OR);
             result.AddChild(isFreeTerm, CutWith.OR);
-            result.AddChild(fileTypeTerm, CutWith.OR);
+
+            if (fileTypeTerm != null)
+            {
+                result.AddChild(fileTypeTerm, CutWith.OR);
+            }
 
             return result;
         }

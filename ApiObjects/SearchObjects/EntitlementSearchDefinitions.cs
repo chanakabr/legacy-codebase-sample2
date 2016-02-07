@@ -15,6 +15,20 @@ namespace ApiObjects.SearchObjects
     public class EntitlementSearchDefinitions
     {
         /// <summary>
+        /// Should the search include free assets or not
+        /// </summary>
+        [JsonProperty()]
+        [DataMember]
+        public bool shouldGetFreeAssets;
+
+        /// <summary>
+        /// Should the search include explicitly entitled (purchased, subscriptions) assets or not
+        /// </summary>
+        [JsonProperty()]
+        [DataMember]
+        public bool shouldGetPurchasedAssets;
+
+        /// <summary>
         /// List of free assets according to their type - will be filled if searching by entitlements
         /// </summary>
         [JsonProperty()]
