@@ -189,5 +189,38 @@ namespace WebAPI.Controllers
             }
             return response;
         }
+
+        /// <summary>
+        /// Retrieve the purchase session identifier
+        /// </summary>
+        /// <param name="price">Net sum to charge – as a one-time transaction. Price must match the previously provided price for the specified content. </param>
+        /// <param name="currency">Identifier for paying currency, according to ISO 4217</param>
+        /// <param name="content_id">Identifier for the content to purchase. Relevant only if Product type = PPV</param>
+        /// <param name="product_id">Identifier for the package from which this content is offered</param>        
+        /// <param name="product_type">Package type. Possible values: PPV, Subscription, Collection</param>
+        /// <param name="coupon">Coupon code</param> 
+        /// <param name="preview_module_id">Preview module identifier (relevant only for subscription)</param> 
+        /// </remarks>
+        [Route("purchaseSessionId"), HttpPost]
+        [ApiAuthorize]
+        public long PurchaseSessionId(double price, string currency, int product_id, KalturaTransactionType product_type, int content_id = 0, string coupon = null, int preview_module_id = 0)
+        {
+            long response = 0;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                response = ClientsManager.ConditionalAccessClient().GetCustomDataId(groupId, KS.GetFromRequest().UserId, KSUtils.ExtractKSPayload().UDID, price, currency, product_id, content_id, 
+                    coupon, product_type, preview_module_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
     }
 }

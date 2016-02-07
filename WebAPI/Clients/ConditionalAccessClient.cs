@@ -818,5 +818,43 @@ namespace WebAPI.Clients
 
             return true;
         }
+
+        internal long GetCustomDataId(int groupId, string userId, string udid, double price, string currency, int productId, int contentId, string coupon, KalturaTransactionType clientTransactionType, int previewModuleId)
+        {
+            WebAPI.ConditionalAccess.PurchaseSessionIdResponse response = null;
+
+            // get group ID
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                // convert local enumerator, to web service enumerator
+                WebAPI.ConditionalAccess.eTransactionType transactionType = ConditionalAccessMappings.ConvertTransactionType(clientTransactionType);
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    response = ConditionalAccess.GetPurchaseSessionID(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, price, currency, contentId, 
+                        productId.ToString(), coupon, Utils.Utils.GetClientIP(), udid, transactionType, previewModuleId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null || response.PurchaseCustomDataId == 0)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            return response.PurchaseCustomDataId;
+        }
     }
 }

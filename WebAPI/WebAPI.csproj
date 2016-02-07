@@ -618,6 +618,9 @@
     <Content Include="Web References\ConditionalAccess\AssetItemPriceResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\ConditionalAccess\DomainTransactionsHistoryResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\ConditionalAccess\module.disco" />
     <Content Include="Web References\Domains\ChangeDLMObj.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -665,6 +668,9 @@
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\Domains\HomeNetworksResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\ConditionalAccess\PurchaseSessionIdResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <None Include="Web References\Domains\module.disco" />
@@ -1273,10 +1279,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>WebAPI_Billing_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost:82/ws_cas/module.asmx">
+    <WebReferenceUrl Include="http://localhost/ws_conditionalaccess/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\ConditionalAccess\</RelPath>
-      <UpdateFromURL>http://localhost:82/ws_cas/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/ws_conditionalaccess/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
