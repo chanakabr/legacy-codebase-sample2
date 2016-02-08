@@ -126,6 +126,7 @@
     <Compile Include="PersonalEnrichments\UserPurhcasedAssetsResponse.cs" />
     <Compile Include="QueueObjects\FreeItemUpdateData.cs" />
     <Compile Include="OSSAdapter\OSSAdapterEntitlementsResponse.cs" />
+    <Compile Include="PurchaseSessionIdResponse.cs" />
     <Compile Include="QueueObjects\ImageUploadData.cs" />
     <Compile Include="QueueObjects\ExportTaskData.cs" />
     <Compile Include="RecommendationEngine\RecommendationEngineResponse.cs" />
