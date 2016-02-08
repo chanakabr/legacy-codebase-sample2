@@ -15901,7 +15901,7 @@ namespace ConditionalAccess
             }
         }
 
-        public ApiObjects.Response.Status SetEntitlement(string userId, long householdId, int state, string paymentGatewayReferenceID, string paymentGatewayResponseCode, int customDataId,
+        public ApiObjects.Response.Status RecordTransaction(string userId, long householdId, int state, string paymentGatewayReferenceID, string paymentGatewayResponseCode, int customDataId,
               double price, string currency, int contentId, int productId, eTransactionType transactionType, string paymentDetails, string paymentMethod, int paymentGatewayId)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
@@ -16013,7 +16013,7 @@ namespace ConditionalAccess
 
                         // RecordTransaction
                         //------------------
-                        TransactionResponse transactionResponse = RecordTransaction(userId, householdId, contentId, productId, transactionType, paymentDetails, paymentMethod,
+                        TransactionResponse transactionResponse = RecordBillingTransaction(userId, householdId, contentId, productId, transactionType, paymentDetails, paymentMethod,
                             paymentGatewayId, billingGuid, customData, paymentGatewayReferenceID, paymentGatewayResponseCode, state);
 
                         if (transactionResponse == null || transactionResponse.Status == null)
@@ -16211,7 +16211,7 @@ namespace ConditionalAccess
 
                         // RecordTransaction
                         //------------------
-                        TransactionResponse transactionResponse = RecordTransaction(userId, householdId, contentId, productId, transactionType, paymentDetails, paymentMethod,
+                        TransactionResponse transactionResponse = RecordBillingTransaction(userId, householdId, contentId, productId, transactionType, paymentDetails, paymentMethod,
                             paymentGatewayId, billingGuid, customData, paymentGatewayReferenceID, paymentGatewayResponseCode, state);
 
                         if (transactionResponse == null || transactionResponse.Status == null)
@@ -16331,12 +16331,12 @@ namespace ConditionalAccess
             }
         }
 
-        private TransactionResponse RecordTransaction(string userId, long householdId, int contentId, int productId, eTransactionType transactionType, string paymentDetails,
+        private TransactionResponse RecordBillingTransaction(string userId, long householdId, int contentId, int productId, eTransactionType transactionType, string paymentDetails,
             string paymentMethod, int paymentGatewayId, string billingGuid, string customData, string paymentGatewayReferenceID, string paymentGatewayResponseCode, int state)
         {
             TransactionResponse response = new TransactionResponse();
 
-            string logString = string.Format("RecordTransaction billing service siteGUID={0}, houseHoldID={1}, customData={2}, productID={3}, transactionType={4}, billingGuid={5}, paymentGatewayId={6}",
+            string logString = string.Format("RecordBillingTransaction billing service siteGUID={0}, houseHoldID={1}, customData={2}, productID={3}, transactionType={4}, billingGuid={5}, paymentGatewayId={6}",
                                        !string.IsNullOrEmpty(userId) ? userId : string.Empty, householdId, !string.IsNullOrEmpty(customData) ? customData : string.Empty,
                                        productId, (int)transactionType, !string.IsNullOrEmpty(billingGuid) ? billingGuid : string.Empty, paymentGatewayId);
             log.Debug(logString);
