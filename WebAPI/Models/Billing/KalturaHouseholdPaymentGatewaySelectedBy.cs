@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
+﻿
 namespace WebAPI.Models.Billing
 {
     /// <summary>
@@ -10,6 +6,7 @@ namespace WebAPI.Models.Billing
     /// </summary>
     public enum KalturaHouseholdPaymentGatewaySelectedBy
     {
+        unknown,
         account,        
         household
     }

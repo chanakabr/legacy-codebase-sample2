@@ -1420,13 +1420,13 @@ namespace WebAPI.Billing {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/GetHouseholdPaymentGateways", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public PaymentGatewayResponse GetHouseholdPaymentGateways(string sWSUserName, string sWSPassword, string siteGuid, int householdId) {
+        public PaymentGatewayListResponse GetHouseholdPaymentGateways(string sWSUserName, string sWSPassword, string siteGuid, int householdId) {
             object[] results = this.Invoke("GetHouseholdPaymentGateways", new object[] {
                         sWSUserName,
                         sWSPassword,
                         siteGuid,
                         householdId});
-            return ((PaymentGatewayResponse)(results[0]));
+            return ((PaymentGatewayListResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -2619,6 +2619,7 @@ namespace WebAPI.Billing {
     }
     
     /// <remarks/>
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PaymentGatewaySelectedBy))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PaymentGateway))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
@@ -2662,6 +2663,40 @@ namespace WebAPI.Billing {
                 this.isDefaultField = value;
             }
         }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
+    public partial class PaymentGatewaySelectedBy : PaymentGatewayBase {
+        
+        private eHouseholdPaymentGatewaySelectedBy byField;
+        
+        /// <remarks/>
+        public eHouseholdPaymentGatewaySelectedBy By {
+            get {
+                return this.byField;
+            }
+            set {
+                this.byField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
+    public enum eHouseholdPaymentGatewaySelectedBy {
+        
+        /// <remarks/>
+        Account,
+        
+        /// <remarks/>
+        Household,
     }
     
     /// <remarks/>
@@ -3275,14 +3310,34 @@ namespace WebAPI.Billing {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
     [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
-    public enum eHouseholdPaymentGatewaySelectedBy {
+    public partial class PaymentGatewayListResponse {
+        
+        private Status statusField;
+        
+        private PaymentGatewaySelectedBy[] paymentGatewaysField;
         
         /// <remarks/>
-        Account,
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
         
         /// <remarks/>
-        Household,
+        public PaymentGatewaySelectedBy[] PaymentGateways {
+            get {
+                return this.paymentGatewaysField;
+            }
+            set {
+                this.paymentGatewaysField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -4561,10 +4616,10 @@ namespace WebAPI.Billing {
         }
         
         /// <remarks/>
-        public PaymentGatewayResponse Result {
+        public PaymentGatewayListResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((PaymentGatewayResponse)(this.results[0]));
+                return ((PaymentGatewayListResponse)(this.results[0]));
             }
         }
     }

@@ -107,50 +107,47 @@
         </member>
         <member name="M:WebAPI.Controllers.AssetController.Related(System.Int32,System.String,WebAPI.Models.General.KalturaFilterPager,System.Collections.Generic.List{WebAPI.Models.General.KalturaIntegerValue},System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder},System.String)">
             <summary>
-            Returns related media by media identifier<br />        
+            Return list of media assets that are related to a provided asset ID (of type VOD). Returned assets can be within multi VOD asset types or be of same type as the provided asset. Response is ordered by relevancy. On-demand, per asset enrichment is supported. Maximum number of returned assets – 20, using paging <br />        
             </summary>        
-            <param name="media_id">Media identifier</param>
-            <param name="filter_types">Related media types list - possible values:
-            any media type ID (according to media type IDs defined dynamically in the system).
-            If omitted – all types should be included.</param>        
-            <param name="pager">Paging filter</param>
-            <param name="filter">filter for search</param>
+            <param name="media_id">The ID of the asset for which to return related assets</param>
+            <param name="filter_types">The type of related assets to return. Possible values: ALL – include all VOD asset types ; any media type ID (according to media type IDs defined dynamically in the system). If ommited – return assets of same asset type as the provided asset type. </param>        
+            <param name="pager">Paging filter - Page number to return. If omitted returns first page. Number of assets to return per page. Possible range 5 ≤ size ≥ 20. If omitted – 5 is used. Value greater than 20 will set to 20</param>
+            <param name="filter">Valid KSQL expression. If provided – the filter is applied on the resultset and further reduce it</param>
             <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
             Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
-            <param name="language">Language code</param>        
+            <param name="language">3 letter code (ISO 639-2) that represent the user language. If provided – may be used to further fine tune the returned collection. If omitted – partner’s default language is used</param>        
             <remarks></remarks>
         </member>
         <member name="M:WebAPI.Controllers.AssetController.RelatedExternal(System.Int32,WebAPI.Models.General.KalturaFilterPager,System.Collections.Generic.List{WebAPI.Models.General.KalturaIntegerValue},System.Int32,System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder},System.String,System.String)">
             <summary>
-            Returns related media from external recommendation engine by media identifier<br />        
+            Return list of assets that are related to a provided asset ID. Returned assets can be within multi asset types or be of same type as the provided asset. Support on-demand, per asset enrichment. Related assets are provided from the external source (e.g. external recommendation engine). Maximum number of returned assets – 20, using paging <br />        
             </summary>        
-            <param name="media_id">Media identifier</param>
-            <param name="filter_type_ids">Related media types list - possible values:
-            any media type ID (according to media type IDs defined dynamically in the system).
-            If omitted – all types should be included.</param>        
+            <param name="asset_id">The ID of the asset for which to return related assets</param>
+            <param name="filter_type_ids">The type of related assets to return. Possible values: ALL – include all asset types ; any media type ID (according to media type IDs defined dynamically in the system). If ommited = ALL.</param>        
             <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
             Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
-            <param name="pager">Paging filter</param>
-            <param name="language">Language code</param>        
-            /// <param name="utcOffset">UTC Offset</param>        
+            <param name="pager">Paging filter - Page number to return. If omitted returns first page. Number of assets to return per page. Possible range 5 ≤ size ≥ 20. If omitted – 5 is used. Value greater than 20 will set to 20</param>
+            <param name="language">3 letter code (ISO 639-2) that represent the user language. If provided – may be used to further fine tune the returned collection. If omitted – partner’s default language is used</param>        
+            <param name="utc_offset">Client’s offset from UTC. Format: +/-HH:MM. Example (client located at NY - EST): “-05:00”. If provided – may be used to further fine tune the returned collection</param>        
+            <param name="free_param">Suplimentry data that the client can provide the external recommnedation engine</param>        
             <remarks></remarks>
         </member>
         <member name="M:WebAPI.Controllers.AssetController.searchExternal(System.String,WebAPI.Models.General.KalturaFilterPager,System.Collections.Generic.List{WebAPI.Models.General.KalturaIntegerValue},System.Int32,System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder},System.String)">
             <summary>
-            Returns search media from external recommendation engine by media identifier<br />        
+            Search for assets via external service (e.g. external recommendation engine). Search can return multi asset types. Support on-demand, per asset enrichment. Maximum number of returned assets – 100, using paging <br />        
             </summary>        
-            <param name="query">Query</param>
+            <param name="query">Search string </param>
             <param name="filter_type_ids">Related media types list - possible values:
             any media type ID (according to media type IDs defined dynamically in the system).
             If omitted – all types should be included.</param>        
             <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
             Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
-            <param name="pager">Paging filter</param>
-            <param name="language">Language code</param>    
-            /// /// <param name="utcOffset">UTC Offset</param>  
+            <param name="pager">Paging filter - Page number to return. If omitted returns first page. Number of assets to return per page. Possible range 5 ≤ size ≥ 20. If omitted – 10 is used. Value greater than 20 will set to 20.</param>
+            <param name="language">3 letter code (ISO 639-2) that represent the user language. If provided – may be used to further fine tune the returned collection. If omitted – partner’s default language is used</param>    
+            <param name="utc_offset">Client’s offset from UTC. Format: +/-HH:MM. Example (client located at NY - EST): “-05:00”. If provided – may be used to further fine tune the returned collection</param>  
             <remarks></remarks>
         </member>
-        <member name="M:WebAPI.Controllers.AssetController.Channel(System.Int32,System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder},System.Nullable{WebAPI.Models.Catalog.KalturaOrder},WebAPI.Models.General.KalturaFilterPager,System.String)">
+        <member name="M:WebAPI.Controllers.AssetController.Channel(System.Int32,System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder},System.Nullable{WebAPI.Models.Catalog.KalturaOrder},WebAPI.Models.General.KalturaFilterPager,System.String,System.String)">
             <summary>
             Returns assets that belong to a channel
             </summary>
@@ -160,6 +157,11 @@
             <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
             Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
             <param name="language">Language code</param>
+            <param name="filter_query"><![CDATA[Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
+            Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date.
+            Comparison operators: for numerical fields =, >, >=, <, <=. For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with). Logical conjunction: and, or. 
+            Search values are limited to 20 characters each.
+            (maximum length of entire filter is 1024 characters)]]></param>
             <remarks>Possible status codes: 
             BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, 
             </remarks>
@@ -180,6 +182,52 @@
             External Channel reference type: ExternalChannelHasNoRecommendationEngine = 4014, AdapterAppFailure = 6012, AdapterUrlRequired = 5013,
             BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, 
             RecommendationEngineNotExist = 4007, ExternalChannelNotExist = 4011</remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.HomeNetworkController.Add(WebAPI.Models.Domains.KalturaHomeNetwork)">
+            <summary>
+            Add a new home network to a household
+            </summary>
+            <param name="home_network">Home network to add</param>
+            <remarks>
+            Possible status codes:
+            Home network already exists = 1031, Home network limitation = 1032, External identifier is required = 6016
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.HomeNetworkController.List">
+            <summary>
+            Retrieve the household’s home networks
+            </summary>
+            <remarks>
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.HomeNetworkController.Update(WebAPI.Models.Domains.KalturaHomeNetwork)">
+            <summary>
+            Update and existing home network for a household
+            </summary>
+            <param name="home_network">Home network to update</param>
+            <remarks>
+            Possible status codes:
+            Home network does not exist = 1033, External identifier is required = 6016
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.HomeNetworkController.Delete(System.String)">
+            <summary>
+            Delete household’s existing home network 
+            </summary>
+            <param name="external_id">The network to update</param>
+            <remarks>
+            Possible status codes:
+            Home network does not exist = 1033, Home network frequency limitation = 1034, External identifier is required = 6016
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.VersionController.Get">
+            <summary>
+            Returns information about the current version
+            </summary>
         </member>
         <member name="M:WebAPI.Controllers.HouseholdLimitationsController.Get(System.Int32)">
             <summary>
@@ -529,6 +577,13 @@
             <remarks>Possible status codes: 
             </remarks>
         </member>
+        <member name="M:WebAPI.Controllers.AssetHistoryController.Clean(WebAPI.Models.Catalog.KalturaAssetsFilter)">
+            <summary>
+            Clean the user’s viewing history
+            </summary>
+            <param name="filter">List of assets identifier</param>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.HouseholdDeviceController.Delete(System.String)">
             <summary>
             Removes a device from household
@@ -572,16 +627,18 @@
         </member>
         <member name="M:WebAPI.Controllers.HouseholdDeviceController.Update(System.String,System.String)">
             <summary>
-            TBD
+            Update the name of the device by UDID
             </summary>                
             <param name="device_name">Device name</param>
             <param name="udid">Device UDID</param>
             <remarks>Possible status codes: 
             Device not exists = 1019</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.BookmarkController.List(WebAPI.Models.Catalog.KalturaAssetsBookmarksFilter)">
+        <member name="M:WebAPI.Controllers.BookmarkController.List(WebAPI.Models.Catalog.KalturaAssetsFilter)">
             <summary>
-            Returns the last position (in seconds) in a media or nPVR asset until which a user in the household watched
+            Returns player position record/s for the requested asset and the requesting user. 
+            If default user makes the request – player position records are provided for all of the users in the household.
+            If non-default user makes the request - player position records are provided for the requesting user and the default user of the household.
             </summary>
             <param name="filter">Filter option for the last position</param>
             <returns></returns>
@@ -698,9 +755,9 @@
             </remarks>
             <param name="channel_id">channel identifier</param>
         </member>
-        <member name="M:WebAPI.Controllers.ChannelController.Add(WebAPI.Models.API.KalturaKSQLChannelProfile)">
+        <member name="M:WebAPI.Controllers.ChannelController.Add(WebAPI.Models.API.KalturaChannelProfile)">
             <summary>
-            Insert new KSQL channel for partner
+            Insert new channel for partner. Currently supports only KSQL channel
             </summary>
             <remarks>
             Possible status codes:     
@@ -709,9 +766,9 @@
             </remarks>
             <param name="channel">KSQL channel Object</param>
         </member>
-        <member name="M:WebAPI.Controllers.ChannelController.Update(WebAPI.Models.API.KalturaKSQLChannelProfile)">
+        <member name="M:WebAPI.Controllers.ChannelController.Update(WebAPI.Models.API.KalturaChannelProfile)">
             <summary>
-            Update KSQL channel details
+            Update channel details. Currently supports only KSQL channel
             </summary>
             <remarks>
             Possible status codes:
@@ -784,7 +841,7 @@
             <summary>
             Immediately cancel a subscription, PPV or collection. Cancel is possible only if within cancellation window and content not already consumed
             </summary>                
-            <param name="asset_id">Asset identifier to cancel</param>        
+            <param name="asset_id">The mediaFileID to cancel</param>        
             <param name="transaction_type">The transaction type for the cancelation</param>
             <remarks>Possible status codes: 
             Household suspended = 1009, Invalid purchase = 3000, Cancellation window period expired = 3001, Content already consumed = 3005</remarks>
@@ -793,7 +850,7 @@
             <summary>
             Immediately cancel a subscription, PPV or collection. Cancel applies regardless of cancellation window and content consumption status
             </summary>                
-            <param name="asset_id">Asset identifier to cancel</param>        
+            <param name="asset_id">The mediaFileID to cancel</param>        
             <param name="transaction_type">The transaction type for the cancelation</param>
             <remarks>Possible status codes: 
             Household suspended = 1009, Invalid purchase = 3000</remarks>
@@ -806,12 +863,19 @@
             <remarks>Possible status codes: 
             Household suspended = 1009, Invalid purchase = 3000, SubscriptionNotRenewable = 300</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.EntitlementController.List(WebAPI.Models.ConditionalAccess.KalturaEntitlementsFilter,System.Nullable{System.Boolean})">
+        <member name="M:WebAPI.Controllers.EntitlementController.List(WebAPI.Models.ConditionalAccess.KalturaEntitlementsFilter)">
             <summary>
             Gets all the entitled media items for a household
             </summary>        
             <param name="filter">Request filter</param>
-            <param name="expired">When provided – returns also the expired items. Possible values: True – return also the expired items ; False – return only the active entitlements </param>
+            <remarks></remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.EntitlementController.ListExpired(WebAPI.Models.ConditionalAccess.KalturaEntitlementsFilter,WebAPI.Models.General.KalturaFilterPager)">
+            <summary>
+            Retrieve the household’s expired entitlements – PPV and subscriptions. Response is ordered by expiry date
+            </summary>        
+            <param name="filter">Request filter</param>
+            <param name="pager">Paging the request</param>
             <remarks></remarks>
         </member>
         <member name="M:WebAPI.Controllers.EntitlementController.Grant(System.Int32,WebAPI.Models.ConditionalAccess.KalturaTransactionType,System.Boolean,System.Int32)">
@@ -1050,7 +1114,7 @@
             <param name="partnerId">Partner identifier</param>
             <returns></returns>
         </member>
-        <member name="M:WebAPI.Controllers.TransactionController.Purchase(System.Double,System.String,System.Int32,WebAPI.Models.ConditionalAccess.KalturaTransactionType,System.Int32,System.String)">
+        <member name="M:WebAPI.Controllers.TransactionController.Purchase(System.Double,System.String,System.Int32,WebAPI.Models.ConditionalAccess.KalturaTransactionType,System.Int32,System.String,System.Int32)">
              <summary>
              Purchase specific product or subscription utilizing the household’s pre-assigned payment gateway. Upon successful charge entitlements to use the requested product or subscription are granted.
              </summary>
@@ -1060,6 +1124,7 @@
              <param name="product_id">Identifier for the package from which this content is offered</param>        
              <param name="product_type">Package type. Possible values: PPV, Subscription, Collection</param>
              <param name="coupon">Coupon code</param> 
+             <param name="payment_gateway_id">Payment gateway identifier</param>
              <remarks>Possible status codes: 
              User not in domain = 1005, Invalid user = 1026, User does not exist = 2000, User suspended = 2001, Coupon not valid = 3020, Unable to purchase - PPV purchased = 3021,  Unable to purchase - Free = 3022,  Unable to purchase - For purchase subscription only = 3023,
               Unable to purchase - Subscription purchased = 3024, Not for purchase = 3025, Unable to purchase - Collection purchased = 3027, Adapter Url required = 5013, Incorrect price = 6000, UnKnown PPV module = 6001, Payment gateway not set for household = 6007, Payment gateway does not exist = 6008, 
@@ -1099,6 +1164,17 @@
             Signature mismatch = 6013, Unknown transaction state = 6042   
                </remarks>
         </member>
+        <member name="M:WebAPI.Controllers.TransactionController.Waiver(System.Int32,WebAPI.Models.ConditionalAccess.KalturaTransactionType)">
+            <summary>
+            This method shall set the waiver flag on the user entitlement table and the waiver date field to the current date.
+            </summary>
+            <param name="asset_id">Asset identifier</param>        
+            <param name="transaction_type">The transaction type</param>
+            <remarks>Possible status codes: 
+             User suspended = 2001
+            </remarks>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:WebAPI.Controllers.TransactionController.PurchaseSessionId(System.Double,System.String,System.Int32,WebAPI.Models.ConditionalAccess.KalturaTransactionType,System.Int32,System.String,System.Int32)" -->
         <member name="M:WebAPI.Controllers.UserAssetsListController.List(WebAPI.Models.Users.KalturaUserAssetsListFilter)">
             <summary>
             Retrieve the user’s private asset lists 
@@ -1192,17 +1268,18 @@
         </member>
         <member name="M:WebAPI.Controllers.ParentalRuleController.Disable(System.Int64,WebAPI.Models.General.KalturaEntityReferenceBy)">
             <summary>
-            Disable a parental rules for a user  
+            Disables a parental rule that was previously defined by the household master. Disable can be at specific user or household level.  
             </summary>
             <param name="by">Reference type to filter by</param>
             <remarks>Possible status codes: 
-            Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001, Invalid rule = 5003</remarks>
+            Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001, Invalid rule = 5003, 
+            Cannot disable a default rule that was not specifically enabled previously = 5021 </remarks>
             <param name="rule_id">Rule Identifier</param>
             <returns>Success or failure and reason</returns>
         </member>
         <member name="M:WebAPI.Controllers.ParentalRuleController.DisableDefault(WebAPI.Models.General.KalturaEntityReferenceBy)">
             <summary>
-            Disable a default parental rules for a user    
+            Disables a parental rule that was defined at account level. Disable can be at specific user or household level.
             </summary>
             <remarks>
             Possible status codes: Bad, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
@@ -1586,42 +1663,42 @@
             The roles identifiers
             </summary>
         </member>
-        <member name="T:WebAPI.Models.API.KalturaKSQLChannelProfile">
+        <member name="T:WebAPI.Models.API.KalturaChannelProfile">
             <summary>
             KSQL Channel
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaKSQLChannelProfile.Id">
+        <member name="P:WebAPI.Models.API.KalturaChannelProfile.Id">
             <summary>
             Channel id
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaKSQLChannelProfile.Name">
+        <member name="P:WebAPI.Models.API.KalturaChannelProfile.Name">
             <summary>
             Channel name
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaKSQLChannelProfile.Description">
+        <member name="P:WebAPI.Models.API.KalturaChannelProfile.Description">
             <summary>
             Channel name
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaKSQLChannelProfile.IsActive">
+        <member name="P:WebAPI.Models.API.KalturaChannelProfile.IsActive">
             <summary>
             active status
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaKSQLChannelProfile.FilterExpression">
+        <member name="P:WebAPI.Models.API.KalturaChannelProfile.FilterExpression">
             <summary>
             Filter expression
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaKSQLChannelProfile.AssetTypes">
+        <member name="P:WebAPI.Models.API.KalturaChannelProfile.AssetTypes">
             <summary>
             Asset types. Media types - taken from group's definition. EPG is -26.
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaKSQLChannelProfile.Order">
+        <member name="P:WebAPI.Models.API.KalturaChannelProfile.Order">
             <summary>
             Channel order
             </summary>
@@ -1671,12 +1748,12 @@
             Specifies whether the user's current position exceeded 95% of the duration
              </summary>
         </member>
-        <member name="T:WebAPI.Models.Catalog.KalturaAssetsBookmarksFilter">
+        <member name="T:WebAPI.Models.Catalog.KalturaAssetsFilter">
             <summary>
             Filtering Assets requests
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetsBookmarksFilter.Assets">
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetsFilter.Assets">
             <summary>
             List of assets identifier
             </summary>
@@ -1818,12 +1895,12 @@
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaSlimAsset.Id">
             <summary>
-            Assets identifier
+            Internal identifier of the asset
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaSlimAsset.Type">
             <summary>
-            Assets type
+            The type of the asset. Possible values: media, recording, epg
             </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaBaseChannel">
@@ -1859,6 +1936,11 @@
         <member name="P:WebAPI.Models.Billing.KalturaPaymentGatewayBaseProfile.IsDefault">
             <summary>
             Payment gateway default (true/false)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Billing.KalturaPaymentGatewayBaseProfile.selectedBy">
+            <summary>
+            distinction payment gateway selected by account or household
             </summary>
         </member>
         <member name="T:WebAPI.Models.Billing.KalturaPaymentGatewayProfile">
@@ -3146,11 +3228,6 @@
             Household restriction
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHousehold.HomeNetworks">
-            <summary>
-            Household home networks
-            </summary>
-        </member>
         <member name="P:WebAPI.Models.Domains.KalturaHousehold.DeviceFamilies">
             <summary>
             Household device families
@@ -3161,7 +3238,7 @@
             Home network details
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHomeNetwork.Id">
+        <member name="P:WebAPI.Models.Domains.KalturaHomeNetwork.ExternalId">
             <summary>
             Home network identifier
             </summary>
@@ -3174,11 +3251,6 @@
         <member name="P:WebAPI.Models.Domains.KalturaHomeNetwork.Description">
             <summary>
             Home network description
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Domains.KalturaHomeNetwork.CreateDate">
-            <summary>
-            Home network creation date (epoch)
             </summary>
         </member>
         <member name="P:WebAPI.Models.Domains.KalturaHomeNetwork.IsActive">
@@ -3794,7 +3866,7 @@
              <summary>
              Suspend a given household service. Sets the household status to “suspended".The household service settings are maintained for later resume
              </summary>                
-             <remarks>Possible status codes: 
+             <remarks>Possible status codes: Domain already suspended = 1012
             </remarks>
         </member>
         <member name="M:WebAPI.Controllers.HouseholdController.Resume">
@@ -4693,13 +4765,22 @@
         <member name="M:WebAPI.Api.API.UpdateImageStateAsync(System.String,System.String,System.Int64,System.Int32,WebAPI.Api.eMediaType,WebAPI.Api.eTableStatus,System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.GetExternalEntitlements(System.String,System.String,System.Int32,System.String)">
+        <member name="M:WebAPI.Api.API.GetExternalEntitlements(System.String,System.String,System.String)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.GetExternalEntitlementsAsync(System.String,System.String,System.Int32,System.String)">
+        <member name="M:WebAPI.Api.API.GetExternalEntitlementsAsync(System.String,System.String,System.String)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.GetExternalEntitlementsAsync(System.String,System.String,System.Int32,System.String,System.Object)">
+        <member name="M:WebAPI.Api.API.GetExternalEntitlementsAsync(System.String,System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.ModifyCB(System.String,System.String,System.String,System.String,WebAPI.Api.eDbActionType,System.String,System.Int64)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.ModifyCBAsync(System.String,System.String,System.String,System.String,WebAPI.Api.eDbActionType,System.String,System.Int64)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.ModifyCBAsync(System.String,System.String,System.String,System.String,WebAPI.Api.eDbActionType,System.String,System.Int64,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.Api.API.TVAPI_GetTvinciGUID(System.String,System.String,WebAPI.Api.InitializationObject)">
@@ -5896,6 +5977,9 @@
         <member name="E:WebAPI.Api.API.GetExternalEntitlementsCompleted">
             <remarks/>
         </member>
+        <member name="E:WebAPI.Api.API.ModifyCBCompleted">
+            <remarks/>
+        </member>
         <member name="E:WebAPI.Api.API.TVAPI_GetTvinciGUIDCompleted">
             <remarks/>
         </member>
@@ -6904,6 +6988,9 @@
         <member name="P:WebAPI.Api.EPGChannelProgrammeObject.PIC_URL">
             <remarks/>
         </member>
+        <member name="P:WebAPI.Api.EPGChannelProgrammeObject.PIC_ID">
+            <remarks/>
+        </member>
         <member name="P:WebAPI.Api.EPGChannelProgrammeObject.STATUS">
             <remarks/>
         </member>
@@ -7562,6 +7649,9 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.MeidaMaper.m_nMediaID">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.MeidaMaper.m_sProductCode">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.ExtensionDataObject">
@@ -8287,34 +8377,28 @@
         <member name="P:WebAPI.Api.InitializationObject.m_sAdminToken">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Api.Entitlement">
+        <member name="T:WebAPI.Api.ExternalEntitlement">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.Entitlement.Alias">
+        <member name="P:WebAPI.Api.ExternalEntitlement.PurchaseId">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.Entitlement.ProductId">
+        <member name="P:WebAPI.Api.ExternalEntitlement.ProductId">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.Entitlement.EntitlementType">
+        <member name="P:WebAPI.Api.ExternalEntitlement.ProductCode">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.Entitlement.ContentId">
+        <member name="P:WebAPI.Api.ExternalEntitlement.EntitlementType">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.Entitlement.Price">
+        <member name="P:WebAPI.Api.ExternalEntitlement.ContentId">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.Entitlement.CurrencyCode">
+        <member name="P:WebAPI.Api.ExternalEntitlement.StartDateSeconds">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.Entitlement.StartDate">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.Entitlement.EndDate">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.Entitlement.UDID">
+        <member name="P:WebAPI.Api.ExternalEntitlement.EndDateSeconds">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.eTransactionType">
@@ -8575,6 +8659,15 @@
         <member name="F:WebAPI.Api.eTableStatus.Failed">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Api.eDbActionType">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.eDbActionType.Delete">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Api.eDbActionType.Add">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Api.UserStatus">
             <remarks/>
         </member>
@@ -8753,6 +8846,15 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.GetExternalEntitlementsCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.ModifyCBCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.ModifyCBCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ModifyCBCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.TVAPI_GetTvinciGUIDCompletedEventHandler">
@@ -10642,6 +10744,21 @@
         <member name="P:WebAPI.Billing.PaymentGatewaySettings.value">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Billing.PaymentGatewaySelectedBy">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.PaymentGatewaySelectedBy.By">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Billing.eHouseholdPaymentGatewaySelectedBy">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Billing.eHouseholdPaymentGatewaySelectedBy.Account">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Billing.eHouseholdPaymentGatewaySelectedBy.Household">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Billing.UpdatePendingResponse">
             <remarks/>
         </member>
@@ -10816,13 +10933,13 @@
         <member name="P:WebAPI.Billing.HouseholdPaymentGatewayResponse.SelectedBy">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Billing.eHouseholdPaymentGatewaySelectedBy">
+        <member name="T:WebAPI.Billing.PaymentGatewayListResponse">
             <remarks/>
         </member>
-        <member name="F:WebAPI.Billing.eHouseholdPaymentGatewaySelectedBy.Account">
+        <member name="P:WebAPI.Billing.PaymentGatewayListResponse.Status">
             <remarks/>
         </member>
-        <member name="F:WebAPI.Billing.eHouseholdPaymentGatewaySelectedBy.Household">
+        <member name="P:WebAPI.Billing.PaymentGatewayListResponse.PaymentGateways">
             <remarks/>
         </member>
         <member name="T:WebAPI.Billing.PaymentGatewayResponse">
@@ -11437,22 +11554,22 @@
         <member name="M:WebAPI.ConditionalAccess.module.CheckPendingTransactionAsync(System.String,System.String,System.Int64,System.Int32,System.String,System.Int64,System.String,System.Int32,System.Int32,System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.GetUserEntitlements(System.String,System.String,System.String,WebAPI.ConditionalAccess.eTransactionType,System.Boolean)">
+        <member name="M:WebAPI.ConditionalAccess.module.GetUserEntitlements(System.String,System.String,System.String,WebAPI.ConditionalAccess.eTransactionType,System.Boolean,System.Int32,System.Int32)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.GetUserEntitlementsAsync(System.String,System.String,System.String,WebAPI.ConditionalAccess.eTransactionType,System.Boolean)">
+        <member name="M:WebAPI.ConditionalAccess.module.GetUserEntitlementsAsync(System.String,System.String,System.String,WebAPI.ConditionalAccess.eTransactionType,System.Boolean,System.Int32,System.Int32)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.GetUserEntitlementsAsync(System.String,System.String,System.String,WebAPI.ConditionalAccess.eTransactionType,System.Boolean,System.Object)">
+        <member name="M:WebAPI.ConditionalAccess.module.GetUserEntitlementsAsync(System.String,System.String,System.String,WebAPI.ConditionalAccess.eTransactionType,System.Boolean,System.Int32,System.Int32,System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.GetDomainEntitlements(System.String,System.String,System.Int32,WebAPI.ConditionalAccess.eTransactionType,System.Boolean)">
+        <member name="M:WebAPI.ConditionalAccess.module.GetDomainEntitlements(System.String,System.String,System.Int32,WebAPI.ConditionalAccess.eTransactionType,System.Boolean,System.Int32,System.Int32)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.GetDomainEntitlementsAsync(System.String,System.String,System.Int32,WebAPI.ConditionalAccess.eTransactionType,System.Boolean)">
+        <member name="M:WebAPI.ConditionalAccess.module.GetDomainEntitlementsAsync(System.String,System.String,System.Int32,WebAPI.ConditionalAccess.eTransactionType,System.Boolean,System.Int32,System.Int32)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.GetDomainEntitlementsAsync(System.String,System.String,System.Int32,WebAPI.ConditionalAccess.eTransactionType,System.Boolean,System.Object)">
+        <member name="M:WebAPI.ConditionalAccess.module.GetDomainEntitlementsAsync(System.String,System.String,System.Int32,WebAPI.ConditionalAccess.eTransactionType,System.Boolean,System.Int32,System.Int32,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.ConditionalAccess.module.Renew(System.String,System.String,System.String,System.Int64,System.String,System.Int64)">
@@ -11480,6 +11597,15 @@
             <remarks/>
         </member>
         <member name="M:WebAPI.ConditionalAccess.module.ReconcileEntitlementsAsync(System.String,System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.GetPurchaseSessionID(System.String,System.String,System.String,System.Double,System.String,System.Int32,System.String,System.String,System.String,System.String,WebAPI.ConditionalAccess.eTransactionType,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.GetPurchaseSessionIDAsync(System.String,System.String,System.String,System.Double,System.String,System.Int32,System.String,System.String,System.String,System.String,WebAPI.ConditionalAccess.eTransactionType,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.GetPurchaseSessionIDAsync(System.String,System.String,System.String,System.Double,System.String,System.Int32,System.String,System.String,System.String,System.String,WebAPI.ConditionalAccess.eTransactionType,System.Int32,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.ConditionalAccess.module.GetUserPermittedItems(System.String,System.String,System.String)">
@@ -12277,6 +12403,9 @@
         <member name="E:WebAPI.ConditionalAccess.module.ReconcileEntitlementsCompleted">
             <remarks/>
         </member>
+        <member name="E:WebAPI.ConditionalAccess.module.GetPurchaseSessionIDCompleted">
+            <remarks/>
+        </member>
         <member name="E:WebAPI.ConditionalAccess.module.GetUserPermittedItemsCompleted">
             <remarks/>
         </member>
@@ -12604,12 +12733,6 @@
         <member name="P:WebAPI.ConditionalAccess.NPVRResponse.msg">
             <remarks/>
         </member>
-        <member name="T:WebAPI.ConditionalAccess.RecordResponse">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.ConditionalAccess.RecordResponse.recordingID">
-            <remarks/>
-        </member>
         <member name="T:WebAPI.ConditionalAccess.LicensedLinkNPVRResponse">
             <remarks/>
         </member>
@@ -12626,6 +12749,12 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.ConditionalAccess.QuotaResponse.occupiedQuota">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.RecordResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.RecordResponse.recordingID">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.BaseNPVRCommand">
@@ -12647,36 +12776,6 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.ConditionalAccess.BaseNPVRCommand.assetID">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.CancelNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.RecordNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.RetrieveQuotaNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.DeleteNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.CancelSeriesNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.RecordSeriesByProgramIdNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.RecordSeriesByNameNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.DeleteSeriesNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.ProtectNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.ConditionalAccess.ProtectNPVRCommand.isProtect">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.LicensedLinkNPVRCommand">
@@ -12707,6 +12806,36 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.ConditionalAccess.LicensedLinkNPVRCommand.couponCode">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.DeleteNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.CancelNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.RetrieveQuotaNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.RecordNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.CancelSeriesNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.RecordSeriesByProgramIdNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.RecordSeriesByNameNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.DeleteSeriesNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.ProtectNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.ProtectNPVRCommand.isProtect">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.EntitlementResponse">
@@ -13879,6 +14008,15 @@
         <member name="P:WebAPI.ConditionalAccess.PermittedMediaContainer.PPVCode">
             <remarks/>
         </member>
+        <member name="T:WebAPI.ConditionalAccess.PurchaseSessionIdResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.PurchaseSessionIdResponse.PurchaseCustomDataId">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.PurchaseSessionIdResponse.Status">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.ConditionalAccess.AssetItemPrices">
             <remarks/>
         </member>
@@ -14111,6 +14249,15 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.ConditionalAccess.ReconcileEntitlementsCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.GetPurchaseSessionIDCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.GetPurchaseSessionIDCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.GetPurchaseSessionIDCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.GetUserPermittedItemsCompletedEventHandler">
@@ -15274,6 +15421,15 @@
         <member name="M:WebAPI.Domains.module.RemoveDomainByCoGuidAsync(System.String,System.String,System.String,System.Object)">
             <remarks/>
         </member>
+        <member name="M:WebAPI.Domains.module.AddDomainHomeNetwork(System.String,System.String,System.Int64,System.String,System.String,System.String,System.Boolean)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Domains.module.AddDomainHomeNetworkAsync(System.String,System.String,System.Int64,System.String,System.String,System.String,System.Boolean)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Domains.module.AddDomainHomeNetworkAsync(System.String,System.String,System.Int64,System.String,System.String,System.String,System.Boolean,System.Object)">
+            <remarks/>
+        </member>
         <member name="M:WebAPI.Domains.module.CancelAsync(System.Object)">
             <remarks/>
         </member>
@@ -15401,6 +15557,9 @@
             <remarks/>
         </member>
         <member name="E:WebAPI.Domains.module.RemoveDomainByCoGuidCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Domains.module.AddDomainHomeNetworkCompleted">
             <remarks/>
         </member>
         <member name="T:WebAPI.Domains.DomainStatusResponse">
@@ -15577,6 +15736,42 @@
         <member name="F:WebAPI.Domains.DeviceState.UnActivated">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Domains.HomeNetworkResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Domains.HomeNetworkResponse.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Domains.HomeNetworkResponse.HomeNetwork">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Domains.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Domains.Status.Code">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Domains.Status.Message">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Domains.HomeNetwork">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Domains.HomeNetwork.Name">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Domains.HomeNetwork.UID">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Domains.HomeNetwork.Description">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Domains.HomeNetwork.CreateDate">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Domains.HomeNetwork.IsActive">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Domains.DeviceRegistrationStatusResponse">
             <remarks/>
         </member>
@@ -15599,15 +15794,6 @@
             <remarks/>
         </member>
         <member name="F:WebAPI.Domains.DeviceRegistrationStatus.RegisteredToAnotherDomain">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Domains.Status">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Domains.Status.Code">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Domains.Status.Message">
             <remarks/>
         </member>
         <member name="T:WebAPI.Domains.DeviceFamilyLimitations">
@@ -15784,6 +15970,15 @@
         <member name="F:WebAPI.Domains.DomainResponseStatus.UserAlreadyInDomain">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Domains.HomeNetworksResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Domains.HomeNetworksResponse.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Domains.HomeNetworksResponse.HomeNetworks">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Domains.NetworkResponseObject">
             <remarks/>
         </member>
@@ -15872,24 +16067,6 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Domains.DomainResponse.Status">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Domains.HomeNetwork">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Domains.HomeNetwork.Name">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Domains.HomeNetwork.UID">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Domains.HomeNetwork.Description">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Domains.HomeNetwork.CreateDate">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Domains.HomeNetwork.IsActive">
             <remarks/>
         </member>
         <member name="T:WebAPI.Domains.DomainStatus">
@@ -16343,6 +16520,15 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Domains.RemoveDomainByCoGuidCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Domains.AddDomainHomeNetworkCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Domains.AddDomainHomeNetworkCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Domains.AddDomainHomeNetworkCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.Pricing.mdoule">

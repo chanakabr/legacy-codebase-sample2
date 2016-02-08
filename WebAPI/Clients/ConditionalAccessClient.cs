@@ -323,7 +323,7 @@ namespace WebAPI.Clients
         }
 
         internal KalturaTransaction Purchase(int groupId, string siteguid, long houshold, double price, string currency, int contentId,
-                                                     int productId, KalturaTransactionType clientTransactionType, string coupon, string udid, int paymentGwId)
+                                                     int productId, KalturaTransactionType clientTransactionType, string coupon, string udid, int paymentGatewayId)
         {
             KalturaTransaction clientResponse = null;
             TransactionResponse wsResponse = new TransactionResponse();
@@ -340,7 +340,7 @@ namespace WebAPI.Clients
                 {
                     // fire request
                     wsResponse = ConditionalAccess.Purchase(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, siteguid, houshold, price,
-                                                            currency, contentId, productId, transactionType, coupon, Utils.Utils.GetClientIP(), udid, paymentGwId);
+                                                            currency, contentId, productId, transactionType, coupon, Utils.Utils.GetClientIP(), udid, paymentGatewayId);
                 }
             }
             catch (Exception ex)

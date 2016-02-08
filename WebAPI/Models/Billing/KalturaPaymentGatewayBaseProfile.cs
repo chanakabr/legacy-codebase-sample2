@@ -37,5 +37,13 @@ namespace WebAPI.Models.Billing
         [JsonProperty("is_default")]
         [XmlElement(ElementName = "is_default")]
         public bool IsDefault { get; set; }
+
+        /// <summary>
+        /// distinction payment gateway selected by account or household
+        /// </summary>
+        [DataMember(Name = "selected_by")]
+        [JsonProperty("selected_by")]
+        [XmlElement(ElementName = "selected_by", IsNullable = true)]
+        public KalturaHouseholdPaymentGatewaySelectedBy selectedBy { get; set; }
     }
 }

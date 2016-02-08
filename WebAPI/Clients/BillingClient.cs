@@ -143,7 +143,7 @@ namespace WebAPI.Clients
         public List<Models.Billing.KalturaPaymentGatewayBaseProfile> GetHouseholdPaymentGateways(int groupId, string siteGuid, long householdId)
         {
             List<Models.Billing.KalturaPaymentGatewayBaseProfile> KalturaPaymentGatewayBaseProfileList = null;
-            WebAPI.Billing.PaymentGatewayResponse response = null;
+            WebAPI.Billing.PaymentGatewayListResponse response = null;
             Group group = GroupsManager.GetGroup(groupId);
 
             try
@@ -164,12 +164,12 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            if (response.resp.Code != (int)StatusCode.OK)
+            if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.resp.Code, response.resp.Message);
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
             }
 
-            KalturaPaymentGatewayBaseProfileList = Mapper.Map<List<Models.Billing.KalturaPaymentGatewayBaseProfile>>(response.pgw);
+            KalturaPaymentGatewayBaseProfileList = Mapper.Map<List<Models.Billing.KalturaPaymentGatewayBaseProfile>>(response.PaymentGateways);
 
             return KalturaPaymentGatewayBaseProfileList;
         }

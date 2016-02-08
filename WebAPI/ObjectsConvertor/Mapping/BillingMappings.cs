@@ -5,6 +5,7 @@ using System.Linq;
 using WebAPI.Billing;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Models.Billing;
 using WebAPI.Models.General;
 
 namespace WebAPI.ObjectsConvertor.Mapping
@@ -78,6 +79,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.PaymentGateway.SharedSecret))
                 .ForMember(dest => dest.StatusUrl, opt => opt.MapFrom(src => src.PaymentGateway.StatusUrl))
                 .ForMember(dest => dest.TransactUrl, opt => opt.MapFrom(src => src.PaymentGateway.TransactUrl));
+
+            Mapper.CreateMap<PaymentGatewaySelectedBy, WebAPI.Models.Billing.KalturaPaymentGatewayBaseProfile>()
+             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+             .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
+             .ForMember(dest => dest.selectedBy, opt => opt.MapFrom(src => ConvertHouseholdPaymentGatewaySelectedBy(src.By)));             
         }
 
 
