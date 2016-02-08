@@ -100,6 +100,7 @@ namespace ApiObjects.Response
         UnableToPurchaseCollectionPurchased = 3027,
         FileToMediaMismatch = 3028,
         ReconciliationFrequencyLimitation = 3029,
+        InvalidCustomDataIdentifier = 3030,
 
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,
