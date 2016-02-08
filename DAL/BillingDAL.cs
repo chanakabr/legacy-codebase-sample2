@@ -1260,7 +1260,7 @@ namespace DAL
             List<PaymentGatewaySelectedBy> res = new List<PaymentGatewaySelectedBy>();
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_HouseholdPaymentGatewayList1");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PaymentGatewayConfiguredList");
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
                 sp.AddParameter("@groupID", groupID);
                 sp.AddParameter("@houseHoldID", householdId);
