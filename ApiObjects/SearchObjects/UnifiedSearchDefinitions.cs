@@ -206,6 +206,8 @@ namespace ApiObjects.SearchObjects
         /// <summary>
         /// Lists of specific assets that should NOT be returned in query - they will be filtered out
         /// </summary>
+        [JsonProperty()]
+        [DataMember]
         public Dictionary<eAssetTypes, List<string>> excludedAssets;
 
         /// <summary>
