@@ -187,7 +187,8 @@ namespace ElasticSearch.Searcher
             return fullQuery;
         }
 
-        public void BuildInnerFilterAndQuery(out BaseFilterCompositeType filterPart, out IESTerm queryTerm, bool bIgnoreDeviceRuleID = false, bool bAddActive = true)
+        public void BuildInnerFilterAndQuery(out BaseFilterCompositeType filterPart, out IESTerm queryTerm, 
+            bool ignoreDeviceRuleID = false, bool isActiveOnly = true)
         {
             ESPrefix epgPrefixTerm = new ESPrefix()
             {
@@ -240,7 +241,7 @@ namespace ElasticSearch.Searcher
                 Value = this.SearchDefinitions.groupId.ToString()
             };
 
-            if (bAddActive)
+            if (isActiveOnly)
             {
                 ESTerm isActiveTerm = new ESTerm(true)
                 {
@@ -250,6 +251,9 @@ namespace ElasticSearch.Searcher
             
                 globalFilter.AddChild(isActiveTerm);
             }
+
+            #region Specific assets - included and excluded
+
             // If specific assets should return, filter their IDs.
             // Add an IN Clause (Terms) to the matching filter (media, EPG etc.)
             if (this.SearchDefinitions.specificAssets != null)
@@ -285,10 +289,47 @@ namespace ElasticSearch.Searcher
                 }
             }
 
+            // If specific assets should return, filter their IDs.
+            // Add an IN Clause (Terms) to the matching filter (media, EPG etc.)
+            if (this.SearchDefinitions.excludedAssets != null)
+            {
+                foreach (var item in this.SearchDefinitions.excludedAssets)
+                {
+                    ESTerms idsTerm = new ESTerms(true)
+                    {
+                        Key = "_id",
+                        isNot = true
+                    };
+
+                    idsTerm.Value.AddRange(item.Value);
+
+                    switch (item.Key)
+                    {
+                        case ApiObjects.eAssetTypes.UNKNOWN:
+                        break;
+                        case ApiObjects.eAssetTypes.EPG:
+                        {
+                            epgFilter.AddChild(idsTerm);
+                            break;
+                        }
+                        case ApiObjects.eAssetTypes.NPVR:
+                        break;
+                        case ApiObjects.eAssetTypes.MEDIA:
+                        {
+                            mediaFilter.AddChild(idsTerm);
+                            break;
+                        }
+                        default:
+                        break;
+                    }
+                }
+            }
+
+            #endregion
+
             // Dates filter: 
             // If it is media, it should start before now and end after now
             // If it is EPG, it should start and end around the current week
-
 
             // epg ranges
             if (this.SearchDefinitions.shouldSearchEpg)
@@ -445,7 +486,7 @@ namespace ElasticSearch.Searcher
                     }                    
                 }
 
-                if (!bIgnoreDeviceRuleID)
+                if (!ignoreDeviceRuleID)
                     mediaFilter.AddChild(deviceRulesTerms);
 
                 #endregion
