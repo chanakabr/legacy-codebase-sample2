@@ -1309,7 +1309,7 @@ namespace DAL
             return res;
         }
 
-        public static PaymentGateway GetSelectedHouseholdPaymentGateway(int groupID, long householdId)
+        public static PaymentGateway GetSelectedHouseholdPaymentGateway(int groupID, long householdId, ref string chargeId)
         {
             PaymentGateway paymentGateway = null;
             try
@@ -1342,6 +1342,7 @@ namespace DAL
                     paymentGateway.RenewalIntervalMinutes = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "renewal_interval_minutes");
                     paymentGateway.RenewalStartMinutes = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "renewal_start_minutes");
                     paymentGateway.IsActive = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active");
+                    chargeId = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "charge_Id");
                 }
 
             }
