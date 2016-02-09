@@ -170,6 +170,17 @@ namespace TVPPro.SiteManager.DataLoaders
                 Parameters.SetParameter<Status>(eParameterType.Retrieve, "ResponseStatus", value);
             }
         }
+        public int UtcOffset
+        {
+            get
+            {
+                return Parameters.GetParameter<int>(eParameterType.Retrieve, "UtcOffset", 0);
+            }
+            set
+            {
+                Parameters.SetParameter<int>(eParameterType.Retrieve, "UtcOffset", value);
+            }
+        }
         #endregion
 
         public ExternalRelatedMoviesLoader(long mediaID, string freeParam = null)
@@ -193,6 +204,7 @@ namespace TVPPro.SiteManager.DataLoaders
                 {
                     DeviceId = DeviceUDID,
                     Language = int.Parse(TechnicalManager.GetLanguageID().ToString()),
+                    UtcOffset = UtcOffset,
                     OnlyActiveMedia = true,
                     Platform = Platform.ToString(),
                     SiteGuid = SiteGuid

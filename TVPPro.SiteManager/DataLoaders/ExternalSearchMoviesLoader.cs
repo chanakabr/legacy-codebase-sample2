@@ -51,6 +51,18 @@ namespace TVPPro.SiteManager.DataLoaders
             }
         }
 
+        public int UtcOffset
+        {
+            get
+            {
+                return Parameters.GetParameter<int>(eParameterType.Retrieve, "UtcOffset", 0);
+            }
+            set
+            {
+                Parameters.SetParameter<int>(eParameterType.Retrieve, "UtcOffset", value);
+            }
+        }
+
         public bool WithInfo
         {
             get
@@ -187,7 +199,8 @@ namespace TVPPro.SiteManager.DataLoaders
                     Language = int.Parse(TechnicalManager.GetLanguageID().ToString()),
                     OnlyActiveMedia = true,
                     Platform = Platform.ToString(),
-                    SiteGuid = SiteGuid
+                    SiteGuid = SiteGuid,
+                    UtcOffset = UtcOffset
                 };
                 List<BaseObject> ret = m_oCatalogExternalSearchLoader.Execute() as List<BaseObject>;
                                 

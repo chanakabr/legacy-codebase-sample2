@@ -49,11 +49,12 @@ namespace TVPPro.SiteManager.CatalogLoaders
             {
                 m_nMediaTypes = MediaTypes,
                 m_nMediaID = MediaID,
-                m_sFreeParam = FreeParam
+                m_sFreeParam = FreeParam,
+                m_nUtcOffset = UtcOffset
             };
         }
 
-        public virtual object Execute()
+        public override object Execute()
         {
             BuildRequest();
             Log("TryExecuteGetBaseResponse:", m_oRequest);
