@@ -40,6 +40,7 @@ namespace ConditionalAccess
         private const string ILLEGAL_CONTENT_ID = "Illegal content ID";
         private const string CONTENT_ID_WITH_A_RELATED_MEDIA = "Content ID with a related media";
         protected const string ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION = "PROCESS_RENEW_SUBSCRIPTION\\{0}";
+        protected const string BILLING_CONNECTION_STRING = "BILLING_CONNECTION";
 
         public const string PRICE = "pri";
         public const string CURRENCY = "cu";
@@ -13558,7 +13559,7 @@ namespace ConditionalAccess
                                                                                               ref ePriceReason, ref relevantSub, ref relevantCol, ref relevantPP,
                                                                                               string.Empty, string.Empty, deviceName);
 
-                if (ePriceReason == PriceReason.ForPurchase || 
+                if (ePriceReason == PriceReason.ForPurchase ||
                     (ePriceReason == PriceReason.SubscriptionPurchased && oPrice.m_dPrice > 0))
                 {
                     // item is for purchase
@@ -15918,7 +15919,7 @@ namespace ConditionalAccess
 
                 // 2. Get Custom Data by Id  
                 string customData = string.Empty;
-                if (customDataId == 0 || !BillingDAL.Get_CustomDataByID((long)customDataId, ref customData) || string.IsNullOrEmpty(customData))
+                if (customDataId == 0 || !BillingDAL.Get_CustomDataByID((long)customDataId, ref customData, BILLING_CONNECTION_STRING) || string.IsNullOrEmpty(customData))
                 {
                     log.ErrorFormat("SetEntitlement - Invalid Custom data identifier {0}", customDataId.ToString());
                     return new ApiObjects.Response.Status((int)eResponseStatus.InvalidCustomDataIdentifier, "Invalid Custom data identifier");
@@ -16024,7 +16025,7 @@ namespace ConditionalAccess
 
                         // Status OK + (State OK || State Pending) = grant entitlement
                         if (transactionResponse.Status.Code == (int)eResponseStatus.OK &&
-                            (transactionResponse.State.Equals(eTransactionState.OK.ToString()) || 
+                            (transactionResponse.State.Equals(eTransactionState.OK.ToString()) ||
                             transactionResponse.State.Equals(eTransactionState.Pending.ToString())))
                         {
                             // purchase passed

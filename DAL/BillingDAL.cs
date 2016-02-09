@@ -15,6 +15,7 @@ namespace DAL
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
+        private const string BILLING_CONNECTION_STRING = "CONNECTION_STRING";
         private const string SP_IS_DOUBLE_ADYEN_TRANSACTION = "IsDoubleAdyenTransaction";
 
         public static DataTable Get_UserToken(int nGroupID, string sSiteGuid)
@@ -668,11 +669,11 @@ namespace DAL
             return Get_LatestCustomDataID(sCustomData, string.Empty);
         }
 
-        public static bool Get_CustomDataByID(long lCustomDataID, ref string sCustomData)
+        public static bool Get_CustomDataByID(long lCustomDataID, ref string sCustomData, string sConnKey = BILLING_CONNECTION_STRING)
         {
             bool res = false;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CustomDataByID");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : BILLING_CONNECTION_STRING);            
             sp.AddParameter("@CustomDataID", lCustomDataID);
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
