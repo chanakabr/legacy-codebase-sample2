@@ -395,9 +395,11 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get external related media info")]
-        public TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetExternalRelatedMedias(InitializationObject initObj, int assetID, int pageSize, int pageIndex, int[] filter_types, string freeParam, List<string> with)
+        public TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetExternalRelatedMedias(InitializationObject initObj, int assetID, int pageSize, int pageIndex, int[] filter_types, string freeParam, List<string> with, int utc_offset)
         {
             TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId ret = null;
+
+            #region validate with
             HashSet<string> validWithValues = new HashSet<string>() { "images", "stats", "files" };
 
             // validate with - make sure it contains only "stats" and/or "files"
@@ -413,6 +415,21 @@ namespace TVPApiServices
                     }
                 }
             }
+            #endregion
+
+            #region Paging
+            if (pageSize > 20)
+            {
+                pageSize = 20;
+            }
+            else if (pageSize < 5)
+            {
+                ret = new TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId();
+                ret.Status = ResponseUtils.ReturnBadRequestStatus("page_size range can be between 5 and 20");
+                return ret;
+            }
+
+            #endregion
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetExternalRelatedMedias", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -420,7 +437,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    ret = MediaHelper.GetExternalRelatedMediaList(initObj, assetID, pageSize, pageIndex, groupID, filter_types, freeParam, with);
+                    ret = MediaHelper.GetExternalRelatedMediaList(initObj, assetID, pageSize, pageIndex, groupID, utc_offset, filter_types, freeParam, with);
                 }
                 catch (Exception ex)
                 {
@@ -439,9 +456,11 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get external search media info")]
-        public TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetExternalSearchMedias(InitializationObject initObj, string query, int pageSize, int pageIndex, int[] filter_types, List<string> with)
+        public TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetExternalSearchMedias(InitializationObject initObj, string query, int pageSize, int pageIndex, int[] filter_types, List<string> with, int utc_offset)
         {
             TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId ret = null;
+
+            #region validate with
             HashSet<string> validWithValues = new HashSet<string>() { "images", "stats", "files" };
 
             // validate with - make sure it contains only "stats" and/or "files"
@@ -457,6 +476,21 @@ namespace TVPApiServices
                     }
                 }
             }
+            #endregion
+
+            #region Paging
+            if (pageSize > 20)
+            {
+                pageSize = 20;
+            }
+            else if (pageSize < 5)
+            {
+                ret = new TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId();
+                ret.Status = ResponseUtils.ReturnBadRequestStatus("page_size range can be between 5 and 20");
+                return ret;
+            }
+
+            #endregion
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetExternalSearchMedias", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
@@ -464,7 +498,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    ret = MediaHelper.GetExternalSearchMediaList(initObj, query, pageSize, pageIndex, groupID, filter_types, with);
+                    ret = MediaHelper.GetExternalSearchMediaList(initObj, query, pageSize, pageIndex, groupID, utc_offset, filter_types, with);
                 }
                 catch (Exception ex)
                 {
