@@ -395,7 +395,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get external related media info")]
-        public TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetExternalRelatedMedias(InitializationObject initObj, int assetID, int pageSize, int pageIndex, int[] filter_types, string freeParam, List<string> with, int utc_offset)
+        public TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetExternalRelatedMedias(InitializationObject initObj, int assetID, int pageSize, int pageIndex, int[] filteTypes, string freeParam, List<string> with, int utcOffset)
         {
             TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId ret = null;
 
@@ -437,7 +437,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    ret = MediaHelper.GetExternalRelatedMediaList(initObj, assetID, pageSize, pageIndex, groupID, utc_offset, filter_types, freeParam, with);
+                    ret = MediaHelper.GetExternalRelatedMediaList(initObj, assetID, pageSize, pageIndex, groupID, utcOffset, filteTypes, freeParam, with);
                 }
                 catch (Exception ex)
                 {
@@ -456,7 +456,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Get external search media info")]
-        public TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetExternalSearchMedias(InitializationObject initObj, string query, int pageSize, int pageIndex, int[] filter_types, List<string> with, int utc_offset)
+        public TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetExternalSearchMedias(InitializationObject initObj, string query, int pageSize, int pageIndex, int[] filterTypes, List<string> with, int utcOffset)
         {
             TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId ret = null;
 
@@ -498,7 +498,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    ret = MediaHelper.GetExternalSearchMediaList(initObj, query, pageSize, pageIndex, groupID, utc_offset, filter_types, with);
+                    ret = MediaHelper.GetExternalSearchMediaList(initObj, query, pageSize, pageIndex, groupID, utcOffset, filterTypes, with);
                 }
                 catch (Exception ex)
                 {
@@ -4142,9 +4142,9 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Get assets from an external source")]
         public TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetExternalAssets(InitializationObject initObj,
             string alias,
-            string utc_offset,
-            string free_param,
-            List<string> with, int page_index, int? page_size)
+            string utcOffset,
+            string freeParam,
+            List<string> with, int pageIndex, int? pageSize)
         {
             TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId response = null;
 
@@ -4156,15 +4156,15 @@ namespace TVPApiServices
                 {
                     #region Paging
 
-                    if (page_size == null)
+                    if (pageSize == null)
                     {
-                        page_size = 10;
+                        pageSize = 10;
                     }
-                    else if (page_size > 20)
+                    else if (pageSize > 20)
                     {
-                        page_size = 20;
+                        pageSize = 20;
                     }
-                    else if (page_size < 5)
+                    else if (pageSize < 5)
                     {
                         response = new TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId();
                         response.Status = ResponseUtils.ReturnBadRequestStatus("page_size range can be between 5 and 20");
@@ -4194,11 +4194,11 @@ namespace TVPApiServices
 
                     #region UTC Offset
 
-                    if (!string.IsNullOrEmpty(utc_offset))
+                    if (!string.IsNullOrEmpty(utcOffset))
                     {
                         double utcOffsetDouble;
 
-                        if (!double.TryParse(utc_offset, out utcOffsetDouble))
+                        if (!double.TryParse(utcOffset, out utcOffsetDouble))
                         {
                             response = new TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId();
                             response.Status = ResponseUtils.ReturnBadRequestStatus("UTC Offset must be a valid number between -12 and 12");
@@ -4216,8 +4216,8 @@ namespace TVPApiServices
 
                     string deviceType = System.Web.HttpContext.Current.Request.UserAgent;
 
-                    response = new APIRecommendationsLoader(groupId, initObj.Platform, SiteHelper.GetClientIP(), (int)page_size, page_index,
-                        initObj.DomainID, initObj.SiteGuid, initObj.Locale.LocaleLanguage, with, initObj.UDID, deviceType, alias, utc_offset, string.Empty, string.Empty, free_param)
+                    response = new APIRecommendationsLoader(groupId, initObj.Platform, SiteHelper.GetClientIP(), (int)pageSize, pageIndex,
+                        initObj.DomainID, initObj.SiteGuid, initObj.Locale.LocaleLanguage, with, initObj.UDID, deviceType, alias, utcOffset, string.Empty, string.Empty, freeParam)
                     {
                     }.Execute() as TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId;
                 }
