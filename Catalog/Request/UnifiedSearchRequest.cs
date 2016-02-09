@@ -11,12 +11,14 @@ using System.Web;
 using Catalog.Response;
 using KLogMonitor;
 using System.Reflection;
+using Catalog.Attributes;
 
 namespace Catalog.Request
 {
     /// <summary>
     /// A search request of several types of assets: Media, EPGs etc. All in one, unified place.
     /// </summary>
+    [LogTopic("UnifiedSearch")]
     [DataContract]
     public class UnifiedSearchRequest : BaseRequest, IRequestImp
     {

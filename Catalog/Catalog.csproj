@@ -122,6 +122,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AdProvider.cs" />
+    <Compile Include="Attributes\LogTopicAttribute.cs" />
     <Compile Include="BaseObject.cs" />
     <Compile Include="PicData.cs" />
     <Compile Include="PicSize.cs" />
