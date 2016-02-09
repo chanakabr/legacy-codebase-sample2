@@ -84,7 +84,7 @@ namespace TVPApi
             {
                 Parameters.SetParameter<string>(eParameterType.Retrieve, "Language", value);
             }
-        }        
+        }
 
         public int DomainID
         {
@@ -121,8 +121,7 @@ namespace TVPApi
                     Platform = Platform.ToString(),
                     Culture = Language,
                     SiteGuid = SiteGuid,
-                    DomainId = DomainID,
-                    UtcOffset = UtcOffset
+                    DomainId = DomainID
                 };
 
                 List<BaseObject> ret = m_oCatalogExternalRelatedLoader.Execute() as List<BaseObject>;

@@ -688,22 +688,22 @@ namespace TVPApi
             return GetMediaList(initObj, account.TVMUser, account.TVMPass, mediaID, picSize, pageSize, pageIndex, groupID, LoaderType.Related, OrderBy.None, reqMediaTypes);
         }
 
-        public static TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetExternalRelatedMediaList(InitializationObject initObj, int mediaID, int pageSize, int pageIndex, int groupID, int utcOffset, int[] reqMediaTypes = null, string freeParam = null, List<string> with = null)
+        public static TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetExternalRelatedMediaList(InitializationObject initObj, int mediaID, int pageSize, int pageIndex, int groupID, int[] reqMediaTypes = null, string freeParam = null, List<string> with = null)
         {
             TVMAccountType account; ;
             
             account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Parent);
 
-            return GetMediaExternalRelatedList(initObj, account.TVMUser, account.TVMPass, mediaID, pageSize, pageIndex, groupID, utcOffset, reqMediaTypes, freeParam, with);
+            return GetMediaExternalRelatedList(initObj, account.TVMUser, account.TVMPass, mediaID, pageSize, pageIndex, groupID, reqMediaTypes, freeParam, with);
         }
 
-        public static TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetExternalSearchMediaList(InitializationObject initObj, string query, int pageSize, int pageIndex, int groupID, int utcOffset, int[] reqMediaTypes = null, List<string> with = null)
+        public static TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetExternalSearchMediaList(InitializationObject initObj, string query, int pageSize, int pageIndex, int groupID, int[] reqMediaTypes = null, List<string> with = null)
         {
             TVMAccountType account; ;
 
             account = SiteMapManager.GetInstance.GetPageData(groupID, initObj.Platform).GetTVMAccountByAccountType(AccountType.Parent);
 
-            return GetMediaExternalSearchList(initObj, account.TVMUser, account.TVMPass, query, pageSize, pageIndex, groupID, utcOffset, OrderBy.None, reqMediaTypes, with);
+            return GetMediaExternalSearchList(initObj, account.TVMUser, account.TVMPass, query, pageSize, pageIndex, groupID, OrderBy.None, reqMediaTypes, with);
         }
 
         public static List<Media> GetRelatedMediaList(InitializationObject initObj, int mediaID, int mediaType, string picSize, int pageSize, int pageIndex, int groupID, ref long mediaCount)
@@ -1114,7 +1114,7 @@ namespace TVPApi
         }
 
         public static TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetMediaExternalRelatedList(InitializationObject initObj, string user, string pass, long ID, int pageSize, int pageIndex, 
-                                                                                int groupID, int utcOffset, int[] reqMediaTypes = null, string freeParam = null, List<string> with = null)
+                                                                                int groupID, int[] reqMediaTypes = null, string freeParam = null, List<string> with = null)
         {
             List<BaseObject> mediaInfo;
 
@@ -1130,7 +1130,6 @@ namespace TVPApi
                 MediaTypes = reqMediaTypes,
                 Language = initObj.Locale.LocaleLanguage,
                 SiteGuid = initObj.SiteGuid,
-                UtcOffset = utcOffset,
                 DomainID = initObj.DomainID,
                 With = with
             };
@@ -1199,7 +1198,7 @@ namespace TVPApi
             return ret;
         }
 
-        public static TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetMediaExternalSearchList(InitializationObject initObj, string user, string pass, string query, int pageSize, int pageIndex, int groupID, int utcOffset, OrderBy orderBy, int[] reqMediaTypes = null, List<string> with = null)
+        public static TVPApiModule.Objects.Responses.UnifiedSearchResponseWithRequestId GetMediaExternalSearchList(InitializationObject initObj, string user, string pass, string query, int pageSize, int pageIndex, int groupID, OrderBy orderBy, int[] reqMediaTypes = null, List<string> with = null)
         {
             List<BaseObject> mediaInfo;
 
@@ -1216,8 +1215,7 @@ namespace TVPApi
                 Language = initObj.Locale.LocaleLanguage,
                 SiteGuid = initObj.SiteGuid,
                 DomainID = initObj.DomainID,
-                With = with,
-                UtcOffset = utcOffset
+                With = with
             };
             mediaInfo = externalRelatedLoader.Execute();
 

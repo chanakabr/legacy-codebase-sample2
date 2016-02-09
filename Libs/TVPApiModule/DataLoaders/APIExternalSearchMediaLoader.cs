@@ -120,8 +120,7 @@ namespace TVPApi
                     Platform = Platform.ToString(),
                     Culture = Language,
                     SiteGuid = SiteGuid,
-                    DomainId = DomainID,
-                    UtcOffset = UtcOffset
+                    DomainId = DomainID
                 };
 
                 List<BaseObject> ret = m_oCatalogExternalSearchLoader.Execute() as List<BaseObject>;
