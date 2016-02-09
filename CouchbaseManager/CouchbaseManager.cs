@@ -295,7 +295,7 @@ namespace CouchbaseManager
         /// <param name="value"></param>
         /// <param name="expiration">TTL in seconds</param>
         /// <returns></returns>
-        public override bool Add(string key, object value, uint expiration = 0)
+        public bool Add(string key, object value, uint expiration = 0)
         {
             bool result = false;
 
@@ -337,7 +337,7 @@ namespace CouchbaseManager
         /// <param name="value"></param>
         /// <param name="expiration">TTL in seconds</param>
         /// <returns></returns>
-        public override bool Set(string key, object value, uint expiration = 0)
+        public bool Set(string key, object value, uint expiration = 0)
         {
             bool result = false;
 
@@ -371,7 +371,7 @@ namespace CouchbaseManager
             return result;
         }
 
-        public override T Get<T>(string key)
+        public T Get<T>(string key)
         {
             T result = default(T);
 
@@ -412,7 +412,7 @@ namespace CouchbaseManager
             return result;
         }
 
-        public override bool Remove<T>(string key)
+        public bool Remove<T>(string key)
         {
             bool result = false;
 
@@ -463,7 +463,7 @@ namespace CouchbaseManager
             return result;
         }
 
-        public override T GetWithVersion<T>(string key, out ulong version)
+        public T GetWithVersion<T>(string key, out ulong version)
         {
             version = 0;
             T result = default(T);
@@ -516,7 +516,7 @@ namespace CouchbaseManager
         /// <param name="version"></param>
         /// <param name="expiration">TTL in seconds</param>
         /// <returns></returns>
-        public override bool SetWithVersion<T>(string key, object value, ulong version, uint expiration = 0)
+        public bool SetWithVersion<T>(string key, object value, ulong version, uint expiration = 0)
         {
             bool result = false;
 
@@ -551,7 +551,7 @@ namespace CouchbaseManager
 
         }
 
-        public override IDictionary<string, T> GetValues<T>(List<string> keys, bool shouldAllowPartialQuery = false)
+        public IDictionary<string, T> GetValues<T>(List<string> keys, bool shouldAllowPartialQuery = false)
         {
             IDictionary<string, T> result = null;
             try
@@ -620,14 +620,14 @@ namespace CouchbaseManager
             return result;
         }
 
-        public override bool SetJson<T>(string key, T value, uint expiration = 0)
+        public bool SetJson<T>(string key, T value, uint expiration = 0)
         {
             var json = ObjectToJson<T>(value);
 
             return this.Set(key, json, expiration);
         }
 
-        public override T GetJsonAsT<T>(string key)
+        public T GetJsonAsT<T>(string key)
         {
             T result = default(T);
 
