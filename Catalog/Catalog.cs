@@ -1874,7 +1874,8 @@ namespace Catalog
         #region Build search Object for search Related
 
         /*Build the right MediaSearchRequest for a Search Related Media */
-        public static MediaSearchRequest BuildMediasRequest(Int32 nMediaID, bool bIsMainLang, Filter filterRequest, ref Filter oFilter, Int32 nGroupID, List<Int32> nMediaTypes, string sSiteGuid)
+        public static MediaSearchRequest BuildMediasRequest(Int32 nMediaID, bool bIsMainLang, Filter filterRequest, 
+            ref Filter oFilter, Int32 nGroupID, List<Int32> nMediaTypes, string sSiteGuid)
         {
             try
             {
@@ -4908,7 +4909,7 @@ namespace Catalog
                 int mediaTypeID = Catalog.GetMediaTypeID(request.m_nMediaID);
                 if (mediaTypeID == 0)
                 {
-                    status.Message = "Media doesn't exist";
+                    status.Message = "Asset doesn't exist";
                     status.Code = (int)eResponseStatus.BadSearchRequest;
                     return status;
                 }
@@ -5466,7 +5467,7 @@ namespace Catalog
 
             if (searchResults == null)
             {
-                return new Status((int)eResponseStatus.Error, "Failed performing channel search");
+                return new Status((int)eResponseStatus.Error, "Failed performing related assets search");
             }
 
             List<int> assetIDs = searchResults.Select(item => int.Parse(item.AssetId)).ToList();
@@ -5475,7 +5476,7 @@ namespace Catalog
             {
                 searchResults = null;
                 totalItems = 0;
-                return new Status((int)eResponseStatus.Error, "Failed performing channel search");
+                return new Status((int)eResponseStatus.Error, "Failed performing related assets search");
             }
 
             status = new Status((int)eResponseStatus.OK);
@@ -5493,7 +5494,8 @@ namespace Catalog
 
             bool bIsMainLang = Utils.IsLangMain(request.m_nGroupID, request.m_oFilter.m_nLanguage);
 
-            MediaSearchRequest mediaSearchRequest = BuildMediasRequest(request.m_nMediaID, bIsMainLang, request.m_oFilter, ref filter, request.m_nGroupID, request.m_nMediaTypes, request.m_sSiteGuid);
+            MediaSearchRequest mediaSearchRequest = 
+                BuildMediasRequest(request.m_nMediaID, bIsMainLang, request.m_oFilter, ref filter, request.m_nGroupID, request.m_nMediaTypes, request.m_sSiteGuid);
 
             #region Basic
 
@@ -5502,6 +5504,18 @@ namespace Catalog
 
             definitions.pageIndex = request.m_nPageIndex;
             definitions.pageSize = request.m_nPageSize;
+
+            #endregion
+
+            #region Excluded Media
+
+            // Exclude the original media from the search
+            if (request.m_nMediaID > 0)
+            {
+                definitions.excludedAssets = new Dictionary<eAssetTypes, List<string>>();
+                definitions.excludedAssets[eAssetTypes.MEDIA] = new List<string>();
+                definitions.excludedAssets[eAssetTypes.MEDIA].Add(request.m_nMediaID.ToString());
+            }
 
             #endregion
 

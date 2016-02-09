@@ -1,21 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Configuration;
-using System.Security.Cryptography;
-using ConditionalAccess.TvinciPricing;
-using System.Web;
-using Tvinic.GoogleAPI;
-using System.Data;
-using System.Xml;
-using DAL;
-using ConditionalAccess.TvinciUsers;
-using ApiObjects;
-using KLogMonitor;
-using System.Reflection;
+﻿using ApiObjects;
 using ApiObjects.Response;
 using ConditionalAccess.TvinciDomains;
+using ConditionalAccess.TvinciPricing;
+using ConditionalAccess.TvinciUsers;
+using DAL;
+using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Web;
+using System.Xml;
+using Tvinic.GoogleAPI;
 
 namespace ConditionalAccess
 {
@@ -3451,9 +3449,9 @@ namespace ConditionalAccess
         /// <param name="groupId"></param>
         /// <param name="domainId"></param>
         /// <returns></returns>
-        public static DomainStatus ValidateDomain(int groupId, int domainId)
+        public static ApiObjects.Response.Status ValidateDomain(int groupId, int domainId)
         {
-            DomainStatus status = DomainStatus.Error;
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = "Error validating domain" };
 
             string username = string.Empty;
             string password = string.Empty;
@@ -3470,10 +3468,7 @@ namespace ConditionalAccess
             try
             {
                 DomainResponse response = domainsService.GetDomainInfo(username, password, domainId);
-                if (!Enum.TryParse(response.Status.Message.ToString(), out status))
-                {
-                    status = DomainStatus.Error;
-                }
+                status = new ApiObjects.Response.Status(response.Status.Code, response.Status.Message);
             }
             catch (Exception ex)
             {
@@ -3483,7 +3478,6 @@ namespace ConditionalAccess
             }
             return status;
         }
-
 
         public static int CalcPaymentNumber(int nNumOfPayments, int nPaymentNumber, bool bIsPurchasedWithPreviewModule)
         {
@@ -4033,6 +4027,79 @@ namespace ConditionalAccess
                     client.Close();
                 }
             }
+        }
+
+        internal static ApiObjects.Response.Status ValidateUserAndDomain(int groupId, string siteGuid, ref long householdId)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+            status.Code = -1;
+
+            // If no user - go immediately to domain validation
+            if (string.IsNullOrEmpty(siteGuid))
+            {
+                status.Code = (int)eResponseStatus.OK;
+            }
+            else
+            {
+                // Get response from users WS
+                ResponseStatus userStatus = ValidateUser(groupId, siteGuid, ref householdId);
+                if (householdId == 0)
+                {
+                    status.Code = (int)eResponseStatus.UserWithNoDomain;
+                    status.Message = eResponseStatus.UserWithNoDomain.ToString();
+                }
+                else
+                {
+                    // Most of the cases are not interesting - focus only on those that matter
+                    switch (userStatus)
+                    {
+                        case ResponseStatus.OK:
+                            {
+                                status.Code = (int)eResponseStatus.OK;
+                                break;
+                            }
+                        case ResponseStatus.UserDoesNotExist:
+                            {
+                                status.Code = (int)eResponseStatus.UserDoesNotExist;
+                                status.Message = eResponseStatus.UserDoesNotExist.ToString();
+                                break;
+                            }
+                        case ResponseStatus.UserNotIndDomain:
+                            {
+                                status.Code = (int)eResponseStatus.UserNotInDomain;
+                                status.Message = "User Not In Domain";
+                                break;
+                            }
+                        case ResponseStatus.UserWithNoDomain:
+                            {
+                                status.Code = (int)eResponseStatus.UserWithNoDomain;
+                                status.Message = eResponseStatus.UserWithNoDomain.ToString();
+                                break;
+                            }
+                        case ResponseStatus.UserSuspended:
+                            {
+                                status.Code = (int)eResponseStatus.UserSuspended;
+                                status.Message = eResponseStatus.UserSuspended.ToString();
+                                break;
+                            }
+                        // Most cases will return general error
+                        default:
+                            {
+                                status.Code = (int)eResponseStatus.Error;
+                                status.Message = "Error validating user";
+                                break;
+                            }
+                    }
+                }
+            }
+
+            // If user is valid (or we don't have one)
+            if (status.Code == (int)eResponseStatus.OK && householdId != 0)
+            {
+                //Get response from domains WS                
+                status = ValidateDomain(groupId, (int)householdId);
+            }
+            return status;
         }
 
     }
