@@ -33,6 +33,7 @@ using CachingHelpers;
 using AdapterControllers;
 using KlogMonitorHelper;
 using System.IO;
+using ApiObjects.PlayCycle;
 
 namespace Catalog
 {
@@ -2071,20 +2072,18 @@ namespace Catalog
             }
         }
 
-        private static int GetMediaConcurrencyRuleID(string sSiteGuid, int nMediaID, int nMediaFileID, string sUDID, int nGroupID, int nPlatform, int nCountryID)
-        {
-            return CatalogDAL.GetRuleIDPlayCycleKey(sSiteGuid, nMediaID, nMediaFileID, sUDID, nPlatform);
-        }
-
-
         public static void UpdateFollowMe(int nGroupID, string sAssetID, string sSiteGUID, int nPlayTime, string sUDID, int duration, string assetAction, int mediaTypeId, int nDomainID = 0, ePlayType ePlayType = ePlayType.MEDIA)
-        {
-            int opID = 0;
-            bool isMaster = false;
-            DomainSuspentionStatus eSuspendStat = DomainSuspentionStatus.OK;
+        {          
+            if (Catalog.IsAnonymousUser(sSiteGUID))
+            {
+                return;
+            }
 
             if (nDomainID < 1)
             {
+                DomainSuspentionStatus eSuspendStat = DomainSuspentionStatus.OK;
+                int opID = 0;
+                bool isMaster = false;  
                 nDomainID = DomainDal.GetDomainIDBySiteGuid(nGroupID, int.Parse(sSiteGUID), ref opID, ref isMaster, ref eSuspendStat);
             }
 
@@ -3609,8 +3608,17 @@ namespace Catalog
                 return false;
             }
 
-            // get the rule id by play_cycle_keys
-            int nMCRuleID = GetMediaConcurrencyRuleID(sSiteGuid, nMediaID, nMediaFileID, sUDID, nGroupID, nPlatform, nCountryID);
+            // Get MCRuleID from PlayCycleSession on CB
+            int nMCRuleID = 0;
+            PlayCycleSession playCycleSession = CatalogDAL.GetUserPlayCycle(sSiteGuid, nMediaID, nMediaFileID, nGroupID, sUDID, nPlatform);
+            if (playCycleSession != null)
+            {
+                nMCRuleID = playCycleSession.MediaConcurrencyRuleID;
+            }
+            else // get from DB incase getting from CB failed
+            {
+                nMCRuleID = CatalogDAL.GetRuleIDPlayCycleKey(sSiteGuid, nMediaID, nMediaFileID, sUDID, nPlatform);
+            }
 
             string sWSUsername = string.Empty;
             string sWSPassword = string.Empty;
@@ -3904,23 +3912,12 @@ namespace Catalog
         internal static bool GetMediaMarkHitInitialData(string sSiteGuid, string userIP, int mediaID, int mediaFileID, ref int countryID,
             ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID, ref int billingTypeID, ref int fileDuration)
         {
-            bool res = false;
-            bool bIP = false;
-            bool bMedia = false;
-            long ipVal = 0;
-
-            countryID = ElasticSearch.Utilities.IpToCountry.GetCountryByIp(userIP);            
-            if (countryID > 0)
-            {
-                bIP = true;
-            }
+            bool res = false;         
 
             if (!TVinciShared.WS_Utils.GetTcmBoolValue("CATALOG_HIT_CACHE"))
-            {
-                //ipVal = ParseIPOutOfString(userIP);
+            {                
+                countryID = ElasticSearch.Utilities.IpToCountry.GetCountryByIp(userIP);
                 return CatalogDAL.GetMediaPlayData(mediaID, mediaFileID, ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID);
-                //return CatalogDAL.Get_MediaMarkHitInitialData(mediaID, mediaFileID, ipVal, ref countryID, ref ownerGroupID, ref cdnID, ref qualityID,
-                //    ref formatID, ref mediaTypeID, ref billingTypeID, ref fileDuration);
             }
 
             #region  try get values from catalog cache
@@ -3932,13 +3929,15 @@ namespace Catalog
             }
 
             CatalogCache catalogCache = CatalogCache.Instance();
-            //string ipKey = string.Format("{0}_userIP_{1}", eWSModules.CATALOG, userIP);
-            //object oCountryID = catalogCache.Get(ipKey);
-            //if (oCountryID != null)
-            //{
-            //    countryID = (int)oCountryID;
-            //    bIP = true;
-            //}
+            string ipKey = string.Format("{0}_userIP_{1}", eWSModules.CATALOG, userIP);
+            object oCountryID = catalogCache.Get(ipKey);
+            bool bIP = false;
+            bool bMedia = false;
+            if (oCountryID != null)
+            {
+                countryID = (int)oCountryID;
+                bIP = true;
+            }
 
             string m_mf_Key = string.Format("{0}_media_{1}_mediaFile_{2}", eWSModules.CATALOG, mediaID, mediaFileID);
             List<KeyValuePair<string, int>> lMedia = catalogCache.Get<List<KeyValuePair<string, int>>>(m_mf_Key);
@@ -3953,45 +3952,32 @@ namespace Catalog
             {
                 res = true;
             }
-            else // not found in cache 
-            {                
-                //if (!bIP && !bMedia)
-                //{
-                //    //ipVal = ParseIPOutOfString(userIP);
-                //    if (CatalogDAL.Get_MediaMarkHitInitialData(mediaID, mediaFileID, ipVal, ref countryID, ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID, ref  fileDuration))
-                //    {                        
-                //        catalogCache.Set(ipKey, countryID, cacheTime);
-                //        InitMediaMarkHitDataToCache(ownerGroupID, cdnID, qualityID, formatID, mediaTypeID, billingTypeID, fileDuration, ref lMedia);
-                //        catalogCache.Set(m_mf_Key, lMedia, cacheTime);
-                //        res = true;
-                //    }
-                //}
-                //else
-                //{
-
-                // get countryID from DB because getting it from ES already failed
-                if (!bIP)
-                {                    
+            else if (!bIP) // try getting countryID from ES, if it fails get countryID from DB
+            {                                
+                countryID = ElasticSearch.Utilities.IpToCountry.GetCountryByIp(userIP);
+                //getting from ES failed
+                if (countryID == 0)
+                {
+                    long ipVal = 0;
                     ipVal = ParseIPOutOfString(userIP);
                     if (ipVal > 0)
                     {
-                        CatalogDAL.Get_IPCountryCode(ipVal, ref countryID);
-                        string ipKey = string.Format("{0}_userIP_{1}", eWSModules.CATALOG, userIP);
+                        CatalogDAL.Get_IPCountryCode(ipVal, ref countryID);                            
                         catalogCache.Set(ipKey, countryID, cacheTime);
                         res = true;
                     }
                 }
-                if (!bMedia)
-                {
-                    res = false;
-                    if (CatalogDAL.GetMediaPlayData(mediaID, mediaFileID, ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID))
-                    {
-                        InitMediaMarkHitDataToCache(ownerGroupID, cdnID, qualityID, formatID, mediaTypeID, billingTypeID, fileDuration, ref lMedia);
-                        catalogCache.Set(m_mf_Key, lMedia, cacheTime);
-                        res = true;
-                    }
-                }                
             }
+            else if (!bMedia)
+            {
+                res = false;
+                if (CatalogDAL.GetMediaPlayData(mediaID, mediaFileID, ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID))
+                {
+                    InitMediaMarkHitDataToCache(ownerGroupID, cdnID, qualityID, formatID, mediaTypeID, billingTypeID, fileDuration, ref lMedia);
+                    catalogCache.Set(m_mf_Key, lMedia, cacheTime);
+                    res = true;
+                }
+            }        
 
             return res;
         }

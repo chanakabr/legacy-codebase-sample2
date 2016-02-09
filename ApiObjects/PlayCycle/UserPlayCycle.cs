@@ -19,11 +19,15 @@ namespace ApiObjects.PlayCycle
         [JsonProperty("CreateDateMs")]
         public long CreateDateMs { get; set; }
 
-        public PlayCycleSession(int mediaConcurrencyRuleID, string playCycleKey, long createDateMs)
+        [JsonProperty("DomainID")]
+        public int DomainID { get; set; }
+
+        public PlayCycleSession(int mediaConcurrencyRuleID, string playCycleKey, long createDateMs, int domainID)
         {
             MediaConcurrencyRuleID = mediaConcurrencyRuleID;
             PlayCycleKey = playCycleKey;
             CreateDateMs = createDateMs;
+            DomainID = domainID;
         }
     }
 }

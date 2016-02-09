@@ -2248,6 +2248,22 @@ namespace Tvinci.Core.DAL
             return res;
         }
 
+        public static void InsertPlayCycleKey(string siteGuid, long mediaID, long mediaFileID, string udid, long platform, long countryID, int mcRuleID, int groupID, string playCycleKey)
+        {
+            StoredProcedure sp = new StoredProcedure("Insert_PlayCycleKey");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@SiteGuid", siteGuid);
+            sp.AddParameter("@MediaID", mediaID);
+            sp.AddParameter("@MediaFileID", mediaFileID);
+            sp.AddParameter("@DeviceUDID", udid);
+            sp.AddParameter("@Platform", platform);
+            sp.AddParameter("@CountryID", countryID);
+            sp.AddParameter("@RuleID", mcRuleID);
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@PlayCycleKey", playCycleKey);
+            sp.ExecuteNonQuery();
+        }
+
         public static void Insert_NewPlayCycleKey(int nGroupID, int nMediaID, int nMediaFileID, string sSiteGuid, int nPlatform, string sUDID, int nCountryID, string sPlayCycleKey, int nRuleID = 0)
         {
             GetOrInsert_PlayCycleKey(sSiteGuid, nMediaID, nMediaFileID, sUDID, nPlatform, nCountryID, nRuleID, nGroupID, true);
@@ -4208,56 +4224,70 @@ namespace Tvinci.Core.DAL
             return ratios;
         }
 
-        public static bool InsertOrUpdatePlayCycle(int userID, int mediaID, int MediaFileID, int groupID, string UDID, int platform, int mediaConcurrencyRuleID)
+        public static PlayCycleSession InsertPlayCycleSession(string siteGuid, int mediaID, int MediaFileID, int groupID, string UDID, int platform, int mediaConcurrencyRuleID, int domainID)
         {
             CouchbaseClient cbClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.SOCIAL);
-            int limitRetries = RETRY_LIMIT;            
-            bool isSuccessful = false;
+            int limitRetries = RETRY_LIMIT;
+            PlayCycleSession playCycleSession = null;
             Random sleepVal = new Random();
+            // create new playCycleKey even when updating an existing document since its a new session
             string playCycleKey = Guid.NewGuid().ToString();
             try                
             {
-                string docKey = UtilsDal.GetPlayCycleKey(userID, mediaID, MediaFileID, groupID, UDID, platform);
-                TimeSpan TTL;
-                if (TimeSpan.TryParse(CB_PLAYCYCLE_DOC_EXPIRY_MS, out TTL))
+                string docKey = UtilsDal.GetPlayCycleKey(siteGuid, mediaID, MediaFileID, groupID, UDID, platform);
+                Enyim.Caching.Memcached.CasResult<PlayCycleSession> casGetResult = cbClient.GetWithCas<PlayCycleSession>(docKey);
+                if (casGetResult.StatusCode == 0)
                 {
-                    while (limitRetries >= 0)
+                    playCycleSession = casGetResult.Result;
+                    if (playCycleSession != null)
                     {
-                        Enyim.Caching.Memcached.CasResult<PlayCycleSession> casGetResult = cbClient.GetWithCas<PlayCycleSession>(docKey);
-                        if (casGetResult.StatusCode == 0)
-                        {                
-                            PlayCycleSession playCycleSession = casGetResult.Result;
-                            if (playCycleSession != null)
-                            {
-                                playCycleSession.MediaConcurrencyRuleID = mediaConcurrencyRuleID;
-                                playCycleSession.CreateDateMs = Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
-                                playCycleSession.PlayCycleKey = playCycleKey;
-                                Enyim.Caching.Memcached.CasResult<bool> casResult = cbClient.Cas(Enyim.Caching.Memcached.StoreMode.Set, docKey, playCycleSession, TTL, casGetResult.Cas);
-                                if (casResult.StatusCode == 0 && casResult.Result)
-                                {
-                                    isSuccessful = true;
-                                }
-                            }
-                        }
-
-                        if (!isSuccessful)
-                        {
-                            Thread.Sleep(sleepVal.Next(50));
-                            limitRetries--;
-                        }
+                        playCycleSession.MediaConcurrencyRuleID = mediaConcurrencyRuleID;
+                        playCycleSession.CreateDateMs = Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                        playCycleSession.PlayCycleKey = playCycleKey;
+                        playCycleSession.DomainID = domainID;
                     }
+                    else
+                    {
+                        playCycleSession = new PlayCycleSession(mediaConcurrencyRuleID, playCycleKey, Utils.DateTimeToUnixTimestamp(DateTime.UtcNow), domainID);
+                    }
+                }
+                while (limitRetries >= 0)
+                {
+                    Enyim.Caching.Memcached.CasResult<bool> casResult;
+                    TimeSpan TTL;
+                    if (TimeSpan.TryParse(CB_PLAYCYCLE_DOC_EXPIRY_MS, out TTL))
+                    {
+                        casResult = cbClient.Cas(Enyim.Caching.Memcached.StoreMode.Set, docKey, playCycleSession, TTL, casGetResult.Cas);
+                    }
+                    else
+                    {
+                        casResult = cbClient.Cas(Enyim.Caching.Memcached.StoreMode.Set, docKey, playCycleSession, casGetResult.Cas);
+                    }
+
+                    if (casResult.StatusCode == 0 && casResult.Result)
+                    {
+                        return playCycleSession;
+                    }
+
+                    Thread.Sleep(sleepVal.Next(50));
+                    limitRetries--;                        
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Failed InsertOrUpdatePlayCycle, userId: {0}, mediaID: {1}, groupID: {2}, UDID: {3}, platform: {4}, mediaConcurrencyRuleID: {5}, playCycleKey: {6}, Exception: {7}", 
-                                 userID, mediaID, MediaFileID, groupID, UDID, platform, mediaConcurrencyRuleID, playCycleKey, ex.Message);                
+                log.ErrorFormat("Failed InsertPlayCycleSession, userId: {0}, mediaID: {1}, groupID: {2}, UDID: {3}, platform: {4}, mediaConcurrencyRuleID: {5}, playCycleKey: {6}, Exception: {7}", 
+                                 siteGuid, mediaID, MediaFileID, groupID, UDID, platform, mediaConcurrencyRuleID, playCycleKey, ex.Message);                
             }
 
-            return isSuccessful;
+            if (playCycleSession == null)
+            {
+                log.ErrorFormat("Failed InsertPlayCycleSession, userId: {0}, mediaID: {1}, groupID: {2}, UDID: {3}, platform: {4}, mediaConcurrencyRuleID: {5}, playCycleKey: {6}",
+                                 siteGuid, mediaID, MediaFileID, groupID, UDID, platform, mediaConcurrencyRuleID, playCycleKey);      
+            }
+            return playCycleSession;
         }        
 
-        public static PlayCycleSession Get_UsersPlayCycle(int userID, int mediaID, int MediaFileID, int groupID, string UDID, int platform)
+        public static PlayCycleSession GetUserPlayCycle(string siteGuid, int mediaID, int MediaFileID, int groupID, string UDID, int platform)
         {
             CouchbaseClient cbClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.SOCIAL);
             int limitRetries = RETRY_LIMIT;            
@@ -4265,7 +4295,7 @@ namespace Tvinci.Core.DAL
             PlayCycleSession playCycleSession = null;
             try
             {
-                string docKey = UtilsDal.GetPlayCycleKey(userID, mediaID, MediaFileID, groupID, UDID, platform);
+                string docKey = UtilsDal.GetPlayCycleKey(siteGuid, mediaID, MediaFileID, groupID, UDID, platform);
                 double TTL;
                 if (double.TryParse(CB_PLAYCYCLE_DOC_EXPIRY_MS, out TTL))
                 {
@@ -4289,7 +4319,7 @@ namespace Tvinci.Core.DAL
             catch (Exception ex)
             {
                 log.ErrorFormat("Failed InsertOrUpdatePlayCycle, userId: {0}, mediaID: {1}, mediaFileID: {2}, groupID: {3}, UDID: {4}, platform: {5}, Exception: {6}",
-                                 userID, mediaID, MediaFileID, groupID, UDID, platform, ex.Message);
+                                 siteGuid, mediaID, MediaFileID, groupID, UDID, platform, ex.Message);
             }
 
             return playCycleSession;

@@ -1,6 +1,7 @@
 using ApiObjects;
 using ApiObjects.Billing;
 using ApiObjects.MediaIndexingObjects;
+using ApiObjects.PlayCycle;
 using ApiObjects.Response;
 using ConditionalAccess.Response;
 using ConditionalAccess.TvinciPricing;
@@ -12224,7 +12225,6 @@ namespace ConditionalAccess
                     if (prices != null && prices.Length > 0)
                     {
                         int nMediaID = 0;
-                        int nRuleID = 0;
                         List<int> lRuleIDS = new List<int>();
                         TvinciDomains.DomainResponseStatus mediaConcurrencyResponse;
 
@@ -12248,7 +12248,8 @@ namespace ConditionalAccess
 
                                     if (sBasicLink.ToLower().Trim().EndsWith(fileMainUrl.ToLower().Trim()) || bIsDynamic)
                                     {
-                                        mediaConcurrencyResponse = CheckMediaConcurrency(sSiteGuid, nMediaFileID, sDeviceName, prices, nMediaID, sUserIP, ref lRuleIDS);
+                                        int domainID = 0;
+                                        mediaConcurrencyResponse = CheckMediaConcurrency(sSiteGuid, nMediaFileID, sDeviceName, prices, nMediaID, sUserIP, ref lRuleIDS, ref domainID);
                                         if (mediaConcurrencyResponse == TvinciDomains.DomainResponseStatus.OK)
                                         {
                                             if (IsItemPurchased(prices[0]))
@@ -12279,7 +12280,7 @@ namespace ConditionalAccess
                                             res.Status.Code = ConcurrencyResponseToResponseStatus(mediaConcurrencyResponse);
 
                                             // create PlayCycle
-                                            CreatePlayCycle(sSiteGuid, nMediaFileID, sUserIP, sDeviceName, nMediaID, nRuleID, lRuleIDS);
+                                            CreatePlayCycle(sSiteGuid, nMediaFileID, sUserIP, sDeviceName, nMediaID, lRuleIDS, domainID);
                                         }
                                         else
                                         {
@@ -12429,22 +12430,36 @@ namespace ConditionalAccess
         }
 
         /*******************************************************************************************
-         * This method create the PLAY_CYCLE_KEY key in DB with the (media_concurrency) mc_rule_id 
+         * This method create the PlayCycleSession in CB and also inserts into DB with the (media_concurrency) mc_rule_id 
          ***************************************************************************************** */
-        private void CreatePlayCycle(string sSiteGuid, Int32 nMediaFileID, string sUserIP, string sDeviceName, int nMediaID, int nRuleID, List<int> lRuleIDS)
+        private void CreatePlayCycle(string sSiteGuid, Int32 nMediaFileID, string sUserIP, string sDeviceName, int nMediaID, List<int> lRuleIDS, int domainID)
         {
+            int ruleID = 0;
             // create PlayCycle       
             if (lRuleIDS != null && lRuleIDS.Count > 0)
             {
-                nRuleID = lRuleIDS[0]; // take the first rule (probably will be just one rule)
+                ruleID = lRuleIDS[0]; // take the first rule (probably will be just one rule)
             }
-            string sPlayCycleKey = Guid.NewGuid().ToString();
+            string sPlayCycleKey;
+            PlayCycleSession playCycleSession = null;
+            if (!Utils.IsAnonymousUser(sSiteGuid))
+            {
+                playCycleSession = Tvinci.Core.DAL.CatalogDAL.InsertPlayCycleSession(sSiteGuid, nMediaID, nMediaFileID, m_nGroupID, sDeviceName, 0, ruleID, domainID);
+            }
+            if (playCycleSession != null && !string.IsNullOrEmpty(playCycleSession.PlayCycleKey))
+            {
+                sPlayCycleKey = playCycleSession.PlayCycleKey;
+            }
+            else
+            {
+                sPlayCycleKey = Guid.NewGuid().ToString();
+            }
             int nCountryID = Utils.GetCountryIDByIP(sUserIP);
-            Tvinci.Core.DAL.CatalogDAL.Insert_NewPlayCycleKey(this.m_nGroupID, nMediaID, nMediaFileID, sSiteGuid, 0, sDeviceName, nCountryID, sPlayCycleKey, nRuleID);
+            Tvinci.Core.DAL.CatalogDAL.InsertPlayCycleKey(sSiteGuid, nMediaID, nMediaFileID, sDeviceName, 0, nCountryID, ruleID, m_nGroupID, sPlayCycleKey);
         }
 
         private TvinciDomains.DomainResponseStatus CheckMediaConcurrency(string sSiteGuid, Int32 nMediaFileID, string sDeviceName, MediaFileItemPricesContainer[] prices,
-            int nMediaID, string sUserIP, ref List<int> lRuleIDS)
+            int nMediaID, string sUserIP, ref List<int> lRuleIDS, ref int domainID)
         {
             TvinciDomains.DomainResponseStatus response = TvinciDomains.DomainResponseStatus.OK;
             TvinciDomains.module domainsWS = null;
@@ -12512,9 +12527,10 @@ namespace ConditionalAccess
 
                         validationResponse = domainsWS.ValidateLimitationModule(sWSUserName, sWSPass, sDeviceName, nDeviceFamilyBrand, lSiteGuid, 0,
                             TvinciDomains.ValidationType.Concurrency, mcRule.RuleID, 0, nMediaID);
-                        if (response == TvinciDomains.DomainResponseStatus.OK) // when there is more then one rule  - change response status only when status is still OK (that mean that this is the first time it's change)
+                        if (response == TvinciDomains.DomainResponseStatus.OK && validationResponse != null) // when there is more then one rule  - change response status only when status is still OK (that mean that this is the first time it's change)
                         {
                             response = validationResponse.m_eStatus;
+                            domainID = (int)validationResponse.m_lDomainID;
                         }
                     }
                 }
