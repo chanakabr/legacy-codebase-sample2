@@ -29,7 +29,6 @@ namespace Tvinci.Data.Loaders
         public int PageIndex { get; set; }
         public string SiteGuid { get; set; }
         public int DomainId { get; set; }
-        public int UtcOffset { get; set; }
 
         #region Public Properties for Filter
         public bool OnlyActiveMedia

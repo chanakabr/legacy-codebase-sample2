@@ -49,12 +49,11 @@ namespace TVPPro.SiteManager.CatalogLoaders
             m_oRequest = new MediaSearchExternalRequest()
             {
                 m_nMediaTypes = MediaTypes,
-                m_sQuery = Query,
-                m_nUtcOffset = UtcOffset
+                m_sQuery = Query
             };
         }
 
-        public override object Execute()
+        public virtual object Execute()
         {
             BuildRequest();
             Log("TryExecuteGetBaseResponse:", m_oRequest);
