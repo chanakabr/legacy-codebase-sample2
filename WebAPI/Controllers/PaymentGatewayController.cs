@@ -20,7 +20,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
-        /// User Suspended = 2001, Household Not Set To Payment Gateway = 6027 
+        /// User Suspended = 2001
         /// </remarks>        
         [Route("list"), HttpPost]
         [ApiAuthorize]
@@ -78,7 +78,7 @@ namespace WebAPI.Controllers
         }
         
         /// <summary>
-        /// Set a Payment Gateway provider for the household. It also clear the Charge ID.
+        /// Set a Payment Gateway provider for the household. 
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
