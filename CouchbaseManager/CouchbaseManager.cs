@@ -8,6 +8,7 @@ using KLogMonitor;
 using System.Reflection;
 using Couchbase;
 using Couchbase.Configuration;
+using Couchbase.Configuration.Client.Providers;
 
 namespace CouchbaseManager
 {
@@ -21,7 +22,8 @@ namespace CouchbaseManager
         MEDIAMARK = 5,
         STATISTICS = 6,
         CACHE = 7,
-        SCHEDULED_TASKS = 8
+        SCHEDULED_TASKS = 8,
+        CROWDSOURCE = 9
     }
 
     public class CouchbaseManager
@@ -34,9 +36,35 @@ namespace CouchbaseManager
 
         private string bucketName;
 
-        public CouchbaseManager(string bucketName)
+        public CouchbaseManager(eCouchbaseBucket bucket)
         {
-            this.bucketName = bucketName;
+            this.bucketName = GetBucketName(bucket);
+        }
+
+        private static string GetBucketName(eCouchbaseBucket bucket)
+        {
+            string bucketName = string.Empty;
+            switch (bucket)
+            {
+                case eCouchbaseBucket.SOCIAL:
+                case eCouchbaseBucket.SOCIALFRIENDS:
+                case eCouchbaseBucket.EPG:
+                case eCouchbaseBucket.STATISTICS:
+                case eCouchbaseBucket.DEFAULT:
+                case eCouchbaseBucket.MEDIAMARK:
+                case eCouchbaseBucket.SCHEDULED_TASKS:
+                    var socialBucketSection = (CouchbaseClientSection)ConfigurationManager.GetSection(string.Format("couchbase/{0}", bucket.ToString().ToLower()));
+                    //oRes = new CouchbaseClient(socialBucketSection);
+                    break;
+                case eCouchbaseBucket.NOTIFICATION:
+                    break;
+                case eCouchbaseBucket.CACHE:
+                    var groupChacheBucketSection = (CouchbaseClientSection)ConfigurationManager.GetSection(string.Format("couchbase/{0}", bucket.ToString().ToLower()));
+                    //oRes = new CouchbaseClient(groupChacheBucketSection);
+                    break;
+            }
+
+            return bucketName;
         }
 
         //public static CouchbaseClient GetInstance(eCouchbaseBucket eBucket)
@@ -516,7 +544,7 @@ namespace CouchbaseManager
         /// <param name="version"></param>
         /// <param name="expiration">TTL in seconds</param>
         /// <returns></returns>
-        public bool SetWithVersion<T>(string key, object value, ulong version, uint expiration = 0)
+        public bool SetWithVersion(string key, object value, ulong version, uint expiration = 0)
         {
             bool result = false;
 

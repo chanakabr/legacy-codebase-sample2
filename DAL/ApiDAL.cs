@@ -541,10 +541,10 @@ namespace DAL
             ret.nMediaID = nMediaID;
             ret.sSiteGUID = sSiteGUID;
 
-            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);//CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
             string docKey = UtilsDal.getUserMediaMarkDocKey(nUserID, nMediaID);
 
-            var data = m_oClient.Get<string>(docKey);
+            var data = cbManager.Get<string>(docKey);
             bool bContunueWithCB = (!string.IsNullOrEmpty(data)) ? true : false;
 
             if (bContunueWithCB)
@@ -971,9 +971,9 @@ namespace DAL
             int nSiteGuid = 0;
             int.TryParse(sSiteGuid, out nSiteGuid);
 
-            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
 
-            var res = m_oClient.GetView<MediaMarkLog>(CB_MEDIA_MARK_DESGIN, "users_watch_history", true)
+            var res = cbManager.GetView<MediaMarkLog>(CB_MEDIA_MARK_DESGIN, "users_watch_history", true)
                                             .StartKey(new object[] { nSiteGuid, 0 })
                                             .EndKey(new object[] { nSiteGuid, string.Empty });
 
@@ -1027,11 +1027,11 @@ namespace DAL
                 int nSiteGuid = 0;
                 int.TryParse(siteGuid, out nSiteGuid);
 
-                var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+                var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
 
                 if (lMediaIDs.Count == 0)
                 {
-                    var res = m_oClient.GetView<MediaMarkLog>(CB_MEDIA_MARK_DESGIN, "users_watch_history", true)
+                    var res = cbManager.GetView<MediaMarkLog>(CB_MEDIA_MARK_DESGIN, "users_watch_history", true)
                                             .StartKey(new object[] { nSiteGuid, 0 })
                                             .EndKey(new object[] { nSiteGuid, string.Empty });
 
@@ -1047,7 +1047,9 @@ namespace DAL
                 foreach (int nMediaID in lMediaIDs)
                 {
                     string sDcoKey = UtilsDal.getUserMediaMarkDocKey(nSiteGuid, nMediaID);
-                    retVal = m_oClient.Remove(sDcoKey);
+
+                    // Irena - make sure doc type is right
+                    retVal = cbManager.Remove<MediaMarkLog>(sDcoKey);
                     Thread.Sleep(r.Next(50));
                     if (!retVal)
                     {
@@ -2774,14 +2776,14 @@ namespace DAL
         {
             List<MessageQueue> messageQueues = new List<MessageQueue>();
 
-            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.SCHEDULED_TASKS);
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.SCHEDULED_TASKS);
 
             foreach (string messageDataType in messageDataTypes)
             {
                 try
                 {
                     // get views
-                    messageQueues.AddRange(m_oClient.GetView<MessageQueue>(CB_MESSAGE_QUEUE_DESGIN, "queue_messages", true)
+                    messageQueues.AddRange(cbManager.GetView<MessageQueue>(CB_MESSAGE_QUEUE_DESGIN, "queue_messages", true)
                                                   .StartKey(new object[] { messageDataType.ToLower(), baseDateSec })
                                                   .EndKey(new object[] { messageDataType.ToLower(), DateTimeToUnixTimestamp(DateTime.MaxValue) })
                                                   .Stale(Couchbase.StaleMode.False).ToList());

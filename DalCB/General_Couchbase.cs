@@ -27,22 +27,23 @@ namespace DalCB
                     log.ErrorFormat("Error while trying to modify CB. bucket type wasn't found: {0}", bucket);
                     return false;
                 }
-                CouchbaseClient client = CouchbaseManager.CouchbaseManager.GetInstance(bucketType);
+
+                var cbManager = new CouchbaseManager.CouchbaseManager(bucketType);
 
                 switch (action)
                 {
                     case eDbActionType.Delete:
-                        return client.Remove(key);
+                        return cbManager.Remove<string>(key);
 
                     case eDbActionType.Add:
 
-                        IStoreOperationResult cbResult;
+                        bool result;
                         if (ttlMinutes > 0)
-                            cbResult = client.ExecuteStore(Enyim.Caching.Memcached.StoreMode.Set, key, data, DateTime.UtcNow.AddMinutes(ttlMinutes));
+                            result = cbManager.Set(key, data, (uint) ttlMinutes * 60);
                         else
-                            cbResult = client.ExecuteStore(Enyim.Caching.Memcached.StoreMode.Set, key, data);
+                            result = cbManager.Set(key, data);
 
-                        if (!cbResult.Success)
+                        if (!result)
                         {
                             log.ErrorFormat("error while trying to add data to CB. bucket: {0), key: {1}, data: {2}", bucket, key, data);
                             return false;
