@@ -291,6 +291,9 @@
     <None Include="Service References\WSCatalog\Service21.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\WSCatalog\Service22.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\WSCatalog\Service3.wsdl" />
     <None Include="Service References\WSCatalog\Service4.wsdl" />
     <None Include="Service References\WSCatalog\Service6.xsd">
@@ -319,6 +322,18 @@
     </None>
     <None Include="Service References\WSCatalog\Service9.xsd">
       <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\TvinciImporter.WSCatalog.BaseResponse1.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\WSCatalog\TvinciImporter.WSCatalog.EpgProgramResponse1.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\WSCatalog\TvinciImporter.WSCatalog.MediaResponse1.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\WSCatalog\TvinciImporter.WSCatalog.Response1.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
     <None Include="Web References\Lucene_WCF\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
