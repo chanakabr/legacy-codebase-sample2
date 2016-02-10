@@ -506,7 +506,43 @@ namespace CouchbaseManager
             }
 
             return result;
+        }
 
+        public bool SetWithVersion(string key, object value, ulong version, out ulong newVersion, uint expiration = 0)
+        {
+            bool result = false;
+            newVersion = 0;
+
+            using (var cluster = new Cluster(COUCHBASE_CONFIG))
+            {
+                using (var bucket = cluster.OpenBucket(bucketName))
+                {
+                    var setResult = bucket.Replace(key, value, version, expiration);
+
+                    if (setResult != null)
+                    {
+                        if (setResult.Exception != null)
+                        {
+                            throw setResult.Exception;
+                        }
+
+                        if (setResult.Status == Couchbase.IO.ResponseStatus.Success)
+                        {
+                            result = setResult.Success;
+                            newVersion = setResult.Cas;
+                        }
+                        else
+                        {
+                            HandleStatusCode(setResult.Status);
+
+                            setResult = bucket.Replace(key, value, version, expiration);
+                            newVersion = setResult.Cas;
+                        }
+                    }
+                }
+            }
+
+            return result;
         }
 
         public bool SetWithVersionWithRetry<T>(string key, object value, ulong version, int numOfRetries, int retryInterval)
