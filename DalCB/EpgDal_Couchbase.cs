@@ -9,8 +9,6 @@ using Newtonsoft.Json;
 using KLogMonitor;
 using System.Reflection;
 
-
-
 namespace DalCB
 {
     public class EpgDal_Couchbase

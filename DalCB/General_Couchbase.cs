@@ -4,9 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using ApiObjects;
-using Couchbase;
 using CouchbaseManager;
-using Enyim.Caching.Memcached.Results;
 using KLogMonitor;
 using Newtonsoft.Json;
 

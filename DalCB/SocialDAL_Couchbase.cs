@@ -1,11 +1,9 @@
 ﻿using ApiObjects;
-using Couchbase;
 using CouchbaseManager;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Couchbase.Extensions;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
 using KLogMonitor;

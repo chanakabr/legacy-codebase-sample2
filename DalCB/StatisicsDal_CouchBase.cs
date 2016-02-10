@@ -4,8 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using ApiObjects.Statistics;
-using Couchbase;
-using Couchbase.Extensions;
 using CouchbaseManager;
 using KLogMonitor;
 using Newtonsoft.Json;

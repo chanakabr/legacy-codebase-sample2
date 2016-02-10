@@ -7,7 +7,6 @@ using CouchbaseManager;
 using Enyim.Caching.Memcached;
 using KLogMonitor;
 
-
 namespace CachingProvider
 {
     public class CouchBaseCache<T> : OutOfProcessCache

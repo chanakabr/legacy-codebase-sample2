@@ -28,13 +28,27 @@ namespace CouchbaseManager
 
     public class CouchbaseManager
     {
+        #region Consts
+
         public const string COUCHBASE_CONFIG = "couchbaseClients/couchbase";
+
+        #endregion
+
+        #region Static Members
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static object syncObj = new object();
         private static ReaderWriterLockSlim m_oSyncLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
+        #endregion
+
+        #region Data Members
+
         private string bucketName;
+
+        #endregion
+
+        #region Ctor
 
         public CouchbaseManager(eCouchbaseBucket bucket)
         {
@@ -67,118 +81,9 @@ namespace CouchbaseManager
             return bucketName;
         }
 
-        //public static CouchbaseClient GetInstance(eCouchbaseBucket eBucket)
-        //{
-        //    CouchbaseClient tempClient = null;
+        #endregion
 
-        //    if (!m_CouchbaseInstances.ContainsKey(eBucket.ToString()))
-        //    {
-        //        if (m_oSyncLock.TryEnterWriteLock(1000))
-        //        {
-        //            try
-        //            {
-        //                if (!m_CouchbaseInstances.ContainsKey(eBucket.ToString()))
-        //                {
-        //                    CouchbaseClient client = createNewInstance(eBucket);
-
-        //                    if (client != null)
-        //                    {
-        //                        m_CouchbaseInstances.Add(eBucket.ToString(), client);
-        //                    }
-        //                }
-        //            }
-        //            catch (Exception ex)
-        //            {
-        //                log.Error("", ex);
-        //            }
-        //            finally
-        //            {
-        //                m_oSyncLock.ExitWriteLock();
-        //            }
-        //        }
-        //    }
-
-        //    // If item already exist
-        //    if (m_oSyncLock.TryEnterReadLock(1000))
-        //    {
-        //        try
-        //        {
-        //            m_CouchbaseInstances.TryGetValue(eBucket.ToString(), out tempClient);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            log.Error("", ex);
-        //        }
-        //        finally
-        //        {
-        //            m_oSyncLock.ExitReadLock();
-        //        }
-        //    }
-
-        //    return tempClient;
-        //}
-
-        //private static CouchbaseClient createNewInstance(eCouchbaseBucket eBucket)
-        //{
-        //    CouchbaseClient oRes = null;
-        //    switch (eBucket)
-        //    {
-        //        case eCouchbaseBucket.SOCIAL:
-        //        case eCouchbaseBucket.SOCIALFRIENDS:
-        //        case eCouchbaseBucket.EPG:
-        //        case eCouchbaseBucket.STATISTICS:
-        //        case eCouchbaseBucket.DEFAULT:
-        //        case eCouchbaseBucket.MEDIAMARK:
-        //        case eCouchbaseBucket.SCHEDULED_TASKS:
-        //            var socialBucketSection = (CouchbaseClientSection)ConfigurationManager.GetSection(string.Format("couchbase/{0}", eBucket.ToString().ToLower()));
-        //            oRes = new CouchbaseClient(socialBucketSection);
-        //            break;
-        //        case eCouchbaseBucket.NOTIFICATION:
-        //            break;
-        //        case eCouchbaseBucket.CACHE:
-        //            var groupChacheBucketSection = (CouchbaseClientSection)ConfigurationManager.GetSection(string.Format("couchbase/{0}", eBucket.ToString().ToLower()));
-        //            oRes = new CouchbaseClient(groupChacheBucketSection);
-        //            break;
-        //    }
-
-        //    return oRes;
-        //}
-
-        ///// <summary>
-        ///// Recreates an instance in case of failure
-        ///// </summary>
-        ///// <param name="eBucket"></param>
-        ///// <returns></returns>
-        //public static CouchbaseClient RefreshInstance(eCouchbaseBucket eBucket)
-        //{
-        //    if (m_CouchbaseInstances.ContainsKey(eBucket.ToString()))
-        //    {
-        //        if (m_oSyncLock.TryEnterWriteLock(1000))
-        //        {
-        //            try
-        //            {
-        //                if (m_CouchbaseInstances.ContainsKey(eBucket.ToString()))
-        //                {
-        //                    var client = m_CouchbaseInstances[eBucket.ToString()];
-        //                    client.Dispose();
-
-        //                    m_CouchbaseInstances.Remove(eBucket.ToString());
-        //                }
-        //            }
-        //            catch (Exception ex)
-        //            {
-        //                log.Error("", ex);
-        //            }
-        //            finally
-        //            {
-        //                m_oSyncLock.ExitWriteLock();
-        //            }
-        //        }
-        //    }
-
-        //    return GetInstance(eBucket);
-        //}
-
+        #region Private Methods
 
         /// <summary>
         /// See status codes at: http://docs.couchbase.com/couchbase-sdk-net-1.3/#checking-error-codes
@@ -316,6 +221,26 @@ namespace CouchbaseManager
             //}
         }
 
+        private static string ObjectToJson<T>(T obj)
+        {
+            if (obj != null)
+                return Newtonsoft.Json.JsonConvert.SerializeObject(obj);
+            else
+                return string.Empty;
+        }
+
+        private static T JsonToObject<T>(string json)
+        {
+            if (!string.IsNullOrEmpty(json))
+                return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json);
+            else
+                return default(T);
+        }
+
+        #endregion
+
+        #region Public Methods
+        
         /// <summary>
         /// 
         /// </summary>
@@ -669,20 +594,14 @@ namespace CouchbaseManager
             return result;
         }
 
-        private static string ObjectToJson<T>(T obj)
+        public List<T> View<T>(ViewDefinitions definitions)
         {
-            if (obj != null)
-                return Newtonsoft.Json.JsonConvert.SerializeObject(obj);
-            else
-                return string.Empty;
+            List<T> result = new List<T>();
+
+            return result;
         }
 
-        private static T JsonToObject<T>(string json)
-        {
-            if (!string.IsNullOrEmpty(json))
-                return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json);
-            else
-                return default(T);
-        }
+        #endregion
+
     }
 }
