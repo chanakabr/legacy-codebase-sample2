@@ -26,7 +26,7 @@ namespace CouchbaseManager
         /// <summary>
         ///  True will execute on the development dataset.
         /// </summary>
-        public bool isDevelopment;
+        public bool? isDevelopment;
 
         /// <summary>
         /// Return the documents in ascending by key order
@@ -167,8 +167,10 @@ namespace CouchbaseManager
 
         #region Ctor
         
-        public ViewManager()
+        public ViewManager(string designDoc, string viewName)
         {
+            this.designDoc = designDoc;
+            this.viewName = viewName;
         }
 
         #endregion
@@ -177,16 +179,84 @@ namespace CouchbaseManager
 
         public List<T> Query<T>(IBucket bucket)
         {
-            var query = bucket.CreateQuery(this.designDoc, this.viewName);
+            IViewQuery query = null;
 
-            if (isAscending != null && isAscending.Value)
+            if (this.isDevelopment == null)
+            {
+                query = bucket.CreateQuery(this.designDoc, this.viewName);
+            }
+            else
+            {
+                query = bucket.CreateQuery(this.designDoc, this.viewName, this.isDevelopment.Value);
+            }
+
+            if (this.baseUri != null)
+            {
+                query = (IViewQuery)query.BaseUri(this.baseUri);
+            }
+
+            if (this.bucket != null)
+            {
+                query = query.Bucket(this.bucket);
+            }
+
+            if (this.connectionTimeout != null)
+            {
+                query = query.ConnectionTimeout(this.connectionTimeout.Value);
+            }
+
+            if (this.endKey != null)
+            {
+                if (this.endKeyEncode != null)
+                {
+                    query = query.EndKey(this.endKey, this.endKeyEncode.Value);
+                }
+                else
+                {
+                    query = query.EndKey(this.endKey);
+                }
+            }
+
+            if (this.endKeyDocId != null)
+            {
+                query = query.EndKeyDocId(this.endKeyDocId);
+            }
+
+            if (this.fullSet != null && this.fullSet.Value)
+            {
+                query = query.FullSet();
+            }
+
+            if (this.group != null)
+            {
+                query = query.Group(this.group.Value);
+            }
+
+            if (this.groupLevel != null)
+            {
+                query = query.GroupLevel(this.groupLevel.Value);
+            }
+
+            if (this.inclusiveEnd != null)
+            {
+                query = query.InclusiveEnd(this.inclusiveEnd.Value);
+            }
+
+            if (this.isAscending != null && this.isAscending.Value)
             {
                 query = query.Asc();
             }
 
-            if (startKey != null)
+            if (this.startKey != null)
             {
-                //query.StartKey(startKey)
+                if (this.startKeyEncode != null)
+                {
+                    query = query.EndKey(this.startKey, this.startKeyEncode.Value);
+                }
+                else
+                {
+                    query = query.EndKey(this.startKey);
+                }
             }
             var queryResult = bucket.Query<T>(query);
 

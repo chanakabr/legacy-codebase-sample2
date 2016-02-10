@@ -9,6 +9,7 @@ using System.Reflection;
 using Couchbase;
 using Couchbase.Configuration;
 using Couchbase.Configuration.Client.Providers;
+using Couchbase.Configuration.Client;
 
 namespace CouchbaseManager
 {
@@ -58,24 +59,40 @@ namespace CouchbaseManager
         private static string GetBucketName(eCouchbaseBucket bucket)
         {
             string bucketName = string.Empty;
-            switch (bucket)
+            //switch (bucket)
+            //{
+            //    case eCouchbaseBucket.SOCIAL:
+            //    case eCouchbaseBucket.SOCIALFRIENDS:
+            //    case eCouchbaseBucket.EPG:
+            //    case eCouchbaseBucket.STATISTICS:
+            //    case eCouchbaseBucket.DEFAULT:
+            //    case eCouchbaseBucket.MEDIAMARK:
+            //    case eCouchbaseBucket.SCHEDULED_TASKS:
+            //        var socialBucketSection = (CouchbaseClientSection)ConfigurationManager.GetSection(string.Format("couchbase/{0}", bucket.ToString().ToLower()));
+            //        //oRes = new CouchbaseClient(socialBucketSection);
+            //        break;
+            //    case eCouchbaseBucket.NOTIFICATION:
+            //        break;
+            //    case eCouchbaseBucket.CACHE:
+            //        var groupChacheBucketSection = (CouchbaseClientSection)ConfigurationManager.GetSection(string.Format("couchbase/{0}", bucket.ToString().ToLower()));
+            //        //oRes = new CouchbaseClient(groupChacheBucketSection);
+            //        break;
+            //}
+
+            // See http://developer.couchbase.com/documentation/server/4.0/sdks/dotnet-2.2/configuring-the-client.html
+            // We have a list of buckets in the server, but we don't know the exact bucket name.
+            // We do know the name of the SECTION
+            // after "parsing" the configuration to the client object, we will see which of the items in the app.config has the same key as the enum.
+            // If they are identical, then we can get the server's bucket name from it
+            var section = (CouchbaseClientSection)ConfigurationManager.GetSection(COUCHBASE_CONFIG);
+            var clientConfiguration = new ClientConfiguration(section);
+
+            foreach (var currentBucket in clientConfiguration.BucketConfigs)
             {
-                case eCouchbaseBucket.SOCIAL:
-                case eCouchbaseBucket.SOCIALFRIENDS:
-                case eCouchbaseBucket.EPG:
-                case eCouchbaseBucket.STATISTICS:
-                case eCouchbaseBucket.DEFAULT:
-                case eCouchbaseBucket.MEDIAMARK:
-                case eCouchbaseBucket.SCHEDULED_TASKS:
-                    var socialBucketSection = (CouchbaseClientSection)ConfigurationManager.GetSection(string.Format("couchbase/{0}", bucket.ToString().ToLower()));
-                    //oRes = new CouchbaseClient(socialBucketSection);
-                    break;
-                case eCouchbaseBucket.NOTIFICATION:
-                    break;
-                case eCouchbaseBucket.CACHE:
-                    var groupChacheBucketSection = (CouchbaseClientSection)ConfigurationManager.GetSection(string.Format("couchbase/{0}", bucket.ToString().ToLower()));
-                    //oRes = new CouchbaseClient(groupChacheBucketSection);
-                    break;
+                if (currentBucket.Key == bucket.ToString().ToLower())
+                {
+                    bucketName = currentBucket.Value.BucketName;
+                }
             }
 
             return bucketName;
