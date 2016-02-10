@@ -97,7 +97,7 @@ namespace CouchbaseManager
         /// <summary>
         /// True to JSON encode the parameter.
         /// </summary>
-        public bool? keyEncoded;
+        public bool? keyEncode;
 
         /// <summary>
         /// Return only documents that match one of keys specified within the given array.
@@ -109,7 +109,7 @@ namespace CouchbaseManager
         /// <summary>
         /// True to JSON encode the parameter.
         /// </summary>
-        public bool? keysEncoded;
+        public bool? keysEncode;
 
         /// <summary>
         /// Limit the number of the returned documents to the specified number.
@@ -135,7 +135,7 @@ namespace CouchbaseManager
         /// Allow the results from a stale view to be used. The default is StaleState.Ok;
         /// for development work set to StaleState.False
         /// </summary>
-        public StaleState? staleState;
+        public ViewStaleState? staleState;
 
         /// <summary>
         /// Return records with a value equal to or greater than the specified key. Key
@@ -247,6 +247,60 @@ namespace CouchbaseManager
                 query = query.Asc();
             }
 
+            if (this.isDescending != null && this.isDescending.Value)
+            {
+                query = query.Desc();
+            }
+
+            if (this.key != null)
+            {
+                if (this.keyEncode != null)
+                {
+                    query = query.Key(this.key, this.keyEncode.Value);
+                }
+                else
+                {
+                    query = query.Key(this.key);
+                }
+            }
+
+            if (this.keys != null)
+            {
+                if (this.keysEncode != null)
+                {
+                    query = query.Keys(this.keys, this.keysEncode.Value);
+                }
+                else
+                {
+                    query = query.Keys(this.keys);
+                }
+            }
+
+            if (this.limit != null)
+            {
+                query = query.Limit(this.limit.Value);
+            }
+
+            if (this.onError != null)
+            {
+                query = query.OnError(this.onError.Value);
+            }
+
+            if (this.reduce != null)
+            {
+                query = query.Reduce(this.reduce.Value);
+            }
+
+            if (this.retryAttemps != null)
+            {
+                query.RetryAttempts = this.retryAttemps.Value;
+            }
+
+            if (this.skip != null)
+            {
+                query = query.Skip(this.skip.Value);
+            }
+
             if (this.startKey != null)
             {
                 if (this.startKeyEncode != null)
@@ -264,5 +318,16 @@ namespace CouchbaseManager
         }
 
         #endregion
+    }
+
+    /// <summary>
+    /// Allow the results from a stale view to be used
+    /// </summary>
+    public enum ViewStaleState
+    {
+        None = 0,
+        False = 1,
+        Ok = 2,
+        UpdateAfter = 3,
     }
 }
