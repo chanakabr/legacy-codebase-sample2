@@ -8,8 +8,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using CouchbaseManager;
-using Couchbase;
-using Enyim.Caching.Memcached;
 using System.Threading;
 
 namespace Synchronizer
