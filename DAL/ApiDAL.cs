@@ -1053,7 +1053,7 @@ namespace DAL
                     string sDcoKey = UtilsDal.getUserMediaMarkDocKey(nSiteGuid, nMediaID);
 
                     // Irena - make sure doc type is right
-                    retVal = cbManager.Remove<MediaMarkLog>(sDcoKey);
+                    retVal = cbManager.Remove(sDcoKey);
                     Thread.Sleep(r.Next(50));
                     if (!retVal)
                     {

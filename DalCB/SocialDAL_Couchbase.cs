@@ -258,7 +258,10 @@ namespace DalCB
             bool bResult = false;
             try
             {
-                var lFeeds = (nNumOfDocs > 0) ? cbManager.GetView(CB_FEED_DESGIN, "FeedByActorId").Limit(nNumOfDocs) : cbManager.GetView(CB_FEED_DESGIN, "FeedByActorId");
+                var lFeeds = (nNumOfDocs > 0) ? 
+                    cbManager.ViewGeneric(new ViewManager(CB_FEED_DESGIN, "FeedByActorId") { limit = nNumOfDocs }) : 
+                    cbManager.ViewGeneric(new ViewManager(CB_FEED_DESGIN, "FeedByActorId"));
+                
                 bResult = true;
 
                 if (lFeeds != null)
@@ -317,7 +320,13 @@ namespace DalCB
             {
                 object[] startKey = new object[4] { assetId, 2, (int)actionType, Utils.DateTimeToUnixTimestamp(startDate) };
                 object endKey = new object[4] { assetId, (int)assetType, (int)actionType, Utils.DateTimeToUnixTimestamp(endDate) };
-                IView<int> view = cbManager.GetView<int>(CB_FEED_DESGIN, "AssetStats").StartKey(startKey).EndKey(endKey).Reduce(true);
+                var view = cbManager.View<int>(new ViewManager(CB_FEED_DESGIN, "AssetStats")
+                {
+                    startKey = startKey,
+                    endKey = endKey,
+                    reduce = true
+                });
+
                 if (view.Count() > 0)
                 {
                     res = view.First<int>();
@@ -350,7 +359,13 @@ namespace DalCB
             {
                 object[] startKey = new object[4] { assetId, (int)assetType, (int)eUserAction.RATES, Utils.DateTimeToUnixTimestamp(startDate) };
                 object endKey = new object[4] { assetId, (int)assetType, (int)eUserAction.RATES, Utils.DateTimeToUnixTimestamp(endDate) };
-                IView<double> view = cbManager.GetView<double>(CB_FEED_DESGIN, "AssetStatsRateSum").StartKey(startKey).EndKey(endKey).Reduce(true);
+                var view = cbManager.View<double>(new ViewManager(CB_FEED_DESGIN, "AssetStatsRateSum")
+                {
+                    startKey = startKey,
+                    endKey = endKey,
+                    reduce = true
+                });
+
                 if (view.Count() > 0)
                 {
                     res = view.First<double>();

@@ -166,7 +166,7 @@ namespace DalCB
             bool bRes = false;
             try
             {
-                bRes = cbManager.Remove<object>(sDocID);
+                bRes = cbManager.Remove(sDocID);
             }
             catch (Exception ex)
             {
