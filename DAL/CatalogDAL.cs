@@ -23,7 +23,7 @@ namespace Tvinci.Core.DAL
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly string CB_MEDIA_MARK_DESGIN = ODBCWrapper.Utils.GetTcmConfigValue("cb_media_mark_design");
         private static readonly string CB_EPG_DOCUMENT_EXPIRY = ODBCWrapper.Utils.GetTcmConfigValue("epg_doc_expiry");
-        private static readonly string CB_PLAYCYCLE_DOC_EXPIRY_MS = ODBCWrapper.Utils.GetTcmConfigValue("playCycle_doc_expiry_ms");
+        private static readonly string CB_PLAYCYCLE_DOC_EXPIRY_MIN = ODBCWrapper.Utils.GetTcmConfigValue("playCycle_doc_expiry_min");
         private const int RETRY_LIMIT = 5;        
 
         public static DataSet Get_MediaDetails(int nGroupID, int nMediaID, string sSiteGuid, bool bOnlyActiveMedia, int nLanguage, string sEndDate, bool bUseStartDate, List<int> lSubGroupTree)
@@ -4225,7 +4225,7 @@ namespace Tvinci.Core.DAL
             return ratios;
         }
 
-        public static PlayCycleSession InsertPlayCycleSession(string siteGuid, int mediaID, int MediaFileID, int groupID, string UDID, int platform, int mediaConcurrencyRuleID, int domainID)
+        public static PlayCycleSession InsertPlayCycleSession(string siteGuid, int MediaFileID, int groupID, string UDID, int platform, int mediaConcurrencyRuleID, int domainID)
         {
             CouchbaseClient cbClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.SOCIAL);
             int limitRetries = RETRY_LIMIT;
@@ -4235,34 +4235,32 @@ namespace Tvinci.Core.DAL
             string playCycleKey = Guid.NewGuid().ToString();
             try                
             {
-                string docKey = UtilsDal.GetPlayCycleKey(siteGuid, mediaID, MediaFileID, groupID, UDID, platform);
-                Enyim.Caching.Memcached.CasResult<PlayCycleSession> casGetResult = cbClient.GetWithCas<PlayCycleSession>(docKey);
-                if (casGetResult.StatusCode == 0)
+                string docKey = UtilsDal.GetPlayCycleKey(siteGuid, MediaFileID, groupID, UDID, platform);
+                Enyim.Caching.Memcached.CasResult<string> casGetResult = cbClient.GetWithCas<string>(docKey);
+                if (casGetResult.StatusCode == 0 && !string.IsNullOrEmpty(casGetResult.Result))
                 {
-                    playCycleSession = casGetResult.Result;
-                    if (playCycleSession != null)
-                    {
-                        playCycleSession.MediaConcurrencyRuleID = mediaConcurrencyRuleID;
-                        playCycleSession.CreateDateMs = Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
-                        playCycleSession.PlayCycleKey = playCycleKey;
-                        playCycleSession.DomainID = domainID;
-                    }
-                    else
-                    {
-                        playCycleSession = new PlayCycleSession(mediaConcurrencyRuleID, playCycleKey, Utils.DateTimeToUnixTimestamp(DateTime.UtcNow), domainID);
-                    }
+                    playCycleSession = JsonConvert.DeserializeObject<PlayCycleSession>(casGetResult.Result);
+                    playCycleSession.MediaConcurrencyRuleID = mediaConcurrencyRuleID;
+                    playCycleSession.CreateDateMs = Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                    playCycleSession.PlayCycleKey = playCycleKey;
+                    playCycleSession.DomainID = domainID;
                 }
+                else
+                {
+                    playCycleSession = new PlayCycleSession(mediaConcurrencyRuleID, playCycleKey, Utils.DateTimeToUnixTimestamp(DateTime.UtcNow), domainID);
+                }                
+                int ttl = 0;
+                bool shouldUseTtl = int.TryParse(CB_PLAYCYCLE_DOC_EXPIRY_MIN, out ttl);
                 while (limitRetries >= 0)
                 {
                     Enyim.Caching.Memcached.CasResult<bool> casResult;
-                    TimeSpan TTL;
-                    if (TimeSpan.TryParse(CB_PLAYCYCLE_DOC_EXPIRY_MS, out TTL))
+                    if (shouldUseTtl)
                     {
-                        casResult = cbClient.Cas(Enyim.Caching.Memcached.StoreMode.Set, docKey, playCycleSession, TTL, casGetResult.Cas);
+                        casResult = cbClient.Cas(Enyim.Caching.Memcached.StoreMode.Set, docKey, JsonConvert.SerializeObject(playCycleSession, Formatting.None), TimeSpan.FromMinutes(ttl), casGetResult.Cas);
                     }
                     else
                     {
-                        casResult = cbClient.Cas(Enyim.Caching.Memcached.StoreMode.Set, docKey, playCycleSession, casGetResult.Cas);
+                        casResult = cbClient.Cas(Enyim.Caching.Memcached.StoreMode.Set, docKey, JsonConvert.SerializeObject(playCycleSession, Formatting.None), casGetResult.Cas);
                     }
 
                     if (casResult.StatusCode == 0 && casResult.Result)
@@ -4276,14 +4274,14 @@ namespace Tvinci.Core.DAL
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Failed InsertPlayCycleSession, userId: {0}, mediaID: {1}, groupID: {2}, UDID: {3}, platform: {4}, mediaConcurrencyRuleID: {5}, playCycleKey: {6}, Exception: {7}", 
-                                 siteGuid, mediaID, MediaFileID, groupID, UDID, platform, mediaConcurrencyRuleID, playCycleKey, ex.Message);                
+                log.ErrorFormat("Failed InsertPlayCycleSession, userId: {0}, groupID: {1}, UDID: {2}, platform: {3}, mediaConcurrencyRuleID: {4}, playCycleKey: {5}, Exception: {6}", 
+                                 siteGuid, MediaFileID, groupID, UDID, platform, mediaConcurrencyRuleID, playCycleKey, ex.Message);                
             }
 
             if (playCycleSession == null)
             {
-                log.ErrorFormat("Failed InsertPlayCycleSession, userId: {0}, mediaID: {1}, groupID: {2}, UDID: {3}, platform: {4}, mediaConcurrencyRuleID: {5}, playCycleKey: {6}",
-                                 siteGuid, mediaID, MediaFileID, groupID, UDID, platform, mediaConcurrencyRuleID, playCycleKey);      
+                log.ErrorFormat("Error in InsertPlayCycleSession, playCycleSession is null. userId: {0}, groupID: {1}, UDID: {2}, platform: {3}, mediaConcurrencyRuleID: {4}, playCycleKey: {5}",
+                                 siteGuid, MediaFileID, groupID, UDID, platform, mediaConcurrencyRuleID, playCycleKey);      
             }
             return playCycleSession;
         }        
@@ -4296,26 +4294,33 @@ namespace Tvinci.Core.DAL
             PlayCycleSession playCycleSession = null;
             try
             {
-                string docKey = UtilsDal.GetPlayCycleKey(siteGuid, mediaID, MediaFileID, groupID, UDID, platform);
-                double TTL;
-                if (double.TryParse(CB_PLAYCYCLE_DOC_EXPIRY_MS, out TTL))
+                string docKey = UtilsDal.GetPlayCycleKey(siteGuid, MediaFileID, groupID, UDID, platform);
+                double ttl;
+                bool shouldUseTtl = double.TryParse(CB_PLAYCYCLE_DOC_EXPIRY_MIN, out ttl);
+                while (limitRetries >= 0)
                 {
-                    while (limitRetries >= 0)
+                    Enyim.Caching.Memcached.CasResult<string> casGetResult;
+                    if (shouldUseTtl)
                     {
-                        Enyim.Caching.Memcached.CasResult<PlayCycleSession> casGetResult = cbClient.GetWithCas<PlayCycleSession>(docKey, DateTime.UtcNow.AddMilliseconds(TTL));
-                        if (casGetResult.StatusCode == 0)
-                        {
-                            playCycleSession = casGetResult.Result;
-                            if (playCycleSession != null)
-                            {
-                                return playCycleSession;
-                            }
-                        }
-
-                        Thread.Sleep(sleepVal.Next(50));
-                        limitRetries--;
+                        casGetResult = cbClient.GetWithCas<string>(docKey, DateTime.UtcNow.AddMinutes(ttl));
                     }
-                }
+                    else
+                    {
+                        casGetResult = cbClient.GetWithCas<string>(docKey);
+                    }
+
+                    if (casGetResult.StatusCode == 0 && !string.IsNullOrEmpty(casGetResult.Result))
+                    {
+                        playCycleSession = JsonConvert.DeserializeObject<PlayCycleSession>(casGetResult.Result);
+                        if (playCycleSession != null)
+                        {
+                            return playCycleSession;
+                        }
+                    }
+
+                    Thread.Sleep(sleepVal.Next(50));
+                    limitRetries--;
+                }                
             }
             catch (Exception ex)
             {

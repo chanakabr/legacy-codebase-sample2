@@ -12153,7 +12153,7 @@ namespace ConditionalAccess
 
             if (shouldUseDalOrCatalog)
             {
-                res = ConditionalAccessDAL.GetFileUrlLinks(mediaFileID, siteGuid, m_nGroupID, ref mainUrl, ref altUrl, ref mainStreamingCoID, ref altStreamingCoID);
+                res = ConditionalAccessDAL.GetFileUrlLinks(mediaFileID, siteGuid, m_nGroupID, ref mainUrl, ref altUrl, ref mainStreamingCoID, ref altStreamingCoID, ref nMediaID);
             }
             else
             {
@@ -12181,6 +12181,7 @@ namespace ConditionalAccess
                             altUrl = mf.m_oFile.m_sAltUrl;
                             mainStreamingCoID = mf.m_oFile.m_nCdnID;
                             altStreamingCoID = mf.m_oFile.m_nAltCdnID;
+                            nMediaID = mf.m_oFile.m_nMediaID;
                         }
                     }
                 }
@@ -12445,7 +12446,7 @@ namespace ConditionalAccess
             PlayCycleSession playCycleSession = null;
             if (!Utils.IsAnonymousUser(sSiteGuid))
             {
-                playCycleSession = Tvinci.Core.DAL.CatalogDAL.InsertPlayCycleSession(sSiteGuid, nMediaID, nMediaFileID, m_nGroupID, sDeviceName, 0, ruleID, domainID);
+                playCycleSession = Tvinci.Core.DAL.CatalogDAL.InsertPlayCycleSession(sSiteGuid, nMediaFileID, m_nGroupID, sDeviceName, 0, ruleID, domainID);
             }
             if (playCycleSession != null && !string.IsNullOrEmpty(playCycleSession.PlayCycleKey))
             {
@@ -12530,17 +12531,23 @@ namespace ConditionalAccess
                             TvinciDomains.ValidationType.Concurrency, mcRule.RuleID, 0, nMediaID);
                         if (response == TvinciDomains.DomainResponseStatus.OK && validationResponse != null) // when there is more then one rule  - change response status only when status is still OK (that mean that this is the first time it's change)
                         {
-                            response = validationResponse.m_eStatus;
-                            domainID = (int)validationResponse.m_lDomainID;
+                            response = validationResponse.m_eStatus;                            
                         }
                     }
                 }
                 else
                 {
                     validationResponse = domainsWS.ValidateLimitationModule(sWSUserName, sWSPass, sDeviceName, nDeviceFamilyBrand, lSiteGuid, 0,
-                           TvinciDomains.ValidationType.Concurrency, 0, 0, nMediaID);
+                           TvinciDomains.ValidationType.Concurrency, 0, 0, nMediaID);                    
                     response = validationResponse.m_eStatus;
                 }
+
+                // get domainID from response
+                if (validationResponse != null)
+                {
+                    domainID = (int)validationResponse.m_lDomainID;
+                }
+
                 return response;
             }
             catch (Exception ex)

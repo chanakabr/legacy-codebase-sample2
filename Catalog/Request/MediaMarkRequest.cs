@@ -300,6 +300,7 @@ namespace Catalog.Request
             int nSwhoosh = 0;
             int fileDuration = 0;
             int mediaId = int.Parse(m_oMediaPlayRequestData.m_sAssetID);
+            PlayCycleSession playCycleSession = null;
 
             MediaPlayActions mediaMarkAction;
 
@@ -326,7 +327,7 @@ namespace Catalog.Request
                 {
                     bool isError = false;
                     bool isConcurrent = false;
-                    HandleMediaPlayAction(mediaMarkAction, nCountryID, nPlatform, ref nActionID, ref nPlay, ref nStop, ref nPause, ref nFinish, ref nFull, ref nExitFull, ref nSendToFriend, ref nLoad,
+                    playCycleSession = HandleMediaPlayAction(mediaMarkAction, nCountryID, nPlatform, ref nActionID, ref nPlay, ref nStop, ref nPause, ref nFinish, ref nFull, ref nExitFull, ref nSendToFriend, ref nLoad,
                                           ref nFirstPlay, ref isConcurrent, ref isError, ref nSwhoosh, ref fileDuration, ref nMediaTypeID);
                     if (isConcurrent)
                     {
@@ -354,8 +355,7 @@ namespace Catalog.Request
                 {
                     if (nFirstPlay != 0 || nPlay != 0 || nLoad != 0 || nPause != 0 || nStop != 0 || nFull != 0 || nExitFull != 0 || nSendToFriend != 0 || nPlayTime != 0 || nFinish != 0 || nSwhoosh != 0 || nActionID == (int)MediaPlayActions.HIT)
                     {
-                        // Get from CB and insert into MediaEOH
-                        PlayCycleSession playCycleSession = CatalogDAL.GetUserPlayCycle(m_oMediaPlayRequestData.m_sSiteGuid, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_nGroupID, m_oMediaPlayRequestData.m_sUDID, nPlatform);
+                        //  Insert into MediaEOH                        
                         if (playCycleSession != null)
                         {
                             CatalogDAL.Insert_NewMediaEoh(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, mediaId,
@@ -422,7 +422,7 @@ namespace Catalog.Request
             return actionId == 4;
         }
 
-        private void HandleMediaPlayAction(MediaPlayActions mediaMarkAction, int nCountryID, int nPlatform, ref int nActionID, ref int nPlay, ref int nStop, ref int nPause, ref int nFinish, ref int nFull, ref int nExitFull,
+        private PlayCycleSession HandleMediaPlayAction(MediaPlayActions mediaMarkAction, int nCountryID, int nPlatform, ref int nActionID, ref int nPlay, ref int nStop, ref int nPause, ref int nFinish, ref int nFull, ref int nExitFull,
                                            ref int nSendToFriend, ref int nLoad, ref int nFirstPlay, ref bool isConcurrent, ref bool isError, ref int nSwoosh, ref int fileDuration, ref int mediaTypeId)
         {
             int mediaId = int.Parse(m_oMediaPlayRequestData.m_sAssetID);
@@ -463,7 +463,7 @@ namespace Catalog.Request
                     {
                         nPlay = 1;
                         if (Catalog.IsConcurrent(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID, this.m_nGroupID, ref nDomainID, mediaId,
-                            this.m_oMediaPlayRequestData.m_nMediaFileID, nPlatform, nCountryID))
+                            this.m_oMediaPlayRequestData.m_nMediaFileID, nPlatform, nCountryID, playCycleSession))
                         {
                             isConcurrent = true;
                         }
@@ -518,7 +518,7 @@ namespace Catalog.Request
                     {
                         nFirstPlay = 1;
                         if (Catalog.IsConcurrent(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_sUDID, this.m_nGroupID, ref nDomainID, mediaId,
-                            this.m_oMediaPlayRequestData.m_nMediaFileID, nPlatform, nCountryID))
+                            this.m_oMediaPlayRequestData.m_nMediaFileID, nPlatform, nCountryID, playCycleSession))
                         {
                             isConcurrent = true;
                         }
@@ -530,7 +530,7 @@ namespace Catalog.Request
                                 // Insert to CB if user is not anonymous                            
                                 if (!Catalog.IsAnonymousUser(m_oMediaPlayRequestData.m_sSiteGuid))
                                 {
-                                    playCycleSession = CatalogDAL.InsertPlayCycleSession(this.m_oMediaPlayRequestData.m_sSiteGuid, mediaId, this.m_oMediaPlayRequestData.m_nMediaFileID, this.m_nGroupID, this.m_oMediaPlayRequestData.m_sUDID, nPlatform, 0, nDomainID);
+                                    playCycleSession = CatalogDAL.InsertPlayCycleSession(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nMediaFileID, this.m_nGroupID, this.m_oMediaPlayRequestData.m_sUDID, nPlatform, 0, nDomainID);
                                 }                                
                                 // We still insert to DB incase needed by other process                            
                                 if (playCycleSession != null && !string.IsNullOrEmpty(playCycleSession.PlayCycleKey))
@@ -564,6 +564,8 @@ namespace Catalog.Request
                         break;
                     }
             }
+
+            return playCycleSession;
         }
     }
 }

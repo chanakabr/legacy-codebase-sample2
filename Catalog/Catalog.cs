@@ -3592,7 +3592,7 @@ namespace Catalog
             return CatalogDAL.GetLastPosition(mediaID, userID);
         }
 
-        internal static bool IsConcurrent(string sSiteGuid, string sUDID, int nGroupID, ref int nDomainID, int nMediaID, int nMediaFileID, int nPlatform, int nCountryID)
+        internal static bool IsConcurrent(string sSiteGuid, string sUDID, int nGroupID, ref int nDomainID, int nMediaID, int nMediaFileID, int nPlatform, int nCountryID, PlayCycleSession playCycleSession)
         {
             bool res = true;
             long lSiteGuid = 0;
@@ -3610,7 +3610,6 @@ namespace Catalog
 
             // Get MCRuleID from PlayCycleSession on CB
             int nMCRuleID = 0;
-            PlayCycleSession playCycleSession = CatalogDAL.GetUserPlayCycle(sSiteGuid, nMediaID, nMediaFileID, nGroupID, sUDID, nPlatform);
             if (playCycleSession != null)
             {
                 nMCRuleID = playCycleSession.MediaConcurrencyRuleID;
