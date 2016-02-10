@@ -31,7 +31,7 @@ namespace DalCB
                 switch (action)
                 {
                     case eDbActionType.Delete:
-                        return cbManager.Remove<string>(key);
+                        return cbManager.Remove(key);
 
                     case eDbActionType.Add:
 

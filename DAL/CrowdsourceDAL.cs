@@ -69,7 +69,7 @@ namespace DAL
                 feedDoc.Items.Insert(0, csItem.Value);
                 feedDoc.Items = feedDoc.Items.Take(TCMClient.Settings.Instance.GetValue<int>("crowdsourcer.FEED_NUM_OF_ITEMS")).ToList();
 
-                return cbManager.CasWithRetry(feedDoc.Value, feedDoc.DocVersion, 10, 1000);
+                return cbManager.SetWithVersionWithRetry<CrowdsourceFeedDoc>(feedDoc.Id, feedDoc, version, 10, 1000);
             }
             catch (Exception)
             {
