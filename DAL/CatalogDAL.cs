@@ -1724,7 +1724,15 @@ namespace Tvinci.Core.DAL
         {
             List<UserMediaMark> mediasMarksList = new List<UserMediaMark>();
             var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
-            var res = cbManager.GetView(CB_MEDIA_MARK_DESGIN, "media_users_lastdate").Keys(mediasList).Limit(30);
+
+            // get views
+            ViewManager viewManager = new ViewManager(CB_MEDIA_MARK_DESGIN, "media_users_lastdate")
+            {
+                keys = mediasList,
+                limit = 30
+            };
+
+            var res = cbManager.ViewGeneric(viewManager);
             int nUserID = 0;
 
             if (res != null)
@@ -1733,20 +1741,23 @@ namespace Tvinci.Core.DAL
 
                 foreach (var row in res)
                 {
-                    if (row.Info != null && row.Info.Values != null)
+                    if (row.Key != null && row.Value != null)
                     {
-                        if (row.Info["key"] != null && row.Info["value"] != null)
-                        {
-                            object[] arUserDates = (object[])row.Info["value"];
-                            int.TryParse(arUserDates[0].ToString(), out nUserID);
-                            userList.Add(nUserID);
-                        }
+                        object[] arUserDates = (object[])row.Value;
+                        int.TryParse(arUserDates[0].ToString(), out nUserID);
+                        userList.Add(nUserID);
                     }
                 }
+
                 if (userList != null && userList.Count > 0)
                 {
+                    // get views
+                    ViewManager mediaViewManager = new ViewManager(CB_MEDIA_MARK_DESGIN, "users_medias_lastdate")
+                    {
+                        keys = userList
+                    };
 
-                    var resMedia = cbManager.GetView(CB_MEDIA_MARK_DESGIN, "users_medias_lastdate").Keys(userList);
+                    var resMedia = cbManager.ViewGeneric(mediaViewManager);
 
                     foreach (var row in resMedia)
                     {
@@ -1754,27 +1765,24 @@ namespace Tvinci.Core.DAL
                         nUserID = 0;
 
                         DateTime lastDate;
-                        if (row.Info != null && row.Info.Values != null)
+                        if (row.Key != null && row.Value != null)
                         {
-                            if (row.Info["key"] != null && row.Info["value"] != null)
-                            {
-                                // key = user
-                                object objUserID = row.Info["key"];
-                                object[] arUserDates = (object[])row.Info["value"];
-                                int.TryParse(arUserDates[0].ToString(), out nMediaID);
+                            // key = user
+                            object objUserID = row.Key;
+                            object[] arUserDates = (object[])row.Value;
+                            int.TryParse(arUserDates[0].ToString(), out nMediaID);
 
-                                if (!mediasList.Contains(nMediaID))
+                            if (!mediasList.Contains(nMediaID))
+                            {
+                                int.TryParse(objUserID.ToString(), out nUserID);
+                                DateTime.TryParse(arUserDates[1].ToString(), out lastDate);
+                                UserMediaMark objUserMediaMark = new UserMediaMark
                                 {
-                                    int.TryParse(objUserID.ToString(), out nUserID);
-                                    DateTime.TryParse(arUserDates[1].ToString(), out lastDate);
-                                    UserMediaMark objUserMediaMark = new UserMediaMark
-                                    {
-                                        MediaID = nMediaID,
-                                        UserID = nUserID,
-                                        CreatedAt = lastDate
-                                    };
-                                    mediasMarksList.Add(objUserMediaMark);
-                                }
+                                    MediaID = nMediaID,
+                                    UserID = nUserID,
+                                    CreatedAt = lastDate
+                                };
+                                mediasMarksList.Add(objUserMediaMark);
                             }
                         }
                     }
