@@ -78,7 +78,7 @@
     </Reference>
     <Reference Include="Interop.CUWMAuthTickets">
       <HintPath>..\External\Interop.CUWMAuthTickets.dll</HintPath>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
     <Reference Include="KLogMonitor">
       <HintPath>..\..\TVinciCommon\External\3.5\KLogMonitor.dll</HintPath>
