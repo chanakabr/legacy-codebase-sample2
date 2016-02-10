@@ -1690,7 +1690,7 @@ namespace Tvinci.Core.DAL
                 keys = usersList
             };
 
-            var res = cbManager.ViewGeneric(viewManager);
+            var res = cbManager.ViewKeyValuePairs(viewManager);
 
             foreach (var row in res)
             {
@@ -1732,7 +1732,7 @@ namespace Tvinci.Core.DAL
                 limit = 30
             };
 
-            var res = cbManager.ViewGeneric(viewManager);
+            var res = cbManager.ViewKeyValuePairs(viewManager);
             int nUserID = 0;
 
             if (res != null)
@@ -1757,7 +1757,7 @@ namespace Tvinci.Core.DAL
                         keys = userList
                     };
 
-                    var resMedia = cbManager.ViewGeneric(mediaViewManager);
+                    var resMedia = cbManager.ViewKeyValuePairs(mediaViewManager);
 
                     foreach (var row in resMedia)
                     {
