@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>AdapterControllers</RootNamespace>
     <AssemblyName>AdapterControllers</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,6 +30,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="KLogMonitor, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -89,6 +91,7 @@
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
     <None Include="Service References\RecommendationEngineAdapter\Service1.wsdl" />
+    <None Include="Service References\RecommendationEngineAdapter\Service11.wsdl" />
     <None Include="Service References\RecommendationEngineAdapter\Service4.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -102,6 +105,21 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\RecommendationEngineAdapter\Service44.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\RecommendationEngineAdapter\Service45.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\RecommendationEngineAdapter\Service46.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\RecommendationEngineAdapter\Service47.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\RecommendationEngineAdapter\Service48.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\RecommendationEngineAdapter\Service49.xsd">
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
@@ -122,6 +140,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\RecommendationEngineAdapter\Service1.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\RecommendationEngineAdapter\Service11.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
