@@ -8944,6 +8944,7 @@ namespace ConditionalAccess
                 if (nBILLING_PROVIDER == 1000)
                 {
                     pm = PaymentMethod.PaymentGateway;
+                    res.m_sPaymentMethodExtraDetails = nBILLING_METHOD.ToString();
                 }
 
                 res.m_ePaymentMethod = pm;
