@@ -50,7 +50,7 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CouchbaseManager.cs" />
-    <Compile Include="ViewDefinitions.cs" />
+    <Compile Include="ViewManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Common.Logging">

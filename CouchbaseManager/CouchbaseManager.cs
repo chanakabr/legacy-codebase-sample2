@@ -252,32 +252,39 @@ namespace CouchbaseManager
         {
             bool result = false;
 
-            using (var cluster = new Cluster(COUCHBASE_CONFIG))
+            try
             {
-                using (var bucket = cluster.OpenBucket(bucketName))
+                using (var cluster = new Cluster(COUCHBASE_CONFIG))
                 {
-                    var insertResult = bucket.Insert(key, value, expiration);
-
-                    if (insertResult != null)
+                    using (var bucket = cluster.OpenBucket(bucketName))
                     {
-                        if (insertResult.Exception != null)
-                        {
-                            throw insertResult.Exception;
-                        }
+                        var insertResult = bucket.Insert(key, value, expiration);
 
-                        if (insertResult.Status == Couchbase.IO.ResponseStatus.Success)
+                        if (insertResult != null)
                         {
-                            result = insertResult.Success;
-                        }
-                        else
-                        {
-                            HandleStatusCode(insertResult.Status);
+                            if (insertResult.Exception != null)
+                            {
+                                throw insertResult.Exception;
+                            }
 
-                            insertResult = bucket.Insert(key, value, expiration);
+                            if (insertResult.Status == Couchbase.IO.ResponseStatus.Success)
+                            {
+                                result = insertResult.Success;
+                            }
+                            else
+                            {
+                                HandleStatusCode(insertResult.Status);
 
+                                insertResult = bucket.Insert(key, value, expiration);
+
+                            }
                         }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Add with key = {0}, error = {1}, ST = {2}", key, ex.Message, ex.StackTrace), ex);
             }
 
             return result;
@@ -594,9 +601,24 @@ namespace CouchbaseManager
             return result;
         }
 
-        public List<T> View<T>(ViewDefinitions definitions)
+        public List<T> View<T>(ViewManager definitions)
         {
             List<T> result = new List<T>();
+
+            try
+            {
+                using (var cluster = new Cluster(COUCHBASE_CONFIG))
+                {
+                    using (var bucket = cluster.OpenBucket(bucketName))
+                    {
+                        result = definitions.Query<T>(bucket);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Getting view. error = {0}, ST = {1}", ex.Message, ex.StackTrace), ex);
+            }
 
             return result;
         }
