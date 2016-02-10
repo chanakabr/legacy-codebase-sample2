@@ -640,6 +640,27 @@ namespace CouchbaseManager
             return result;
         }
 
+        public List<KeyValuePair<object, object>> ViewGeneric(ViewManager definitions)
+        {
+            List<KeyValuePair<object, object>> result = new List<KeyValuePair<object, object>>();
+
+            try
+            {
+                using (var cluster = new Cluster(COUCHBASE_CONFIG))
+                {
+                    using (var bucket = cluster.OpenBucket(bucketName))
+                    {
+                        result = definitions.QueryGeneric(bucket);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Getting view. error = {0}, ST = {1}", ex.Message, ex.StackTrace), ex);
+            }
+
+            return result;
+        }
         #endregion
 
     }

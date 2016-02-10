@@ -214,6 +214,36 @@ namespace CouchbaseManager
             return result;
         }
 
+        public List<KeyValuePair<object, object>> QueryGeneric(IBucket bucket)
+        {
+            List<KeyValuePair<object, object>> result = new List<KeyValuePair<object, object>>();
+
+            IViewQuery query = InitializeQuery(bucket);
+
+            var queryResult = bucket.Query<object>(query);
+
+            // If something went wrong - log it and throw exception (if there is one)
+            if (!queryResult.Success)
+            {
+                log.ErrorFormat("Something went wrong when performing Couchbase query. bucket = {0}, view = {1}, message = {2}, error = {3}",
+                    bucket.Name, viewName, queryResult.Message, queryResult.Error, queryResult.Exception);
+
+                if (queryResult.Exception != null)
+                {
+                    throw queryResult.Exception;
+                }
+            }
+            else
+            {
+                foreach (var row in queryResult.Rows)
+                {
+                    result.Add(new KeyValuePair<object, object>((object)row.Key, row.Value));
+                }
+            }
+
+            return result;
+        }
+
         #endregion
 
         #region Private Methods
