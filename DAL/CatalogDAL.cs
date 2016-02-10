@@ -2601,7 +2601,7 @@ namespace Tvinci.Core.DAL
             }
         }
 
-        public static bool GetMediaPlayData(int mediaID, int mediaFileID, ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID, ref int billingTypeID)
+        public static bool GetMediaPlayData(int mediaID, int mediaFileID, ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID, ref int billingTypeID, ref int fileDuration)
         {
             bool res = false;
             StoredProcedure sp = new StoredProcedure("GetMediaPlayData");
@@ -2622,6 +2622,7 @@ namespace Tvinci.Core.DAL
                     formatID = ODBCWrapper.Utils.GetIntSafeVal(mpData.Rows[0]["media_file_type_id"]);
                     mediaTypeID = ODBCWrapper.Utils.GetIntSafeVal(mpData.Rows[0]["media_type_id"]);
                     billingTypeID = ODBCWrapper.Utils.GetIntSafeVal(mpData.Rows[0]["billing_type_id"]);
+                    fileDuration = ODBCWrapper.Utils.GetIntSafeVal(mpData.Rows[0]["media_file_duration"]);
                 }
             }
             return res;
