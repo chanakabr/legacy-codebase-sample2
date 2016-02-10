@@ -389,7 +389,7 @@ namespace CouchbaseManager
             return result;
         }
 
-        public bool Remove<T>(string key)
+        public bool Remove(string key)
         {
             bool result = false;
 
@@ -399,35 +399,16 @@ namespace CouchbaseManager
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
-                        var executeGet = bucket.GetDocument<T>(key);
+                        var removeResult = bucket.Remove(key);
 
-                        if (executeGet != null)
+                        if (removeResult.Exception != null)
                         {
-                            if (executeGet.Exception != null)
-                            {
-                                throw executeGet.Exception;
-                            }
+                            throw removeResult.Exception;
+                        }
 
-                            if (executeGet.Document != null)
-                            {
-                                var removeResult = bucket.Remove<T>(executeGet.Document);
-
-                                if (removeResult.Exception != null)
-                                {
-                                    throw removeResult.Exception;
-                                }
-
-                                if (removeResult.Status == Couchbase.IO.ResponseStatus.Success)
-                                {
-                                    result = removeResult.Success;
-                                }
-                                //else
-                                //{
-                                //    HandleStatusCode(removeResult.Status);
-
-                                //    result = bucket.Replace(key, value, expiration);
-                                //}
-                            }
+                        if (removeResult.Status == Couchbase.IO.ResponseStatus.Success)
+                        {
+                            result = removeResult.Success;
                         }
                     }
                 }

@@ -85,7 +85,7 @@ namespace CachingProvider
         {
             BaseModuleCache baseModule = new BaseModuleCache();
 
-            bool result = new CouchbaseManager.CouchbaseManager(bucket).Remove<T>(key);
+            bool result = new CouchbaseManager.CouchbaseManager(bucket).Remove(key);
             baseModule.result = result;
 
             return baseModule;
