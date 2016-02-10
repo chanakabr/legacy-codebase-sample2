@@ -37,9 +37,28 @@ namespace DalCB
                 object[] startKey = new object[] { sSiteGuid, epochTime };
                 object[] endKey = new object[] { sSiteGuid, 0 };
 
+                List<SocialActivityDoc> retval;
+                if (nNumOfRecords > 0)
+                {
+                    retval = cbManager.View<SocialActivityDoc>(new ViewManager(CB_FEED_DESGIN, "UserFeed")
+                    {
+                        startKey = startKey,
+                        endKey = endKey,
+                        isDescending = true,
+                        skip = nSkip,
+                        limit = nNumOfRecords
+                    });
+                }
+                else
+                {
+                    retval = cbManager.View<SocialActivityDoc>(new ViewManager(CB_FEED_DESGIN, "UserFeed")
+                    {
+                        startKey = startKey,
+                        endKey = endKey,
+                        isDescending = true
+                    });
+                }
 
-                var retval = (nNumOfRecords > 0) ? cbManager.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "UserFeed", true).StartKey(startKey).EndKey(endKey).Descending(true).Skip(nSkip).Limit(nNumOfRecords)
-                                               : cbManager.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "UserFeed", true).StartKey(startKey).EndKey(endKey).Descending(true);
                 if (retval != null)
                 {
                     lResult = retval.ToList();
@@ -140,7 +159,10 @@ namespace DalCB
 
             try
             {
-                lRes = cbManager.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "UserSocialActions", true).Keys(keys).ToList();
+                lRes = cbManager.View<SocialActivityDoc>(new ViewManager(CB_FEED_DESGIN, "UserSocialActions")
+                {
+                    keys = keys
+                });
             }
             catch (Exception ex)
             {
@@ -162,8 +184,28 @@ namespace DalCB
                 object[] endKey = new object[] { sSiteGuid, 0 };
 
 
-                var retval = (nNumOfRecords > 0) ? cbManager.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "UserActions", true).StartKey(startKey).EndKey(endKey).Descending(true).Skip(nSkip).Limit(nNumOfRecords)
-                                               : cbManager.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "UserActions", true).StartKey(startKey).EndKey(endKey).Descending(true);
+                List<SocialActivityDoc> retval;
+                if (nNumOfRecords > 0) 
+                {
+                    retval = cbManager.View<SocialActivityDoc>(new ViewManager(CB_FEED_DESGIN, "UserActions")
+                    {
+                        startKey = startKey,
+                        endKey = endKey,
+                        isDescending = true,
+                        skip = nSkip,
+                        limit = nNumOfRecords
+                    });
+                }
+                else
+                {
+                    retval = cbManager.View<SocialActivityDoc>(new ViewManager(CB_FEED_DESGIN, "UserActions")
+                    {
+                        startKey = startKey,
+                        endKey = endKey,
+                        isDescending = true
+                    });
+                }
+
                 if (retval != null)
                 {
                     lUserActivities = retval.ToList();
@@ -406,12 +448,14 @@ namespace DalCB
             // Get the rows from the view that have the correct key,
             // order the list from top to bottom,
             // get only rows that are from "skip" until "Limit"
-            var lstRows = this.cbManager.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "MediaSocialActions", true).
-                StartKey(new object[] { p_nMediaID, p_nPlatform, p_nActionType }).
-                EndKey(new object[] { p_nMediaID, p_nPlatform, p_nActionType }).
-                Descending(true).
-                Skip(p_nSkip).
-                Limit(p_nLimit);
+            var lstRows = this.cbManager.View<SocialActivityDoc>(new ViewManager(CB_FEED_DESGIN, "MediaSocialActions")
+            {
+                startKey = new object[] { p_nMediaID, p_nPlatform, p_nActionType },
+                endKey = new object[] { p_nMediaID, p_nPlatform, p_nActionType },
+                isDescending = true,
+                skip = p_nSkip,
+                limit = p_nLimit
+            });
 
             if (lstRows != null)
             {

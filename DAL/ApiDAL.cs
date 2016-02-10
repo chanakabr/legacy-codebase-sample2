@@ -973,9 +973,11 @@ namespace DAL
 
             var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
 
-            var res = cbManager.GetView<MediaMarkLog>(CB_MEDIA_MARK_DESGIN, "users_watch_history", true)
-                                            .StartKey(new object[] { nSiteGuid, 0 })
-                                            .EndKey(new object[] { nSiteGuid, string.Empty });
+            var res = cbManager.View<MediaMarkLog>(new ViewManager(CB_MEDIA_MARK_DESGIN, "users_watch_history")
+            {
+                startKey = new object[] { nSiteGuid, 0 },
+                endKey = new object[] { nSiteGuid, string.Empty }
+            });
 
             List<MediaMarkLog> sortedMediaMarksList = res.ToList().OrderByDescending(x => x.LastMark.CreatedAt).ToList();
 
@@ -1031,10 +1033,12 @@ namespace DAL
 
                 if (lMediaIDs.Count == 0)
                 {
-                    var res = cbManager.GetView<MediaMarkLog>(CB_MEDIA_MARK_DESGIN, "users_watch_history", true)
-                                            .StartKey(new object[] { nSiteGuid, 0 })
-                                            .EndKey(new object[] { nSiteGuid, string.Empty });
-
+                    var res = cbManager.View<MediaMarkLog>(new ViewManager(CB_MEDIA_MARK_DESGIN, "users_watch_history")
+                    {
+                        startKey = new object[] { nSiteGuid, 0 },
+                        endKey = new object[] { nSiteGuid, string.Empty }
+                    });
+                    
                     List<MediaMarkLog> sortedMediaMarksList = res.ToList();
 
                     if (sortedMediaMarksList != null && sortedMediaMarksList.Count > 0)
@@ -2783,11 +2787,12 @@ namespace DAL
                 try
                 {
                     // get views
-                    messageQueues.AddRange(cbManager.GetView<MessageQueue>(CB_MESSAGE_QUEUE_DESGIN, "queue_messages", true)
-                                                  .StartKey(new object[] { messageDataType.ToLower(), baseDateSec })
-                                                  .EndKey(new object[] { messageDataType.ToLower(), DateTimeToUnixTimestamp(DateTime.MaxValue) })
-                                                  .Stale(Couchbase.StaleMode.False).ToList());
-
+                    messageQueues.AddRange(cbManager.View<MessageQueue>(new ViewManager(CB_MESSAGE_QUEUE_DESGIN, "queue_messages")
+                    {
+                        startKey = new object[] { messageDataType.ToLower(), baseDateSec },
+                        endKey = new object[] { messageDataType.ToLower(), DateTimeToUnixTimestamp(DateTime.MaxValue) },
+                        staleState =  ViewStaleState.False
+                    }));
                 }
                 catch (Exception ex)
                 {
