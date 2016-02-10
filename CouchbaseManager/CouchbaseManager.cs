@@ -647,7 +647,7 @@ namespace CouchbaseManager
             return result;
         }
 
-        public List<KeyValuePair<object, object>> ViewGeneric(ViewManager definitions)
+        public List<KeyValuePair<object, object>> ViewKeyValuePairs(ViewManager definitions)
         {
             List<KeyValuePair<object, object>> result = new List<KeyValuePair<object, object>>();
 
@@ -657,7 +657,51 @@ namespace CouchbaseManager
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
-                        result = definitions.QueryGeneric(bucket);
+                        result = definitions.QueryKeyValuePairs(bucket);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Getting view. error = {0}, ST = {1}", ex.Message, ex.StackTrace), ex);
+            }
+
+            return result;
+        }
+
+        public List<string> ViewIds(ViewManager definitions)
+        {
+            List<string> result = new List<string>();
+
+            try
+            {
+                using (var cluster = new Cluster(COUCHBASE_CONFIG))
+                {
+                    using (var bucket = cluster.OpenBucket(bucketName))
+                    {
+                        result = definitions.QueryIds(bucket);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Getting view. error = {0}, ST = {1}", ex.Message, ex.StackTrace), ex);
+            }
+
+            return result;
+        }
+
+        public List<ViewRow<T>> ViewRows<T>(ViewManager definitions)
+        {
+            List<ViewRow<T>> result = new List<ViewRow<T>>();
+
+            try
+            {
+                using (var cluster = new Cluster(COUCHBASE_CONFIG))
+                {
+                    using (var bucket = cluster.OpenBucket(bucketName))
+                    {
+                        result = definitions.QueryRows<T>(bucket);
                     }
                 }
             }

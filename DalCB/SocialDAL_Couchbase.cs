@@ -259,8 +259,8 @@ namespace DalCB
             try
             {
                 var lFeeds = (nNumOfDocs > 0) ? 
-                    cbManager.ViewGeneric(new ViewManager(CB_FEED_DESGIN, "FeedByActorId") { limit = nNumOfDocs }) : 
-                    cbManager.ViewGeneric(new ViewManager(CB_FEED_DESGIN, "FeedByActorId"));
+                    cbManager.ViewIds(new ViewManager(CB_FEED_DESGIN, "FeedByActorId") { limit = nNumOfDocs }) :
+                    cbManager.ViewIds(new ViewManager(CB_FEED_DESGIN, "FeedByActorId"));
                 
                 bResult = true;
 
@@ -268,7 +268,7 @@ namespace DalCB
                 {
                     foreach (var feed in lFeeds)
                     {
-                        lDocIDs.Add(feed.ItemId);
+                        lDocIDs.Add(feed);
                     }
                 }
             }

@@ -214,7 +214,7 @@ namespace CouchbaseManager
             return result;
         }
 
-        public List<KeyValuePair<object, object>> QueryGeneric(IBucket bucket)
+        public List<KeyValuePair<object, object>> QueryKeyValuePairs(IBucket bucket)
         {
             List<KeyValuePair<object, object>> result = new List<KeyValuePair<object, object>>();
 
@@ -238,6 +238,71 @@ namespace CouchbaseManager
                 foreach (var row in queryResult.Rows)
                 {
                     result.Add(new KeyValuePair<object, object>((object)row.Key, row.Value));
+                }
+            }
+
+            return result;
+        }
+
+        public List<string> QueryIds(IBucket bucket)
+        {
+            List<string> result = new List<string>();
+
+            IViewQuery query = InitializeQuery(bucket);
+
+            var queryResult = bucket.Query<object>(query);
+
+            // If something went wrong - log it and throw exception (if there is one)
+            if (!queryResult.Success)
+            {
+                log.ErrorFormat("Something went wrong when performing Couchbase query. bucket = {0}, view = {1}, message = {2}, error = {3}",
+                    bucket.Name, viewName, queryResult.Message, queryResult.Error, queryResult.Exception);
+
+                if (queryResult.Exception != null)
+                {
+                    throw queryResult.Exception;
+                }
+            }
+            else
+            {
+                foreach (var row in queryResult.Rows)
+                {
+                    result.Add(row.Id);
+                }
+            }
+
+            return result;
+        }
+
+        public List<ViewRow<T>> QueryRows<T>(IBucket bucket)
+        {
+            List<ViewRow<T>> result = new List<ViewRow<T>>();
+
+            IViewQuery query = InitializeQuery(bucket);
+
+            var queryResult = bucket.Query<T>(query);
+
+            // If something went wrong - log it and throw exception (if there is one)
+            if (!queryResult.Success)
+            {
+                log.ErrorFormat("Something went wrong when performing Couchbase query. bucket = {0}, view = {1}, message = {2}, error = {3}",
+                    bucket.Name, viewName, queryResult.Message, queryResult.Error, queryResult.Exception);
+
+                if (queryResult.Exception != null)
+                {
+                    throw queryResult.Exception;
+                }
+            }
+            else
+            {
+                foreach (var row in queryResult.Rows)
+                {
+                    result.Add(new ViewRow<T>()
+                    {
+                        Id = row.Id,
+                        Key = (object)row.Key,
+                        Value = row.Value
+                    });
                 }
             }
 
@@ -441,5 +506,35 @@ namespace CouchbaseManager
         False = 1,
         Ok = 2,
         UpdateAfter = 3,
+    }
+
+    public class ViewRow<T>
+    {
+        /// <summary>
+        /// The identifier of the row
+        /// </summary>
+        public string Id
+        {
+            get;
+            set;
+        }
+       
+        /// <summary>
+        /// The key emitted by the View Map function
+        /// </summary>
+        public object Key
+        {
+            get;
+            set;
+        }
+        
+        /// <summary>
+        /// The value emitted by the View Map function or if a Reduce view, the value of the Reduce
+        /// </summary>
+        public T Value
+        {
+            get;
+            set;
+        }
     }
 }
