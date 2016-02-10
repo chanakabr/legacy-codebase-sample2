@@ -8941,6 +8941,10 @@ namespace ConditionalAccess
                 {
                     pm = PaymentMethod.Unknown;
                 }
+                if (nBILLING_PROVIDER == 1000)
+                {
+                    pm = PaymentMethod.PaymentGateway;
+                }
 
                 res.m_ePaymentMethod = pm;
 

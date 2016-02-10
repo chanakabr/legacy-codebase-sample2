@@ -57,7 +57,8 @@ namespace ConditionalAccess
         InApp = 200,
         M1 = 60,
         ChangeSubscription = 8,
-        Offline = 50
+        Offline = 50,
+        PaymentGateway = 100
         // PS takes care of billing in the payment day. We still don't know the method
     }
 
