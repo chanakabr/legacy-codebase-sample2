@@ -668,6 +668,39 @@ namespace CouchbaseManager
 
             return result;
         }
+
+        public ulong Increment(string key, ulong delta)
+        {
+            ulong result = 0;
+
+            using (var cluster = new Cluster(COUCHBASE_CONFIG))
+            {
+                using (var bucket = cluster.OpenBucket(bucketName))
+                {
+                    var incrementResult = bucket.Increment(key, delta);
+
+                    if (incrementResult != null)
+                    {
+                        if (incrementResult.Exception != null)
+                        {
+                            throw incrementResult.Exception;
+                        }
+
+                        if (incrementResult.Status == Couchbase.IO.ResponseStatus.Success)
+                        {
+                            result = incrementResult.Value;
+                        }
+                        else
+                        {
+                            HandleStatusCode(incrementResult.Status);
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
         #endregion
 
     }

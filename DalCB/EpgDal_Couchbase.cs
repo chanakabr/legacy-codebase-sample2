@@ -36,7 +36,7 @@ namespace DalCB
         //Given a key, will generate a unique number that can be used as a unique identifier
         public ulong IDGenerator(string sKey)
         {
-            return cbManager.Increment(sKey, 1, 1);
+            return cbManager.Increment(sKey, 1);
         }
 
         public bool InsertProgram(string sDocID, object epg, DateTime? dtExpiresAt)
@@ -166,7 +166,7 @@ namespace DalCB
             bool bRes = false;
             try
             {
-                bRes = cbManager.Remove<object>(sDocID);
+                bRes = cbManager.Remove(sDocID);
             }
             catch (Exception ex)
             {
@@ -280,8 +280,19 @@ namespace DalCB
 
             try
             {
-                var res = (nPageSize > 0) ? cbManager.GetView<EpgCB>(CB_EPG_DESGIN, "group_programs", true).StartKey(startKey).EndKey(endKey).Skip(nStartIndex).Limit(nPageSize) :
-                                                          cbManager.GetView<EpgCB>(CB_EPG_DESGIN, "group_programs", true).StartKey(startKey).EndKey(endKey);
+                ViewManager viewManager = new ViewManager(CB_EPG_DESGIN, "group_programs")
+                {
+                    startKey = startKey,
+                    endKey = endKey
+                };
+
+                if (nPageSize > 0)
+                {
+                    viewManager.skip = nStartIndex;
+                    viewManager.limit = nPageSize;
+                }
+                var res = cbManager.View<EpgCB>(viewManager);
+
                 if (res != null)
                 {
                     lRes = res.ToList();
@@ -305,8 +316,18 @@ namespace DalCB
 
             try
             {
-                var res = (nPageSize > 0) ? cbManager.GetView<EpgCB>(CB_EPG_DESGIN, "group_programs", true).StartKey(startKey).EndKey(endKey).Skip(nStartIndex).Limit(nPageSize) :
-                    cbManager.GetView<EpgCB>(CB_EPG_DESGIN, "group_programs", true).StartKey(startKey).EndKey(endKey);
+                ViewManager viewManager = new ViewManager(CB_EPG_DESGIN, "group_programs")
+                {
+                    startKey = startKey,
+                    endKey = endKey
+                };
+
+                if (nPageSize > 0)
+                {
+                    viewManager.skip = nStartIndex;
+                    viewManager.limit = nPageSize;
+                }
+                var res = cbManager.View<EpgCB>(viewManager);
 
                 if (res != null)
                 {
@@ -331,8 +352,18 @@ namespace DalCB
 
             try
             {
-                var res = (nPageSize > 0) ? cbManager.GetView<EpgCB>(CB_EPG_DESGIN, "group_programs", true).StartKey(startKey).EndKey(endKey).Skip(nStartIndex).Limit(nPageSize) :
-                    cbManager.GetView<EpgCB>(CB_EPG_DESGIN, "group_programs", true).StartKey(startKey).EndKey(endKey);
+                ViewManager viewManager = new ViewManager(CB_EPG_DESGIN, "group_programs")
+                {
+                    startKey = startKey,
+                    endKey = endKey
+                };
+
+                if (nPageSize > 0)
+                {
+                    viewManager.skip = nStartIndex;
+                    viewManager.limit = nPageSize;
+                }
+                var res = cbManager.View<EpgCB>(viewManager);
 
                 if (res != null)
                 {
@@ -359,8 +390,18 @@ namespace DalCB
             List<object> endKey = new List<object>() { m_nGroupID, nChannelID, sEndMaxValue };
             try
             {
-                var res = (nPageSize > 0) ? cbManager.GetView<EpgCB>(CB_EPG_DESGIN, "channel_programs", true).Key(startKey).EndKey(endKey).Skip(nStartIndex).Limit(nPageSize) :
-                                                            cbManager.GetView<EpgCB>(CB_EPG_DESGIN, "channel_programs", true).Key(startKey).EndKey(endKey);
+                ViewManager viewManager = new ViewManager(CB_EPG_DESGIN, "channel_programs")
+                {
+                    startKey = startKey,
+                    endKey = endKey
+                };
+
+                if (nPageSize > 0)
+                {
+                    viewManager.skip = nStartIndex;
+                    viewManager.limit = nPageSize;
+                }
+                var res = cbManager.View<EpgCB>(viewManager);
 
                 if (res != null)
                 {
@@ -383,25 +424,30 @@ namespace DalCB
             List<object> endKey = new List<object>() { m_nGroupID, nChannelID, toDate.ToString("yyyyMMddHHmmss") };
             try
             {
-                if (!bDesc)
+                ViewManager viewManager = new ViewManager(CB_EPG_DESGIN, "channel_programs")
                 {
-                    var res = (nPageSize > 0) ? cbManager.GetView<EpgCB>(CB_EPG_DESGIN, "channel_programs", true).Key(startKey).EndKey(endKey).Skip(nStartIndex).Limit(nPageSize) :
-                                                                cbManager.GetView<EpgCB>(CB_EPG_DESGIN, "channel_programs", true).Key(startKey).EndKey(endKey);
+                    startKey = startKey,
+                    endKey = endKey
+                };
 
-                    if (res != null)
-                    {
-                        lRes = res.ToList();
-                    }
+                if (nPageSize > 0)
+                {
+                    viewManager.skip = nStartIndex;
+                    viewManager.limit = nPageSize;
                 }
-                else
-                {//when Sorting the results in Descending order, the startKey and EndKey are switched
-                    var res = (nPageSize > 0) ? cbManager.GetView<EpgCB>(CB_EPG_DESGIN, "channel_programs", true).Key(endKey).EndKey(startKey).Skip(nStartIndex).Descending(bDesc).Limit(nPageSize) :
-                                                                  cbManager.GetView<EpgCB>(CB_EPG_DESGIN, "channel_programs", true).Key(endKey).EndKey(startKey).Descending(bDesc);
 
-                    if (res != null)
-                    {
-                        lRes = res.ToList();
-                    }
+                if (bDesc)
+                {
+                    viewManager.isDescending = true;
+                    viewManager.startKey = endKey;
+                    viewManager.endKey = startKey;
+                }
+
+                var res = cbManager.View<EpgCB>(viewManager);
+
+                if (res != null)
+                {
+                    lRes = res.ToList();
                 }
             }
             catch (Exception ex)
@@ -426,8 +472,18 @@ namespace DalCB
                     Keys.Add(obj);
                 }
 
-                var res = (nPageSize > 0) ? cbManager.GetView<EpgCB>(CB_EPG_DESGIN, "programs_by_identifier", true).Keys(Keys).Skip(nStartIndex).Limit(nPageSize) :
-                    cbManager.GetView<EpgCB>(CB_EPG_DESGIN, "programs_by_identifier", true).Keys(Keys);
+                ViewManager viewManager = new ViewManager(CB_EPG_DESGIN, "programs_by_identifier")
+                {
+                    keys = Keys,
+                };
+
+                if (nPageSize > 0)
+                {
+                    viewManager.skip = nStartIndex;
+                    viewManager.limit = nPageSize;
+                }
+
+                var res = cbManager.View<EpgCB>(viewManager);
 
                 if (res != null)
                 {
