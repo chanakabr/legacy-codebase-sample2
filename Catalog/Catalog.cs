@@ -3165,24 +3165,31 @@ namespace Catalog
                             //////////////////// Wait for Next Version (Joker)
                             //GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.MEDIA, assetIdToAssetStatsMapping);
 
-                            Dictionary<int, int[]> dict = CatalogDAL.Get_MediaStatistics(dStartDate, dEndDate, nGroupID, lAssetIDs);
+                            //Dictionary<int, int[]> dict = CatalogDAL.Get_MediaStatistics(dStartDate, dEndDate, nGroupID, lAssetIDs);
+                            Dictionary<int, int> dict = SlidingWindowCountFacetMappings(nGroupID, lAssetIDs, dStartDate, dEndDate, Catalog.STAT_ACTION_FIRST_PLAY);                            
                             if (dict.Count > 0)
                             {
-                                foreach (KeyValuePair<int, int[]> kvp in dict)
+                                //foreach (KeyValuePair<int, int[]> kvp in dict)
+                                foreach (int kvp in dict.Keys)
                                 {
-                                    if (assetIdToAssetStatsMapping.ContainsKey(kvp.Key))
+                                    //if (assetIdToAssetStatsMapping.ContainsKey(kvp.Key))
+                                    if (assetIdToAssetStatsMapping.ContainsKey(kvp))
                                     {
-                                        assetIdToAssetStatsMapping[kvp.Key].m_nViews = kvp.Value[ASSET_STATS_VIEWS_INDEX];
+                                        //assetIdToAssetStatsMapping[kvp.Key].m_nViews = kvp.Value[ASSET_STATS_VIEWS_INDEX];
+                                        assetIdToAssetStatsMapping[kvp].m_nViews = dict[kvp];
                                         if (isBuzzNotEmpty)
                                         {
-                                            string strAssetID = kvp.Key.ToString();
+                                            //string strAssetID = kvp.Key.ToString();
+                                            string strAssetID = kvp.ToString();
                                             if (buzzDict.ContainsKey(strAssetID) && buzzDict[strAssetID] != null)
                                             {
-                                                assetIdToAssetStatsMapping[kvp.Key].m_buzzAverScore = buzzDict[strAssetID];
+                                                //assetIdToAssetStatsMapping[kvp.Key].m_buzzAverScore = buzzDict[strAssetID];
+                                                assetIdToAssetStatsMapping[kvp].m_buzzAverScore = buzzDict[strAssetID];
                                             }
                                             else
                                             {
-                                                log.Error("Error - " + GetAssetStatsResultsLogMsg(String.Concat("No buzz meter found for media id: ", kvp.Key), nGroupID, lAssetIDs, dStartDate, dEndDate, eType));
+                                                //log.Error("Error - " + GetAssetStatsResultsLogMsg(String.Concat("No buzz meter found for media id: ", kvp.Key), nGroupID, lAssetIDs, dStartDate, dEndDate, eType));
+                                                log.Error("Error - " + GetAssetStatsResultsLogMsg(String.Concat("No buzz meter found for media id: ", kvp), nGroupID, lAssetIDs, dStartDate, dEndDate, eType));
                                             }
                                         }
                                     }
@@ -4170,6 +4177,49 @@ namespace Catalog
                             if (int.TryParse(sFacetKey, out nMediaId))
                             {
                                 result.Add(nMediaId);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        internal static Dictionary<int, int> SlidingWindowCountFacetMappings(int nGroupId, List<int> lMediaIds, DateTime dtStartDate,
+            DateTime dtEndDate, string action)
+        {
+            Dictionary<int, int> result = new Dictionary<int, int>();
+
+            string sFacetQuery = BuildSlidingWindowCountFacetRequest(nGroupId, lMediaIds, dtStartDate, dtEndDate, action);
+
+
+            //Search
+            string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(nGroupId);
+            ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
+            string retval = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref sFacetQuery);
+
+            if (!string.IsNullOrEmpty(retval))
+            {
+                //Get facet results
+                Dictionary<string, Dictionary<string, int>> dFacets = ESTermsFacet.FacetResults(ref retval);
+
+                if (dFacets != null && dFacets.Count > 0)
+                {
+                    Dictionary<string, int> dFacetResult;
+                    //retrieve channel_views facet results
+                    dFacets.TryGetValue(STAT_SLIDING_WINDOW_FACET_NAME, out dFacetResult);
+
+                    if (dFacetResult != null && dFacetResult.Count > 0)
+                    {
+                        foreach (string sFacetKey in dFacetResult.Keys)
+                        {
+                            int count = dFacetResult[sFacetKey];
+
+                            int nMediaId;
+                            if (int.TryParse(sFacetKey, out nMediaId) && !result.ContainsKey(nMediaId))
+                            {
+                                result.Add(nMediaId, count);
                             }
                         }
                     }
