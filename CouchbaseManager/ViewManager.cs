@@ -1,9 +1,11 @@
 ﻿using Couchbase.Core;
 using Couchbase.Views;
+using KLogMonitor;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,6 +13,8 @@ namespace CouchbaseManager
 {
     public class ViewManager
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         #region Data Members
 
         /// <summary>
@@ -161,7 +165,7 @@ namespace CouchbaseManager
         /// <summary>
         /// When true, the generated url will contain 'https' and use port 18092
         /// </summary>
-        public bool? UseSsl;
+        public bool? useSsl;
 
         #endregion
 
@@ -175,9 +179,76 @@ namespace CouchbaseManager
 
         #endregion
 
-        #region Public Method
+        #region Public Methods
 
         public List<T> Query<T>(IBucket bucket)
+        {
+            List<T> result = null;
+
+            IViewQuery query = InitializeQuery(bucket);
+
+            #region Perform query
+
+            var queryResult = bucket.Query<T>(query);
+
+            // If something went wrong - log it and throw exception (if there is one)
+            if (!queryResult.Success)
+            {
+                log.ErrorFormat("Something went wrong when performing Couchbase query. bucket = {0}, view = {1}, message = {2}, error = {3}",
+                    bucket.Name, viewName, queryResult.Message, queryResult.Error, queryResult.Exception);
+
+                if (queryResult.Exception != null)
+                {
+                    throw queryResult.Exception;
+                }
+            }
+            else
+            {
+                result = new List<T>();
+
+                result.AddRange(queryResult.Values);
+            }
+
+            #endregion
+
+            return result;
+        }
+
+        public List<KeyValuePair<object, object>> QueryGeneric(IBucket bucket)
+        {
+            List<KeyValuePair<object, object>> result = new List<KeyValuePair<object, object>>();
+
+            IViewQuery query = InitializeQuery(bucket);
+
+            var queryResult = bucket.Query<object>(query);
+
+            // If something went wrong - log it and throw exception (if there is one)
+            if (!queryResult.Success)
+            {
+                log.ErrorFormat("Something went wrong when performing Couchbase query. bucket = {0}, view = {1}, message = {2}, error = {3}",
+                    bucket.Name, viewName, queryResult.Message, queryResult.Error, queryResult.Exception);
+
+                if (queryResult.Exception != null)
+                {
+                    throw queryResult.Exception;
+                }
+            }
+            else
+            {
+                foreach (var row in queryResult.Rows)
+                {
+                    result.Add(new KeyValuePair<object, object>((object)row.Key, row.Value));
+                }
+            }
+
+            return result;
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private IViewQuery InitializeQuery(IBucket bucket)
         {
             IViewQuery query = null;
 
@@ -301,6 +372,39 @@ namespace CouchbaseManager
                 query = query.Skip(this.skip.Value);
             }
 
+            if (this.staleState != null)
+            {
+                StaleState queryStaleState = StaleState.None;
+
+                switch (this.staleState.Value)
+                {
+                    case ViewStaleState.None:
+                    {
+                        queryStaleState = StaleState.None;
+                        break;
+                    }
+                    case ViewStaleState.False:
+                    {
+                        queryStaleState = StaleState.False;
+                        break;
+                    }
+                    case ViewStaleState.Ok:
+                    {
+                        queryStaleState = StaleState.Ok;
+                        break;
+                    }
+                    case ViewStaleState.UpdateAfter:
+                    {
+                        queryStaleState = StaleState.UpdateAfter;
+                        break;
+                    }
+                    default:
+                    break;
+                }
+
+                query = query.Stale(queryStaleState);
+            }
+
             if (this.startKey != null)
             {
                 if (this.startKeyEncode != null)
@@ -312,9 +416,17 @@ namespace CouchbaseManager
                     query = query.EndKey(this.startKey);
                 }
             }
-            var queryResult = bucket.Query<T>(query);
 
-            return null;
+            if (this.startKeyDocId != null)
+            {
+                query = query.StartKeyDocId(this.startKeyDocId);
+            }
+
+            if (this.useSsl != null)
+            {
+                query.UseSsl = this.useSsl.Value;
+            }
+            return query;
         }
 
         #endregion
