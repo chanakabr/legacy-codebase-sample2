@@ -509,6 +509,32 @@ namespace CouchbaseManager
 
         }
 
+        public bool SetWithVersionWithRetry<T>(string key, object value, ulong version, int numOfRetries, int retryInterval)
+        {
+            bool result = false;
+
+            if (numOfRetries >= 0)
+            {
+                bool operationResult = SetWithVersion(key, value, version);
+                if (!operationResult)
+                {
+                    numOfRetries--;
+                    Thread.Sleep(retryInterval);
+
+                    ulong newVersion;
+                    var getResult = GetWithVersion<T>(key, out newVersion);
+
+                    result = SetWithVersionWithRetry<T>(key, value, newVersion, numOfRetries, retryInterval);
+                }
+                else
+                {
+                    result = true;
+                }
+            }
+
+            return result;
+        }
+
         public IDictionary<string, T> GetValues<T>(List<string> keys, bool shouldAllowPartialQuery = false)
         {
             IDictionary<string, T> result = null;
