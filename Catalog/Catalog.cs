@@ -3100,8 +3100,8 @@ namespace Catalog
         {
             // Data structures here are used for returning List<AssetStatsResult> in the same order asset ids are given in lAssetIDs
             SortedSet<AssetStatsResult.IndexedAssetStatsResult> set = null;
-            Dictionary<int, AssetStatsResult> assetIdToAssetStatsMapping = null;
-            InitializeAssetStatsResultsDataStructs(lAssetIDs, ref set, ref assetIdToAssetStatsMapping);
+            Dictionary<int, AssetStatsResult> assetIdToAssetStatsMapping = null;                        
+            InitializeAssetStatsResultsDataStructs(lAssetIDs, ref set, ref assetIdToAssetStatsMapping);            
 
             switch (eType)
             {
@@ -3161,10 +3161,12 @@ namespace Catalog
                              * 
                              * 
                              */
+                            
+                            GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.MEDIA, assetIdToAssetStatsMapping);
 
-                            //////////////////// Wait for Next Version (Joker)
-                            //GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.MEDIA, assetIdToAssetStatsMapping);
+                            #region Old Get MediaStatistics code - goes to DB for views and to CB for likes\rate\votes
 
+                            /* Removed in Quasar
                             //Dictionary<int, int[]> dict = CatalogDAL.Get_MediaStatistics(dStartDate, dEndDate, nGroupID, lAssetIDs);
                             Dictionary<int, int> dict = SlidingWindowCountFacetMappings(nGroupID, lAssetIDs, dStartDate, dEndDate, Catalog.STAT_ACTION_FIRST_PLAY);                            
                             if (dict.Count > 0)
@@ -3231,7 +3233,8 @@ namespace Catalog
                                 }
                                 tasks[i].Dispose();
                             }
-
+                            */
+                            #endregion
                         }
 
                         break;
@@ -3271,11 +3274,14 @@ namespace Catalog
 
                         }
                         else
-                        {
-                            //////////////////// Wait for Next Version (Joker)
+                        {                            
                             // we bring data from ES statistics index.
-                            //GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.EPG, assetIdToAssetStatsMapping);
+                            
+                            GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.EPG, assetIdToAssetStatsMapping);
 
+                            #region Old Get MediaStatistics code - goes to CB for likes\rate\votes
+
+                            /* Removed in Quasar
                             // save monitor and logs context data
                             ContextData contextData = new ContextData();
 
@@ -3307,6 +3313,9 @@ namespace Catalog
                                 }
                                 tasks[i].Dispose();
                             }
+                            */
+
+                            #endregion
                         }
                         break;
                     }
