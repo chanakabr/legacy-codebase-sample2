@@ -31,7 +31,8 @@ namespace CouchbaseManager
     {
         #region Consts
 
-        public const string COUCHBASE_CONFIG = "couchbaseClients/couchbase";
+        //public const string COUCHBASE_CONFIG = "couchbaseClients/couchbase";
+        public const string COUCHBASE_CONFIG = "couchbaseClients/";
 
         #endregion
 
@@ -45,6 +46,7 @@ namespace CouchbaseManager
 
         #region Data Members
 
+        private string configurationSection;
         private string bucketName;
 
         #endregion
@@ -53,10 +55,12 @@ namespace CouchbaseManager
 
         public CouchbaseManager(eCouchbaseBucket bucket)
         {
-            this.bucketName = GetBucketName(bucket);
+            this.configurationSection = string.Format("{0}{1}", COUCHBASE_CONFIG, bucket.ToString().ToLower());
+            bucketName = GetBucketName(bucket, configurationSection);
+
         }
 
-        private static string GetBucketName(eCouchbaseBucket bucket)
+        private static string GetBucketName(eCouchbaseBucket bucket, string configurationSection)
         {
             string bucketName = string.Empty;
             //switch (bucket)
@@ -84,15 +88,14 @@ namespace CouchbaseManager
             // We do know the name of the SECTION
             // after "parsing" the configuration to the client object, we will see which of the items in the app.config has the same key as the enum.
             // If they are identical, then we can get the server's bucket name from it
-            var section = (CouchbaseClientSection)ConfigurationManager.GetSection(COUCHBASE_CONFIG);
+            var section = (CouchbaseClientSection)ConfigurationManager.GetSection(configurationSection);
             var clientConfiguration = new ClientConfiguration(section);
+
 
             foreach (var currentBucket in clientConfiguration.BucketConfigs)
             {
-                if (currentBucket.Key == bucket.ToString().ToLower())
-                {
-                    bucketName = currentBucket.Value.BucketName;
-                }
+                bucketName = currentBucket.Value.BucketName;
+                break;
             }
 
             return bucketName;
@@ -271,7 +274,7 @@ namespace CouchbaseManager
 
             try
             {
-                using (var cluster = new Cluster(COUCHBASE_CONFIG))
+                using (var cluster = new Cluster(configurationSection))
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
@@ -318,11 +321,11 @@ namespace CouchbaseManager
         {
             bool result = false;
 
-            using (var cluster = new Cluster(COUCHBASE_CONFIG))
+            using (var cluster = new Cluster(configurationSection))
             {
                 using (var bucket = cluster.OpenBucket(bucketName))
                 {
-                    var insertResult = bucket.Replace(key, value, expiration);
+                    var insertResult = bucket.Upsert(key, value, expiration);
 
                     if (insertResult != null)
                     {
@@ -339,7 +342,7 @@ namespace CouchbaseManager
                         {
                             HandleStatusCode(insertResult.Status);
 
-                            insertResult = bucket.Replace(key, value, expiration);
+                            insertResult = bucket.Upsert(key, value, expiration);
                         }
                     }
                 }
@@ -354,7 +357,7 @@ namespace CouchbaseManager
 
             try
             {
-                using (var cluster = new Cluster(COUCHBASE_CONFIG))
+                using (var cluster = new Cluster(configurationSection))
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
@@ -395,7 +398,7 @@ namespace CouchbaseManager
 
             try
             {
-                using (var cluster = new Cluster(COUCHBASE_CONFIG))
+                using (var cluster = new Cluster(configurationSection))
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
@@ -428,7 +431,7 @@ namespace CouchbaseManager
 
             try
             {
-                using (var cluster = new Cluster(COUCHBASE_CONFIG))
+                using (var cluster = new Cluster(configurationSection))
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
@@ -478,11 +481,11 @@ namespace CouchbaseManager
         {
             bool result = false;
 
-            using (var cluster = new Cluster(COUCHBASE_CONFIG))
+            using (var cluster = new Cluster(configurationSection))
             {
                 using (var bucket = cluster.OpenBucket(bucketName))
                 {
-                    var setResult = bucket.Replace(key, value, version, expiration);
+                    var setResult = bucket.Upsert(key, value, version, expiration);
 
                     if (setResult != null)
                     {
@@ -499,7 +502,7 @@ namespace CouchbaseManager
                         {
                             HandleStatusCode(setResult.Status);
 
-                            setResult = bucket.Replace(key, value, version, expiration);
+                            setResult = bucket.Upsert(key, value, version, expiration);
                         }
                     }
                 }
@@ -513,11 +516,11 @@ namespace CouchbaseManager
             bool result = false;
             newVersion = 0;
 
-            using (var cluster = new Cluster(COUCHBASE_CONFIG))
+            using (var cluster = new Cluster(configurationSection))
             {
                 using (var bucket = cluster.OpenBucket(bucketName))
                 {
-                    var setResult = bucket.Replace(key, value, version, expiration);
+                    var setResult = bucket.Upsert(key, value, version, expiration);
 
                     if (setResult != null)
                     {
@@ -535,7 +538,7 @@ namespace CouchbaseManager
                         {
                             HandleStatusCode(setResult.Status);
 
-                            setResult = bucket.Replace(key, value, version, expiration);
+                            setResult = bucket.Upsert(key, value, version, expiration);
                             newVersion = setResult.Cas;
                         }
                     }
@@ -576,7 +579,7 @@ namespace CouchbaseManager
             IDictionary<string, T> result = null;
             try
             {
-                using (var cluster = new Cluster(COUCHBASE_CONFIG))
+                using (var cluster = new Cluster(configurationSection))
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
@@ -667,7 +670,7 @@ namespace CouchbaseManager
 
             try
             {
-                using (var cluster = new Cluster(COUCHBASE_CONFIG))
+                using (var cluster = new Cluster(configurationSection))
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
@@ -689,7 +692,7 @@ namespace CouchbaseManager
 
             try
             {
-                using (var cluster = new Cluster(COUCHBASE_CONFIG))
+                using (var cluster = new Cluster(configurationSection))
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
@@ -711,7 +714,7 @@ namespace CouchbaseManager
 
             try
             {
-                using (var cluster = new Cluster(COUCHBASE_CONFIG))
+                using (var cluster = new Cluster(configurationSection))
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
@@ -733,7 +736,7 @@ namespace CouchbaseManager
 
             try
             {
-                using (var cluster = new Cluster(COUCHBASE_CONFIG))
+                using (var cluster = new Cluster(configurationSection))
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
@@ -753,7 +756,7 @@ namespace CouchbaseManager
         {
             ulong result = 0;
 
-            using (var cluster = new Cluster(COUCHBASE_CONFIG))
+            using (var cluster = new Cluster(configurationSection))
             {
                 using (var bucket = cluster.OpenBucket(bucketName))
                 {
