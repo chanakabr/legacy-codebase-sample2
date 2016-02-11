@@ -14,6 +14,7 @@ namespace KLogMonitor
         public const string CLIENT_TAG = "kmon_client_tag";
         public const string HOST_IP = "kmon_host_ip";
         public const string USER_ID = "kmon_user_id";
+        public const string TOPIC = "kmon_topic";
 
         // event names (for monitor)
         public const string EVENT_API_START = "start";
