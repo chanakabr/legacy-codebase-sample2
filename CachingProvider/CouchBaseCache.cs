@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using CouchbaseManager;
-using Enyim.Caching.Memcached;
 using KLogMonitor;
 
 namespace CachingProvider

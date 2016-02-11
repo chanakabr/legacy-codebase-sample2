@@ -20,7 +20,7 @@ namespace Tvinci.Core.DAL
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly string CB_MEDIA_MARK_DESGIN = ODBCWrapper.Utils.GetTcmConfigValue("cb_media_mark_design");
-        private static readonly uint CB_EPG_DOCUMENT_EXPIRY_DAYS = (uint)ODBCWrapper.Utils.GetUnsignedLongSafeVal("epg_doc_expiry");
+        private static readonly string CB_EPG_DOCUMENT_EXPIRY_DAYS = ODBCWrapper.Utils.GetTcmConfigValue("epg_doc_expiry");
         private const int RETRY_LIMIT = 5;        
 
         public static DataSet Get_MediaDetails(int nGroupID, int nMediaID, string sSiteGuid, bool bOnlyActiveMedia, int nLanguage, string sEndDate, bool bUseStartDate, List<int> lSubGroupTree)
@@ -2548,8 +2548,11 @@ namespace Tvinci.Core.DAL
                 
                 TimeSpan? epgDocExpiry = null;
 
+                uint cbEpgDocumentExpiryDays;
+                uint.TryParse(CB_EPG_DOCUMENT_EXPIRY_DAYS, out cbEpgDocumentExpiryDays);
+
                 bool res = (epgDocExpiry.HasValue) ?
-                    cbManager.SetWithVersion(mmKey, JsonConvert.SerializeObject(umm, Formatting.None), version, CB_EPG_DOCUMENT_EXPIRY_DAYS * 24 * 60 * 60)
+                    cbManager.SetWithVersion(mmKey, JsonConvert.SerializeObject(umm, Formatting.None), version, cbEpgDocumentExpiryDays * 24 * 60 * 60)
                     : cbManager.SetWithVersion(mmKey, JsonConvert.SerializeObject(umm, Formatting.None), version);
 
                 if (!res)
