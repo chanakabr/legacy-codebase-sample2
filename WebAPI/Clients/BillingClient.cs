@@ -74,7 +74,7 @@ namespace WebAPI.Clients
 
         public List<Models.Billing.KalturaPaymentGatewayBaseProfile> GetPaymentGateway(int groupId)
         {
-            List<Models.Billing.KalturaPaymentGatewayBaseProfile>  KalturaPaymentGatewayBaseProfileList = null;
+            List<Models.Billing.KalturaPaymentGatewayBaseProfile> KalturaPaymentGatewayBaseProfileList = null;
             WebAPI.Billing.PaymentGatewayResponse response = null;
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -136,6 +136,10 @@ namespace WebAPI.Clients
             }
 
             paymentGW = Mapper.Map<WebAPI.Models.Billing.KalturaPaymentGateway>(response);
+            if (paymentGW != null)
+            {
+                paymentGW.paymentGateway.selectedBy = paymentGW.selectedBy;
+            }
 
             return paymentGW;
         }
