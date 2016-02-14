@@ -531,13 +531,24 @@ namespace CouchbaseManager
             return result;
         }
 
-        public bool SetWithVersionWithRetry<T>(string key, object value, ulong version, int numOfRetries, int retryInterval)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <param name="version"></param>
+        /// <param name="numOfRetries"></param>
+        /// <param name="retryInterval"></param>
+        /// <param name="expiration">TTL in seconds</param>
+        /// <returns></returns>
+        public bool SetWithVersionWithRetry<T>(string key, object value, ulong version, int numOfRetries, int retryInterval, uint expiration = 0)
         {
             bool result = false;
 
             if (numOfRetries >= 0)
             {
-                bool operationResult = SetWithVersion(key, value, version);
+                bool operationResult = SetWithVersion(key, value, version, expiration);
                 if (!operationResult)
                 {
                     numOfRetries--;
@@ -546,7 +557,7 @@ namespace CouchbaseManager
                     ulong newVersion;
                     var getResult = GetWithVersion<T>(key, out newVersion);
 
-                    result = SetWithVersionWithRetry<T>(key, value, newVersion, numOfRetries, retryInterval);
+                    result = SetWithVersionWithRetry<T>(key, value, newVersion, numOfRetries, retryInterval, expiration);
                 }
                 else
                 {

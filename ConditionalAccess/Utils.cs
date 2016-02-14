@@ -1707,7 +1707,8 @@ namespace ConditionalAccess
 
         internal static bool IsAnonymousUser(string siteGuid)
         {
-            return string.IsNullOrEmpty(siteGuid) || siteGuid.Trim().Equals("0");
+            int userID = 0;
+            return (!int.TryParse(siteGuid, out userID) || userID <= 0);            
         }        
 
         internal static TvinciPricing.Price GetMediaFileFinalPrice(Int32 nMediaFileID, MediaFileStatus eMediaFileStatus, TvinciPricing.PPVModule ppvModule, string sSiteGUID,

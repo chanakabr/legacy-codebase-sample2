@@ -1787,7 +1787,7 @@ namespace DAL
             return nUrlType;
         }
 
-        public static bool GetFileUrlLinks(int mediaFileID, string siteGuid, int groupID, ref string mainUrl, ref string altUrl, ref int mainStreamingCoID, ref int altStreamingCoID)
+        public static bool GetFileUrlLinks(int mediaFileID, string siteGuid, int groupID, ref string mainUrl, ref string altUrl, ref int mainStreamingCoID, ref int altStreamingCoID, ref int mediaID)
         {
             bool success = false;
 
@@ -1809,7 +1809,7 @@ namespace DAL
                     altUrl = ODBCWrapper.Utils.GetSafeStr(dr, "altUrl");
                     mainStreamingCoID = ODBCWrapper.Utils.GetIntSafeVal(dr, "CdnID");
                     altStreamingCoID = ODBCWrapper.Utils.GetIntSafeVal(dr, "AltCdnID");
-
+                    mediaID = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_id");
                     success = true;
                 }
             }

@@ -33,6 +33,7 @@ using CachingHelpers;
 using AdapterControllers;
 using KlogMonitorHelper;
 using System.IO;
+using ApiObjects.PlayCycle;
 
 namespace Catalog
 {
@@ -2071,20 +2072,18 @@ namespace Catalog
             }
         }
 
-        private static int GetMediaConcurrencyRuleID(string sSiteGuid, int nMediaID, int nMediaFileID, string sUDID, int nGroupID, int nPlatform, int nCountryID)
-        {
-            return CatalogDAL.GetRuleIDPlayCycleKey(sSiteGuid, nMediaID, nMediaFileID, sUDID, nPlatform);
-        }
-
-
         public static void UpdateFollowMe(int nGroupID, string sAssetID, string sSiteGUID, int nPlayTime, string sUDID, int duration, string assetAction, int mediaTypeId, int nDomainID = 0, ePlayType ePlayType = ePlayType.MEDIA)
-        {
-            int opID = 0;
-            bool isMaster = false;
-            DomainSuspentionStatus eSuspendStat = DomainSuspentionStatus.OK;
+        {          
+            if (Catalog.IsAnonymousUser(sSiteGUID))
+            {
+                return;
+            }
 
             if (nDomainID < 1)
             {
+                DomainSuspentionStatus eSuspendStat = DomainSuspentionStatus.OK;
+                int opID = 0;
+                bool isMaster = false;  
                 nDomainID = DomainDal.GetDomainIDBySiteGuid(nGroupID, int.Parse(sSiteGUID), ref opID, ref isMaster, ref eSuspendStat);
             }
 
@@ -3101,8 +3100,8 @@ namespace Catalog
         {
             // Data structures here are used for returning List<AssetStatsResult> in the same order asset ids are given in lAssetIDs
             SortedSet<AssetStatsResult.IndexedAssetStatsResult> set = null;
-            Dictionary<int, AssetStatsResult> assetIdToAssetStatsMapping = null;
-            InitializeAssetStatsResultsDataStructs(lAssetIDs, ref set, ref assetIdToAssetStatsMapping);
+            Dictionary<int, AssetStatsResult> assetIdToAssetStatsMapping = null;                        
+            InitializeAssetStatsResultsDataStructs(lAssetIDs, ref set, ref assetIdToAssetStatsMapping);            
 
             switch (eType)
             {
@@ -3162,28 +3161,37 @@ namespace Catalog
                              * 
                              * 
                              */
+                            
+                            GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.MEDIA, assetIdToAssetStatsMapping);
 
-                            //////////////////// Wait for Next Version (Joker)
-                            //GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.MEDIA, assetIdToAssetStatsMapping);
+                            #region Old Get MediaStatistics code - goes to DB for views and to CB for likes\rate\votes
 
-                            Dictionary<int, int[]> dict = CatalogDAL.Get_MediaStatistics(dStartDate, dEndDate, nGroupID, lAssetIDs);
+                            /* Removed in Quasar
+                            //Dictionary<int, int[]> dict = CatalogDAL.Get_MediaStatistics(dStartDate, dEndDate, nGroupID, lAssetIDs);
+                            Dictionary<int, int> dict = SlidingWindowCountFacetMappings(nGroupID, lAssetIDs, dStartDate, dEndDate, Catalog.STAT_ACTION_FIRST_PLAY);                            
                             if (dict.Count > 0)
                             {
-                                foreach (KeyValuePair<int, int[]> kvp in dict)
+                                //foreach (KeyValuePair<int, int[]> kvp in dict)
+                                foreach (int kvp in dict.Keys)
                                 {
-                                    if (assetIdToAssetStatsMapping.ContainsKey(kvp.Key))
+                                    //if (assetIdToAssetStatsMapping.ContainsKey(kvp.Key))
+                                    if (assetIdToAssetStatsMapping.ContainsKey(kvp))
                                     {
-                                        assetIdToAssetStatsMapping[kvp.Key].m_nViews = kvp.Value[ASSET_STATS_VIEWS_INDEX];
+                                        //assetIdToAssetStatsMapping[kvp.Key].m_nViews = kvp.Value[ASSET_STATS_VIEWS_INDEX];
+                                        assetIdToAssetStatsMapping[kvp].m_nViews = dict[kvp];
                                         if (isBuzzNotEmpty)
                                         {
-                                            string strAssetID = kvp.Key.ToString();
+                                            //string strAssetID = kvp.Key.ToString();
+                                            string strAssetID = kvp.ToString();
                                             if (buzzDict.ContainsKey(strAssetID) && buzzDict[strAssetID] != null)
                                             {
-                                                assetIdToAssetStatsMapping[kvp.Key].m_buzzAverScore = buzzDict[strAssetID];
+                                                //assetIdToAssetStatsMapping[kvp.Key].m_buzzAverScore = buzzDict[strAssetID];
+                                                assetIdToAssetStatsMapping[kvp].m_buzzAverScore = buzzDict[strAssetID];
                                             }
                                             else
                                             {
-                                                log.Error("Error - " + GetAssetStatsResultsLogMsg(String.Concat("No buzz meter found for media id: ", kvp.Key), nGroupID, lAssetIDs, dStartDate, dEndDate, eType));
+                                                //log.Error("Error - " + GetAssetStatsResultsLogMsg(String.Concat("No buzz meter found for media id: ", kvp.Key), nGroupID, lAssetIDs, dStartDate, dEndDate, eType));
+                                                log.Error("Error - " + GetAssetStatsResultsLogMsg(String.Concat("No buzz meter found for media id: ", kvp), nGroupID, lAssetIDs, dStartDate, dEndDate, eType));
                                             }
                                         }
                                     }
@@ -3225,7 +3233,8 @@ namespace Catalog
                                 }
                                 tasks[i].Dispose();
                             }
-
+                            */
+                            #endregion
                         }
 
                         break;
@@ -3265,11 +3274,14 @@ namespace Catalog
 
                         }
                         else
-                        {
-                            //////////////////// Wait for Next Version (Joker)
+                        {                            
                             // we bring data from ES statistics index.
-                            //GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.EPG, assetIdToAssetStatsMapping);
+                            
+                            GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.EPG, assetIdToAssetStatsMapping);
 
+                            #region Old Get MediaStatistics code - goes to CB for likes\rate\votes
+
+                            /* Removed in Quasar
                             // save monitor and logs context data
                             ContextData contextData = new ContextData();
 
@@ -3301,6 +3313,9 @@ namespace Catalog
                                 }
                                 tasks[i].Dispose();
                             }
+                            */
+
+                            #endregion
                         }
                         break;
                     }
@@ -3593,7 +3608,7 @@ namespace Catalog
             return CatalogDAL.GetLastPosition(mediaID, userID);
         }
 
-        internal static bool IsConcurrent(string sSiteGuid, string sUDID, int nGroupID, ref int nDomainID, int nMediaID, int nMediaFileID, int nPlatform, int nCountryID)
+        internal static bool IsConcurrent(string sSiteGuid, string sUDID, int nGroupID, ref int nDomainID, int nMediaID, int nMediaFileID, int nPlatform, int nCountryID, PlayCycleSession playCycleSession)
         {
             bool res = true;
             long lSiteGuid = 0;
@@ -3609,8 +3624,16 @@ namespace Catalog
                 return false;
             }
 
-            // get the rule id by play_cycle_keys
-            int nMCRuleID = GetMediaConcurrencyRuleID(sSiteGuid, nMediaID, nMediaFileID, sUDID, nGroupID, nPlatform, nCountryID);
+            // Get MCRuleID from PlayCycleSession on CB
+            int nMCRuleID = 0;
+            if (playCycleSession != null)
+            {
+                nMCRuleID = playCycleSession.MediaConcurrencyRuleID;
+            }
+            else // get from DB incase getting from CB failed
+            {
+                nMCRuleID = CatalogDAL.GetRuleIDPlayCycleKey(sSiteGuid, nMediaID, nMediaFileID, sUDID, nPlatform);
+            }
 
             string sWSUsername = string.Empty;
             string sWSPassword = string.Empty;
@@ -3904,16 +3927,12 @@ namespace Catalog
         internal static bool GetMediaMarkHitInitialData(string sSiteGuid, string userIP, int mediaID, int mediaFileID, ref int countryID,
             ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID, ref int billingTypeID, ref int fileDuration)
         {
-            bool res = false;
-            bool bIP = false;
-            bool bMedia = false;
-            long ipVal = 0;
+            bool res = false;         
 
             if (!TVinciShared.WS_Utils.GetTcmBoolValue("CATALOG_HIT_CACHE"))
-            {
-                ipVal = ParseIPOutOfString(userIP);
-                return CatalogDAL.Get_MediaMarkHitInitialData(mediaID, mediaFileID, ipVal, ref countryID, ref ownerGroupID, ref cdnID, ref qualityID,
-                    ref formatID, ref mediaTypeID, ref billingTypeID, ref fileDuration);
+            {                
+                countryID = ElasticSearch.Utilities.IpToCountry.GetCountryByIp(userIP);
+                return CatalogDAL.GetMediaPlayData(mediaID, mediaFileID, ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID, ref fileDuration);
             }
 
             #region  try get values from catalog cache
@@ -3927,6 +3946,8 @@ namespace Catalog
             CatalogCache catalogCache = CatalogCache.Instance();
             string ipKey = string.Format("{0}_userIP_{1}", eWSModules.CATALOG, userIP);
             object oCountryID = catalogCache.Get(ipKey);
+            bool bIP = false;
+            bool bMedia = false;
             if (oCountryID != null)
             {
                 countryID = (int)oCountryID;
@@ -3946,43 +3967,32 @@ namespace Catalog
             {
                 res = true;
             }
-            else // not found in cache 
-            {
-                if (!bIP && !bMedia)
+            else if (!bIP) // try getting countryID from ES, if it fails get countryID from DB
+            {                                
+                countryID = ElasticSearch.Utilities.IpToCountry.GetCountryByIp(userIP);
+                //getting from ES failed
+                if (countryID == 0)
                 {
+                    long ipVal = 0;
                     ipVal = ParseIPOutOfString(userIP);
-                    if (CatalogDAL.Get_MediaMarkHitInitialData(mediaID, mediaFileID, ipVal, ref countryID, ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID, ref  fileDuration))
+                    if (ipVal > 0)
                     {
+                        CatalogDAL.Get_IPCountryCode(ipVal, ref countryID);                            
                         catalogCache.Set(ipKey, countryID, cacheTime);
-                        InitMediaMarkHitDataToCache(ownerGroupID, cdnID, qualityID, formatID, mediaTypeID, billingTypeID, fileDuration, ref lMedia);
-                        catalogCache.Set(m_mf_Key, lMedia, cacheTime);
                         res = true;
                     }
                 }
-                else
-                {
-                    if (!bIP)
-                    {
-                        ipVal = ParseIPOutOfString(userIP);
-                        if (ipVal > 0)
-                        {
-                            CatalogDAL.Get_IPCountryCode(ipVal, ref countryID);
-                            catalogCache.Set(ipKey, countryID, cacheTime);
-                            res = true;
-                        }
-                    }
-                    if (!bMedia)
-                    {
-                        res = false;
-                        if (CatalogDAL.GetMediaPlayData(mediaID, mediaFileID, ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID))
-                        {
-                            InitMediaMarkHitDataToCache(ownerGroupID, cdnID, qualityID, formatID, mediaTypeID, billingTypeID, fileDuration, ref lMedia);
-                            catalogCache.Set(m_mf_Key, lMedia, cacheTime);
-                            res = true;
-                        }
-                    }
-                }
             }
+            else if (!bMedia)
+            {
+                res = false;
+                if (CatalogDAL.GetMediaPlayData(mediaID, mediaFileID, ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID, ref fileDuration))
+                {
+                    InitMediaMarkHitDataToCache(ownerGroupID, cdnID, qualityID, formatID, mediaTypeID, billingTypeID, fileDuration, ref lMedia);
+                    catalogCache.Set(m_mf_Key, lMedia, cacheTime);
+                    res = true;
+                }
+            }        
 
             return res;
         }
@@ -4176,6 +4186,49 @@ namespace Catalog
                             if (int.TryParse(sFacetKey, out nMediaId))
                             {
                                 result.Add(nMediaId);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        internal static Dictionary<int, int> SlidingWindowCountFacetMappings(int nGroupId, List<int> lMediaIds, DateTime dtStartDate,
+            DateTime dtEndDate, string action)
+        {
+            Dictionary<int, int> result = new Dictionary<int, int>();
+
+            string sFacetQuery = BuildSlidingWindowCountFacetRequest(nGroupId, lMediaIds, dtStartDate, dtEndDate, action);
+
+
+            //Search
+            string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(nGroupId);
+            ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
+            string retval = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref sFacetQuery);
+
+            if (!string.IsNullOrEmpty(retval))
+            {
+                //Get facet results
+                Dictionary<string, Dictionary<string, int>> dFacets = ESTermsFacet.FacetResults(ref retval);
+
+                if (dFacets != null && dFacets.Count > 0)
+                {
+                    Dictionary<string, int> dFacetResult;
+                    //retrieve channel_views facet results
+                    dFacets.TryGetValue(STAT_SLIDING_WINDOW_FACET_NAME, out dFacetResult);
+
+                    if (dFacetResult != null && dFacetResult.Count > 0)
+                    {
+                        foreach (string sFacetKey in dFacetResult.Keys)
+                        {
+                            int count = dFacetResult[sFacetKey];
+
+                            int nMediaId;
+                            if (int.TryParse(sFacetKey, out nMediaId) && !result.ContainsKey(nMediaId))
+                            {
+                                result.Add(nMediaId, count);
                             }
                         }
                     }
