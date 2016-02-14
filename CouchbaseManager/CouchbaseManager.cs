@@ -63,35 +63,11 @@ namespace CouchbaseManager
         private static string GetBucketName(eCouchbaseBucket bucket, string configurationSection)
         {
             string bucketName = string.Empty;
-            //switch (bucket)
-            //{
-            //    case eCouchbaseBucket.SOCIAL:
-            //    case eCouchbaseBucket.SOCIALFRIENDS:
-            //    case eCouchbaseBucket.EPG:
-            //    case eCouchbaseBucket.STATISTICS:
-            //    case eCouchbaseBucket.DEFAULT:
-            //    case eCouchbaseBucket.MEDIAMARK:
-            //    case eCouchbaseBucket.SCHEDULED_TASKS:
-            //        var socialBucketSection = (CouchbaseClientSection)ConfigurationManager.GetSection(string.Format("couchbase/{0}", bucket.ToString().ToLower()));
-            //        //oRes = new CouchbaseClient(socialBucketSection);
-            //        break;
-            //    case eCouchbaseBucket.NOTIFICATION:
-            //        break;
-            //    case eCouchbaseBucket.CACHE:
-            //        var groupChacheBucketSection = (CouchbaseClientSection)ConfigurationManager.GetSection(string.Format("couchbase/{0}", bucket.ToString().ToLower()));
-            //        //oRes = new CouchbaseClient(groupChacheBucketSection);
-            //        break;
-            //}
 
-            // See http://developer.couchbase.com/documentation/server/4.0/sdks/dotnet-2.2/configuring-the-client.html
-            // We have a list of buckets in the server, but we don't know the exact bucket name.
-            // We do know the name of the SECTION
-            // after "parsing" the configuration to the client object, we will see which of the items in the app.config has the same key as the enum.
-            // If they are identical, then we can get the server's bucket name from it
             var section = (CouchbaseClientSection)ConfigurationManager.GetSection(configurationSection);
             var clientConfiguration = new ClientConfiguration(section);
 
-
+            // Should be only one!
             foreach (var currentBucket in clientConfiguration.BucketConfigs)
             {
                 bucketName = currentBucket.Value.BucketName;
@@ -101,6 +77,13 @@ namespace CouchbaseManager
             return bucketName;
         }
 
+        /*
+            // See http://developer.couchbase.com/documentation/server/4.0/sdks/dotnet-2.2/configuring-the-client.html
+            // We have a list of buckets in the server, but we don't know the exact bucket name.
+            // We do know the name of the SECTION
+            // after "parsing" the configuration to the client object, we will see which of the items in the app.config has the same key as the enum.
+            // If they are identical, then we can get the server's bucket name from it
+         */
         #endregion
 
         #region Private Methods
@@ -664,6 +647,14 @@ namespace CouchbaseManager
             return result;
         }
 
+        #region View Methods
+
+        /// <summary>
+        /// Get specific, typed, objects from view
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="definitions"></param>
+        /// <returns></returns>
         public List<T> View<T>(ViewManager definitions)
         {
             List<T> result = new List<T>();
@@ -686,6 +677,11 @@ namespace CouchbaseManager
             return result;
         }
 
+        /// <summary>
+        /// Get generic keys and values from view
+        /// </summary>
+        /// <param name="definitions"></param>
+        /// <returns></returns>
         public List<KeyValuePair<object, object>> ViewKeyValuePairs(ViewManager definitions)
         {
             List<KeyValuePair<object, object>> result = new List<KeyValuePair<object, object>>();
@@ -708,6 +704,11 @@ namespace CouchbaseManager
             return result;
         }
 
+        /// <summary>
+        /// Get only list of document IDs from view
+        /// </summary>
+        /// <param name="definitions"></param>
+        /// <returns></returns>
         public List<string> ViewIds(ViewManager definitions)
         {
             List<string> result = new List<string>();
@@ -730,6 +731,12 @@ namespace CouchbaseManager
             return result;
         }
 
+        /// <summary>
+        /// Get the entire view row from view. We emulate a similar class to avoid breaking changes.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="definitions"></param>
+        /// <returns></returns>
         public List<ViewRow<T>> ViewRows<T>(ViewManager definitions)
         {
             List<ViewRow<T>> result = new List<ViewRow<T>>();
@@ -751,6 +758,8 @@ namespace CouchbaseManager
 
             return result;
         }
+
+        #endregion
 
         public ulong Increment(string key, ulong delta)
         {
