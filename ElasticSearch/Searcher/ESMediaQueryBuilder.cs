@@ -321,22 +321,26 @@ namespace ElasticSearch.Searcher
 
             ESRange positiveMediaTypeRange = new ESRange(true);
             positiveMediaTypeRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GT, "0"));
-            
-            ESTerms deviceRulesTerms = new ESTerms(true)
-            {
-                Key = "device_rule_id"
-            };
+
             if (!bIgnoreDeviceRuleID)
             {
-                deviceRulesTerms.Value.Add("0");
-
-                if (oSearchObject.m_nDeviceRuleId != null && oSearchObject.m_nDeviceRuleId.Length > 0)
+                ESTerms deviceRulesTerms = new ESTerms(true)
                 {
-                    foreach (int deviceRuleId in oSearchObject.m_nDeviceRuleId)
+                    Key = "device_rule_id"
+                };
+                {
+                    deviceRulesTerms.Value.Add("0");
+
+                    if (oSearchObject.m_nDeviceRuleId != null && oSearchObject.m_nDeviceRuleId.Length > 0)
                     {
-                        deviceRulesTerms.Value.Add(deviceRuleId.ToString());
+                        foreach (int deviceRuleId in oSearchObject.m_nDeviceRuleId)
+                        {
+                            deviceRulesTerms.Value.Add(deviceRuleId.ToString());
+                        }
                     }
                 }
+
+                filterParent.AddChild(deviceRulesTerms);
             }
 
             // region term 
@@ -401,7 +405,6 @@ namespace ElasticSearch.Searcher
             filterParent.AddChild(userTypeTerm);
             filterParent.AddChild(mediaTypesTerms);
             filterParent.AddChild(positiveMediaTypeRange);
-            filterParent.AddChild(deviceRulesTerms);
 
             if (QueryType == eQueryType.EXACT)
             {
