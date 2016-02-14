@@ -133,7 +133,7 @@ namespace ESIndexUpdateHandler.Updaters
                         };
                         searchObject = ElasticsearchTasksCommon.Utils.BuildBaseChannelSearchObject(channel, group.m_nSubGroup);
                         queryBuilder.oSearchObject = searchObject;
-                        queryString = queryBuilder.BuildSearchQueryString(false);
+                        queryString = queryBuilder.BuildSearchQueryString(true);
 
                         foreach (string alias in aliases)
                         {

@@ -187,8 +187,10 @@ namespace ElasticSearchHandler.Updaters
                             MediaSearchObj mediaSearchObject = ElasticsearchTasksCommon.Utils.BuildBaseChannelSearchObject(channel, group.m_nSubGroup);
 
                             mediaQueryParser.oSearchObject = mediaSearchObject;
-                            channelQuery = mediaQueryParser.BuildSearchQueryString(false);
+                            channelQuery = mediaQueryParser.BuildSearchQueryString(true);
                         }
+
+                        log.DebugFormat("Update channel with query: {0}", channelQuery);
 
                         if (isMedia)
                         {
