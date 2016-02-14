@@ -175,12 +175,22 @@ namespace CachingProvider
 
         public override bool GetJsonAsT<T>(string sKey, out T res)
         {
-            var json = Get<string>(sKey);
-            if (!string.IsNullOrEmpty(json))
+            var json = Get<object>(sKey);
+            try
             {
-                res = JsonToObject<T>(json);
-                return true;
+                string jsonString = Convert.ToString(json);
+
+                if (!string.IsNullOrEmpty(jsonString))
+                {
+                    res = JsonToObject<T>(jsonString);
+                    return true;
+                }
             }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed GetJsonAsT on key = {0}", sKey, ex);
+            }
+
             res = default(T);
             return false;
         }
@@ -195,10 +205,22 @@ namespace CachingProvider
 
         private static T JsonToObject<T>(string json)
         {
+            T result = default(T);
+
             if (!string.IsNullOrEmpty(json))
-                return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json);
-            else
-                return default(T);
+            {
+                var settings = new Newtonsoft.Json.JsonSerializerSettings();
+
+                settings.Error = new EventHandler<Newtonsoft.Json.Serialization.ErrorEventArgs>((a, eventArgs) =>
+                {
+                    log.ErrorFormat("Error deserializing json: ", eventArgs.ErrorContext.Error);
+                    return;
+                });
+
+                result = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json);
+            }
+
+            return result;
         }
     }
 }
