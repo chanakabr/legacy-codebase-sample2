@@ -693,9 +693,9 @@ namespace CouchbaseManager
         /// </summary>
         /// <param name="definitions"></param>
         /// <returns></returns>
-        public List<KeyValuePair<object, object>> ViewKeyValuePairs(ViewManager definitions)
+        public List<KeyValuePair<object, T1>> ViewKeyValuePairs<T1>(ViewManager definitions)
         {
-            List<KeyValuePair<object, object>> result = new List<KeyValuePair<object, object>>();
+            List<KeyValuePair<object, T1>> result = new List<KeyValuePair<object, T1>>();
 
             try
             {
@@ -703,7 +703,7 @@ namespace CouchbaseManager
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
-                        result = definitions.QueryKeyValuePairs(bucket);
+                        result = definitions.QueryKeyValuePairs<T1>(bucket);
                     }
                 }
             }
