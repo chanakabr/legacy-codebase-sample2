@@ -390,7 +390,7 @@
     <Content Include="Web References\Api\AdminAccountUserResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Api\api.disco" />
+    <None Include="Web References\Api\api.disco" />
     <Content Include="Web References\Billing\AdyenBillingDetail.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -403,7 +403,7 @@
     <Content Include="Web References\Billing\InAppBillingResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Api\api.wsdl" />
+    <None Include="Web References\Api\api.wsdl" />
     <Content Include="Web References\Api\BulkExportTaskResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -512,10 +512,13 @@
     <Content Include="Web References\Api\RecommendationEnginesResponseList.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Api\Reference.map">
+    <Content Include="Web References\Api\OSSAdapterEntitlementsResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <None Include="Web References\Api\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
-    </Content>
+    </None>
     <Content Include="Web References\Api\RegionsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -541,6 +544,9 @@
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\Api\UserStatus.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\RegistryResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <None Include="Web References\Billing\module.disco" />
@@ -884,6 +890,7 @@
     <Compile Include="Controllers\AppTokenController.cs" />
     <Compile Include="Controllers\AssetController.cs" />
     <Compile Include="Controllers\HomeNetworkController.cs" />
+    <Compile Include="Controllers\RegistrySettingsController.cs" />
     <Compile Include="Controllers\VersionController.cs" />
     <Compile Include="Controllers\HouseholdLimitationsController.cs" />
     <Compile Include="Controllers\HouseholdPremiumServiceController.cs" />
@@ -952,6 +959,7 @@
     <Compile Include="Models\API\KalturaOSSAdapterProfile.cs" />
     <Compile Include="Models\API\KalturaPinType.cs" />
     <Compile Include="Models\API\KalturaRecommendationProfile.cs" />
+    <Compile Include="Models\API\KalturaRegistrySettings.cs" />
     <Compile Include="Models\API\KalturaRuleType.cs" />
     <Compile Include="Models\API\KalturaUserRoleFilter.cs" />
     <Compile Include="Models\API\KalturaChannelProfile.cs" />
