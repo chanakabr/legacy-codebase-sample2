@@ -1,6 +1,4 @@
-﻿using CouchbaseWrapper;
-using CouchbaseWrapper.DalEntities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
@@ -17,6 +15,7 @@ using TVPPro.SiteManager.TvinciPlatform.Domains;
 using TVPPro.SiteManager.TvinciPlatform.Users;
 using KLogMonitor;
 using System.Reflection;
+using CouchbaseManager;
 
 namespace TVPApiModule.Manager
 {
@@ -24,7 +23,7 @@ namespace TVPApiModule.Manager
     {
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static long _groupConfigsTtlSeconds;
-        private static GenericCouchbaseClient _client;
+        private static CouchbaseManager.CouchbaseManager cbManager;
         private static ReaderWriterLockSlim _lock;
         private static AuthorizationManager _instance = null;
 
@@ -45,7 +44,7 @@ namespace TVPApiModule.Manager
             {
                 string groupConfigsTtlSeconds = ConfigurationManager.AppSettings["Authorization.GroupConfigsTtlSeconds"];
 
-                _client = CouchbaseWrapper.CouchbaseManager.GetInstance("authorization");
+                cbManager = new CouchbaseManager.CouchbaseManager("authorization");
                 _lock = new ReaderWriterLockSlim();
 
                 if (!long.TryParse(groupConfigsTtlSeconds, out _groupConfigsTtlSeconds))
@@ -90,7 +89,7 @@ namespace TVPApiModule.Manager
             // if not exists in dictionary, try get from CB 
             if (groupConfig == null)
             {
-                groupConfig = _client.Get<GroupConfiguration>(groupKey);
+                groupConfig = cbManager.Get<GroupConfiguration>(groupKey);
                 if (groupConfig != null)
                 {
                     // add app credentials to dictionary if not exists
@@ -151,7 +150,7 @@ namespace TVPApiModule.Manager
             RefreshToken refreshToken = new RefreshToken(apiToken);
 
             // try store access token doc in CB, will return false if the same token already exists
-            if (!_client.Add<APIToken>(apiToken, TimeHelper.ConvertFromUnixTimestamp(apiToken.AccessTokenExpiration)))
+            if (!cbManager.Add(apiToken.Id, apiToken, (uint)(apiToken.AccessTokenExpiration - TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow))))
             {
                 logger.ErrorFormat("GenerateAccessToken: access token was not saved in CB.");
                 returnError(500);
@@ -159,7 +158,7 @@ namespace TVPApiModule.Manager
             }
 
             // try store refresh token doc in CB, will return false if the same token already exists
-            if (!_client.Add<RefreshToken>(refreshToken, TimeHelper.ConvertFromUnixTimestamp(apiToken.RefreshTokenExpiration)))
+            if (!cbManager.Add(refreshToken.Id, refreshToken, (uint)(apiToken.RefreshTokenExpiration - TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow))))
             {
                 logger.ErrorFormat("GenerateAccessToken: refresh token was not saved in CB.");
                 returnError(500);
@@ -173,11 +172,11 @@ namespace TVPApiModule.Manager
 
                 // check if the user already logged in from the same device by getting the user device tokens view
                 string viewId = UserDeviceTokensView.GetViewId(siteGuid, udid);
-                UserDeviceTokensView view = _client.Get<UserDeviceTokensView>(viewId);
+                UserDeviceTokensView view = cbManager.Get<UserDeviceTokensView>(viewId);
                 if (view != null)
                 {
                     // delete old access token
-                    if (!_client.Remove(view.AccessTokenId))
+                    if (!cbManager.Remove(view.AccessTokenId))
                     {
                         logger.ErrorFormat("GenerateAccessToken: failed to delete old access token for {0}", sessionInfoString);
                     }
@@ -187,7 +186,7 @@ namespace TVPApiModule.Manager
                     }
                     
                     // delete old refresh token
-                    if (!_client.Remove(view.RefreshTokenId))
+                    if (!cbManager.Remove(view.RefreshTokenId))
                     {
                         logger.ErrorFormat("GenerateAccessToken: failed to delete old refresh token for {0}", sessionInfoString);
                     }
@@ -214,7 +213,7 @@ namespace TVPApiModule.Manager
                 view.RefreshTokenExpiration = apiToken.RefreshTokenExpiration;
 
                 // save new view
-                if (!_client.Store<UserDeviceTokensView>(view, TimeHelper.ConvertFromUnixTimestamp(apiToken.RefreshTokenExpiration)))
+                if (!cbManager.Add(view.Id, view, (uint)(apiToken.RefreshTokenExpiration - TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow))))
                 {
                     logger.ErrorFormat("GenerateAccessToken: failed to to save user-device tokens view for {0}", sessionInfoString);
                 }
@@ -272,20 +271,9 @@ namespace TVPApiModule.Manager
             string refreshTokenId = RefreshToken.GetRefreshTokenId(refreshToken);
 
             // try get refresh token from CB
-            CasGetResult<RefreshToken> casRes = _client.GetWithCas<RefreshToken>(refreshTokenId);
-            if (casRes == null)
-            {
-                logger.ErrorFormat("RefreshAccessToken: Refresh token not found - no response from CB.");
-                returnError(401);
-                return null;
-            }
-            if (casRes.OperationResult != eOperationResult.NoError)
-            {
-                logger.ErrorFormat("RefreshAccessToken: Refresh token not found - error response from CB: OperationResult = {0}", casRes.OperationResult);
-                returnError(401);
-                return null;
-            }
-            if (casRes.Value == null)
+            ulong refreshVersion;
+            refreshTokenDoc = cbManager.GetWithVersion<RefreshToken>(refreshTokenId, out refreshVersion);
+            if (refreshTokenDoc == null)
             {
                 logger.DebugFormat("RefreshAccessToken: Refresh token not found - token doc not found in CB.");
 
@@ -296,35 +284,23 @@ namespace TVPApiModule.Manager
                 }
 
                 // try get access token doc from CB
-                CasGetResult<APIToken> accessCasRes = _client.GetWithCas<APIToken>(apiTokenId);
-                if (accessCasRes == null)
+                ulong accessVersion;
+                accessTokenDoc = cbManager.GetWithVersion<APIToken>(apiTokenId, out accessVersion);
+                if (accessTokenDoc == null)
                 {
                     logger.ErrorFormat("RefreshAccessToken: Access token not found - no response from CB.");
                     returnError(401);
                     return null;
                 }
-                if (accessCasRes.OperationResult != eOperationResult.NoError)
+                if (accessTokenDoc == null)
                 {
-                    logger.ErrorFormat("RefreshAccessToken: Access token not found - error response from CB: OperationResult = {0}", casRes.OperationResult);
+                    logger.ErrorFormat("RefreshAccessToken: Access token not found (refreshToken expired).");
                     returnError(401);
                     return null;
                 }
-                if (accessCasRes.Value == null)
-                {
-                    logger.ErrorFormat("RefreshAccessToken: Access token not found - token doc not found in CB - refreshToken expired.");
-                    returnError(401);
-                    return null;
-                }
-
-                // get the access token doc
-                accessTokenDoc = accessCasRes.Value;
 
                 // create refresh access doc
                 refreshTokenDoc = new RefreshToken(accessTokenDoc);
-            }
-            else
-            {
-                refreshTokenDoc = casRes.Value;
             }
 
             // validate refresh token
@@ -372,9 +348,9 @@ namespace TVPApiModule.Manager
             refreshTokenDoc.RefreshTokenExpiration = accessTokenDoc.RefreshTokenExpiration;
 
             // Store new access + refresh tokens pair
-            if (_client.Add<APIToken>(accessTokenDoc, TimeHelper.ConvertFromUnixTimestamp(accessTokenDoc.AccessTokenExpiration)))
+            if (cbManager.Set(accessTokenDoc.Id, accessTokenDoc, (uint)(accessTokenDoc.AccessTokenExpiration - TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow))))
             {
-                _client.Add<RefreshToken>(refreshTokenDoc, TimeHelper.ConvertFromUnixTimestamp(refreshTokenDoc.RefreshTokenExpiration));
+                cbManager.Add(refreshTokenDoc.Id, refreshTokenDoc, (uint)(refreshTokenDoc.RefreshTokenExpiration - TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow)));
             }
             else
             {
@@ -390,11 +366,11 @@ namespace TVPApiModule.Manager
 
                 // update view doc if revocation session is enabled
                 string viewId = UserDeviceTokensView.GetViewId(siteGuid, udid);
-                UserDeviceTokensView view = _client.Get<UserDeviceTokensView>(viewId);
+                UserDeviceTokensView view = cbManager.Get<UserDeviceTokensView>(viewId);
                 if (view != null)
                 {
                     // delete old access token
-                    if (!_client.Remove(view.AccessTokenId))
+                    if (!cbManager.Remove(view.AccessTokenId))
                     {
                         logger.ErrorFormat("RefreshAccessToken: failed to delete old access token for user = {0} udid = {1}.", siteGuid, udid);
                     }
@@ -422,7 +398,7 @@ namespace TVPApiModule.Manager
                 view.RefreshTokenExpiration = accessTokenDoc.RefreshTokenExpiration;
 
                 // save new view
-                if (!_client.Store<UserDeviceTokensView>(view, TimeHelper.ConvertFromUnixTimestamp(accessTokenDoc.RefreshTokenExpiration)))
+                if (!cbManager.Set(view.Id, view, (uint)(accessTokenDoc.RefreshTokenExpiration - TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow))))
                 {
                     logger.ErrorFormat("RefreshAccessToken: failed to to save user-device tokens view for user = {0} udid = {1}.", siteGuid, udid);
                 }
@@ -453,7 +429,7 @@ namespace TVPApiModule.Manager
 
             string apiTokenId = APIToken.GetAPITokenId(accessToken);
 
-            APIToken apiToken = _client.Get<APIToken>(apiTokenId);
+            APIToken apiToken = cbManager.Get<APIToken>(apiTokenId);
             if (apiToken == null)
             {
                 logger.ErrorFormat("ValidateAccessToken: access token not found.");
@@ -484,17 +460,16 @@ namespace TVPApiModule.Manager
             // access token is valid - extend refreshToken if extendable, store refresh token doc if not found
 
             // try to get refresh token 
-            RefreshToken refreshToken;
             string refreshTokenId = RefreshToken.GetRefreshTokenId(apiToken.RefreshToken);
-            CasGetResult<RefreshToken> casRes = _client.GetWithCas<RefreshToken>(refreshTokenId);
-            if (casRes == null || casRes.OperationResult != eOperationResult.NoError || casRes.Value == null)
+            ulong refreshVersion;
+            RefreshToken refreshToken = cbManager.GetWithVersion<RefreshToken>(refreshTokenId,out refreshVersion);
+            if (refreshToken == null)
             {
                 // refresh token doc not found - create a new one
                 refreshToken = new RefreshToken(apiToken);
             }
             else
             {
-                refreshToken = casRes.Value;
                 isRefreshTokenInCb = true;
             }
 
@@ -506,15 +481,15 @@ namespace TVPApiModule.Manager
                 refreshToken.RefreshTokenExpiration = apiToken.RefreshTokenExpiration;
 
                 // store updated access token doc
-                _client.Store<APIToken>(apiToken, TimeHelper.ConvertFromUnixTimestamp(apiToken.AccessTokenExpiration));
+                cbManager.Set(apiToken.Id, apiToken, (uint)(apiToken.AccessTokenExpiration - TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow)));
 
                 // store refresh token doc
-                _client.Store<RefreshToken>(refreshToken, TimeHelper.ConvertFromUnixTimestamp(refreshToken.RefreshTokenExpiration));
+                cbManager.Set(refreshToken.Id, refreshToken, (uint)(refreshToken.RefreshTokenExpiration -TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow)));
             }
             else if (!isRefreshTokenInCb)
             {
                 // save refresh token in CB if it was not there before (for backwards compatibility)
-                _client.Store<RefreshToken>(refreshToken, TimeHelper.ConvertFromUnixTimestamp(refreshToken.RefreshTokenExpiration));
+                cbManager.Set(refreshToken.Id, refreshToken, (uint)(refreshToken.RefreshTokenExpiration - TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow)));
             }
 
             return true;
@@ -655,7 +630,7 @@ namespace TVPApiModule.Manager
                 string apiTokenId = APIToken.GetAPITokenId(accessToken);
                 
                 // delete token
-                if (_client.Remove(apiTokenId))
+                if (cbManager.Remove(apiTokenId))
                     logger.DebugFormat("DeleteAccessToken: removed access token {0} on logout", accessToken);
 
             }
@@ -702,7 +677,7 @@ namespace TVPApiModule.Manager
 
             // get token
             string apiTokenId = APIToken.GetAPITokenId(accessToken);
-            APIToken apiToken = _client.Get<APIToken>(apiTokenId);
+            APIToken apiToken = cbManager.Get<APIToken>(apiTokenId);
             if (apiToken == null)
             {
                 logger.ErrorFormat("UpdateUserInToken: access token not found.");
@@ -711,7 +686,7 @@ namespace TVPApiModule.Manager
             }
 
             string refreshTokenId = RefreshToken.GetRefreshTokenId(apiToken.RefreshToken);
-            RefreshToken refreshToken = _client.Get<RefreshToken>(refreshTokenId);
+            RefreshToken refreshToken = cbManager.Get<RefreshToken>(refreshTokenId);
             if (refreshTokenId == null)
             {
                 logger.ErrorFormat("UpdateUserInToken: refresh token not found.");
@@ -731,7 +706,7 @@ namespace TVPApiModule.Manager
 
                 string sessionInfoString = string.Format("userId = {0}, udid = {1}, IP = {2}, groupId = {3}", siteGuid, udid, SiteHelper.GetClientIP(), groupId);
 
-                if (!_client.Remove(UserDeviceTokensView.GetViewId(apiToken.SiteGuid, udid)))
+                if (!cbManager.Remove(UserDeviceTokensView.GetViewId(apiToken.SiteGuid, udid)))
                 {
                     logger.ErrorFormat("UpdateUserInToken: failed to remove user-device tokens view on changing user for {0}", sessionInfoString);
                 }
@@ -753,7 +728,7 @@ namespace TVPApiModule.Manager
             }
 
             // store the updated token
-            if (!_client.Store<APIToken>(apiToken, TimeHelper.ConvertFromUnixTimestamp(apiToken.RefreshTokenExpiration)))
+            if (!cbManager.Set(apiToken.Id, apiToken, (uint)(apiToken.RefreshTokenExpiration - TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow))))
             {
                 logger.ErrorFormat("UpdateUserInToken: access token was not saved in CB.");
                 returnError(500);
@@ -761,7 +736,7 @@ namespace TVPApiModule.Manager
             }
 
             // store updated refresh token doc in CB
-            if (!_client.Store<RefreshToken>(refreshToken, TimeHelper.ConvertFromUnixTimestamp(apiToken.RefreshTokenExpiration)))
+            if (!cbManager.Set(refreshToken.Id, refreshToken, (uint)(apiToken.RefreshTokenExpiration - TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow))))
             {
                 logger.ErrorFormat("UpdateUserInToken: refresh token was not saved in CB.");
                 returnError(500);
@@ -786,7 +761,7 @@ namespace TVPApiModule.Manager
                 };
 
                 // save new view
-                if (!_client.Store<UserDeviceTokensView>(view, TimeHelper.ConvertFromUnixTimestamp(apiToken.RefreshTokenExpiration)))
+                if (!cbManager.Set(view.Id, view, (uint)(apiToken.RefreshTokenExpiration - TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow))))
                 {
                     logger.ErrorFormat("GenerateAccessToken: failed to to save user-device tokens view for {0}", sessionInfoString);
                 }
