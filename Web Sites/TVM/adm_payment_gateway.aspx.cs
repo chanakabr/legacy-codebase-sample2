@@ -63,7 +63,7 @@ public partial class adm_payment_gateway : System.Web.UI.Page
 
         theTable += "select pg.id, pg.name, pg.group_id, pg.is_active, pg.status, pg.adapter_url as 'adapter url'";
         theTable += ",case gp.[DEFAULT_PAYMENT_GATEWAY] when pg.id then 'YES' else 'NO' end as 'is default'";
-        theTable += ",pg.external_identifier as 'external id'"; //, pg.pending_interval, pg.pending_retries, pg.shared_secret";
+        theTable += ",pg.external_identifier as 'external id', case pg.is_payment_method_support when 1 then 'YES' else 'NO' end as 'support payment method'"; 
         theTable += "from payment_gateway pg ";
         theTable += "left join groups_parameters gp on pg.group_id = gp.group_id";
         theTable += "where";
@@ -79,10 +79,16 @@ public partial class adm_payment_gateway : System.Web.UI.Page
         theTable.AddActivationField("is_active");
         theTable.AddActivationField("payment_gateway");
 
-        DataTableLinkColumn linkColumnKeParams = new DataTableLinkColumn("adm_payment_gateway_config.aspx", "Params", "");
+        DataTableLinkColumn linkColumnKeParams = new DataTableLinkColumn("adm_payment_gateway_config.aspx", "params", "");
         linkColumnKeParams.AddQueryStringValue("paymentGW_id", "field=id");
         linkColumnKeParams.AddQueryCounterValue("select count(*) as val from payment_gateway_config where ( status=1 or status = 4 )  and payment_gateway_id=", "field=id");
         theTable.AddLinkColumn(linkColumnKeParams);
+
+        DataTableLinkColumn linkColumnKePaymentMethods = new DataTableLinkColumn("adm_payment_gateway_payment_method.aspx", "payment methods", "");
+        linkColumnKePaymentMethods.AddQueryStringValue("paymentGW_id", "field=id");
+        linkColumnKePaymentMethods.AddQueryCounterValue("select count(*) as val from payment_gateway_payment_method where status=1 and payment_gateway_id=", "field=id");
+        theTable.AddLinkColumn(linkColumnKePaymentMethods);
+        
 
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {
