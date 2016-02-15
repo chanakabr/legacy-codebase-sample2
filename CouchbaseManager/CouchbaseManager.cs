@@ -56,11 +56,16 @@ namespace CouchbaseManager
         public CouchbaseManager(eCouchbaseBucket bucket)
         {
             this.configurationSection = string.Format("{0}{1}", COUCHBASE_CONFIG, bucket.ToString().ToLower());
-            bucketName = GetBucketName(bucket, configurationSection);
-
+            bucketName = GetBucketName(configurationSection);
         }
 
-        private static string GetBucketName(eCouchbaseBucket bucket, string configurationSection)
+        public CouchbaseManager(string subSection)
+        {
+            this.configurationSection = string.Format("{0}{1}", COUCHBASE_CONFIG, subSection.ToLower());
+            bucketName = GetBucketName(configurationSection);
+        }
+
+        private static string GetBucketName(string configurationSection)
         {
             string bucketName = string.Empty;
 
@@ -707,10 +712,13 @@ namespace CouchbaseManager
                         // Get all missing values from Couchbase and fill the list
                         var missingValues = GetValues<T>(missingKeys);
 
-                        foreach (var currentValue in missingValues)
+                        if (missingValues != null)
                         {
-                            int index = keysToIndexes[currentValue.Key];
-                            result[index] = currentValue.Value;
+                            foreach (var currentValue in missingValues)
+                            {
+                                int index = keysToIndexes[currentValue.Key];
+                                result[index] = currentValue.Value;
+                            }
                         }
                     }
                 }
