@@ -16,6 +16,8 @@ namespace KLogMonitor
     {
         private static readonly ILog logger = log4net.LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private bool disposed;
+        private static ILog separateLogeer;
+        private bool isSeparateLog;
 
         public static KLogEnums.AppType AppType { get; set; }
         public static string UniqueStaticId { get; set; }
@@ -33,11 +35,24 @@ namespace KLogMonitor
 
         private List<LogEvent> logs;
 
+        public KLogger(string className, bool shouldUseSeparateLogger = false)
+        {
+            this.logs = new List<LogEvent>();
+            this.Server = Environment.MachineName;
+            this.ClassName = className;
+            if (shouldUseSeparateLogger)
+            {
+                separateLogeer = log4net.LogManager.GetLogger(className);
+            }
+            isSeparateLog = shouldUseSeparateLogger;
+        }
+
         public KLogger(string className)
         {
             this.logs = new List<LogEvent>();
             this.Server = Environment.MachineName;
             this.ClassName = className;
+            isSeparateLog = false;
         }
 
 
@@ -172,33 +187,105 @@ namespace KLogMonitor
                 case LogEvent.LogLevel.DEBUG:
 
                     if (logEvent.args != null && logEvent.args.Count() > 0)
-                        logger.DebugFormat(logEvent.Message, logEvent.args);
+                    {
+                        if (isSeparateLog)
+                        {
+                            separateLogeer.DebugFormat(logEvent.Message, logEvent.args);
+                        }
+                        else
+                        {
+                            logger.DebugFormat(logEvent.Message, logEvent.args);
+                        }
+                    }
                     else
-                        logger.Debug(logEvent.Message, logEvent.Exception);
+                    {
+                        if (isSeparateLog)
+                        {
+                            separateLogeer.Debug(logEvent.Message, logEvent.Exception);
+                        }
+                        else
+                        {
+                            logger.Debug(logEvent.Message, logEvent.Exception);
+                        }
+                    }
                     break;
 
                 case LogEvent.LogLevel.WARNING:
 
                     if (logEvent.args != null && logEvent.args.Count() > 0)
-                        logger.WarnFormat(logEvent.Message, logEvent.args);
+                    {
+                        if (isSeparateLog)
+                        {
+                            separateLogeer.WarnFormat(logEvent.Message, logEvent.args);
+                        }
+                        else
+                        {
+                            logger.WarnFormat(logEvent.Message, logEvent.args);
+                        }
+                    }
                     else
-                        logger.Warn(logEvent.Message, logEvent.Exception);
+                    {
+                        if (isSeparateLog)
+                        {
+                            separateLogeer.Warn(logEvent.Message, logEvent.Exception);
+                        }
+                        else
+                        {
+                            logger.Warn(logEvent.Message, logEvent.Exception);
+                        }
+                    }
                     break;
 
                 case LogEvent.LogLevel.ERROR:
 
                     if (logEvent.args != null && logEvent.args.Count() > 0)
-                        logger.ErrorFormat(logEvent.Message, logEvent.args);
+                    {
+                        if (isSeparateLog)
+                        {
+                            separateLogeer.ErrorFormat(logEvent.Message, logEvent.args);
+                        }
+                        else
+                        {
+                            logger.ErrorFormat(logEvent.Message, logEvent.args);
+                        }
+                    }
                     else
-                        logger.Error(logEvent.Message, logEvent.Exception);
+                    {
+                        if (isSeparateLog)
+                        {
+                            separateLogeer.Error(logEvent.Message, logEvent.Exception);
+                        }
+                        else
+                        {
+                            logger.Error(logEvent.Message, logEvent.Exception);
+                        }
+                    }
                     break;
 
                 case LogEvent.LogLevel.INFO:
 
                     if (logEvent.args != null && logEvent.args.Count() > 0)
-                        logger.InfoFormat(logEvent.Message, logEvent.args);
+                    {
+                        if (isSeparateLog)
+                        {
+                            separateLogeer.InfoFormat(logEvent.Message, logEvent.args);
+                        }
+                        else
+                        {
+                            logger.InfoFormat(logEvent.Message, logEvent.args);
+                        }                        
+                    }
                     else
-                        logger.Info(logEvent.Message, logEvent.Exception);
+                    {
+                        if (isSeparateLog)
+                        {
+                            separateLogeer.Info(logEvent.Message, logEvent.Exception);
+                        }
+                        else
+                        {
+                            logger.Info(logEvent.Message, logEvent.Exception);
+                        }                        
+                    }
                     break;
 
                 default:
