@@ -579,15 +579,18 @@ namespace CouchbaseManager
                     {
                         var getResult = bucket.Get<T>(keys);
 
-                        Couchbase.IO.ResponseStatus status = Couchbase.IO.ResponseStatus.None;
+                        // Success until proven otherwise
+                        Couchbase.IO.ResponseStatus status = Couchbase.IO.ResponseStatus.Success;
 
                         foreach (var item in getResult)
                         {
+                            // Throw exception if there is one
                             if (item.Value.Exception != null)
                             {
                                 throw item.Value.Exception;
                             }
 
+                            // If any of the rows wasn't successfull, maybe we need to break - depending if we allow partials or not
                             if (item.Value.Status != Couchbase.IO.ResponseStatus.Success)
                             {
                                 status = item.Value.Status;
@@ -676,7 +679,39 @@ namespace CouchbaseManager
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
-                        result = definitions.Query<T>(bucket);
+                        Dictionary<string, int> keysToIndexes = new Dictionary<string,int>();
+                        List<string> missingKeys = new List<string>();
+                        T defaultValue = default(T);
+
+                        var rows = definitions.QueryRows<T>(bucket);
+
+                        foreach (var viewRow in rows)
+                        {
+                            if (viewRow != null)
+                            {
+                                // If we have a result - simply add it to list
+                                if (null != viewRow.Value)
+                                {
+                                    result.Add(viewRow.Value);
+                                }
+                                else
+                                {
+                                    // If we don't - list all missing keys so that we get them later on
+                                    result.Add(defaultValue);
+                                    missingKeys.Add(viewRow.Id);
+                                    keysToIndexes.Add(viewRow.Id, result.Count - 1);
+                                }
+                            }
+                        }
+
+                        // Get all missing values from Couchbase and fill the list
+                        var missingValues = GetValues<T>(missingKeys);
+
+                        foreach (var currentValue in missingValues)
+                        {
+                            int index = keysToIndexes[currentValue.Key];
+                            result[index] = currentValue.Value;
+                        }
                     }
                 }
             }
