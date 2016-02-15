@@ -265,6 +265,8 @@
     <Compile Include="RequestObj.cs" />
     <Compile Include="Response\EnumResponseStatus.cs" />
     <Compile Include="Rules\PurchaseSettingsResponse.cs" />
+    <Compile Include="Rules\RegistryResponse.cs" />
+    <Compile Include="Rules\RegistrySettings.cs" />
     <Compile Include="Scheduling.cs" />
     <Compile Include="SearchDefinitionObject.cs" />
     <Compile Include="SearchObjects\BaseSearchObject.cs" />
