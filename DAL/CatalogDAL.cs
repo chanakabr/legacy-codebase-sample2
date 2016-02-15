@@ -1692,7 +1692,7 @@ namespace Tvinci.Core.DAL
                 keys = usersList
             };
 
-            var res = cbManager.ViewKeyValuePairs(viewManager);
+            var res = cbManager.ViewKeyValuePairs<object[]>(viewManager);
 
             foreach (var row in res)
             {
@@ -1705,7 +1705,7 @@ namespace Tvinci.Core.DAL
                     object objUserID = row.Key;
                     int.TryParse(objUserID.ToString(), out nUserID);
 
-                    object[] arrMediasDates = (object[])row.Value;
+                    object[] arrMediasDates = row.Value;
                     int.TryParse(arrMediasDates[0].ToString(), out nMediaID);
                     DateTime.TryParse(arrMediasDates[1].ToString(), out lastDate);
 
@@ -1734,7 +1734,7 @@ namespace Tvinci.Core.DAL
                 limit = 30
             };
 
-            var res = cbManager.ViewKeyValuePairs(viewManager);
+            var res = cbManager.ViewKeyValuePairs<object[]>(viewManager);
             int nUserID = 0;
 
             if (res != null)
@@ -1745,7 +1745,7 @@ namespace Tvinci.Core.DAL
                 {
                     if (row.Key != null && row.Value != null)
                     {
-                        object[] arUserDates = (object[])row.Value;
+                        object[] arUserDates = row.Value;
                         int.TryParse(arUserDates[0].ToString(), out nUserID);
                         userList.Add(nUserID);
                     }
@@ -1759,7 +1759,7 @@ namespace Tvinci.Core.DAL
                         keys = userList
                     };
 
-                    var resMedia = cbManager.ViewKeyValuePairs(mediaViewManager);
+                    var resMedia = cbManager.ViewKeyValuePairs<object[]>(mediaViewManager);
 
                     foreach (var row in resMedia)
                     {
@@ -1771,7 +1771,7 @@ namespace Tvinci.Core.DAL
                         {
                             // key = user
                             object objUserID = row.Key;
-                            object[] arUserDates = (object[])row.Value;
+                            object[] arUserDates = row.Value;
                             int.TryParse(arUserDates[0].ToString(), out nMediaID);
 
                             if (!mediasList.Contains(nMediaID))

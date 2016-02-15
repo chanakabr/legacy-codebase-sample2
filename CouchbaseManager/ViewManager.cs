@@ -214,13 +214,13 @@ namespace CouchbaseManager
             return result;
         }
 
-        public List<KeyValuePair<object, object>> QueryKeyValuePairs(IBucket bucket)
+        public List<KeyValuePair<object, T1>> QueryKeyValuePairs<T1>(IBucket bucket)
         {
-            List<KeyValuePair<object, object>> result = new List<KeyValuePair<object, object>>();
+            List<KeyValuePair<object, T1>> result = new List<KeyValuePair<object, T1>>();
 
             IViewQuery query = InitializeQuery(bucket);
 
-            var queryResult = bucket.Query<object>(query);
+            var queryResult = bucket.Query<T1>(query);
 
             // If something went wrong - log it and throw exception (if there is one)
             if (!queryResult.Success)
@@ -237,7 +237,7 @@ namespace CouchbaseManager
             {
                 foreach (var row in queryResult.Rows)
                 {
-                    result.Add(new KeyValuePair<object, object>((object)row.Key, row.Value));
+                    result.Add(new KeyValuePair<object, T1>((object)row.Key, row.Value));
                 }
             }
 
