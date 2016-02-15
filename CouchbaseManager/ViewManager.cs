@@ -167,6 +167,11 @@ namespace CouchbaseManager
         /// </summary>
         public bool? useSsl;
 
+        /// <summary>
+        /// If some documents are missing, should everything fail or should we just get whoever exists?
+        /// </summary>
+        public bool allowPartialQuery;
+
         #endregion
 
         #region Ctor

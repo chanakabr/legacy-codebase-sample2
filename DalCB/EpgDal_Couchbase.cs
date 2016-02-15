@@ -283,7 +283,8 @@ namespace DalCB
                 ViewManager viewManager = new ViewManager(CB_EPG_DESGIN, "group_programs")
                 {
                     startKey = startKey,
-                    endKey = endKey
+                    endKey = endKey,
+                    allowPartialQuery = true
                 };
 
                 if (nPageSize > 0)
@@ -319,7 +320,8 @@ namespace DalCB
                 ViewManager viewManager = new ViewManager(CB_EPG_DESGIN, "group_programs")
                 {
                     startKey = startKey,
-                    endKey = endKey
+                    endKey = endKey,
+                    allowPartialQuery = true
                 };
 
                 if (nPageSize > 0)
@@ -355,7 +357,8 @@ namespace DalCB
                 ViewManager viewManager = new ViewManager(CB_EPG_DESGIN, "group_programs")
                 {
                     startKey = startKey,
-                    endKey = endKey
+                    endKey = endKey,
+                    allowPartialQuery = true
                 };
 
                 if (nPageSize > 0)
@@ -393,7 +396,8 @@ namespace DalCB
                 ViewManager viewManager = new ViewManager(CB_EPG_DESGIN, "channel_programs")
                 {
                     startKey = startKey,
-                    endKey = endKey
+                    endKey = endKey,
+                    allowPartialQuery = true
                 };
 
                 if (nPageSize > 0)
