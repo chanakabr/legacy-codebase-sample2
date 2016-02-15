@@ -7,7 +7,6 @@ using WebAPI.Clients;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Models;
 using AutoMapper;
-using Couchbase.Extensions;
 using WebAPI.Exceptions;
 using WebAPI.Utils;
 using WebAPI.Models.General;
@@ -21,6 +20,8 @@ namespace WebAPI.ClientManagers
 {
     public class GroupsManager
     {
+        private const string CB_SECTION_NAME = "groups";
+        
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static string groupKeyFormat;
         private static int groupCacheTtlSeconds;
@@ -132,9 +133,10 @@ namespace WebAPI.ClientManagers
             // if the group is not default group - get configuration from CB and languages
             if (groupId != 0)
             {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE) { Database = CouchbaseBucket.Groups.ToString(), QueryType = KLogEnums.eDBQueryType.SELECT })
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE) { Database = CB_SECTION_NAME, QueryType = KLogEnums.eDBQueryType.SELECT })
                 {
-                    group = CouchbaseManager.GetInstance(CouchbaseBucket.Groups).GetJson<Group>(string.Format(groupKeyFormat, groupId));
+                    CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME);
+                    group = cbManager.Get<Group>(string.Format(groupKeyFormat, groupId));
                 }
 
                 if (group == null)

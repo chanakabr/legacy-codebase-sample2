@@ -9,7 +9,6 @@ using System.Web.Http.Controllers;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Models;
-using Couchbase.Extensions;
 using WebAPI.Models.General;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;

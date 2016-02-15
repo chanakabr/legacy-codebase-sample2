@@ -7,8 +7,6 @@ using System.Web;
 using WebAPI.ClientManagers;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using Couchbase.Extensions;
-using Enyim.Caching.Memcached.Results;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
@@ -22,10 +20,13 @@ namespace WebAPI.Managers
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private static CouchbaseClient couchbaseClient = CouchbaseManager.GetInstance(CouchbaseBucket.Tokens);
-
         private const string APP_TOKEN_PRIVILEGE_SESSION_ID = "sessionid";
 	    private const string APP_TOKEN_PRIVILEGE_APP_TOKEN = "apptoken";
+        
+        private const string CB_SECTION_NAME = "tokens";
+
+        private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME);
+
 
         public static KalturaLoginSession RefreshSession(string refreshToken, string udid = null)
         {
@@ -44,15 +45,14 @@ namespace WebAPI.Managers
 
             // get token from CB
             string tokenKey = string.Format(groupConfig.TokenKeyFormat, refreshToken);
-            IGetOperationResult<ApiToken> tokenRes = couchbaseClient.ExecuteGetJson<ApiToken>(tokenKey);
-            if (tokenRes == null || tokenRes.Success != true || tokenRes.HasValue != true || tokenRes.Value == null)
+            ulong version;
+            ApiToken token = cbManager.GetWithVersion<ApiToken>(tokenKey, out version);
+            if (token == null)
             {
                 log.ErrorFormat("RefreshSession: refreshToken expired");
                 throw new UnauthorizedException((int)WebAPI.Managers.Models.StatusCode.InvalidRefreshToken, "invalid refresh token"); 
             }
             
-            ApiToken token = tokenRes.Value;
-
             // validate expired ks
             if (ks.ToString() != token.KS)
             {
@@ -71,7 +71,7 @@ namespace WebAPI.Managers
              token = new ApiToken(token, groupConfig, udid);
 
             // Store new access + refresh tokens pair
-            if (!couchbaseClient.CasJson(Enyim.Caching.Memcached.StoreMode.Set, tokenKey, token, tokenRes.Cas, new TimeSpan(0, 0, (int)(token.RefreshTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)))))
+            if (!cbManager.SetWithVersion(tokenKey, token, version, (uint)(token.RefreshTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow))))
             {
                 log.ErrorFormat("RefreshSession: Failed to store refreshed token");
                 throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.Error, "failed to refresh token"); 
@@ -97,8 +97,7 @@ namespace WebAPI.Managers
             string tokenKey = string.Format(groupConfig.TokenKeyFormat, token.RefreshToken);
 
             // try store in CB, will return false if the same token already exists
-            if (!couchbaseClient.StoreJson(Enyim.Caching.Memcached.StoreMode.Add, tokenKey, token, 
-                new TimeSpan(0, 0, (int)(token.RefreshTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)))))
+            if (!cbManager.Add(tokenKey, token, (uint)(token.RefreshTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow))))
             {
                 log.ErrorFormat("GenerateSession: Failed to store refreshed token");
                 throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.Error, "failed to save session");
@@ -221,7 +220,7 @@ namespace WebAPI.Managers
 
             // 1. get token from cb by id
             string appTokenCbKey = string.Format(group.AppTokenKeyFormat, id);
-            AppToken appToken = couchbaseClient.GetJson<AppToken>(appTokenCbKey);
+            AppToken appToken = cbManager.Get<AppToken>(appTokenCbKey);
             if (appToken == null)
             {
                 log.ErrorFormat("StartSessionWithAppToken: failed to get AppToken from CB, key = {0}", appTokenCbKey);
@@ -357,7 +356,7 @@ namespace WebAPI.Managers
             AppToken cbAppToken = new AppToken(appToken); 
 
             int appTokenExpiryInSeconds = appToken.Expiry - (int)Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow);
-            if (!couchbaseClient.StoreJson(Enyim.Caching.Memcached.StoreMode.Add, appTokenCbKey, cbAppToken, new TimeSpan(0, 0, appTokenExpiryInSeconds)))
+            if (!cbManager.Add(appTokenCbKey, cbAppToken, (uint)appTokenExpiryInSeconds))
             {
                 log.ErrorFormat("GenerateSession: Failed to store refreshed token");
                 throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.Error, "failed to save application token");
@@ -373,7 +372,7 @@ namespace WebAPI.Managers
             Group group = GroupsManager.GetGroup(groupId);
 
             string appTokenCbKey = string.Format(group.AppTokenKeyFormat, id);
-            var cbAppToken = couchbaseClient.GetJson<AppToken>(appTokenCbKey);
+            var cbAppToken = cbManager.Get<AppToken>(appTokenCbKey);
             if (cbAppToken == null)
             {
                 log.ErrorFormat("GetAppToken: failed to get AppToken from CB, key = {0}", appTokenCbKey);
@@ -392,14 +391,14 @@ namespace WebAPI.Managers
             Group group = GroupsManager.GetGroup(groupId);
 
             string appTokenCbKey = string.Format(group.AppTokenKeyFormat, id);
-            var appToken = couchbaseClient.GetJson<KalturaAppToken>(appTokenCbKey);
+            var appToken = cbManager.Get<KalturaAppToken>(appTokenCbKey);
             if (appToken == null)
             {
                 log.ErrorFormat("GetAppToken: failed to get AppToken from CB, key = {0}", appTokenCbKey);
                 throw new InternalServerErrorException((int)StatusCode.InvalidAppToken, "Invalid application token");
             }
 
-            response = couchbaseClient.Remove(appTokenCbKey);
+            response = cbManager.Remove(appTokenCbKey);
             if (!response)
             {
                 log.ErrorFormat("DeleteAppToken: failed to get AppToken from CB, key = {0}", appTokenCbKey);

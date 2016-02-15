@@ -12,15 +12,16 @@ using System.Threading.Tasks;
 using System.Web;
 using WebAPI.Exceptions;
 using WebAPI.Models;
-using Enyim.Caching;
 using WebAPI.Models.General;
 using WebAPI.Managers.Models;
+using KLogMonitor;
 
 namespace WebAPI.Utils
 {
     public class JilFormatter : MediaTypeFormatter
     {
-        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         private readonly Options _jilOptions;
 
         public JilFormatter()

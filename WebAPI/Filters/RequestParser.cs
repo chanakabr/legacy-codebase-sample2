@@ -20,7 +20,6 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
-using Couchbase.Extensions;
 using WebAPI.Managers;
 
 namespace WebAPI.Filters
@@ -28,10 +27,13 @@ namespace WebAPI.Filters
     public class RequestParser : ActionFilterAttribute
     {
         private const char PARAMS_PREFIX = ':';
+        private const string CB_SECTION_NAME = "tokens";
+
         private static int accessTokenLength = TCMClient.Settings.Instance.GetValue<int>("access_token_length");
         private static string accessTokenKeyFormat = TCMClient.Settings.Instance.GetValue<string>("access_token_key_format");
 
-        private static Couchbase.CouchbaseClient couchbaseClient = CouchbaseManager.GetInstance(CouchbaseBucket.Tokens);
+        private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME);
+
         private static Dictionary<string, Type> types = null;
         private static object locker = new object();
 
@@ -504,7 +506,7 @@ namespace WebAPI.Filters
         {
             // get token from CB
             string tokenKey = string.Format(accessTokenKeyFormat, ksVal);
-            ApiToken token = couchbaseClient.GetJson<ApiToken>(tokenKey);
+            ApiToken token = cbManager.Get<ApiToken>(tokenKey);
 
             if (token == null)
             {
