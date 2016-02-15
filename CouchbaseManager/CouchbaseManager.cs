@@ -710,7 +710,7 @@ namespace CouchbaseManager
                         }
 
                         // Get all missing values from Couchbase and fill the list
-                        var missingValues = GetValues<T>(missingKeys);
+                        var missingValues = GetValues<T>(missingKeys, definitions.allowPartialQuery);
 
                         if (missingValues != null)
                         {
