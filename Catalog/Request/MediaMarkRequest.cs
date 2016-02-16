@@ -359,23 +359,16 @@ namespace Catalog.Request
                         if (playCycleSession != null)
                         {
                             playCycleKey = playCycleSession.PlayCycleKey;
-                            //CatalogDAL.Insert_NewMediaEoh(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, mediaId,
-                            //    m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID, nMediaDuration, nCountryID, nPlayerID, nFirstPlay, nPlay, nLoad, nPause,
-                            //    nStop, nFull, nExitFull, nSendToFriend, m_oMediaPlayRequestData.m_nLoc, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid,
-                            //    m_oMediaPlayRequestData.m_sUDID, playCycleSession.PlayCycleKey, nSwhoosh);
                         }
                         else
                         {
                             playCycleKey = CatalogDAL.GetOrInsert_PlayCycleKey(m_oMediaPlayRequestData.m_sSiteGuid, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID, 0, m_nGroupID, true);
-                            //CatalogDAL.Insert_MediaMarkHitActionData(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, mediaId,
-                            //    m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID, nMediaDuration, nCountryID, nPlayerID, nFirstPlay, nPlay, nLoad, nPause,
-                            //    nStop, nFull, nExitFull, nSendToFriend, m_oMediaPlayRequestData.m_nLoc, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid,
-                            //    m_oMediaPlayRequestData.m_sUDID, nSwhoosh, 0);
                         }
 
-                        Catalog.WriteMediaEohStatistics(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID, nMediaDuration, nCountryID,
-                                                        nPlayerID, nFirstPlay, nPlay, nLoad, nPause, nStop, nFinish, nFull, nExitFull, nSendToFriend, m_oMediaPlayRequestData.m_nLoc, nQualityID, nFormatID, dNow,
-                                                        nUpdaterID, nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID, playCycleKey, nSwhoosh);
+                        Task.Factory.StartNew(() => Catalog.WriteMediaEohStatistics(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID,
+                                                                                    nMediaDuration, nCountryID, nPlayerID, nFirstPlay, nPlay, nLoad, nPause, nStop, nFinish, nFull, nExitFull, nSendToFriend,
+                                                                                    m_oMediaPlayRequestData.m_nLoc, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid,
+                                                                                    m_oMediaPlayRequestData.m_sUDID, playCycleKey, nSwhoosh));
                     }
 
                     if (nActionID == (int)MediaPlayActions.HIT)
