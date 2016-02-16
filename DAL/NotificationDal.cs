@@ -624,6 +624,14 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
+        public static DataTable GetNotificationPartnerSettings(int groupID)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_NotificationPartnerSettings");
+            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            sp.AddParameter("@groupID", groupID);
+            return sp.Execute();
+        }
+
         public static bool UpdateNotificationSettings(int groupID, string userId, bool? push_notification_enabled)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_NotificationSettings");
