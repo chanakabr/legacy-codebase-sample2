@@ -1340,6 +1340,8 @@ namespace DAL
                     paymentGateway.RenewalIntervalMinutes = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "renewal_interval_minutes");
                     paymentGateway.RenewalStartMinutes = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "renewal_start_minutes");
                     paymentGateway.IsActive = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active");
+                    int supportPaymentMethod = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_payment_method_support");
+                    paymentGateway.SupportPaymentMethod = supportPaymentMethod == 1 ? true : false;
                     chargeId = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "charge_Id");
                 }
 
@@ -1959,6 +1961,8 @@ namespace DAL
                 result.IsActive = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active");
                 int DefaultPaymentGateway = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "DEFAULT_PAYMENT_GATEWAY");
                 result.IsDefault = DefaultPaymentGateway == result.ID ? true : false;
+                int supportPaymentMethod = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_payment_method_support");
+                result.SupportPaymentMethod = supportPaymentMethod == 1 ? true : false;
             }
 
             return result;
@@ -2071,6 +2075,43 @@ namespace DAL
                 !string.IsNullOrEmpty(externalIdentifier) ? externalIdentifier : string.Empty, paymentGateway);
 
             return paymentGateway;   
+        }
+
+        public static bool GetPaymentMethod(int groupID, int paymentGatewayId, int paymentMethodId)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PaymentGatewayPaymentMethod");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupID);
+                sp.AddParameter("@paymentGatewayId", paymentGatewayId);
+                sp.AddParameter("@paymentMethodId", paymentMethodId);
+
+                bool isExist = sp.ExecuteReturnValue<bool>();
+                return isExist;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public static bool SetPaymentGatewayHouseholdPaymentMethod(int groupID, int paymentGatewayId, int householdId, int paymentMethodId, string paymentDetails, string paymentMethodExternalId)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+             
+
+
+                bool isSet = sp.ExecuteReturnValue<bool>();
+                return isSet;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
     }
 }
