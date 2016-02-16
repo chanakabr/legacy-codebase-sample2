@@ -502,6 +502,7 @@
               <s:element minOccurs="1" maxOccurs="1" name="RenewalStartMinutes" type="s:int" />
               <s:element minOccurs="0" maxOccurs="1" name="SharedSecret" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="Settings" type="tns:ArrayOfPaymentGatewaySettings" />
+              <s:element minOccurs="0" maxOccurs="1" name="PaymentMethods" type="tns:ArrayOfPaymentMethod" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -522,6 +523,19 @@
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="key" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfPaymentMethod">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="PaymentMethod" nillable="true" type="tns:PaymentMethod" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="PaymentMethod">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="ID" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="PaymentMethodType" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="Selected" type="s:int" />
         </s:sequence>
       </s:complexType>
       <s:element name="SetPaymentGateway">
@@ -699,10 +713,37 @@
       <s:element name="GetHouseholdPaymentGatewaysResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetHouseholdPaymentGatewaysResult" type="tns:PaymentGatewayResponse" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetHouseholdPaymentGatewaysResult" type="tns:PaymentGatewayListResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:complexType name="PaymentGatewayListResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="PaymentGateways" type="tns:ArrayOfPaymentGatewaySelectedBy" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfPaymentGatewaySelectedBy">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="PaymentGatewaySelectedBy" nillable="true" type="tns:PaymentGatewaySelectedBy" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="PaymentGatewaySelectedBy">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:PaymentGatewayBase">
+            <s:sequence>
+              <s:element minOccurs="1" maxOccurs="1" name="By" type="tns:eHouseholdPaymentGatewaySelectedBy" />
+              <s:element minOccurs="0" maxOccurs="1" name="PaymentMethod" type="tns:PaymentMethod" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:simpleType name="eHouseholdPaymentGatewaySelectedBy">
+        <s:restriction base="s:string">
+          <s:enumeration value="Account" />
+          <s:enumeration value="Household" />
+        </s:restriction>
+      </s:simpleType>
       <s:element name="GetSelectedHouseholdPaymentGateway">
         <s:complexType>
           <s:sequence>
@@ -726,12 +767,6 @@
           <s:element minOccurs="1" maxOccurs="1" name="SelectedBy" type="tns:eHouseholdPaymentGatewaySelectedBy" />
         </s:sequence>
       </s:complexType>
-      <s:simpleType name="eHouseholdPaymentGatewaySelectedBy">
-        <s:restriction base="s:string">
-          <s:enumeration value="Account" />
-          <s:enumeration value="Household" />
-        </s:restriction>
-      </s:simpleType>
       <s:element name="InsertPaymentGWPending">
         <s:complexType>
           <s:sequence>
@@ -914,6 +949,7 @@
             <s:element minOccurs="1" maxOccurs="1" name="contentID" type="s:int" />
             <s:element minOccurs="0" maxOccurs="1" name="billingGuid" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="paymentGWId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="paymentMethodId" type="s:int" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -1213,6 +1249,7 @@
       <s:element name="PaymentGatewaySettingsResponse" nillable="true" type="tns:PaymentGatewaySettingsResponse" />
       <s:element name="Status" nillable="true" type="tns:Status" />
       <s:element name="PaymentGatewayResponse" nillable="true" type="tns:PaymentGatewayResponse" />
+      <s:element name="PaymentGatewayListResponse" nillable="true" type="tns:PaymentGatewayListResponse" />
       <s:element name="HouseholdPaymentGatewayResponse" nillable="true" type="tns:HouseholdPaymentGatewayResponse" />
       <s:element name="PaymentGatewayChargeIDResponse" nillable="true" type="tns:PaymentGatewayChargeIDResponse" />
       <s:element name="TransactResult" nillable="true" type="tns:TransactResult" />
@@ -1790,7 +1827,7 @@
     <wsdl:part name="householdId" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetHouseholdPaymentGatewaysHttpPostOut">
-    <wsdl:part name="Body" element="tns:PaymentGatewayResponse" />
+    <wsdl:part name="Body" element="tns:PaymentGatewayListResponse" />
   </wsdl:message>
   <wsdl:message name="GetSelectedHouseholdPaymentGatewayHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -1849,6 +1886,7 @@
     <wsdl:part name="contentID" type="s:string" />
     <wsdl:part name="billingGuid" type="s:string" />
     <wsdl:part name="paymentGWId" type="s:string" />
+    <wsdl:part name="paymentMethodId" type="s:string" />
   </wsdl:message>
   <wsdl:message name="TransactHttpPostOut">
     <wsdl:part name="Body" element="tns:TransactResult" />

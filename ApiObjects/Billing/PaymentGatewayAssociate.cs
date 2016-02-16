@@ -5,6 +5,8 @@ namespace ApiObjects.Billing
     {
         public eHouseholdPaymentGatewaySelectedBy By { get; set; }
 
+        public PaymentMethod PaymentMethod { get; set; }
+
         public PaymentGatewaySelectedBy()
         {
         }

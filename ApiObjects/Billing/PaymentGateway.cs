@@ -20,8 +20,9 @@ namespace ApiObjects.Billing
         public int Status { get; set; }
         [XmlIgnore]
         public int Selected { get; set; }
-        
+
         public List<PaymentGatewaySettings> Settings { get; set; }
+        public List<PaymentMethod> PaymentMethods { get; set; }
 
         public PaymentGateway()
         {
