@@ -50,6 +50,7 @@ namespace CouchbaseManager
         private string configurationSection;
         private string bucketName;
         private ClientConfiguration clientConfiguration;
+
         #endregion
 
         #region Ctor
