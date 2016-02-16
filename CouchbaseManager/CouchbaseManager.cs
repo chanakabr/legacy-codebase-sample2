@@ -54,9 +54,8 @@ namespace CouchbaseManager
         #region Ctor
 
         public CouchbaseManager(eCouchbaseBucket bucket)
+            : this(bucket.ToString().ToLower())
         {
-            this.configurationSection = string.Format("{0}{1}", COUCHBASE_CONFIG, bucket.ToString().ToLower());
-            bucketName = GetBucketName(configurationSection);
         }
 
         public CouchbaseManager(string subSection)
