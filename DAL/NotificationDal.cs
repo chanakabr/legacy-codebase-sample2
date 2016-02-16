@@ -605,7 +605,45 @@ namespace DAL
             sp.AddParameter("@ViewStatus", bytViewStatus);
             return sp.ExecuteReturnValue<int>();
         }
-    
-    
+
+
+
+        public static bool UpdateNotificationPartnerSettings(int groupID, bool? push_notification_enabled, bool? push_system_announcements_enabled)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_NotificationPartnerSettings");
+            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            sp.AddParameter("@groupID", groupID);
+            if (push_notification_enabled != null)
+            {
+                sp.AddParameter("@push_notification_enabled", push_notification_enabled);
+            }
+            if (push_system_announcements_enabled != null)
+            {
+                sp.AddParameter("@push_system_announcements_enabled", push_system_announcements_enabled);
+            }
+            return sp.ExecuteReturnValue<bool>();
+        }
+
+        public static DataTable GetNotificationPartnerSettings(int groupID)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_NotificationPartnerSettings");
+            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            sp.AddParameter("@groupID", groupID);
+            return sp.Execute();
+        }
+
+        public static bool UpdateNotificationSettings(int groupID, string userId, bool? push_notification_enabled)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_NotificationSettings");
+            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            sp.AddParameter("@groupID", groupID);
+            sp.AddParameter("@userId", userId);
+            if (push_notification_enabled != null)
+            {
+                sp.AddParameter("@push_notification_enabled", push_notification_enabled);
+            }
+            
+            return sp.ExecuteReturnValue<bool>();
+        }
     }
 }
