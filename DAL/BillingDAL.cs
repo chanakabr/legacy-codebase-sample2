@@ -2072,5 +2072,42 @@ namespace DAL
 
             return paymentGateway;   
         }
+
+        public static bool GetPaymentMethod(int groupID, int paymentGatewayId, int paymentMethodId)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PaymentGatewayPaymentMethod");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupID);
+                sp.AddParameter("@paymentGatewayId", paymentGatewayId);
+                sp.AddParameter("@paymentMethodId", paymentMethodId);
+
+                bool isExist = sp.ExecuteReturnValue<bool>();
+                return isExist;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public static bool SetPaymentGatewayHouseholdPaymentMethod(int groupID, int paymentGatewayId, int householdId, int paymentMethodId, string paymentDetails, string paymentMethodExternalId)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+             
+
+
+                bool isSet = sp.ExecuteReturnValue<bool>();
+                return isSet;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 }
