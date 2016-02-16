@@ -84,7 +84,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
              .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
-             .ForMember(dest => dest.selectedBy, opt => opt.MapFrom(src => ConvertHouseholdPaymentGatewaySelectedBy(src.By)));             
+             .ForMember(dest => dest.selectedBy, opt => opt.MapFrom(src => ConvertHouseholdPaymentGatewaySelectedBy(src.By)));
+
+            Mapper.CreateMap<PaymentMethod, WebAPI.Models.Billing.KalturaPaymentMethodProfile>()
+             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+             .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.PaymentMethodType));
+
         }
 
 

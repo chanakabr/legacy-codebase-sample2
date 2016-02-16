@@ -1,0 +1,134 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Http;
+using WebAPI.ClientManagers.Client;
+using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
+using WebAPI.Utils;
+
+namespace WebAPI.Controllers
+{
+    [RoutePrefix("_service/paymentMethodProfile/action")]
+    public class PaymentMethodProfileController : ApiController
+    {
+        /// <summary>
+        /// TBD
+        /// </summary>
+        /// <param name="payment_gateway_id"> Payment gateway identifier to list the payment methods for</param>
+        /// <remarks>
+        /// Possible status codes: TBD       
+        ///  
+        /// </remarks>
+        [Route("list"), HttpPost]
+        [ApiAuthorize]
+        public List<Models.Billing.KalturaPaymentMethodProfile> List(int payment_gateway_id)
+        {
+            List<Models.Billing.KalturaPaymentMethodProfile> response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                response = ClientsManager.BillingClient().GetPaymentGatewayPaymentMethods(groupId, payment_gateway_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// TBD
+        /// </summary>
+        /// <param name="payment_gateway_id">Payment gateway identifier to add the payment method for</param>
+        /// <param name="payment_method">Payment method to add</param>
+        /// <remarks>
+        /// Possible status codes: Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method type is required = 6053 
+        /// </remarks>
+        [Route("add"), HttpPost]
+        [ApiAuthorize]
+        public Models.Billing.KalturaPaymentMethodProfile Add(int payment_gateway_id, WebAPI.Models.Billing.KalturaPaymentMethodProfile payment_method)
+        {
+            Models.Billing.KalturaPaymentMethodProfile response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                response = ClientsManager.BillingClient().AddPaymentMethodToPaymentGateway(groupId, payment_gateway_id, payment_method.Type, payment_method.Name);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// TBD
+        /// </summary>
+        /// <param name="payment_gateway_id">Payment gateway identifier to update the payment method for</param>
+        /// <param name="payment_method">Payment method to update</param>
+        /// <remarks>
+        /// Possible status codes: Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method does not exist = 6049, Payment method ID is required = 6050      
+        ///  
+        /// </remarks>
+        [Route("update"), HttpPost]
+        [ApiAuthorize]
+        public bool Update(int payment_gateway_id, WebAPI.Models.Billing.KalturaPaymentMethodProfile payment_method)
+        {
+            bool response = false;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                response = ClientsManager.BillingClient().UpdatePaymentGatewayPaymentMethod(groupId, payment_gateway_id, payment_method.Id, payment_method.Type, payment_method.Name);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// TBD
+        /// </summary>
+        /// <param name="payment_gateway_id">Payment gateway identifier to delete the payment method for</param>
+        /// <param name="payment_method_id">Payment method identifier to delete</param>
+        /// <remarks>
+        ///  Possible status codes: Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method does not exist = 6049, Payment method ID is required = 6050    
+        ///  
+        /// </remarks>
+        [Route("delete"), HttpPost]
+        [ApiAuthorize]
+        public bool Delete(int payment_gateway_id, int payment_method_id)
+        {
+            bool response = false;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                response = ClientsManager.BillingClient().DeletePaymentGatewayPaymentMethod(groupId, payment_gateway_id, payment_method_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+    }
+}

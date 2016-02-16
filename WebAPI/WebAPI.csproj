@@ -608,6 +608,15 @@
     <Content Include="Web References\Billing\PaymentGatewayConfigurationResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\Billing\PaymentGatewayListResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Billing\PaymentMethodResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Billing\PaymentMethodsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\Billing\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
@@ -890,6 +899,7 @@
     <Compile Include="Controllers\AppTokenController.cs" />
     <Compile Include="Controllers\AssetController.cs" />
     <Compile Include="Controllers\HomeNetworkController.cs" />
+    <Compile Include="Controllers\PaymentMethodProfileController.cs" />
     <Compile Include="Controllers\RegistrySettingsController.cs" />
     <Compile Include="Controllers\VersionController.cs" />
     <Compile Include="Controllers\HouseholdLimitationsController.cs" />
@@ -966,6 +976,7 @@
     <Compile Include="Models\Billing\KalturaPaymentGateway.cs" />
     <Compile Include="Models\Billing\KalturaHouseholdPaymentGatewaySelectedBy.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGatewayConfiguration.cs" />
+    <Compile Include="Models\Billing\KalturaPaymentMethodProfile.cs" />
     <Compile Include="Models\Catalog\KalturaAssetBookmark.cs" />
     <Compile Include="Models\Catalog\KalturaAssetsFilter.cs" />
     <Compile Include="Models\Catalog\KalturaEPGChannelAssetsListResponse.cs" />

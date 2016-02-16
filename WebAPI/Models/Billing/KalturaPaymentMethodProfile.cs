@@ -1,0 +1,38 @@
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Web;
+using System.Xml.Serialization;
+using WebAPI.Models.General;
+
+namespace WebAPI.Models.Billing
+{
+    public class KalturaPaymentMethodProfile : KalturaOTTObject
+    {
+        /// <summary>
+        /// Payment method identifier (internal)
+        /// </summary>
+        [DataMember(Name = "id")]
+        [JsonProperty("id")]
+        [XmlElement(ElementName = "id")]
+        public int Id { get; set; }
+
+        /// <summary>
+        /// Payment method type
+        /// </summary>
+        [DataMember(Name = "type")]
+        [JsonProperty("type")]
+        [XmlElement(ElementName = "type")]
+        public string Type { get; set; }
+
+        /// <summary>
+        /// Payment method name
+        /// </summary>
+        [DataMember(Name = "name")]
+        [JsonProperty("name")]
+        [XmlElement(ElementName = "name")]
+        public string Name { get; set; }
+    }
+}

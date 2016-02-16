@@ -626,5 +626,139 @@ namespace WebAPI.Clients
 
             return true;
         }
+
+        internal List<KalturaPaymentMethodProfile> GetPaymentGatewayPaymentMethods(int groupId, int paymentGatewayId)
+        {
+            WebAPI.Billing.PaymentMethodsResponse response = null;
+            List<KalturaPaymentMethodProfile> paymentMethods = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Billing.GetPaymentGatewayPaymentMethods(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGatewayId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetPaymentGatewayPaymentMethods.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            paymentMethods = Mapper.Map<List<KalturaPaymentMethodProfile>>(response.PaymentMethods);
+
+            return paymentMethods;
+        }
+
+        internal KalturaPaymentMethodProfile AddPaymentMethodToPaymentGateway(int groupId, int paymentGatewayId, string type, string name)
+        {
+            WebAPI.Billing.PaymentMethodResponse response = null;
+            KalturaPaymentMethodProfile paymentMethod = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Billing.AddPaymentMethodToPaymentGateway(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGatewayId, type, name);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while AddPaymentMethodToPaymentGateway.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            paymentMethod = Mapper.Map<KalturaPaymentMethodProfile>(response.PaymentMethod);
+
+            return paymentMethod;
+        }
+
+        internal bool UpdatePaymentGatewayPaymentMethod(int groupId, int paymentGatewayId, int paymentMethodId, string type, string name)
+        {
+            WebAPI.Billing.Status response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Billing.UpdatePaymentGatewayPaymentMethod(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGatewayId, paymentMethodId, type, name);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while UpdatePaymentGatewayPaymentMethod.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        internal bool DeletePaymentGatewayPaymentMethod(int groupId, int paymentGatewayId, int paymentMethodId)
+        {
+            WebAPI.Billing.Status response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Billing.DeletePaymentGatewayPaymentMethod(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGatewayId, paymentMethodId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while DeletePaymentGatewayPaymentMethod.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
     }
 }
