@@ -606,8 +606,6 @@ namespace DAL
             return sp.ExecuteReturnValue<int>();
         }
 
-
-
         public static bool UpdateNotificationPartnerSettings(int groupID, bool? push_notification_enabled, bool? push_system_announcements_enabled)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_NotificationPartnerSettings");
@@ -634,8 +632,42 @@ namespace DAL
             {
                 sp.AddParameter("@push_notification_enabled", push_notification_enabled);
             }
-            
+
             return sp.ExecuteReturnValue<bool>();
+        }
+
+        public static DataRow Get_MessageAnnouncement(int groupId, int messageAnnouncementId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MessageAnnouncement");
+            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            sp.AddParameter("@groupID", groupId);
+            sp.AddParameter("@ID", messageAnnouncementId);
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    return dt.Rows[0];
+                }
+            }
+
+            return null;
+        }
+
+        public static int Insert_MessageAnnouncement(int groupId, int recipients, string name, string message, DateTime startTime, int updaterId, string resultMsgId = null)
+        {
+            ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("InsertMessageAnnouncement");
+            spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            spInsert.AddParameter("@recipients", recipients);
+            spInsert.AddParameter("@name", name);
+            spInsert.AddParameter("@message", message);
+            spInsert.AddParameter("@start_time", startTime);
+            spInsert.AddParameter("@group_id", groupId);
+            spInsert.AddParameter("@updater_id", updaterId);
+            spInsert.AddParameter("@result_message_id", resultMsgId);
+            int newTransactionID = spInsert.ExecuteReturnValue<int>();
+            return newTransactionID;
         }
     }
 }
