@@ -1340,6 +1340,8 @@ namespace DAL
                     paymentGateway.RenewalIntervalMinutes = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "renewal_interval_minutes");
                     paymentGateway.RenewalStartMinutes = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "renewal_start_minutes");
                     paymentGateway.IsActive = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active");
+                    int supportPaymentMethod = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_payment_method_support");
+                    paymentGateway.SupportPaymentMethod = supportPaymentMethod == 1 ? true : false;
                     chargeId = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "charge_Id");
                 }
 
@@ -1959,6 +1961,8 @@ namespace DAL
                 result.IsActive = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active");
                 int DefaultPaymentGateway = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "DEFAULT_PAYMENT_GATEWAY");
                 result.IsDefault = DefaultPaymentGateway == result.ID ? true : false;
+                int supportPaymentMethod = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_payment_method_support");
+                result.SupportPaymentMethod = supportPaymentMethod == 1 ? true : false;
             }
 
             return result;
