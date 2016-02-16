@@ -64,7 +64,7 @@
     <Reference Include="ApiObjects">
       <HintPath>..\..\..\tvincicommon\External\ApiObjects.dll</HintPath>
     </Reference>
-    <Reference Include="CouchbaseWrapper, Version=3.4.0.33413, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="CouchbaseWrapper, Version=3.4.531.29059, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\tvincicommon\External\CouchbaseWrapper.dll</HintPath>
     </Reference>
