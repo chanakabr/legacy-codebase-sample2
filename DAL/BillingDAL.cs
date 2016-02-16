@@ -2113,5 +2113,88 @@ namespace DAL
                 return false;
             }
         }
+
+        public static PaymentMethod Insert_PaymentGatewayPaymentMethod(int groupId, int paymentGatewayId, string type, string name)
+        {
+            PaymentMethod response = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_PaymentGatewayPaymentMethod");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@group_id", groupId);
+                sp.AddParameter("@payment_gateway_id", paymentGatewayId);
+                sp.AddParameter("@type", type);
+                sp.AddParameter("@name", name);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    if (ds.Tables[0].Rows.Count > 0)
+                    {
+                        response = new PaymentMethod()
+                        {
+                            ID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID"),
+                            Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "NAME"),
+                            PaymentMethodType = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "TYPE")
+                        };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at Insert_PaymentGatewayPaymentMethod. groupId: {0}, paymentGatewayId: {1}, type {2}", groupId, paymentGatewayId,
+                    !string.IsNullOrEmpty(type) ? type : string.Empty, ex);
+                response = null;
+            }
+
+            return response;
+        }
+
+        public static bool Update_PaymentGatewayPaymentMethod(int groupId, int paymentGatewayId, int paymentMethodId, string type, string name)
+        {
+            int rowCount = 0;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_PaymentGatewayPaymentMethod");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@group_id", groupId);
+                sp.AddParameter("@payment_gateway_id", paymentGatewayId);
+                sp.AddParameter("@payment_method_id", paymentMethodId);
+                sp.AddParameter("@type", type);
+                sp.AddParameter("@name", name);
+
+                rowCount = sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at Update_PaymentGatewayPaymentMethod. groupId: {0}, paymentGatewayId: {1}, paymentMethodId: {2}, type {3}, name = {4}", 
+                    groupId, paymentGatewayId, paymentMethodId, !string.IsNullOrEmpty(type) ? type : string.Empty, !string.IsNullOrEmpty(name) ? name : string.Empty, ex);
+            }
+
+            return rowCount > 0;
+        }
+
+        public static bool Delete_PaymentGatewayPaymentMethod(int groupId, int paymentGatewayId, int paymentMethodId)
+        {
+            int rowCount = 0;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_PaymentGatewayPaymentMethod");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@group_id", groupId);
+                sp.AddParameter("@payment_gateway_id", paymentGatewayId);
+                sp.AddParameter("@payment_method_id", paymentMethodId);
+                
+                rowCount = sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at Delete_PaymentGatewayPaymentMethod. groupId: {0}, paymentGatewayId: {1}, paymentMethodId: {2}",
+                    groupId, paymentGatewayId, paymentMethodId, ex);
+            }
+
+            return rowCount > 0;
+        }
     }
 }

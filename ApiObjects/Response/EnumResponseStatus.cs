@@ -201,6 +201,7 @@ namespace ApiObjects.Response
         PaymentMethodIdRequired = 6050,
         PaymentMethodExternalIdRequired = 6051,
         ErrorSavingPaymentGatewayHouseholdPaymentMethod = 6052,
+        PaymentMethodTypeRequired = 6053,
 
         // social 7000 - 7999
         Conflict = 7000,
