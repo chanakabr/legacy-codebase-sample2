@@ -43,7 +43,7 @@ namespace CouchbaseManager
                     }
                     catch (Exception ex)
                     {
-                        log.Error("", ex);
+                        log.Error("Failed creating instance of couchbase: ", ex);
                     }
                     finally
                     {
