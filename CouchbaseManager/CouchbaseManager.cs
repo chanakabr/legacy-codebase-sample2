@@ -33,6 +33,7 @@ namespace CouchbaseManager
 
         //public const string COUCHBASE_CONFIG = "couchbaseClients/couchbase";
         public const string COUCHBASE_CONFIG = "couchbaseClients/";
+        private const string TCM_KEY_FORMAT = "cb_{0}.{1}";
 
         #endregion
 
@@ -48,31 +49,82 @@ namespace CouchbaseManager
 
         private string configurationSection;
         private string bucketName;
-
+        private ClientConfiguration clientConfiguration;
         #endregion
 
         #region Ctor
 
+        /// <summary>
+        /// Initializes a CouchbaseManager instance with configuration in web.config, according to predefined bucket sections
+        /// </summary>
+        /// <param name="bucket"></param>
         public CouchbaseManager(eCouchbaseBucket bucket)
             : this(bucket.ToString().ToLower())
         {
         }
 
-        public CouchbaseManager(string subSection)
+        /// <summary>
+        /// Initializes a CouchbaseManager instance with configuration in web.config or TCM, according to dynamic bucket section
+        /// </summary>
+        /// <param name="bucket"></param>
+        public CouchbaseManager(string subSection, bool fromTcm = false)
         {
-            this.configurationSection = string.Format("{0}{1}", COUCHBASE_CONFIG, subSection.ToLower());
-            bucketName = GetBucketName(configurationSection);
+            subSection = subSection.ToLower();
+
+            if (!fromTcm)
+            {
+                this.configurationSection = string.Format("{0}{1}", COUCHBASE_CONFIG, subSection);
+                bucketName = GetBucketName(configurationSection);
+            }
+            else
+            {
+                var urls = TCMClient.Settings.Instance.GetValue<List<string>>(String.Format(TCM_KEY_FORMAT, subSection, "urls"));
+
+                if (urls != null)
+                {
+                    string userName = TCMClient.Settings.Instance.GetValue<string>(String.Format(TCM_KEY_FORMAT, subSection, "username"));
+                    string password = TCMClient.Settings.Instance.GetValue<string>(String.Format(TCM_KEY_FORMAT, subSection, "password"));
+                    this.bucketName = TCMClient.Settings.Instance.GetValue<string>(String.Format(TCM_KEY_FORMAT, subSection, "bucket"));
+
+                    // Convert list of URLs to list of Uris
+                    List<Uri> uris = new List<Uri>();
+                    urls.ForEach(current => uris.Add(new Uri(current)));
+
+                    this.clientConfiguration = new ClientConfiguration()
+                    {
+                        BucketConfigs = new Dictionary<string, BucketConfiguration>()
+                        {
+                            { 
+                                this.bucketName, 
+                                new BucketConfiguration()
+                                    {
+                                        Username = userName,
+                                        Password = password,
+                                        Servers = uris,
+                                        BucketName = this.bucketName
+                                    }
+                            }
+                        }
+                    };
+                }
+
+                var test = new Dictionary<string, string>()
+                {
+                    { "a", "b"}
+                };
+            }
         }
 
-        private static string GetBucketName(string configurationSection)
+
+        private string GetBucketName(string configurationSection)
         {
             string bucketName = string.Empty;
 
             var section = (CouchbaseClientSection)ConfigurationManager.GetSection(configurationSection);
-            var clientConfiguration = new ClientConfiguration(section);
-
+            this.clientConfiguration = new ClientConfiguration(section);
+            
             // Should be only one!
-            foreach (var currentBucket in clientConfiguration.BucketConfigs)
+            foreach (var currentBucket in this.clientConfiguration.BucketConfigs)
             {
                 bucketName = currentBucket.Value.BucketName;
                 break;
@@ -261,7 +313,7 @@ namespace CouchbaseManager
 
             try
             {
-                using (var cluster = new Cluster(configurationSection))
+                using (var cluster = new Cluster(clientConfiguration))
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
@@ -308,7 +360,7 @@ namespace CouchbaseManager
         {
             bool result = false;
 
-            using (var cluster = new Cluster(configurationSection))
+            using (var cluster = new Cluster(clientConfiguration))
             {
                 using (var bucket = cluster.OpenBucket(bucketName))
                 {
@@ -344,7 +396,7 @@ namespace CouchbaseManager
 
             try
             {
-                using (var cluster = new Cluster(configurationSection))
+                using (var cluster = new Cluster(clientConfiguration))
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
@@ -385,7 +437,7 @@ namespace CouchbaseManager
 
             try
             {
-                using (var cluster = new Cluster(configurationSection))
+                using (var cluster = new Cluster(clientConfiguration))
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
@@ -418,7 +470,7 @@ namespace CouchbaseManager
 
             try
             {
-                using (var cluster = new Cluster(configurationSection))
+                using (var cluster = new Cluster(clientConfiguration))
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
@@ -468,7 +520,7 @@ namespace CouchbaseManager
         {
             bool result = false;
 
-            using (var cluster = new Cluster(configurationSection))
+            using (var cluster = new Cluster(clientConfiguration))
             {
                 using (var bucket = cluster.OpenBucket(bucketName))
                 {
@@ -503,7 +555,7 @@ namespace CouchbaseManager
             bool result = false;
             newVersion = 0;
 
-            using (var cluster = new Cluster(configurationSection))
+            using (var cluster = new Cluster(clientConfiguration))
             {
                 using (var bucket = cluster.OpenBucket(bucketName))
                 {
@@ -577,7 +629,7 @@ namespace CouchbaseManager
             IDictionary<string, T> result = null;
             try
             {
-                using (var cluster = new Cluster(configurationSection))
+                using (var cluster = new Cluster(clientConfiguration))
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
@@ -679,7 +731,7 @@ namespace CouchbaseManager
 
             try
             {
-                using (var cluster = new Cluster(configurationSection))
+                using (var cluster = new Cluster(clientConfiguration))
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
@@ -741,7 +793,7 @@ namespace CouchbaseManager
 
             try
             {
-                using (var cluster = new Cluster(configurationSection))
+                using (var cluster = new Cluster(clientConfiguration))
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
@@ -768,7 +820,7 @@ namespace CouchbaseManager
 
             try
             {
-                using (var cluster = new Cluster(configurationSection))
+                using (var cluster = new Cluster(clientConfiguration))
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
@@ -796,7 +848,7 @@ namespace CouchbaseManager
 
             try
             {
-                using (var cluster = new Cluster(configurationSection))
+                using (var cluster = new Cluster(clientConfiguration))
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
@@ -818,7 +870,7 @@ namespace CouchbaseManager
         {
             ulong result = 0;
 
-            using (var cluster = new Cluster(configurationSection))
+            using (var cluster = new Cluster(clientConfiguration))
             {
                 using (var bucket = cluster.OpenBucket(bucketName))
                 {

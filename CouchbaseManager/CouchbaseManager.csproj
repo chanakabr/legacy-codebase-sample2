@@ -92,6 +92,9 @@
     <Reference Include="System.configuration" />
     <Reference Include="System.Data.Linq" />
     <Reference Include="System.Core" />
+    <Reference Include="TCMClient">
+      <HintPath>..\External\TCMClient.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
