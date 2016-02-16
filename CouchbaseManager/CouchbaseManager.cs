@@ -108,14 +108,8 @@ namespace CouchbaseManager
                         }
                     };
                 }
-
-                var test = new Dictionary<string, string>()
-                {
-                    { "a", "b"}
-                };
             }
         }
-
 
         private string GetBucketName(string configurationSection)
         {
