@@ -1093,6 +1093,25 @@ namespace DAL
 
         #endregion
 
+
+        public static DataTable GetAllRegistry(int groupID)
+        {
+            try
+            {
+
+                StoredProcedure sp = new StoredProcedure("Get_AllRegistry");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null)
+                    return ds.Tables[0];
+                return null;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
     }
     
 }

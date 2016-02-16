@@ -2,9 +2,11 @@
 using ApiObjects.BulkExport;
 using ApiObjects.MediaMarks;
 using ApiObjects.Roles;
+using ApiObjects.Rules;
 using CouchbaseManager;
 using KLogMonitor;
 using Newtonsoft.Json;
+using ODBCWrapper;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -3235,5 +3237,37 @@ namespace DAL
 
             return result;
         }
+
+        public static List<RegistrySettings> GetAllRegistry(int groupID)
+        {
+            List<RegistrySettings> result = null;
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Get_AllRegistry");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows!= null && ds.Tables[0].Rows.Count > 0)
+                {
+                    result = new List<RegistrySettings>();
+                    RegistrySettings registrySetting;
+                    foreach (DataRow dr in ds.Tables[0].Rows)
+                    {
+                        registrySetting = new RegistrySettings();
+                        registrySetting.key = ODBCWrapper.Utils.GetSafeStr(dr, "key");
+                        registrySetting.value = ODBCWrapper.Utils.GetSafeStr(dr, "value");
+                        result.Add(registrySetting);
+                    }
+                   
+                    return result;
+                }
+                return new  List<RegistrySettings>();
+            }
+            catch (Exception ex)
+            {
+                return new List<RegistrySettings>();
+            }
+        }
+
     }
 }

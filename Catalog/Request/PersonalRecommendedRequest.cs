@@ -57,12 +57,18 @@ namespace Catalog.Request
         private List<SearchResult> HandleGetRelated(PersonalRecommendedRequest request, int nMediaID)
         {
             MediaRelatedRequest oMediaRelatedRequest = GetMediaRelatedReqObj(request, nMediaID);
-            MediaIdsResponse relatedResponse = (MediaIdsResponse)oMediaRelatedRequest.GetResponse((BaseRequest)oMediaRelatedRequest);
+            UnifiedSearchResponse relatedResponse = (UnifiedSearchResponse)oMediaRelatedRequest.GetResponse((BaseRequest)oMediaRelatedRequest);
             if (relatedResponse == null)
                 throw new Exception("MediaRelatedRequest's response is null");
 
-            return relatedResponse.m_nMediaIds;
+            List<SearchResult> searchResults = relatedResponse.searchResults.Select(result =>
+                new SearchResult()
+                {
+                    assetID = int.Parse(result.AssetId),
+                    UpdateDate = result.m_dUpdateDate
+                }).ToList();
 
+            return searchResults;
         }
 
         private List<SearchResult> HandleMostViewed(DataTable dt)
