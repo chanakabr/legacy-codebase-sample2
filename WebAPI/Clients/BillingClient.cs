@@ -594,5 +594,37 @@ namespace WebAPI.Clients
 
             return configuration;
         }
+
+        internal bool SetPaymentGatewayHouseholdPaymentMethod(int groupId, string externalIdentifier, int householdId, int paymentMethodId, string paymentDetails, string paymentMethodExternalId)
+        {
+            WebAPI.Billing.Status response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    //response = Billing.SetPaymentGatewayHouseholdPaymentMethod(group.BillingCredentials.Username, group.BillingCredentials.Password, externalIdentifier, householdId, paymentMethodId,
+                    //    paymentDetails, paymentMethodExternalId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while SetHouseholdChargeID.  groupID: {0}, external Identifier: {1} , exception: {2}", groupId, externalIdentifier, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
     }
 }
