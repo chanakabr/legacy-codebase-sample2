@@ -12,4 +12,18 @@ namespace ApiObjects.Billing
         public string PaymentMethodType { get; set; }
         public int Selected { get; set; }
     }
+
+    public class PaymentMethodResponse
+    {
+        public ApiObjects.Response.Status Status { get; set; }
+
+        public PaymentMethod PaymentMethod { get; set; }
+    }
+
+    public class PaymentMethodsResponse
+    {
+        public ApiObjects.Response.Status Status { get; set; }
+
+        public List<PaymentMethod> PaymentMethods { get; set; }
+    }
 }
