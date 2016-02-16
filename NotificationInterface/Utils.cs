@@ -6,12 +6,15 @@ using System.Configuration;
 using System.Globalization;
 using KLogMonitor;
 using System.Reflection;
+using ApiObjects.Response;
 
 namespace NotificationInterface
 {
     public class Utils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+       
+
 
         static public string GetWSURL(string sKey)
         {
@@ -36,5 +39,9 @@ namespace NotificationInterface
                 return string.Empty;
             }
         }
+
+       
     }
 }
+
+
