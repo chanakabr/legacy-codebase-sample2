@@ -77,7 +77,7 @@ namespace WebAPI.Clients
             }
         }
 
-        internal KalturaNotificationSettings Get(int groupId, int userId)
+        internal KalturaNotificationSettings Get(int groupId, string userId)
         {
 
             Group group = GroupsManager.GetGroup(groupId);
@@ -87,10 +87,10 @@ namespace WebAPI.Clients
             try
             {
                 log.Debug(string.Format("Username={0}, Password={1}", group.NotificationsCredentials.Username, group.NotificationsCredentials.Password));
-
+                int user_id = int.Parse(userId);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Notification.GetNotificationSettings(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId);
+                {                   
+                    response = Notification.GetNotificationSettings(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, user_id);
                 }
                 log.Debug("return from Notification.UpdateNotificationPartnerSettings");
 
@@ -128,15 +128,15 @@ namespace WebAPI.Clients
             Status response = null;
             try
             {
+
+                NotificationPartnerSettings settingsObj = null;
+                settingsObj = AutoMapper.Mapper.Map<NotificationPartnerSettings>(settings);
+                Group group = GroupsManager.GetGroup(groupId);
+
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    NotificationPartnerSettings settingsObj = null;
-                    settingsObj = AutoMapper.Mapper.Map<NotificationPartnerSettings>(settings);
-                    Group group = GroupsManager.GetGroup(groupId);
-
-                               response = Notification.UpdateNotificationPartnerSettings(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, settingsObj);
-                  
-                }                
+                    response = Notification.UpdateNotificationPartnerSettings(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, settingsObj);
+                }          
             }
             catch (Exception ex)
             {
@@ -164,19 +164,20 @@ namespace WebAPI.Clients
 
         }
 
-        internal bool Update(int groupId, int userId, KalturaNotificationSettings settings)
+        internal bool Update(int groupId, string userId, KalturaNotificationSettings settings)
         {
             bool success = false;
             Status response = null;
             try
             {
+                NotificationSettings settingsObj = null;
+                settingsObj = AutoMapper.Mapper.Map<NotificationSettings>(settings);
+                Group group = GroupsManager.GetGroup(groupId);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    NotificationSettings settingsObj = null;
-                    settingsObj = AutoMapper.Mapper.Map<NotificationSettings>(settings);
-                    Group group = GroupsManager.GetGroup(groupId);
 
-                    response = Notification.UpdateNotificationSettings(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId.ToString(), settingsObj);
+
+                    response = Notification.UpdateNotificationSettings(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, settingsObj);
                 }
             }
             catch (Exception ex)
