@@ -2196,5 +2196,45 @@ namespace DAL
 
             return rowCount > 0;
         }
+
+        public static List<PaymentMethod> Get_PaymentGatewayPaymentMethods(int groupId, int paymentGatewayId)
+        {
+            List<PaymentMethod> response = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PaymentGatewayPaymentMethods");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@group_id", groupId);
+                sp.AddParameter("@payment_gateway_id", paymentGatewayId);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    if (ds.Tables[0].Rows.Count > 0)
+                    {
+                        PaymentMethod method = null;
+                        foreach (DataRow row in ds.Tables[0].Rows)
+                        {
+                            method = new PaymentMethod()
+                            {
+                                ID = ODBCWrapper.Utils.GetIntSafeVal(row, "ID"),
+                                Name = ODBCWrapper.Utils.GetSafeStr(row, "NAME"),
+                                PaymentMethodType = ODBCWrapper.Utils.GetSafeStr(row, "TYPE")
+                            };
+
+                            response.Add(method);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at Get_PaymentGatewayPaymentMethods. groupId: {0}, paymentGatewayId: {1}", groupId, paymentGatewayId, ex);
+                response = null;
+            }
+
+            return response;
+        }
     }
 }
