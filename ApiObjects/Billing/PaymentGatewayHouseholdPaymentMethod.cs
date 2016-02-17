@@ -7,7 +7,7 @@ namespace ApiObjects.Billing
         public int PaymentGatewayId { get; set; }
         public long HouseholdId { get; set; }
         public int PaymentMethodId { get; set; }
-        public string paymentMethodExternalId { get; set; }
+        public string PaymentMethodExternalId { get; set; }
         public string PaymentDetails { get; set; }
 
         public PaymentGatewayHouseholdPaymentMethod()

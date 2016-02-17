@@ -8942,7 +8942,7 @@ namespace ConditionalAccess
                     pm = PaymentMethod.Unknown;
                 }
                 if (nBILLING_PROVIDER == 1000)
-                {   
+                {
                     res.m_sPaymentMethodExtraDetails = string.Format("{0}:{1}", "PaymentGateway", nBILLING_METHOD.ToString());
                 }
 
@@ -12535,14 +12535,14 @@ namespace ConditionalAccess
                             TvinciDomains.ValidationType.Concurrency, mcRule.RuleID, 0, nMediaID);
                         if (response == TvinciDomains.DomainResponseStatus.OK && validationResponse != null) // when there is more then one rule  - change response status only when status is still OK (that mean that this is the first time it's change)
                         {
-                            response = validationResponse.m_eStatus;                            
+                            response = validationResponse.m_eStatus;
                         }
                     }
                 }
                 else
                 {
                     validationResponse = domainsWS.ValidateLimitationModule(sWSUserName, sWSPass, sDeviceName, nDeviceFamilyBrand, lSiteGuid, 0,
-                           TvinciDomains.ValidationType.Concurrency, 0, 0, nMediaID);                    
+                           TvinciDomains.ValidationType.Concurrency, 0, 0, nMediaID);
                     response = validationResponse.m_eStatus;
                 }
 
@@ -13956,7 +13956,7 @@ namespace ConditionalAccess
                                             paymentGatewayResponse = wsBillingService.GetPaymentGatewayByBillingGuid(billingUserName, billingPassword, householdId, billingGuid);
 
                                             DateTime nextRenewalDate = subscriptionEndDate.Value.AddMinutes(-5); // default
-                                            
+
                                             if (paymentGatewayResponse == null)
                                             {
                                                 // error getting PG
@@ -13982,7 +13982,7 @@ namespace ConditionalAccess
                                         catch (Exception ex)
                                         {
                                             log.Error("Error while trying to get the PG", ex);
-                                        }                                     
+                                        }
                                     }
 
                                     // build notification message
@@ -15166,7 +15166,7 @@ namespace ConditionalAccess
                             if (paymentGateway == null)
                             {
                                 // error getting PG
-                                log.Error("Transaction occurred! Error while trying to get the PG");                                
+                                log.Error("Transaction occurred! Error while trying to get the PG");
                             }
                         }
                         catch (Exception ex)
@@ -15215,7 +15215,7 @@ namespace ConditionalAccess
                         // enqueue renew transaction
                         RenewTransactionsQueue queue = new RenewTransactionsQueue();
                         DateTime nextRenewalDate = endDate.AddMinutes(-5);
-                        
+
                         if (paymentGateway != null)
                         {
                             nextRenewalDate = endDate.AddMinutes(paymentGateway.RenewalStartMinutes);
@@ -15271,7 +15271,7 @@ namespace ConditionalAccess
                             }
 
                             paymentGatewayResponse = wsBillingService.GetPaymentGatewayByBillingGuid(billingUserName, billingPassword, householdId, billingGuid);
-                            
+
                             DateTime nextRenewalDate = DateTime.UtcNow.AddMinutes(60); // default
 
                             if (paymentGatewayResponse == null)
@@ -15285,7 +15285,7 @@ namespace ConditionalAccess
                             }
 
                             // enqueue renew transaction
-                            RenewTransactionsQueue queue = new RenewTransactionsQueue();                          
+                            RenewTransactionsQueue queue = new RenewTransactionsQueue();
                             RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseId, billingGuid, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate), nextRenewalDate);
                             bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
                             if (!enqueueSuccessful)
@@ -15294,8 +15294,8 @@ namespace ConditionalAccess
                                 return false;
                             }
                             else
-                                log.DebugFormat("New task created (upon renew pending response). Next renewal date: {0}, data: {1}", nextRenewalDate, data);                           
-                        
+                                log.DebugFormat("New task created (upon renew pending response). Next renewal date: {0}, data: {1}", nextRenewalDate, data);
+
                         }
                         catch (Exception ex)
                         {
@@ -15943,7 +15943,7 @@ namespace ConditionalAccess
         }
 
         public ApiObjects.Response.Status RecordTransaction(string userId, long householdId, int state, string paymentGatewayReferenceID, string paymentGatewayResponseCode, int customDataId,
-              double price, string currency, int contentId, int productId, eTransactionType transactionType, string paymentDetails, string paymentMethod, int paymentGatewayId)
+              double price, string currency, int contentId, int productId, eTransactionType transactionType, string paymentDetails, string paymentMethod, int paymentGatewayId, string paymentMethodExternalID)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
 
@@ -15987,12 +15987,12 @@ namespace ConditionalAccess
                     // choose price or customDataPrice
                     case eTransactionType.PPV:
                         status = RecordPPVEntitlement(userId, householdId, contentId, productId, transactionType, coupon, price, currency, customData, userIP, udid, state, paymentGatewayId, paymentGatewayReferenceID,
-                            paymentGatewayResponseCode, paymentDetails, paymentMethod);
+                            paymentGatewayResponseCode, paymentDetails, paymentMethod, paymentMethodExternalID);
                         break;
 
                     case eTransactionType.Subscription:
                         status = RecordSubscriptionEntitlement(userId, householdId, contentId, productId, transactionType, coupon, price, currency, customData, userIP, udid, state, paymentGatewayId,
-                            paymentGatewayReferenceID, paymentGatewayResponseCode, paymentDetails, paymentMethod);
+                            paymentGatewayReferenceID, paymentGatewayResponseCode, paymentDetails, paymentMethod, paymentMethodExternalID);
                         break;
                     case eTransactionType.Collection:
                     default:
@@ -16010,7 +16010,7 @@ namespace ConditionalAccess
 
         private ApiObjects.Response.Status RecordSubscriptionEntitlement(string userId, long householdId, int contentId, int productId, eTransactionType transactionType, string coupon,
             double price, string currency, string customData, string userIP, string udid, int state, int paymentGatewayId, string paymentGatewayReferenceID, string paymentGatewayResponseCode,
-            string paymentDetails, string paymentMethod)
+            string paymentDetails, string paymentMethod, string paymentMethodExternalID)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
 
@@ -16055,7 +16055,7 @@ namespace ConditionalAccess
                         // RecordTransaction
                         //------------------
                         TransactionResponse transactionResponse = RecordBillingTransaction(userId, householdId, contentId, productId, transactionType, paymentDetails, paymentMethod,
-                            paymentGatewayId, billingGuid, customData, paymentGatewayReferenceID, paymentGatewayResponseCode, state);
+                            paymentGatewayId, billingGuid, customData, paymentGatewayReferenceID, paymentGatewayResponseCode, state, paymentMethodExternalID);
 
                         if (transactionResponse == null || transactionResponse.Status == null)
                         {
@@ -16189,7 +16189,8 @@ namespace ConditionalAccess
         }
 
         private ApiObjects.Response.Status RecordPPVEntitlement(string userId, long householdId, int contentId, int productId, eTransactionType transactionType, string coupon, double price,
-            string currency, string customData, string userIP, string udid, int state, int paymentGatewayId, string paymentGatewayReferenceID, string paymentGatewayResponseCode, string paymentDetails, string paymentMethod)
+            string currency, string customData, string userIP, string udid, int state, int paymentGatewayId, string paymentGatewayReferenceID, string paymentGatewayResponseCode, string paymentDetails,
+            string paymentMethod, string paymentMethodExternalID)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
             // log request
@@ -16255,7 +16256,7 @@ namespace ConditionalAccess
                         // RecordTransaction
                         //------------------
                         TransactionResponse transactionResponse = RecordBillingTransaction(userId, householdId, contentId, productId, transactionType, paymentDetails, paymentMethod,
-                            paymentGatewayId, billingGuid, customData, paymentGatewayReferenceID, paymentGatewayResponseCode, state);
+                            paymentGatewayId, billingGuid, customData, paymentGatewayReferenceID, paymentGatewayResponseCode, state, paymentMethodExternalID);
 
                         if (transactionResponse == null || transactionResponse.Status == null)
                         {
@@ -16375,7 +16376,7 @@ namespace ConditionalAccess
         }
 
         private TransactionResponse RecordBillingTransaction(string userId, long householdId, int contentId, int productId, eTransactionType transactionType, string paymentDetails,
-            string paymentMethod, int paymentGatewayId, string billingGuid, string customData, string paymentGatewayReferenceID, string paymentGatewayResponseCode, int state)
+            string paymentMethod, int paymentGatewayId, string billingGuid, string customData, string paymentGatewayReferenceID, string paymentGatewayResponseCode, int state, string paymentMethodExternalID)
         {
             TransactionResponse response = new TransactionResponse();
 
@@ -16393,7 +16394,7 @@ namespace ConditionalAccess
 
                 // call new billing method for charge adapter
                 var transactionResponse = wsBillingService.RecordTransaction(userName, password, userId, (int)householdId, paymentGatewayReferenceID, paymentGatewayResponseCode, productId, (int)transactionType,
-                                                                                billingGuid, contentId, string.Empty, state, paymentGatewayId, 0, paymentMethod, paymentDetails, customData);
+                                                                                billingGuid, contentId, string.Empty, state, paymentGatewayId, 0, paymentMethod, paymentDetails, customData, paymentMethodExternalID);
 
                 response = ConvertTransactResultToTransactionResponse(logString, transactionResponse);
             }

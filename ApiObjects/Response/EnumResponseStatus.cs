@@ -203,7 +203,8 @@ namespace ApiObjects.Response
         ErrorSavingPaymentGatewayHouseholdPaymentMethod = 6052,
         PaymentMethodTypeRequired = 6053,
         PaymentMethodAlreadySetToHouseholdPaymentGateway = 6054,
-
+        PaymentMethodNameRequired = 6055,
+        PaymentGatewayNotSupportPaymentMethod = 6056,        
 
         // social 7000 - 7999
         Conflict = 7000,
