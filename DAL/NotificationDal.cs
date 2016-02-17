@@ -644,11 +644,10 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static DataRow Get_MessageAnnouncement(int groupId, int messageAnnouncementId)
+        public static DataRow Get_MessageAnnouncementWithActiveStatus(int messageAnnouncementId)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncement");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncementWithActiveStatus");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
-            sp.AddParameter("@groupID", groupId);
             sp.AddParameter("@ID", messageAnnouncementId);
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
@@ -663,7 +662,25 @@ namespace DAL
             return null;
         }
 
-        public static int Insert_MessageAnnouncement(int groupId, int recipients, string name, string message, DateTime startTime, int updaterId, string resultMsgId = null)
+        public static DataRow Get_MessageAnnouncement(int messageAnnouncementId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncement");
+            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            sp.AddParameter("@ID", messageAnnouncementId);
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    return dt.Rows[0];
+                }
+            }
+
+            return null;
+        }
+
+        public static int Insert_MessageAnnouncement(int groupId, int recipients, string name, string message, bool enabled, DateTime startTime, int updaterId, string resultMsgId = null)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("InsertMessageAnnouncement");
             spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -673,13 +690,14 @@ namespace DAL
             spInsert.AddParameter("@start_time", startTime);
             spInsert.AddParameter("@group_id", groupId);
             spInsert.AddParameter("@updater_id", updaterId);
+            spInsert.AddParameter("@is_active", enabled ? 1 : 0);
             spInsert.AddParameter("@result_message_id", resultMsgId);
             spInsert.AddParameter("@update_date", DateTime.UtcNow);
             int newTransactionID = spInsert.ExecuteReturnValue<int>();
             return newTransactionID;
         }
 
-        public static void Update_MessageAnnouncement(int id, int groupId, int recipients, string name, string message, DateTime startTime, int updaterId, string resultMsgId = null)
+        public static void Update_MessageAnnouncement(int id, int groupId, int recipients, string name, string message, bool enabled, DateTime startTime, int updaterId, string resultMsgId = null)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("UpdateMessageAnnouncement");
             spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -687,6 +705,7 @@ namespace DAL
             spInsert.AddParameter("@recipients", recipients);
             spInsert.AddParameter("@name", name);
             spInsert.AddParameter("@message", message);
+            spInsert.AddParameter("@is_active", enabled ? 1 : 0);
             spInsert.AddParameter("@start_time", startTime);
             spInsert.AddParameter("@group_id", groupId);
             spInsert.AddParameter("@updater_id", updaterId);
@@ -695,13 +714,13 @@ namespace DAL
             spInsert.ExecuteDataSet();
         }
 
-        public static void Update_MessageAnnouncementStatus(int id, int groupId, bool status)
+        public static void Update_MessageAnnouncementStatus(int id, int groupId, bool enabled)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("UpdateMessageAnnouncement");
             spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             spInsert.AddParameter("@ID", id);
             spInsert.AddParameter("@group_id", groupId);
-            spInsert.AddParameter("@is_active", status ? 1 : 0);
+            spInsert.AddParameter("@is_active", enabled ? 1 : 0);
             spInsert.AddParameter("@update_date", DateTime.UtcNow);
             spInsert.ExecuteDataSet();
         }
@@ -712,7 +731,7 @@ namespace DAL
             spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             spInsert.AddParameter("@ID", id);
             spInsert.AddParameter("@group_id", groupId);
-            spInsert.AddParameter("@status", 0);
+            spInsert.AddParameter("@status", 2);
             spInsert.AddParameter("@update_date", DateTime.UtcNow);
             spInsert.ExecuteDataSet();
         }

@@ -103,16 +103,6 @@ namespace NotificationObj
         ElisaEmailNotification = 2
     }
 
-    public enum eAnnouncementRecipients
-    {
-        [EnumMember]
-        Users = 0,
-        [EnumMember]
-        All = 1,
-        [EnumMember]
-        Guests = 2
-    }
-
     public enum eAnnouncementStatus
     {
         [EnumMember]

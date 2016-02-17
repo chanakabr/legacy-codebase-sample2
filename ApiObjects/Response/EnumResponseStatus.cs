@@ -209,6 +209,7 @@ namespace ApiObjects.Response
         AnnouncementMessageIsEmpty = 8004,
         AnnouncementInvalidStartTime = 8005,
         AnnouncementNotFound = 8006,
-        AnnouncementUpdateNotAllowed = 8007
+        AnnouncementUpdateNotAllowed = 8007,
+        AnnouncementInvalidTimezone = 8008
     }
 }
