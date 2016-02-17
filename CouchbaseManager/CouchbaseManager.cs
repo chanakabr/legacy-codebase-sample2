@@ -44,6 +44,10 @@ namespace CouchbaseManager
                     }
                     catch (Exception ex)
                     {
+                        Logger.Logger.Log("GetInstance",
+                            string.Format("Failed creating instance of couchcbase. error message = {0}, stack trace = {1}",
+                            ex.Message, ex.StackTrace),
+                            "CouchbaseManager");
                     }
                     finally
                     {

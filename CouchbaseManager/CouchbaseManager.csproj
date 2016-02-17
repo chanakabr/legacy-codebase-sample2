@@ -55,6 +55,9 @@
     <Reference Include="Enyim.Caching">
       <HintPath>..\External\Couchbase-Net-Client-1.3.10\net35\Enyim.Caching.dll</HintPath>
     </Reference>
+    <Reference Include="Logger">
+      <HintPath>..\..\tvincicommon\External\Logger.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Data.Linq" />
