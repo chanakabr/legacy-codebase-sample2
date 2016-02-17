@@ -43,10 +43,13 @@ namespace WebAPI.Clients
 
             try
             {
+                log.Debug(string.Format("Username={0}, Password={1}", group.NotificationsCredentials.Username, group.NotificationsCredentials.Password));
+
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = Notification.GetNotificationPartnerSettings(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password);
                 }
+                log.Debug("return from Notification.GetNotificationPartnerSettings");
             }
             catch (Exception ex)
             {
@@ -83,10 +86,14 @@ namespace WebAPI.Clients
 
             try
             {
+                log.Debug(string.Format("Username={0}, Password={1}", group.NotificationsCredentials.Username, group.NotificationsCredentials.Password));
+
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = Notification.GetNotificationSettings(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId);
                 }
+                log.Debug("return from Notification.UpdateNotificationPartnerSettings");
+
             }
             catch (Exception ex)
             {
@@ -99,6 +106,7 @@ namespace WebAPI.Clients
 
             if (response == null)
             {
+                log.Debug("response is null Notification.UpdateNotificationPartnerSettings");
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
@@ -126,7 +134,8 @@ namespace WebAPI.Clients
                     settingsObj = AutoMapper.Mapper.Map<NotificationPartnerSettings>(settings);
                     Group group = GroupsManager.GetGroup(groupId);
 
-                    response = Notification.UpdateNotificationPartnerSettings(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, settingsObj);
+                               response = Notification.UpdateNotificationPartnerSettings(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, settingsObj);
+                  
                 }                
             }
             catch (Exception ex)
