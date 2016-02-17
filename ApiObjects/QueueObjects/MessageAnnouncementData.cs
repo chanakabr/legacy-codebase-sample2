@@ -9,21 +9,19 @@ namespace ApiObjects.QueueObjects
     {
         #region Consts
 
-        public const string TASK = "distributed_tasks.message_announcement_data";
+        public const string TASK = "distributed_tasks.message_announcement";
         
         #endregion
 
         #region Data Members
-
-        private string name;
-        private string message;
+        
+        private int groupId;
         private DateTime startTime;
-        private int status;
-        private int recipients;
+        private int messageAnnouncementId;
 
         #endregion
 
-        public MessageAnnouncementData(int groupId, string name, string message, DateTime startTime, int status, int recipients)
+        public MessageAnnouncementData(int groupId, DateTime startTime, int messageAnnouncementId)
             : base(
                 // id = guid
                 Guid.NewGuid().ToString(),
@@ -31,21 +29,15 @@ namespace ApiObjects.QueueObjects
                 TASK)
         {
             // Basic member initialization
-            this.GroupId = groupId;
-            this.name = name;
-            this.message = message;
+            this.groupId = groupId;
             this.startTime = startTime;
-            this.status = status;
-            this.recipients = recipients;
+            this.messageAnnouncementId = messageAnnouncementId;
 
             this.args = new List<object>()
             {
                 groupId,
-                name,
-                message,
                 startTime,
-                status,
-                recipients
+                messageAnnouncementId
             };
         }
     }
