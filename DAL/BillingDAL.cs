@@ -2122,14 +2122,15 @@ namespace DAL
         {
             try
             {
+                //TODO: ANat
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_PaymentGatewayHouseholdPaymentMethod");
-                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
-                sp.AddParameter("@groupId", groupID);
-                sp.AddParameter("@paymentGatewayId", pghhpm.PaymentGatewayId);
-                sp.AddParameter("@householdId", pghhpm.HouseholdId);
-                sp.AddParameter("@paymentMethodId", pghhpm.PaymentMethoId);
-                sp.AddParameter("@paymentMethodExternalId", pghhpm.paymentMethodExternalId);
-                sp.AddParameter("@paymentDetails", pghhpm.PaymentDetails);
+                //sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                //sp.AddParameter("@groupId", groupID);
+                //sp.AddParameter("@paymentGatewayId", pghhpm.PaymentGatewayId);
+                //sp.AddParameter("@householdId", pghhpm.HouseholdId);
+                //sp.AddParameter("@paymentMethodId", pghhpm.PaymentMethoId);
+                //sp.AddParameter("@paymentMethodExternalId", pghhpm.paymentMethodExternalId);
+                //sp.AddParameter("@paymentDetails", pghhpm.PaymentDetails);
 
                 bool isSet = sp.ExecuteReturnValue<bool>();
                 return isSet;
