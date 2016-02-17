@@ -2226,7 +2226,7 @@ namespace DAL
         
         public static List<PaymentMethod> Get_PaymentGatewayPaymentMethods(int groupId, int paymentGatewayId)
         {
-            List<PaymentMethod> response = null;
+            List<PaymentMethod> response = new List<PaymentMethod>();
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PaymentGatewayPaymentMethods");
