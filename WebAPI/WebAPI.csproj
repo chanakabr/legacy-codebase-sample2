@@ -365,30 +365,45 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
-    <Content Include="Service References\Notifications\NotificationService1.wsdl" />
+    <None Include="Service References\Notifications\NotificationService.wsdl" />
+    <None Include="Service References\Notifications\NotificationService.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService4.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\Notifications\NotificationService5.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\Notifications\NotificationService51.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\Notifications\NotificationService52.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService53.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService54.xsd">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Service References\Notifications\Reference.svcmap">
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
-    <Content Include="Service References\Notifications\NotificationService1.disco" />
+    <None Include="Service References\Notifications\NotificationService.disco" />
     <Content Include="Swagger.ashx" />
     <Content Include="Web References\Api\AdminAccountUserResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Service References\Notifications\WebAPI.Notifications.NotificationPartnerSettingsResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\Notifications\WebAPI.Notifications.NotificationSettingsResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\Notifications\WebAPI.Notifications.Status.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
     <None Include="Web References\Api\api.disco" />
     <Content Include="Web References\Billing\AdyenBillingDetail.datasource">
@@ -890,6 +905,8 @@
     <Compile Include="Controllers\AppTokenController.cs" />
     <Compile Include="Controllers\AssetController.cs" />
     <Compile Include="Controllers\HomeNetworkController.cs" />
+    <Compile Include="Controllers\NotificationsPartnerSettingsController.cs" />
+    <Compile Include="Controllers\NotificationsSettingsController.cs" />
     <Compile Include="Controllers\RegistrySettingsController.cs" />
     <Compile Include="Controllers\VersionController.cs" />
     <Compile Include="Controllers\HouseholdLimitationsController.cs" />
@@ -1028,6 +1045,8 @@
     <Compile Include="Models\API\KalturaUserRole.cs" />
     <Compile Include="Models\General\KalturaValue.cs" />
     <Compile Include="Models\KalturaPlayerAssetData.cs" />
+    <Compile Include="Models\Notification\KalturaNotificationSettings.cs" />
+    <Compile Include="Models\Notification\KalturaPartnerNotificationSettings.cs" />
     <Compile Include="Models\Partner\KalturaBillingPartnerConfiguration.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -1115,6 +1134,7 @@
     <Compile Include="ObjectsConvertor\Mapping\ConditionalAccessMappings.cs" />
     <Compile Include="ObjectsConvertor\Mapping\DomainsMappings.cs" />
     <Compile Include="ObjectsConvertor\Mapping\GeneralMeppings.cs" />
+    <Compile Include="ObjectsConvertor\Mapping\NotificationMapping.cs" />
     <Compile Include="ObjectsConvertor\Mapping\PartnerMappings.cs" />
     <Compile Include="ObjectsConvertor\Mapping\PricingMappings.cs" />
     <Compile Include="ObjectsConvertor\Mapping\SocialMappings.cs" />
