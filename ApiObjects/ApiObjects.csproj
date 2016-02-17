@@ -133,6 +133,7 @@
     <Compile Include="PurchaseSessionIdResponse.cs" />
     <Compile Include="QueueObjects\ImageUploadData.cs" />
     <Compile Include="QueueObjects\ExportTaskData.cs" />
+    <Compile Include="QueueObjects\MessageAnnouncementData.cs" />
     <Compile Include="RecommendationEngine\RecommendationEngineResponse.cs" />
     <Compile Include="RecommendationEngine\RecommendationEngineResponseList.cs" />
     <Compile Include="RecommendationEngine\RecommendationEngineSettinsResponse.cs" />

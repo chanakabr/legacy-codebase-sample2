@@ -51,10 +51,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddMessageAnnouncementResponse.cs" />
     <Compile Include="DMSPushRequest.cs" />
     <Compile Include="DMSPushResponse.cs" />
     <Compile Include="enums.cs" />
     <Compile Include="FollowUpTagNotification.cs" />
+    <Compile Include="MessageAnnouncement.cs" />
     <Compile Include="Notification.cs" />
     <Compile Include="NotificationMessage.cs" />
     <Compile Include="NotificationRequest.cs" />
@@ -64,6 +66,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SendVia.cs" />
     <Compile Include="TagIDValue.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ApiObjects\ApiObjects.csproj">
+      <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
+      <Name>ApiObjects</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
