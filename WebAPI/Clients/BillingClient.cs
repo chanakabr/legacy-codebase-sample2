@@ -106,44 +106,6 @@ namespace WebAPI.Clients
             return KalturaPaymentGatewayBaseProfileList;
         }
 
-        public Models.Billing.KalturaPaymentGateway GetSelectedHouseholdPaymentGateway(int groupId, long householdId)
-        {
-            Models.Billing.KalturaPaymentGateway paymentGW = null;
-            WebAPI.Billing.HouseholdPaymentGatewayResponse response = null;
-            Group group = GroupsManager.GetGroup(groupId);
-
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Billing.GetSelectedHouseholdPaymentGateway(group.BillingCredentials.Username, group.BillingCredentials.Password, (int)householdId);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while GetSelectedHouseholdPaymentGateway.  groupID: {0}, exception: {1}", groupId, ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
-            if (response.Status.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException((int)response.Status.Code, response.Status.Message);
-            }
-
-            paymentGW = Mapper.Map<WebAPI.Models.Billing.KalturaPaymentGateway>(response);
-            if (paymentGW != null)
-            {
-                paymentGW.paymentGateway.selectedBy = paymentGW.selectedBy;
-            }
-
-            return paymentGW;
-        }
-
         public List<Models.Billing.KalturaPaymentGatewayBaseProfile> GetHouseholdPaymentGateways(int groupId, string siteGuid, long householdId)
         {
             List<Models.Billing.KalturaPaymentGatewayBaseProfile> KalturaPaymentGatewayBaseProfileList = null;

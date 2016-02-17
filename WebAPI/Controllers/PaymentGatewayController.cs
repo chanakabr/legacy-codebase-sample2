@@ -45,37 +45,6 @@ namespace WebAPI.Controllers
 
             return response;
         }
-
-        /// <summary>
-        /// Get the Payment Gateway provider configured for the household, or the default payment gateway provider is a provider is not configured for the household
-        /// </summary>
-        /// <remarks>
-        /// Possible status codes:       
-        /// User Suspended = 2001, Household Not Set To Payment Gateway = 6027
-        /// </remarks>
-        [Route("get"), HttpPost]
-        [ApiAuthorize]
-        public Models.Billing.KalturaPaymentGateway Get()
-        {
-            Models.Billing.KalturaPaymentGateway response = null;
-
-            int groupId = KS.GetFromRequest().GroupId;
-
-            // get domain id      
-            var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
-            
-            try
-            {
-                // call client
-                response = ClientsManager.BillingClient().GetSelectedHouseholdPaymentGateway(groupId, domainId);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return response;
-        }
         
         /// <summary>
         /// Set a Payment Gateway provider for the household. 
