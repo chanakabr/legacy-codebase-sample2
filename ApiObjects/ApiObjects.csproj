@@ -93,7 +93,9 @@
     <Compile Include="Billing\PaymentGatewayAssociate.cs" />
     <Compile Include="DevicePinResponse.cs" />
     <Compile Include="Notification\NotificationPartnerSettings.cs" />
+    <Compile Include="Notification\NotificationPartnerSettingsResponse.cs" />
     <Compile Include="Notification\NotificationSettings.cs" />
+    <Compile Include="Notification\NotificationSettingsResponse.cs" />
     <Compile Include="PersonalEnrichments\AssetFiles.cs" />
     <Compile Include="Billing\HouseholdPaymentGatewayResponse.cs" />
     <Compile Include="Billing\HouseholdPaymentGateway.cs" />

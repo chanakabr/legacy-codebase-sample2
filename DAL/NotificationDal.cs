@@ -624,12 +624,16 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static DataTable GetNotificationPartnerSettings(int groupID)
+        public static DataRow GetNotificationPartnerSettings(int groupID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_NotificationPartnerSettings");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             sp.AddParameter("@groupID", groupID);
-            return sp.Execute();
+            DataTable dt = sp.Execute();
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                return dt.Rows[0];
+            else
+                return null;
         }
 
         public static bool UpdateNotificationSettings(int groupID, string userId, bool? push_notification_enabled)
@@ -644,6 +648,19 @@ namespace DAL
             }
             
             return sp.ExecuteReturnValue<bool>();
+        }
+
+        public static DataRow GetNotificationSettings(int groupID, int userID)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_NotificationSettings");
+            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            sp.AddParameter("@groupID", groupID);
+            sp.AddParameter("@userID", userID);
+            DataTable dt = sp.Execute();
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                return dt.Rows[0];
+            else
+                return null;
         }
     }
 }
