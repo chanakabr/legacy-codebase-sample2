@@ -697,7 +697,7 @@ namespace DAL
             return null;
         }
 
-        public static int Insert_MessageAnnouncement(int groupId, int recipients, string name, string message, bool enabled, DateTime startTime, int updaterId, string resultMsgId = null)
+        public static int Insert_MessageAnnouncement(int groupId, int recipients, string name, string message, bool enabled, DateTime startTime, string timezone, int updaterId, string resultMsgId = null)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("InsertMessageAnnouncement");
             spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -705,6 +705,7 @@ namespace DAL
             spInsert.AddParameter("@name", name);
             spInsert.AddParameter("@message", message);
             spInsert.AddParameter("@start_time", startTime);
+            spInsert.AddParameter("@timezone", timezone);
             spInsert.AddParameter("@group_id", groupId);
             spInsert.AddParameter("@updater_id", updaterId);
             spInsert.AddParameter("@is_active", enabled ? 1 : 0);
@@ -714,7 +715,7 @@ namespace DAL
             return newTransactionID;
         }
 
-        public static void Update_MessageAnnouncement(int id, int groupId, int recipients, string name, string message, bool enabled, DateTime startTime, int updaterId, string resultMsgId = null)
+        public static void Update_MessageAnnouncement(int id, int groupId, int recipients, string name, string message, bool enabled, DateTime startTime, string timezone, int updaterId, string resultMsgId = null)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("UpdateMessageAnnouncement");
             spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -724,6 +725,7 @@ namespace DAL
             spInsert.AddParameter("@message", message);
             spInsert.AddParameter("@is_active", enabled ? 1 : 0);
             spInsert.AddParameter("@start_time", startTime);
+            spInsert.AddParameter("@timezone", timezone);
             spInsert.AddParameter("@group_id", groupId);
             spInsert.AddParameter("@updater_id", updaterId);
             spInsert.AddParameter("@result_message_id", resultMsgId);
