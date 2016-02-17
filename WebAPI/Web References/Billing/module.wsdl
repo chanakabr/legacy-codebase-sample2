@@ -849,6 +849,7 @@
           <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="State" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="FailReason" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="PaymentMethodId" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="PaymentDetails" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="PaymentMethod" type="s:string" />
         </s:sequence>
@@ -949,7 +950,7 @@
             <s:element minOccurs="1" maxOccurs="1" name="contentID" type="s:int" />
             <s:element minOccurs="0" maxOccurs="1" name="billingGuid" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="paymentGWId" type="s:int" />
-            <s:element minOccurs="1" maxOccurs="1" name="paymentMethodId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="paymentGatewayHHPaymentMethodId" type="s:int" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -1231,6 +1232,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="paymentMethod" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="paymentDetails" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="customData" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="paymentMethodExternalId" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -1248,7 +1250,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="externalIdentifier" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="householdID" type="s:int" />
-            <s:element minOccurs="1" maxOccurs="1" name="paymentMethodId" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="paymentMethodName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="paymentDetails" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="paymentMethodExternalId" type="s:string" />
           </s:sequence>
@@ -2020,7 +2022,7 @@
     <wsdl:part name="contentID" type="s:string" />
     <wsdl:part name="billingGuid" type="s:string" />
     <wsdl:part name="paymentGWId" type="s:string" />
-    <wsdl:part name="paymentMethodId" type="s:string" />
+    <wsdl:part name="paymentGatewayHHPaymentMethodId" type="s:string" />
   </wsdl:message>
   <wsdl:message name="TransactHttpPostOut">
     <wsdl:part name="Body" element="tns:TransactResult" />
@@ -2141,6 +2143,7 @@
     <wsdl:part name="paymentMethod" type="s:string" />
     <wsdl:part name="paymentDetails" type="s:string" />
     <wsdl:part name="customData" type="s:string" />
+    <wsdl:part name="paymentMethodExternalId" type="s:string" />
   </wsdl:message>
   <wsdl:message name="RecordTransactionHttpPostOut">
     <wsdl:part name="Body" element="tns:TransactResult" />
@@ -2150,7 +2153,7 @@
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="externalIdentifier" type="s:string" />
     <wsdl:part name="householdID" type="s:string" />
-    <wsdl:part name="paymentMethodId" type="s:string" />
+    <wsdl:part name="paymentMethodName" type="s:string" />
     <wsdl:part name="paymentDetails" type="s:string" />
     <wsdl:part name="paymentMethodExternalId" type="s:string" />
   </wsdl:message>

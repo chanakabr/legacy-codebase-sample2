@@ -557,7 +557,7 @@ namespace WebAPI.Clients
             return configuration;
         }
 
-        internal bool SetPaymentGatewayHouseholdPaymentMethod(int groupId, string externalIdentifier, int householdId, int paymentMethodId, string paymentDetails, string paymentMethodExternalId)
+        internal bool SetPaymentGatewayHouseholdPaymentMethod(int groupId, string externalIdentifier, int householdId, string paymentMethodName, string paymentDetails, string paymentMethodExternalId)
         {
             WebAPI.Billing.Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
@@ -566,8 +566,8 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    //response = Billing.SetPaymentGatewayHouseholdPaymentMethod(group.BillingCredentials.Username, group.BillingCredentials.Password, externalIdentifier, householdId, paymentMethodId,
-                    //    paymentDetails, paymentMethodExternalId);
+                    response = Billing.SetPaymentGatewayHouseholdPaymentMethod(group.BillingCredentials.Username, group.BillingCredentials.Password, externalIdentifier, householdId, paymentMethodName,
+                        paymentDetails, paymentMethodExternalId);
                 }
             }
             catch (Exception ex)

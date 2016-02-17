@@ -232,12 +232,12 @@ namespace WebAPI.Controllers
         /// Charge id already set to household payment gateway = 6025
         /// </remarks>        
         /// <param name="payment_gateway_id">External identifier for the payment gateway  </param>
-        /// <param name="payment_method_id"></param>      
+        /// <param name="payment_method_name"></param>      
         /// <param name="payment_details"></param>      
         /// <param name="payment_method_external_id"></param>        
         [Route("setPaymentMethod"), HttpPost]
         [ApiAuthorize]
-        public bool SetPaymentMethod(string payment_gateway_id, int payment_method_id, string payment_details, string payment_method_external_id)
+        public bool SetPaymentMethod(string payment_gateway_id, string payment_method_name, string payment_details, string payment_method_external_id)
         {
             bool response = false;
 
@@ -246,9 +246,9 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "payment_gateway_id cannot be empty");
             }
 
-            if (payment_method_id <= 0)
+            if (string.IsNullOrEmpty(payment_method_name))
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "payment_method_id not valid");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "payment_method_name cannot be empty");
             }
 
             if (string.IsNullOrEmpty(payment_method_external_id))
@@ -264,7 +264,7 @@ namespace WebAPI.Controllers
                 var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
                 // call client
-                response = ClientsManager.BillingClient().SetPaymentGatewayHouseholdPaymentMethod(groupId, payment_gateway_id, (int)domainId, payment_method_id, payment_details, payment_method_external_id);
+                response = ClientsManager.BillingClient().SetPaymentGatewayHouseholdPaymentMethod(groupId, payment_gateway_id, (int)domainId, payment_method_name, payment_details, payment_method_external_id);
             }
             catch (ClientException ex)
             {

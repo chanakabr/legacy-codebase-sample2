@@ -1794,7 +1794,7 @@ namespace WebAPI.Billing {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/Transact", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public TransactResult Transact(string sWSUserName, string sWSPassword, string siteGUID, long householdID, double price, string currency, string userIP, string customData, int productID, eTransactionType productType, int contentID, string billingGuid, int paymentGWId, int paymentMethodId) {
+        public TransactResult Transact(string sWSUserName, string sWSPassword, string siteGUID, long householdID, double price, string currency, string userIP, string customData, int productID, eTransactionType productType, int contentID, string billingGuid, int paymentGWId, int paymentGatewayHHPaymentMethodId) {
             object[] results = this.Invoke("Transact", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -1809,17 +1809,17 @@ namespace WebAPI.Billing {
                         contentID,
                         billingGuid,
                         paymentGWId,
-                        paymentMethodId});
+                        paymentGatewayHHPaymentMethodId});
             return ((TransactResult)(results[0]));
         }
         
         /// <remarks/>
-        public void TransactAsync(string sWSUserName, string sWSPassword, string siteGUID, long householdID, double price, string currency, string userIP, string customData, int productID, eTransactionType productType, int contentID, string billingGuid, int paymentGWId, int paymentMethodId) {
-            this.TransactAsync(sWSUserName, sWSPassword, siteGUID, householdID, price, currency, userIP, customData, productID, productType, contentID, billingGuid, paymentGWId, paymentMethodId, null);
+        public void TransactAsync(string sWSUserName, string sWSPassword, string siteGUID, long householdID, double price, string currency, string userIP, string customData, int productID, eTransactionType productType, int contentID, string billingGuid, int paymentGWId, int paymentGatewayHHPaymentMethodId) {
+            this.TransactAsync(sWSUserName, sWSPassword, siteGUID, householdID, price, currency, userIP, customData, productID, productType, contentID, billingGuid, paymentGWId, paymentGatewayHHPaymentMethodId, null);
         }
         
         /// <remarks/>
-        public void TransactAsync(string sWSUserName, string sWSPassword, string siteGUID, long householdID, double price, string currency, string userIP, string customData, int productID, eTransactionType productType, int contentID, string billingGuid, int paymentGWId, int paymentMethodId, object userState) {
+        public void TransactAsync(string sWSUserName, string sWSPassword, string siteGUID, long householdID, double price, string currency, string userIP, string customData, int productID, eTransactionType productType, int contentID, string billingGuid, int paymentGWId, int paymentGatewayHHPaymentMethodId, object userState) {
             if ((this.TransactOperationCompleted == null)) {
                 this.TransactOperationCompleted = new System.Threading.SendOrPostCallback(this.OnTransactOperationCompleted);
             }
@@ -1837,7 +1837,7 @@ namespace WebAPI.Billing {
                         contentID,
                         billingGuid,
                         paymentGWId,
-                        paymentMethodId}, this.TransactOperationCompleted, userState);
+                        paymentGatewayHHPaymentMethodId}, this.TransactOperationCompleted, userState);
         }
         
         private void OnTransactOperationCompleted(object arg) {
@@ -2247,7 +2247,8 @@ namespace WebAPI.Billing {
                     int failReason, 
                     string paymentMethod, 
                     string paymentDetails, 
-                    string customData) {
+                    string customData, 
+                    string paymentMethodExternalId) {
             object[] results = this.Invoke("RecordTransaction", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -2265,7 +2266,8 @@ namespace WebAPI.Billing {
                         failReason,
                         paymentMethod,
                         paymentDetails,
-                        customData});
+                        customData,
+                        paymentMethodExternalId});
             return ((TransactResult)(results[0]));
         }
         
@@ -2287,8 +2289,9 @@ namespace WebAPI.Billing {
                     int failReason, 
                     string paymentMethod, 
                     string paymentDetails, 
-                    string customData) {
-            this.RecordTransactionAsync(sWSUserName, sWSPassword, userId, householdId, externalTransactionId, externalStatus, productId, productType, billingGuid, contentId, message, state, paymentGatewayID, failReason, paymentMethod, paymentDetails, customData, null);
+                    string customData, 
+                    string paymentMethodExternalId) {
+            this.RecordTransactionAsync(sWSUserName, sWSPassword, userId, householdId, externalTransactionId, externalStatus, productId, productType, billingGuid, contentId, message, state, paymentGatewayID, failReason, paymentMethod, paymentDetails, customData, paymentMethodExternalId, null);
         }
         
         /// <remarks/>
@@ -2310,6 +2313,7 @@ namespace WebAPI.Billing {
                     string paymentMethod, 
                     string paymentDetails, 
                     string customData, 
+                    string paymentMethodExternalId, 
                     object userState) {
             if ((this.RecordTransactionOperationCompleted == null)) {
                 this.RecordTransactionOperationCompleted = new System.Threading.SendOrPostCallback(this.OnRecordTransactionOperationCompleted);
@@ -2331,7 +2335,8 @@ namespace WebAPI.Billing {
                         failReason,
                         paymentMethod,
                         paymentDetails,
-                        customData}, this.RecordTransactionOperationCompleted, userState);
+                        customData,
+                        paymentMethodExternalId}, this.RecordTransactionOperationCompleted, userState);
         }
         
         private void OnRecordTransactionOperationCompleted(object arg) {
@@ -2343,25 +2348,25 @@ namespace WebAPI.Billing {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/SetPaymentGatewayHouseholdPaymentMethod", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status SetPaymentGatewayHouseholdPaymentMethod(string sWSUserName, string sWSPassword, string externalIdentifier, int householdID, int paymentMethodId, string paymentDetails, string paymentMethodExternalId) {
+        public Status SetPaymentGatewayHouseholdPaymentMethod(string sWSUserName, string sWSPassword, string externalIdentifier, int householdID, string paymentMethodName, string paymentDetails, string paymentMethodExternalId) {
             object[] results = this.Invoke("SetPaymentGatewayHouseholdPaymentMethod", new object[] {
                         sWSUserName,
                         sWSPassword,
                         externalIdentifier,
                         householdID,
-                        paymentMethodId,
+                        paymentMethodName,
                         paymentDetails,
                         paymentMethodExternalId});
             return ((Status)(results[0]));
         }
         
         /// <remarks/>
-        public void SetPaymentGatewayHouseholdPaymentMethodAsync(string sWSUserName, string sWSPassword, string externalIdentifier, int householdID, int paymentMethodId, string paymentDetails, string paymentMethodExternalId) {
-            this.SetPaymentGatewayHouseholdPaymentMethodAsync(sWSUserName, sWSPassword, externalIdentifier, householdID, paymentMethodId, paymentDetails, paymentMethodExternalId, null);
+        public void SetPaymentGatewayHouseholdPaymentMethodAsync(string sWSUserName, string sWSPassword, string externalIdentifier, int householdID, string paymentMethodName, string paymentDetails, string paymentMethodExternalId) {
+            this.SetPaymentGatewayHouseholdPaymentMethodAsync(sWSUserName, sWSPassword, externalIdentifier, householdID, paymentMethodName, paymentDetails, paymentMethodExternalId, null);
         }
         
         /// <remarks/>
-        public void SetPaymentGatewayHouseholdPaymentMethodAsync(string sWSUserName, string sWSPassword, string externalIdentifier, int householdID, int paymentMethodId, string paymentDetails, string paymentMethodExternalId, object userState) {
+        public void SetPaymentGatewayHouseholdPaymentMethodAsync(string sWSUserName, string sWSPassword, string externalIdentifier, int householdID, string paymentMethodName, string paymentDetails, string paymentMethodExternalId, object userState) {
             if ((this.SetPaymentGatewayHouseholdPaymentMethodOperationCompleted == null)) {
                 this.SetPaymentGatewayHouseholdPaymentMethodOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetPaymentGatewayHouseholdPaymentMethodOperationCompleted);
             }
@@ -2370,7 +2375,7 @@ namespace WebAPI.Billing {
                         sWSPassword,
                         externalIdentifier,
                         householdID,
-                        paymentMethodId,
+                        paymentMethodName,
                         paymentDetails,
                         paymentMethodExternalId}, this.SetPaymentGatewayHouseholdPaymentMethodOperationCompleted, userState);
         }
@@ -3535,6 +3540,8 @@ namespace WebAPI.Billing {
         
         private int failReasonField;
         
+        private int paymentMethodIdField;
+        
         private string paymentDetailsField;
         
         private string paymentMethodField;
@@ -3646,6 +3653,16 @@ namespace WebAPI.Billing {
             }
             set {
                 this.failReasonField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int PaymentMethodId {
+            get {
+                return this.paymentMethodIdField;
+            }
+            set {
+                this.paymentMethodIdField = value;
             }
         }
         
