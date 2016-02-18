@@ -8942,7 +8942,7 @@ namespace ConditionalAccess
                     pm = PaymentMethod.Unknown;
                 }
                 if (nBILLING_PROVIDER == 1000)
-                {   
+                {
                     res.m_sPaymentMethodExtraDetails = string.Format("{0}:{1}", "PaymentGateway", nBILLING_METHOD.ToString());
                 }
 
@@ -12535,14 +12535,14 @@ namespace ConditionalAccess
                             TvinciDomains.ValidationType.Concurrency, mcRule.RuleID, 0, nMediaID);
                         if (response == TvinciDomains.DomainResponseStatus.OK && validationResponse != null) // when there is more then one rule  - change response status only when status is still OK (that mean that this is the first time it's change)
                         {
-                            response = validationResponse.m_eStatus;                            
+                            response = validationResponse.m_eStatus;
                         }
                     }
                 }
                 else
                 {
                     validationResponse = domainsWS.ValidateLimitationModule(sWSUserName, sWSPass, sDeviceName, nDeviceFamilyBrand, lSiteGuid, 0,
-                           TvinciDomains.ValidationType.Concurrency, 0, 0, nMediaID);                    
+                           TvinciDomains.ValidationType.Concurrency, 0, 0, nMediaID);
                     response = validationResponse.m_eStatus;
                 }
 
@@ -13011,12 +13011,12 @@ namespace ConditionalAccess
         /// Purchase
         /// </summary>
         public virtual TransactionResponse Purchase(string siteguid, long household, double price, string currency, int contentId, int productId,
-                                                 eTransactionType transactionType, string coupon, string userIp, string deviceName, int paymentGwId)
+                                                 eTransactionType transactionType, string coupon, string userIp, string deviceName, int paymentGwId, int paymentMethodId)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             // log request
-            string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, contentId {4}, productId {5}, productType {6}, coupon {7}, userIp {8}, deviceName {9}, paymentGwId {10}",
+            string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, contentId {4}, productId {5}, productType {6}, coupon {7}, userIp {8}, deviceName {9}, paymentGwId {10}, paymentMethodId {11}",
                 !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,     // {0}
                 household,                                                     // {1}
                 price,                                                         // {2}  
@@ -13027,7 +13027,7 @@ namespace ConditionalAccess
                 !string.IsNullOrEmpty(coupon) ? coupon : string.Empty,         // {7}
                 !string.IsNullOrEmpty(userIp) ? userIp : string.Empty,         // {8}
                 !string.IsNullOrEmpty(deviceName) ? deviceName : string.Empty, // {9}
-                paymentGwId);                                                  // {10}
+                paymentGwId, paymentMethodId);                                                  // {10,11}
 
             log.Debug(logString);
 
@@ -13089,13 +13089,13 @@ namespace ConditionalAccess
                 switch (transactionType)
                 {
                     case eTransactionType.PPV:
-                        response = PurchasePPV(siteguid, household, price, currency, contentId, productId, coupon, userIp, deviceName, paymentGwId);
+                        response = PurchasePPV(siteguid, household, price, currency, contentId, productId, coupon, userIp, deviceName, paymentGwId, paymentMethodId);
                         break;
                     case eTransactionType.Subscription:
-                        response = PurchaseSubscription(siteguid, household, price, currency, productId, coupon, userIp, deviceName, paymentGwId);
+                        response = PurchaseSubscription(siteguid, household, price, currency, productId, coupon, userIp, deviceName, paymentGwId, paymentMethodId);
                         break;
                     case eTransactionType.Collection:
-                        response = PurchaseCollection(siteguid, household, price, currency, productId, coupon, userIp, deviceName, paymentGwId);
+                        response = PurchaseCollection(siteguid, household, price, currency, productId, coupon, userIp, deviceName, paymentGwId, paymentMethodId);
                         break;
                     default:
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Illegal product ID");
@@ -13213,12 +13213,12 @@ namespace ConditionalAccess
         }
 
 
-        private TransactionResponse PurchaseCollection(string siteguid, long householdId, double price, string currency, int productId, string coupon, string userIp, string deviceName, int paymentGwId)
+        private TransactionResponse PurchaseCollection(string siteguid, long householdId, double price, string currency, int productId, string coupon, string userIp, string deviceName, int paymentGwId, int paymentMethodId)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             // log request
-            string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, productId {4}, coupon {5}, userIp {6}, deviceName {7}, paymentGwId {8}",
+            string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, productId {4}, coupon {5}, userIp {6}, deviceName {7}, paymentGwId {8}, paymentMethodId {9}",
                 !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,     // {0}
                 householdId,                                                   // {1}
                 price,                                                         // {2}  
@@ -13227,7 +13227,7 @@ namespace ConditionalAccess
                 !string.IsNullOrEmpty(coupon) ? coupon : string.Empty,         // {5}
                 !string.IsNullOrEmpty(userIp) ? userIp : string.Empty,         // {6}
                 !string.IsNullOrEmpty(deviceName) ? deviceName : string.Empty, // {7}
-                paymentGwId);                                                  // {8}
+                paymentGwId, paymentMethodId);                                 // {8,9}
 
             try
             {
@@ -13263,7 +13263,7 @@ namespace ConditionalAccess
                         string billingGuid = Guid.NewGuid().ToString();
 
                         // purchase
-                        response = HandlePurchase(siteguid, householdId, price, currency, userIp, customData, productId, TvinciBilling.eTransactionType.Collection, billingGuid, paymentGwId, 0);
+                        response = HandlePurchase(siteguid, householdId, price, currency, userIp, customData, productId, TvinciBilling.eTransactionType.Collection, billingGuid, paymentGwId, 0, paymentMethodId);
                         if (response != null &&
                             response.Status != null)
                         {
@@ -13348,12 +13348,12 @@ namespace ConditionalAccess
 
 
         private TransactionResponse PurchaseSubscription(string siteguid, long householdId, double price, string currency, int productId,
-                                                      string coupon, string userIp, string deviceName, int paymentGwId)
+                                                      string coupon, string userIp, string deviceName, int paymentGwId, int paymentMethodId)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             // log request
-            string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, productId {4}, coupon {5}, userIp {6}, deviceName {7}, paymentGwId {8}",
+            string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, productId {4}, coupon {5}, userIp {6}, deviceName {7}, paymentGwId {8}, paymentMethodId {9}",
                 !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,     // {0}
                 householdId,                                                   // {1}
                 price,                                                         // {2}  
@@ -13362,7 +13362,7 @@ namespace ConditionalAccess
                 !string.IsNullOrEmpty(coupon) ? coupon : string.Empty,         // {5}
                 !string.IsNullOrEmpty(userIp) ? userIp : string.Empty,         // {6}
                 !string.IsNullOrEmpty(deviceName) ? deviceName : string.Empty, // {7}
-                paymentGwId);
+                paymentGwId, paymentMethodId);
 
             try
             {
@@ -13399,7 +13399,7 @@ namespace ConditionalAccess
 
                         // purchase
                         response = HandlePurchase(siteguid, householdId, price, currency, userIp, customData, productId,
-                                                  TvinciBilling.eTransactionType.Subscription, billingGuid, paymentGwId, 0);
+                                                  TvinciBilling.eTransactionType.Subscription, billingGuid, paymentGwId, 0, paymentMethodId);
                         if (response != null &&
                             response.Status != null)
                         {
@@ -13536,12 +13536,12 @@ namespace ConditionalAccess
 
 
         private TransactionResponse PurchasePPV(string siteguid, long householdId, double price, string currency, int contentId, int productId, string coupon,
-                                                string userIp, string deviceName, int paymentGwId)
+                                                string userIp, string deviceName, int paymentGwId, int paymentMethodId)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             // log request
-            string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, contentId {4}, productId {5}, coupon {6}, userIp {7}, deviceName {8}, paymentGwId {9}",
+            string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, contentId {4}, productId {5}, coupon {6}, userIp {7}, deviceName {8}, paymentGwId {9}, paymentMethodId {10}",
                 !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,     // {0}
                 householdId,                                                   // {1}
                 price,                                                         // {2}  
@@ -13551,7 +13551,7 @@ namespace ConditionalAccess
                 !string.IsNullOrEmpty(coupon) ? coupon : string.Empty,         // {6}
                 !string.IsNullOrEmpty(userIp) ? userIp : string.Empty,         // {7}
                 !string.IsNullOrEmpty(deviceName) ? deviceName : string.Empty, // {8}
-                paymentGwId);                                                  // {9}
+                paymentGwId, paymentMethodId);                                 // {9,10}
 
             try
             {
@@ -13613,7 +13613,7 @@ namespace ConditionalAccess
                         string billingGuid = Guid.NewGuid().ToString();
 
                         // purchase
-                        response = HandlePurchase(siteguid, householdId, price, currency, userIp, customData, productId, TvinciBilling.eTransactionType.PPV, billingGuid, paymentGwId, contentId);
+                        response = HandlePurchase(siteguid, householdId, price, currency, userIp, customData, productId, TvinciBilling.eTransactionType.PPV, billingGuid, paymentGwId, contentId, paymentMethodId);
                         if (response != null &&
                             response.Status != null)
                         {
@@ -13956,7 +13956,7 @@ namespace ConditionalAccess
                                             paymentGatewayResponse = wsBillingService.GetPaymentGatewayByBillingGuid(billingUserName, billingPassword, householdId, billingGuid);
 
                                             DateTime nextRenewalDate = subscriptionEndDate.Value.AddMinutes(-5); // default
-                                            
+
                                             if (paymentGatewayResponse == null)
                                             {
                                                 // error getting PG
@@ -13982,7 +13982,7 @@ namespace ConditionalAccess
                                         catch (Exception ex)
                                         {
                                             log.Error("Error while trying to get the PG", ex);
-                                        }                                     
+                                        }
                                     }
 
                                     // build notification message
@@ -14050,11 +14050,11 @@ namespace ConditionalAccess
         }
 
         protected TransactionResponse HandlePurchase(string siteGUID, long houseHoldID, double price, string currency, string userIP, string customData,
-                                                  int productID, TvinciBilling.eTransactionType transactionType, string billingGuid, int paymentGWId, int contentId)
+                                                  int productID, TvinciBilling.eTransactionType transactionType, string billingGuid, int paymentGWId, int contentId, int paymentMethodId)
         {
             TransactionResponse response = new TransactionResponse();
 
-            string logString = string.Format("fail get response from billing service siteGUID={0}, houseHoldID={1}, price={2}, currency={3}, userIP={4}, customData={5}, productID={6}, (int)transactionType={7}, billingGuid={8}, paymentGWId={9}",
+            string logString = string.Format("fail get response from billing service siteGUID={0}, houseHoldID={1}, price={2}, currency={3}, userIP={4}, customData={5}, productID={6}, (int)transactionType={7}, billingGuid={8}, paymentGWId={9}, paymentMethodId = {10}",
                                        !string.IsNullOrEmpty(siteGUID) ? siteGUID : string.Empty,              // {0}
                                        houseHoldID,                                                            // {1}
                                        price,                                                                  // {2}
@@ -14064,7 +14064,7 @@ namespace ConditionalAccess
                                        productID,                                                              // {6}
                                        (int)transactionType,                                                   // {7}
                                        !string.IsNullOrEmpty(billingGuid) ? billingGuid : string.Empty,        // {8}
-                                       paymentGWId);                                                           // {9}
+                                       paymentGWId, paymentMethodId);                                           // {9,10}
 
             try
             {
@@ -14074,7 +14074,7 @@ namespace ConditionalAccess
                 InitializeBillingModule(ref wsBillingService, ref userName, ref password);
 
                 // call new billing method for charge adapter
-                var transactionResponse = wsBillingService.Transact(userName, password, siteGUID, (int)houseHoldID, price, currency, userIP, customData, productID, transactionType, contentId, billingGuid, paymentGWId);
+                var transactionResponse = wsBillingService.Transact(userName, password, siteGUID, (int)houseHoldID, price, currency, userIP, customData, productID, transactionType, contentId, billingGuid, paymentGWId, paymentMethodId);
 
                 response = ConvertTransactResultToTransactionResponse(logString, transactionResponse);
             }
@@ -15166,7 +15166,7 @@ namespace ConditionalAccess
                             if (paymentGateway == null)
                             {
                                 // error getting PG
-                                log.Error("Transaction occurred! Error while trying to get the PG");                                
+                                log.Error("Transaction occurred! Error while trying to get the PG");
                             }
                         }
                         catch (Exception ex)
@@ -15215,7 +15215,7 @@ namespace ConditionalAccess
                         // enqueue renew transaction
                         RenewTransactionsQueue queue = new RenewTransactionsQueue();
                         DateTime nextRenewalDate = endDate.AddMinutes(-5);
-                        
+
                         if (paymentGateway != null)
                         {
                             nextRenewalDate = endDate.AddMinutes(paymentGateway.RenewalStartMinutes);
@@ -15271,7 +15271,7 @@ namespace ConditionalAccess
                             }
 
                             paymentGatewayResponse = wsBillingService.GetPaymentGatewayByBillingGuid(billingUserName, billingPassword, householdId, billingGuid);
-                            
+
                             DateTime nextRenewalDate = DateTime.UtcNow.AddMinutes(60); // default
 
                             if (paymentGatewayResponse == null)
@@ -15285,7 +15285,7 @@ namespace ConditionalAccess
                             }
 
                             // enqueue renew transaction
-                            RenewTransactionsQueue queue = new RenewTransactionsQueue();                          
+                            RenewTransactionsQueue queue = new RenewTransactionsQueue();
                             RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseId, billingGuid, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate), nextRenewalDate);
                             bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
                             if (!enqueueSuccessful)
@@ -15294,8 +15294,8 @@ namespace ConditionalAccess
                                 return false;
                             }
                             else
-                                log.DebugFormat("New task created (upon renew pending response). Next renewal date: {0}, data: {1}", nextRenewalDate, data);                           
-                        
+                                log.DebugFormat("New task created (upon renew pending response). Next renewal date: {0}, data: {1}", nextRenewalDate, data);
+
                         }
                         catch (Exception ex)
                         {
@@ -15943,7 +15943,7 @@ namespace ConditionalAccess
         }
 
         public ApiObjects.Response.Status RecordTransaction(string userId, long householdId, int state, string paymentGatewayReferenceID, string paymentGatewayResponseCode, int customDataId,
-              double price, string currency, int contentId, int productId, eTransactionType transactionType, string paymentDetails, string paymentMethod, int paymentGatewayId)
+              double price, string currency, int contentId, int productId, eTransactionType transactionType, string paymentDetails, string paymentMethod, int paymentGatewayId, string paymentMethodExternalID)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
 
@@ -15987,12 +15987,12 @@ namespace ConditionalAccess
                     // choose price or customDataPrice
                     case eTransactionType.PPV:
                         status = RecordPPVEntitlement(userId, householdId, contentId, productId, transactionType, coupon, price, currency, customData, userIP, udid, state, paymentGatewayId, paymentGatewayReferenceID,
-                            paymentGatewayResponseCode, paymentDetails, paymentMethod);
+                            paymentGatewayResponseCode, paymentDetails, paymentMethod, paymentMethodExternalID);
                         break;
 
                     case eTransactionType.Subscription:
                         status = RecordSubscriptionEntitlement(userId, householdId, contentId, productId, transactionType, coupon, price, currency, customData, userIP, udid, state, paymentGatewayId,
-                            paymentGatewayReferenceID, paymentGatewayResponseCode, paymentDetails, paymentMethod);
+                            paymentGatewayReferenceID, paymentGatewayResponseCode, paymentDetails, paymentMethod, paymentMethodExternalID);
                         break;
                     case eTransactionType.Collection:
                     default:
@@ -16010,7 +16010,7 @@ namespace ConditionalAccess
 
         private ApiObjects.Response.Status RecordSubscriptionEntitlement(string userId, long householdId, int contentId, int productId, eTransactionType transactionType, string coupon,
             double price, string currency, string customData, string userIP, string udid, int state, int paymentGatewayId, string paymentGatewayReferenceID, string paymentGatewayResponseCode,
-            string paymentDetails, string paymentMethod)
+            string paymentDetails, string paymentMethod, string paymentMethodExternalID)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
 
@@ -16055,7 +16055,7 @@ namespace ConditionalAccess
                         // RecordTransaction
                         //------------------
                         TransactionResponse transactionResponse = RecordBillingTransaction(userId, householdId, contentId, productId, transactionType, paymentDetails, paymentMethod,
-                            paymentGatewayId, billingGuid, customData, paymentGatewayReferenceID, paymentGatewayResponseCode, state);
+                            paymentGatewayId, billingGuid, customData, paymentGatewayReferenceID, paymentGatewayResponseCode, state, paymentMethodExternalID);
 
                         if (transactionResponse == null || transactionResponse.Status == null)
                         {
@@ -16189,7 +16189,8 @@ namespace ConditionalAccess
         }
 
         private ApiObjects.Response.Status RecordPPVEntitlement(string userId, long householdId, int contentId, int productId, eTransactionType transactionType, string coupon, double price,
-            string currency, string customData, string userIP, string udid, int state, int paymentGatewayId, string paymentGatewayReferenceID, string paymentGatewayResponseCode, string paymentDetails, string paymentMethod)
+            string currency, string customData, string userIP, string udid, int state, int paymentGatewayId, string paymentGatewayReferenceID, string paymentGatewayResponseCode, string paymentDetails,
+            string paymentMethod, string paymentMethodExternalID)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
             // log request
@@ -16255,7 +16256,7 @@ namespace ConditionalAccess
                         // RecordTransaction
                         //------------------
                         TransactionResponse transactionResponse = RecordBillingTransaction(userId, householdId, contentId, productId, transactionType, paymentDetails, paymentMethod,
-                            paymentGatewayId, billingGuid, customData, paymentGatewayReferenceID, paymentGatewayResponseCode, state);
+                            paymentGatewayId, billingGuid, customData, paymentGatewayReferenceID, paymentGatewayResponseCode, state, paymentMethodExternalID);
 
                         if (transactionResponse == null || transactionResponse.Status == null)
                         {
@@ -16375,7 +16376,7 @@ namespace ConditionalAccess
         }
 
         private TransactionResponse RecordBillingTransaction(string userId, long householdId, int contentId, int productId, eTransactionType transactionType, string paymentDetails,
-            string paymentMethod, int paymentGatewayId, string billingGuid, string customData, string paymentGatewayReferenceID, string paymentGatewayResponseCode, int state)
+            string paymentMethod, int paymentGatewayId, string billingGuid, string customData, string paymentGatewayReferenceID, string paymentGatewayResponseCode, int state, string paymentMethodExternalID)
         {
             TransactionResponse response = new TransactionResponse();
 
@@ -16393,7 +16394,7 @@ namespace ConditionalAccess
 
                 // call new billing method for charge adapter
                 var transactionResponse = wsBillingService.RecordTransaction(userName, password, userId, (int)householdId, paymentGatewayReferenceID, paymentGatewayResponseCode, productId, (int)transactionType,
-                                                                                billingGuid, contentId, string.Empty, state, paymentGatewayId, 0, paymentMethod, paymentDetails, customData);
+                                                                                billingGuid, contentId, string.Empty, state, paymentGatewayId, 0, paymentMethod, paymentDetails, customData, paymentMethodExternalID);
 
                 response = ConvertTransactResultToTransactionResponse(logString, transactionResponse);
             }
