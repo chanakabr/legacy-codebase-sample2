@@ -27,6 +27,14 @@ namespace WebAPI.Models.Billing
         public string Name { get; set; }
 
         /// <summary>
+        /// Payment method details
+        /// </summary>
+        [DataMember(Name = "details")]
+        [JsonProperty("details")]
+        [XmlElement(ElementName = "details")]
+        public string Details { get; set; }
+
+        /// <summary>
         /// Selected payment method 
         /// </summary>
         [DataMember(Name = "selected")]

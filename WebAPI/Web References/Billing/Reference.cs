@@ -3209,6 +3209,8 @@ namespace WebAPI.Billing {
         
         private string nameField;
         
+        private string detailsField;
+        
         private bool selectedField;
         
         /// <remarks/>
@@ -3228,6 +3230,16 @@ namespace WebAPI.Billing {
             }
             set {
                 this.nameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Details {
+            get {
+                return this.detailsField;
+            }
+            set {
+                this.detailsField = value;
             }
         }
         

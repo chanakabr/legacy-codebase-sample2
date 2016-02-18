@@ -100,6 +100,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<HouseholdPaymentMethod, WebAPI.Models.Billing.KalturaPaymentMethod>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+            .ForMember(dest => dest.Details, opt => opt.MapFrom(src => src.Details))
             .ForMember(dest => dest.Selected, opt => opt.MapFrom(src => src.Selected));
         }
 
