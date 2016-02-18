@@ -159,6 +159,10 @@
       <Project>{ccf6860a-ae92-4f4b-8e05-cba885a959d8}</Project>
       <Name>ImageUploadHandler</Name>
     </ProjectReference>
+    <ProjectReference Include="..\MessageAnnouncementHandler\MessageAnnouncementHandler.csproj">
+      <Project>{665fc35c-073a-4099-8abf-296d1f3d1d24}</Project>
+      <Name>MessageAnnouncementHandler</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PendingTransactionHandler\PendingTransactionHandler.csproj">
       <Project>{1aae1b8a-483d-423a-97b8-1430098cef46}</Project>
       <Name>PendingTransactionHandler</Name>
