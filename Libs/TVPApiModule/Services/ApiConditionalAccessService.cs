@@ -1569,7 +1569,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var result = m_Module.Purchase(m_wsUserName, m_wsPassword, userId, 0, price, currency, contentId, productId, productType, coupon, SiteHelper.GetClientIP(), deviceName, pgwId);
+                    var result = m_Module.Purchase(m_wsUserName, m_wsPassword, userId, 0, price, currency, contentId, productId, productType, coupon, SiteHelper.GetClientIP(), deviceName, pgwId, 0);
                     response = new TVPApiModule.Objects.Responses.ConditionalAccess.TransactionResponse(result);
 
                 }
