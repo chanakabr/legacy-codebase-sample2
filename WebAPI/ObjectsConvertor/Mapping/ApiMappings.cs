@@ -244,7 +244,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
                ;
 
             #endregion
+
+            //Api.RegistrySettings to KalturaRegistrySettings
+            Mapper.CreateMap<RegistrySettings, KalturaRegistrySettings>()
+              .ForMember(dest => dest.Key, opt => opt.MapFrom(src => src.key))
+              .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.value));
         }
+
+        
 
 
         private static List<KalturaPermissionItem> ConvertPermissionItems(PermissionItem[] permissionItems)

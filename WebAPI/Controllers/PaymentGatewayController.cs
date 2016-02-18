@@ -45,37 +45,6 @@ namespace WebAPI.Controllers
 
             return response;
         }
-
-        /// <summary>
-        /// Get the Payment Gateway provider configured for the household, or the default payment gateway provider is a provider is not configured for the household
-        /// </summary>
-        /// <remarks>
-        /// Possible status codes:       
-        /// User Suspended = 2001, Household Not Set To Payment Gateway = 6027
-        /// </remarks>
-        [Route("get"), HttpPost]
-        [ApiAuthorize]
-        public Models.Billing.KalturaPaymentGateway Get()
-        {
-            Models.Billing.KalturaPaymentGateway response = null;
-
-            int groupId = KS.GetFromRequest().GroupId;
-
-            // get domain id      
-            var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
-            
-            try
-            {
-                // call client
-                response = ClientsManager.BillingClient().GetSelectedHouseholdPaymentGateway(groupId, domainId);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return response;
-        }
         
         /// <summary>
         /// Set a Payment Gateway provider for the household. 
@@ -144,6 +113,51 @@ namespace WebAPI.Controllers
             }
 
             return response;
-        }      
+        }
+
+        /// <summary>
+        /// TBD
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes:       
+        /// </remarks>
+        /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
+        /// <param name="payment_method_id">Payment method Identifier</param> 
+        [Route("setPaymentMethod"), HttpPost]
+        [ApiAuthorize]
+        public bool SetPaymentMethod(int payment_gateway_id, int payment_method_id)
+        {
+            bool response = false;
+
+            if (payment_gateway_id <= 0)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "payment_gateway_id not valid");
+            }
+
+            if (payment_method_id <= 0)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "payment_method_id not valid");
+            }
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                string userID = KS.GetFromRequest().UserId;
+
+                // get domain id      
+                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+                // call client
+                response = ClientsManager.BillingClient().SetPaymentMethodHouseholdPaymentGateway(groupId, payment_gateway_id, userID, domainId, payment_method_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+    
     }
 }

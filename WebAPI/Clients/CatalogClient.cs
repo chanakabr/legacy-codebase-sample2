@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using AutoMapper;
-using Enyim.Caching;
 using WebAPI.Catalog;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -16,12 +15,13 @@ using WebAPI.Utils;
 using WebAPI.Models.General;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Users;
+using KLogMonitor;
 
 namespace WebAPI.Clients
 {
     public class CatalogClient : BaseClient
     {
-        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public string Signature { get; set; }
         public string SignString { get; set; }
