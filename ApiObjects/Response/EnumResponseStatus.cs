@@ -196,6 +196,14 @@ namespace ApiObjects.Response
         PaymentGatewayAdapterFailReasonUnknown = 6045,
         NoPartnerConfigurationToUpdate = 6046,
         NoConfigurationValueToUpdate = 6047,
+        PaymentMethodNotSetForHousehold = 6048,
+        PaymentMethodNotExist = 6049,
+        PaymentMethodIdRequired = 6050,
+        PaymentMethodExternalIdRequired = 6051,
+        ErrorSavingPaymentGatewayHouseholdPaymentMethod = 6052,        
+        PaymentMethodAlreadySetToHouseholdPaymentGateway = 6054,
+        PaymentMethodNameRequired = 6055,
+        PaymentGatewayNotSupportPaymentMethod = 6056,        
 
         // social 7000 - 7999
         Conflict = 7000,
