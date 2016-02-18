@@ -5,9 +5,9 @@ using System.Text;
 
 namespace ApiObjects.Notification
 {
-    public class AnnouncementSubscriptions
+    public class AnnouncementSubscription
     {
-        public string AnnouncementId { get; set; }
+        public long AnnouncementId { get; set; }
         public string SubscriptionExternalId { get; set; }
         public long SubscribedAtSec { get; set; }
     }

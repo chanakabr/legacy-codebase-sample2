@@ -5,10 +5,14 @@ using System.Text;
 
 namespace ApiObjects.Notification
 {
-    // key NOTIFICATIONS_GID_USER_ID
     public class UserNotification
     {
-        public List<DeviceNotification> DeviceNotifications { get; set; }
+        public UserNotification()
+        {
+            this.DeviceNotifications = new List<DeviceAppNotification>();
+            this.Announcements = new List<Announcement>();
+        }
+        public List<DeviceAppNotification> DeviceNotifications { get; set; }
         public List<Announcement> Announcements { get; set; }
     }
 }
