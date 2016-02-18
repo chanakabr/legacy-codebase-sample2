@@ -5,7 +5,6 @@ using System.Text;
 
 namespace ApiObjects.Notification
 {
-    // key NOTIFICATIONS_GID_USER_ID
     public class UserNotification
     {
         public UserNotification()
