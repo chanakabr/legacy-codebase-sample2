@@ -393,6 +393,9 @@ namespace ApiObjects
     public enum eHouseholdPaymentGatewaySelectedBy
     {
         [EnumMember]
+        None,
+
+        [EnumMember]
         Account,
 
         [EnumMember]
