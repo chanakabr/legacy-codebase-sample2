@@ -89,7 +89,7 @@ namespace QueueWrapper
                     Type = type
                 };
 
-                var res = cbManager.Set(docKey, JsonConvert.SerializeObject(mq, Formatting.None), (uint)(excutionDate.AddMonths(RECOVERY_TTL_MONTH) - DateTime.UtcNow).Seconds);
+                var res = cbManager.Set(docKey, mq, (uint)(excutionDate.AddMonths(RECOVERY_TTL_MONTH) - DateTime.UtcNow).Seconds);
 
                 if (!res)
                 {
