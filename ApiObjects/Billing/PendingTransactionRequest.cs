@@ -16,5 +16,6 @@ namespace ApiObjects.Billing
         public eTransactionType productType;
         public string siteGuid;
         public long pendingTransactionId;
+        public string pendingExternalTransactionId;
     }
 }

@@ -5011,7 +5011,29 @@ namespace TvinciImporter
 
                                     if (wsCatalog != null)
                                     {
-                                        isUpdateIndexSucceeded = wsCatalog.UpdateIndex(arrMediaIds, nParentGroupID, eAction);
+                                        WSCatalog.eAction actionCatalog = WSCatalog.eAction.On;
+
+                                        switch (eAction)
+                                        {
+                                            case eAction.Off:
+                                            actionCatalog = WSCatalog.eAction.Off;
+                                            break;
+                                            case eAction.On:
+                                            actionCatalog = WSCatalog.eAction.On;
+                                            break;
+                                            case eAction.Update:
+                                            actionCatalog = WSCatalog.eAction.Update;
+                                            break;
+                                            case eAction.Delete:
+                                            actionCatalog = WSCatalog.eAction.Delete;
+                                            break;
+                                            case eAction.Rebuild:
+                                            actionCatalog = WSCatalog.eAction.Rebuild;
+                                            break;
+                                            default:
+                                            break;
+                                        }
+                                        isUpdateIndexSucceeded = wsCatalog.UpdateIndex(arrMediaIds, nParentGroupID, actionCatalog);
 
                                         string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
                                         log.DebugFormat("Update index {0} in catalog '{1}'", sInfo, sEndPointAddress);
@@ -5085,7 +5107,30 @@ namespace TvinciImporter
 
                                     if (wsCatalog != null)
                                     {
-                                        isUpdateChannelIndexSucceeded = wsCatalog.UpdateChannelIndex(arrChannelIds, nParentGroupID, eAction);
+                                        WSCatalog.eAction actionCatalog = WSCatalog.eAction.On;
+
+                                        switch (eAction)
+                                        {
+                                            case eAction.Off:
+                                            actionCatalog = WSCatalog.eAction.Off;
+                                            break;
+                                            case eAction.On:
+                                            actionCatalog = WSCatalog.eAction.On;
+                                            break;
+                                            case eAction.Update:
+                                            actionCatalog = WSCatalog.eAction.Update;
+                                            break;
+                                            case eAction.Delete:
+                                            actionCatalog = WSCatalog.eAction.Delete;
+                                            break;
+                                            case eAction.Rebuild:
+                                            actionCatalog = WSCatalog.eAction.Rebuild;
+                                            break;
+                                            default:
+                                            break;
+                                        }
+
+                                        isUpdateChannelIndexSucceeded = wsCatalog.UpdateChannelIndex(arrChannelIds, nParentGroupID, actionCatalog);
 
                                         string sInfo = isUpdateChannelIndexSucceeded == true ? "succeeded" : "not succeeded";
                                         log.DebugFormat("Update channel index {0} in catalog '{1}'", sInfo, sEndPointAddress);
@@ -5148,7 +5193,26 @@ namespace TvinciImporter
 
                             if (wsCatalog != null)
                             {
-                                res &= wsCatalog.UpdateOperator(nParentGroupID, nOperatorID, nSubscriptionID, lChannelID, oe);
+                                WSCatalog.eOperatorEvent oeCatalog = WSCatalog.eOperatorEvent.ChannelAddedToSubscription;
+
+                                switch (oe)
+                                {
+                                    case eOperatorEvent.ChannelAddedToSubscription:
+                                    oeCatalog = WSCatalog.eOperatorEvent.ChannelAddedToSubscription;
+                                    break;
+                                    case eOperatorEvent.ChannelRemovedFromSubscription:
+                                    oeCatalog = WSCatalog.eOperatorEvent.ChannelRemovedFromSubscription;
+                                    break;
+                                    case eOperatorEvent.SubscriptionAddedToOperator:
+                                    oeCatalog = WSCatalog.eOperatorEvent.SubscriptionAddedToOperator;
+                                    break;
+                                    case eOperatorEvent.SubscriptionRemovedFromOperator:
+                                    oeCatalog = WSCatalog.eOperatorEvent.SubscriptionRemovedFromOperator;
+                                    break;
+                                    default:
+                                    break;
+                                }
+                                res &= wsCatalog.UpdateOperator(nParentGroupID, nOperatorID, nSubscriptionID, lChannelID, oeCatalog);
 
                                 wsCatalog.Close();
                             }
@@ -5216,7 +5280,30 @@ namespace TvinciImporter
 
                                     if (wsCatalog != null)
                                     {
-                                        isUpdateIndexSucceeded = wsCatalog.UpdateEpgIndex(arrEPGIds, nParentGroupID, eAction);
+                                        WSCatalog.eAction actionCatalog = WSCatalog.eAction.On;
+
+                                        switch (eAction)
+                                        {
+                                            case eAction.Off:
+                                            actionCatalog = WSCatalog.eAction.Off;
+                                            break;
+                                            case eAction.On:
+                                            actionCatalog = WSCatalog.eAction.On;
+                                            break;
+                                            case eAction.Update:
+                                            actionCatalog = WSCatalog.eAction.Update;
+                                            break;
+                                            case eAction.Delete:
+                                            actionCatalog = WSCatalog.eAction.Delete;
+                                            break;
+                                            case eAction.Rebuild:
+                                            actionCatalog = WSCatalog.eAction.Rebuild;
+                                            break;
+                                            default:
+                                            break;
+                                        }
+
+                                        isUpdateIndexSucceeded = wsCatalog.UpdateEpgIndex(arrEPGIds, nParentGroupID, actionCatalog);
 
                                         string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
                                         log.DebugFormat("Update index {0} in catalog '{1}'", sInfo, sEndPointAddress);

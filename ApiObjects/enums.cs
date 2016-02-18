@@ -393,6 +393,9 @@ namespace ApiObjects
     public enum eHouseholdPaymentGatewaySelectedBy
     {
         [EnumMember]
+        None,
+
+        [EnumMember]
         Account,
 
         [EnumMember]
@@ -503,5 +506,20 @@ namespace ApiObjects
     {
         Delete,
         Add
+    }
+
+    public enum eAnnouncementRecipientsType
+    {
+        All = 0,
+        LoggedIn = 1,
+        Guests = 2,
+        Other = 3
+    }
+
+    public enum eMessageType
+    {
+        Push = 0,
+        Mail = 1,
+        Inbox = 2
     }
 }

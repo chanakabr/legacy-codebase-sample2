@@ -5,7 +5,6 @@ using System.Data;
 using ODBCWrapper;
 using ApiObjects;
 using ApiObjects.MediaMarks;
-using Couchbase;
 using CouchbaseManager;
 using System.Threading;
 using Newtonsoft.Json;
@@ -14,6 +13,7 @@ using ApiObjects.Epg;
 using ApiObjects.SearchObjects;
 using KLogMonitor;
 using System.Reflection;
+using ApiObjects.PlayCycle;
 
 namespace Tvinci.Core.DAL
 {
@@ -21,7 +21,8 @@ namespace Tvinci.Core.DAL
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly string CB_MEDIA_MARK_DESGIN = ODBCWrapper.Utils.GetTcmConfigValue("cb_media_mark_design");
-        private static readonly string CB_EPG_DOCUMENT_EXPIRY = ODBCWrapper.Utils.GetTcmConfigValue("epg_doc_expiry");
+        private static readonly string CB_EPG_DOCUMENT_EXPIRY_DAYS = ODBCWrapper.Utils.GetTcmConfigValue("epg_doc_expiry");
+        private static readonly string CB_PLAYCYCLE_DOC_EXPIRY_MIN = ODBCWrapper.Utils.GetTcmConfigValue("playCycle_doc_expiry_min");
         private const int RETRY_LIMIT = 5;        
 
         public static DataSet Get_MediaDetails(int nGroupID, int nMediaID, string sSiteGuid, bool bOnlyActiveMedia, int nLanguage, string sEndDate, bool bUseStartDate, List<int> lSubGroupTree)
@@ -52,10 +53,10 @@ namespace Tvinci.Core.DAL
         {
             DateTime? dt = null;
 
-            Couchbase.CouchbaseClient m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
 
             // get document of media mark
-            object objDocument = m_oClient.Get(UtilsDal.getUserMediaMarkDocKey(p_sSiteGuid, p_nMedia));
+            object objDocument = cbManager.Get<object>(UtilsDal.getUserMediaMarkDocKey(p_sSiteGuid, p_nMedia));
 
             if (objDocument != null)
             {
@@ -159,7 +160,7 @@ namespace Tvinci.Core.DAL
         {
             List<MediaMarkLog> mediaMarkLogList = new List<MediaMarkLog>();
             List<UserMediaMark> lRes = new List<UserMediaMark>();
-            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
             List<string> docKeysList = new List<string>();
 
             int nUserID = 0;
@@ -170,7 +171,7 @@ namespace Tvinci.Core.DAL
                 docKeysList.Add(UtilsDal.getUserMediaMarkDocKey(nUserID, nMediaID));
             }
 
-            IDictionary<string, object> res = m_oClient.Get(docKeysList);
+            IDictionary<string, object> res = cbManager.GetValues<object>(docKeysList, true);
 
             foreach (string sKey in res.Keys)
             {
@@ -285,7 +286,7 @@ namespace Tvinci.Core.DAL
 
             bool bGetDBData = TCMClient.Settings.Instance.GetValue<bool>("getDBData");
             DataSet ds = null;
-            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
 
             //int nNumOfUsers = 30;
             int nNumOfMedias = 8;
@@ -565,7 +566,7 @@ namespace Tvinci.Core.DAL
 
         public static void UpdateOrInsert_UsersMediaMark(int nDomainID, int nSiteUserGuid, string sUDID, int nMediaID, int nGroupID, int nLoactionSec, int fileDuration, string action, int mediaTypeId)
         {
-            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
             DateTime currentDate = DateTime.UtcNow;
@@ -574,7 +575,8 @@ namespace Tvinci.Core.DAL
             {
                 string docKey = UtilsDal.getDomainMediaMarksDocKey(nDomainID);
 
-                var data = m_oClient.GetWithCas<string>(docKey);
+                ulong version;
+                var data = cbManager.GetWithVersion<string>(docKey, out version);
                 UserMediaMark dev = new UserMediaMark()
                 {
                     Location = nLoactionSec,
@@ -592,14 +594,14 @@ namespace Tvinci.Core.DAL
                 DomainMediaMark mm = new DomainMediaMark();
 
                 //Create new if doesn't exist
-                if (data.Result == null)
+                if (data == null)
                 {
                     mm.devices = new List<UserMediaMark>();
                     mm.devices.Add(dev);
                 }
                 else
                 {
-                    mm = JsonConvert.DeserializeObject<DomainMediaMark>(data.Result);
+                    mm = JsonConvert.DeserializeObject<DomainMediaMark>(data);
                     UserMediaMark existdev = mm.devices.Where(x => x.UDID == sUDID).FirstOrDefault();
 
                     if (existdev != null)
@@ -607,9 +609,9 @@ namespace Tvinci.Core.DAL
 
                     mm.devices.Add(dev);
                 }
-                var res = m_oClient.Cas(Enyim.Caching.Memcached.StoreMode.Set, docKey, JsonConvert.SerializeObject(mm, Formatting.None), data.Cas);
+                bool res = cbManager.SetWithVersion(docKey, JsonConvert.SerializeObject(mm, Formatting.None), version);
 
-                if (!res.Result)
+                if (!res)
                 {
                     Thread.Sleep(r.Next(50));
                     limitRetries--;
@@ -623,7 +625,8 @@ namespace Tvinci.Core.DAL
             string mmKey = UtilsDal.getUserMediaMarkDocKey(nSiteUserGuid, nMediaID);
             while (limitRetries >= 0)
             {
-                var data = m_oClient.GetWithCas<string>(mmKey);
+                ulong version;
+                var data = cbManager.GetWithVersion<string>(mmKey, out version);
                 UserMediaMark dev = new UserMediaMark()
                 {
                     Location = nLoactionSec,
@@ -640,14 +643,14 @@ namespace Tvinci.Core.DAL
 
                 MediaMarkLog umm = new MediaMarkLog();
 
-                if (data.Result == null)
+                if (data == null)
                 {
                     umm.devices = new List<UserMediaMark>();
                     umm.devices.Add(dev);
                 }
                 else
                 {
-                    umm = JsonConvert.DeserializeObject<MediaMarkLog>(data.Result);
+                    umm = JsonConvert.DeserializeObject<MediaMarkLog>(data);
                     UserMediaMark existdev = umm.devices.Where(x => x.UDID == sUDID).FirstOrDefault();
 
                     if (existdev != null)
@@ -659,9 +662,9 @@ namespace Tvinci.Core.DAL
                 //For quick last position access
                 umm.LastMark = dev;
 
-                var res = m_oClient.Cas(Enyim.Caching.Memcached.StoreMode.Set, mmKey, JsonConvert.SerializeObject(umm, Formatting.None));
+                bool res = cbManager.SetWithVersion(mmKey, JsonConvert.SerializeObject(umm, Formatting.None), version);
 
-                if (!res.Result)
+                if (!res)
                 {
                     Thread.Sleep(r.Next(50));
                     limitRetries--;
@@ -1169,7 +1172,7 @@ namespace Tvinci.Core.DAL
         {
             bool bGetDBData = TCMClient.Settings.Instance.GetValue<bool>("getDBData");
             DataSet ds = null;
-            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
             int nNumOfUsers = 30;
             int nNumOfMedias = 8;
             int nSiteGuid = 0;
@@ -1416,8 +1419,6 @@ namespace Tvinci.Core.DAL
 
         public static DataTable Get_IPersonalRecommended(string sSiteGuid, int nTop, int nOperatorID)
         {
-            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
-
             int nSiteGuid = 0;
             int.TryParse(sSiteGuid, out nSiteGuid);
 
@@ -1472,9 +1473,9 @@ namespace Tvinci.Core.DAL
 
         public static int GetLastPosition(int mediaID, int userID)
         {
-            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
             string key = UtilsDal.getUserMediaMarkDocKey(userID, mediaID);
-            var data = m_oClient.Get<string>(key);
+            var data = cbManager.Get<string>(key);
             if (data == null)
                 return 0;
             var umm = JsonConvert.DeserializeObject<MediaMarkLog>(data);
@@ -1483,10 +1484,10 @@ namespace Tvinci.Core.DAL
 
         public static List<UserMediaMark> GetDomainLastPositions(int nDomainID, int ttl, ePlayType ePlay = ePlayType.MEDIA)
         {
-            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
 
             string docKey = UtilsDal.getDomainMediaMarksDocKey(nDomainID);
-            var data = m_oClient.Get<string>(docKey);
+            var data = cbManager.Get<string>(docKey);
 
             if (data == null)
                 return null;
@@ -1499,9 +1500,10 @@ namespace Tvinci.Core.DAL
             int limitRetries = RETRY_LIMIT;
             while (limitRetries >= 0)
             {
-                var marks = m_oClient.GetWithCas<string>(docKey);
+                ulong version;
+                var marks = cbManager.GetWithVersion<string>(docKey, out version);
 
-                DomainMediaMark dm = JsonConvert.DeserializeObject<DomainMediaMark>(marks.Result);
+                DomainMediaMark dm = JsonConvert.DeserializeObject<DomainMediaMark>(marks);
                 switch (ePlay)
                 {
                     case ePlayType.MEDIA:
@@ -1515,9 +1517,9 @@ namespace Tvinci.Core.DAL
                         break;
                 }
 
-                var res = m_oClient.Cas(Enyim.Caching.Memcached.StoreMode.Set, docKey, JsonConvert.SerializeObject(dm, Formatting.None), marks.Cas);
+                bool res = cbManager.SetWithVersion(docKey, JsonConvert.SerializeObject(dm, Formatting.None), version);
 
-                if (!res.Result)
+                if (!res)
                 {
                     Thread.Sleep(r.Next(50));
                     limitRetries--;
@@ -1533,11 +1535,15 @@ namespace Tvinci.Core.DAL
         {
             Dictionary<string, int> dictMediaUsersCount = new Dictionary<string, int>(); // key: media id , value: users count
 
-            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
-
-            List<WatchHistory> lastWatchViews = m_oClient.GetView<WatchHistory>(CB_MEDIA_MARK_DESGIN, "users_watch_history")
-                                           .StartKey(new object[] { usersList, 0 })
-                                            .EndKey(new object[] { usersList, string.Empty }).Stale(Couchbase.StaleMode.False).ToList();
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
+            ViewManager viewManager = new ViewManager(CB_MEDIA_MARK_DESGIN, "users_watch_history")
+            {
+                startKey = new object[] { usersList, 0 },
+                endKey = new object[] { usersList, string.Empty },
+                staleState = CouchbaseManager.ViewStaleState.False
+            };
+            
+            List<WatchHistory> lastWatchViews = cbManager.View<WatchHistory>(viewManager);
 
             foreach (var view in lastWatchViews)
             {
@@ -1553,7 +1559,7 @@ namespace Tvinci.Core.DAL
         public static List<WatchHistory> GetUserWatchHistory(string siteGuid, List<int> assetTypes, List<int> excludedAssetTypes, eWatchStatus filterStatus, int numOfDays, OrderDir orderDir, int pageIndex, int pageSize, int finishedPercent, out int totalItems)
         {
             List<WatchHistory> usersWatchHistory = new List<WatchHistory>();
-            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
             totalItems = 0;
 
             // build date filter
@@ -1563,9 +1569,14 @@ namespace Tvinci.Core.DAL
             try
             {
                 // get views
-                List<WatchHistory> unFilteredresult = m_oClient.GetView<WatchHistory>(CB_MEDIA_MARK_DESGIN, "users_watch_history")
-                                              .StartKey(new object[] { long.Parse(siteGuid), minFilterdate })
-                                              .EndKey(new object[] { long.Parse(siteGuid), maxFilterDate }).Stale(Couchbase.StaleMode.False).ToList();
+                ViewManager viewManager = new ViewManager(CB_MEDIA_MARK_DESGIN, "users_watch_history")
+                {
+                    startKey = new object[] { long.Parse(siteGuid), minFilterdate },
+                    endKey =  new object[] { long.Parse(siteGuid), maxFilterDate },
+                    staleState = CouchbaseManager.ViewStaleState.False
+                };
+
+                List<WatchHistory> unFilteredresult = cbManager.View<WatchHistory>(viewManager);
 
                 if (unFilteredresult != null && unFilteredresult.Count > 0)
                 {
@@ -1673,8 +1684,15 @@ namespace Tvinci.Core.DAL
         {
             List<UserMediaMark> mediasMarksList = new List<UserMediaMark>();
 
-            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
-            var res = m_oClient.GetView(CB_MEDIA_MARK_DESGIN, "users_medias_lastdate").Keys(usersList);
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
+
+            // get views
+            ViewManager viewManager = new ViewManager(CB_MEDIA_MARK_DESGIN, "users_medias_lastdate")
+            {
+                keys = usersList
+            };
+
+            var res = cbManager.ViewKeyValuePairs<object[]>(viewManager);
 
             foreach (var row in res)
             {
@@ -1682,26 +1700,22 @@ namespace Tvinci.Core.DAL
                 int nMediaID = 0;
                 DateTime lastDate;
 
-                if (row.Info != null && row.Info.Values != null)
+                if (row.Key != null && row.Value != null)
                 {
+                    object objUserID = row.Key;
+                    int.TryParse(objUserID.ToString(), out nUserID);
 
-                    if (row.Info["key"] != null && row.Info["value"] != null)
+                    object[] arrMediasDates = row.Value;
+                    int.TryParse(arrMediasDates[0].ToString(), out nMediaID);
+                    DateTime.TryParse(arrMediasDates[1].ToString(), out lastDate);
+
+                    UserMediaMark objUserMediaMark = new UserMediaMark
                     {
-                        object objUserID = row.Info["key"];
-                        int.TryParse(objUserID.ToString(), out nUserID);
-
-                        object[] arrMediasDates = (object[])row.Info["value"];
-                        int.TryParse(arrMediasDates[0].ToString(), out nMediaID);
-                        DateTime.TryParse(arrMediasDates[1].ToString(), out lastDate);
-
-                        UserMediaMark objUserMediaMark = new UserMediaMark
-                        {
-                            MediaID = nMediaID,
-                            UserID = nUserID,
-                            CreatedAt = lastDate
-                        };
-                        mediasMarksList.Add(objUserMediaMark);
-                    }
+                        MediaID = nMediaID,
+                        UserID = nUserID,
+                        CreatedAt = lastDate
+                    };
+                    mediasMarksList.Add(objUserMediaMark);
                 }
             }
 
@@ -1711,8 +1725,16 @@ namespace Tvinci.Core.DAL
         public static List<UserMediaMark> GetMediaMarksLastDateByMedias(List<int> mediasList)
         {
             List<UserMediaMark> mediasMarksList = new List<UserMediaMark>();
-            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
-            var res = m_oClient.GetView(CB_MEDIA_MARK_DESGIN, "media_users_lastdate").Keys(mediasList).Limit(30);
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
+
+            // get views
+            ViewManager viewManager = new ViewManager(CB_MEDIA_MARK_DESGIN, "media_users_lastdate")
+            {
+                keys = mediasList,
+                limit = 30
+            };
+
+            var res = cbManager.ViewKeyValuePairs<object[]>(viewManager);
             int nUserID = 0;
 
             if (res != null)
@@ -1721,20 +1743,23 @@ namespace Tvinci.Core.DAL
 
                 foreach (var row in res)
                 {
-                    if (row.Info != null && row.Info.Values != null)
+                    if (row.Key != null && row.Value != null)
                     {
-                        if (row.Info["key"] != null && row.Info["value"] != null)
-                        {
-                            object[] arUserDates = (object[])row.Info["value"];
-                            int.TryParse(arUserDates[0].ToString(), out nUserID);
-                            userList.Add(nUserID);
-                        }
+                        object[] arUserDates = row.Value;
+                        int.TryParse(arUserDates[0].ToString(), out nUserID);
+                        userList.Add(nUserID);
                     }
                 }
+
                 if (userList != null && userList.Count > 0)
                 {
+                    // get views
+                    ViewManager mediaViewManager = new ViewManager(CB_MEDIA_MARK_DESGIN, "users_medias_lastdate")
+                    {
+                        keys = userList
+                    };
 
-                    var resMedia = m_oClient.GetView(CB_MEDIA_MARK_DESGIN, "users_medias_lastdate").Keys(userList);
+                    var resMedia = cbManager.ViewKeyValuePairs<object[]>(mediaViewManager);
 
                     foreach (var row in resMedia)
                     {
@@ -1742,27 +1767,24 @@ namespace Tvinci.Core.DAL
                         nUserID = 0;
 
                         DateTime lastDate;
-                        if (row.Info != null && row.Info.Values != null)
+                        if (row.Key != null && row.Value != null)
                         {
-                            if (row.Info["key"] != null && row.Info["value"] != null)
-                            {
-                                // key = user
-                                object objUserID = row.Info["key"];
-                                object[] arUserDates = (object[])row.Info["value"];
-                                int.TryParse(arUserDates[0].ToString(), out nMediaID);
+                            // key = user
+                            object objUserID = row.Key;
+                            object[] arUserDates = row.Value;
+                            int.TryParse(arUserDates[0].ToString(), out nMediaID);
 
-                                if (!mediasList.Contains(nMediaID))
+                            if (!mediasList.Contains(nMediaID))
+                            {
+                                int.TryParse(objUserID.ToString(), out nUserID);
+                                DateTime.TryParse(arUserDates[1].ToString(), out lastDate);
+                                UserMediaMark objUserMediaMark = new UserMediaMark
                                 {
-                                    int.TryParse(objUserID.ToString(), out nUserID);
-                                    DateTime.TryParse(arUserDates[1].ToString(), out lastDate);
-                                    UserMediaMark objUserMediaMark = new UserMediaMark
-                                    {
-                                        MediaID = nMediaID,
-                                        UserID = nUserID,
-                                        CreatedAt = lastDate
-                                    };
-                                    mediasMarksList.Add(objUserMediaMark);
-                                }
+                                    MediaID = nMediaID,
+                                    UserID = nUserID,
+                                    CreatedAt = lastDate
+                                };
+                                mediasMarksList.Add(objUserMediaMark);
                             }
                         }
                     }
@@ -2246,6 +2268,22 @@ namespace Tvinci.Core.DAL
             return res;
         }
 
+        public static void InsertPlayCycleKey(string siteGuid, long mediaID, long mediaFileID, string udid, long platform, long countryID, int mcRuleID, int groupID, string playCycleKey)
+        {
+            StoredProcedure sp = new StoredProcedure("Insert_PlayCycleKey");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@SiteGuid", siteGuid);
+            sp.AddParameter("@MediaID", mediaID);
+            sp.AddParameter("@MediaFileID", mediaFileID);
+            sp.AddParameter("@DeviceUDID", udid);
+            sp.AddParameter("@Platform", platform);
+            sp.AddParameter("@CountryID", countryID);
+            sp.AddParameter("@RuleID", mcRuleID);
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@PlayCycleKey", playCycleKey);
+            sp.ExecuteNonQuery();
+        }
+
         public static void Insert_NewPlayCycleKey(int nGroupID, int nMediaID, int nMediaFileID, string sSiteGuid, int nPlatform, string sUDID, int nCountryID, string sPlayCycleKey, int nRuleID = 0)
         {
             GetOrInsert_PlayCycleKey(sSiteGuid, nMediaID, nMediaFileID, sUDID, nPlatform, nCountryID, nRuleID, nGroupID, true);
@@ -2315,7 +2353,7 @@ namespace Tvinci.Core.DAL
 
         public static void UpdateOrInsert_UsersNpvrMark(int nDomainID, int nSiteUserGuid, string sUDID, string sAssetID, int nGroupID, int nLoactionSec, int fileDuration, string action)
         {
-            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
 
@@ -2326,7 +2364,8 @@ namespace Tvinci.Core.DAL
 
                 string docKey = UtilsDal.getDomainMediaMarksDocKey(nDomainID);
 
-                var data = m_oClient.GetWithCas<string>(docKey);
+                ulong version;
+                var data = cbManager.GetWithVersion<string>(docKey, out version);
                 var dev = new UserMediaMark()
                 {
                     Location = nLoactionSec,
@@ -2345,14 +2384,14 @@ namespace Tvinci.Core.DAL
                 DomainMediaMark mm = new DomainMediaMark();
 
                 //Create new if doesn't exist
-                if (data.Result == null)
+                if (data == null)
                 {
                     mm.devices = new List<UserMediaMark>();
                     mm.devices.Add(dev);
                 }
                 else
                 {
-                    mm = JsonConvert.DeserializeObject<DomainMediaMark>(data.Result);
+                    mm = JsonConvert.DeserializeObject<DomainMediaMark>(data);
                     var existdev = mm.devices.Where(x => x.UDID == sUDID).FirstOrDefault();
 
                     if (existdev != null)
@@ -2360,9 +2399,9 @@ namespace Tvinci.Core.DAL
 
                     mm.devices.Add(dev);
                 }
-                var res = m_oClient.Cas(Enyim.Caching.Memcached.StoreMode.Set, docKey, JsonConvert.SerializeObject(mm, Formatting.None), data.Cas);
+                bool res = cbManager.SetWithVersion(docKey, JsonConvert.SerializeObject(mm, Formatting.None), version);
 
-                if (!res.Result)
+                if (!res)
                 {
                     Thread.Sleep(r.Next(50));
                     limitRetries--;
@@ -2375,7 +2414,8 @@ namespace Tvinci.Core.DAL
             string mmKey = UtilsDal.getUserNpvrMarkDocKey(nSiteUserGuid, sAssetID);
             while (limitRetries >= 0)
             {
-                var data = m_oClient.GetWithCas<string>(mmKey);
+                ulong version;
+                var data = cbManager.GetWithVersion<string>(mmKey, out version);
                 var dev = new UserMediaMark()
                 {
                     Location = nLoactionSec,
@@ -2393,14 +2433,14 @@ namespace Tvinci.Core.DAL
 
                 MediaMarkLog umm = new MediaMarkLog();
 
-                if (data.Result == null)
+                if (data == null)
                 {
                     umm.devices = new List<UserMediaMark>();
                     umm.devices.Add(dev);
                 }
                 else
                 {
-                    umm = JsonConvert.DeserializeObject<MediaMarkLog>(data.Result);
+                    umm = JsonConvert.DeserializeObject<MediaMarkLog>(data);
                     var existdev = umm.devices.Where(x => x.UDID == sUDID).FirstOrDefault();
 
                     if (existdev != null)
@@ -2412,9 +2452,9 @@ namespace Tvinci.Core.DAL
                 //For quick last position access
                 umm.LastMark = dev;
 
-                var res = m_oClient.Cas(Enyim.Caching.Memcached.StoreMode.Set, mmKey, JsonConvert.SerializeObject(umm, Formatting.None));
+                bool res = cbManager.Set(mmKey, JsonConvert.SerializeObject(umm, Formatting.None));
 
-                if (!res.Result)
+                if (!res)
                 {
                     Thread.Sleep(r.Next(50));
                     limitRetries--;
@@ -2426,7 +2466,7 @@ namespace Tvinci.Core.DAL
 
         public static void UpdateOrInsert_UsersEpgMark(int nDomainID, int nSiteUserGuid, string sUDID, int nAssetID, int nGroupID, int nLoactionSec, int fileDuration, string action)
         {
-            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
 
@@ -2437,7 +2477,8 @@ namespace Tvinci.Core.DAL
 
                 string docKey = UtilsDal.getDomainMediaMarksDocKey(nDomainID);
 
-                var data = m_oClient.GetWithCas<string>(docKey);
+                ulong version;
+                var data = cbManager.GetWithVersion<string>(docKey, out version);
                 var dev = new UserMediaMark()
                 {
                     Location = nLoactionSec,
@@ -2455,14 +2496,14 @@ namespace Tvinci.Core.DAL
                 DomainMediaMark mm = new DomainMediaMark();
 
                 //Create new if doesn't exist
-                if (data.Result == null)
+                if (data == null)
                 {
                     mm.devices = new List<UserMediaMark>();
                     mm.devices.Add(dev);
                 }
                 else
                 {
-                    mm = JsonConvert.DeserializeObject<DomainMediaMark>(data.Result);
+                    mm = JsonConvert.DeserializeObject<DomainMediaMark>(data);
                     var existdev = mm.devices.Where(x => x.UDID == sUDID).FirstOrDefault();
 
                     if (existdev != null)
@@ -2470,9 +2511,10 @@ namespace Tvinci.Core.DAL
 
                     mm.devices.Add(dev);
                 }
-                var res = m_oClient.Cas(Enyim.Caching.Memcached.StoreMode.Set, docKey, JsonConvert.SerializeObject(mm, Formatting.None), data.Cas);
 
-                if (!res.Result)
+                bool res = cbManager.SetWithVersion(docKey, JsonConvert.SerializeObject(mm, Formatting.None), version);
+
+                if (!res)
                 {
                     Thread.Sleep(r.Next(50));
                     limitRetries--;
@@ -2485,7 +2527,8 @@ namespace Tvinci.Core.DAL
             string mmKey = UtilsDal.getUserEpgMarkDocKey(nSiteUserGuid, nAssetID.ToString());
             while (limitRetries >= 0)
             {
-                var data = m_oClient.GetWithCas<string>(mmKey);
+                ulong version;
+                var data = cbManager.GetWithVersion<string>(mmKey, out version);
                 var dev = new UserMediaMark()
                 {
                     Location = nLoactionSec,
@@ -2502,14 +2545,14 @@ namespace Tvinci.Core.DAL
 
                 MediaMarkLog umm = new MediaMarkLog();
 
-                if (data.Result == null)
+                if (data == null)
                 {
                     umm.devices = new List<UserMediaMark>();
                     umm.devices.Add(dev);
                 }
                 else
                 {
-                    umm = JsonConvert.DeserializeObject<MediaMarkLog>(data.Result);
+                    umm = JsonConvert.DeserializeObject<MediaMarkLog>(data);
                     var existdev = umm.devices.Where(x => x.UDID == sUDID).FirstOrDefault();
 
                     if (existdev != null)
@@ -2522,13 +2565,15 @@ namespace Tvinci.Core.DAL
                 umm.LastMark = dev;
                 
                 TimeSpan? epgDocExpiry = null;
-                try { epgDocExpiry = new TimeSpan(int.Parse(CB_EPG_DOCUMENT_EXPIRY),0,0,0); } catch {}
 
-                var res = (epgDocExpiry.HasValue) ?
-                    m_oClient.Cas(Enyim.Caching.Memcached.StoreMode.Set, mmKey, JsonConvert.SerializeObject(umm, Formatting.None), epgDocExpiry.Value, data.Cas)
-                    : m_oClient.Cas(Enyim.Caching.Memcached.StoreMode.Set, mmKey, JsonConvert.SerializeObject(umm, Formatting.None), data.Cas);
+                uint cbEpgDocumentExpiryDays;
+                uint.TryParse(CB_EPG_DOCUMENT_EXPIRY_DAYS, out cbEpgDocumentExpiryDays);
 
-                if (!res.Result)
+                bool res = (epgDocExpiry.HasValue) ?
+                    cbManager.SetWithVersion(mmKey, JsonConvert.SerializeObject(umm, Formatting.None), version, cbEpgDocumentExpiryDays * 24 * 60 * 60)
+                    : cbManager.SetWithVersion(mmKey, JsonConvert.SerializeObject(umm, Formatting.None), version);
+
+                if (!res)
                 {
                     Thread.Sleep(r.Next(50));
                     limitRetries--;
@@ -2540,9 +2585,9 @@ namespace Tvinci.Core.DAL
 
         public static int GetLastPosition(string NpvrID, int userID)
         {
-            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
             string key = UtilsDal.getUserNpvrMarkDocKey(userID, NpvrID);
-            var data = m_oClient.Get<string>(key);
+            var data = cbManager.Get<string>(key);
             if (data == null)
                 return 0;
             var umm = JsonConvert.DeserializeObject<MediaMarkLog>(data);
@@ -2552,10 +2597,10 @@ namespace Tvinci.Core.DAL
         // get all devices last position in domain by media_id 
         public static DomainMediaMark GetDomainLastPosition(int mediaID, int userID, int domainID)
         {
-            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
             // get domain document 
             string key = UtilsDal.getDomainMediaMarksDocKey(domainID);
-            var data = m_oClient.Get<string>(key);
+            var data = cbManager.Get<string>(key);
             if (data == null)
                 return null;
 
@@ -2583,7 +2628,7 @@ namespace Tvinci.Core.DAL
             }
         }
 
-        public static bool GetMediaPlayData(int mediaID, int mediaFileID, ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID, ref int billingTypeID)
+        public static bool GetMediaPlayData(int mediaID, int mediaFileID, ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID, ref int billingTypeID, ref int fileDuration)
         {
             bool res = false;
             StoredProcedure sp = new StoredProcedure("GetMediaPlayData");
@@ -2604,6 +2649,7 @@ namespace Tvinci.Core.DAL
                     formatID = ODBCWrapper.Utils.GetIntSafeVal(mpData.Rows[0]["media_file_type_id"]);
                     mediaTypeID = ODBCWrapper.Utils.GetIntSafeVal(mpData.Rows[0]["media_type_id"]);
                     billingTypeID = ODBCWrapper.Utils.GetIntSafeVal(mpData.Rows[0]["billing_type_id"]);
+                    fileDuration = ODBCWrapper.Utils.GetIntSafeVal(mpData.Rows[0]["media_file_duration"]);
                 }
             }
             return res;
@@ -2672,8 +2718,8 @@ namespace Tvinci.Core.DAL
             }
 
             // get all documents from CB
-            CouchbaseClient client = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
-            IDictionary<string, object> usersData = client.Get(userKeys);
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
+            IDictionary<string, object> usersData = cbManager.GetValues<object>(userKeys, true);
             List<UserMediaMark> usersMediaMark = new List<UserMediaMark>();
 
             if (usersData == null)
@@ -2704,7 +2750,7 @@ namespace Tvinci.Core.DAL
             DomainMediaMark dmm = new DomainMediaMark();
             dmm.domainID = domain_id;
 
-            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
             // create Keys 
             List<string> keys = new List<string>();
             string docKey = string.Empty;
@@ -2713,8 +2759,8 @@ namespace Tvinci.Core.DAL
                 docKey = UtilsDal.getUserMediaMarkDocKey(user, media_id);
                 keys.Add(docKey);
             }
-            // get all documents ffrom CB
-            IDictionary<string, object> data = m_oClient.Get(keys);
+            // get all documents from CB
+            IDictionary<string, object> data = cbManager.GetValues<object>(keys, true);
 
             List<UserMediaMark> oRes = new List<UserMediaMark>();
 
@@ -4233,6 +4279,82 @@ namespace Tvinci.Core.DAL
             selectQuery = null;
 
             return result;
+        }
+
+        public static PlayCycleSession InsertPlayCycleSession(string siteGuid, int MediaFileID, int groupID, string UDID, int platform, int mediaConcurrencyRuleID, int domainID)
+        {
+            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.SOCIAL);
+            int limitRetries = RETRY_LIMIT;
+            PlayCycleSession playCycleSession = null;
+            Random sleepVal = new Random();
+
+            // create new playCycleKey even when updating an existing document since its a new session
+            string playCycleKey = Guid.NewGuid().ToString();
+
+            try                
+            {
+                string docKey = UtilsDal.GetPlayCycleKey(siteGuid, MediaFileID, groupID, UDID, platform);
+
+                ulong version;
+                string getResult = cbClient.GetWithVersion<string>(docKey, out version);
+
+                if (version != 0)
+                {
+                    playCycleSession = JsonConvert.DeserializeObject<PlayCycleSession>(getResult);
+                    playCycleSession.MediaConcurrencyRuleID = mediaConcurrencyRuleID;
+                    playCycleSession.CreateDateMs = Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                    playCycleSession.PlayCycleKey = playCycleKey;
+                    playCycleSession.DomainID = domainID;
+                }
+                else
+                {
+                    playCycleSession = new PlayCycleSession(mediaConcurrencyRuleID, playCycleKey, Utils.DateTimeToUnixTimestamp(DateTime.UtcNow), domainID);
+                }
+
+                int ttl = 0;
+                bool shouldUseTtl = int.TryParse(CB_PLAYCYCLE_DOC_EXPIRY_MIN, out ttl);
+                
+                bool setResult = cbClient.SetWithVersionWithRetry<string>(docKey, playCycleSession, version, limitRetries, 50, (uint)(ttl *  60));
+
+                if (!setResult)
+                {
+                    playCycleSession = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed InsertPlayCycleSession, userId: {0}, groupID: {1}, UDID: {2}, platform: {3}, mediaConcurrencyRuleID: {4}, playCycleKey: {5}, Exception: {6}", 
+                                 siteGuid, MediaFileID, groupID, UDID, platform, mediaConcurrencyRuleID, playCycleKey, ex.Message);                
+            }
+
+            if (playCycleSession == null)
+            {
+                log.ErrorFormat("Error in InsertPlayCycleSession, playCycleSession is null. userId: {0}, groupID: {1}, UDID: {2}, platform: {3}, mediaConcurrencyRuleID: {4}, playCycleKey: {5}",
+                                 siteGuid, MediaFileID, groupID, UDID, platform, mediaConcurrencyRuleID, playCycleKey);      
+            }
+            return playCycleSession;
+        }        
+
+        public static PlayCycleSession GetUserPlayCycle(string siteGuid, int mediaID, int MediaFileID, int groupID, string UDID, int platform)
+        {
+            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.SOCIAL);
+
+            PlayCycleSession playCycleSession = null;
+            try
+            {
+                string docKey = UtilsDal.GetPlayCycleKey(siteGuid, MediaFileID, groupID, UDID, platform);
+                double ttl;
+                bool shouldUseTtl = double.TryParse(CB_PLAYCYCLE_DOC_EXPIRY_MIN, out ttl);
+
+                playCycleSession = cbClient.Get<PlayCycleSession>(docKey);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed InsertOrUpdatePlayCycle, userId: {0}, mediaID: {1}, mediaFileID: {2}, groupID: {3}, UDID: {4}, platform: {5}, Exception: {6}",
+                                 siteGuid, mediaID, MediaFileID, groupID, UDID, platform, ex.Message);
+            }
+
+            return playCycleSession;
         }
     }
 }

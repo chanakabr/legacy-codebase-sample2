@@ -8,8 +8,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using CouchbaseManager;
-using Couchbase;
-using Enyim.Caching.Memcached;
 using System.Threading;
 
 namespace Synchronizer
@@ -37,7 +35,7 @@ namespace Synchronizer
 
         #region Data Members
 
-        private CouchbaseClient couchbaseClient;
+        private CouchbaseManager.CouchbaseManager couchbaseClient;
         private object locker;
         private int maximumTries;
         private int secondsInCache;
@@ -55,7 +53,7 @@ namespace Synchronizer
         {
             locker = new object();
             maximumTries = 100;
-            couchbaseClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.CACHE);
+            couchbaseClient = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.CACHE);
             secondsInCache = -1;
         }
 
@@ -81,62 +79,64 @@ namespace Synchronizer
         {
             bool result = false;
 
+            ulong version;
+
             // Check if this key is already locked
-            var getResult = couchbaseClient.GetWithCas<int>(key);
+            var getResult = couchbaseClient.GetWithVersion<int>(key, out version);
 
             // If get was succesful
-            if (getResult.StatusCode == 0)
+            int isLocked = getResult;
+
+            // If not locked
+            if (isLocked == 0)
             {
-                int isLocked = getResult.Result;
+                ulong newVersion;
 
-                // If not locked
-                if (isLocked == 0)
+                // Try to lock
+                bool setResult = couchbaseClient.SetWithVersion(key, 1, version, out newVersion);
+
+                // If succesfully locked
+                if (setResult)
                 {
-                    // Try to lock
-                    CasResult<bool> setResult = couchbaseClient.Cas(StoreMode.Set, key, 1, getResult.Cas);
-
-                    // If succesfully locked
-                    if (setResult.StatusCode == 0 && setResult.Result)
+                    if (this.SynchronizedAct != null)
                     {
-                        if (this.SynchronizedAct != null)
-                        {
-                            result = this.SynchronizedAct(parameters);
-                        }
-
-                        // Try to unlock
-                        CasResult<bool> secondSetResult = couchbaseClient.Cas(StoreMode.Set, key, 0, setResult.Cas);
-
-                        isLocked = 0;
+                        result = this.SynchronizedAct(parameters);
                     }
-                    // If the set failed, it is probably because another machine set the value before us
-                    else
-                    {
-                        isLocked = 1;
-                    }
+
+                    // Try to unlock
+                    bool secondSetResult = couchbaseClient.SetWithVersion(key, 0, newVersion);
+
+                    isLocked = 0;
                 }
-
-                // If CB is locked already - whether if Get returns 1 or CAS versioning failed
-                if (isLocked == 1)
+                // If the set failed, it is probably because another machine set the value before us
+                else
                 {
-                    // Make sure only one thread checks CB. The rest will wait and check once after lock is released
-                    lock (locker)
+                    isLocked = 1;
+                }
+            }
+
+            // If CB is locked already - whether if Get returns 1 or CAS versioning failed
+            if (isLocked == 1)
+            {
+                // Make sure only one thread checks CB. The rest will wait and check once after lock is released
+                lock (locker)
+                {
+                    // Don't try forever
+                    int triesLeft = this.maximumTries;
+
+                    // While adapter configuration is locked
+                    while (isLocked == 1 && triesLeft > 0)
                     {
-                        // Don't try forever
-                        int triesLeft = this.maximumTries;
+                        Thread.Sleep(random.Next(50));
 
-                        // While adapter configuration is locked
-                        while (isLocked == 1 && triesLeft > 0)
-                        {
-                            Thread.Sleep(random.Next(50));
+                        // Upadte locked status
+                        isLocked = couchbaseClient.Get<int>(key);
 
-                            // Upadte locked status
-                            isLocked = couchbaseClient.Get<int>(key);
-
-                            triesLeft--;
-                        }
+                        triesLeft--;
                     }
                 }
             }
+
 
             return result;
         }
@@ -152,58 +152,56 @@ namespace Synchronizer
             bool result = false;
             actionResult = false;
 
+            ulong version;
+
             // Check if this key is already locked
-            var getResult = couchbaseClient.GetWithCas<int>(key);
+            var getResult = couchbaseClient.GetWithVersion<int>(key, out version);
 
             // If get was succesful
-            if (getResult.StatusCode == 0)
+            int isLocked = getResult;
+
+            // If not locked
+            if (isLocked == 0)
             {
-                int isLocked = getResult.Result;
+                bool setResult;
+                ulong newVersion;
 
-                // If not locked
-                if (isLocked == 0)
+                if (this.secondsInCache > 0)
                 {
-                    CasResult<bool> setResult = new CasResult<bool>();
+                    // Try to lock temporarily/permenantly 
+                    setResult = couchbaseClient.SetWithVersion(key, 1, version, out newVersion, (uint)this.secondsInCache);
+                }
+                else
+                {
+                    // Try to lock permenantly 
+                    setResult = couchbaseClient.SetWithVersion(key, 1, version, out newVersion);
+                }
 
-                    if (this.secondsInCache > -1)
+                // If succesfully locked
+                if (setResult)
+                {
+                    try
                     {
-                        DateTime expiresAt = DateTime.UtcNow.AddSeconds(this.secondsInCache);
-
-                        // Try to lock temporarily
-                        setResult = couchbaseClient.Cas(StoreMode.Set, key, 1, expiresAt, getResult.Cas);
+                        if (this.SynchronizedAct != null)
+                        {
+                            actionResult = this.SynchronizedAct(parameters);
+                            result = true;
+                        }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        // Try to lock permenantly 
-                        setResult = couchbaseClient.Cas(StoreMode.Set, key, 1, getResult.Cas);
+                        log.Error(string.Format("Syncrhnoizer failed performing action. key = {0}, message = {1}, st = {2}, target site = {3}",
+                            key, ex.Message, ex.StackTrace, ex.TargetSite), ex);
+                        throw ex;
                     }
-
-                    // If succesfully locked
-                    if (setResult.StatusCode == 0 && setResult.Result)
+                    // Always unlock, even if exception is thrown - to avoid infinite lock
+                    finally
                     {
-                        try
-                        {
-                            if (this.SynchronizedAct != null)
-                            {
-                                actionResult = this.SynchronizedAct(parameters);
-                                result = true;
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            log.Error(string.Format("Syncrhnoizer failed performing action. key = {0}, message = {1}, st = {2}, target site = {3}", 
-                                key, ex.Message, ex.StackTrace, ex.TargetSite), ex);
-                            throw ex;
-                        }
-                        // Always unlock, even if exception is thrown - to avoid infinite lock
-                        finally
-                        {
-                            // Try to unlock
-                            CasResult<bool> secondSetResult = couchbaseClient.Cas(StoreMode.Set, key, 0, setResult.Cas);
-                        }
-
-                        isLocked = 0;
+                        // Try to unlock
+                        bool secondSetResult = couchbaseClient.SetWithVersion(key, 0, newVersion);
                     }
+
+                    isLocked = 0;
                 }
             }
 

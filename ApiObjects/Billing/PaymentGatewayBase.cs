@@ -10,6 +10,7 @@ namespace ApiObjects.Billing
         public int ID { get; set; }
         public string Name { get; set; }
         public bool IsDefault { get; set; }
+        public bool SupportPaymentMethod { get; set; }
 
         public PaymentGatewayBase()
         {
@@ -20,13 +21,15 @@ namespace ApiObjects.Billing
             this.ID = paymentGatewayBase.ID;
             this.Name = paymentGatewayBase.Name;
             this.IsDefault = paymentGatewayBase.IsDefault;
+            this.SupportPaymentMethod = paymentGatewayBase.SupportPaymentMethod;
         }
 
-        public PaymentGatewayBase(int id, string name, bool isDefault)
+        public PaymentGatewayBase(int id, string name, bool isDefault, bool supportPaymentMethod)
         {
             this.ID = id;
             this.Name = name;
             this.IsDefault = isDefault;
+            this.SupportPaymentMethod = supportPaymentMethod;
         }
     }
 }
