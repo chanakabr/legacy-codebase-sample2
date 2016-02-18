@@ -2151,6 +2151,11 @@
             Renew Start Minutes
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Billing.KalturaPaymentGatewayProfile.SupportPaymentMethod">
+            <summary>
+            Renew Start Minutes
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.API.KalturaParentalRuleListResponse">
             <summary>
             ParentalRules list
@@ -11021,6 +11026,9 @@
         <member name="P:WebAPI.Billing.PaymentGatewayBase.IsDefault">
             <remarks/>
         </member>
+        <member name="P:WebAPI.Billing.PaymentGatewayBase.SupportPaymentMethod">
+            <remarks/>
+        </member>
         <member name="P:WebAPI.Billing.PaymentGateway.IsActive">
             <remarks/>
         </member>
@@ -11079,6 +11087,9 @@
             <remarks/>
         </member>
         <member name="T:WebAPI.Billing.eHouseholdPaymentGatewaySelectedBy">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Billing.eHouseholdPaymentGatewaySelectedBy.None">
             <remarks/>
         </member>
         <member name="F:WebAPI.Billing.eHouseholdPaymentGatewaySelectedBy.Account">

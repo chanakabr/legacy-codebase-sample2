@@ -3203,6 +3203,9 @@ namespace WebAPI.Billing {
     public enum eHouseholdPaymentGatewaySelectedBy {
         
         /// <remarks/>
+        None,
+        
+        /// <remarks/>
         Account,
         
         /// <remarks/>

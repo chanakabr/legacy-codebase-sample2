@@ -739,6 +739,7 @@
       </s:complexType>
       <s:simpleType name="eHouseholdPaymentGatewaySelectedBy">
         <s:restriction base="s:string">
+          <s:enumeration value="None" />
           <s:enumeration value="Account" />
           <s:enumeration value="Household" />
         </s:restriction>
