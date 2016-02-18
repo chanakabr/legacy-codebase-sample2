@@ -71,7 +71,7 @@ public partial class adm_payment_gateway_payment_method : System.Web.UI.Page
     {
         Int32 groupID = LoginManager.GetLoginGroupID();
         theTable.SetConnectionKey("billing_connection");
-        theTable += "select ID, group_id, status, TYPE as 'Type', NAME as 'Name' ";
+        theTable += "select ID, group_id, status, Name ";
         theTable += " from payment_gateway_payment_method ";
         theTable += " where ( status = 1 or status = 4 ) AND " ;
         theTable += ODBCWrapper.Parameter.NEW_PARAM("payment_gateway_id", "=", int.Parse(Session["paymentGW_id"].ToString()));
@@ -87,7 +87,7 @@ public partial class adm_payment_gateway_payment_method : System.Web.UI.Page
             theTable += " order by id ";
         }
 
-        theTable.AddHiddenField("ID");
+        
         theTable.AddHiddenField("group_id");
         theTable.AddHiddenField("status");
 

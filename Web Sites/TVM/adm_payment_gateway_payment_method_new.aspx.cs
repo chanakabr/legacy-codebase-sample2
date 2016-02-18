@@ -89,11 +89,7 @@ public partial class adm_payment_gateway_payment_method_new : System.Web.UI.Page
 
         DBRecordWebEditor theRecord = new DBRecordWebEditor("payment_gateway_payment_method", "adm_table_pager", sBack, "", "ID", t, sBack, "payment_gateway_id");
         theRecord.SetConnectionKey("billing_connection");
-
-        DataRecordShortTextField dr_type = new DataRecordShortTextField("ltr", true, 60, 128);
-        dr_type.Initialize("Type", "adm_table_header_nbg", "FormInput", "TYPE", false);
-        theRecord.AddRecord(dr_type);
-
+        
         DataRecordShortTextField dr_name = new DataRecordShortTextField("ltr", true, 60, 128);
         dr_name.Initialize("Name", "adm_table_header_nbg", "FormInput", "NAME", false);
         theRecord.AddRecord(dr_name);
