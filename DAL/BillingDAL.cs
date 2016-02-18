@@ -1282,17 +1282,20 @@ namespace DAL
                             paymentGateway.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
                             paymentGateway.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
                             int household = ODBCWrapper.Utils.GetIntSafeVal(dr, "house_hold_id");
-                            if (household > 0)
+                            paymentGateway.By = ApiObjects.eHouseholdPaymentGatewaySelectedBy.None;
+                            isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default");
+
+                            if (isDefault == 1)
                             {
-                                isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "selected");
-                                paymentGateway.By = ApiObjects.eHouseholdPaymentGatewaySelectedBy.Household;
-                            }
-                            else
-                            {
-                                isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default");
+                                paymentGateway.IsDefault = true;
                                 paymentGateway.By = ApiObjects.eHouseholdPaymentGatewaySelectedBy.Account;
                             }
-                            paymentGateway.IsDefault = isDefault == 1 ? true : false;
+
+                            if (household > 0)
+                            {
+                                paymentGateway.IsDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "selected") == 1 ? true : false;
+                                paymentGateway.By = ApiObjects.eHouseholdPaymentGatewaySelectedBy.Household;
+                            }
 
                             res.Add(paymentGateway);
                         }
@@ -2222,7 +2225,7 @@ namespace DAL
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
                 sp.AddParameter("@group_id", groupId);
                 sp.AddParameter("@payment_gateway_id", paymentGatewayId);
-                sp.AddParameter("@payment_method_id", paymentMethodId);                
+                sp.AddParameter("@payment_method_id", paymentMethodId);
                 sp.AddParameter("@name", name);
 
                 rowCount = sp.ExecuteReturnValue<int>();
@@ -2230,7 +2233,7 @@ namespace DAL
             catch (Exception ex)
             {
                 log.ErrorFormat("Error at Update_PaymentGatewayPaymentMethod. groupId: {0}, paymentGatewayId: {1}, paymentMethodId: {2}, name = {3}",
-                    groupId, paymentGatewayId, paymentMethodId, !string.IsNullOrEmpty(name) ? name: string.Empty, ex);
+                    groupId, paymentGatewayId, paymentMethodId, !string.IsNullOrEmpty(name) ? name : string.Empty, ex);
             }
 
             return rowCount > 0;
