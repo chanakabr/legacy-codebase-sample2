@@ -1175,7 +1175,6 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Managers\CouchbaseManager.cs" />
     <Compile Include="Managers\Models\Credentials.cs" />
     <Compile Include="Managers\Models\Group.cs" />
     <Compile Include="Managers\GroupsManager.cs" />
