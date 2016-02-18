@@ -11,9 +11,16 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/announcements/action")]
+    [RoutePrefix("_service/announcement/action")]
     public class AnnouncementController : ApiController
     {
+        /// <summary>
+        /// Add a new future scheduled system announcment push notification
+        /// </summary>
+        /// <param name="announcement">The announcement to be added.</param>
+        /// <returns></returns>
+        /// <remarks>Possible status codes: AnnouncementMessageTooLong = 8010, AnnouncementMessageIsEmpty = 8004, AnnouncementInvalidStartTime = 8005,
+        /// FeatureDisabled = 8009</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
         public int Add(KalturaAnnouncement announcement)
@@ -34,6 +41,13 @@ namespace WebAPI.Controllers
             return response;
         }
 
+        /// <summary>
+        /// Update an existing future system annoucement push notification. Annoucement can only be updated only before sending
+        /// </summary>
+        /// <param name="announcement">The announcement to update.</param>
+        /// <returns></returns>
+        /// <remarks>Possible status codes: AnnouncementMessageTooLong = 8010, AnnouncementMessageIsEmpty = 8004, AnnouncementInvalidStartTime = 8005, AnnouncementNotFound = 8006,
+        /// AnnouncementUpdateNotAllowed = 8007, FeatureDisabled = 8009</remarks>
         [Route("update"), HttpPost]
         [ApiAuthorize]
         public bool Update(KalturaAnnouncement announcement)
@@ -54,6 +68,13 @@ namespace WebAPI.Controllers
             return response;
         }
 
+        /// <summary>
+        /// Update a system announcement status
+        /// </summary>
+        /// <param name="id">Id of the announcement.</param>
+        /// <param name="status">Status to update to.</param>
+        /// <returns></returns>
+        /// <remarks>AnnouncementNotFound = 8006, AnnouncementUpdateNotAllowed = 8007</remarks>
         [Route("updateStatus"), HttpPost]
         [ApiAuthorize]
         public bool UpdateStatus(int id, bool status)
@@ -74,6 +95,12 @@ namespace WebAPI.Controllers
             return response;
         }
 
+        /// <summary>
+        /// Delete an exisitng annoucnent. Annoucment cannot be delete while being sent.
+        /// </summary>
+        /// <param name="id">Id of the announcement.</param>
+        /// <returns></returns>
+        /// <remarks>AnnouncementNotFound = 8006, AnnouncementUpdateNotAllowed = 8007</remarks>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
         public bool Delete(int id)
