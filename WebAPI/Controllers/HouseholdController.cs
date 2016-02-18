@@ -223,6 +223,58 @@ namespace WebAPI.Controllers
             return chargeId;
         }
 
+        /// <summary>
+        /// Set user billing account identifier (charge ID), for a specific household and a specific payment gateway
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes:         
+        /// Payment gateway not exist = 6008, Payment gateway charge id required = 6009, External identifier required = 6016, Error saving payment gateway household = 6017, 
+        /// Charge id already set to household payment gateway = 6025
+        /// </remarks>        
+        /// <param name="payment_gateway_id">External identifier for the payment gateway  </param>
+        /// <param name="payment_method_name"></param>      
+        /// <param name="payment_details"></param>      
+        /// <param name="payment_method_external_id"></param>        
+        [Route("setPaymentMethodExternalId"), HttpPost]
+        [ApiAuthorize]
+        public bool SetPaymentMethodExternalId(string payment_gateway_id, string payment_method_name, string payment_details, string payment_method_external_id)
+        {
+            bool response = false;
+
+            if (string.IsNullOrEmpty(payment_gateway_id))
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "payment_gateway_id cannot be empty");
+            }
+
+            if (string.IsNullOrEmpty(payment_method_name))
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "payment_method_name cannot be empty");
+            }
+
+            if (string.IsNullOrEmpty(payment_method_external_id))
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "payment_method_external_id cannot be empty");
+            }
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // get domain id      
+                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+                // call client
+                response = ClientsManager.BillingClient().SetPaymentGatewayHouseholdPaymentMethod(groupId, payment_gateway_id, (int)domainId, payment_method_name, payment_details, payment_method_external_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+
+        }
+
         #endregion
 
         /// <summary>

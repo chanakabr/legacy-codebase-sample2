@@ -84,7 +84,23 @@ namespace WebAPI.ObjectsConvertor.Mapping
              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
              .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
-             .ForMember(dest => dest.selectedBy, opt => opt.MapFrom(src => ConvertHouseholdPaymentGatewaySelectedBy(src.By)));             
+             .ForMember(dest => dest.PaymentMethods, opt => opt.MapFrom(src => src.PaymentMethods))
+             .ForMember(dest => dest.selectedBy, opt => opt.MapFrom(src => ConvertHouseholdPaymentGatewaySelectedBy(src.By)));
+
+            Mapper.CreateMap<PaymentMethod, WebAPI.Models.Billing.KalturaPaymentMethodProfile>()
+             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+
+            Mapper.CreateMap<PaymentGatewaySelectedBy, WebAPI.Models.Billing.KalturaPaymentGatewayBaseProfile>()
+           .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+           .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+           .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
+           .ForMember(dest => dest.PaymentMethods, opt => opt.MapFrom(src => ConvertHouseholdPaymentMethod(src.PaymentMethods)));
+
+            Mapper.CreateMap<HouseholdPaymentMethod, WebAPI.Models.Billing.KalturaPaymentMethod>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+            .ForMember(dest => dest.Selected, opt => opt.MapFrom(src => src.Selected));
         }
 
 
@@ -149,6 +165,26 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "unknown household payment gateway selected by");
+            }
+
+            return result;
+        }
+
+        private static List<KalturaPaymentMethod> ConvertHouseholdPaymentMethod(HouseholdPaymentMethod[] householdPaymentMethods)
+        {
+            List<KalturaPaymentMethod> result = null;
+
+            if (householdPaymentMethods != null && householdPaymentMethods.Length > 0)
+            {
+                result = new List<KalturaPaymentMethod>();
+
+                KalturaPaymentMethod item;
+
+                foreach (var householdPaymentMethod in householdPaymentMethods)
+                {
+                    item = AutoMapper.Mapper.Map<KalturaPaymentMethod>(householdPaymentMethod);
+                    result.Add(item);
+                }
             }
 
             return result;
