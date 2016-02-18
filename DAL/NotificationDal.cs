@@ -744,6 +744,17 @@ namespace DAL
             spInsert.ExecuteDataSet();
         }
 
+        public static void Update_MessageAnnouncementToSent(int id, int groupId)
+        {
+            ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("UpdateMessageAnnouncement");
+            spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            spInsert.AddParameter("@ID", id);
+            spInsert.AddParameter("@group_id", groupId);
+            spInsert.AddParameter("@sent", 2);
+            spInsert.AddParameter("@update_date", DateTime.UtcNow);
+            spInsert.ExecuteDataSet();
+        }
+
         public static void Delete_MessageAnnouncement(int id, int groupId)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("UpdateMessageAnnouncement");
