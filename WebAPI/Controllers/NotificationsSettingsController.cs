@@ -24,13 +24,14 @@ namespace WebAPI.Controllers
         /// 
         [Route("get"), HttpPost]
         [ApiAuthorize]
-        public KalturaNotificationSettings Get(int userId)
+        public KalturaNotificationSettings Get()
         {
             KalturaNotificationSettings response = null;
 
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
+                string userId = KS.GetFromRequest().UserId;
                 // call client                
                 response = ClientsManager.NotificationClient().Get(groupId, userId);
             }
@@ -51,13 +52,14 @@ namespace WebAPI.Controllers
         /// 
         [Route("update"), HttpPost]
         [ApiAuthorize]
-        public bool Update(KalturaNotificationSettings settings, int userId)
+        public bool Update(KalturaNotificationSettings settings)
         {
             bool response = false;
 
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
+                string userId = KS.GetFromRequest().UserId;
                 // call client                
                 response = ClientsManager.NotificationClient().Update(groupId, userId,settings);
             }

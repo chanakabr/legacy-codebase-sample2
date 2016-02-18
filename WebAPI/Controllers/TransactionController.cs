@@ -24,6 +24,7 @@ namespace WebAPI.Controllers
         /// <param name="product_type">Package type. Possible values: PPV, Subscription, Collection</param>
         /// <param name="coupon">Coupon code</param> 
         /// <param name="payment_gateway_id">Payment gateway identifier</param>
+        /// <param name="payment_method_id">Payment method identifier</param>
         /// <remarks>Possible status codes: 
         /// User not in domain = 1005, Invalid user = 1026, User does not exist = 2000, User suspended = 2001, Coupon not valid = 3020, Unable to purchase - PPV purchased = 3021,  Unable to purchase - Free = 3022,  Unable to purchase - For purchase subscription only = 3023,
         ///  Unable to purchase - Subscription purchased = 3024, Not for purchase = 3025, Unable to purchase - Collection purchased = 3027, Adapter Url required = 5013, Incorrect price = 6000, UnKnown PPV module = 6001, Payment gateway not set for household = 6007, Payment gateway does not exist = 6008, 
@@ -32,7 +33,8 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("purchase"), HttpPost]
         [ApiAuthorize]
-        public KalturaTransaction Purchase(double price, string currency, int product_id, KalturaTransactionType product_type, int content_id = 0, string coupon = null, int payment_gateway_id = 0)
+        public KalturaTransaction Purchase(double price, string currency, int product_id, KalturaTransactionType product_type, int content_id = 0, string coupon = null, int payment_gateway_id = 0, 
+            int? payment_method_id = null)
         {
             KalturaTransaction response = new KalturaTransaction();
 
@@ -51,6 +53,15 @@ namespace WebAPI.Controllers
             if (product_id <= 0)
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "product_id is illegal");
 
+            //// validate payment_method_id
+            if (!payment_method_id.HasValue )
+            {
+                payment_method_id = 0;
+            }
+            else if (payment_method_id.HasValue && payment_method_id.Value == 0)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "payment_method_id cannot be 0");
+            
+
             if (coupon == null)
             {
                 coupon = string.Empty;
@@ -59,7 +70,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().Purchase(groupId, KS.GetFromRequest().UserId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), price, currency, content_id, product_id, product_type, coupon, udid, payment_gateway_id);
+                response = ClientsManager.ConditionalAccessClient().Purchase(groupId, KS.GetFromRequest().UserId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), price, currency, content_id, product_id, product_type, coupon, udid, payment_gateway_id, payment_method_id.Value);
             }
             catch (ClientException ex)
             {

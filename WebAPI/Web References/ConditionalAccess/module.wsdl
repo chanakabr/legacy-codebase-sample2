@@ -302,7 +302,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="price" type="s:double" />
             <s:element minOccurs="0" maxOccurs="1" name="currency" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="conternId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="contentId" type="s:int" />
             <s:element minOccurs="0" maxOccurs="1" name="productId" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="coupon" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="userIP" type="s:string" />
@@ -325,6 +325,35 @@
           <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
         </s:sequence>
       </s:complexType>
+      <s:element name="RecordTransaction">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="householdId" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="state" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="paymentGatewayReferenceID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="paymentGatewayResponseCode" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="customDataId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="price" type="s:double" />
+            <s:element minOccurs="0" maxOccurs="1" name="currency" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="contentId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="productId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="transactionType" type="tns:eTransactionType" />
+            <s:element minOccurs="0" maxOccurs="1" name="paymentDetails" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="paymentMethod" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="paymentGatewayId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="RecordTransactionResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="RecordTransactionResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="GetUserPermittedItems">
         <s:complexType>
           <s:sequence>
@@ -2417,6 +2446,23 @@
           <s:element minOccurs="0" maxOccurs="1" name="assetID" type="s:string" />
         </s:sequence>
       </s:complexType>
+      <s:complexType name="LicensedLinkNPVRCommand">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:BaseNPVRCommand">
+            <s:sequence>
+              <s:element minOccurs="1" maxOccurs="1" name="startTime" type="s:dateTime" />
+              <s:element minOccurs="1" maxOccurs="1" name="format" type="s:int" />
+              <s:element minOccurs="1" maxOccurs="1" name="mediaFileID" type="s:int" />
+              <s:element minOccurs="0" maxOccurs="1" name="basicLink" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="userIP" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="referrer" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="countryCd" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="langCd" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="couponCode" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
       <s:complexType name="ProtectNPVRCommand">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseNPVRCommand">
@@ -2451,12 +2497,12 @@
           <s:extension base="tns:BaseNPVRCommand" />
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="RetrieveQuotaNPVRCommand">
+      <s:complexType name="CancelNPVRCommand">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseNPVRCommand" />
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="CancelNPVRCommand">
+      <s:complexType name="RetrieveQuotaNPVRCommand">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseNPVRCommand" />
         </s:complexContent>
@@ -2464,23 +2510,6 @@
       <s:complexType name="DeleteNPVRCommand">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseNPVRCommand" />
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="LicensedLinkNPVRCommand">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:BaseNPVRCommand">
-            <s:sequence>
-              <s:element minOccurs="1" maxOccurs="1" name="startTime" type="s:dateTime" />
-              <s:element minOccurs="1" maxOccurs="1" name="format" type="s:int" />
-              <s:element minOccurs="1" maxOccurs="1" name="mediaFileID" type="s:int" />
-              <s:element minOccurs="0" maxOccurs="1" name="basicLink" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="userIP" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="referrer" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="countryCd" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="langCd" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="couponCode" type="s:string" />
-            </s:sequence>
-          </s:extension>
         </s:complexContent>
       </s:complexType>
       <s:element name="GetNPVRResponseResponse">
@@ -2588,6 +2617,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="userIp" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="deviceName" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="paymentGatewayId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="paymentMethodId" type="s:int" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -3024,6 +3054,12 @@
   </wsdl:message>
   <wsdl:message name="GetPurchaseSessionIDSoapOut">
     <wsdl:part name="parameters" element="tns:GetPurchaseSessionIDResponse" />
+  </wsdl:message>
+  <wsdl:message name="RecordTransactionSoapIn">
+    <wsdl:part name="parameters" element="tns:RecordTransaction" />
+  </wsdl:message>
+  <wsdl:message name="RecordTransactionSoapOut">
+    <wsdl:part name="parameters" element="tns:RecordTransactionResponse" />
   </wsdl:message>
   <wsdl:message name="GetUserPermittedItemsSoapIn">
     <wsdl:part name="parameters" element="tns:GetUserPermittedItems" />
@@ -3604,7 +3640,7 @@
     <wsdl:part name="userId" type="s:string" />
     <wsdl:part name="price" type="s:string" />
     <wsdl:part name="currency" type="s:string" />
-    <wsdl:part name="conternId" type="s:string" />
+    <wsdl:part name="contentId" type="s:string" />
     <wsdl:part name="productId" type="s:string" />
     <wsdl:part name="coupon" type="s:string" />
     <wsdl:part name="userIP" type="s:string" />
@@ -3614,6 +3650,27 @@
   </wsdl:message>
   <wsdl:message name="GetPurchaseSessionIDHttpPostOut">
     <wsdl:part name="Body" element="tns:PurchaseSessionIdResponse" />
+  </wsdl:message>
+  <wsdl:message name="RecordTransactionHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userId" type="s:string" />
+    <wsdl:part name="householdId" type="s:string" />
+    <wsdl:part name="state" type="s:string" />
+    <wsdl:part name="paymentGatewayReferenceID" type="s:string" />
+    <wsdl:part name="paymentGatewayResponseCode" type="s:string" />
+    <wsdl:part name="customDataId" type="s:string" />
+    <wsdl:part name="price" type="s:string" />
+    <wsdl:part name="currency" type="s:string" />
+    <wsdl:part name="contentId" type="s:string" />
+    <wsdl:part name="productId" type="s:string" />
+    <wsdl:part name="transactionType" type="s:string" />
+    <wsdl:part name="paymentDetails" type="s:string" />
+    <wsdl:part name="paymentMethod" type="s:string" />
+    <wsdl:part name="paymentGatewayId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="RecordTransactionHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
   <wsdl:message name="GetUserPermittedItemsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -4639,6 +4696,7 @@
     <wsdl:part name="userIp" type="s:string" />
     <wsdl:part name="deviceName" type="s:string" />
     <wsdl:part name="paymentGatewayId" type="s:string" />
+    <wsdl:part name="paymentMethodId" type="s:string" />
   </wsdl:message>
   <wsdl:message name="PurchaseHttpPostOut">
     <wsdl:part name="Body" element="tns:TransactionResponse" />
@@ -4716,6 +4774,10 @@
     <wsdl:operation name="GetPurchaseSessionID">
       <wsdl:input message="tns:GetPurchaseSessionIDSoapIn" />
       <wsdl:output message="tns:GetPurchaseSessionIDSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RecordTransaction">
+      <wsdl:input message="tns:RecordTransactionSoapIn" />
+      <wsdl:output message="tns:RecordTransactionSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <wsdl:input message="tns:GetUserPermittedItemsSoapIn" />
@@ -5086,6 +5148,10 @@
     <wsdl:operation name="GetPurchaseSessionID">
       <wsdl:input message="tns:GetPurchaseSessionIDHttpPostIn" />
       <wsdl:output message="tns:GetPurchaseSessionIDHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RecordTransaction">
+      <wsdl:input message="tns:RecordTransactionHttpPostIn" />
+      <wsdl:output message="tns:RecordTransactionHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <wsdl:input message="tns:GetUserPermittedItemsHttpPostIn" />
@@ -5466,6 +5532,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetPurchaseSessionID">
       <soap:operation soapAction="http://ca.tvinci.com/GetPurchaseSessionID" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RecordTransaction">
+      <soap:operation soapAction="http://ca.tvinci.com/RecordTransaction" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -6313,6 +6388,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="RecordTransaction">
+      <soap12:operation soapAction="http://ca.tvinci.com/RecordTransaction" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <soap12:operation soapAction="http://ca.tvinci.com/GetUserPermittedItems" style="document" />
       <wsdl:input>
@@ -7137,6 +7221,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetPurchaseSessionID">
       <http:operation location="/GetPurchaseSessionID" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RecordTransaction">
+      <http:operation location="/RecordTransaction" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
