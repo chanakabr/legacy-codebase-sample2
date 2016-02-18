@@ -17,7 +17,7 @@ namespace NotificationObj
         [DataMember]
         public bool Enabled { get; set; }
         [DataMember]
-        public DateTime StartTime { get; set; }
+        public long StartTime { get; set; }
         [DataMember]
         public string Timezone { get; set; }
         [DataMember]
@@ -27,7 +27,7 @@ namespace NotificationObj
         [DataMember]
         public int MessageAnnouncementId { get; set; }
 
-        public MessageAnnouncement(string name, string msg, bool enabled, DateTime startTime, string timezone, eAnnouncementRecipientsType recipients, eAnnouncementStatus status = eAnnouncementStatus.NotSent)
+        public MessageAnnouncement(string name, string msg, bool enabled, long startTime, string timezone, eAnnouncementRecipientsType recipients, eAnnouncementStatus status = eAnnouncementStatus.NotSent)
         {
             Name = name;
             Message = msg;
