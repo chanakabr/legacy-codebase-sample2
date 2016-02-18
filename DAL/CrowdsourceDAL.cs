@@ -4,25 +4,26 @@ using System.Linq;
 using ApiObjects.CrowdsourceItems;
 using ApiObjects.CrowdsourceItems.Base;
 using ApiObjects.CrowdsourceItems.CbDocs;
-using CouchbaseWrapper;
-using CouchbaseWrapper.DalEntities;
 using Newtonsoft.Json;
+using CouchbaseManager;
 
 namespace DAL
 {
     public static class CrowdsourceDAL
     {
-        private static GenericCouchbaseClient _client = CouchbaseWrapper.CouchbaseManager.GetInstance("crowdsource");
+        private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.CROWDSOURCE);
         
         public static int GetLastItemId(int groupId, eCrowdsourceType type, int assetId)
         {
             try
             {
                 CrowdsourceJobDoc job = new CrowdsourceJobDoc(groupId, type, assetId);
-                if (_client.Exists(job.Id))
                 {
-                    job = _client.Get<CrowdsourceJobDoc>(job.Id);
-                    return job.LastItemId;
+                    job = cbManager.Get<CrowdsourceJobDoc>(job.Id);
+                    if (job != null)
+                    {
+                        return job.LastItemId;
+                    }
                 }
                 return 0;
             }
@@ -39,7 +40,7 @@ namespace DAL
                 {
                     LastItemId = newItemId
                 };
-                return _client.Store(job);
+                return cbManager.Set(job.Id, job);
             }
             catch (Exception)
             {
@@ -52,25 +53,23 @@ namespace DAL
             try
             {
                 CrowdsourceFeedDoc doc = new CrowdsourceFeedDoc(groupId, csItem.Key);
-                if (!_client.Exists(doc.Id))
+                if (cbManager.Get<CrowdsourceFeedDoc>(doc.Id) == null)
                 {
-                    _client.Store(doc);
+                    cbManager.Add(doc.Id, doc);
                 }
-                CasGetResult<CrowdsourceFeedDoc> casDoc = _client.GetWithCas<CrowdsourceFeedDoc>(doc.Id);
-                if (casDoc.OperationResult == eOperationResult.NoError)
-                {
-                    if (casDoc.Value == null)
-                    {
-                        casDoc.Value = new CrowdsourceFeedDoc(groupId, csItem.Key);
-                        _client.Store(casDoc.Value);
-                        casDoc = _client.GetWithCas<CrowdsourceFeedDoc>(doc.Id);
-                    }
-                    casDoc.Value.Items.Insert(0,csItem.Value);
-                    casDoc.Value.Items = casDoc.Value.Items.Take(TCMClient.Settings.Instance.GetValue<int>("crowdsourcer.FEED_NUM_OF_ITEMS")).ToList();
 
-                    return _client.CasWithRetry(casDoc.Value, casDoc.DocVersion, 10, 1000);
+                ulong version;
+                CrowdsourceFeedDoc feedDoc = cbManager.GetWithVersion<CrowdsourceFeedDoc>(doc.Id, out version);
+                if (feedDoc == null)
+                {
+                    feedDoc = new CrowdsourceFeedDoc(groupId, csItem.Key);
+                    cbManager.Add(feedDoc.Id, feedDoc);
+                    feedDoc = cbManager.GetWithVersion<CrowdsourceFeedDoc>(doc.Id, out version);
                 }
-                return casDoc.OperationResult == eOperationResult.NoError;
+                feedDoc.Items.Insert(0, csItem.Value);
+                feedDoc.Items = feedDoc.Items.Take(TCMClient.Settings.Instance.GetValue<int>("crowdsourcer.FEED_NUM_OF_ITEMS")).ToList();
+
+                return cbManager.SetWithVersionWithRetry<CrowdsourceFeedDoc>(feedDoc.Id, feedDoc, version, 10, 1000);
             }
             catch (Exception)
             {
@@ -82,7 +81,7 @@ namespace DAL
         {
             List<BaseCrowdsourceItem> retVal = null;
             CrowdsourceFeedDoc doc = new CrowdsourceFeedDoc(groupId, language);
-                CrowdsourceFeedDoc csDoc = _client.Get<CrowdsourceFeedDoc>(doc.Id);
+                CrowdsourceFeedDoc csDoc = cbManager.Get<CrowdsourceFeedDoc>(doc.Id);
                 if (csDoc != null)
                 {
                     if (csDoc.Items != null)

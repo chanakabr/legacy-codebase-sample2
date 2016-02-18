@@ -1,10 +1,8 @@
-﻿using Couchbase;
-using CouchbaseManager;
+﻿using CouchbaseManager;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Enyim.Caching.Memcached;
 
 namespace CachingProvider
 {
