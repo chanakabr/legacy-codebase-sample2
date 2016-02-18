@@ -15,6 +15,7 @@ namespace ApiObjects.Billing
         public int PendingRetries { get; set; }
         public int RenewalIntervalMinutes { get; set; }
         public int RenewalStartMinutes { get; set; }
+
         public string SharedSecret { get; set; }
         [XmlIgnore]
         public int Status { get; set; }

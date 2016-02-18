@@ -1237,8 +1237,8 @@ namespace DAL
                             pgw = new PaymentGatewayBase();
                             pgw.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
                             pgw.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
-                            int isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default");
-                            pgw.IsDefault = isDefault == 1 ? true : false;
+                            pgw.IsDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default") != 0 ? true : false;
+                            pgw.SupportPaymentMethod = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_payment_method_support") != 0 ? true : false;
 
                             res.Add(pgw);
                         }
@@ -1473,6 +1473,7 @@ namespace DAL
                 sp.AddParameter("@isActive", pgw.IsActive);
                 sp.AddParameter("@renewal_interval", pgw.RenewalIntervalMinutes);
                 sp.AddParameter("@renewal_start", pgw.RenewalStartMinutes);
+                sp.AddParameter("@is_payment_method_support ", pgw.SupportPaymentMethod);
 
                 DataTable dt = CreateDataTable(pgw.Settings);
                 sp.AddDataTableParameter("@KeyValueList", dt);
@@ -2328,7 +2329,8 @@ namespace DAL
                             paymentGatewayHouseholdPaymentMethods[paymentGatewayId].Add(new HouseholdPaymentMethod()
                             {
                                 ID = ODBCWrapper.Utils.GetIntSafeVal(row, "ID"),
-                                Name = ODBCWrapper.Utils.GetSafeStr(row, "NAME"),
+                                Name = ODBCWrapper.Utils.GetSafeStr(row, "Name"),
+                                Details = ODBCWrapper.Utils.GetSafeStr(row, "Details"),
                                 Selected = ODBCWrapper.Utils.GetSafeStr(row, "Selected") == "1" ? true : false,
                                 PaymentGatewayId = paymentGatewayId
                             });
