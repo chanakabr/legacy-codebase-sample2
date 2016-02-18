@@ -12,7 +12,6 @@ namespace QueueWrapper.Queues.QueueObjects
             : base()
         {
             this.Implementation = new RabbitQueue(ConfigType.DefaultConfig, true);
-            storeForRecovery = true;
         }
 
         public override bool Enqueue(ApiObjects.QueueObject record, string sRouteKey)
