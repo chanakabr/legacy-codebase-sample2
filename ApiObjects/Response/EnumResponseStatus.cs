@@ -203,6 +203,15 @@ namespace ApiObjects.Response
 
         // notification 8000-899
         NoNotificationSettingsSent = 8000,
-        PushNotificationFalse = 8001 //"push notification false can't comabin with push system announcements true";
+        PushNotificationFalse = 8001, //"push notification false can't comabin with push system announcements true";
+        NoNotificationPartnerSettings = 8002,
+        NoNotificationSettings = 8003,        
+        AnnouncementMessageIsEmpty = 8004,
+        AnnouncementInvalidStartTime = 8005,
+        AnnouncementNotFound = 8006,
+        AnnouncementUpdateNotAllowed = 8007,
+        AnnouncementInvalidTimezone = 8008,
+        FeatureDisabled = 8009,
+        AnnouncementMessageTooLong = 8010
     }
 }

@@ -99,7 +99,9 @@
     <Compile Include="Billing\PaymentGatewayAssociate.cs" />
     <Compile Include="DevicePinResponse.cs" />
     <Compile Include="Notification\NotificationPartnerSettings.cs" />
+    <Compile Include="Notification\NotificationPartnerSettingsResponse.cs" />
     <Compile Include="Notification\NotificationSettings.cs" />
+    <Compile Include="Notification\NotificationSettingsResponse.cs" />
     <Compile Include="PersonalEnrichments\AssetFiles.cs" />
     <Compile Include="Billing\HouseholdPaymentGatewayResponse.cs" />
     <Compile Include="Billing\HouseholdPaymentGateway.cs" />
@@ -137,6 +139,7 @@
     <Compile Include="PurchaseSessionIdResponse.cs" />
     <Compile Include="QueueObjects\ImageUploadData.cs" />
     <Compile Include="QueueObjects\ExportTaskData.cs" />
+    <Compile Include="QueueObjects\MessageAnnouncementData.cs" />
     <Compile Include="RecommendationEngine\RecommendationEngineResponse.cs" />
     <Compile Include="RecommendationEngine\RecommendationEngineResponseList.cs" />
     <Compile Include="RecommendationEngine\RecommendationEngineSettinsResponse.cs" />

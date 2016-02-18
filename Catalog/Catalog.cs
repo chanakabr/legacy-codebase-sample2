@@ -40,6 +40,7 @@ namespace Catalog
     public class Catalog
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly KLogger statisticsLog = new KLogger("MediaEohLogger", true);
 
         private static readonly string TAGS = "tags";
         private static readonly string METAS = "metas";
@@ -6352,6 +6353,18 @@ namespace Catalog
             }
 
             return sGroup;
+        }
+
+        public static void WriteMediaEohStatistics(int nWatcherID, string sSessionID, int m_nGroupID, int nOwnerGroupID, int mediaId, int nMediaFileID, int nBillingTypeID, int nCDNID, int nMediaDuration,
+                                                   int nCountryID, int nPlayerID, int nFirstPlayCounter, int nPlayCounter, int nLoadCounter, int nPauseCounter, int nStopCounter, int nFinishCounter, int nFullScreenCounter,
+                                                   int nExitFullScreenCounterint, int nSendToFriendCounter, int nPlayTimeCounter, int nFileQualityID, int nFileFormatID, DateTime dStartHourDate, int nUpdaterID,
+                                                   int nBrowser, int nPlatform, string sSiteGuid, string sDeviceUdID, string sPlayCycleID, int nSwooshCounter)
+        {
+            string infoToLog = string.Join(",", new object[] { nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, mediaId, nMediaFileID, nBillingTypeID, nCDNID, nMediaDuration, nCountryID, nPlayerID,
+                                                               nFirstPlayCounter, nPlayCounter, nLoadCounter, nPauseCounter, nStopCounter, nFinishCounter, nFullScreenCounter, nExitFullScreenCounterint,
+                                                               nSendToFriendCounter, nPlayTimeCounter, nFileQualityID, nFileFormatID, dStartHourDate, nUpdaterID, nBrowser, nPlatform, sSiteGuid,
+                                                               sDeviceUdID, sPlayCycleID, nSwooshCounter });
+            statisticsLog.Info(infoToLog);
         }
 
     }

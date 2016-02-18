@@ -504,4 +504,12 @@ namespace ApiObjects
         Delete,
         Add
     }
+
+    public enum eAnnouncementRecipientsType
+    {
+        All,
+        LoggedIn,
+        Guests,
+        Other
+    }
 }

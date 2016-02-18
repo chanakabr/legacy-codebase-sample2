@@ -75,6 +75,7 @@
     <Compile Include="Queues\Enums.cs" />
     <Compile Include="Queues\QueueObjects\ImageUploadQueue.cs" />
     <Compile Include="Queues\QueueObjects\ExportTasksQueue.cs" />
+    <Compile Include="Queues\QueueObjects\MessageAnnouncementQueue.cs" />
     <Compile Include="Queues\QueueObjects\SetupTasksQueue.cs" />
     <Compile Include="Queues\QueueObjects\BaseQueue.cs" />
     <Compile Include="Queues\QueueObjects\CatalogQueue.cs" />
