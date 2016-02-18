@@ -383,6 +383,27 @@
     <None Include="Service References\Notifications\NotificationService12.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\Notifications\NotificationService13.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService14.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService15.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService16.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService17.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService18.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService19.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\Notifications\NotificationService2.xsd">
       <SubType>Designer</SubType>
     </None>
