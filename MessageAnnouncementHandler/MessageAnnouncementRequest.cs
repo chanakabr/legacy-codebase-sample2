@@ -14,7 +14,7 @@ namespace MessageAnnouncementHandler
         public int GroupId { get; set; }
 
         [JsonProperty("start_time")]
-        public DateTime StartTime { get; set; }
+        public long StartTime { get; set; }
 
         [JsonProperty("message_announcement_id")]
         public int MessageAnnouncementId { get; set; }

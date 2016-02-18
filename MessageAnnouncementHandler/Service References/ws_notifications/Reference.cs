@@ -896,7 +896,7 @@ namespace MessageAnnouncementHandler.ws_notifications {
         private ApiObjects.eAnnouncementRecipientsType RecipientsField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.DateTime StartTimeField;
+        private long StartTimeField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private MessageAnnouncementHandler.ws_notifications.eAnnouncementStatus StatusField;
@@ -980,7 +980,7 @@ namespace MessageAnnouncementHandler.ws_notifications {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.DateTime StartTime {
+        public long StartTime {
             get {
                 return this.StartTimeField;
             }
@@ -1154,13 +1154,13 @@ namespace MessageAnnouncementHandler.ws_notifications {
         MessageAnnouncementHandler.ws_notifications.AddMessageAnnouncementResponse AddMessageAnnouncement(string sWSUserName, string sWSPassword, int groupId, MessageAnnouncementHandler.ws_notifications.MessageAnnouncement announcement);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SendMessageAnnouncement", ReplyAction="http://tempuri.org/INotificationService/SendMessageAnnouncementResponse")]
-        bool SendMessageAnnouncement(string sWSUserName, string sWSPassword, int groupId, System.DateTime startTime, int id);
+        bool SendMessageAnnouncement(string sWSUserName, string sWSPassword, int groupId, long startTime, int id);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateMessageAnnouncement", ReplyAction="http://tempuri.org/INotificationService/UpdateMessageAnnouncementResponse")]
         ApiObjects.Response.Status UpdateMessageAnnouncement(string sWSUserName, string sWSPassword, int groupId, MessageAnnouncementHandler.ws_notifications.MessageAnnouncement announcement);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateMessageAnnouncementStatus", ReplyAction="http://tempuri.org/INotificationService/UpdateMessageAnnouncementStatusResponse")]
-        ApiObjects.Response.Status UpdateMessageAnnouncementStatus(string sWSUserName, string sWSPassword, int groupId, MessageAnnouncementHandler.ws_notifications.MessageAnnouncement announcement, bool status);
+        ApiObjects.Response.Status UpdateMessageAnnouncementStatus(string sWSUserName, string sWSPassword, int groupId, int id, bool status);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/DeleteMessageAnnouncement", ReplyAction="http://tempuri.org/INotificationService/DeleteMessageAnnouncementResponse")]
         ApiObjects.Response.Status DeleteMessageAnnouncement(string sWSUserName, string sWSPassword, int groupId, int id);
@@ -1249,7 +1249,7 @@ namespace MessageAnnouncementHandler.ws_notifications {
             return base.Channel.AddMessageAnnouncement(sWSUserName, sWSPassword, groupId, announcement);
         }
         
-        public bool SendMessageAnnouncement(string sWSUserName, string sWSPassword, int groupId, System.DateTime startTime, int id) {
+        public bool SendMessageAnnouncement(string sWSUserName, string sWSPassword, int groupId, long startTime, int id) {
             return base.Channel.SendMessageAnnouncement(sWSUserName, sWSPassword, groupId, startTime, id);
         }
         
@@ -1257,8 +1257,8 @@ namespace MessageAnnouncementHandler.ws_notifications {
             return base.Channel.UpdateMessageAnnouncement(sWSUserName, sWSPassword, groupId, announcement);
         }
         
-        public ApiObjects.Response.Status UpdateMessageAnnouncementStatus(string sWSUserName, string sWSPassword, int groupId, MessageAnnouncementHandler.ws_notifications.MessageAnnouncement announcement, bool status) {
-            return base.Channel.UpdateMessageAnnouncementStatus(sWSUserName, sWSPassword, groupId, announcement, status);
+        public ApiObjects.Response.Status UpdateMessageAnnouncementStatus(string sWSUserName, string sWSPassword, int groupId, int id, bool status) {
+            return base.Channel.UpdateMessageAnnouncementStatus(sWSUserName, sWSPassword, groupId, id, status);
         }
         
         public ApiObjects.Response.Status DeleteMessageAnnouncement(string sWSUserName, string sWSPassword, int groupId, int id) {
