@@ -16,12 +16,12 @@ namespace ApiObjects.QueueObjects
         #region Data Members
         
         private int groupId;
-        private DateTime startTime;
+        private long startTime;
         private int messageAnnouncementId;
 
         #endregion
 
-        public MessageAnnouncementData(int groupId, DateTime startTime, int messageAnnouncementId)
+        public MessageAnnouncementData(int groupId, long startTime, int messageAnnouncementId)
             : base(
                 // id = guid
                 Guid.NewGuid().ToString(),
