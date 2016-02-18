@@ -589,6 +589,86 @@ namespace CouchbaseManager
         /// <param name="key"></param>
         /// <param name="value"></param>
         /// <param name="version"></param>
+        /// <param name="expiration">TTL in seconds</param>
+        /// <returns></returns>
+        public bool SetWithVersion<T>(string key, T value, ulong version, uint expiration = 0)
+        {
+            bool result = false;
+
+            using (var cluster = new Cluster(clientConfiguration))
+            {
+                using (var bucket = cluster.OpenBucket(bucketName))
+                {
+                    var setResult = bucket.Upsert<T>(key, value, version, expiration);
+
+                    if (setResult != null)
+                    {
+                        if (setResult.Exception != null)
+                        {
+                            throw setResult.Exception;
+                        }
+
+                        if (setResult.Status == Couchbase.IO.ResponseStatus.Success)
+                        {
+                            result = setResult.Success;
+                        }
+                        else
+                        {
+                            HandleStatusCode(setResult.Status);
+
+                            setResult = bucket.Upsert<T>(key, value, version, expiration);
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public bool SetWithVersion<T>(string key, T value, ulong version, out ulong newVersion, uint expiration = 0)
+        {
+            bool result = false;
+            newVersion = 0;
+
+            using (var cluster = new Cluster(clientConfiguration))
+            {
+                using (var bucket = cluster.OpenBucket(bucketName))
+                {
+                    var setResult = bucket.Upsert<T>(key, value, version, expiration);
+
+                    if (setResult != null)
+                    {
+                        if (setResult.Exception != null)
+                        {
+                            throw setResult.Exception;
+                        }
+
+                        if (setResult.Status == Couchbase.IO.ResponseStatus.Success)
+                        {
+                            result = setResult.Success;
+                            newVersion = setResult.Cas;
+                        }
+                        else
+                        {
+                            HandleStatusCode(setResult.Status);
+
+                            setResult = bucket.Upsert<T>(key, value, version, expiration);
+                            newVersion = setResult.Cas;
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <param name="version"></param>
         /// <param name="numOfRetries"></param>
         /// <param name="retryInterval"></param>
         /// <param name="expiration">TTL in seconds</param>
