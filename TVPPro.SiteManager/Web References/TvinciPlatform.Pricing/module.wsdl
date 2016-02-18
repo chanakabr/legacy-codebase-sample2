@@ -1240,8 +1240,8 @@
       <s:element name="ValidatePPVModuleForMediaFile">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="mediaFileID" type="s:int" />
             <s:element minOccurs="1" maxOccurs="1" name="ppvModuleCode" type="s:long" />
           </s:sequence>
@@ -1251,6 +1251,38 @@
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="ValidatePPVModuleForMediaFileResult" type="tns:PPVModule" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetSubscriptionsByProductCodes">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="productCodes" type="tns:ArrayOfString" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetSubscriptionsByProductCodesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetSubscriptionsByProductCodesResult" type="tns:ArrayOfSubscription" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPPVModulesByProductCodes">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="productCodes" type="tns:ArrayOfString" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPPVModulesByProductCodesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetPPVModulesByProductCodesResult" type="tns:ArrayOfPPVModule" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -1579,6 +1611,18 @@
   </wsdl:message>
   <wsdl:message name="ValidatePPVModuleForMediaFileSoapOut">
     <wsdl:part name="parameters" element="tns:ValidatePPVModuleForMediaFileResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsByProductCodesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetSubscriptionsByProductCodes" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsByProductCodesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetSubscriptionsByProductCodesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetPPVModulesByProductCodesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetPPVModulesByProductCodes" />
+  </wsdl:message>
+  <wsdl:message name="GetPPVModulesByProductCodesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetPPVModulesByProductCodesResponse" />
   </wsdl:message>
   <wsdl:message name="GetCurrencyValuesHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -2032,13 +2076,29 @@
     <wsdl:part name="Body" element="tns:ArrayOfCollection" />
   </wsdl:message>
   <wsdl:message name="ValidatePPVModuleForMediaFileHttpPostIn">
-    <wsdl:part name="userName" type="s:string" />
-    <wsdl:part name="password" type="s:string" />
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="mediaFileID" type="s:string" />
     <wsdl:part name="ppvModuleCode" type="s:string" />
   </wsdl:message>
   <wsdl:message name="ValidatePPVModuleForMediaFileHttpPostOut">
     <wsdl:part name="Body" element="tns:PPVModule" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsByProductCodesHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="productCodes" type="s1:StringArray" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsByProductCodesHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfSubscription" />
+  </wsdl:message>
+  <wsdl:message name="GetPPVModulesByProductCodesHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="productCodes" type="s1:StringArray" />
+  </wsdl:message>
+  <wsdl:message name="GetPPVModulesByProductCodesHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfPPVModule" />
   </wsdl:message>
   <wsdl:portType name="mdouleSoap">
     <wsdl:operation name="GetCurrencyValues">
@@ -2229,6 +2289,14 @@
       <wsdl:input message="tns:ValidatePPVModuleForMediaFileSoapIn" />
       <wsdl:output message="tns:ValidatePPVModuleForMediaFileSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsByProductCodes">
+      <wsdl:input message="tns:GetSubscriptionsByProductCodesSoapIn" />
+      <wsdl:output message="tns:GetSubscriptionsByProductCodesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPPVModulesByProductCodes">
+      <wsdl:input message="tns:GetPPVModulesByProductCodesSoapIn" />
+      <wsdl:output message="tns:GetPPVModulesByProductCodesSoapOut" />
+    </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="mdouleHttpPost">
     <wsdl:operation name="GetCurrencyValues">
@@ -2418,6 +2486,14 @@
     <wsdl:operation name="ValidatePPVModuleForMediaFile">
       <wsdl:input message="tns:ValidatePPVModuleForMediaFileHttpPostIn" />
       <wsdl:output message="tns:ValidatePPVModuleForMediaFileHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsByProductCodes">
+      <wsdl:input message="tns:GetSubscriptionsByProductCodesHttpPostIn" />
+      <wsdl:output message="tns:GetSubscriptionsByProductCodesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPPVModulesByProductCodes">
+      <wsdl:input message="tns:GetPPVModulesByProductCodesHttpPostIn" />
+      <wsdl:output message="tns:GetPPVModulesByProductCodesHttpPostOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="mdouleSoap" type="tns:mdouleSoap">
@@ -2838,6 +2914,24 @@
     </wsdl:operation>
     <wsdl:operation name="ValidatePPVModuleForMediaFile">
       <soap:operation soapAction="http://pricing.tvinci.com/ValidatePPVModuleForMediaFile" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsByProductCodes">
+      <soap:operation soapAction="http://pricing.tvinci.com/GetSubscriptionsByProductCodes" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPPVModulesByProductCodes">
+      <soap:operation soapAction="http://pricing.tvinci.com/GetPPVModulesByProductCodes" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -3271,6 +3365,24 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsByProductCodes">
+      <soap12:operation soapAction="http://pricing.tvinci.com/GetSubscriptionsByProductCodes" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPPVModulesByProductCodes">
+      <soap12:operation soapAction="http://pricing.tvinci.com/GetPPVModulesByProductCodes" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="mdouleHttpPost" type="tns:mdouleHttpPost">
     <http:binding verb="POST" />
@@ -3690,6 +3802,24 @@
     </wsdl:operation>
     <wsdl:operation name="ValidatePPVModuleForMediaFile">
       <http:operation location="/ValidatePPVModuleForMediaFile" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionsByProductCodes">
+      <http:operation location="/GetSubscriptionsByProductCodes" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPPVModulesByProductCodes">
+      <http:operation location="/GetPPVModulesByProductCodes" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
