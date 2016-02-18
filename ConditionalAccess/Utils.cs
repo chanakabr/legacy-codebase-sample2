@@ -4046,6 +4046,11 @@ namespace ConditionalAccess
                     }
                 }
             }
+            //Incase we want to ignore filetypeIDs (sent as null or empty)
+            else
+            {
+                isContained = true;
+            }
 
             return isContained;
         }
@@ -4123,6 +4128,30 @@ namespace ConditionalAccess
             return status;
         }
 
-    }
+        internal static List<int> GetChannelsListFromSubscriptions(List<Subscription> subscriptions)
+        {
+            List<int> channelsList = new List<int>();
+            if (subscriptions != null && subscriptions.Count > 0)
+            {
+                foreach (Subscription subscription in subscriptions)
+                {
+                    if (subscription.m_sCodes != null)
+                    {
+                        // Get channels from subscriptions
+                        foreach (BundleCodeContainer bundleCode in subscription.m_sCodes)
+                        {
+                            int channelID;
+                            if (int.TryParse(bundleCode.m_sCode, out channelID) && !channelsList.Contains(channelID))
+                            {
+                                channelsList.Add(channelID);
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return channelsList;
+        }
 
+    }
 }

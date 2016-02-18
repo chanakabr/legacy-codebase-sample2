@@ -16040,48 +16040,34 @@ namespace ConditionalAccess
                 // Get all subscriptions
                 if (bundleEntitlements.FileTypeIdToSubscriptionMappings != null && bundleEntitlements.FileTypeIdToSubscriptionMappings.Count > 0)
                 {
-                    // Get subscriptions that don't have specific fileTypeIDs defined
-                    if (bundleEntitlements.FileTypeIdToSubscriptionMappings.ContainsKey(0) && bundleEntitlements.FileTypeIdToSubscriptionMappings[0].Count > 0)
+                    if (fileTypeIDs != null && fileTypeIDs.Length > 0)
                     {
-                        foreach (Subscription subscription in bundleEntitlements.FileTypeIdToSubscriptionMappings[0])
+                        // Get subscriptions that don't have specific fileTypeIDs defined
+                        if (bundleEntitlements.FileTypeIdToSubscriptionMappings.ContainsKey(0) && bundleEntitlements.FileTypeIdToSubscriptionMappings[0].Count > 0)
                         {
-                            if (subscription.m_sCodes != null)
+                            response.channels.AddRange(Utils.GetChannelsListFromSubscriptions(bundleEntitlements.FileTypeIdToSubscriptionMappings[0]));
+                        }
+
+                        // Get subscriptions that have the specific fileTypeID defined
+                        foreach (int fileTypeID in fileTypeIDs)
+                        {
+                            if (bundleEntitlements.FileTypeIdToSubscriptionMappings.ContainsKey(fileTypeID) && bundleEntitlements.FileTypeIdToSubscriptionMappings[fileTypeID].Count > 0)
                             {
-                                // Get channels from subscriptions
-                                foreach (BundleCodeContainer bundleCode in subscription.m_sCodes)
-                                {
-                                    int channelID;
-                                    if (int.TryParse(bundleCode.m_sCode, out channelID) && !response.channels.Contains(channelID))
-                                    {
-                                        response.channels.Add(channelID);
-                                    }
-                                }
+                                response.channels.AddRange(Utils.GetChannelsListFromSubscriptions(bundleEntitlements.FileTypeIdToSubscriptionMappings[fileTypeID]));
                             }
                         }
                     }
 
-                    // Get subscriptions that have the specific fileTypeID defined
-                    foreach (int fileTypeID in fileTypeIDs)
+                    //Incase we want to ignore filetypeIDs (sent as null or empty)
+                    else
                     {
-                        if (bundleEntitlements.FileTypeIdToSubscriptionMappings.ContainsKey(fileTypeID) && bundleEntitlements.FileTypeIdToSubscriptionMappings[fileTypeID].Count > 0)
-                        {
-                            foreach (Subscription subscription in bundleEntitlements.FileTypeIdToSubscriptionMappings[fileTypeID])
-                            {
-                                if (subscription.m_sCodes != null)
-                                {
-                                    // Get channels from subscriptions
-                                    foreach (BundleCodeContainer bundleCode in subscription.m_sCodes)
-                                    {
-                                        int channelID;
-                                        if (int.TryParse(bundleCode.m_sCode, out channelID) && !response.channels.Contains(channelID))
-                                        {
-                                            response.channels.Add(channelID);
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        response.channels.AddRange(Utils.GetChannelsListFromSubscriptions(bundleEntitlements.SubscriptionsData.Values.ToList()));
                     }
+                }
+
+                if (response.channels != null && response.channels.Count > 0)
+                {
+                    response.channels = response.channels.Distinct().ToList();
                 }
 
                 // Get all collections
@@ -16102,7 +16088,7 @@ namespace ConditionalAccess
                             }
                         }
                     }
-                }
+                }                
 
                 response.status.Code = (int)eResponseStatus.OK;
                 response.status.Message = eResponseStatus.OK.ToString();
@@ -16148,25 +16134,36 @@ namespace ConditionalAccess
                             List<int> mediaFilesToMap = new List<int>();
                             foreach (PPVModule ppvModule in ppvModulesResponse.PPVModules)
                             {
-                                // PPV does not have specific file types defined --> supports all file types, add PPV purchased mediaFile to list
-                                if (ppvModule.m_relatedFileTypes == null)
+                                if (fileTypeIDs != null && fileTypeIDs.Length > 0)
                                 {
-                                    if (!mediaFilesToMap.Contains(entitlements[ppvModule.m_sObjectCode]))
-                                    {
-                                        mediaFilesToMap.Add(entitlements[ppvModule.m_sObjectCode]);
-                                    }
-                                }
-
-                                // PPV has one of the requested file types, add PPV purchased mediaFile to list
-                                else if (ppvModule.m_relatedFileTypes.Length > 0)
-                                {
-                                    int[] relevantFileTypes = ppvModule.m_relatedFileTypes.Intersect(fileTypeIDs).ToArray();
-                                    if (relevantFileTypes != null && relevantFileTypes.Length > 0)
+                                    // PPV does not have specific file types defined --> supports all file types, add PPV purchased mediaFile to list
+                                    if (ppvModule.m_relatedFileTypes == null)
                                     {
                                         if (!mediaFilesToMap.Contains(entitlements[ppvModule.m_sObjectCode]))
                                         {
                                             mediaFilesToMap.Add(entitlements[ppvModule.m_sObjectCode]);
                                         }
+                                    }
+
+                                    // PPV has one of the requested file types, add PPV purchased mediaFile to list
+                                    else if (ppvModule.m_relatedFileTypes.Length > 0)
+                                    {
+                                        int[] relevantFileTypes = ppvModule.m_relatedFileTypes.Intersect(fileTypeIDs).ToArray();
+                                        if (relevantFileTypes != null && relevantFileTypes.Length > 0)
+                                        {
+                                            if (!mediaFilesToMap.Contains(entitlements[ppvModule.m_sObjectCode]))
+                                            {
+                                                mediaFilesToMap.Add(entitlements[ppvModule.m_sObjectCode]);
+                                            }
+                                        }
+                                    }
+                                }
+                                //Incase we want to ignore filetypeIDs (sent as null or empty)
+                                else
+                                {
+                                    if (!mediaFilesToMap.Contains(entitlements[ppvModule.m_sObjectCode]))
+                                    {
+                                        mediaFilesToMap.Add(entitlements[ppvModule.m_sObjectCode]);
                                     }
                                 }
                             }
