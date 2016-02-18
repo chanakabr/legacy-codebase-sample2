@@ -3120,6 +3120,8 @@ namespace WebAPI.Billing {
         
         private bool isDefaultField;
         
+        private bool supportPaymentMethodField;
+        
         /// <remarks/>
         public int ID {
             get {
@@ -3147,6 +3149,16 @@ namespace WebAPI.Billing {
             }
             set {
                 this.isDefaultField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool SupportPaymentMethod {
+            get {
+                return this.supportPaymentMethodField;
+            }
+            set {
+                this.supportPaymentMethodField = value;
             }
         }
     }
