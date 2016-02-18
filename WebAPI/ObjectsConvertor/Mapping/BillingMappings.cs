@@ -30,6 +30,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.PendingInterval, opt => opt.MapFrom(src => src.PendingInterval))
                 .ForMember(dest => dest.RenewIntervalMinutes, opt => opt.MapFrom(src => src.RenewalIntervalMinutes))
                 .ForMember(dest => dest.RenewStartMinutes, opt => opt.MapFrom(src => src.RenewalStartMinutes))
+                .ForMember(dest => dest.SupportPaymentMethod, opt => opt.MapFrom(src => src.SupportPaymentMethod))
                 .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
 
             //KalturaPaymentGatewayProfile to PaymentGateway
@@ -47,6 +48,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
                .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
                .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertPaymentGatewaySettings(src.Settings)))
+               .ForMember(dest => dest.SupportPaymentMethod, opt => opt.MapFrom(src => src.SupportPaymentMethod))
                .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
 
             Mapper.CreateMap<PaymentGatewayBase, WebAPI.Models.Billing.KalturaPaymentGatewayBaseProfile>()
@@ -100,6 +102,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<HouseholdPaymentMethod, WebAPI.Models.Billing.KalturaPaymentMethod>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+            .ForMember(dest => dest.Details, opt => opt.MapFrom(src => src.Details))
             .ForMember(dest => dest.Selected, opt => opt.MapFrom(src => src.Selected));
         }
 
@@ -162,6 +165,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 case WebAPI.Billing.eHouseholdPaymentGatewaySelectedBy.Household:
                     result = WebAPI.Models.Billing.KalturaHouseholdPaymentGatewaySelectedBy.household;
+                    break;
+                case WebAPI.Billing.eHouseholdPaymentGatewaySelectedBy.None:
+                    result = WebAPI.Models.Billing.KalturaHouseholdPaymentGatewaySelectedBy.none;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "unknown household payment gateway selected by");

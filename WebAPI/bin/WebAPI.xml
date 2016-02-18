@@ -224,6 +224,46 @@
             </remarks>
             <returns></returns>
         </member>
+        <member name="M:WebAPI.Controllers.NotificationsPartnerSettingsController.Get">
+            <summary>
+            Retrieve the partner notification settings.       
+            </summary>    
+            
+            <remarks>        
+            </remarks>
+            <returns>The notification settings that apply for the partner</returns>
+            
+        </member>
+        <member name="M:WebAPI.Controllers.NotificationsPartnerSettingsController.Update(WebAPI.Models.Notification.KalturaPartnerNotificationSettings)">
+            <summary>
+            update the partner notification settings.      
+            </summary>    
+            
+            <remarks>        
+            </remarks>
+            <returns>The notification settings that apply for the partner</returns>
+            
+        </member>
+        <member name="M:WebAPI.Controllers.NotificationsSettingsController.Get">
+            <summary>
+            Retrieve the notification settings.       
+            </summary>    
+            
+            <remarks>        
+            </remarks>
+            <returns>The notification settings that apply</returns>
+            
+        </member>
+        <member name="M:WebAPI.Controllers.NotificationsSettingsController.Update(WebAPI.Models.Notification.KalturaNotificationSettings)">
+            <summary>
+            update the notification settings.      
+            </summary>    
+            
+            <remarks>        
+            </remarks>
+            <returns>The notification settings that apply for the user</returns>
+            
+        </member>
         <member name="M:WebAPI.Controllers.PaymentMethodProfileController.List(System.Int32)">
             <summary>
             TBD
@@ -241,7 +281,7 @@
             <param name="payment_gateway_id">Payment gateway identifier to add the payment method for</param>
             <param name="payment_method">Payment method to add</param>
             <remarks>
-            Possible status codes: Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method name is required = 6053 
+            Possible status codes: Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method name required = 6055
             </remarks>
         </member>
         <member name="M:WebAPI.Controllers.PaymentMethodProfileController.Update(System.Int32,WebAPI.Models.Billing.KalturaPaymentMethodProfile)">
@@ -1781,6 +1821,11 @@
             Payment method name
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Billing.KalturaPaymentMethod.Details">
+            <summary>
+            Payment method details
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Billing.KalturaPaymentMethod.Selected">
             <summary>
             Selected payment method 
@@ -2102,6 +2147,11 @@
             </summary>
         </member>
         <member name="P:WebAPI.Models.Billing.KalturaPaymentGatewayProfile.RenewStartMinutes">
+            <summary>
+            Renew Start Minutes
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Billing.KalturaPaymentGatewayProfile.SupportPaymentMethod">
             <summary>
             Renew Start Minutes
             </summary>
@@ -2694,6 +2744,21 @@
         <member name="F:WebAPI.Models.Catalog.KalturaPlayerAssetData.currentBitRate">
             <summary>
             Current Bitrate
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationSettings.PushNotificationEnabled">
+            <summary>
+            push notification enabled
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaPartnerNotificationSettings.PushNotificationEnabled">
+            <summary>
+            push notification enabled
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaPartnerNotificationSettings.PushSystemAnnouncementsEnabled">
+            <summary>
+            push system announcements enabled
             </summary>
         </member>
         <member name="T:WebAPI.Models.Partner.KalturaBillingPartnerConfig">
@@ -10961,6 +11026,9 @@
         <member name="P:WebAPI.Billing.PaymentGatewayBase.IsDefault">
             <remarks/>
         </member>
+        <member name="P:WebAPI.Billing.PaymentGatewayBase.SupportPaymentMethod">
+            <remarks/>
+        </member>
         <member name="P:WebAPI.Billing.PaymentGateway.IsActive">
             <remarks/>
         </member>
@@ -11021,6 +11089,9 @@
         <member name="T:WebAPI.Billing.eHouseholdPaymentGatewaySelectedBy">
             <remarks/>
         </member>
+        <member name="F:WebAPI.Billing.eHouseholdPaymentGatewaySelectedBy.None">
+            <remarks/>
+        </member>
         <member name="F:WebAPI.Billing.eHouseholdPaymentGatewaySelectedBy.Account">
             <remarks/>
         </member>
@@ -11034,6 +11105,9 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Billing.HouseholdPaymentMethod.Name">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.HouseholdPaymentMethod.Details">
             <remarks/>
         </member>
         <member name="P:WebAPI.Billing.HouseholdPaymentMethod.Selected">

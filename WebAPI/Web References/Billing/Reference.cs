@@ -3120,6 +3120,8 @@ namespace WebAPI.Billing {
         
         private bool isDefaultField;
         
+        private bool supportPaymentMethodField;
+        
         /// <remarks/>
         public int ID {
             get {
@@ -3147,6 +3149,16 @@ namespace WebAPI.Billing {
             }
             set {
                 this.isDefaultField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool SupportPaymentMethod {
+            get {
+                return this.supportPaymentMethodField;
+            }
+            set {
+                this.supportPaymentMethodField = value;
             }
         }
     }
@@ -3191,6 +3203,9 @@ namespace WebAPI.Billing {
     public enum eHouseholdPaymentGatewaySelectedBy {
         
         /// <remarks/>
+        None,
+        
+        /// <remarks/>
         Account,
         
         /// <remarks/>
@@ -3208,6 +3223,8 @@ namespace WebAPI.Billing {
         private int idField;
         
         private string nameField;
+        
+        private string detailsField;
         
         private bool selectedField;
         
@@ -3228,6 +3245,16 @@ namespace WebAPI.Billing {
             }
             set {
                 this.nameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Details {
+            get {
+                return this.detailsField;
+            }
+            set {
+                this.detailsField = value;
             }
         }
         
