@@ -2328,7 +2328,8 @@ namespace DAL
                             paymentGatewayHouseholdPaymentMethods[paymentGatewayId].Add(new HouseholdPaymentMethod()
                             {
                                 ID = ODBCWrapper.Utils.GetIntSafeVal(row, "ID"),
-                                Name = ODBCWrapper.Utils.GetSafeStr(row, "NAME"),
+                                Name = ODBCWrapper.Utils.GetSafeStr(row, "Name"),
+                                Details = ODBCWrapper.Utils.GetSafeStr(row, "Details"),
                                 Selected = ODBCWrapper.Utils.GetSafeStr(row, "Selected") == "1" ? true : false,
                                 PaymentGatewayId = paymentGatewayId
                             });
