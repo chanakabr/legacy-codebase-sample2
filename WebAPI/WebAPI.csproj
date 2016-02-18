@@ -46,11 +46,11 @@
     <Reference Include="AutoMapper">
       <HintPath>..\packages\AutoMapper.4.0.0-ci1036\lib\net40\AutoMapper.dll</HintPath>
     </Reference>
-    <Reference Include="Couchbase.NetClient">
-      <HintPath>..\..\tvincicommon\External\Couchbase-2.2.5\Couchbase.NetClient.dll</HintPath>
-    </Reference>
     <Reference Include="CouchbaseManager">
       <HintPath>..\..\tvincicommon\External\4.5\CouchbaseManager.dll</HintPath>
+    </Reference>
+    <Reference Include="Enyim.Caching">
+      <HintPath>..\..\tvincicommon\External\Couchbase-2.2.5\Enyim.Caching.dll</HintPath>
     </Reference>
     <Reference Include="Jil, Version=2.10.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -76,7 +76,7 @@
       <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\tvincicommon\External\Couchbase-2.2.5\Newtonsoft.Json.dll</HintPath>
     </Reference>

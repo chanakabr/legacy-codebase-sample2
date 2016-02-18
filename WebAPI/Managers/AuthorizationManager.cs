@@ -10,7 +10,6 @@ using WebAPI.Managers.Models;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
-using Couchbase;
 using WebAPI.Models.Domains;
 using WebAPI.Models.General;
 
