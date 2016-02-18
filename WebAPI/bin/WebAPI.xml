@@ -241,7 +241,7 @@
             <param name="payment_gateway_id">Payment gateway identifier to add the payment method for</param>
             <param name="payment_method">Payment method to add</param>
             <remarks>
-            Possible status codes: Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method type is required = 6053 
+            Possible status codes: Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method name is required = 6053 
             </remarks>
         </member>
         <member name="M:WebAPI.Controllers.PaymentMethodProfileController.Update(System.Int32,WebAPI.Models.Billing.KalturaPaymentMethodProfile)">
@@ -1028,6 +1028,16 @@
             </remarks>
             <param name="payment_gateway_id">Payment Gateway Identifier</param>
         </member>
+        <member name="M:WebAPI.Controllers.PaymentGatewayController.SetPaymentMethod(System.Int32,System.Int32)">
+            <summary>
+            TBD
+            </summary>
+            <remarks>
+            Possible status codes:       
+            </remarks>
+            <param name="payment_gateway_id">Payment Gateway Identifier</param> 
+            <param name="payment_method_id">Payment method Identifier</param> 
+        </member>
         <member name="M:WebAPI.Controllers.PaymentGatewayProfileController.List">
             <summary>
             Returns all payment gateways for partner : id + name
@@ -1756,6 +1766,26 @@
             Channel order
             </summary>
         </member>
+        <member name="T:WebAPI.Models.Billing.KalturaPaymentMethod">
+            <summary>
+            payment method
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Billing.KalturaPaymentMethod.Id">
+            <summary>
+            Payment method identifier (internal)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Billing.KalturaPaymentMethod.Name">
+            <summary>
+            Payment method name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Billing.KalturaPaymentMethod.Selected">
+            <summary>
+            Selected payment method 
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Billing.KalturaPaymentGateway.paymentGateway">
             <summary>
             payment gateway 
@@ -1779,11 +1809,6 @@
         <member name="P:WebAPI.Models.Billing.KalturaPaymentMethodProfile.Id">
             <summary>
             Payment method identifier (internal)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Billing.KalturaPaymentMethodProfile.Type">
-            <summary>
-            Payment method type
             </summary>
         </member>
         <member name="P:WebAPI.Models.Billing.KalturaPaymentMethodProfile.Name">
@@ -2009,6 +2034,11 @@
         <member name="P:WebAPI.Models.Billing.KalturaPaymentGatewayBaseProfile.selectedBy">
             <summary>
             distinction payment gateway selected by account or household
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Billing.KalturaPaymentGatewayBaseProfile.PaymentMethods">
+            <summary>
+            payment method
             </summary>
         </member>
         <member name="T:WebAPI.Models.Billing.KalturaPaymentGatewayProfile">
@@ -3911,7 +3941,7 @@
             </remarks>        
             <param name="pg_id">External identifier for the payment gateway  </param>        
         </member>
-        <member name="M:WebAPI.Controllers.HouseholdController.SetPaymentMethod(System.String,System.String,System.String,System.String)">
+        <member name="M:WebAPI.Controllers.HouseholdController.SetPaymentMethodExternalId(System.String,System.String,System.String,System.String)">
             <summary>
             Set user billing account identifier (charge ID), for a specific household and a specific payment gateway
             </summary>
@@ -10607,22 +10637,22 @@
         <member name="M:WebAPI.Billing.module.SetPaymentGatewayHouseholdPaymentMethodAsync(System.String,System.String,System.String,System.Int32,System.String,System.String,System.String,System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Billing.module.AddPaymentMethodToPaymentGateway(System.String,System.String,System.Int32,System.String,System.String)">
+        <member name="M:WebAPI.Billing.module.AddPaymentMethodToPaymentGateway(System.String,System.String,System.Int32,System.String)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Billing.module.AddPaymentMethodToPaymentGatewayAsync(System.String,System.String,System.Int32,System.String,System.String)">
+        <member name="M:WebAPI.Billing.module.AddPaymentMethodToPaymentGatewayAsync(System.String,System.String,System.Int32,System.String)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Billing.module.AddPaymentMethodToPaymentGatewayAsync(System.String,System.String,System.Int32,System.String,System.String,System.Object)">
+        <member name="M:WebAPI.Billing.module.AddPaymentMethodToPaymentGatewayAsync(System.String,System.String,System.Int32,System.String,System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Billing.module.UpdatePaymentGatewayPaymentMethod(System.String,System.String,System.Int32,System.Int32,System.String,System.String)">
+        <member name="M:WebAPI.Billing.module.UpdatePaymentGatewayPaymentMethod(System.String,System.String,System.Int32,System.Int32,System.String)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Billing.module.UpdatePaymentGatewayPaymentMethodAsync(System.String,System.String,System.Int32,System.Int32,System.String,System.String)">
+        <member name="M:WebAPI.Billing.module.UpdatePaymentGatewayPaymentMethodAsync(System.String,System.String,System.Int32,System.Int32,System.String)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Billing.module.UpdatePaymentGatewayPaymentMethodAsync(System.String,System.String,System.Int32,System.Int32,System.String,System.String,System.Object)">
+        <member name="M:WebAPI.Billing.module.UpdatePaymentGatewayPaymentMethodAsync(System.String,System.String,System.Int32,System.Int32,System.String,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.Billing.module.DeletePaymentGatewayPaymentMethod(System.String,System.String,System.Int32,System.Int32)">
@@ -10641,6 +10671,15 @@
             <remarks/>
         </member>
         <member name="M:WebAPI.Billing.module.GetPaymentGatewayPaymentMethodsAsync(System.String,System.String,System.Int32,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Billing.module.SetPaymentMethodHouseholdPaymentGateway(System.String,System.String,System.Int32,System.String,System.Int32,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Billing.module.SetPaymentMethodHouseholdPaymentGatewayAsync(System.String,System.String,System.Int32,System.String,System.Int32,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Billing.module.SetPaymentMethodHouseholdPaymentGatewayAsync(System.String,System.String,System.Int32,System.String,System.Int32,System.Int32,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.Billing.module.CancelAsync(System.Object)">
@@ -10811,6 +10850,9 @@
         <member name="E:WebAPI.Billing.module.GetPaymentGatewayPaymentMethodsCompleted">
             <remarks/>
         </member>
+        <member name="E:WebAPI.Billing.module.SetPaymentMethodHouseholdPaymentGatewayCompleted">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Billing.AdyenBillingDetail">
             <remarks/>
         </member>
@@ -10863,12 +10905,6 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Billing.PaymentMethod.Name">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentMethod.PaymentMethodType">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentMethod.Selected">
             <remarks/>
         </member>
         <member name="T:WebAPI.Billing.PaymentMethodResponse">
@@ -10979,7 +11015,7 @@
         <member name="P:WebAPI.Billing.PaymentGatewaySelectedBy.By">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Billing.PaymentGatewaySelectedBy.PaymentMethod">
+        <member name="P:WebAPI.Billing.PaymentGatewaySelectedBy.PaymentMethods">
             <remarks/>
         </member>
         <member name="T:WebAPI.Billing.eHouseholdPaymentGatewaySelectedBy">
@@ -10989,6 +11025,18 @@
             <remarks/>
         </member>
         <member name="F:WebAPI.Billing.eHouseholdPaymentGatewaySelectedBy.Household">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Billing.HouseholdPaymentMethod">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.HouseholdPaymentMethod.ID">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.HouseholdPaymentMethod.Name">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.HouseholdPaymentMethod.Selected">
             <remarks/>
         </member>
         <member name="T:WebAPI.Billing.UpdatePendingResponse">
@@ -11826,6 +11874,15 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Billing.GetPaymentGatewayPaymentMethodsCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Billing.SetPaymentMethodHouseholdPaymentGatewayCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Billing.SetPaymentMethodHouseholdPaymentGatewayCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.SetPaymentMethodHouseholdPaymentGatewayCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.module">

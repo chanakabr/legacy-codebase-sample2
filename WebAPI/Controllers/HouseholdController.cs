@@ -235,9 +235,9 @@ namespace WebAPI.Controllers
         /// <param name="payment_method_name"></param>      
         /// <param name="payment_details"></param>      
         /// <param name="payment_method_external_id"></param>        
-        [Route("setPaymentMethod"), HttpPost]
+        [Route("setPaymentMethodExternalId"), HttpPost]
         [ApiAuthorize]
-        public bool SetPaymentMethod(string payment_gateway_id, string payment_method_name, string payment_details, string payment_method_external_id)
+        public bool SetPaymentMethodExternalId(string payment_gateway_id, string payment_method_name, string payment_details, string payment_method_external_id)
         {
             bool response = false;
 

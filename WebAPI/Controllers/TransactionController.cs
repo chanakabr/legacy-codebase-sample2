@@ -33,7 +33,8 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("purchase"), HttpPost]
         [ApiAuthorize]
-        public KalturaTransaction Purchase(double price, string currency, int product_id, KalturaTransactionType product_type, int content_id = 0, string coupon = null, int payment_gateway_id = 0, int? payment_method_id = null)
+        public KalturaTransaction Purchase(double price, string currency, int product_id, KalturaTransactionType product_type, int content_id = 0, string coupon = null, int payment_gateway_id = 0, 
+            int? payment_method_id = null)
         {
             KalturaTransaction response = new KalturaTransaction();
 

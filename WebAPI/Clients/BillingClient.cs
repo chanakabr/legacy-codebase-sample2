@@ -2,9 +2,7 @@
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Web;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -624,7 +622,7 @@ namespace WebAPI.Clients
             return paymentMethods;
         }
 
-        internal KalturaPaymentMethodProfile AddPaymentMethodToPaymentGateway(int groupId, int paymentGatewayId, string type, string name)
+        internal KalturaPaymentMethodProfile AddPaymentMethodToPaymentGateway(int groupId, int paymentGatewayId, string name)
         {
             WebAPI.Billing.PaymentMethodResponse response = null;
             KalturaPaymentMethodProfile paymentMethod = null;
@@ -635,7 +633,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.AddPaymentMethodToPaymentGateway(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGatewayId, type, name);
+                    response = Billing.AddPaymentMethodToPaymentGateway(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGatewayId, name);
                 }
             }
             catch (Exception ex)
@@ -659,7 +657,7 @@ namespace WebAPI.Clients
             return paymentMethod;
         }
 
-        internal bool UpdatePaymentGatewayPaymentMethod(int groupId, int paymentGatewayId, int paymentMethodId, string type, string name)
+        internal bool UpdatePaymentGatewayPaymentMethod(int groupId, int paymentGatewayId, int paymentMethodId, string name)
         {
             WebAPI.Billing.Status response = null;
 
@@ -669,7 +667,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.UpdatePaymentGatewayPaymentMethod(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGatewayId, paymentMethodId, type, name);
+                    response = Billing.UpdatePaymentGatewayPaymentMethod(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGatewayId, paymentMethodId, name);
                 }
             }
             catch (Exception ex)
@@ -707,6 +705,39 @@ namespace WebAPI.Clients
             catch (Exception ex)
             {
                 log.ErrorFormat("Error while DeletePaymentGatewayPaymentMethod.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        internal bool SetPaymentMethodHouseholdPaymentGateway(int groupId, int paymentGatewayId, string userID, long householdId, int paymentMethodId)
+        {
+            WebAPI.Billing.Status response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Billing.SetPaymentMethodHouseholdPaymentGateway(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGatewayId, userID,
+                        (int)householdId, paymentMethodId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while SetPaymentMethodHouseholdPaymentGateway.  groupID: {0}, paymentGatewayId {1} , paymentMethodId {2}, householdId {3},  exception: {4}", groupId,
+                    paymentGatewayId, paymentMethodId, householdId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 

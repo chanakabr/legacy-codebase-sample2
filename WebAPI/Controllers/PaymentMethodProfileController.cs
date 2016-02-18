@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Collections.Generic;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -48,7 +45,7 @@ namespace WebAPI.Controllers
         /// <param name="payment_gateway_id">Payment gateway identifier to add the payment method for</param>
         /// <param name="payment_method">Payment method to add</param>
         /// <remarks>
-        /// Possible status codes: Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method type is required = 6053 
+        /// Possible status codes: Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method name required = 6055
         /// </remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
@@ -61,7 +58,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().AddPaymentMethodToPaymentGateway(groupId, payment_gateway_id, payment_method.Type, payment_method.Name);
+                response = ClientsManager.BillingClient().AddPaymentMethodToPaymentGateway(groupId, payment_gateway_id, payment_method.Name);
             }
             catch (ClientException ex)
             {
@@ -91,7 +88,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().UpdatePaymentGatewayPaymentMethod(groupId, payment_gateway_id, payment_method.Id, payment_method.Type, payment_method.Name);
+                response = ClientsManager.BillingClient().UpdatePaymentGatewayPaymentMethod(groupId, payment_gateway_id, payment_method.Id, payment_method.Name);
             }
             catch (ClientException ex)
             {

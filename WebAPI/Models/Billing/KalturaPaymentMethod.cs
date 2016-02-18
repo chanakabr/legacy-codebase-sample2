@@ -5,7 +5,10 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Billing
 {
-    public class KalturaPaymentMethodProfile : KalturaOTTObject
+    /// <summary>
+    /// payment method
+    /// </summary>
+    public class KalturaPaymentMethod : KalturaOTTObject
     {
         /// <summary>
         /// Payment method identifier (internal)
@@ -22,5 +25,13 @@ namespace WebAPI.Models.Billing
         [JsonProperty("name")]
         [XmlElement(ElementName = "name")]
         public string Name { get; set; }
+
+        /// <summary>
+        /// Selected payment method 
+        /// </summary>
+        [DataMember(Name = "selected")]
+        [JsonProperty("selected")]
+        [XmlElement(ElementName = "selected")]
+        public bool Selected { get; set; }
     }
 }

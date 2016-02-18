@@ -113,6 +113,51 @@ namespace WebAPI.Controllers
             }
 
             return response;
-        }      
+        }
+
+        /// <summary>
+        /// TBD
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes:       
+        /// </remarks>
+        /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
+        /// <param name="payment_method_id">Payment method Identifier</param> 
+        [Route("setPaymentMethod"), HttpPost]
+        [ApiAuthorize]
+        public bool SetPaymentMethod(int payment_gateway_id, int payment_method_id)
+        {
+            bool response = false;
+
+            if (payment_gateway_id <= 0)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "payment_gateway_id not valid");
+            }
+
+            if (payment_method_id <= 0)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "payment_method_id not valid");
+            }
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                string userID = KS.GetFromRequest().UserId;
+
+                // get domain id      
+                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+                // call client
+                response = ClientsManager.BillingClient().SetPaymentMethodHouseholdPaymentGateway(groupId, payment_gateway_id, userID, domainId, payment_method_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+    
     }
 }

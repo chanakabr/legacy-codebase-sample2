@@ -973,6 +973,7 @@
     <Compile Include="Models\API\KalturaRuleType.cs" />
     <Compile Include="Models\API\KalturaUserRoleFilter.cs" />
     <Compile Include="Models\API\KalturaChannelProfile.cs" />
+    <Compile Include="Models\Billing\KalturaPaymentMethod.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGateway.cs" />
     <Compile Include="Models\Billing\KalturaHouseholdPaymentGatewaySelectedBy.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGatewayConfiguration.cs" />

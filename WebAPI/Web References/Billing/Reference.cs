@@ -139,6 +139,8 @@ namespace WebAPI.Billing {
         
         private System.Threading.SendOrPostCallback GetPaymentGatewayPaymentMethodsOperationCompleted;
         
+        private System.Threading.SendOrPostCallback SetPaymentMethodHouseholdPaymentGatewayOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -341,6 +343,9 @@ namespace WebAPI.Billing {
         
         /// <remarks/>
         public event GetPaymentGatewayPaymentMethodsCompletedEventHandler GetPaymentGatewayPaymentMethodsCompleted;
+        
+        /// <remarks/>
+        public event SetPaymentMethodHouseholdPaymentGatewayCompletedEventHandler SetPaymentMethodHouseholdPaymentGatewayCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/GetBillingCutomData", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -2389,23 +2394,22 @@ namespace WebAPI.Billing {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/AddPaymentMethodToPaymentGateway", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public PaymentMethodResponse AddPaymentMethodToPaymentGateway(string sWSUserName, string sWSPassword, int paymentGatewayId, string type, string name) {
+        public PaymentMethodResponse AddPaymentMethodToPaymentGateway(string sWSUserName, string sWSPassword, int paymentGatewayId, string name) {
             object[] results = this.Invoke("AddPaymentMethodToPaymentGateway", new object[] {
                         sWSUserName,
                         sWSPassword,
                         paymentGatewayId,
-                        type,
                         name});
             return ((PaymentMethodResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void AddPaymentMethodToPaymentGatewayAsync(string sWSUserName, string sWSPassword, int paymentGatewayId, string type, string name) {
-            this.AddPaymentMethodToPaymentGatewayAsync(sWSUserName, sWSPassword, paymentGatewayId, type, name, null);
+        public void AddPaymentMethodToPaymentGatewayAsync(string sWSUserName, string sWSPassword, int paymentGatewayId, string name) {
+            this.AddPaymentMethodToPaymentGatewayAsync(sWSUserName, sWSPassword, paymentGatewayId, name, null);
         }
         
         /// <remarks/>
-        public void AddPaymentMethodToPaymentGatewayAsync(string sWSUserName, string sWSPassword, int paymentGatewayId, string type, string name, object userState) {
+        public void AddPaymentMethodToPaymentGatewayAsync(string sWSUserName, string sWSPassword, int paymentGatewayId, string name, object userState) {
             if ((this.AddPaymentMethodToPaymentGatewayOperationCompleted == null)) {
                 this.AddPaymentMethodToPaymentGatewayOperationCompleted = new System.Threading.SendOrPostCallback(this.OnAddPaymentMethodToPaymentGatewayOperationCompleted);
             }
@@ -2413,7 +2417,6 @@ namespace WebAPI.Billing {
                         sWSUserName,
                         sWSPassword,
                         paymentGatewayId,
-                        type,
                         name}, this.AddPaymentMethodToPaymentGatewayOperationCompleted, userState);
         }
         
@@ -2426,24 +2429,23 @@ namespace WebAPI.Billing {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/UpdatePaymentGatewayPaymentMethod", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status UpdatePaymentGatewayPaymentMethod(string sWSUserName, string sWSPassword, int paymentGatewayId, int paymentMethodId, string type, string name) {
+        public Status UpdatePaymentGatewayPaymentMethod(string sWSUserName, string sWSPassword, int paymentGatewayId, int paymentMethodId, string name) {
             object[] results = this.Invoke("UpdatePaymentGatewayPaymentMethod", new object[] {
                         sWSUserName,
                         sWSPassword,
                         paymentGatewayId,
                         paymentMethodId,
-                        type,
                         name});
             return ((Status)(results[0]));
         }
         
         /// <remarks/>
-        public void UpdatePaymentGatewayPaymentMethodAsync(string sWSUserName, string sWSPassword, int paymentGatewayId, int paymentMethodId, string type, string name) {
-            this.UpdatePaymentGatewayPaymentMethodAsync(sWSUserName, sWSPassword, paymentGatewayId, paymentMethodId, type, name, null);
+        public void UpdatePaymentGatewayPaymentMethodAsync(string sWSUserName, string sWSPassword, int paymentGatewayId, int paymentMethodId, string name) {
+            this.UpdatePaymentGatewayPaymentMethodAsync(sWSUserName, sWSPassword, paymentGatewayId, paymentMethodId, name, null);
         }
         
         /// <remarks/>
-        public void UpdatePaymentGatewayPaymentMethodAsync(string sWSUserName, string sWSPassword, int paymentGatewayId, int paymentMethodId, string type, string name, object userState) {
+        public void UpdatePaymentGatewayPaymentMethodAsync(string sWSUserName, string sWSPassword, int paymentGatewayId, int paymentMethodId, string name, object userState) {
             if ((this.UpdatePaymentGatewayPaymentMethodOperationCompleted == null)) {
                 this.UpdatePaymentGatewayPaymentMethodOperationCompleted = new System.Threading.SendOrPostCallback(this.OnUpdatePaymentGatewayPaymentMethodOperationCompleted);
             }
@@ -2452,7 +2454,6 @@ namespace WebAPI.Billing {
                         sWSPassword,
                         paymentGatewayId,
                         paymentMethodId,
-                        type,
                         name}, this.UpdatePaymentGatewayPaymentMethodOperationCompleted, userState);
         }
         
@@ -2528,6 +2529,45 @@ namespace WebAPI.Billing {
             if ((this.GetPaymentGatewayPaymentMethodsCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.GetPaymentGatewayPaymentMethodsCompleted(this, new GetPaymentGatewayPaymentMethodsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/SetPaymentMethodHouseholdPaymentGateway", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status SetPaymentMethodHouseholdPaymentGateway(string sWSUserName, string sWSPassword, int paymentGatewayID, string siteGuid, int householdId, int paymentMethodId) {
+            object[] results = this.Invoke("SetPaymentMethodHouseholdPaymentGateway", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        paymentGatewayID,
+                        siteGuid,
+                        householdId,
+                        paymentMethodId});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void SetPaymentMethodHouseholdPaymentGatewayAsync(string sWSUserName, string sWSPassword, int paymentGatewayID, string siteGuid, int householdId, int paymentMethodId) {
+            this.SetPaymentMethodHouseholdPaymentGatewayAsync(sWSUserName, sWSPassword, paymentGatewayID, siteGuid, householdId, paymentMethodId, null);
+        }
+        
+        /// <remarks/>
+        public void SetPaymentMethodHouseholdPaymentGatewayAsync(string sWSUserName, string sWSPassword, int paymentGatewayID, string siteGuid, int householdId, int paymentMethodId, object userState) {
+            if ((this.SetPaymentMethodHouseholdPaymentGatewayOperationCompleted == null)) {
+                this.SetPaymentMethodHouseholdPaymentGatewayOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetPaymentMethodHouseholdPaymentGatewayOperationCompleted);
+            }
+            this.InvokeAsync("SetPaymentMethodHouseholdPaymentGateway", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        paymentGatewayID,
+                        siteGuid,
+                        householdId,
+                        paymentMethodId}, this.SetPaymentMethodHouseholdPaymentGatewayOperationCompleted, userState);
+        }
+        
+        private void OnSetPaymentMethodHouseholdPaymentGatewayOperationCompleted(object arg) {
+            if ((this.SetPaymentMethodHouseholdPaymentGatewayCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.SetPaymentMethodHouseholdPaymentGatewayCompleted(this, new SetPaymentMethodHouseholdPaymentGatewayCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -2730,10 +2770,6 @@ namespace WebAPI.Billing {
         
         private string nameField;
         
-        private string paymentMethodTypeField;
-        
-        private int selectedField;
-        
         /// <remarks/>
         public int ID {
             get {
@@ -2751,26 +2787,6 @@ namespace WebAPI.Billing {
             }
             set {
                 this.nameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string PaymentMethodType {
-            get {
-                return this.paymentMethodTypeField;
-            }
-            set {
-                this.paymentMethodTypeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int Selected {
-            get {
-                return this.selectedField;
-            }
-            set {
-                this.selectedField = value;
             }
         }
     }
@@ -3145,7 +3161,7 @@ namespace WebAPI.Billing {
         
         private eHouseholdPaymentGatewaySelectedBy byField;
         
-        private PaymentMethod paymentMethodField;
+        private HouseholdPaymentMethod[] paymentMethodsField;
         
         /// <remarks/>
         public eHouseholdPaymentGatewaySelectedBy By {
@@ -3158,12 +3174,12 @@ namespace WebAPI.Billing {
         }
         
         /// <remarks/>
-        public PaymentMethod PaymentMethod {
+        public HouseholdPaymentMethod[] PaymentMethods {
             get {
-                return this.paymentMethodField;
+                return this.paymentMethodsField;
             }
             set {
-                this.paymentMethodField = value;
+                this.paymentMethodsField = value;
             }
         }
     }
@@ -3179,6 +3195,51 @@ namespace WebAPI.Billing {
         
         /// <remarks/>
         Household,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
+    public partial class HouseholdPaymentMethod {
+        
+        private int idField;
+        
+        private string nameField;
+        
+        private bool selectedField;
+        
+        /// <remarks/>
+        public int ID {
+            get {
+                return this.idField;
+            }
+            set {
+                this.idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Name {
+            get {
+                return this.nameField;
+            }
+            set {
+                this.nameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool Selected {
+            get {
+                return this.selectedField;
+            }
+            set {
+                this.selectedField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -5764,6 +5825,32 @@ namespace WebAPI.Billing {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((PaymentMethodsResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void SetPaymentMethodHouseholdPaymentGatewayCompletedEventHandler(object sender, SetPaymentMethodHouseholdPaymentGatewayCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class SetPaymentMethodHouseholdPaymentGatewayCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal SetPaymentMethodHouseholdPaymentGatewayCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
             }
         }
     }
