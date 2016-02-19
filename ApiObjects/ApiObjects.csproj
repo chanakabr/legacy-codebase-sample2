@@ -104,6 +104,7 @@
     <Compile Include="Notification\Announcement.cs" />
     <Compile Include="Notification\AnnouncementSubscription.cs" />
     <Compile Include="Notification\DeviceAppNotification.cs" />
+    <Compile Include="Notification\GuestData.cs" />
     <Compile Include="Notification\NotificationPartnerSettings.cs" />
     <Compile Include="Notification\NotificationPartnerSettingsResponse.cs" />
     <Compile Include="Notification\NotificationSettings.cs" />
