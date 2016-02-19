@@ -609,7 +609,7 @@ namespace Tvinci.Core.DAL
 
                     mm.devices.Add(dev);
                 }
-                bool res = cbManager.SetWithVersion(docKey, JsonConvert.SerializeObject(mm, Formatting.None), version);
+                bool res = cbManager.SetWithVersion(docKey, mm, version);
 
                 if (!res)
                 {
@@ -662,7 +662,7 @@ namespace Tvinci.Core.DAL
                 //For quick last position access
                 umm.LastMark = dev;
 
-                bool res = cbManager.SetWithVersion(mmKey, JsonConvert.SerializeObject(umm, Formatting.None), version);
+                bool res = cbManager.SetWithVersion(mmKey, umm, version);
 
                 if (!res)
                 {
@@ -1517,7 +1517,7 @@ namespace Tvinci.Core.DAL
                         break;
                 }
 
-                bool res = cbManager.SetWithVersion(docKey, JsonConvert.SerializeObject(dm, Formatting.None), version);
+                bool res = cbManager.SetWithVersion(docKey, dm, version);
 
                 if (!res)
                 {
@@ -2399,7 +2399,7 @@ namespace Tvinci.Core.DAL
 
                     mm.devices.Add(dev);
                 }
-                bool res = cbManager.SetWithVersion(docKey, JsonConvert.SerializeObject(mm, Formatting.None), version);
+                bool res = cbManager.SetWithVersion(docKey, mm, version);
 
                 if (!res)
                 {
@@ -2452,7 +2452,7 @@ namespace Tvinci.Core.DAL
                 //For quick last position access
                 umm.LastMark = dev;
 
-                bool res = cbManager.Set(mmKey, JsonConvert.SerializeObject(umm, Formatting.None));
+                bool res = cbManager.Set(mmKey, umm);
 
                 if (!res)
                 {
@@ -2512,7 +2512,7 @@ namespace Tvinci.Core.DAL
                     mm.devices.Add(dev);
                 }
 
-                bool res = cbManager.SetWithVersion(docKey, JsonConvert.SerializeObject(mm, Formatting.None), version);
+                bool res = cbManager.SetWithVersion(docKey, mm, version);
 
                 if (!res)
                 {
@@ -2570,8 +2570,8 @@ namespace Tvinci.Core.DAL
                 uint.TryParse(CB_EPG_DOCUMENT_EXPIRY_DAYS, out cbEpgDocumentExpiryDays);
 
                 bool res = (epgDocExpiry.HasValue) ?
-                    cbManager.SetWithVersion(mmKey, JsonConvert.SerializeObject(umm, Formatting.None), version, cbEpgDocumentExpiryDays * 24 * 60 * 60)
-                    : cbManager.SetWithVersion(mmKey, JsonConvert.SerializeObject(umm, Formatting.None), version);
+                    cbManager.SetWithVersion(mmKey, umm, version, cbEpgDocumentExpiryDays * 24 * 60 * 60)
+                    : cbManager.SetWithVersion(mmKey, umm, version);
 
                 if (!res)
                 {
