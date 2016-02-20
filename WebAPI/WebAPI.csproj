@@ -46,6 +46,9 @@
     <Reference Include="AutoMapper">
       <HintPath>..\packages\AutoMapper.4.0.0-ci1036\lib\net40\AutoMapper.dll</HintPath>
     </Reference>
+    <Reference Include="Couchbase.NetClient">
+      <HintPath>..\..\tvincicommon\External\Couchbase-2.2.5\Couchbase.NetClient.dll</HintPath>
+    </Reference>
     <Reference Include="CouchbaseManager">
       <HintPath>..\..\tvincicommon\External\4.5\CouchbaseManager.dll</HintPath>
     </Reference>
