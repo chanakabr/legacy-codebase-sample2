@@ -1160,6 +1160,258 @@ namespace WebAPI.Notifications {
         }
     }
     
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="MessageAnnouncement", Namespace="http://schemas.datacontract.org/2004/07/NotificationObj")]
+    [System.SerializableAttribute()]
+    public partial class MessageAnnouncement : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool EnabledField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string MessageField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int MessageAnnouncementIdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string NameField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private WebAPI.Notifications.eAnnouncementRecipientsType RecipientsField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private long StartTimeField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private WebAPI.Notifications.eAnnouncementStatus StatusField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string TimezoneField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool Enabled {
+            get {
+                return this.EnabledField;
+            }
+            set {
+                if ((this.EnabledField.Equals(value) != true)) {
+                    this.EnabledField = value;
+                    this.RaisePropertyChanged("Enabled");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Message {
+            get {
+                return this.MessageField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.MessageField, value) != true)) {
+                    this.MessageField = value;
+                    this.RaisePropertyChanged("Message");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int MessageAnnouncementId {
+            get {
+                return this.MessageAnnouncementIdField;
+            }
+            set {
+                if ((this.MessageAnnouncementIdField.Equals(value) != true)) {
+                    this.MessageAnnouncementIdField = value;
+                    this.RaisePropertyChanged("MessageAnnouncementId");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Name {
+            get {
+                return this.NameField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.NameField, value) != true)) {
+                    this.NameField = value;
+                    this.RaisePropertyChanged("Name");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public WebAPI.Notifications.eAnnouncementRecipientsType Recipients {
+            get {
+                return this.RecipientsField;
+            }
+            set {
+                if ((this.RecipientsField.Equals(value) != true)) {
+                    this.RecipientsField = value;
+                    this.RaisePropertyChanged("Recipients");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public long StartTime {
+            get {
+                return this.StartTimeField;
+            }
+            set {
+                if ((this.StartTimeField.Equals(value) != true)) {
+                    this.StartTimeField = value;
+                    this.RaisePropertyChanged("StartTime");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public WebAPI.Notifications.eAnnouncementStatus Status {
+            get {
+                return this.StatusField;
+            }
+            set {
+                if ((this.StatusField.Equals(value) != true)) {
+                    this.StatusField = value;
+                    this.RaisePropertyChanged("Status");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Timezone {
+            get {
+                return this.TimezoneField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.TimezoneField, value) != true)) {
+                    this.TimezoneField = value;
+                    this.RaisePropertyChanged("Timezone");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="eAnnouncementRecipientsType", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects")]
+    public enum eAnnouncementRecipientsType : int {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        All = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        LoggedIn = 1,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Guests = 2,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Other = 3,
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="eAnnouncementStatus", Namespace="http://schemas.datacontract.org/2004/07/NotificationObj")]
+    public enum eAnnouncementStatus : int {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        NotSent = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Sending = 1,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Sent = 2,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Aborted = 3,
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="AddMessageAnnouncementResponse", Namespace="http://schemas.datacontract.org/2004/07/NotificationObj")]
+    [System.SerializableAttribute()]
+    public partial class AddMessageAnnouncementResponse : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int IdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private WebAPI.Notifications.Status StatusField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int Id {
+            get {
+                return this.IdField;
+            }
+            set {
+                if ((this.IdField.Equals(value) != true)) {
+                    this.IdField = value;
+                    this.RaisePropertyChanged("Id");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public WebAPI.Notifications.Status Status {
+            get {
+                return this.StatusField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.StatusField, value) != true)) {
+                    this.StatusField = value;
+                    this.RaisePropertyChanged("Status");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="Notifications.INotificationService")]
     public interface INotificationService {
@@ -1243,6 +1495,36 @@ namespace WebAPI.Notifications {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetNotificationSettings", ReplyAction="http://tempuri.org/INotificationService/GetNotificationSettingsResponse")]
         System.Threading.Tasks.Task<WebAPI.Notifications.NotificationSettingsResponse> GetNotificationSettingsAsync(string sWSUserName, string sWSPassword, int userId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/AddMessageAnnouncement", ReplyAction="http://tempuri.org/INotificationService/AddMessageAnnouncementResponse")]
+        WebAPI.Notifications.AddMessageAnnouncementResponse AddMessageAnnouncement(string sWSUserName, string sWSPassword, int groupId, WebAPI.Notifications.MessageAnnouncement announcement);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/AddMessageAnnouncement", ReplyAction="http://tempuri.org/INotificationService/AddMessageAnnouncementResponse")]
+        System.Threading.Tasks.Task<WebAPI.Notifications.AddMessageAnnouncementResponse> AddMessageAnnouncementAsync(string sWSUserName, string sWSPassword, int groupId, WebAPI.Notifications.MessageAnnouncement announcement);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SendMessageAnnouncement", ReplyAction="http://tempuri.org/INotificationService/SendMessageAnnouncementResponse")]
+        bool SendMessageAnnouncement(string sWSUserName, string sWSPassword, int groupId, long startTime, int id);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SendMessageAnnouncement", ReplyAction="http://tempuri.org/INotificationService/SendMessageAnnouncementResponse")]
+        System.Threading.Tasks.Task<bool> SendMessageAnnouncementAsync(string sWSUserName, string sWSPassword, int groupId, long startTime, int id);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateMessageAnnouncement", ReplyAction="http://tempuri.org/INotificationService/UpdateMessageAnnouncementResponse")]
+        WebAPI.Notifications.Status UpdateMessageAnnouncement(string sWSUserName, string sWSPassword, int groupId, WebAPI.Notifications.MessageAnnouncement announcement);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateMessageAnnouncement", ReplyAction="http://tempuri.org/INotificationService/UpdateMessageAnnouncementResponse")]
+        System.Threading.Tasks.Task<WebAPI.Notifications.Status> UpdateMessageAnnouncementAsync(string sWSUserName, string sWSPassword, int groupId, WebAPI.Notifications.MessageAnnouncement announcement);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateMessageAnnouncementStatus", ReplyAction="http://tempuri.org/INotificationService/UpdateMessageAnnouncementStatusResponse")]
+        WebAPI.Notifications.Status UpdateMessageAnnouncementStatus(string sWSUserName, string sWSPassword, int groupId, int id, bool status);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateMessageAnnouncementStatus", ReplyAction="http://tempuri.org/INotificationService/UpdateMessageAnnouncementStatusResponse")]
+        System.Threading.Tasks.Task<WebAPI.Notifications.Status> UpdateMessageAnnouncementStatusAsync(string sWSUserName, string sWSPassword, int groupId, int id, bool status);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/DeleteMessageAnnouncement", ReplyAction="http://tempuri.org/INotificationService/DeleteMessageAnnouncementResponse")]
+        WebAPI.Notifications.Status DeleteMessageAnnouncement(string sWSUserName, string sWSPassword, int groupId, int id);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/DeleteMessageAnnouncement", ReplyAction="http://tempuri.org/INotificationService/DeleteMessageAnnouncementResponse")]
+        System.Threading.Tasks.Task<WebAPI.Notifications.Status> DeleteMessageAnnouncementAsync(string sWSUserName, string sWSPassword, int groupId, int id);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -1374,6 +1656,46 @@ namespace WebAPI.Notifications {
         
         public System.Threading.Tasks.Task<WebAPI.Notifications.NotificationSettingsResponse> GetNotificationSettingsAsync(string sWSUserName, string sWSPassword, int userId) {
             return base.Channel.GetNotificationSettingsAsync(sWSUserName, sWSPassword, userId);
+        }
+        
+        public WebAPI.Notifications.AddMessageAnnouncementResponse AddMessageAnnouncement(string sWSUserName, string sWSPassword, int groupId, WebAPI.Notifications.MessageAnnouncement announcement) {
+            return base.Channel.AddMessageAnnouncement(sWSUserName, sWSPassword, groupId, announcement);
+        }
+        
+        public System.Threading.Tasks.Task<WebAPI.Notifications.AddMessageAnnouncementResponse> AddMessageAnnouncementAsync(string sWSUserName, string sWSPassword, int groupId, WebAPI.Notifications.MessageAnnouncement announcement) {
+            return base.Channel.AddMessageAnnouncementAsync(sWSUserName, sWSPassword, groupId, announcement);
+        }
+        
+        public bool SendMessageAnnouncement(string sWSUserName, string sWSPassword, int groupId, long startTime, int id) {
+            return base.Channel.SendMessageAnnouncement(sWSUserName, sWSPassword, groupId, startTime, id);
+        }
+        
+        public System.Threading.Tasks.Task<bool> SendMessageAnnouncementAsync(string sWSUserName, string sWSPassword, int groupId, long startTime, int id) {
+            return base.Channel.SendMessageAnnouncementAsync(sWSUserName, sWSPassword, groupId, startTime, id);
+        }
+        
+        public WebAPI.Notifications.Status UpdateMessageAnnouncement(string sWSUserName, string sWSPassword, int groupId, WebAPI.Notifications.MessageAnnouncement announcement) {
+            return base.Channel.UpdateMessageAnnouncement(sWSUserName, sWSPassword, groupId, announcement);
+        }
+        
+        public System.Threading.Tasks.Task<WebAPI.Notifications.Status> UpdateMessageAnnouncementAsync(string sWSUserName, string sWSPassword, int groupId, WebAPI.Notifications.MessageAnnouncement announcement) {
+            return base.Channel.UpdateMessageAnnouncementAsync(sWSUserName, sWSPassword, groupId, announcement);
+        }
+        
+        public WebAPI.Notifications.Status UpdateMessageAnnouncementStatus(string sWSUserName, string sWSPassword, int groupId, int id, bool status) {
+            return base.Channel.UpdateMessageAnnouncementStatus(sWSUserName, sWSPassword, groupId, id, status);
+        }
+        
+        public System.Threading.Tasks.Task<WebAPI.Notifications.Status> UpdateMessageAnnouncementStatusAsync(string sWSUserName, string sWSPassword, int groupId, int id, bool status) {
+            return base.Channel.UpdateMessageAnnouncementStatusAsync(sWSUserName, sWSPassword, groupId, id, status);
+        }
+        
+        public WebAPI.Notifications.Status DeleteMessageAnnouncement(string sWSUserName, string sWSPassword, int groupId, int id) {
+            return base.Channel.DeleteMessageAnnouncement(sWSUserName, sWSPassword, groupId, id);
+        }
+        
+        public System.Threading.Tasks.Task<WebAPI.Notifications.Status> DeleteMessageAnnouncementAsync(string sWSUserName, string sWSPassword, int groupId, int id) {
+            return base.Channel.DeleteMessageAnnouncementAsync(sWSUserName, sWSPassword, groupId, id);
         }
     }
 }
