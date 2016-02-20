@@ -16,13 +16,18 @@ namespace WebAPI.Controllers
         /// <param name="payment_gateway_id"> Payment gateway identifier to list the payment methods for</param>
         /// <remarks>
         /// Possible status codes: TBD       
-        ///  
+        /// Payment gateway not exist = 6008
         /// </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
         public List<Models.Billing.KalturaPaymentMethodProfile> List(int payment_gateway_id)
         {
             List<Models.Billing.KalturaPaymentMethodProfile> response = null;
+
+            if (payment_gateway_id <= 0)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "payment_gateway_id cannot be empty");
+            }
 
             int groupId = KS.GetFromRequest().GroupId;
 
@@ -45,7 +50,8 @@ namespace WebAPI.Controllers
         /// <param name="payment_gateway_id">Payment gateway identifier to add the payment method for</param>
         /// <param name="payment_method">Payment method to add</param>
         /// <remarks>
-        /// Possible status codes: Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method name required = 6055
+        /// Possible status codes: 
+        /// Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method name required = 6055
         /// </remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
@@ -74,8 +80,8 @@ namespace WebAPI.Controllers
         /// <param name="payment_gateway_id">Payment gateway identifier to update the payment method for</param>
         /// <param name="payment_method">Payment method to update</param>
         /// <remarks>
-        /// Possible status codes: Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method does not exist = 6049, Payment method ID is required = 6050      
-        ///  
+        /// Possible status codes: 
+        /// Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method does not exist = 6049, Payment method ID is required = 6050      
         /// </remarks>
         [Route("update"), HttpPost]
         [ApiAuthorize]
@@ -104,8 +110,8 @@ namespace WebAPI.Controllers
         /// <param name="payment_gateway_id">Payment gateway identifier to delete the payment method for</param>
         /// <param name="payment_method_id">Payment method identifier to delete</param>
         /// <remarks>
-        ///  Possible status codes: Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method does not exist = 6049, Payment method ID is required = 6050    
-        ///  
+        ///  Possible status codes: 
+        ///  Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method does not exist = 6049, Payment method ID is required = 6050    
         /// </remarks>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
