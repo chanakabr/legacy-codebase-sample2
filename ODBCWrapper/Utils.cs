@@ -720,6 +720,17 @@ namespace ODBCWrapper
             return (long)(dateTime - new DateTime(1970, 1, 1).ToUniversalTime()).TotalMilliseconds;
         }
 
+        public static DateTime UnixTimestampToDateTime(long timestamp)
+        {
+            DateTime origin = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            return origin.AddSeconds(timestamp);
+        }
+
+        public static long DateTimeToUnixTimestampUtc(DateTime dateTime)
+        {
+            return (long)(dateTime - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+        }
+
         public static SqlQueryInfo GetSqlDataMonitor(SqlCommand command)
         {
             SqlQueryInfo sqlInfo = new SqlQueryInfo();

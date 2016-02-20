@@ -1,11 +1,9 @@
 ﻿using ApiObjects;
-using Couchbase;
 using CouchbaseManager;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Couchbase.Extensions;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
 using KLogMonitor;
@@ -21,12 +19,12 @@ namespace DalCB
         private static readonly string LOGGER_FILENAME = "SocialDal";
         private static readonly string CB_FEED_DESGIN = Utils.GetValFromConfig("cb_feed_design");
 
-        CouchbaseClient m_oClient;
+        CouchbaseManager.CouchbaseManager cbManager;
         private int m_nGroupID;
         public SocialDAL_Couchbase(int nGroupID)
         {
             m_nGroupID = nGroupID;
-            m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.SOCIAL);
+            cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.SOCIAL);
         }
 
         public bool GetUserSocialFeed(string sSiteGuid, int nSkip, int nNumOfRecords, out List<SocialActivityDoc> lResult)
@@ -39,9 +37,28 @@ namespace DalCB
                 object[] startKey = new object[] { sSiteGuid, epochTime };
                 object[] endKey = new object[] { sSiteGuid, 0 };
 
+                List<SocialActivityDoc> retval;
+                if (nNumOfRecords > 0)
+                {
+                    retval = cbManager.View<SocialActivityDoc>(new ViewManager(CB_FEED_DESGIN, "UserFeed")
+                    {
+                        startKey = startKey,
+                        endKey = endKey,
+                        isDescending = true,
+                        skip = nSkip,
+                        limit = nNumOfRecords
+                    });
+                }
+                else
+                {
+                    retval = cbManager.View<SocialActivityDoc>(new ViewManager(CB_FEED_DESGIN, "UserFeed")
+                    {
+                        startKey = startKey,
+                        endKey = endKey,
+                        isDescending = true
+                    });
+                }
 
-                var retval = (nNumOfRecords > 0) ? m_oClient.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "UserFeed", true).StartKey(startKey).EndKey(endKey).Descending(true).Skip(nSkip).Limit(nNumOfRecords)
-                                               : m_oClient.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "UserFeed", true).StartKey(startKey).EndKey(endKey).Descending(true);
                 if (retval != null)
                 {
                     lResult = retval.ToList();
@@ -71,7 +88,7 @@ namespace DalCB
             bool bSuccess = false;
             try
             {
-                oRetval = m_oClient.GetJson<SocialActivityDoc>(sSocialActionID);
+                oRetval = cbManager.GetJsonAsT<SocialActivityDoc>(sSocialActionID);
                 bSuccess = true;
             }
             catch (Exception ex)
@@ -95,7 +112,7 @@ namespace DalCB
             try
             {
 
-                IDictionary<string, object> dRetval = m_oClient.Get(lSocialActionIDs);
+                IDictionary<string, object> dRetval = cbManager.GetValues<object>(lSocialActionIDs, true);
 
                 if (dRetval != null && dRetval.Count > 0)
                 {
@@ -142,7 +159,10 @@ namespace DalCB
 
             try
             {
-                lRes = m_oClient.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "UserSocialActions", true).Keys(keys).ToList();
+                lRes = cbManager.View<SocialActivityDoc>(new ViewManager(CB_FEED_DESGIN, "UserSocialActions")
+                {
+                    keys = keys
+                });
             }
             catch (Exception ex)
             {
@@ -164,8 +184,28 @@ namespace DalCB
                 object[] endKey = new object[] { sSiteGuid, 0 };
 
 
-                var retval = (nNumOfRecords > 0) ? m_oClient.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "UserActions", true).StartKey(startKey).EndKey(endKey).Descending(true).Skip(nSkip).Limit(nNumOfRecords)
-                                               : m_oClient.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "UserActions", true).StartKey(startKey).EndKey(endKey).Descending(true);
+                List<SocialActivityDoc> retval;
+                if (nNumOfRecords > 0) 
+                {
+                    retval = cbManager.View<SocialActivityDoc>(new ViewManager(CB_FEED_DESGIN, "UserActions")
+                    {
+                        startKey = startKey,
+                        endKey = endKey,
+                        isDescending = true,
+                        skip = nSkip,
+                        limit = nNumOfRecords
+                    });
+                }
+                else
+                {
+                    retval = cbManager.View<SocialActivityDoc>(new ViewManager(CB_FEED_DESGIN, "UserActions")
+                    {
+                        startKey = startKey,
+                        endKey = endKey,
+                        isDescending = true
+                    });
+                }
+
                 if (retval != null)
                 {
                     lUserActivities = retval.ToList();
@@ -195,7 +235,7 @@ namespace DalCB
             bool bResult = false;
             try
             {
-                bResult = m_oClient.Remove(sDocID);
+                bResult = cbManager.Remove(sDocID);
             }
             catch (Exception ex)
             {
@@ -218,14 +258,17 @@ namespace DalCB
             bool bResult = false;
             try
             {
-                var lFeeds = (nNumOfDocs > 0) ? m_oClient.GetView(CB_FEED_DESGIN, "FeedByActorId").Limit(nNumOfDocs) : m_oClient.GetView(CB_FEED_DESGIN, "FeedByActorId");
+                var lFeeds = (nNumOfDocs > 0) ? 
+                    cbManager.ViewIds(new ViewManager(CB_FEED_DESGIN, "FeedByActorId") { limit = nNumOfDocs }) :
+                    cbManager.ViewIds(new ViewManager(CB_FEED_DESGIN, "FeedByActorId"));
+                
                 bResult = true;
 
                 if (lFeeds != null)
                 {
                     foreach (var feed in lFeeds)
                     {
-                        lDocIDs.Add(feed.ItemId);
+                        lDocIDs.Add(feed);
                     }
                 }
             }
@@ -252,7 +295,7 @@ namespace DalCB
 
             try
             {
-                bRes = m_oClient.StoreJson(Enyim.Caching.Memcached.StoreMode.Set, sDocID, oDoc);
+                bRes = cbManager.SetJson<object>(sDocID, oDoc);
             }
             catch (Exception ex)
             {
@@ -277,7 +320,13 @@ namespace DalCB
             {
                 object[] startKey = new object[4] { assetId, 2, (int)actionType, Utils.DateTimeToUnixTimestamp(startDate) };
                 object endKey = new object[4] { assetId, (int)assetType, (int)actionType, Utils.DateTimeToUnixTimestamp(endDate) };
-                IView<int> view = m_oClient.GetView<int>(CB_FEED_DESGIN, "AssetStats").StartKey(startKey).EndKey(endKey).Reduce(true);
+                var view = cbManager.View<int>(new ViewManager(CB_FEED_DESGIN, "AssetStats")
+                {
+                    startKey = startKey,
+                    endKey = endKey,
+                    reduce = true
+                });
+
                 if (view.Count() > 0)
                 {
                     res = view.First<int>();
@@ -310,7 +359,13 @@ namespace DalCB
             {
                 object[] startKey = new object[4] { assetId, (int)assetType, (int)eUserAction.RATES, Utils.DateTimeToUnixTimestamp(startDate) };
                 object endKey = new object[4] { assetId, (int)assetType, (int)eUserAction.RATES, Utils.DateTimeToUnixTimestamp(endDate) };
-                IView<double> view = m_oClient.GetView<double>(CB_FEED_DESGIN, "AssetStatsRateSum").StartKey(startKey).EndKey(endKey).Reduce(true);
+                var view = cbManager.View<double>(new ViewManager(CB_FEED_DESGIN, "AssetStatsRateSum")
+                {
+                    startKey = startKey,
+                    endKey = endKey,
+                    reduce = true
+                });
+
                 if (view.Count() > 0)
                 {
                     res = view.First<double>();
@@ -408,12 +463,14 @@ namespace DalCB
             // Get the rows from the view that have the correct key,
             // order the list from top to bottom,
             // get only rows that are from "skip" until "Limit"
-            var lstRows = this.m_oClient.GetView<SocialActivityDoc>(CB_FEED_DESGIN, "MediaSocialActions", true).
-                StartKey(new object[] { p_nMediaID, p_nPlatform, p_nActionType }).
-                EndKey(new object[] { p_nMediaID, p_nPlatform, p_nActionType }).
-                Descending(true).
-                Skip(p_nSkip).
-                Limit(p_nLimit);
+            var lstRows = this.cbManager.View<SocialActivityDoc>(new ViewManager(CB_FEED_DESGIN, "MediaSocialActions")
+            {
+                startKey = new object[] { p_nMediaID, p_nPlatform, p_nActionType },
+                endKey = new object[] { p_nMediaID, p_nPlatform, p_nActionType },
+                isDescending = true,
+                skip = p_nSkip,
+                limit = p_nLimit
+            });
 
             if (lstRows != null)
             {
