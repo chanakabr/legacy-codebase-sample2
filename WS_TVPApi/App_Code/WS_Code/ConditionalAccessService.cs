@@ -1489,7 +1489,7 @@ namespace TVPApiServices
         [WebMethod(EnableSession = true, Description = "Charge a user’s household for specific content utilizing the household’s pre-assigned payment gateway. Online, one-time charge only of various content types. Upon successful charge entitlements to use the requested content are granted.")]
         [PrivateMethod]
         public TVPApiModule.Objects.Responses.ConditionalAccess.TransactionResponse Purchase(InitializationObject initObj, string user_id, double price, string currency,
-            int content_id, int product_id, string product_type, string coupon)
+            int content_id, int product_id, string product_type, string coupon, int payment_gateway_id, int payment_method_id)
         {
             TVPApiModule.Objects.Responses.ConditionalAccess.TransactionResponse response = null;
 
@@ -1517,7 +1517,7 @@ namespace TVPApiServices
                 try
                 {
                     response = new TVPApiModule.Services.ApiConditionalAccessService(groupID, initObj.Platform).Purchase(user_id, price, currency,
-                        content_id, product_id, productType, coupon, string.Empty, 0);
+                        content_id, product_id, productType, coupon, string.Empty, payment_gateway_id, payment_method_id);
 
                 }
                 catch (Exception ex)

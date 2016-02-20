@@ -1562,14 +1562,14 @@ namespace TVPApiModule.Services
         }
 
         public TVPApiModule.Objects.Responses.ConditionalAccess.TransactionResponse Purchase(string userId, double price, string currency, int contentId, int productId,
-            eTransactionType productType, string coupon, string deviceName, int pgwId)
+            eTransactionType productType, string coupon, string deviceName, int paymentGatewayId, int paymentMethodId)
         {
             TVPApiModule.Objects.Responses.ConditionalAccess.TransactionResponse response = null;
             try
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var result = m_Module.Purchase(m_wsUserName, m_wsPassword, userId, 0, price, currency, contentId, productId, productType, coupon, SiteHelper.GetClientIP(), deviceName, pgwId, 0);
+                    var result = m_Module.Purchase(m_wsUserName, m_wsPassword, userId, 0, price, currency, contentId, productId, productType, coupon, SiteHelper.GetClientIP(), deviceName, paymentGatewayId, paymentMethodId);
                     response = new TVPApiModule.Objects.Responses.ConditionalAccess.TransactionResponse(result);
 
                 }
@@ -1587,7 +1587,7 @@ namespace TVPApiModule.Services
                     productType.ToString(),                         // {6}
                     coupon != null ? coupon : string.Empty,         // {7}
                     deviceName != null ? deviceName : string.Empty, // {8}
-                    pgwId                                           // {9}                    
+                    paymentGatewayId                                           // {9}                    
                     );
             }
 
