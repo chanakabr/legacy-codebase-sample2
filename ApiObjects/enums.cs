@@ -522,4 +522,12 @@ namespace ApiObjects
         Mail = 1,
         Inbox = 2
     }
+
+    public enum eUserMessageAction
+    {
+        Login = 0,
+        Logout = 1,
+        AnonymousPushRegistration = 2,
+        IdentifyPushRegistration = 3
+    }
 }
