@@ -726,7 +726,6 @@ namespace DAL
             spInsert.AddParameter("@is_active", enabled ? 1 : 0);
             spInsert.AddParameter("@start_time", startTime);
             spInsert.AddParameter("@timezone", timezone);
-            spInsert.AddParameter("@group_id", groupId);
             spInsert.AddParameter("@updater_id", updaterId);
             spInsert.AddParameter("@result_message_id", resultMsgId);
             spInsert.ExecuteDataSet();
