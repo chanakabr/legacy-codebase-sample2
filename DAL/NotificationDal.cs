@@ -619,6 +619,7 @@ namespace DAL
             {
                 sp.AddParameter("@push_system_announcements_enabled", push_system_announcements_enabled);
             }
+            sp.AddParameter("@date", DateTime.UtcNow);
             return sp.ExecuteReturnValue<bool>();
         }
 
@@ -644,6 +645,8 @@ namespace DAL
             {
                 sp.AddParameter("@push_notification_enabled", push_notification_enabled);
             }
+            sp.AddParameter("@date", DateTime.UtcNow);
+            sp.AddParameter("@updater_id", userId);
 
             return sp.ExecuteReturnValue<bool>();
         }
