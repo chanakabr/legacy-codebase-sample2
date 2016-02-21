@@ -74,15 +74,14 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\External\Couchbase.dll</HintPath>
     </Reference>
-    <Reference Include="Enyim.Caching, Version=1.3.3.0, Culture=neutral, PublicKeyToken=05e9c6b5a9ec94c2, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\External\Enyim.Caching.dll</HintPath>
-    </Reference>
     <Reference Include="Facebook, Version=3.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\Facebook.dll</HintPath>
     </Reference>
     <Reference Include="Facebook.Web, Version=3.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\Facebook.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="Jil">
+      <HintPath>..\..\tvincicommon\External\Jil.dll</HintPath>
     </Reference>
     <Reference Include="KLogMonitor, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
