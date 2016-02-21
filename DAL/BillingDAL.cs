@@ -2087,7 +2087,7 @@ namespace DAL
                         int supportPaymentMethod = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_payment_method_support");
                         paymentGateway.SupportPaymentMethod = supportPaymentMethod == 1;
                     }
-                    if (ds.Tables.Count == 2)
+                    if (ds.Tables.Count == 2 && ds.Tables[1].Rows.Count > 0 )
                     {
                         isPaymentGatewayRelatedToHousehold = true;
                     }
