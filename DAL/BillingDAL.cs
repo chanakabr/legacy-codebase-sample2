@@ -1445,6 +1445,7 @@ namespace DAL
                 sp.AddParameter("@isActive", paymentGateway.IsActive);
                 sp.AddParameter("@renewal_interval", paymentGateway.RenewalIntervalMinutes);
                 sp.AddParameter("@renewal_start", paymentGateway.RenewalStartMinutes);
+                sp.AddParameter("@is_payment_method_support ", paymentGateway.SupportPaymentMethod);
 
                 bool isSet = sp.ExecuteReturnValue<bool>();
                 return isSet;
