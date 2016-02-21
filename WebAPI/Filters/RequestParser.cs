@@ -26,6 +26,8 @@ namespace WebAPI.Filters
 {
     public class RequestParser : ActionFilterAttribute
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         private const char PARAMS_PREFIX = ':';
         private const string CB_SECTION_NAME = "tokens";
 
@@ -199,8 +201,9 @@ namespace WebAPI.Filters
 
                                     methodParams.Add(reqParams[p.Name].ToObject(t));
                                 }
-                                catch (Exception)
+                                catch (Exception ex)
                                 {
+                                    log.Error("Invalid parameter format", ex);
                                     createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidActionParameters, string.Format("Invalid parameter format {0}", p.Name));
                                     return;
                                 }

@@ -26,6 +26,8 @@ namespace WebAPI.Controllers
     [ApiExplorerSettings(IgnoreApi = true)]
     public class ServiceController : ApiController
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         private void createMethodInvoker(string serviceName, string actionName, out MethodInfo methodInfo, out object classInstance)
         {
             Assembly asm = Assembly.GetExecutingAssembly();
@@ -83,6 +85,8 @@ namespace WebAPI.Controllers
             }
             catch (Exception ex)
             {
+                log.Error("Failed to perform action", ex);
+
                 if (ex.InnerException is ApiException)
                 {
                     throw ex.InnerException;
