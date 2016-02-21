@@ -47,9 +47,9 @@ namespace WebAPI.Models.Notifications
         [XmlElement(ElementName = "recipients")]
         public KalturaAnnouncementRecipientsType Recipients { get; set; }
 
-        [DataMember(Name = "message_announcement_id")]
-        [JsonProperty(PropertyName = "message_announcement_id")]
-        [XmlElement(ElementName = "message_announcement_id")]
-        public int MessageAnnouncementId { get; set; }
+        [DataMember(Name = "id")]
+        [JsonProperty(PropertyName = "id")]
+        [XmlElement(ElementName = "id")]
+        public int Id { get; set; }
     }
 }

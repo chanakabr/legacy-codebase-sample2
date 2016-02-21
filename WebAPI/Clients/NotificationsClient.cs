@@ -248,7 +248,7 @@ namespace WebAPI.Clients
             {
                 Enabled = announcement.Enabled,
                 Message = announcement.Message,
-                MessageAnnouncementId = announcement.MessageAnnouncementId,
+                MessageAnnouncementId = announcement.Id,
                 Name = announcement.Name,
                 Recipients = recipients,
                 StartTime = announcement.StartTime,
@@ -321,7 +321,7 @@ namespace WebAPI.Clients
             {
                 Enabled = announcement.Enabled,
                 Message = announcement.Message,
-                MessageAnnouncementId = announcement.MessageAnnouncementId,
+                MessageAnnouncementId = announcement.Id,
                 Name = announcement.Name,
                 Recipients = recipients,
                 StartTime = announcement.StartTime,
