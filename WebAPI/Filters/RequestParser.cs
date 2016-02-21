@@ -199,7 +199,22 @@ namespace WebAPI.Filters
                                         }
                                     }
 
-                                    methodParams.Add(reqParams[p.Name].ToObject(t));
+                                    // If it is an enum, newtonsoft's bad "ToObject" doesn't do this easily, 
+                                    // so we do it ourselves in this not so good looking way
+                                    if (t.IsEnum)
+                                    {
+                                        var paramAsString = reqParams[p.Name].ToString();
+                                        var names = t.GetEnumNames().ToList();
+
+                                        if (names.Contains(paramAsString))
+                                        {
+                                            methodParams.Add(Enum.Parse(t, paramAsString));
+                                        }
+                                    }
+                                    else
+                                    {
+                                        methodParams.Add(reqParams[p.Name].ToObject(t));
+                                    }
                                 }
                                 catch (Exception ex)
                                 {
