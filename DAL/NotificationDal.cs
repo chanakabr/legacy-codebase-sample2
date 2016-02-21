@@ -767,5 +767,25 @@ namespace DAL
             sp.AddParameter("@status", status);
             DataSet ds = sp.ExecuteDataSet();            
         }
+
+        public static string Get_AnnouncementExternalIdByRecipients(int recipients)
+        {
+            string ret = string.Empty;
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAnnouncementExternalIdByRecipients");
+            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            sp.AddParameter("@recipients", recipients);
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    return ODBCWrapper.Utils.GetSafeStr(dt.Rows[0],"external_id");
+                }
+            }
+
+            return ret;
+        }
     }
 }
