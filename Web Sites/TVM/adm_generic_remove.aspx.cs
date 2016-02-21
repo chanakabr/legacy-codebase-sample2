@@ -145,9 +145,19 @@ public partial class adm_generic_remove : System.Web.UI.Page
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", m_nID);
             updateQuery += "and";
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 4);
-            updateQuery.Execute();
+            int rowsChanged = updateQuery.ExecuteAffectedRows();
             updateQuery.Finish();
             updateQuery = null;
+
+            //Remove Media / Channel from Lucene 
+            bool result = false;
+            List<int> lIds = new List<int>() { m_nID };
+
+            // media changed from pending to deleted - delete index
+            if(rowsChanged > 0 && m_sTable.ToLower() == "media")
+            {                
+                result = ImporterImpl.UpdateIndex(lIds, LoginManager.GetLoginGroupID(), ApiObjects.eAction.Delete);                    
+            }
 
             ODBCWrapper.UpdateQuery updateQuery1 = new ODBCWrapper.UpdateQuery(m_sTable);
             updateQuery1.SetConnectionKey(m_sDB);
@@ -160,11 +170,12 @@ public partial class adm_generic_remove : System.Web.UI.Page
             updateQuery1.Execute();
             updateQuery1.Finish();
             updateQuery1 = null;
-
-
-            //Remove Media / Channel from Lucene 
-            bool result = false;
-            List<int> lIds = new List<int>() { m_nID };
+            
+            // media changed from active to pending - update index
+            if (rowsChanged > 0 && m_sTable.ToLower() == "media")
+            {
+                result = ImporterImpl.UpdateIndex(lIds, LoginManager.GetLoginGroupID(), ApiObjects.eAction.Update);                    
+            }
 
             DomainsWS.module domainWS;
             string sIP = "1.1.1.1";
@@ -172,69 +183,80 @@ public partial class adm_generic_remove : System.Web.UI.Page
             string sWSPass = "";
             string sWSURL;
 
-            switch (m_sTable.ToLower())
+            // if its not media
+            if (m_sTable.ToLower() != "media")
             {
-                case "media":
-                    result = ImporterImpl.UpdateIndex(lIds, LoginManager.GetLoginGroupID(), ApiObjects.eAction.Delete);
-                    break;
-                case "channels":
-                    result = ImporterImpl.UpdateChannelIndex(LoginManager.GetLoginGroupID(), lIds, ApiObjects.eAction.Delete);
-                    break;
-                case "channels_media":
-                    object oChannelId = ODBCWrapper.Utils.GetTableSingleVal("channels_media", "CHANNEL_ID", m_nID);//get channel+media_id 
-                    int nChannelId;
-                    if (oChannelId != null && oChannelId != DBNull.Value)
-                    {
-                        nChannelId = int.Parse(oChannelId.ToString());
-                        lIds.Clear();
-                        lIds.Add(nChannelId);
-
+                switch (m_sTable.ToLower())
+                {
+                    case "ppv_modules":
+                        result = ImporterImpl.UpdateFreeFileTypeOfModule(LoginManager.GetLoginGroupID(), m_nID);
+                        break;
+                    case "media_files":
+                        Int32 nMediaID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("media_files", "media_id", m_nID).ToString());
+                        if (nMediaID > 0)
+                        {
+                            result = ImporterImpl.UpdateIndex(new List<int>() { nMediaID }, LoginManager.GetLoginGroupID(), ApiObjects.eAction.Update);
+                        }
+                        break;
+                    case "channels":
                         result = ImporterImpl.UpdateChannelIndex(LoginManager.GetLoginGroupID(), lIds, ApiObjects.eAction.Delete);
-                    }
-                    break;
-                case "groups_device_families_limitation_modules":
-                    //get parent_limit_module_id ==> than remove it                   
-                    object oDlmID = ODBCWrapper.Utils.GetTableSingleVal("groups_device_families_limitation_modules", "PARENT_LIMIT_MODULE_ID", m_nID);
-                    if (oDlmID != null)
-                    {
-                        int dlmID = int.Parse(oDlmID.ToString());
+                        break;
+                    case "channels_media":
+                        object oChannelId = ODBCWrapper.Utils.GetTableSingleVal("channels_media", "CHANNEL_ID", m_nID);//get channel+media_id 
+                        int nChannelId;
+                        if (oChannelId != null && oChannelId != DBNull.Value)
+                        {
+                            nChannelId = int.Parse(oChannelId.ToString());
+                            lIds.Clear();
+                            lIds.Add(nChannelId);
+
+                            result = ImporterImpl.UpdateChannelIndex(LoginManager.GetLoginGroupID(), lIds, ApiObjects.eAction.Delete);
+                        }
+                        break;
+                    case "groups_device_families_limitation_modules":
+                        //get parent_limit_module_id ==> than remove it                   
+                        object oDlmID = ODBCWrapper.Utils.GetTableSingleVal("groups_device_families_limitation_modules", "PARENT_LIMIT_MODULE_ID", m_nID);
+                        if (oDlmID != null)
+                        {
+                            int dlmID = int.Parse(oDlmID.ToString());
+                            domainWS = new DomainsWS.module();
+                            TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
+                            sWSURL = GetWSURL("domains_ws");
+                            if (sWSURL != "")
+                                domainWS.Url = sWSURL;
+                            try
+                            {
+                                DomainsWS.Status resp = domainWS.RemoveDLM(sWSUserName, sWSPass, dlmID);
+                                log.Debug("RemoveDLM - " + string.Format("Dlm:{0}, res:{1}", dlmID, resp.Code));
+                            }
+                            catch (Exception ex)
+                            {
+                                log.Error("Exception - " + string.Format("Dlm:{0}, msg:{1}, st:{2}", dlmID, ex.Message, ex.StackTrace), ex);
+                            }
+                        }
+                        break;
+
+                    case "groups_device_limitation_modules":
+                        // delete from cache this DLM object                       
                         domainWS = new DomainsWS.module();
+
                         TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
                         sWSURL = GetWSURL("domains_ws");
                         if (sWSURL != "")
                             domainWS.Url = sWSURL;
                         try
                         {
-                            DomainsWS.Status resp = domainWS.RemoveDLM(sWSUserName, sWSPass, dlmID);
-                            log.Debug("RemoveDLM - " + string.Format("Dlm:{0}, res:{1}", dlmID, resp.Code));
+                            DomainsWS.Status resp = domainWS.RemoveDLM(sWSUserName, sWSPass, m_nID);
+                            log.Debug("RemoveDLM " + string.Format("Dlm:{0}, res:{1}", m_nID, resp.Code));
                         }
                         catch (Exception ex)
                         {
-                            log.Error("Exception - " + string.Format("Dlm:{0}, msg:{1}, st:{2}", dlmID, ex.Message, ex.StackTrace), ex);
+                            log.Error("Exception - " + string.Format("Dlm:{0}, msg:{1}, st:{2}", m_nID, ex.Message, ex.StackTrace), ex);
                         }
-                    }
-                    break;
-
-                case "groups_device_limitation_modules":
-                    // delete from cache this DLM object                       
-                    domainWS = new DomainsWS.module();
-
-                    TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
-                    sWSURL = GetWSURL("domains_ws");
-                    if (sWSURL != "")
-                        domainWS.Url = sWSURL;
-                    try
-                    {
-                        DomainsWS.Status resp = domainWS.RemoveDLM(sWSUserName, sWSPass, m_nID);
-                        log.Debug("RemoveDLM " + string.Format("Dlm:{0}, res:{1}", m_nID, resp.Code));
-                    }
-                    catch (Exception ex)
-                    {
-                        log.Error("Exception - " + string.Format("Dlm:{0}, msg:{1}, st:{2}", m_nID, ex.Message, ex.StackTrace), ex);
-                    }
-                    break;
-                default:
-                    break;
+                        break;
+                    default:
+                        break;
+                }
             }
         }
 

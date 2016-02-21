@@ -9,6 +9,7 @@ using System.Configuration;
 using System.Globalization;
 using KLogMonitor;
 using System.Reflection;
+using TvinciImporter;
 
 public partial class adm_media_files_ppvmodules : System.Web.UI.Page
 {
@@ -227,13 +228,14 @@ public partial class adm_media_files_ppvmodules : System.Web.UI.Page
 
     public string changeItemStatus(string sID, string sAction)
     {
-        if (Session["media_file_id"] == null || Session["media_file_id"].ToString() == "" || Session["media_file_id"].ToString() == "0")
+        int mediaFileID;
+        if (Session["media_file_id"] == null || !int.TryParse(Session["media_file_id"].ToString(), out mediaFileID) || mediaFileID == 0)        
         {
             LoginManager.LogoutFromSite("index.html");
             return "";
         }
 
-        Int32 nOwnerGroupID = int.Parse(PageUtils.GetTableSingleVal("media_files", "group_id", int.Parse(Session["media_file_id"].ToString())).ToString());
+        Int32 nOwnerGroupID = int.Parse(PageUtils.GetTableSingleVal("media_files", "group_id", mediaFileID).ToString());
         Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
         if (nLogedInGroupID != nOwnerGroupID && PageUtils.IsTvinciUser() == false)
         {
@@ -251,8 +253,11 @@ public partial class adm_media_files_ppvmodules : System.Web.UI.Page
         }
         else
         {
-            InsertPPVModulesMediaFilesID(int.Parse(sID), int.Parse(Session["media_file_id"].ToString()), nLogedInGroupID);
+            InsertPPVModulesMediaFilesID(int.Parse(sID), mediaFileID, nLogedInGroupID);
         }
+
+        //Update free file index
+        ImporterImpl.UpdateFreeFileTypeOfMediaFile(nLogedInGroupID, mediaFileID);
 
         try
         {

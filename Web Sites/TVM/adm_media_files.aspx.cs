@@ -11,6 +11,8 @@ using System.Web.UI.HtmlControls;
 using TVinciShared;
 using KLogMonitor;
 using System.Reflection;
+using System.Collections.Generic;
+using TvinciImporter;
 
 public partial class adm_media_files : System.Web.UI.Page
 {
@@ -208,4 +210,19 @@ public partial class adm_media_files : System.Web.UI.Page
         theTable = null;
         return sTable;
     }
+
+    public void UpdateOnOffStatus(string theTableName, string sID, string sStatus)
+    {
+        Int32 nGroupID = LoginManager.GetLoginGroupID();        
+        int mediaFileID;
+        if (int.TryParse(sID, out mediaFileID))
+        {
+            Int32 nMediaID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("media_files", "media_id", mediaFileID).ToString());
+            if (nMediaID > 0)
+            {
+                ImporterImpl.UpdateIndex(new List<int>() { nMediaID }, nGroupID, ApiObjects.eAction.Update);
+            }
+        }
+    }
+
 }

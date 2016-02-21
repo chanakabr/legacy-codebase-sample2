@@ -38,7 +38,7 @@ public partial class adm_media_new : System.Web.UI.Page
                     int nGroupId = LoginManager.GetLoginGroupID();
                     bool result = false;
                     result = ImporterImpl.UpdateIndex(new List<int>() { nID }, nGroupId, ApiObjects.eAction.Update);
-                    ImporterImpl.UpdateNotificationsRequests(LoginManager.GetLoginGroupID(), nID);//Notification    
+                    ImporterImpl.UpdateNotificationsRequests(LoginManager.GetLoginGroupID(), nID);//Notification                     
                 }
 
                 try

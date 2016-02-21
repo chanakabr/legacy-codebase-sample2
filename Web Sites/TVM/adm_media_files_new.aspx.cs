@@ -44,6 +44,7 @@ public partial class adm_media_files_new : System.Web.UI.Page
                 {
                     bool updateResult;
                     updateResult = ImporterImpl.UpdateIndex(new List<int>() { nMediaID }, nLoginGroupId, ApiObjects.eAction.Update);
+                    updateResult = ImporterImpl.InsertRemoteTaskIndexUpdate(nLoginGroupId, new List<int>() { nMediaID });
                 }
 
                 try

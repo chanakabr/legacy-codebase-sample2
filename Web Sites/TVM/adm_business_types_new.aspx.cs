@@ -108,6 +108,10 @@ public partial class adm_business_types_new : System.Web.UI.Page
         dr_mt.SetValue(Session["media_type_id"].ToString());
         theRecord.AddRecord(dr_mt);
 
+        DataRecordCheckBoxField dr_isTrailer = new DataRecordCheckBoxField(true);
+        dr_isTrailer.Initialize("Trailer", "adm_table_header_nbg", "FormInput", "IS_TRAILER", false);
+        theRecord.AddRecord(dr_isTrailer);
+
 
         string sTable = theRecord.GetTableHTML("adm_business_types_new.aspx?submited=1");
 

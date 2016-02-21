@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using TvinciImporter;
 using TVinciShared;
 
 public partial class adm_ppv_modules : System.Web.UI.Page
@@ -207,4 +208,15 @@ public partial class adm_ppv_modules : System.Web.UI.Page
     {
         Response.Write(PageUtils.GetPreHeader() + ": PPV Modules");
     }
+
+    public void UpdateOnOffStatus(string theTableName, string sID, string sStatus)
+    {
+        Int32 nGroupID = LoginManager.GetLoginGroupID();
+        int ppvModuleID;
+        if (int.TryParse(sID, out ppvModuleID))
+        {
+            ImporterImpl.UpdateFreeFileTypeOfModule(nGroupID, ppvModuleID);
+        }
+    }
+
 }

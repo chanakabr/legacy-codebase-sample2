@@ -58,7 +58,7 @@ public partial class adm_business_types : System.Web.UI.Page
     {
         Int32 nGroupID = LoginManager.GetLoginGroupID();
 
-        theTable += "SELECT ID, m_id, media_desc as 'Meida type',f_desc as 'Friendly description' FROM (SELECT gmt.GROUP_ID, gmt.ID, lmt.ID AS m_id, gmt.DESCRIPTION AS f_desc, lmt.DESCRIPTION AS media_desc                       FROM          lu_media_types AS lmt LEFT OUTER JOIN groups_media_type AS gmt ON gmt.MEDIA_TYPE_ID = lmt.ID AND ";
+        theTable += "SELECT ID, m_id, media_desc as 'Media type',f_desc as 'Friendly description', is_trailer_value, is_trailer as 'Is Trailer' FROM (SELECT gmt.GROUP_ID, gmt.ID, lmt.ID AS m_id, gmt.DESCRIPTION AS f_desc, lmt.DESCRIPTION AS media_desc, is_trailer as is_trailer_value, case gmt.is_trailer when 1 then 'Yes' else 'No' end is_trailer FROM lu_media_types AS lmt LEFT OUTER JOIN groups_media_type AS gmt ON gmt.MEDIA_TYPE_ID = lmt.ID AND ";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("gmt.GROUP_ID" , "=" , nGroupID);
         theTable += ") AS q WHERE (m_id > 0)";
         if (sOrderBy != "")
@@ -70,6 +70,7 @@ public partial class adm_business_types : System.Web.UI.Page
             theTable += " order by f_desc desc";
         theTable.AddHiddenField("ID");
         theTable.AddHiddenField("m_ID");
+        theTable.AddHiddenField("is_trailer_value");
 
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {
