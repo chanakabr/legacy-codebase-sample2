@@ -17,7 +17,8 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Add a new future scheduled system announcment push notification
         /// </summary>
-        /// <param name="announcement">The announcement to be added.</param>
+        /// <param name="announcement">The announcement to be added.
+        /// timezone param should be taken from the 'name of timezone' from: https://msdn.microsoft.com/en-us/library/ms912391(v=winembedded.11).aspx </param>
         /// <returns></returns>
         /// <remarks>Possible status codes: AnnouncementMessageTooLong = 8010, AnnouncementMessageIsEmpty = 8004, AnnouncementInvalidStartTime = 8005,
         /// FeatureDisabled = 8009</remarks>
@@ -44,7 +45,8 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Update an existing future system annoucement push notification. Annoucement can only be updated only before sending
         /// </summary>
-        /// <param name="announcement">The announcement to update.</param>
+        /// <param name="announcement">The announcement to update.
+        /// timezone param should be taken from the 'name of timezone' from: https://msdn.microsoft.com/en-us/library/ms912391(v=winembedded.11).aspx </param>
         /// <returns></returns>
         /// <remarks>Possible status codes: AnnouncementMessageTooLong = 8010, AnnouncementMessageIsEmpty = 8004, AnnouncementInvalidStartTime = 8005, AnnouncementNotFound = 8006,
         /// AnnouncementUpdateNotAllowed = 8007, FeatureDisabled = 8009</remarks>
