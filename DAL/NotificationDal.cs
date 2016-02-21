@@ -729,7 +729,6 @@ namespace DAL
             spInsert.AddParameter("@group_id", groupId);
             spInsert.AddParameter("@updater_id", updaterId);
             spInsert.AddParameter("@result_message_id", resultMsgId);
-            spInsert.AddParameter("@update_date", DateTime.UtcNow);
             spInsert.ExecuteDataSet();
         }
 
@@ -740,18 +739,17 @@ namespace DAL
             spInsert.AddParameter("@ID", id);
             spInsert.AddParameter("@group_id", groupId);
             spInsert.AddParameter("@is_active", enabled ? 1 : 0);
-            spInsert.AddParameter("@update_date", DateTime.UtcNow);
             spInsert.ExecuteDataSet();
         }
 
-        public static void Update_MessageAnnouncementToSent(int id, int groupId)
+        public static void Update_MessageAnnouncementSent(int id, int groupId, int sent)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("UpdateMessageAnnouncement");
             spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             spInsert.AddParameter("@ID", id);
             spInsert.AddParameter("@group_id", groupId);
-            spInsert.AddParameter("@sent", 2);
-            spInsert.AddParameter("@update_date", DateTime.UtcNow);
+            spInsert.AddParameter("@sent", sent);
+            spInsert.AddParameter("@response_date", DateTime.UtcNow);
             spInsert.ExecuteDataSet();
         }
 
@@ -762,7 +760,6 @@ namespace DAL
             spInsert.AddParameter("@ID", id);
             spInsert.AddParameter("@group_id", groupId);
             spInsert.AddParameter("@status", 2);
-            spInsert.AddParameter("@update_date", DateTime.UtcNow);
             spInsert.ExecuteDataSet();
         }
 
