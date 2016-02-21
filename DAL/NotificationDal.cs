@@ -625,6 +625,7 @@ namespace DAL
             {
                 sp.AddParameter("@push_system_announcements_enabled", push_system_announcements_enabled);
             }
+            sp.AddParameter("@date", DateTime.UtcNow);
             return sp.ExecuteReturnValue<bool>();
         }
 
@@ -650,6 +651,8 @@ namespace DAL
             {
                 sp.AddParameter("@push_notification_enabled", push_notification_enabled);
             }
+            sp.AddParameter("@date", DateTime.UtcNow);
+            sp.AddParameter("@updater_id", userId);
 
             return sp.ExecuteReturnValue<bool>();
         }
@@ -732,7 +735,6 @@ namespace DAL
             spInsert.AddParameter("@is_active", enabled ? 1 : 0);
             spInsert.AddParameter("@start_time", startTime);
             spInsert.AddParameter("@timezone", timezone);
-            spInsert.AddParameter("@group_id", groupId);
             spInsert.AddParameter("@updater_id", updaterId);
             spInsert.AddParameter("@result_message_id", resultMsgId);
             spInsert.ExecuteDataSet();
@@ -807,6 +809,26 @@ namespace DAL
             }
 
             return userNotification;
+        }
+
+        public static string Get_AnnouncementExternalIdByRecipients(int recipients)
+        {
+            string ret = string.Empty;
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAnnouncementExternalIdByRecipients");
+            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            sp.AddParameter("@recipients", recipients);
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    return ODBCWrapper.Utils.GetSafeStr(dt.Rows[0],"external_id");
+                }
+            }
+
+            return ret;
         }
     }
 }

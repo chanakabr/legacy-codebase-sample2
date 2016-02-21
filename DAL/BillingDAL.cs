@@ -1056,7 +1056,9 @@ namespace DAL
                             pgw.RenewalStartMinutes = ODBCWrapper.Utils.GetIntSafeVal(dr, "renewal_start_minutes");
                             pgw.IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
                             int isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_default");
-                            pgw.IsDefault = isDefault == 1 ? true : false;
+                            pgw.IsDefault = isDefault == 1;
+                            pgw.SupportPaymentMethod = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_payment_method_support") == 1;
+
 
                             if (dtConfig != null)
                             {
@@ -2087,7 +2089,7 @@ namespace DAL
                         int supportPaymentMethod = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_payment_method_support");
                         paymentGateway.SupportPaymentMethod = supportPaymentMethod == 1;
                     }
-                    if (ds.Tables.Count == 2)
+                    if (ds.Tables.Count == 2 && ds.Tables[1].Rows.Count > 0 )
                     {
                         isPaymentGatewayRelatedToHousehold = true;
                     }
