@@ -1879,11 +1879,11 @@ namespace DAL
             return createTransaction == 1;
         }
 
-        public static PaymentGatewayTransaction GetPaymentGatewayTransactionByID(long id)
+        public static PaymentGatewayTransaction GetPaymentGatewayTransactionByID(long id, string connectionKey = BILLING_CONNECTION_STRING)
         {
             PaymentGatewayTransaction response = null;
 
-            DataRow row = ODBCWrapper.Utils.GetTableSingleRow("payment_gateway_transactions", id);
+            DataRow row = ODBCWrapper.Utils.GetTableSingleRow("payment_gateway_transactions", id, connectionKey);
 
             if (row != null)
             {
