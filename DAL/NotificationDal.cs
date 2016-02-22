@@ -882,6 +882,22 @@ namespace DAL
             return ret;
         }
 
+
+        public static int Insert_Announcement(int groupId, string announcementName, string externalAnnouncementId, int messageType, int announcementRecipientsType)
+        {
+            ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("Insert_Announcement");
+            spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            spInsert.AddParameter("@group_id", groupId);
+            spInsert.AddParameter("@name", announcementName);
+            spInsert.AddParameter("@external_id", externalAnnouncementId);
+            spInsert.AddParameter("@message_type", messageType);
+            spInsert.AddParameter("@recipient_type", announcementRecipientsType);
+            spInsert.AddParameter("@status", 1);
+            spInsert.AddParameter("@created_at", DateTime.UtcNow);
+
+            int newTransactionID = spInsert.ExecuteReturnValue<int>();
+            return newTransactionID;
+        }
         public static DataRowCollection Get_AnnouncementByRecipientsTypes(List<eAnnouncementRecipientsType> recipientsTypes, List<long> announcementIds)
         {
             DataRowCollection rowCollection = null;
@@ -904,6 +920,7 @@ namespace DAL
             }
 
             return rowCollection;
+
         }
     }
 }

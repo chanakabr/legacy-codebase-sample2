@@ -221,6 +221,7 @@ namespace ApiObjects.Response
         AnnouncementUpdateNotAllowed = 8007,
         AnnouncementInvalidTimezone = 8008,
         FeatureDisabled = 8009,
-        AnnouncementMessageTooLong = 8010
+        AnnouncementMessageTooLong = 8010,
+        FailCreateAnnouncement = 8011
     }
 }
