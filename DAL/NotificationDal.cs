@@ -706,6 +706,56 @@ namespace DAL
             return null;
         }
 
+        public static List<DataRow> Get_MessageAllAnnouncements(int groupId, int pageSize, int pageIndex)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncement");
+            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@top", pageSize*(pageIndex+1));
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    int num = pageSize;
+                    if (dt.Rows.Count <= pageSize)
+                        num = dt.Rows.Count;
+
+                    List<DataRow> ret = new List<DataRow>();
+
+                    for (int i = 0; i < num; i++)
+                    {
+                        int curr = i + pageSize * pageIndex;
+                        if (curr < dt.Rows.Count)
+                            ret.Add(dt.Rows[curr]);
+                    }
+
+                    return ret;
+                }
+            }
+
+            return null;
+        }
+
+        public static int Get_MessageAllAnnouncementsCount(int groupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncement");
+            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    return dt.Rows.Count;
+                }
+            }
+
+            return 0;
+        }
+
         public static int Insert_MessageAnnouncement(int groupId, int recipients, string name, string message, bool enabled, DateTime startTime, string timezone, int updaterId, string resultMsgId = null)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("InsertMessageAnnouncement");
