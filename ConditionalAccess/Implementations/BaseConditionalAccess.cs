@@ -12144,7 +12144,7 @@ namespace ConditionalAccess
 
             if (shouldUseDalOrCatalog)
             {
-                res = ConditionalAccessDAL.GetFileUrlLinks(mediaFileID, siteGuid, m_nGroupID, ref mainUrl, ref altUrl, ref mainStreamingCoID, ref altStreamingCoID);
+                res = ConditionalAccessDAL.GetFileUrlLinks(mediaFileID, siteGuid, m_nGroupID, ref mainUrl, ref altUrl, ref mainStreamingCoID, ref altStreamingCoID, ref nMediaID);
             }
             else
             {
@@ -12172,6 +12172,7 @@ namespace ConditionalAccess
                             altUrl = mf.m_oFile.m_sAltUrl;
                             mainStreamingCoID = mf.m_oFile.m_nCdnID;
                             altStreamingCoID = mf.m_oFile.m_nAltCdnID;
+                            nMediaID = mf.m_oFile.m_nMediaID;
                         }
                     }
                 }
