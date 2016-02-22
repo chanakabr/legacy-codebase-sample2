@@ -18,7 +18,8 @@ namespace WebAPI.Managers.Models
     {
         private const int BLOCK_SIZE = 16;
         private const int SHA1_SIZE = 20;
-        private const string KS_FORMAT = "{0}&_t={1}&_e={2}&_u={3}&_d={4}";
+        private const string KS_FORMAT = "{0}&_t={1}&_e={2}&_u={3}&_d={4}"; 
+        private const string REPLACE_UNDERSCORE = "^^^";
 
         private string encryptedValue;
         private int groupId;
@@ -93,7 +94,15 @@ namespace WebAPI.Managers.Models
             
             int relativeExpiration = (int)SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow) + expiration;
 
-            string ks = string.Format(KS_FORMAT, privilege, (int)userType, relativeExpiration, userID, !string.IsNullOrEmpty(data) ? HttpUtility.UrlEncode(data) : string.Empty);
+            //prepare data - url encode + replace '_'
+            string encodedData = string.Empty;
+            if (!string.IsNullOrEmpty(data))
+            {
+                encodedData = data.Replace("_", REPLACE_UNDERSCORE);
+                encodedData = HttpUtility.UrlEncode(encodedData);
+            }
+
+            string ks = string.Format(KS_FORMAT, privilege, (int)userType, relativeExpiration, userID, encodedData);
             byte[] ksBytes = Encoding.ASCII.GetBytes(ks);
             byte[] randomBytes = Utils.EncryptionUtils.CreateRandomByteArray(BLOCK_SIZE);
             byte[] randWithFields = new byte[ksBytes.Length + randomBytes.Length];
@@ -193,7 +202,12 @@ namespace WebAPI.Managers.Models
                         ks.userId = pair[1];
                         break;
                     case "d":
-                        ks.data = !string.IsNullOrEmpty(pair[1]) ? HttpUtility.UrlDecode(pair[1]) : string.Empty;
+                        ks.data = string.Empty;
+                        if (!string.IsNullOrEmpty(pair[1]))
+                        {
+                            ks.data = HttpUtility.UrlDecode(pair[1]);
+                            ks.data = ks.data.Replace(REPLACE_UNDERSCORE, "_"); 
+                        }
                         break;
                     default:
                         throw new UnauthorizedException((int)StatusCode.InvalidKS, "Invalid KS");
