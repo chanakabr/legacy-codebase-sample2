@@ -256,8 +256,12 @@ public partial class adm_media_files_ppvmodules : System.Web.UI.Page
             InsertPPVModulesMediaFilesID(int.Parse(sID), mediaFileID, nLogedInGroupID);
         }
 
-        //Update free file index
-        ImporterImpl.UpdateFreeFileTypeOfMediaFile(nLogedInGroupID, mediaFileID);
+        //Update free file index                        
+        int mediaID;
+        if (int.TryParse(ODBCWrapper.Utils.GetTableSingleVal("media_files", "media_id", mediaFileID).ToString(), out mediaID))
+        {
+            ImporterImpl.UpdateIndex(new List<int>() { mediaID }, nLogedInGroupID, ApiObjects.eAction.Update);
+        }
 
         try
         {
