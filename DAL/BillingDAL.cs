@@ -1879,11 +1879,11 @@ namespace DAL
             return createTransaction == 1;
         }
 
-        public static PaymentGatewayTransaction GetPaymentGatewayTransactionByID(long id)
+        public static PaymentGatewayTransaction GetPaymentGatewayTransactionByID(long id, string connectionKey = BILLING_CONNECTION_STRING)
         {
             PaymentGatewayTransaction response = null;
 
-            DataRow row = ODBCWrapper.Utils.GetTableSingleRow("payment_gateway_transactions", id);
+            DataRow row = ODBCWrapper.Utils.GetTableSingleRow("payment_gateway_transactions", id, connectionKey);
 
             if (row != null)
             {
@@ -2023,6 +2023,7 @@ namespace DAL
                 {
                     pghhpm = new PaymentGatewayHouseholdPaymentMethod();
                     pghhpm.PaymentMethodExternalId = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "PAYMENT_METHOD_EXTERNAL_ID");
+                    pghhpm.PaymentMethodId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "PAYMENT_METHOD_ID");
                     pghhpm.Id = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
                 }
             }
