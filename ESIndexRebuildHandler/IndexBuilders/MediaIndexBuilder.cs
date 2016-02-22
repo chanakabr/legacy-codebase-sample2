@@ -198,7 +198,7 @@ namespace ESIndexRebuildHandler.IndexBuilders
                     oQueryParser.m_nGroupID = oChannel.m_nGroupID;
                     oSearchObj = ElasticsearchTasksCommon.Utils.BuildBaseChannelSearchObject(oChannel, m_oGroup.m_nSubGroup);
                     oQueryParser.oSearchObject = oSearchObj;
-                    sQueryStr = oQueryParser.BuildSearchQueryString(false);
+                    sQueryStr = oQueryParser.BuildSearchQueryString(true);
 
                     lChannelRequests.Add(new KeyValuePair<int, string>(oChannel.m_nChannelID, sQueryStr));
 

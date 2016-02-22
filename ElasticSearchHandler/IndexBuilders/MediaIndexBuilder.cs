@@ -216,7 +216,7 @@ namespace ElasticSearchHandler.IndexBuilders
                             MediaSearchObj mediaSearchObject = BuildBaseChannelSearchObject(currentChannel);
 
                             mediaQueryParser.oSearchObject = mediaSearchObject;
-                            channelQuery = mediaQueryParser.BuildSearchQueryString(false);
+                            channelQuery = mediaQueryParser.BuildSearchQueryString(true);
                         }
 
                         if (!string.IsNullOrEmpty(channelQuery))

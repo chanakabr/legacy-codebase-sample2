@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="ExportHandler_WS_API_API" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://localhost/WS_Api/api.asmx</Value>
+      <Value Profile="(Default)">http://webservices.dev/api/api.asmx</Value>
     </Setting>
   </Settings>
 </SettingsFile>
