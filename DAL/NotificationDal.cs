@@ -9,6 +9,7 @@ using CouchbaseManager;
 using Newtonsoft.Json;
 using KLogMonitor;
 using System.Reflection;
+using ApiObjects;
 
 
 namespace DAL
@@ -27,7 +28,7 @@ namespace DAL
         private const string SP_UPDATE_NOTIFICATION_MESSAGE_VIEW_STATUS = "UpdateNotificationMessageViewStatus";
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.STATISTICS);
+        private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.NOTIFICATION);
 
         private static string GetDeviceDataKey(int groupId, string udid)
         {
@@ -824,12 +825,13 @@ namespace DAL
                 DataTable dt = ds.Tables[0];
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
-                    return ODBCWrapper.Utils.GetSafeStr(dt.Rows[0],"external_id");
+                    return ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "external_id");
                 }
             }
 
             return ret;
         }
+
 
         public static int Insert_Announcement(int groupId, string announcementName, string externalAnnouncementId, int messageType, int announcementRecipientsType)
         {
@@ -838,13 +840,37 @@ namespace DAL
             spInsert.AddParameter("@group_id", groupId);
             spInsert.AddParameter("@name", announcementName);
             spInsert.AddParameter("@external_id", externalAnnouncementId);
-            spInsert.AddParameter("@messageType", messageType);
+            spInsert.AddParameter("@message_type", messageType);
             spInsert.AddParameter("@recipient_type", announcementRecipientsType);
             spInsert.AddParameter("@status", 1);
             spInsert.AddParameter("@created_at", DateTime.UtcNow);
 
             int newTransactionID = spInsert.ExecuteReturnValue<int>();
             return newTransactionID;
+        }
+        public static DataRowCollection Get_AnnouncementByRecipientsTypes(List<eAnnouncementRecipientsType> recipientsTypes, List<long> announcementIds)
+        {
+            DataRowCollection rowCollection = null;
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAnnouncements");
+            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+
+            if (announcementIds != null && announcementIds.Count > 0)
+                sp.AddIDListParameter<long>("@IDs", announcementIds, "Id");
+
+            if (recipientsTypes != null && recipientsTypes.Count > 0)
+                sp.AddIDListParameter<int>("@recipientTypes", recipientsTypes.Cast<int>().ToList(), "Id");
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                    rowCollection = dt.Rows;
+            }
+
+            return rowCollection;
+
         }
     }
 }
