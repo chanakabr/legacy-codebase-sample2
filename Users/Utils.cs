@@ -1009,7 +1009,7 @@ namespace Users
         public static bool AddInitiateNotificationActionToQueue(int groupId, eUserMessageAction userAction, int userId, string udid, string pushToken)
         {
             InitiateNotificationActionQueue que = new InitiateNotificationActionQueue();
-            ApiObjects.QueueObjects.UserNotificationData messageAnnouncementData = new ApiObjects.QueueObjects.UserNotificationData(groupId, userAction, userId, udid, pushToken);
+            ApiObjects.QueueObjects.UserNotificationData messageAnnouncementData = new ApiObjects.QueueObjects.UserNotificationData(groupId, (int)userAction, userId, udid, pushToken);
 
             bool res = que.Enqueue(messageAnnouncementData, ROUTING_KEY_INITIATE_NOTIFICATION_ACTION);
 

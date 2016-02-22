@@ -16,14 +16,14 @@ namespace ApiObjects.QueueObjects
 
         #region Data Members
 
-        private eUserMessageAction UserAction;
+        private int UserAction;
         private int UserId;
         private string Udid;
         private string PushToken;
 
         #endregion
 
-        public UserNotificationData(int groupId, eUserMessageAction userAction, int userId, string udid, string pushToken)
+        public UserNotificationData(int groupId, int userAction, int userId, string udid, string pushToken)
             : base(
                 // id = guid
                 Guid.NewGuid().ToString(),
