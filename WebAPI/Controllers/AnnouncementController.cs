@@ -6,6 +6,8 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Models.General;
+using WebAPI.Models.Notification;
 using WebAPI.Models.Notifications;
 using WebAPI.Utils;
 
@@ -55,7 +57,7 @@ namespace WebAPI.Controllers
         public bool Update(KalturaAnnouncement announcement)
         {
             bool response = false;
-
+            
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
@@ -113,6 +115,34 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 response = ClientsManager.NotificationClient().DeleteAnnouncement(groupId, id);
+            }
+
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Lists all announcements in the system.
+        /// </summary>
+        /// <param name="pager">Paging the request</param>
+        /// <returns></returns>
+        [Route("list"), HttpPost]
+        [ApiAuthorize]
+        public KalturaMessageAnnouncementListResponse List(KalturaFilterPager pager = null)
+        {
+            KalturaMessageAnnouncementListResponse response = null;
+
+            if (pager == null)
+                pager = new KalturaFilterPager();
+
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                response = ClientsManager.NotificationClient().GetAllAnnouncements(groupId, pager.PageSize, pager.PageIndex);
             }
 
             catch (ClientException ex)
