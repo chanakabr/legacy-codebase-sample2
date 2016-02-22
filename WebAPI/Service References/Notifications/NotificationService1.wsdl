@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:tns="http://tempuri.org/" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="NotificationService" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:tns="http://tempuri.org/" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="NotificationService" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <xsd:schema targetNamespace="http://tempuri.org/Imports">
-      <xsd:import schemaLocation="http://localhost:82/WS_Notifications/NotificationService.svc?xsd=xsd0" namespace="http://tempuri.org/" />
-      <xsd:import schemaLocation="http://localhost:82/WS_Notifications/NotificationService.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
-      <xsd:import schemaLocation="http://localhost:82/WS_Notifications/NotificationService.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/NotificationObj" />
-      <xsd:import schemaLocation="http://localhost:82/WS_Notifications/NotificationService.svc?xsd=xsd3" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
-      <xsd:import schemaLocation="http://localhost:82/WS_Notifications/NotificationService.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/NotificationInterface" />
-      <xsd:import schemaLocation="http://localhost:82/WS_Notifications/NotificationService.svc?xsd=xsd5" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" />
-      <xsd:import schemaLocation="http://localhost:82/WS_Notifications/NotificationService.svc?xsd=xsd6" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Response" />
-      <xsd:import schemaLocation="http://localhost:82/WS_Notifications/NotificationService.svc?xsd=xsd7" namespace="http://schemas.datacontract.org/2004/07/ApiObjects" />
+      <xsd:import schemaLocation="http://localhost/ws_notifications/NotificationService.svc?xsd=xsd0" namespace="http://tempuri.org/" />
+      <xsd:import schemaLocation="http://localhost/ws_notifications/NotificationService.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+      <xsd:import schemaLocation="http://localhost/ws_notifications/NotificationService.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/NotificationObj" />
+      <xsd:import schemaLocation="http://localhost/ws_notifications/NotificationService.svc?xsd=xsd3" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+      <xsd:import schemaLocation="http://localhost/ws_notifications/NotificationService.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/NotificationInterface" />
+      <xsd:import schemaLocation="http://localhost/ws_notifications/NotificationService.svc?xsd=xsd5" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" />
+      <xsd:import schemaLocation="http://localhost/ws_notifications/NotificationService.svc?xsd=xsd6" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Response" />
+      <xsd:import schemaLocation="http://localhost/ws_notifications/NotificationService.svc?xsd=xsd7" namespace="http://schemas.datacontract.org/2004/07/ApiObjects" />
     </xsd:schema>
   </wsdl:types>
   <wsdl:message name="INotificationService_AddNotificationRequest_InputMessage">
@@ -120,6 +120,18 @@
   <wsdl:message name="INotificationService_DeleteMessageAnnouncement_OutputMessage">
     <wsdl:part name="parameters" element="tns:DeleteMessageAnnouncementResponse" />
   </wsdl:message>
+  <wsdl:message name="INotificationService_InitiateNotificationAction_InputMessage">
+    <wsdl:part name="parameters" element="tns:InitiateNotificationAction" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_InitiateNotificationAction_OutputMessage">
+    <wsdl:part name="parameters" element="tns:InitiateNotificationActionResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_CreateSystemAnnouncement_InputMessage">
+    <wsdl:part name="parameters" element="tns:CreateSystemAnnouncement" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_CreateSystemAnnouncement_OutputMessage">
+    <wsdl:part name="parameters" element="tns:CreateSystemAnnouncementResponse" />
+  </wsdl:message>
   <wsdl:portType name="INotificationService">
     <wsdl:operation name="AddNotificationRequest">
       <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/AddNotificationRequest" message="tns:INotificationService_AddNotificationRequest_InputMessage" />
@@ -192,6 +204,14 @@
     <wsdl:operation name="DeleteMessageAnnouncement">
       <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/DeleteMessageAnnouncement" message="tns:INotificationService_DeleteMessageAnnouncement_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/DeleteMessageAnnouncementResponse" message="tns:INotificationService_DeleteMessageAnnouncement_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="InitiateNotificationAction">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/InitiateNotificationAction" message="tns:INotificationService_InitiateNotificationAction_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/InitiateNotificationActionResponse" message="tns:INotificationService_InitiateNotificationAction_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateSystemAnnouncement">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/CreateSystemAnnouncement" message="tns:INotificationService_CreateSystemAnnouncement_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/CreateSystemAnnouncementResponse" message="tns:INotificationService_CreateSystemAnnouncement_OutputMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="BasicHttpBinding_INotificationService" type="tns:INotificationService">
@@ -358,10 +378,28 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="InitiateNotificationAction">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/InitiateNotificationAction" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateSystemAnnouncement">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/CreateSystemAnnouncement" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="NotificationService">
     <wsdl:port name="BasicHttpBinding_INotificationService" binding="tns:BasicHttpBinding_INotificationService">
-      <soap:address location="http://localhost:82/WS_Notifications/NotificationService.svc" />
+      <soap:address location="http://localhost/ws_notifications/NotificationService.svc" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

@@ -122,5 +122,30 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        /// <summary>
+        /// create system announcment 
+        /// </summary>       
+        /// <returns></returns>
+        /// <remarks>Possible status codes: FeatureDisabled = 8009, FailCreateAnnouncement = 8011</remarks>
+        [Route("createannouncement"), HttpPost]
+        [ApiAuthorize]
+        public bool CreateAnnouncement()
+        {
+            bool response = false;
+
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                response = ClientsManager.NotificationClient().CreateSystemAnnouncement(groupId);
+            }
+
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
     }
 }

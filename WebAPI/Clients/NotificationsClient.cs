@@ -404,5 +404,32 @@ namespace WebAPI.Clients
 
             return true;
         }
+
+        internal bool CreateSystemAnnouncement(int groupId)
+        {
+            Status response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Notification.CreateSystemAnnouncement(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while CreateSystemAnnouncement.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
+        }
     }
 }
