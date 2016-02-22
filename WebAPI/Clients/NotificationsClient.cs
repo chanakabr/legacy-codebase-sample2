@@ -460,5 +460,34 @@ namespace WebAPI.Clients
             ret = new KalturaMessageAnnouncementListResponse() { Announcements = result, TotalCount = response.totalCount };
             return ret;
         }
+
+        internal bool SetPush(int groupId, string userId, string udid, string pushToken)
+        {
+            Status response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                eUserMessageAction action = string.IsNullOrEmpty(userId) ? eUserMessageAction.AnonymousPushRegistration : eUserMessageAction.IdentifyPushRegistration;
+                
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Notification.SetPush(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, action, int.Parse(userId), udid, pushToken);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while SetPush. groupID: {0}, userId: {1}, udid: {2}", groupId, userId, udid, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
+        }
     }
 }

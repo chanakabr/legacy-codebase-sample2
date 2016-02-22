@@ -1621,6 +1621,12 @@ namespace WebAPI.Notifications {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetAllMessageAnnouncements", ReplyAction="http://tempuri.org/INotificationService/GetAllMessageAnnouncementsResponse")]
         System.Threading.Tasks.Task<WebAPI.Notifications.GetAllMessageAnnouncementsResponse> GetAllMessageAnnouncementsAsync(string sWSUserName, string sWSPassword, int pageSize, int pageIndex);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SetPush", ReplyAction="http://tempuri.org/INotificationService/SetPushResponse")]
+        WebAPI.Notifications.Status SetPush(string sWSUserName, string sWSPassword, WebAPI.Notifications.eUserMessageAction userAction, int userId, string udid, string pushToken);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SetPush", ReplyAction="http://tempuri.org/INotificationService/SetPushResponse")]
+        System.Threading.Tasks.Task<WebAPI.Notifications.Status> SetPushAsync(string sWSUserName, string sWSPassword, WebAPI.Notifications.eUserMessageAction userAction, int userId, string udid, string pushToken);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -1816,6 +1822,14 @@ namespace WebAPI.Notifications {
         
         public System.Threading.Tasks.Task<WebAPI.Notifications.GetAllMessageAnnouncementsResponse> GetAllMessageAnnouncementsAsync(string sWSUserName, string sWSPassword, int pageSize, int pageIndex) {
             return base.Channel.GetAllMessageAnnouncementsAsync(sWSUserName, sWSPassword, pageSize, pageIndex);
+        }
+        
+        public WebAPI.Notifications.Status SetPush(string sWSUserName, string sWSPassword, WebAPI.Notifications.eUserMessageAction userAction, int userId, string udid, string pushToken) {
+            return base.Channel.SetPush(sWSUserName, sWSPassword, userAction, userId, udid, pushToken);
+        }
+        
+        public System.Threading.Tasks.Task<WebAPI.Notifications.Status> SetPushAsync(string sWSUserName, string sWSPassword, WebAPI.Notifications.eUserMessageAction userAction, int userId, string udid, string pushToken) {
+            return base.Channel.SetPushAsync(sWSUserName, sWSPassword, userAction, userId, udid, pushToken);
         }
     }
 }
