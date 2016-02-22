@@ -373,7 +373,7 @@
     <None Include="Service References\Notifications\NotificationService.xsd">
       <SubType>Designer</SubType>
     </None>
-    <Content Include="Service References\Notifications\NotificationService1.wsdl" />
+    <None Include="Service References\Notifications\NotificationService1.wsdl" />
     <None Include="Service References\Notifications\NotificationService1.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -436,7 +436,7 @@
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
     <None Include="Service References\Notifications\NotificationService.disco" />
-    <Content Include="Service References\Notifications\NotificationService1.disco" />
+    <None Include="Service References\Notifications\NotificationService1.disco" />
     <Content Include="Swagger.ashx" />
     <Content Include="Web References\Api\AdminAccountUserResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
