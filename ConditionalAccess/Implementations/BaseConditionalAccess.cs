@@ -50,6 +50,8 @@ namespace ConditionalAccess
         public const string COUPON_CODE = "cc";
         public const string DEVICE_NAME = "ldn";
 
+        protected const int PAYMENT_GATEWAY = 1000;
+
         #region Abstract methods
         protected abstract TvinciBilling.BillingResponse HandleBaseRenewMPPBillingCharge(string sSiteGuid, double dPrice,
             string sCurrency, string sUserIP, string sCustomData, int nPaymentNumber, int nRecPeriods, string sExtraParams,
@@ -8935,30 +8937,40 @@ namespace ConditionalAccess
                     res.m_sPurchasedItemCode = nMediaID.ToString();
                 }
 
-                //if (nBILLING_METHOD >= 1)
-                PaymentMethod pm = (PaymentMethod)(nBILLING_METHOD);
+                PaymentMethod pm = PaymentMethod.Unknown;
 
-                if (!Enum.IsDefined(typeof(PaymentMethod), nBILLING_METHOD))
-                {
-                    pm = PaymentMethod.Unknown;
-                }
-                if (nBILLING_PROVIDER == 1000)
+                if (nBILLING_PROVIDER == PAYMENT_GATEWAY)
                 {
                     res.m_sPaymentMethodExtraDetails = string.Format("{0}:{1}", "PaymentGateway", nBILLING_METHOD.ToString());
+
+                    PaymentGatewayTransaction paymentGatewayTransaction = GetTransactionDetails(nBILLING_PROVIDER_REFFERENCE);
+
+                    if (paymentGatewayTransaction != null)
+                    {
+                        res.m_sPaymentMethodExtraDetails += string.Format(", PaymentMethod:{0}, PaymentDetails:{1}", 
+                            paymentGatewayTransaction.PaymentMethod, paymentGatewayTransaction.PaymentDetails);
+                    }
+                }
+                else
+                {
+                    //if (nBILLING_METHOD >= 1)
+                    if (Enum.IsDefined(typeof(PaymentMethod), nBILLING_METHOD))
+                    {
+                        pm = (PaymentMethod)(nBILLING_METHOD);
+                    }
+
+                    if (pm == PaymentMethod.CreditCard || pm == PaymentMethod.Visa || pm == PaymentMethod.MasterCard)
+                    {
+                        res.m_sPaymentMethodExtraDetails = sLAST_FOUR_DIGITS;
+                    }
+
+                    if (pm == PaymentMethod.SMS || pm == PaymentMethod.M1)
+                    {
+                        res.m_sPaymentMethodExtraDetails = sCellNum;
+                    }
                 }
 
                 res.m_ePaymentMethod = pm;
-
-
-                if (pm == PaymentMethod.CreditCard || pm == PaymentMethod.Visa || pm == PaymentMethod.MasterCard)
-                {
-                    res.m_sPaymentMethodExtraDetails = sLAST_FOUR_DIGITS;
-                }
-
-                if (pm == PaymentMethod.SMS || pm == PaymentMethod.M1)
-                {
-                    res.m_sPaymentMethodExtraDetails = sCellNum;
-                }
 
                 res.m_bIsRecurring = false;
 
@@ -9011,6 +9023,11 @@ namespace ConditionalAccess
             }
 
             return res;
+        }
+
+        private PaymentGatewayTransaction GetTransactionDetails(int billingProviderRefference)
+        {
+            return DAL.BillingDAL.GetPaymentGatewayTransactionByID(billingProviderRefference, BILLING_CONNECTION_STRING);
         }
 
         /// <summary>
