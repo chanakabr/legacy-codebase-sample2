@@ -207,50 +207,49 @@ namespace DalCB
             return oRes;
         }
 
-        public List<EpgCB> GetProgram(List<string> p_lstIds)
+        public List<EpgCB> GetProgram(List<string> ids)
         {
-            List<EpgCB> lstResultEpgs = new List<EpgCB>();
+            List<EpgCB> resultEpgs = new List<EpgCB>();
 
             try
             {
-                var blah = cbManager.Set("sunny_test", new EpgCB()
+                if (ids != null && ids.Count > 0)
                 {
-                    EpgIdentifier = "sunny_test"
-                }, 2400);
+                    IDictionary<string, EpgCB> getResult = cbManager.GetValues<EpgCB>(ids, true);
 
-                var test = cbManager.Get<object>("test");
-
-                if (p_lstIds != null && p_lstIds.Count > 0)
-                {
-                    IDictionary<string, object> dicItems = cbManager.GetValues<object>(p_lstIds, true);
-
-                    if (dicItems != null && dicItems.Count > 0)
+                    if (getResult != null && getResult.Count > 0)
                     {
                         // Run on original list of Ids, to maintain their order
-                        foreach (var sId in p_lstIds)
+                        foreach (var id in ids)
                         {
                             // Make sure the Id was returned from CB
-                            if (dicItems.ContainsKey(sId))
+                            if (getResult.ContainsKey(id))
                             {
-                                object oValue = dicItems[sId];
+                                EpgCB currentValue = getResult[id];
 
-                                // If the value that CB returned is valid
-                                if (oValue != null && oValue is string)
-                                {
-                                    string sValue = Convert.ToString(oValue);
+                                resultEpgs.Add(currentValue);
 
-                                    if (!string.IsNullOrEmpty(sValue))
-                                    {
-                                        // Deserialize string from CB to an EpgCB object
-                                        EpgCB oTempEpg = JsonConvert.DeserializeObject<EpgCB>(sValue);
+                                // Old code:
+                                //// If the value that CB returned is valid
+                                //if (currentValue != null)
+                                //{
+                                //    if (currentValue is string)
+                                //    {
+                                //        string sValue = Convert.ToString(currentValue);
 
-                                        // If it was successful, add to list
-                                        if (oTempEpg != null)
-                                        {
-                                            lstResultEpgs.Add(oTempEpg);
-                                        }
-                                    }
-                                }
+                                //        if (!string.IsNullOrEmpty(sValue))
+                                //        {
+                                //            // Deserialize string from CB to an EpgCB object
+                                //            EpgCB tempEpg = JsonConvert.DeserializeObject<EpgCB>(sValue);
+
+                                //            // If it was successful, add to list
+                                //            if (tempEpg != null)
+                                //            {
+                                //                resultEpgs.Add(tempEpg);
+                                //            }
+                                //        }
+                                //    }
+                                //}
                             }
                         }
                     }
@@ -259,11 +258,11 @@ namespace DalCB
             catch (Exception ex)
             {
                 StringBuilder sb = new StringBuilder("IDs: ");
-                if (p_lstIds != null && p_lstIds.Count > 0)
+                if (ids != null && ids.Count > 0)
                 {
-                    for (int i = 0; i < p_lstIds.Count; i++)
+                    for (int i = 0; i < ids.Count; i++)
                     {
-                        sb.Append(String.Concat(p_lstIds[i], ";"));
+                        sb.Append(String.Concat(ids[i], ";"));
                     }
                 }
                 else
@@ -274,7 +273,7 @@ namespace DalCB
                 log.Error("Exception - " + string.Format("Exception at GetProgram (list of ids overload). Msg: {0} , IDs: {1} , Ex Type: {2} , ST: {3}", ex.Message, sb.ToString(), ex.GetType().Name, ex.StackTrace), ex);
             }
 
-            return lstResultEpgs;
+            return resultEpgs;
         }
 
         //returns all programs with group id from view (does not take start_date into consideration)
