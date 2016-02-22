@@ -87,6 +87,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageUploadHandler", "Image
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageAnnouncementHandler", "MessageAnnouncementHandler\MessageAnnouncementHandler.csproj", "{665FC35C-073A-4099-8ABF-296D1F3D1D24}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FreeAssetUpdateHandler", "FreeAssetUpdateHandler\FreeAssetUpdateHandler.csproj", "{24639160-158D-4110-9585-EAA81ADB5249}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -607,6 +609,18 @@ Global
 		{665FC35C-073A-4099-8ABF-296D1F3D1D24}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{665FC35C-073A-4099-8ABF-296D1F3D1D24}.Release|Any CPU.Build.0 = Release|Any CPU
 		{665FC35C-073A-4099-8ABF-296D1F3D1D24}.Release|x86.ActiveCfg = Release|Any CPU
+		{24639160-158D-4110-9585-EAA81ADB5249}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{24639160-158D-4110-9585-EAA81ADB5249}.Basic|Any CPU.Build.0 = Release|Any CPU
+		{24639160-158D-4110-9585-EAA81ADB5249}.Basic|x86.ActiveCfg = Release|Any CPU
+		{24639160-158D-4110-9585-EAA81ADB5249}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24639160-158D-4110-9585-EAA81ADB5249}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24639160-158D-4110-9585-EAA81ADB5249}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{24639160-158D-4110-9585-EAA81ADB5249}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{24639160-158D-4110-9585-EAA81ADB5249}.Local|Any CPU.Build.0 = Release|Any CPU
+		{24639160-158D-4110-9585-EAA81ADB5249}.Local|x86.ActiveCfg = Release|Any CPU
+		{24639160-158D-4110-9585-EAA81ADB5249}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24639160-158D-4110-9585-EAA81ADB5249}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24639160-158D-4110-9585-EAA81ADB5249}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
