@@ -207,4 +207,17 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="AddMessageAnnouncementResponse" nillable="true" type="tns:AddMessageAnnouncementResponse" />
+  <xs:complexType name="GetAllMessageAnnouncementsResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="messageAnnouncements" nillable="true" type="tns:ArrayOfMessageAnnouncement" />
+      <xs:element minOccurs="0" name="totalCount" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="GetAllMessageAnnouncementsResponse" nillable="true" type="tns:GetAllMessageAnnouncementsResponse" />
+  <xs:complexType name="ArrayOfMessageAnnouncement">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="MessageAnnouncement" nillable="true" type="tns:MessageAnnouncement" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfMessageAnnouncement" nillable="true" type="tns:ArrayOfMessageAnnouncement" />
 </xs:schema>

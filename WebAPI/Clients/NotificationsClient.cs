@@ -407,46 +407,50 @@ namespace WebAPI.Clients
             return true;
         }
 
-<<<<<<< HEAD
+
         internal bool CreateSystemAnnouncement(int groupId)
         {
             Status response = null;
-=======
+            Group group = GroupsManager.GetGroup(groupId);
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+
+                    response = Notification.CreateSystemAnnouncement(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                log.ErrorFormat("Error while CreateSystemAnnouncement.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+            if (response.Code != (int)StatusCode.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(response.Code, response.Message);
+            }
+            return true;
+        }
+
         internal KalturaMessageAnnouncementListResponse GetAllAnnouncements(int groupId, int pageSize, int pageIndex)
         {
             List<KalturaAnnouncement> result = null;
             GetAllMessageAnnouncementsResponse response = null;
             KalturaMessageAnnouncementListResponse ret;
 
->>>>>>> 8d5266bd9e02d1fa7a7e6119a060ea82c713c6d4
             Group group = GroupsManager.GetGroup(groupId);
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-<<<<<<< HEAD
-                    response = Notification.CreateSystemAnnouncement(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password);
-=======
                     response = Notification.GetAllMessageAnnouncements(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, pageSize, pageIndex);
->>>>>>> 8d5266bd9e02d1fa7a7e6119a060ea82c713c6d4
                 }
             }
             catch (Exception ex)
             {
-<<<<<<< HEAD
-                log.ErrorFormat("Error while CreateSystemAnnouncement.  groupID: {0}, exception: {1}", groupId, ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response.Code != (int)StatusCode.OK)
-            {
-                // Bad response received from WS
-                throw new ClientException(response.Code, response.Message);
-            }
-
-            return true;
-=======
                 log.ErrorFormat("Error while DeleteAnnouncement.  groupID: {0}, exception: {1}", groupId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
@@ -455,7 +459,6 @@ namespace WebAPI.Clients
 
             ret = new KalturaMessageAnnouncementListResponse() { Announcements = result, TotalCount = response.totalCount };
             return ret;
->>>>>>> 8d5266bd9e02d1fa7a7e6119a060ea82c713c6d4
         }
     }
 }

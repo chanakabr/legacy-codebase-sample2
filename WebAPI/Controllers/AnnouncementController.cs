@@ -126,7 +126,6 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-<<<<<<< HEAD
         /// create system announcment 
         /// </summary>       
         /// <returns></returns>
@@ -136,7 +135,22 @@ namespace WebAPI.Controllers
         public bool CreateAnnouncement()
         {
             bool response = false;
-=======
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                response = ClientsManager.NotificationClient().CreateSystemAnnouncement(groupId);
+            }
+
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+
+        }
+
+        /// <summary>
         /// Lists all announcements in the system.
         /// </summary>
         /// <param name="pager">Paging the request</param>
@@ -149,16 +163,11 @@ namespace WebAPI.Controllers
 
             if (pager == null)
                 pager = new KalturaFilterPager();
->>>>>>> 8d5266bd9e02d1fa7a7e6119a060ea82c713c6d4
 
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
-<<<<<<< HEAD
-                response = ClientsManager.NotificationClient().CreateSystemAnnouncement(groupId);
-=======
                 response = ClientsManager.NotificationClient().GetAllAnnouncements(groupId, pager.PageSize, pager.PageIndex);
->>>>>>> 8d5266bd9e02d1fa7a7e6119a060ea82c713c6d4
             }
 
             catch (ClientException ex)

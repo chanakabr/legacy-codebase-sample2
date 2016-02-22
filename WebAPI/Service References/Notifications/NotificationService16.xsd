@@ -231,7 +231,6 @@
       <xs:sequence>
         <xs:element minOccurs="0" name="sWSUserName" nillable="true" type="xs:string" />
         <xs:element minOccurs="0" name="sWSPassword" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="groupId" type="xs:int" />
         <xs:element xmlns:q18="http://schemas.datacontract.org/2004/07/NotificationObj" minOccurs="0" name="announcement" nillable="true" type="q18:MessageAnnouncement" />
       </xs:sequence>
     </xs:complexType>
@@ -248,7 +247,6 @@
       <xs:sequence>
         <xs:element minOccurs="0" name="sWSUserName" nillable="true" type="xs:string" />
         <xs:element minOccurs="0" name="sWSPassword" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="groupId" type="xs:int" />
         <xs:element minOccurs="0" name="startTime" type="xs:long" />
         <xs:element minOccurs="0" name="id" type="xs:int" />
       </xs:sequence>
@@ -266,7 +264,6 @@
       <xs:sequence>
         <xs:element minOccurs="0" name="sWSUserName" nillable="true" type="xs:string" />
         <xs:element minOccurs="0" name="sWSPassword" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="groupId" type="xs:int" />
         <xs:element xmlns:q20="http://schemas.datacontract.org/2004/07/NotificationObj" minOccurs="0" name="announcement" nillable="true" type="q20:MessageAnnouncement" />
       </xs:sequence>
     </xs:complexType>
@@ -283,7 +280,6 @@
       <xs:sequence>
         <xs:element minOccurs="0" name="sWSUserName" nillable="true" type="xs:string" />
         <xs:element minOccurs="0" name="sWSPassword" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="groupId" type="xs:int" />
         <xs:element minOccurs="0" name="id" type="xs:int" />
         <xs:element minOccurs="0" name="status" type="xs:boolean" />
       </xs:sequence>
@@ -301,7 +297,6 @@
       <xs:sequence>
         <xs:element minOccurs="0" name="sWSUserName" nillable="true" type="xs:string" />
         <xs:element minOccurs="0" name="sWSPassword" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="groupId" type="xs:int" />
         <xs:element minOccurs="0" name="id" type="xs:int" />
       </xs:sequence>
     </xs:complexType>
@@ -344,6 +339,23 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element xmlns:q25="http://schemas.datacontract.org/2004/07/ApiObjects.Response" minOccurs="0" name="CreateSystemAnnouncementResult" nillable="true" type="q25:Status" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetAllMessageAnnouncements">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="sWSUserName" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="sWSPassword" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="pageSize" type="xs:int" />
+        <xs:element minOccurs="0" name="pageIndex" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetAllMessageAnnouncementsResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q26="http://schemas.datacontract.org/2004/07/NotificationObj" minOccurs="0" name="GetAllMessageAnnouncementsResult" nillable="true" type="q26:GetAllMessageAnnouncementsResponse" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

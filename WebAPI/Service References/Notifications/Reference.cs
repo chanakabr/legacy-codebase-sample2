@@ -1429,8 +1429,6 @@ namespace WebAPI.Notifications {
         IdentifyPushRegistration = 3,
     }
     
-<<<<<<< HEAD
-=======
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="GetAllMessageAnnouncementsResponse", Namespace="http://schemas.datacontract.org/2004/07/NotificationObj")]
@@ -1492,7 +1490,6 @@ namespace WebAPI.Notifications {
         }
     }
     
->>>>>>> 8d5266bd9e02d1fa7a7e6119a060ea82c713c6d4
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="Notifications.INotificationService")]
     public interface INotificationService {
@@ -1605,11 +1602,7 @@ namespace WebAPI.Notifications {
         WebAPI.Notifications.Status DeleteMessageAnnouncement(string sWSUserName, string sWSPassword, int id);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/DeleteMessageAnnouncement", ReplyAction="http://tempuri.org/INotificationService/DeleteMessageAnnouncementResponse")]
-<<<<<<< HEAD
-        System.Threading.Tasks.Task<WebAPI.Notifications.Status> DeleteMessageAnnouncementAsync(string sWSUserName, string sWSPassword, int groupId, int id);
-=======
         System.Threading.Tasks.Task<WebAPI.Notifications.Status> DeleteMessageAnnouncementAsync(string sWSUserName, string sWSPassword, int id);
->>>>>>> 8d5266bd9e02d1fa7a7e6119a060ea82c713c6d4
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/InitiateNotificationAction", ReplyAction="http://tempuri.org/INotificationService/InitiateNotificationActionResponse")]
         bool InitiateNotificationAction(string sWSUserName, string sWSPassword, WebAPI.Notifications.eUserMessageAction userAction, int userId, string udid, string pushToken);
@@ -1617,19 +1610,17 @@ namespace WebAPI.Notifications {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/InitiateNotificationAction", ReplyAction="http://tempuri.org/INotificationService/InitiateNotificationActionResponse")]
         System.Threading.Tasks.Task<bool> InitiateNotificationActionAsync(string sWSUserName, string sWSPassword, WebAPI.Notifications.eUserMessageAction userAction, int userId, string udid, string pushToken);
         
-<<<<<<< HEAD
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/CreateSystemAnnouncement", ReplyAction="http://tempuri.org/INotificationService/CreateSystemAnnouncementResponse")]
         WebAPI.Notifications.Status CreateSystemAnnouncement(string sWSUserName, string sWSPassword);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/CreateSystemAnnouncement", ReplyAction="http://tempuri.org/INotificationService/CreateSystemAnnouncementResponse")]
         System.Threading.Tasks.Task<WebAPI.Notifications.Status> CreateSystemAnnouncementAsync(string sWSUserName, string sWSPassword);
-=======
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetAllMessageAnnouncements", ReplyAction="http://tempuri.org/INotificationService/GetAllMessageAnnouncementsResponse")]
         WebAPI.Notifications.GetAllMessageAnnouncementsResponse GetAllMessageAnnouncements(string sWSUserName, string sWSPassword, int pageSize, int pageIndex);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetAllMessageAnnouncements", ReplyAction="http://tempuri.org/INotificationService/GetAllMessageAnnouncementsResponse")]
         System.Threading.Tasks.Task<WebAPI.Notifications.GetAllMessageAnnouncementsResponse> GetAllMessageAnnouncementsAsync(string sWSUserName, string sWSPassword, int pageSize, int pageIndex);
->>>>>>> 8d5266bd9e02d1fa7a7e6119a060ea82c713c6d4
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -1811,28 +1802,20 @@ namespace WebAPI.Notifications {
             return base.Channel.InitiateNotificationActionAsync(sWSUserName, sWSPassword, userAction, userId, udid, pushToken);
         }
         
-        public WebAPI.Notifications.GetAllMessageAnnouncementsResponse GetAllMessageAnnouncements(string sWSUserName, string sWSPassword, int pageSize, int pageIndex) {
-            return base.Channel.GetAllMessageAnnouncements(sWSUserName, sWSPassword, pageSize, pageIndex);
-        }
-        
-        public System.Threading.Tasks.Task<WebAPI.Notifications.GetAllMessageAnnouncementsResponse> GetAllMessageAnnouncementsAsync(string sWSUserName, string sWSPassword, int pageSize, int pageIndex) {
-            return base.Channel.GetAllMessageAnnouncementsAsync(sWSUserName, sWSPassword, pageSize, pageIndex);
-        }
-        
-        public bool InitiateNotificationAction(string sWSUserName, string sWSPassword, WebAPI.Notifications.eUserMessageAction userAction, int userId, string udid, string pushToken) {
-            return base.Channel.InitiateNotificationAction(sWSUserName, sWSPassword, userAction, userId, udid, pushToken);
-        }
-        
-        public System.Threading.Tasks.Task<bool> InitiateNotificationActionAsync(string sWSUserName, string sWSPassword, WebAPI.Notifications.eUserMessageAction userAction, int userId, string udid, string pushToken) {
-            return base.Channel.InitiateNotificationActionAsync(sWSUserName, sWSPassword, userAction, userId, udid, pushToken);
-        }
-        
         public WebAPI.Notifications.Status CreateSystemAnnouncement(string sWSUserName, string sWSPassword) {
             return base.Channel.CreateSystemAnnouncement(sWSUserName, sWSPassword);
         }
         
         public System.Threading.Tasks.Task<WebAPI.Notifications.Status> CreateSystemAnnouncementAsync(string sWSUserName, string sWSPassword) {
             return base.Channel.CreateSystemAnnouncementAsync(sWSUserName, sWSPassword);
+        }
+        
+        public WebAPI.Notifications.GetAllMessageAnnouncementsResponse GetAllMessageAnnouncements(string sWSUserName, string sWSPassword, int pageSize, int pageIndex) {
+            return base.Channel.GetAllMessageAnnouncements(sWSUserName, sWSPassword, pageSize, pageIndex);
+        }
+        
+        public System.Threading.Tasks.Task<WebAPI.Notifications.GetAllMessageAnnouncementsResponse> GetAllMessageAnnouncementsAsync(string sWSUserName, string sWSPassword, int pageSize, int pageIndex) {
+            return base.Channel.GetAllMessageAnnouncementsAsync(sWSUserName, sWSPassword, pageSize, pageIndex);
         }
     }
 }
