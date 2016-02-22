@@ -2,18 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace ApiObjects.Notification
 {
-    public class DeviceAppNotification
+    //  KEY: device_data_<GID>_<UDID>
+    public class DeviceNotificationData
     {
-        public DeviceAppNotification()
+        public DeviceNotificationData()
         {
             AnnouncementSubscriptions = new List<AnnouncementSubscription>();
         }
 
+        public string UserId { get; set; }
         public string Udid { get; set; }
-        public long SignInAtSec { get; set; }
+        public long UpdatedAt { get; set; }
         public List<AnnouncementSubscription> AnnouncementSubscriptions { get; set; }
     }
 }

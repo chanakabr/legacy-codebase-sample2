@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace ApiObjects.Notification
 {
-    public class GuestData
+    public class UserDevice
     {
-        public long CreatedAtSec { get; set; }
-        public string SubscriptionExternalId { get; set; }
+        public string Udid { get; set; }
+        public long SignInAtSec { get; set; }
     }
 }
