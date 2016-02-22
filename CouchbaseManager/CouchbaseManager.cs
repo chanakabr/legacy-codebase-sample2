@@ -72,6 +72,25 @@ namespace CouchbaseManager
                 }
             }
 
+            // test connection
+            bool isOK = true;
+            try
+            {
+                Enyim.Caching.Memcached.ServerStats stats = tempClient.Stats();
+            }
+            catch (Exception ex)
+            {
+                isOK = false;
+
+                Logger.Logger.Log("GetInstance",
+                            string.Format("Connection test failed. error message = {0}, stack trace = {1}",
+                            ex.Message, ex.StackTrace),
+                            "CouchbaseManager");
+            }
+
+            if (!isOK)
+                tempClient = RefreshInstance(eBucket);
+
             return tempClient;
         }
 
@@ -113,13 +132,14 @@ namespace CouchbaseManager
                 {
                     try
                     {
-                        if (m_CouchbaseInstances.ContainsKey(eBucket.ToString()))
+                        //if (m_CouchbaseInstances.ContainsKey(eBucket.ToString()))
+                        foreach (var key in m_CouchbaseInstances.Keys)
                         {
-                            var client = m_CouchbaseInstances[eBucket.ToString()];
-                            client.Dispose();
-
-                            m_CouchbaseInstances.Remove(eBucket.ToString());
+                            m_CouchbaseInstances[key].Dispose();
+                            m_CouchbaseInstances[key] = null;
                         }
+
+                        m_CouchbaseInstances.Clear();
                     }
                     catch (Exception ex)
                     {

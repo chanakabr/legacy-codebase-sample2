@@ -13,12 +13,18 @@ namespace CachingProvider
     public class CouchBaseCache<T> : OutOfProcessCache
     {
          #region C'tor
-        CouchbaseClient m_Client;
+
+        private CouchbaseClient m_Client
+        {
+            get
+            {
+                return CouchbaseManager.CouchbaseManager.GetInstance(bucket);
+            }
+        }
         eCouchbaseBucket bucket = eCouchbaseBucket.DEFAULT;
             
         private CouchBaseCache(eCouchbaseBucket eCacheName)
         {
-            m_Client = CouchbaseManager.CouchbaseManager.GetInstance(eCacheName);
             bucket = eCacheName;
 
             if (m_Client == null)
@@ -66,6 +72,25 @@ namespace CachingProvider
                 // Cases of retry
                 switch (statusCode)
                 {
+                    // VBucketBelongsToAnotherServer
+                    case 7:
+                    // OutOfMemory
+                    case 82:
+                    // InternalError
+                    case 84:
+                    // Busy
+                    case 85:
+                    // TemporaryFailure
+                    case 86:
+                    // SocketPoolTimeout 
+                    case 91:
+                    // UnableToLocateNode
+                    case 92:
+                    // NodeShutdown
+                    case 93:
+                    // OperationTimeout
+                    case 94:
+
                     // Busy
                     case 133:
                     // SocketPoolTimeout
@@ -77,7 +102,7 @@ namespace CachingProvider
                     // OperationTimeout
                     case 148:
                     {
-                        m_Client = CouchbaseManager.CouchbaseManager.RefreshInstance(bucket);
+                        CouchbaseManager.CouchbaseManager.RefreshInstance(bucket);
 
                         break;
                     }
