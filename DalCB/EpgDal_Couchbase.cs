@@ -214,6 +214,13 @@ namespace DalCB
 
             try
             {
+                var blah = cbManager.Set("sunny_test", new EpgCB()
+                {
+                    EpgIdentifier = "sunny_test"
+                }, 2400);
+
+                var test = cbManager.Get<object>("test");
+
                 if (p_lstIds != null && p_lstIds.Count > 0)
                 {
                     IDictionary<string, object> dicItems = cbManager.GetValues<object>(p_lstIds, true);
@@ -284,7 +291,8 @@ namespace DalCB
                 {
                     startKey = startKey,
                     endKey = endKey,
-                    allowPartialQuery = true
+                    allowPartialQuery = true,
+                    shouldLookupById = true
                 };
 
                 if (nPageSize > 0)
@@ -321,7 +329,8 @@ namespace DalCB
                 {
                     startKey = startKey,
                     endKey = endKey,
-                    allowPartialQuery = true
+                    allowPartialQuery = true,
+                    shouldLookupById = true
                 };
 
                 if (nPageSize > 0)
@@ -358,7 +367,8 @@ namespace DalCB
                 {
                     startKey = startKey,
                     endKey = endKey,
-                    allowPartialQuery = true
+                    allowPartialQuery = true,
+                    shouldLookupById = true
                 };
 
                 if (nPageSize > 0)
@@ -397,7 +407,8 @@ namespace DalCB
                 {
                     startKey = startKey,
                     endKey = endKey,
-                    allowPartialQuery = true
+                    allowPartialQuery = true,
+                    shouldLookupById = true
                 };
 
                 if (nPageSize > 0)
@@ -431,7 +442,8 @@ namespace DalCB
                 ViewManager viewManager = new ViewManager(CB_EPG_DESGIN, "channel_programs")
                 {
                     startKey = startKey,
-                    endKey = endKey
+                    endKey = endKey,
+                    shouldLookupById = true
                 };
 
                 if (nPageSize > 0)
@@ -479,6 +491,7 @@ namespace DalCB
                 ViewManager viewManager = new ViewManager(CB_EPG_DESGIN, "programs_by_identifier")
                 {
                     keys = Keys,
+                    shouldLookupById = true
                 };
 
                 if (nPageSize > 0)

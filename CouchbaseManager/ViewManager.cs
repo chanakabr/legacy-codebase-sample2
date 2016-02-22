@@ -172,6 +172,11 @@ namespace CouchbaseManager
         /// </summary>
         public bool allowPartialQuery;
 
+        /// <summary>
+        /// If view should look for the documents by the ID that is related to the key-value of the view
+        /// </summary>
+        public bool shouldLookupById;
+
         #endregion
 
         #region Ctor
@@ -194,26 +199,72 @@ namespace CouchbaseManager
 
             #region Perform query
 
-            var queryResult = bucket.Query<T>(query);
-
-            // If something went wrong - log it and throw exception (if there is one)
-            if (!queryResult.Success)
+            if (!shouldLookupById)
             {
-                log.ErrorFormat("Something went wrong when performing Couchbase query. bucket = {0}, view = {1}, message = {2}, error = {3}",
-                    bucket.Name, viewName, queryResult.Message, queryResult.Error, queryResult.Exception);
+                var queryResult = bucket.Query<object>(query);
 
-                if (queryResult.Exception != null)
+                // If something went wrong - log it and throw exception (if there is one)
+                if (!queryResult.Success)
                 {
-                    throw queryResult.Exception;
+                    log.ErrorFormat("Something went wrong when performing Couchbase query. bucket = {0}, view = {1}, message = {2}, error = {3}",
+                        bucket.Name, viewName, queryResult.Message, queryResult.Error, queryResult.Exception);
+
+                    if (queryResult.Exception != null)
+                    {
+                        throw queryResult.Exception;
+                    }
+                }
+                else
+                {
+                    result = new List<T>();
+
+                    // Get the documents based on the IDs that are taken from the view query result
+                    var ids = queryResult.Rows.Select(row => row.Id).ToList();
+                    var getResults = bucket.Get<T>(ids);
+
+                    // Run on all Get results
+                    foreach (var getResult in getResults)
+                    {
+                        // If something went wrong - log it and throw exception (if there is one)
+                        if (!getResult.Value.Success)
+                        {
+                            log.ErrorFormat("Error while getting value from view. Status code = {0}; Status = {1}", (int)getResult.Value.Status, getResult.Value.Status.ToString());
+
+                            if (getResult.Value.Exception != null)
+                            {
+                                throw getResult.Value.Exception;
+                            }
+                        }
+                        else
+                        {
+                            // If it is alright, add document to final list
+                            result.Add(getResult.Value.Value);
+                        }
+                    }
                 }
             }
             else
             {
-                result = new List<T>();
+                var queryResult = bucket.Query<T>(query);
 
-                result.AddRange(queryResult.Values);
+                // If something went wrong - log it and throw exception (if there is one)
+                if (!queryResult.Success)
+                {
+                    log.ErrorFormat("Something went wrong when performing Couchbase query. bucket = {0}, view = {1}, message = {2}, error = {3}",
+                        bucket.Name, viewName, queryResult.Message, queryResult.Error, queryResult.Exception);
+
+                    if (queryResult.Exception != null)
+                    {
+                        throw queryResult.Exception;
+                    }
+                }
+                else
+                {
+                    result = new List<T>();
+
+                    result.AddRange(queryResult.Values);
+                }
             }
-
             #endregion
 
             return result;
@@ -285,29 +336,91 @@ namespace CouchbaseManager
 
             IViewQuery query = InitializeQuery(bucket);
 
-            var queryResult = bucket.Query<T>(query);
-
-            // If something went wrong - log it and throw exception (if there is one)
-            if (!queryResult.Success)
+            if (shouldLookupById)
             {
-                log.ErrorFormat("Something went wrong when performing Couchbase query. bucket = {0}, view = {1}, message = {2}, error = {3}",
-                    bucket.Name, viewName, queryResult.Message, queryResult.Error, queryResult.Exception);
+                var queryResult = bucket.Query<object>(query);
 
-                if (queryResult.Exception != null)
+                // If something went wrong - log it and throw exception (if there is one)
+                if (!queryResult.Success)
                 {
-                    throw queryResult.Exception;
+                    log.ErrorFormat("Something went wrong when performing Couchbase query. bucket = {0}, view = {1}, message = {2}, error = {3}",
+                        bucket.Name, viewName, queryResult.Message, queryResult.Error, queryResult.Exception);
+
+                    if (queryResult.Exception != null)
+                    {
+                        throw queryResult.Exception;
+                    }
+                }
+                else
+                {
+                    result = new List<ViewRow<T>>();
+
+                    // Get the documents based on the IDs that are taken from the view query result
+                    Dictionary<string, object> idsAndKeys = new Dictionary<string, object>();
+
+                    foreach (var row in queryResult.Rows)
+                    {
+                        idsAndKeys.Add(row.Id, (object)row.Key);
+                    }
+
+                    //var ids = (row => 
+                    //    row.Id).ToList();
+
+                    var getResults = bucket.Get<T>(idsAndKeys.Keys.ToList());
+
+                    // Run on all Get results
+                    foreach (var getResult in getResults)
+                    {
+                        // If something went wrong - log it and throw exception (if there is one)
+                        if (!getResult.Value.Success)
+                        {
+                            log.ErrorFormat("Error while getting value from view. Status code = {0}; Status = {1}", (int)getResult.Value.Status, getResult.Value.Status.ToString());
+
+                            if (getResult.Value.Exception != null)
+                            {
+                                throw getResult.Value.Exception;
+                            }
+                        }
+                        else
+                        {
+                            // If it is alright, add document to final list
+                            result.Add(
+                                new ViewRow<T>()
+                                {
+                                    Id = getResult.Key,
+                                    Key = idsAndKeys[getResult.Key],
+                                    Value = getResult.Value.Value
+                                });
+                        }
+                    }
                 }
             }
             else
             {
-                foreach (var row in queryResult.Rows)
+                var queryResult = bucket.Query<T>(query);
+
+                // If something went wrong - log it and throw exception (if there is one)
+                if (!queryResult.Success)
                 {
-                    result.Add(new ViewRow<T>()
+                    log.ErrorFormat("Something went wrong when performing Couchbase query. bucket = {0}, view = {1}, message = {2}, error = {3}",
+                        bucket.Name, viewName, queryResult.Message, queryResult.Error, queryResult.Exception);
+
+                    if (queryResult.Exception != null)
                     {
-                        Id = row.Id,
-                        Key = (object)row.Key,
-                        Value = row.Value
-                    });
+                        throw queryResult.Exception;
+                    }
+                }
+                else
+                {
+                    foreach (var row in queryResult.Rows)
+                    {
+                        result.Add(new ViewRow<T>()
+                        {
+                            Id = row.Id,
+                            Key = (object)row.Key,
+                            Value = row.Value
+                        });
+                    }
                 }
             }
 
@@ -479,11 +592,11 @@ namespace CouchbaseManager
             {
                 if (this.startKeyEncode != null)
                 {
-                    query = query.EndKey(this.startKey, this.startKeyEncode.Value);
+                    query = query.StartKey(this.startKey, this.startKeyEncode.Value);
                 }
                 else
                 {
-                    query = query.EndKey(this.startKey);
+                    query = query.StartKey(this.startKey);
                 }
             }
 

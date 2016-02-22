@@ -59,6 +59,7 @@
     <Compile Include="DMSPushResponse.cs" />
     <Compile Include="enums.cs" />
     <Compile Include="FollowUpTagNotification.cs" />
+    <Compile Include="GetAllMessageAnnouncementsResponse.cs" />
     <Compile Include="MessageAnnouncement.cs" />
     <Compile Include="Notification.cs" />
     <Compile Include="NotificationMessage.cs" />
