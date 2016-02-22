@@ -9,7 +9,7 @@ using WebAPI.Models.General;
 using WebAPI.Models.Notifications;
 
 namespace WebAPI.Models.Notification
-{
+{   
     /// <summary>
     /// List of message announcements from DB.
     /// </summary>
