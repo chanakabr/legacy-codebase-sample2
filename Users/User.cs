@@ -796,6 +796,12 @@ namespace Users
 
             retVal.Initialize(ResponseStatus.SessionLoggedOut, u);
             retVal.m_userInstanceID = instanceID.ToString();
+
+            if (retVal.m_RespStatus == ResponseStatus.OK)
+            {
+                Utils.AddInitiateNotificationActionToQueue(nGroupID, eUserMessageAction.Login, siteGuid, sDeviceUDID, string.Empty);
+            }
+
             return retVal;
         }
 
