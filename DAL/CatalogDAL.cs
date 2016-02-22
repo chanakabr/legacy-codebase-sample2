@@ -4323,19 +4323,19 @@ namespace Tvinci.Core.DAL
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Failed InsertPlayCycleSession, userId: {0}, groupID: {1}, UDID: {2}, platform: {3}, mediaConcurrencyRuleID: {4}, playCycleKey: {5}, Exception: {6}", 
-                                 siteGuid, MediaFileID, groupID, UDID, platform, mediaConcurrencyRuleID, playCycleKey, ex.Message);                
+                log.ErrorFormat("Failed InsertPlayCycleSession, userId: {0}, groupID: {1}, UDID: {2}, platform: {3}, mediaConcurrencyRuleID: {4}, playCycleKey: {5}, mediaFileID: {6}, Exception: {7}", 
+                                 siteGuid, groupID, UDID, platform, mediaConcurrencyRuleID, playCycleKey, MediaFileID, ex.Message);                
             }
 
             if (playCycleSession == null)
             {
-                log.ErrorFormat("Error in InsertPlayCycleSession, playCycleSession is null. userId: {0}, groupID: {1}, UDID: {2}, platform: {3}, mediaConcurrencyRuleID: {4}, playCycleKey: {5}",
-                                 siteGuid, MediaFileID, groupID, UDID, platform, mediaConcurrencyRuleID, playCycleKey);      
+                log.ErrorFormat("Error in InsertPlayCycleSession, playCycleSession is null. userId: {0}, groupID: {1}, UDID: {2}, platform: {3}, mediaConcurrencyRuleID: {4}, playCycleKey: {5}, mediaFileID: {6}",
+                                 siteGuid, groupID, UDID, platform, mediaConcurrencyRuleID, playCycleKey, MediaFileID);      
             }
             return playCycleSession;
         }        
 
-        public static PlayCycleSession GetUserPlayCycle(string siteGuid, int mediaID, int MediaFileID, int groupID, string UDID, int platform)
+        public static PlayCycleSession GetUserPlayCycle(string siteGuid, int MediaFileID, int groupID, string UDID, int platform)
         {
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.SOCIAL);
 
@@ -4350,8 +4350,14 @@ namespace Tvinci.Core.DAL
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Failed InsertOrUpdatePlayCycle, userId: {0}, mediaID: {1}, mediaFileID: {2}, groupID: {3}, UDID: {4}, platform: {5}, Exception: {6}",
-                                 siteGuid, mediaID, MediaFileID, groupID, UDID, platform, ex.Message);
+                log.ErrorFormat("Failed GetUserPlayCycle, userId: {0}, groupID: {1}, UDID: {2}, platform: {3}, mediaFileID: {4}, Exception: {5}",
+                                 siteGuid, groupID, UDID, platform, MediaFileID, ex.Message);
+            }
+
+            if (playCycleSession == null)
+            {
+                log.ErrorFormat("Error in GetUserPlayCycle, playCycleSession is null. userId: {0}, groupID: {1}, UDID: {2}, platform: {3}, mediaFileID: {4}",
+                                 siteGuid, groupID, UDID, platform, MediaFileID);
             }
 
             return playCycleSession;
