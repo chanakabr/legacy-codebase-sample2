@@ -1,4 +1,5 @@
-﻿using KLogMonitor;
+﻿using AutoMapper;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Notification;
+using WebAPI.Models.Notifications;
 using WebAPI.Notifications;
 using WebAPI.Utils;
 
@@ -260,12 +262,12 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.AddMessageAnnouncement(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, groupId, messageAnnouncement);
+                    response = Notification.AddMessageAnnouncement(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, messageAnnouncement);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while AddAnnouncement.  groupID: {0}, announcement: {1}, exception: {1}", groupId, announcement, ex);
+                log.ErrorFormat("Error while AddAnnouncement.  groupID: {0}, announcement: {1}, exception: {2}", groupId, announcement, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -333,12 +335,12 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.UpdateMessageAnnouncement(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, groupId, messageAnnouncement);
+                    response = Notification.UpdateMessageAnnouncement(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, messageAnnouncement);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while UpdateAnnouncement.  groupID: {0}, announcement: {1}, exception: {1}", groupId, announcement, ex);
+                log.ErrorFormat("Error while UpdateAnnouncement.  groupID: {0}, announcement: {1}, exception: {2}", groupId, announcement, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -360,12 +362,12 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.UpdateMessageAnnouncementStatus(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, groupId, id, status);
+                    response = Notification.UpdateMessageAnnouncementStatus(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, id, status);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while UpdateAnnouncementStatus.  groupID: {0}, id: {1}, exception: {1}", groupId, id, ex);
+                log.ErrorFormat("Error while UpdateAnnouncementStatus.  groupID: {0}, id: {1}, exception: {2}", groupId, id, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -387,12 +389,12 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.DeleteMessageAnnouncement(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, groupId, id);
+                    response = Notification.DeleteMessageAnnouncement(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, id);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while DeleteAnnouncement.  groupID: {0}, id: {1}, exception: {1}", groupId, id, ex);
+                log.ErrorFormat("Error while DeleteAnnouncement.  groupID: {0}, id: {1}, exception: {2}", groupId, id, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -405,20 +407,34 @@ namespace WebAPI.Clients
             return true;
         }
 
+<<<<<<< HEAD
         internal bool CreateSystemAnnouncement(int groupId)
         {
             Status response = null;
+=======
+        internal KalturaMessageAnnouncementListResponse GetAllAnnouncements(int groupId, int pageSize, int pageIndex)
+        {
+            List<KalturaAnnouncement> result = null;
+            GetAllMessageAnnouncementsResponse response = null;
+            KalturaMessageAnnouncementListResponse ret;
+
+>>>>>>> 8d5266bd9e02d1fa7a7e6119a060ea82c713c6d4
             Group group = GroupsManager.GetGroup(groupId);
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
+<<<<<<< HEAD
                     response = Notification.CreateSystemAnnouncement(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password);
+=======
+                    response = Notification.GetAllMessageAnnouncements(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, pageSize, pageIndex);
+>>>>>>> 8d5266bd9e02d1fa7a7e6119a060ea82c713c6d4
                 }
             }
             catch (Exception ex)
             {
+<<<<<<< HEAD
                 log.ErrorFormat("Error while CreateSystemAnnouncement.  groupID: {0}, exception: {1}", groupId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
@@ -430,6 +446,16 @@ namespace WebAPI.Clients
             }
 
             return true;
+=======
+                log.ErrorFormat("Error while DeleteAnnouncement.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            result = Mapper.Map<List<KalturaAnnouncement>>(response.messageAnnouncements);
+
+            ret = new KalturaMessageAnnouncementListResponse() { Announcements = result, TotalCount = response.totalCount };
+            return ret;
+>>>>>>> 8d5266bd9e02d1fa7a7e6119a060ea82c713c6d4
         }
     }
 }

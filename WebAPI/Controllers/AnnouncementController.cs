@@ -6,6 +6,8 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Models.General;
+using WebAPI.Models.Notification;
 using WebAPI.Models.Notifications;
 using WebAPI.Utils;
 
@@ -55,7 +57,7 @@ namespace WebAPI.Controllers
         public bool Update(KalturaAnnouncement announcement)
         {
             bool response = false;
-
+            
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
@@ -124,6 +126,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
+<<<<<<< HEAD
         /// create system announcment 
         /// </summary>       
         /// <returns></returns>
@@ -133,11 +136,29 @@ namespace WebAPI.Controllers
         public bool CreateAnnouncement()
         {
             bool response = false;
+=======
+        /// Lists all announcements in the system.
+        /// </summary>
+        /// <param name="pager">Paging the request</param>
+        /// <returns></returns>
+        [Route("list"), HttpPost]
+        [ApiAuthorize]
+        public KalturaMessageAnnouncementListResponse List(KalturaFilterPager pager = null)
+        {
+            KalturaMessageAnnouncementListResponse response = null;
+
+            if (pager == null)
+                pager = new KalturaFilterPager();
+>>>>>>> 8d5266bd9e02d1fa7a7e6119a060ea82c713c6d4
 
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
+<<<<<<< HEAD
                 response = ClientsManager.NotificationClient().CreateSystemAnnouncement(groupId);
+=======
+                response = ClientsManager.NotificationClient().GetAllAnnouncements(groupId, pager.PageSize, pager.PageIndex);
+>>>>>>> 8d5266bd9e02d1fa7a7e6119a060ea82c713c6d4
             }
 
             catch (ClientException ex)
