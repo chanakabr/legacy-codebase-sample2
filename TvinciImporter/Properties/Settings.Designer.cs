@@ -26,16 +26,6 @@ namespace TvinciImporter.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://lucene.prd.tvincidns.com/v1_1/Service.svc")]
-        public string TvinciImporter_Lucene_WCF_Service {
-            get {
-                return ((string)(this["TvinciImporter_Lucene_WCF_Service"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
         [global::System.Configuration.DefaultSettingValueAttribute("http://192.168.16.70:333/Encryptor.asmx")]
         public string TvinciImporter_WS_Encryptor_Encryptor {
             get {
@@ -46,10 +36,10 @@ namespace TvinciImporter.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost:82/ws_cas/module.asmx")]
-        public string TvinciImporter_ws_cas_module {
+        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/LuceneWCF/Service.svc")]
+        public string TvinciImporter_Lucene_WCF_Service {
             get {
-                return ((string)(this["TvinciImporter_ws_cas_module"]));
+                return ((string)(this["TvinciImporter_Lucene_WCF_Service"]));
             }
         }
     }
