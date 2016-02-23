@@ -1557,15 +1557,18 @@ namespace ElasticSearch.Searcher
                 }
             };
 
-            ESTerm fileTypeTerm = null;
+            ESTerms fileTypeTerm = null;
 
-            if (this.SearchDefinitions.entitlementSearchDefinitions.fileType > 0)
+            if (this.SearchDefinitions.entitlementSearchDefinitions.fileTypes != null &&
+                this.SearchDefinitions.entitlementSearchDefinitions.fileTypes.Count > 0)
             {
-                fileTypeTerm = new ESTerm(true)
+                fileTypeTerm = new ESTerms(true)
                     {
                         Key = "free_file_types",
-                        Value = this.SearchDefinitions.entitlementSearchDefinitions.fileType.ToString()
                     };
+                var fileTypes = this.SearchDefinitions.entitlementSearchDefinitions.fileTypes.Select(t => t.ToString());
+                fileTypeTerm.Value.AddRange(fileTypes);
+
             }
 
             // EPG Channel IDs

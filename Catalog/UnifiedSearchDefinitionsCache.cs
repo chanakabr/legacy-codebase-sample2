@@ -171,6 +171,13 @@ namespace Catalog
 
             if (definitions.entitlementSearchDefinitions != null)
             {
+                int[] fileTypes = null;
+
+                if (request.m_oFilter != null)
+                {
+                    fileTypes = request.m_oFilter.fileTypes;
+                }
+
                 var entitlementSearchDefinitions = definitions.entitlementSearchDefinitions;
 
                 List<int> epgChannelIds = new List<int>();
@@ -186,8 +193,9 @@ namespace Catalog
 
                 if (entitlementSearchDefinitions.shouldGetPurchasedAssets)
                 {
+
                     entitlementSearchDefinitions.entitledPaidForAssets =
-                       EntitledAssetsUtils.GetUserPPVAssets(parentGroupID, request.m_sSiteGuid, request.domainId, request.fileType, out purchasedEpgChannelIds);
+                       EntitledAssetsUtils.GetUserPPVAssets(parentGroupID, request.m_sSiteGuid, request.domainId, fileTypes, out purchasedEpgChannelIds);
                 }
 
                 if (freeEpgChannelIds != null)
@@ -224,7 +232,7 @@ namespace Catalog
                 if (entitlementSearchDefinitions.shouldGetPurchasedAssets)
                 {
                     entitlementSearchDefinitions.subscriptionSearchObjects =
-                        EntitledAssetsUtils.GetUserSubscriptionSearchObjects(request, parentGroupID, request.m_sSiteGuid, request.domainId, request.fileType,
+                        EntitledAssetsUtils.GetUserSubscriptionSearchObjects(request, parentGroupID, request.m_sSiteGuid, request.domainId, fileTypes,
                         request.order, entitlementMediaTypes, definitions.deviceRuleId);
                 }
 
@@ -232,7 +240,12 @@ namespace Catalog
                 {
                     // Convert the file type that we received in request (taken from groups_media_type)
                     // into the file type that the media file knows (based on the table media_files)
-                    entitlementSearchDefinitions.fileType = group.groupMediaFileTypeToFileType[request.fileType];
+                    entitlementSearchDefinitions.fileTypes = new List<int>();
+
+                    foreach (var fileType in fileTypes)
+                    {
+                        entitlementSearchDefinitions.fileTypes.Add(group.groupMediaFileTypeToFileType[fileType]);
+                    }
                 }
 
                 // TODO: Maybe this will be the method that gets the FREE epg channel IDs
