@@ -930,6 +930,12 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
+            if (searchResponse == null || searchResponse.status == null)
+            { 
+                // Bad response received from WS
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
             if (searchResponse.status.Code != (int)StatusCode.OK)
             {
                 // Bad response received from WS
