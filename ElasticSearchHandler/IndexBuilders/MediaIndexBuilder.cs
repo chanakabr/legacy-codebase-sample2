@@ -331,6 +331,9 @@ namespace ElasticSearchHandler.IndexBuilders
                                 media.m_nViews = ODBCWrapper.Utils.GetIntSafeVal(row, "views");
                                 media.m_sUserTypes = ODBCWrapper.Utils.GetSafeStr(row["user_types"]);
 
+                                // by default - media is not free
+                                media.isFree = false;
+
                                 double dSum = ODBCWrapper.Utils.GetDoubleSafeVal(row, "votes_sum");
                                 double dCount = ODBCWrapper.Utils.GetDoubleSafeVal(row, "votes_count");
 
@@ -414,7 +417,7 @@ namespace ElasticSearchHandler.IndexBuilders
                             {
                                 int mediaID = ODBCWrapper.Utils.GetIntSafeVal(row, "media_id");
                                 string sMFT = ODBCWrapper.Utils.GetSafeStr(row, "media_type_id");
-                                bool isFree = ODBCWrapper.Utils.ExtractBoolean(row, "is_free");
+                                bool isTypeFree = ODBCWrapper.Utils.ExtractBoolean(row, "is_free");
 
                                 Media theMedia = medias[mediaID];
 
@@ -422,7 +425,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                                 int mediaTypeId;
 
-                                if (isFree)
+                                if (isTypeFree)
                                 {
                                     // if at least one of the media types is free - this media is free
                                     theMedia.isFree = true;
@@ -434,6 +437,8 @@ namespace ElasticSearchHandler.IndexBuilders
                                 }
                             }
                         }
+
+
                         #endregion
 
                         #region - get regions of media
