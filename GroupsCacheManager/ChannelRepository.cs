@@ -46,6 +46,10 @@ namespace GroupsCacheManager
                 GetGroupServices(ref newGroup);
 
                 SetGroupDefaults(newGroup);
+
+                newGroup.GetMediaTypes();
+
+                SetMediaFileTypes(newGroup);
             }
 
             //get all PermittedWatchRules by groupID
@@ -225,6 +229,27 @@ namespace GroupsCacheManager
                 {
                     newGroup.m_sPermittedWatchRules.Add(ODBCWrapper.Utils.GetSafeStr(permittedWatchRuleRow, "RuleID"));
                 }
+            }
+        }
+
+        /// <summary>
+        /// Initializes the mapping of the table groups_media_type
+        /// </summary>
+        /// <param name="group"></param>
+        private static void SetMediaFileTypes(Group group)
+        {
+            if (group.groupMediaFileTypeToFileType == null)
+            {
+                group.groupMediaFileTypeToFileType = new Dictionary<int, int>();
+            }
+
+            DataTable table = Tvinci.Core.DAL.CatalogDAL.GetGroupsMediaType(group.GetSubTreeGroupIds());
+
+            foreach (DataRow groupMediaFile in table.Rows)
+            {
+                group.groupMediaFileTypeToFileType.Add(
+                    ODBCWrapper.Utils.ExtractInteger(groupMediaFile, "ID"),
+                    ODBCWrapper.Utils.ExtractInteger(groupMediaFile, "MEDIA_TYPE_ID"));
             }
         }
 

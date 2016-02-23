@@ -101,6 +101,7 @@ namespace ApiObjects.Response
         FileToMediaMismatch = 3028,
         ReconciliationFrequencyLimitation = 3029,
         InvalidCustomDataIdentifier = 3030,
+        InvalidFileType = 3031,
 
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,

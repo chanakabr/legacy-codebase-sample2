@@ -5345,6 +5345,78 @@ namespace TvinciImporter
             }
             return result;
         }
+
+        public static bool UpdateFreeFileTypeOfModule(int groupId, int moduleId)
+        {
+            bool result = false;
+
+            // Continue only if we have successfully extracted module Id from session
+            if (moduleId == 0)
+            {
+                log.Error("Failed updating free item index because couldn't get module Id");
+            }
+            else
+            {
+                //result = UpdateFreeFileType(groupId, ws_cas.eObjectType.Media, new List<int>(), new List<int>() { moduleId });
+
+                //****************************************
+                //TODO: update all the medias in the ppvModule
+                //****************************************
+                UpdateIndex(new List<int>() { 1 }, groupId, eAction.Update);
+            }
+
+            return result;
+        }
+
+        public static bool InsertRemoteTaskIndexUpdate(int groupID, List<int> mediaIDs)
+        {
+            bool result = false;
+
+            //ws_cas.module cas = new ws_cas.module();
+            //string ip = "1.1.1.1";
+            //string sWSUserName = "";
+            //string sWSPassword = "";
+
+            //int parentGroupId = DAL.UtilsDal.GetParentGroupID(groupID);
+
+            //TVinciShared.WS_Utils.GetWSUNPass(parentGroupId, "InsertRemoteTaskIndexUpdate", "conditionalaccess", ip, ref sWSUserName, ref sWSPassword);
+            //string url = TVinciShared.WS_Utils.GetTcmConfigValue("conditionalaccess_ws");
+
+            //if (url != "")
+            //{
+            //    cas.Url = url;
+            //}
+
+            //try
+            //{
+            //    if (mediaIDs == null)
+            //    {
+            //        mediaIDs = new List<int>();
+            //    }
+
+            //    var response = cas.InsertRemoteTaskIndexUpdate(sWSUserName, sWSPassword, mediaIDs.ToArray());
+
+            //    if (response == null)
+            //    {
+            //        log.Error("Failed Inserting remote task index update, got null response");
+            //    }
+            //    else if (response.Code == 0)
+            //    {
+            //        result = true;
+            //    }
+            //    else
+            //    {
+            //        log.ErrorFormat("Failed Inserting remote task index update, got status code {0}, message {1}", response.Code, response.Message);
+            //    }
+
+            //}
+            //catch (Exception ex)
+            //{
+            //    log.ErrorFormat("Failed Inserting remote task index update: ", ex);
+            //}
+
+            return result;
+        }
     }
 }
 

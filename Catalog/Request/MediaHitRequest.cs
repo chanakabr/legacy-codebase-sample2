@@ -201,7 +201,7 @@ namespace Catalog.Request
             if (nSiteGuid > 0)
             {
                 // Get from CB and insert into MediaEOH
-                PlayCycleSession playCycleSession = CatalogDAL.GetUserPlayCycle(m_oMediaPlayRequestData.m_sSiteGuid, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_nGroupID, m_oMediaPlayRequestData.m_sUDID, nPlatform);
+                PlayCycleSession playCycleSession = CatalogDAL.GetUserPlayCycle(m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_nMediaFileID, m_nGroupID, m_oMediaPlayRequestData.m_sUDID, nPlatform);
                 if (playCycleSession != null)
                 {
                     domainId = playCycleSession.DomainID;

@@ -972,6 +972,12 @@ namespace ElasticSearch.Common
                 get;
                 set;
             }
+
+            public string epg_identifier
+            {
+                get;
+                set;
+            }
         }
 
         public class ESSearchResponse

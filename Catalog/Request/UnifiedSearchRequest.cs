@@ -41,6 +41,15 @@ namespace Catalog.Request
         [DataMember]
         public List<ePersonalFilter> personalFilters;
 
+        [DataMember]
+        public int from;
+
+        [DataMember]
+        public int fileType;
+
+        [DataMember]
+        public string requestId;
+
         #endregion
 
         #region Ctor
@@ -149,8 +158,15 @@ namespace Catalog.Request
 
                 CheckSignature(baseRequest);
 
+                // If this is a new request - generate a new GUID for it
+                if (string.IsNullOrEmpty(request.requestId))
+                {
+                    request.requestId = Guid.NewGuid().ToString();
+                }
+
                 int totalItems = 0;
-                List<UnifiedSearchResult> assetsResults = Catalog.GetAssetIdFromSearcher(request, ref totalItems);
+                int to = 0;
+                List<UnifiedSearchResult> assetsResults = Catalog.GetAssetIdFromSearcher(request, ref totalItems, ref to);
 
                 response.m_nTotalItems = totalItems;
 
@@ -158,6 +174,14 @@ namespace Catalog.Request
                 {
                     response.searchResults = assetsResults;
                 }
+
+                if (to > 0)
+                {
+                    response.to = to;
+                }
+
+                // Response request Id is identical to request's request Id
+                response.requestId = request.requestId;
 
                 response.status.Code = (int)eResponseStatus.OK;
             }

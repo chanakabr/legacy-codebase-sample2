@@ -13,6 +13,10 @@ namespace CachingHelpers
 {
     public abstract class BaseCacheHelper<T>
     {
+        public delegate void ExceptionDelegate(Exception ex);
+
+        public event ExceptionDelegate OnErrorOccurred;
+
         #region Consts
 
         /// <summary>
@@ -33,7 +37,7 @@ namespace CachingHelpers
         #region Private Members
 
         protected ICachingService cacheService = null;
-        protected readonly double cacheTime;
+        protected double cacheTime;
         protected string cacheGroupConfiguration;
         protected string version;
 
@@ -211,6 +215,11 @@ namespace CachingHelpers
                         {
                             log.ErrorFormat("Get - " + string.Format("Couldn't get object in cache by key {0}. ex = {1}",
                                 cacheKey, ex.Message), ex);
+
+                            if (this.OnErrorOccurred != null)
+                            {
+                                this.OnErrorOccurred(ex);
+                            }
                         }
                         finally
                         {
@@ -223,6 +232,11 @@ namespace CachingHelpers
             {
                 log.ErrorFormat("Get - " + string.Format("Couldn't get object in cache by key {0}. ex = {1}",
                     cacheKey, ex.Message), ex);
+
+                if (this.OnErrorOccurred != null)
+                {
+                    this.OnErrorOccurred(ex);
+                }
             }
 
             return value;
@@ -278,6 +292,11 @@ namespace CachingHelpers
                             {
                                 log.ErrorFormat("Get - " + string.Format("Couldn't get object in cache by key {0}. ex = {1}",
                                     cacheKey, ex.Message), ex);
+
+                                if (this.OnErrorOccurred != null)
+                                {
+                                    this.OnErrorOccurred(ex);
+                                }
                             }
                             finally
                             {
@@ -323,6 +342,11 @@ namespace CachingHelpers
             catch (Exception ex)
             {
                 log.ErrorFormat("Get - " + string.Format("Couldn't multi get. ex = {0}", ex.Message), ex);
+
+                if (this.OnErrorOccurred != null)
+                {
+                    this.OnErrorOccurred(ex);
+                }
             }
 
             return values.ToList();
@@ -366,6 +390,11 @@ namespace CachingHelpers
             {
                 log.ErrorFormat("Remove - " +
                     string.Format("failed to Remove object from cache key={0}, ex={1}", cacheKey, ex.Message), ex);
+
+                if (this.OnErrorOccurred != null)
+                {
+                    this.OnErrorOccurred(ex);
+                }
             }
 
             return isRemoveSucceeded;

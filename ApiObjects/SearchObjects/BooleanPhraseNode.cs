@@ -12,6 +12,7 @@ namespace ApiObjects.SearchObjects
     /// Representing the abstract class of a node in a tree-boolean phrase
     /// </summary>
     [DataContract]
+    [Serializable]
     public abstract class BooleanPhraseNode
     {
         #region Consts
@@ -195,7 +196,6 @@ namespace ApiObjects.SearchObjects
 
             return comparisonOperator;
         }
-
 
         // returns a list of tokens when each token represents one of the following:
         //   operand - "(or" or "(and" 

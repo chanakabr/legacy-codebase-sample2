@@ -223,7 +223,7 @@ namespace Catalog
             return false;
         }
 
-        public SearchResultsObj SearchSubscriptionMedias(int nSubscriptionGroupId, List<MediaSearchObj> oSearch, int nLangID, bool bUseStartDate, 
+        public SearchResultsObj SearchSubscriptionMedias(int nSubscriptionGroupId, List<MediaSearchObj> oSearch, int nLangID, bool bUseStartDate,
             string sMediaTypes, ApiObjects.SearchObjects.OrderObj oOrderObj, int nPageIndex, int nPageSize)
         {
             SearchResultsObj lSortedMedias = new SearchResultsObj();
@@ -380,64 +380,7 @@ namespace Catalog
                 List<ElasticSearchApi.ESAssetDocument> searchResults = new List<ElasticSearchApi.ESAssetDocument>();
 
                 #region Build Search Query
-
-                ESMediaQueryBuilder mediaQueryBuilder = new ESMediaQueryBuilder();
-                ESUnifiedQueryBuilder unifiedQueryBuilder = new ESUnifiedQueryBuilder(null, parentGroupId);
-
-                BoolQuery boolQuery = new BoolQuery();
-
-                /*
-                 * Foreach media/unified search object, create filtered query.
-                 * Add the query's filter to the grouped filter so that we can then create a single request
-                 * containing all the channels that we want.
-                 */
-                foreach (BaseSearchObject searchObject in searchObjects)
-                {
-                    if (searchObject == null)
-                        continue;
-
-                    if (searchObject is MediaSearchObj)
-                    {
-                        MediaSearchObj mediaSearchObject = searchObject as MediaSearchObj;
-                        mediaQueryBuilder.m_nGroupID = mediaSearchObject.m_nGroupId;
-                        mediaSearchObject.m_nPageSize = 0;
-                        mediaQueryBuilder.oSearchObject = mediaSearchObject;
-                        mediaQueryBuilder.QueryType = (mediaSearchObject.m_bExact) ? eQueryType.EXACT : eQueryType.BOOLEAN;
-                        FilteredQuery tempQuery = mediaQueryBuilder.BuildChannelFilteredQuery();
-
-                        if (tempQuery != null && tempQuery.Filter != null)
-                        {
-                            ESFilteredQuery currentFilteredQuery = new ESFilteredQuery()
-                            {
-                                Filter = tempQuery.Filter
-                            };
-
-                            boolQuery.AddChild(currentFilteredQuery, CutWith.OR);
-                        }
-                    }
-                    else if (searchObject is UnifiedSearchDefinitions)
-                    {
-                        UnifiedSearchDefinitions definitions = searchObject as UnifiedSearchDefinitions;
-                        unifiedQueryBuilder.SearchDefinitions = definitions;
-                        
-                        BaseFilterCompositeType currentFilter;
-                        IESTerm currentQuery;
-
-                        unifiedQueryBuilder.BuildInnerFilterAndQuery(out currentFilter, out currentQuery);
-
-                        ESFilteredQuery currentFilteredQuery = new ESFilteredQuery()
-                        {
-                            Filter = new QueryFilter()
-                            {
-                                FilterSettings = currentFilter
-                            },
-                            Query = currentQuery
-                        };
-
-                        //groupedFilters.AddChild(currentFilter);
-                        boolQuery.AddChild(currentQuery, CutWith.OR);
-                    }
-                }
+                BoolQuery boolQuery = BuildMultipleSearchQuery(searchObjects, parentGroupId);
 
                 string orderValue = FilteredQuery.GetESSortValue(order);
 
@@ -511,12 +454,76 @@ namespace Catalog
                             m_dUpdateDate = item.update_date
                         }).ToList();
                     }
-                } 
+                }
 
                 #endregion
             }
 
             return finalSearchResults;
+        }
+
+        private static BoolQuery BuildMultipleSearchQuery(List<BaseSearchObject> searchObjects, int parentGroupId)
+        {
+
+            ESMediaQueryBuilder mediaQueryBuilder = new ESMediaQueryBuilder();
+            ESUnifiedQueryBuilder unifiedQueryBuilder = new ESUnifiedQueryBuilder(null, parentGroupId);
+
+            BoolQuery boolQuery = new BoolQuery();
+
+            /*
+             * Foreach media/unified search object, create filtered query.
+             * Add the query's filter to the grouped filter so that we can then create a single request
+             * containing all the channels that we want.
+             */
+            foreach (BaseSearchObject searchObject in searchObjects)
+            {
+                if (searchObject == null)
+                    continue;
+
+                if (searchObject is MediaSearchObj)
+                {
+                    MediaSearchObj mediaSearchObject = searchObject as MediaSearchObj;
+                    mediaQueryBuilder.m_nGroupID = mediaSearchObject.m_nGroupId;
+                    mediaSearchObject.m_nPageSize = 0;
+                    mediaQueryBuilder.oSearchObject = mediaSearchObject;
+                    mediaQueryBuilder.QueryType = (mediaSearchObject.m_bExact) ? eQueryType.EXACT : eQueryType.BOOLEAN;
+                    FilteredQuery tempQuery = mediaQueryBuilder.BuildChannelFilteredQuery();
+
+                    if (tempQuery != null && tempQuery.Filter != null)
+                    {
+                        ESFilteredQuery currentFilteredQuery = new ESFilteredQuery()
+                        {
+                            Filter = tempQuery.Filter
+                        };
+
+                        boolQuery.AddChild(currentFilteredQuery, CutWith.OR);
+                    }
+                }
+                else if (searchObject is UnifiedSearchDefinitions)
+                {
+                    UnifiedSearchDefinitions definitions = searchObject as UnifiedSearchDefinitions;
+                    unifiedQueryBuilder.SearchDefinitions = definitions;
+
+                    BaseFilterCompositeType currentFilter;
+                    IESTerm currentQuery;
+
+                    unifiedQueryBuilder.BuildInnerFilterAndQuery(out currentFilter, out currentQuery);
+
+                    ESFilteredQuery currentFilteredQuery = new ESFilteredQuery()
+                    {
+                        Filter = new QueryFilter()
+                        {
+                            FilterSettings = currentFilter
+                        },
+                        Query = currentQuery
+                    };
+
+                    //groupedFilters.AddChild(currentFilter);
+                    boolQuery.AddChild(currentQuery, CutWith.OR);
+                }
+            }
+
+            return boolQuery;
         }
 
 
@@ -951,7 +958,8 @@ namespace Catalog
                                                   DateTime.ParseExact((string)tempToken, DATE_FORMAT, null)),
                                   start_date = ((tempToken = item.SelectToken("fields.start_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
                                                   DateTime.ParseExact((string)tempToken, DATE_FORMAT, null)),
-                                  media_type_id = ((tempToken = item.SelectToken("fields.media_type_id")) == null ? 0 : (int)tempToken)
+                                  media_type_id = ((tempToken = item.SelectToken("fields.media_type_id")) == null ? 0 : (int)tempToken),
+                                  epg_identifier = ((tempToken = item.SelectToken("fields.epg_identifier")) == null ? string.Empty : (string)tempToken),
                               });
                         }
                     }
@@ -1140,7 +1148,7 @@ namespace Catalog
         /// </summary>
         /// <param name="unifiedSearchDefinitions"></param>
         /// <returns></returns>
-        public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearchDefinitions, ref int totalItems)
+        public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearchDefinitions, ref int totalItems, ref int to)
         {
             List<UnifiedSearchResult> searchResultsList = new List<UnifiedSearchResult>();
             totalItems = 0;
@@ -1186,6 +1194,7 @@ namespace Catalog
             {
                 queryParser.PageIndex = unifiedSearchDefinitions.pageIndex;
                 queryParser.PageSize = unifiedSearchDefinitions.pageSize;
+                queryParser.From = unifiedSearchDefinitions.from;
             }
 
             // ES index is on parent group id
@@ -1196,6 +1205,14 @@ namespace Catalog
             if (parentGroupId == 0)
             {
                 parentGroupId = unifiedSearchDefinitions.groupId;
+            }
+
+            if (unifiedSearchDefinitions.entitlementSearchDefinitions != null &&
+                unifiedSearchDefinitions.entitlementSearchDefinitions.subscriptionSearchObjects != null)
+            {
+                // If we need to search by entitlements, we have A LOT of work to do now
+                BoolQuery boolQuery = BuildMultipleSearchQuery(unifiedSearchDefinitions.entitlementSearchDefinitions.subscriptionSearchObjects, parentGroupId);
+                queryParser.SubscriptionsQuery = boolQuery;
             }
 
             string requestBody = queryParser.BuildSearchQueryString(unifiedSearchDefinitions.shouldIgnoreDeviceRuleID, unifiedSearchDefinitions.shouldAddActive);
@@ -1308,6 +1325,7 @@ namespace Catalog
                             #endregion
                         }
                     }
+
 
                     #endregion
                 }
@@ -1934,6 +1952,7 @@ namespace Catalog
         }
 
         #endregion
+
         public List<UnifiedSearchResult> FillUpdateDates(int groupId, List<UnifiedSearchResult> assets, ref int totalItems, int pageSize, int pageIndex)
         {
             List<UnifiedSearchResult> finalList = new List<UnifiedSearchResult>();
@@ -2035,7 +2054,7 @@ namespace Catalog
                     }
                 }
 
-                var validAssets = assets.Where(asset => 
+                var validAssets = assets.Where(asset =>
                     {
                         bool valid = asset.m_dUpdateDate != DateTime.MinValue;
 
@@ -2064,6 +2083,63 @@ namespace Catalog
             }
 
             return finalList;
+        }
+
+        public List<int> GetEntitledEpgLinearChannels(Group group, UnifiedSearchDefinitions definitions)
+        {
+            List<int> result = new List<int>();
+            ESUnifiedQueryBuilder queryParser = new ESUnifiedQueryBuilder(definitions);
+            queryParser.PageIndex = 0;
+            queryParser.PageSize = 0;
+
+            if (definitions.entitlementSearchDefinitions != null &&
+                definitions.entitlementSearchDefinitions.subscriptionSearchObjects != null)
+            {
+                // If we need to search by entitlements, we have A LOT of work to do now
+                BoolQuery boolQuery = BuildMultipleSearchQuery(definitions.entitlementSearchDefinitions.subscriptionSearchObjects, group.m_nParentGroupID);
+                queryParser.SubscriptionsQuery = boolQuery;
+            }
+
+            string requestBody = queryParser.BuildSearchQueryString(definitions.shouldIgnoreDeviceRuleID, definitions.shouldAddActive);
+
+            if (!string.IsNullOrEmpty(requestBody))
+            {
+                int httpStatus = 0;
+
+                string indexes = ESUnifiedQueryBuilder.GetIndexes(definitions, group.m_nParentGroupID);
+                string types = ESUnifiedQueryBuilder.GetTypes(definitions);
+                string url = string.Format("{0}/{1}/{2}/_search", ES_BASE_ADDRESS, indexes, types);
+
+                string queryResultString = m_oESApi.SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, requestBody, true);
+
+                log.DebugFormat("ES request: URL = {0}, body = {1}, result = {2}", url, requestBody, queryResultString);
+
+                if (httpStatus == STATUS_OK)
+                {
+                    #region Process ElasticSearch result
+
+                    int totalItems = 0;
+                    List<ElasticSearchApi.ESAssetDocument> assetsDocumentsDecoded = DecodeAssetSearchJsonObject(queryResultString, ref totalItems);
+
+                    if (assetsDocumentsDecoded != null && assetsDocumentsDecoded.Count > 0)
+                    {
+                        foreach (var asset in assetsDocumentsDecoded)
+                        {
+                            string epgIdentifier = asset.epg_identifier;
+                            int epgIdentifierInt;
+
+                            if (int.TryParse(epgIdentifier, out epgIdentifierInt))
+                            {
+                                result.Add(epgIdentifierInt);
+                            }
+                        }
+                    }
+
+                    #endregion
+                }
+            }
+
+            return result;
         }
     }
 
