@@ -799,7 +799,7 @@ namespace Users
 
             if (retVal.m_RespStatus == ResponseStatus.OK)
             {
-                Utils.AddInitiateNotificationActionToQueue(nGroupID, eUserMessageAction.Login, siteGuid, sDeviceUDID, string.Empty);
+                Utils.AddInitiateNotificationActionToQueue(nGroupID, eUserMessageAction.Logout, siteGuid, sDeviceUDID);
             }
 
             return retVal;
