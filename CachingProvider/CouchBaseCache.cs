@@ -15,25 +15,27 @@ namespace CachingProvider
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        CouchbaseClient m_Client;
+        #region C'tor
+
+        private CouchbaseClient m_Client
+        {
+            get
+            {
+                return CouchbaseManager.CouchbaseManager.GetInstance(bucket);
+            }
+        }
+
         eCouchbaseBucket bucket = eCouchbaseBucket.DEFAULT;
 
         private CouchBaseCache(eCouchbaseBucket eCacheName)
         {
-            m_Client = CouchbaseManager.CouchbaseManager.GetInstance(eCacheName);
             bucket = eCacheName;
 
             if (m_Client == null)
                 throw new Exception("Unable to create out of process cache instance");
-
-            m_Client.NodeFailed += m_Client_NodeFailed;
         }
 
-        void m_Client_NodeFailed(IMemcachedNode obj)
-        {
-            m_Client = CouchbaseManager.CouchbaseManager.RefreshInstance(bucket);
-        }
-
+        #endregion
 
         public static CouchBaseCache<T> GetInstance(string sCacheName)
         {
@@ -82,8 +84,18 @@ namespace CachingProvider
                 // Cases of retry
                 switch (statusCode)
                 {
+                    // VBucketBelongsToAnotherServer
+                    case 7:
+                    // OutOfMemory
+                    case 130:
+                    // InternalError
+                    case 132:
                     // Busy
                     case 133:
+                    // TemporaryFailure
+                    case 134:
+                    // SocketPoolTimeout 
+                    case 91:
                     // SocketPoolTimeout
                     case 145:
                     // UnableToLocateNode
@@ -93,7 +105,7 @@ namespace CachingProvider
                     // OperationTimeout
                     case 148:
                     {
-                        m_Client = CouchbaseManager.CouchbaseManager.RefreshInstance(bucket);
+                        CouchbaseManager.CouchbaseManager.RefreshInstance(bucket);
 
                         break;
                     }
