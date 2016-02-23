@@ -36,6 +36,10 @@ namespace InitiateNotificationActionHandler
 
                 TasksCommon.RemoteTasksUtils.GetCredentials(request.GroupId, ref username, ref password, ApiObjects.eWSModules.NOTIFICATION);
 
+                if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(url))
+                    throw new Exception(string.Format(
+                        "Notifications service - invalid Credentials or URL: Group: {0}, username: {1}, password: {2}, URL: {3}", request.GroupId, username,password,url));
+
                 NotificationServiceClient notificationsClient = new NotificationServiceClient(string.Empty, url);
 
                 bool success = false;
