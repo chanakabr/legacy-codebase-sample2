@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace InitiateNotificationActionHandler
 {
     [Serializable]
-    public class UserNotificationRequest
+    public class InitiateNotificationActionRequest
     {
         [JsonProperty("group_id")]
         public int GroupId

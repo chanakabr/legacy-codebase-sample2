@@ -28,7 +28,7 @@ namespace InitiateNotificationActionHandler
             {
                 log.InfoFormat("starting User Notification request. data={0}", data);
 
-                UserNotificationRequest request = JsonConvert.DeserializeObject<UserNotificationRequest>(data);
+                InitiateNotificationActionRequest request = JsonConvert.DeserializeObject<InitiateNotificationActionRequest>(data);
 
                 string url = WS_Utils.GetTcmConfigValue("ws_notifications");
                 string username = string.Empty;
