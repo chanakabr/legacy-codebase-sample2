@@ -707,6 +707,56 @@ namespace DAL
             return null;
         }
 
+        public static List<DataRow> Get_MessageAllAnnouncements(int groupId, int pageSize, int pageIndex)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncement");
+            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@top", pageSize * (pageIndex + 1));
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    int num = pageSize;
+                    if (dt.Rows.Count <= pageSize)
+                        num = dt.Rows.Count;
+
+                    List<DataRow> ret = new List<DataRow>();
+
+                    for (int i = 0; i < num; i++)
+                    {
+                        int curr = i + pageSize * pageIndex;
+                        if (curr < dt.Rows.Count)
+                            ret.Add(dt.Rows[curr]);
+                    }
+
+                    return ret;
+                }
+            }
+
+            return null;
+        }
+
+        public static int Get_MessageAllAnnouncementsCount(int groupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncement");
+            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    return dt.Rows.Count;
+                }
+            }
+
+            return 0;
+        }
+
         public static int Insert_MessageAnnouncement(int groupId, int recipients, string name, string message, bool enabled, DateTime startTime, string timezone, int updaterId, string resultMsgId = null)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("InsertMessageAnnouncement");
@@ -847,6 +897,22 @@ namespace DAL
             return ret;
         }
 
+        public static int Insert_Announcement(int groupId, string announcementName, string externalAnnouncementId, int messageType, int announcementRecipientsType)
+        {
+            ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("Insert_Announcement");
+            spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            spInsert.AddParameter("@group_id", groupId);
+            spInsert.AddParameter("@name", announcementName);
+            spInsert.AddParameter("@external_id", externalAnnouncementId);
+            spInsert.AddParameter("@message_type", messageType);
+            spInsert.AddParameter("@recipient_type", announcementRecipientsType);
+            spInsert.AddParameter("@status", 1);
+            spInsert.AddParameter("@created_at", DateTime.UtcNow);
+
+            int newTransactionID = spInsert.ExecuteReturnValue<int>();
+            return newTransactionID;
+        }
+
         public static DataRowCollection Get_Announcement(List<eAnnouncementRecipientsType> recipientsTypes, List<long> announcementIds)
         {
             DataRowCollection rowCollection = null;
@@ -885,9 +951,5 @@ namespace DAL
 
             return result;
         }
-
-      
-
-
     }
 }

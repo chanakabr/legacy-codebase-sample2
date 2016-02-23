@@ -47,7 +47,7 @@ namespace DalCB
             {
                 try
                 {
-                    bRes = (dtExpiresAt.HasValue) ? cbManager.Set(sDocID, epg, (uint)(dtExpiresAt.Value - DateTime.UtcNow).Seconds) :
+                    bRes = (dtExpiresAt.HasValue) ? cbManager.Set(sDocID, epg, (uint)(dtExpiresAt.Value - DateTime.UtcNow).TotalSeconds) :
                                                    cbManager.Set(sDocID, epg);
                 }
                 catch (Exception ex)
@@ -77,9 +77,8 @@ namespace DalCB
             {
                 try
                 {
-
                     // TODO  : add here the json serialize 
-                    bRes = (dtExpiresAt.HasValue) ? cbManager.SetWithVersion(sDocID, epg, cas, (uint)(dtExpiresAt.Value - DateTime.UtcNow).Seconds) :
+                    bRes = (dtExpiresAt.HasValue) ? cbManager.SetWithVersion(sDocID, epg, cas, (uint)(dtExpiresAt.Value - DateTime.UtcNow).TotalSeconds) :
                                                     cbManager.SetWithVersion(sDocID, epg, cas);
                 }
                 catch (Exception ex)
@@ -110,7 +109,7 @@ namespace DalCB
             {
                 try
                 {
-                    bRes = (dtExpiresAt.HasValue) ? cbManager.Set(sDocID, epg, (uint)(dtExpiresAt.Value - DateTime.UtcNow).Seconds) :
+                    bRes = (dtExpiresAt.HasValue) ? cbManager.Set(sDocID, epg, (uint)(dtExpiresAt.Value - DateTime.UtcNow).TotalSeconds) :
                                                     cbManager.Set(sDocID, epg);
                 }
                 catch (Exception ex)
@@ -139,7 +138,7 @@ namespace DalCB
             {
                 try
                 {
-                    bRes = (dtExpiresAt.HasValue) ? cbManager.SetWithVersion(sDocID, epg, cas, (uint)(dtExpiresAt.Value - DateTime.UtcNow).Seconds) :
+                    bRes = (dtExpiresAt.HasValue) ? cbManager.SetWithVersion(sDocID, epg, cas, (uint)(dtExpiresAt.Value - DateTime.UtcNow).TotalSeconds) :
                                                     cbManager.SetWithVersion(sDocID, epg, cas);
                 }
                 catch (Exception ex)
@@ -208,43 +207,49 @@ namespace DalCB
             return oRes;
         }
 
-        public List<EpgCB> GetProgram(List<string> p_lstIds)
+        public List<EpgCB> GetProgram(List<string> ids)
         {
-            List<EpgCB> lstResultEpgs = new List<EpgCB>();
+            List<EpgCB> resultEpgs = new List<EpgCB>();
 
             try
             {
-                if (p_lstIds != null && p_lstIds.Count > 0)
+                if (ids != null && ids.Count > 0)
                 {
-                    IDictionary<string, object> dicItems = cbManager.GetValues<object>(p_lstIds, true);
+                    IDictionary<string, EpgCB> getResult = cbManager.GetValues<EpgCB>(ids, true);
 
-                    if (dicItems != null && dicItems.Count > 0)
+                    if (getResult != null && getResult.Count > 0)
                     {
                         // Run on original list of Ids, to maintain their order
-                        foreach (var sId in p_lstIds)
+                        foreach (var id in ids)
                         {
                             // Make sure the Id was returned from CB
-                            if (dicItems.ContainsKey(sId))
+                            if (getResult.ContainsKey(id))
                             {
-                                object oValue = dicItems[sId];
+                                EpgCB currentValue = getResult[id];
 
-                                // If the value that CB returned is valid
-                                if (oValue != null && oValue is string)
-                                {
-                                    string sValue = Convert.ToString(oValue);
+                                resultEpgs.Add(currentValue);
 
-                                    if (!string.IsNullOrEmpty(sValue))
-                                    {
-                                        // Deserialize string from CB to an EpgCB object
-                                        EpgCB oTempEpg = JsonConvert.DeserializeObject<EpgCB>(sValue);
+                                // Old code:
+                                //// If the value that CB returned is valid
+                                //if (currentValue != null)
+                                //{
+                                //    if (currentValue is string)
+                                //    {
+                                //        string sValue = Convert.ToString(currentValue);
 
-                                        // If it was successful, add to list
-                                        if (oTempEpg != null)
-                                        {
-                                            lstResultEpgs.Add(oTempEpg);
-                                        }
-                                    }
-                                }
+                                //        if (!string.IsNullOrEmpty(sValue))
+                                //        {
+                                //            // Deserialize string from CB to an EpgCB object
+                                //            EpgCB tempEpg = JsonConvert.DeserializeObject<EpgCB>(sValue);
+
+                                //            // If it was successful, add to list
+                                //            if (tempEpg != null)
+                                //            {
+                                //                resultEpgs.Add(tempEpg);
+                                //            }
+                                //        }
+                                //    }
+                                //}
                             }
                         }
                     }
@@ -253,11 +258,11 @@ namespace DalCB
             catch (Exception ex)
             {
                 StringBuilder sb = new StringBuilder("IDs: ");
-                if (p_lstIds != null && p_lstIds.Count > 0)
+                if (ids != null && ids.Count > 0)
                 {
-                    for (int i = 0; i < p_lstIds.Count; i++)
+                    for (int i = 0; i < ids.Count; i++)
                     {
-                        sb.Append(String.Concat(p_lstIds[i], ";"));
+                        sb.Append(String.Concat(ids[i], ";"));
                     }
                 }
                 else
@@ -268,7 +273,7 @@ namespace DalCB
                 log.Error("Exception - " + string.Format("Exception at GetProgram (list of ids overload). Msg: {0} , IDs: {1} , Ex Type: {2} , ST: {3}", ex.Message, sb.ToString(), ex.GetType().Name, ex.StackTrace), ex);
             }
 
-            return lstResultEpgs;
+            return resultEpgs;
         }
 
         //returns all programs with group id from view (does not take start_date into consideration)
@@ -284,7 +289,8 @@ namespace DalCB
                 {
                     startKey = startKey,
                     endKey = endKey,
-                    allowPartialQuery = true
+                    allowPartialQuery = true,
+                    shouldLookupById = true
                 };
 
                 if (nPageSize > 0)
@@ -321,7 +327,8 @@ namespace DalCB
                 {
                     startKey = startKey,
                     endKey = endKey,
-                    allowPartialQuery = true
+                    allowPartialQuery = true,
+                    shouldLookupById = true
                 };
 
                 if (nPageSize > 0)
@@ -358,7 +365,8 @@ namespace DalCB
                 {
                     startKey = startKey,
                     endKey = endKey,
-                    allowPartialQuery = true
+                    allowPartialQuery = true,
+                    shouldLookupById = true
                 };
 
                 if (nPageSize > 0)
@@ -397,7 +405,8 @@ namespace DalCB
                 {
                     startKey = startKey,
                     endKey = endKey,
-                    allowPartialQuery = true
+                    allowPartialQuery = true,
+                    shouldLookupById = true
                 };
 
                 if (nPageSize > 0)
@@ -431,7 +440,8 @@ namespace DalCB
                 ViewManager viewManager = new ViewManager(CB_EPG_DESGIN, "channel_programs")
                 {
                     startKey = startKey,
-                    endKey = endKey
+                    endKey = endKey,
+                    shouldLookupById = true
                 };
 
                 if (nPageSize > 0)
@@ -479,6 +489,7 @@ namespace DalCB
                 ViewManager viewManager = new ViewManager(CB_EPG_DESGIN, "programs_by_identifier")
                 {
                     keys = Keys,
+                    shouldLookupById = true
                 };
 
                 if (nPageSize > 0)
@@ -515,7 +526,7 @@ namespace DalCB
             {
                 try
                 {
-                    bRes = (dtExpiresAt.HasValue) ? cbManager.SetJson(sDocID, epg, (uint)(dtExpiresAt.Value - DateTime.UtcNow).Seconds) :
+                    bRes = (dtExpiresAt.HasValue) ? cbManager.SetJson(sDocID, epg, (uint)(dtExpiresAt.Value - DateTime.UtcNow).TotalSeconds) :
                                                    cbManager.SetJson(sDocID, epg);
                 }
                 catch (Exception ex)
@@ -545,7 +556,7 @@ namespace DalCB
             {
                 try
                 {
-                    bRes = (dtExpiresAt.HasValue) ? cbManager.SetWithVersion(sDocID, epg, cas,(uint)(dtExpiresAt.Value - DateTime.UtcNow).Seconds) :
+                    bRes = (dtExpiresAt.HasValue) ? cbManager.SetWithVersion(sDocID, epg, cas,(uint)(dtExpiresAt.Value - DateTime.UtcNow).TotalSeconds) :
                                                     cbManager.SetWithVersion(sDocID, epg, cas);
                 }
                 catch (Exception ex)

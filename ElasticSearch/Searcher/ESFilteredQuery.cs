@@ -40,12 +40,12 @@ namespace ElasticSearch.Searcher
 
             if (this.Filter != null && !this.Filter.IsEmpty())
             {
-                result = true;
+                result = false;
             }
 
             if (this.Query != null && !this.Query.IsEmpty())
             {
-                result = true;
+                result = false;
             }
 
             return result;
@@ -63,7 +63,7 @@ namespace ElasticSearch.Searcher
             StringBuilder filteredQuery = new StringBuilder();
 
 
-            filteredQuery.Append("\"filtered\": {");
+            filteredQuery.Append("{ \"filtered\": {");
 
             List<string> parts = new List<string>();
 
@@ -91,7 +91,7 @@ namespace ElasticSearch.Searcher
                 filteredQuery.Append(parts.Aggregate((current, next) => current + "," + next));
             }
 
-            filteredQuery.Append("}");
+            filteredQuery.Append("}}");
 
             return filteredQuery.ToString();
         }

@@ -609,7 +609,7 @@ namespace Tvinci.Core.DAL
 
                     mm.devices.Add(dev);
                 }
-                bool res = cbManager.SetWithVersion(docKey, mm, version);
+                bool res = cbManager.SetWithVersion(docKey, JsonConvert.SerializeObject(mm, Formatting.None), version);
 
                 if (!res)
                 {
@@ -662,7 +662,7 @@ namespace Tvinci.Core.DAL
                 //For quick last position access
                 umm.LastMark = dev;
 
-                bool res = cbManager.SetWithVersion(mmKey, umm, version);
+                bool res = cbManager.SetWithVersion(mmKey, JsonConvert.SerializeObject(umm, Formatting.None), version);
 
                 if (!res)
                 {
@@ -1517,7 +1517,7 @@ namespace Tvinci.Core.DAL
                         break;
                 }
 
-                bool res = cbManager.SetWithVersion(docKey, dm, version);
+                bool res = cbManager.SetWithVersion(docKey, JsonConvert.SerializeObject(dm, Formatting.None), version);
 
                 if (!res)
                 {
@@ -2399,7 +2399,7 @@ namespace Tvinci.Core.DAL
 
                     mm.devices.Add(dev);
                 }
-                bool res = cbManager.SetWithVersion(docKey, mm, version);
+                bool res = cbManager.SetWithVersion(docKey, JsonConvert.SerializeObject(mm, Formatting.None), version);
 
                 if (!res)
                 {
@@ -2452,7 +2452,7 @@ namespace Tvinci.Core.DAL
                 //For quick last position access
                 umm.LastMark = dev;
 
-                bool res = cbManager.Set(mmKey, umm);
+                bool res = cbManager.Set(mmKey, JsonConvert.SerializeObject(umm, Formatting.None));
 
                 if (!res)
                 {
@@ -2512,7 +2512,7 @@ namespace Tvinci.Core.DAL
                     mm.devices.Add(dev);
                 }
 
-                bool res = cbManager.SetWithVersion(docKey, mm, version);
+                bool res = cbManager.SetWithVersion(docKey, JsonConvert.SerializeObject(mm, Formatting.None), version);
 
                 if (!res)
                 {
@@ -2570,8 +2570,8 @@ namespace Tvinci.Core.DAL
                 uint.TryParse(CB_EPG_DOCUMENT_EXPIRY_DAYS, out cbEpgDocumentExpiryDays);
 
                 bool res = (epgDocExpiry.HasValue) ?
-                    cbManager.SetWithVersion(mmKey, umm, version, cbEpgDocumentExpiryDays * 24 * 60 * 60)
-                    : cbManager.SetWithVersion(mmKey, umm, version);
+                    cbManager.SetWithVersion(mmKey, JsonConvert.SerializeObject(umm, Formatting.None), version, cbEpgDocumentExpiryDays * 24 * 60 * 60)
+                    : cbManager.SetWithVersion(mmKey, JsonConvert.SerializeObject(umm, Formatting.None), version);
 
                 if (!res)
                 {
@@ -2880,11 +2880,14 @@ namespace Tvinci.Core.DAL
         /// <param name="groupId"></param>
         /// <param name="idToName"></param>
         /// <param name="nameToId"></param>
-        public static void GetMediaTypes(int groupId, out Dictionary<int, string> idToName, out Dictionary<string, int> nameToId, out Dictionary<int, int> parentMediaTypes)
+        public static void GetMediaTypes(int groupId, out Dictionary<int, string> idToName, 
+            out Dictionary<string, int> nameToId, out Dictionary<int, int> parentMediaTypes,
+            out List<int> linearChannelMediaTypes)
         {
             idToName = new Dictionary<int, string>();
             nameToId = new Dictionary<string, int>();
             parentMediaTypes = new Dictionary<int, int>();
+            linearChannelMediaTypes = new List<int>();
 
             DataTable mediaTypes = GetMediaTypesTable(groupId);
 
@@ -2895,10 +2898,16 @@ namespace Tvinci.Core.DAL
                     int id = ODBCWrapper.Utils.ExtractInteger(mediaType, "ID");
                     string name = ODBCWrapper.Utils.ExtractString(mediaType, "NAME");
                     int parent = ODBCWrapper.Utils.ExtractInteger(mediaType, "PARENT_TYPE_ID");
+                    int isLinear = ODBCWrapper.Utils.ExtractInteger(mediaType, "IS_LINEAR");
 
                     idToName.Add(id, name);
                     nameToId.Add(name, id);
                     parentMediaTypes.Add(id, parent);
+
+                    if (isLinear == 1)
+                    {
+                        linearChannelMediaTypes.Add(id);
+                    }
                 }
             }
         }
@@ -4252,6 +4261,26 @@ namespace Tvinci.Core.DAL
             return ratios;
         }
 
+        public static DataTable GetGroupsMediaType(string subGroups)
+        {
+            DataTable result = null;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+
+            //selectQuery += "select " + sFieldName + " from " + sTable + " where ";
+            selectQuery += "SELECT ID, MEDIA_TYPE_ID FROM groups_media_type WHERE GROUP_ID IN (" + subGroups + ") ";
+            selectQuery += "AND IS_ACTIVE = 1 AND STATUS = 1";
+
+            if (selectQuery.Execute("query", true) != null)
+            {
+                result = selectQuery.Table("query");
+            }
+
+            selectQuery.Finish();
+            selectQuery = null;
+
+            return result;
+        }
+
         public static PlayCycleSession InsertPlayCycleSession(string siteGuid, int MediaFileID, int groupID, string UDID, int platform, int mediaConcurrencyRuleID, int domainID)
         {
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.SOCIAL);
@@ -4294,19 +4323,19 @@ namespace Tvinci.Core.DAL
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Failed InsertPlayCycleSession, userId: {0}, groupID: {1}, UDID: {2}, platform: {3}, mediaConcurrencyRuleID: {4}, playCycleKey: {5}, Exception: {6}", 
-                                 siteGuid, MediaFileID, groupID, UDID, platform, mediaConcurrencyRuleID, playCycleKey, ex.Message);                
+                log.ErrorFormat("Failed InsertPlayCycleSession, userId: {0}, groupID: {1}, UDID: {2}, platform: {3}, mediaConcurrencyRuleID: {4}, playCycleKey: {5}, mediaFileID: {6}, Exception: {7}", 
+                                 siteGuid, groupID, UDID, platform, mediaConcurrencyRuleID, playCycleKey, MediaFileID, ex.Message);                
             }
 
             if (playCycleSession == null)
             {
-                log.ErrorFormat("Error in InsertPlayCycleSession, playCycleSession is null. userId: {0}, groupID: {1}, UDID: {2}, platform: {3}, mediaConcurrencyRuleID: {4}, playCycleKey: {5}",
-                                 siteGuid, MediaFileID, groupID, UDID, platform, mediaConcurrencyRuleID, playCycleKey);      
+                log.ErrorFormat("Error in InsertPlayCycleSession, playCycleSession is null. userId: {0}, groupID: {1}, UDID: {2}, platform: {3}, mediaConcurrencyRuleID: {4}, playCycleKey: {5}, mediaFileID: {6}",
+                                 siteGuid, groupID, UDID, platform, mediaConcurrencyRuleID, playCycleKey, MediaFileID);      
             }
             return playCycleSession;
         }        
 
-        public static PlayCycleSession GetUserPlayCycle(string siteGuid, int mediaID, int MediaFileID, int groupID, string UDID, int platform)
+        public static PlayCycleSession GetUserPlayCycle(string siteGuid, int MediaFileID, int groupID, string UDID, int platform)
         {
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.SOCIAL);
 
@@ -4321,8 +4350,14 @@ namespace Tvinci.Core.DAL
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Failed InsertOrUpdatePlayCycle, userId: {0}, mediaID: {1}, mediaFileID: {2}, groupID: {3}, UDID: {4}, platform: {5}, Exception: {6}",
-                                 siteGuid, mediaID, MediaFileID, groupID, UDID, platform, ex.Message);
+                log.ErrorFormat("Failed GetUserPlayCycle, userId: {0}, groupID: {1}, UDID: {2}, platform: {3}, mediaFileID: {4}, Exception: {5}",
+                                 siteGuid, groupID, UDID, platform, MediaFileID, ex.Message);
+            }
+
+            if (playCycleSession == null)
+            {
+                log.ErrorFormat("Error in GetUserPlayCycle, playCycleSession is null. userId: {0}, groupID: {1}, UDID: {2}, platform: {3}, mediaFileID: {4}",
+                                 siteGuid, groupID, UDID, platform, MediaFileID);
             }
 
             return playCycleSession;

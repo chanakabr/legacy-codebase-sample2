@@ -528,6 +528,7 @@ namespace ApiObjects
         Login = 0,
         Logout = 1,
         AnonymousPushRegistration = 2,
-        IdentifyPushRegistration = 3
+        IdentifyPushRegistration = 3,
+        DeleteUser = 4
     }
 }

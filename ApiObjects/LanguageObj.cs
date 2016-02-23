@@ -1,22 +1,47 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace ApiObjects
 {
-
     [Serializable]
     public class LanguageObj
     {
-        public int ID { get; set; }
-        public string Name { get; set; }
+        [JsonProperty()]
+        public int ID
+        {
+            get;
+            set;
+        }
+        [JsonProperty()]
+        public string Name
+        {
+            get;
+            set;
+        }
         /// <summary>
         /// 3 Letters code of language
         /// </summary>
-        public string Code { get; set; }
-        public string Direction { get; set; }
-        public bool IsDefault { get; set; }
+        [JsonProperty()]
+        public string Code
+        {
+            get;
+            set;
+        }
+        [JsonProperty()]
+        public string Direction
+        {
+            get;
+            set;
+        }
+        [JsonProperty()]
+        public bool IsDefault
+        {
+            get;
+            set;
+        }
 
         public LanguageObj()
         {

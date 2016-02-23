@@ -101,6 +101,7 @@ namespace ApiObjects.Response
         FileToMediaMismatch = 3028,
         ReconciliationFrequencyLimitation = 3029,
         InvalidCustomDataIdentifier = 3030,
+        InvalidFileType = 3031,
 
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,
@@ -220,6 +221,7 @@ namespace ApiObjects.Response
         AnnouncementUpdateNotAllowed = 8007,
         AnnouncementInvalidTimezone = 8008,
         FeatureDisabled = 8009,
-        AnnouncementMessageTooLong = 8010
+        AnnouncementMessageTooLong = 8010,
+        FailCreateAnnouncement = 8011
     }
 }

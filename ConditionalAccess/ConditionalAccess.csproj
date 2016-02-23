@@ -557,6 +557,9 @@
     <None Include="Web References\TvinciPricing\MediaFilePPVContainer.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\TvinciPricing\PPVModuleResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\TvinciPricing\PreviewModule.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -647,10 +650,10 @@
       <RelPath>Web References\TvinciPricing\</RelPath>
       <UpdateFromURL>http://localhost/ws_Pricing/module.asmx</UpdateFromURL>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/WS_Pricing/module.asmx">
+    <WebReferenceUrl Include="http://localhost/Pricing_For_Sunny/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPricing\</RelPath>
-      <UpdateFromURL>http://localhost/WS_Pricing/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost/Pricing_For_Sunny/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

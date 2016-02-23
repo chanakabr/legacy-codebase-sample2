@@ -142,12 +142,16 @@
     <Compile Include="MessageQueue.cs" />
     <Compile Include="ExternalChannel\ExternalChannelResponse.cs" />
     <Compile Include="ExternalChannel\ExternalChannelResponseList.cs" />
+    <Compile Include="PersonalEnrichments\UserBundlesResponse.cs" />
+    <Compile Include="PersonalEnrichments\UserPurhcasedAssetsResponse.cs" />
+    <Compile Include="QueueObjects\FreeItemUpdateData.cs" />
     <Compile Include="OSSAdapter\OSSAdapterEntitlementsResponse.cs" />
     <Compile Include="PlayCycle\UserPlayCycle.cs" />
     <Compile Include="PurchaseSessionIdResponse.cs" />
     <Compile Include="QueueObjects\ImageUploadData.cs" />
     <Compile Include="QueueObjects\ExportTaskData.cs" />
     <Compile Include="QueueObjects\MessageAnnouncementData.cs" />
+    <Compile Include="QueueObjects\UserNotificationData.cs" />
     <Compile Include="RecommendationEngine\RecommendationEngineResponse.cs" />
     <Compile Include="RecommendationEngine\RecommendationEngineResponseList.cs" />
     <Compile Include="RecommendationEngine\RecommendationEngineSettinsResponse.cs" />
@@ -295,6 +299,7 @@
     <Compile Include="SearchObjects\ChannelContainObj.cs" />
     <Compile Include="SearchObjects\ChannelContainSearchObj.cs" />
     <Compile Include="SearchObjects\ChannelObj.cs" />
+    <Compile Include="SearchObjects\EntitlementSearchDefinitions.cs" />
     <Compile Include="SearchObjects\EpgParams.cs" />
     <Compile Include="SearchObjects\EpgResultsObj.cs" />
     <Compile Include="SearchObjects\EpgSearchObj.cs" />

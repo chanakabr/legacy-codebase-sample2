@@ -45,6 +45,21 @@ namespace ApiObjects.SearchObjects
         /// </summary>
         public int geoBlockRule;
 
+        /// <summary>
+        /// Media file types that are currently free to watch for everyone
+        /// </summary>
+        public List<int> freeFileTypes;
+
+        /// <summary>
+        /// If the media is free or not
+        /// </summary>
+        public bool isFree;
+
+        /// <summary>
+        /// EPG identifier (if this is a linear channel)
+        /// </summary>
+        public string epgIdentifier;
+
         #endregion
 
         #region Ctor
@@ -81,6 +96,9 @@ namespace ApiObjects.SearchObjects
             m_dMeatsValues = new Dictionary<string, string>();
             m_dTagValues = new Dictionary<string, Dictionary<long, string>>();
             regions = new List<int>();
+            freeFileTypes = new List<int>();
+
+            epgIdentifier = null;
         }
 
         #endregion
@@ -110,7 +128,8 @@ namespace ApiObjects.SearchObjects
                 m_sStartDate = this.m_sStartDate,
                 m_sUpdateDate = this.m_sUpdateDate,
                 m_sUserTypes = this.m_sUserTypes,
-                geoBlockRule = this.geoBlockRule
+                geoBlockRule = this.geoBlockRule,
+                epgIdentifier = this.epgIdentifier
             };
 
             clone.m_dMeatsValues = (from meta in this.m_dMeatsValues select meta).ToDictionary(x => x.Key, x => x.Value);
@@ -129,6 +148,9 @@ namespace ApiObjects.SearchObjects
             }
 
             clone.regions.AddRange(this.regions);
+
+            clone.freeFileTypes = new List<int>();
+            clone.freeFileTypes.AddRange(this.freeFileTypes);
 
             return clone;
         }

@@ -1109,7 +1109,7 @@ namespace ConditionalAccess
                     nPPVPurchaseCount = ConditionalAccessDAL.Get_PPVPurchaseCount(nGroupID, sSiteGUID, subCode, nMediaFileID);
                 }
                 p = GetPriceAfterDiscount(p, discModule, nPPVPurchaseCount);
-                
+
                 dtDiscountEnd = discModule.m_dEndDate;
             }
 
@@ -1547,7 +1547,7 @@ namespace ConditionalAccess
 
         internal static TvinciPricing.Price GetMediaFileFinalPriceForNonGetItemsPrices(Int32 nMediaFileID, TvinciPricing.PPVModule ppvModule, string sSiteGUID, string sCouponCode, Int32 nGroupID,
                                                                                        ref PriceReason theReason, ref TvinciPricing.Subscription relevantSub, ref TvinciPricing.Collection relevantCol,
-                                                                                       ref TvinciPricing.PrePaidModule relevantPP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, 
+                                                                                       ref TvinciPricing.PrePaidModule relevantPP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME,
                                                                                        bool shouldIgnoreBundlePurchases = false)
         {
             Dictionary<int, int> mediaFileTypesMapping = null;
@@ -1708,8 +1708,8 @@ namespace ConditionalAccess
         internal static bool IsAnonymousUser(string siteGuid)
         {
             int userID = 0;
-            return (!int.TryParse(siteGuid, out userID) || userID <= 0);            
-        }        
+            return (!int.TryParse(siteGuid, out userID) || userID <= 0);
+        }
 
         internal static TvinciPricing.Price GetMediaFileFinalPrice(Int32 nMediaFileID, MediaFileStatus eMediaFileStatus, TvinciPricing.PPVModule ppvModule, string sSiteGUID,
             string sCouponCode, Int32 nGroupID, bool bIsValidForPurchase, ref PriceReason theReason, ref TvinciPricing.Subscription relevantSub,
@@ -1717,7 +1717,7 @@ namespace ConditionalAccess
             string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sClientIP, Dictionary<int, int> mediaFileTypesMapping,
             List<int> allUserIDsInDomain, int nMediaFileTypeID, string sAPIUsername, string sAPIPassword, string sPricingUsername,
             string sPricingPassword, ref bool bCancellationWindow, ref string purchasedBySiteGuid, ref int purchasedAsMediaFileID,
-            ref List<int> relatedMediaFileIDs, ref DateTime? p_dtStartDate, ref DateTime? p_dtEndDate, ref DateTime? dtDiscountEndDate, int domainID, UserEntitlementsObject userEntitlements = null, 
+            ref List<int> relatedMediaFileIDs, ref DateTime? p_dtStartDate, ref DateTime? p_dtEndDate, ref DateTime? dtDiscountEndDate, int domainID, UserEntitlementsObject userEntitlements = null,
             int mediaID = 0, TvinciUsers.DomainSuspentionStatus userSuspendStatus = TvinciUsers.DomainSuspentionStatus.Suspended, bool shouldCheckUserStatus = true, bool shouldIgnoreBundlePurchases = false)
         {
             if (ppvModule == null)
@@ -1888,7 +1888,7 @@ namespace ConditionalAccess
                         collPurchase = userEntitlements.userBundleEntitlements.EntitledCollections;
                         GetUserValidBundles(mediaID, nMediaFileID, eMediaFileStatus, nGroupID, fileTypes, allUserIDsInDomain, sPricingUsername, sPricingPassword, relatedMediaFileIDs, subsPurchase,
                                             collPurchase, userEntitlements.userBundleEntitlements.FileTypeIdToSubscriptionMappings, userEntitlements.userBundleEntitlements.SubscriptionsData,
-                                            userEntitlements.userBundleEntitlements.CollectionsData, userEntitlements.userBundleEntitlements.ChannelsToSubscriptionMappings, 
+                                            userEntitlements.userBundleEntitlements.CollectionsData, userEntitlements.userBundleEntitlements.ChannelsToSubscriptionMappings,
                                             userEntitlements.userBundleEntitlements.ChannelsToCollectionsMappings, ref relevantValidSubscriptions, ref relevantValidCollections);
                     }
                     else
@@ -3163,11 +3163,11 @@ namespace ConditionalAccess
         internal static bool IsUserValid(string siteGuid, int groupID, ref int domainID, ref TvinciUsers.DomainSuspentionStatus eSuspnedStatus)
         {
             bool res = false;
-            
+
             long temp = 0;
             if (!Int64.TryParse(siteGuid, out temp) || temp < 1)
                 return false;
-            
+
             string wsUsername = string.Empty;
             string wsPassword = string.Empty;
             Utils.GetWSCredentials(groupID, eWSModules.USERS, ref wsUsername, ref wsPassword);
@@ -3527,7 +3527,7 @@ namespace ConditionalAccess
             return res;
         }
 
-        internal static void InitializeUsersEntitlements(int m_nGroupID, int domainID, List<int> allUsersInDomain, TvinciAPI.MeidaMaper[] mapper, UserEntitlementsObject.PPVEntitlements userPpvEntitlements)                                
+        internal static void InitializeUsersEntitlements(int m_nGroupID, int domainID, List<int> allUsersInDomain, TvinciAPI.MeidaMaper[] mapper, UserEntitlementsObject.PPVEntitlements userPpvEntitlements)
         {
             // Get all user entitlements
             userPpvEntitlements.EntitlementsDictionary = ConditionalAccessDAL.Get_AllUsersEntitlements(domainID, allUsersInDomain);
@@ -3560,7 +3560,7 @@ namespace ConditionalAccess
                 }
             }
             else
-            {                
+            {
                 foreach (int mediaFileID in mediaIdGroupFileTypeMappings.Where(dic => dic.Key.StartsWith(mediaID.ToString())).Select(dic => dic.Value).ToList<int>())
                 {
                     relatedFileTypes.Add(mediaFileID);
@@ -3664,7 +3664,7 @@ namespace ConditionalAccess
                     {
                         sb.Append(String.Concat(lstUserIDs[i], ", "));
                     }
-                }                
+                }
                 else
                 {
                     sb.Append(" User IDs is null or empty. ");
@@ -3909,7 +3909,7 @@ namespace ConditionalAccess
                     if (subscriptionsData[subsCode].m_sCodes != null)
                     {
                         foreach (BundleCodeContainer bundleCode in subscriptionsData[subsCode].m_sCodes)
-                        {                            
+                        {
                             int channelID;
                             if (int.TryParse(bundleCode.m_sCode, out channelID))
                                 channelsToCheck.Add(channelID);
@@ -4030,6 +4030,27 @@ namespace ConditionalAccess
             }
         }
 
+        internal static bool ValidateFileTypesConatainedInGroup(int m_nGroupID, int[] fileTypeIDs)
+        {
+            bool isContained = true;
+            // isContained set to true incase we want to ignore filetypeIDs (sent as null or empty)
+            if (fileTypeIDs != null && fileTypeIDs.Length > 0)
+            {
+                // Get all the group file types
+                Dictionary<int, int> groupFileTypes = ConditionalAccessDAL.Get_GroupMediaTypesIDs(m_nGroupID);
+                if (groupFileTypes != null && groupFileTypes.Count > 0)
+                {
+                    // Validate that all the fileTypeIDs in the request are contained in the groupFileTypes
+                    if (groupFileTypes.Keys.Intersect(fileTypeIDs).Count() != fileTypeIDs.Length)
+                    {
+                        isContained = false;
+                    }
+                }
+            }
+
+            return isContained;
+        }
+
         internal static ApiObjects.Response.Status ValidateUserAndDomain(int groupId, string siteGuid, ref long householdId)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
@@ -4101,6 +4122,31 @@ namespace ConditionalAccess
                 status = ValidateDomain(groupId, (int)householdId);
             }
             return status;
+        }
+
+        internal static List<int> GetChannelsListFromSubscriptions(List<Subscription> subscriptions)
+        {
+            List<int> channelsList = new List<int>();
+            if (subscriptions != null && subscriptions.Count > 0)
+            {
+                foreach (Subscription subscription in subscriptions)
+                {
+                    if (subscription.m_sCodes != null)
+                    {
+                        // Get channels from subscriptions
+                        foreach (BundleCodeContainer bundleCode in subscription.m_sCodes)
+                        {
+                            int channelID;
+                            if (int.TryParse(bundleCode.m_sCode, out channelID) && !channelsList.Contains(channelID))
+                            {
+                                channelsList.Add(channelID);
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return channelsList;
         }
 
     }

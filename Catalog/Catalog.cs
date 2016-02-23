@@ -907,14 +907,11 @@ namespace Catalog
         /// <param name="request"></param>
         /// <param name="totalItems"></param>
         /// <returns></returns>
-        public static List<UnifiedSearchResult> GetAssetIdFromSearcher(UnifiedSearchRequest request, ref int totalItems)
+        public static List<UnifiedSearchResult> GetAssetIdFromSearcher(UnifiedSearchRequest request, ref int totalItems, ref int to)
         {
             List<UnifiedSearchResult> searchResultsList = new List<UnifiedSearchResult>();
             totalItems = 0;
-
-            ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
-            UnifiedSearchDefinitions searchDefinitions = null;
-
+            
             // Group have user types per media  +  siteGuid != empty
             if (!string.IsNullOrEmpty(request.m_sSiteGuid) && Utils.IsGroupIDContainedInConfig(request.m_nGroupID, "GroupIDsWithIUserTypeSeperatedBySemiColon", ';'))
             {
@@ -927,13 +924,15 @@ namespace Catalog
                 request.m_oFilter.m_nUserTypeID = Utils.GetUserType(request.m_sSiteGuid, request.m_nGroupID);
             }
 
-            searchDefinitions = BuildUnifiedSearchObject(request);
+            UnifiedSearchDefinitions searchDefinitions = BuildUnifiedSearchObject(request);
+
+            ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
 
             if (searcher != null)
             {
                 SetLanguageDefinition(request.m_nGroupID, request.m_oFilter, searchDefinitions);
 
-                List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(searchDefinitions, ref totalItems);
+                List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(searchDefinitions, ref totalItems, ref to);
 
                 if (searchResults != null)
                 {
@@ -1000,144 +999,15 @@ namespace Catalog
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        private static UnifiedSearchDefinitions BuildUnifiedSearchObject(UnifiedSearchRequest request)
+        internal static UnifiedSearchDefinitions BuildUnifiedSearchObject(UnifiedSearchRequest request)
         {
-            UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
+            UnifiedSearchDefinitionsCache definitionsCache = new UnifiedSearchDefinitionsCache();
 
-            CatalogCache catalogCache = CatalogCache.Instance();
-            int parentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
-
-            GroupManager groupManager = new GroupManager();
-            Group group = groupManager.GetGroup(parentGroupID);
-
-            if (request.filterTree != null)
-            {
-                UpdateNodeTreeFields(request, ref request.filterTree, definitions, group);
-            }
-
-            // Get days offset for EPG search from TCM
-            definitions.epgDaysOffest = Catalog.GetCurrentRequestDaysOffset();
-
-            #region Filter & Order
-
-            if (request.m_oFilter != null)
-            {
-                definitions.shouldUseStartDate = request.m_oFilter.m_bUseStartDate;
-                definitions.shouldUseFinalEndDate = request.m_oFilter.m_bUseFinalDate;
-                definitions.userTypeID = request.m_oFilter.m_nUserTypeID;
-                definitions.deviceRuleId = ProtocolsFuncs.GetDeviceAllowedRuleIDs(request.m_oFilter.m_sDeviceId, request.m_nGroupID).ToArray();
-            }
-
-            OrderObj order = new OrderObj();
-            order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.NONE;
-            order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
-
-            GetOrderValues(ref order, request.order);
-
-            if (order.m_eOrderBy == ApiObjects.SearchObjects.OrderBy.META && string.IsNullOrEmpty(order.m_sOrderValue))
-            {
-                order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.CREATE_DATE;
-                order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
-            }
-
-            definitions.order = new OrderObj();
-            definitions.order.m_eOrderDir = order.m_eOrderDir;
-            definitions.order.m_eOrderBy = order.m_eOrderBy;
-            definitions.order.m_sOrderValue = order.m_sOrderValue;
-            definitions.groupId = request.m_nGroupID;
-            definitions.permittedWatchRules = GetPermittedWatchRules(request.m_nGroupID);
-            definitions.filterPhrase = request.filterTree;
-
-            #endregion
-
-            #region Asset Types
-
-            // Special case - if no type was specified or "All" is contained, search all types
-            if (request.assetTypes == null || request.assetTypes.Count == 0)
-            {
-                definitions.shouldSearchEpg = true;
-                definitions.shouldSearchMedia = true;
-            }
-            else
-            {
-                definitions.mediaTypes = new List<int>(request.assetTypes);
-            }
-
-            // 0 - hard coded for EPG
-            if (definitions.mediaTypes.Remove(0))
-            {
-                definitions.shouldSearchEpg = true;
-            }
-
-            // If there are items left in media types after removing 0, we are searching for media
-            if (definitions.mediaTypes.Count > 0)
-            {
-                definitions.shouldSearchMedia = true;
-            }
-
-            HashSet<int> mediaTypes = new HashSet<int>(group.GetMediaTypes());
-
-            // Validate that the media types in the "assetTypes" list exist in the group's list of media types
-            foreach (var mediaType in definitions.mediaTypes)
-            {
-                // If one of them doesn't exist, throw an exception that says the request is bad
-                if (!mediaTypes.Contains(mediaType))
-                {
-                    throw new KalturaException(string.Format("Invalid media type was sent: {0}", mediaType), (int)eResponseStatus.BadSearchRequest);
-                }
-            }
-
-            #endregion
-
-            #region Regions
-
-            List<int> regionIds;
-            List<string> linearMediaTypes;
-
-            Catalog.SetSearchRegions(request.m_nGroupID, request.domainId, request.m_sSiteGuid, out regionIds, out linearMediaTypes);
-
-            definitions.regionIds = regionIds;
-            definitions.linearChannelMediaTypes = linearMediaTypes;
-
-            #endregion
-
-            Catalog.GetParentMediaTypesAssociations(request.m_nGroupID,
-                out definitions.parentMediaTypes, out definitions.associationTags,
-                definitions.mediaTypes, definitions.mediaTypes.Count == 0, groupManager);
-
-            #region Personal Filters
-
-            //if (request.personalFilters != null)
-            //{
-            //    // Get geo block rules that the user is allowed to watch
-            //    if (request.personalFilters.Contains(ePersonalFilter.GeoBlockRules))
-            //    {
-            //        if (geoBlockRules == null)
-            //        {
-            //            geoBlockRules = GetGeoBlockRules(request.m_nGroupID, request.m_sUserIP);
-            //        }
-
-            //        definitions.geoBlockRules = geoBlockRules;
-            //    }
-
-            //    // Get parental rules tags that user is NOT allowed to see
-            //    if (request.personalFilters.Contains(ePersonalFilter.ParentalRules))
-            //    {
-            //        if (mediaParentalRulesTags == null || epgParentalRulesTags == null)
-            //        {
-            //            Catalog.GetParentalRulesTags(request.m_nGroupID, request.m_sSiteGuid,
-            //                out mediaParentalRulesTags, out epgParentalRulesTags);
-            //        }
-
-            //        definitions.mediaParentalRulesTags = mediaParentalRulesTags;
-            //        definitions.epgParentalRulesTags = epgParentalRulesTags;
-            //    }
-            //}
-
-            #endregion
+            UnifiedSearchDefinitions definitions = definitionsCache.GetDefinitions(request);
 
             definitions.pageIndex = request.m_nPageIndex;
             definitions.pageSize = request.m_nPageSize;
+            definitions.from = request.from;
 
             return definitions;
         }
@@ -2306,7 +2176,7 @@ namespace Catalog
             return sRules;
         }
 
-        private static string GetPermittedWatchRules(int nGroupId)
+        internal static string GetPermittedWatchRules(int nGroupId)
         {
             return GetPermittedWatchRules(nGroupId, null);
         }
@@ -4904,8 +4774,9 @@ namespace Catalog
                 {
                     SetLanguageDefinition(request.m_nGroupID, request.m_oFilter, searchDefinitions);
 
+                    int to = 0;
                     // The provided response should be filtered according to the Filter defined in the applicable 3rd-party channel settings
-                    List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(searchDefinitions, ref totalItems);
+                    List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(searchDefinitions, ref totalItems, ref to);
 
                     if (searchResults != null)
                     {
@@ -5383,8 +5254,10 @@ namespace Catalog
                 return new Status((int)eResponseStatus.Error, "Failed getting instance of searcher");
             }
 
+            int to = 0;
+
             // Perform initial search of channel
-            searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems);
+            searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to);
 
             if (searchResults == null)
             {
@@ -5507,8 +5380,10 @@ namespace Catalog
                 return new Status((int)eResponseStatus.Error, "Failed getting instance of searcher");
             }
 
+            int to = 0;
+
             // Perform initial search of channel
-            searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems);
+            searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to);
 
             if (searchResults == null)
             {
@@ -5695,7 +5570,7 @@ namespace Catalog
         /// <param name="filterTree"></param>
         /// <param name="definitions"></param>
         /// <param name="group"></param>
-        private static void UpdateNodeTreeFields(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions, Group group)
+        internal static void UpdateNodeTreeFields(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions, Group group)
         {
             if (group != null)
             {
@@ -5907,6 +5782,46 @@ namespace Catalog
                         {
                             throw new KalturaException("Invalid search value or operator was sent for parental_rules", (int)eResponseStatus.BadSearchRequest);
                         }
+                    }
+                    else if (searchKeyLowered == ESUnifiedQueryBuilder.ENTITLED_ASSETS_FIELD)
+                    {
+                        // Same as geo_block: it is a personal filter that currently will work only with "true".
+                        if (leaf.operand != ComparisonOperator.Equals)
+                        {
+                            throw new KalturaException("Invalid search value or operator was sent for entitled_assets", (int)eResponseStatus.BadSearchRequest);
+                        }
+
+                        string loweredValue = leaf.value.ToString().ToLower();
+
+                        definitions.entitlementSearchDefinitions = new EntitlementSearchDefinitions();
+
+                        switch (loweredValue)
+                        {
+                            case ("free"):
+                            {
+                                definitions.entitlementSearchDefinitions.shouldGetFreeAssets = true;
+                                break;
+                            }
+                            case ("entitled"):
+                            {
+                                definitions.entitlementSearchDefinitions.shouldGetPurchasedAssets = true;
+                                break;
+                            }
+                            case ("both"):
+                            {
+                                definitions.entitlementSearchDefinitions.shouldGetFreeAssets = true;
+                                definitions.entitlementSearchDefinitions.shouldGetPurchasedAssets = true;
+                                break;
+                            }
+                            default:
+                            {
+                                definitions.entitlementSearchDefinitions = null;
+                                throw new KalturaException("Invalid search value or operator was sent for entitled_assets", (int)eResponseStatus.BadSearchRequest);
+                            }
+                        }
+
+                        // I mock a "contains" operator so that the query builder will know it is a not-exact search
+                        leaf.operand = ComparisonOperator.Contains;
                     }
                     else if (reservedUnifiedSearchNumericFields.Contains(searchKeyLowered))
                     {
