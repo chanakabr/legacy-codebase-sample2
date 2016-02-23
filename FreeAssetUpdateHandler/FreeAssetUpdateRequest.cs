@@ -33,11 +33,5 @@ namespace FreeAssetUpdateHandler
             set;
         }
 
-        [JsonProperty("module_ids", Required = Required.Always)]
-        public List<int> ModuleIds
-        {
-            get;
-            set;
-        }
     }
 }

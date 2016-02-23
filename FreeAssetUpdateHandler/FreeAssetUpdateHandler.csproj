@@ -39,6 +39,8 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -54,12 +56,12 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="TaskHandler.cs" />
-    <Compile Include="Web References\WS_CAS\Reference.cs">
+    <Compile Include="Service References\WS_Catalog\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.map</DependentUpon>
+      <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
+    <Compile Include="TaskHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\TvmCore\ApiObjects\ApiObjects.csproj">
@@ -90,119 +92,90 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://localhost:82/ws_cas/module.asmx">
-      <UrlBehavior>Dynamic</UrlBehavior>
-      <RelPath>Web References\WS_CAS\</RelPath>
-      <UpdateFromURL>http://localhost:82/ws_cas/module.asmx</UpdateFromURL>
-      <ServiceLocationURL>
-      </ServiceLocationURL>
-      <CachedDynamicPropName>
-      </CachedDynamicPropName>
-      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
-      <CachedSettingsPropName>FreeAssetUpdateHandler_WS_CAS_module</CachedSettingsPropName>
-    </WebReferenceUrl>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="app.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <None Include="Web References\WS_CAS\AssetItemPriceResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
+    <None Include="Service References\WS_Catalog\FreeAssetUpdateHandler.WS_Catalog.BaseResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Web References\WS_CAS\BillingResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
+    <None Include="Service References\WS_Catalog\FreeAssetUpdateHandler.WS_Catalog.EpgProgramResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Web References\WS_CAS\BillingStatusResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
+    <None Include="Service References\WS_Catalog\FreeAssetUpdateHandler.WS_Catalog.MediaResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Web References\WS_CAS\BillingTransactions.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
+    <None Include="Service References\WS_Catalog\FreeAssetUpdateHandler.WS_Catalog.Response.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Web References\WS_CAS\CampaignActionInfo.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
+    <None Include="Service References\WS_Catalog\Service.wsdl" />
+    <None Include="Service References\WS_Catalog\Service.xsd">
+      <SubType>Designer</SubType>
     </None>
-    <None Include="Web References\WS_CAS\ChangeSubscriptionStatus.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
+    <None Include="Service References\WS_Catalog\Service1.wsdl" />
+    <None Include="Service References\WS_Catalog\Service1.xsd">
+      <SubType>Designer</SubType>
     </None>
-    <None Include="Web References\WS_CAS\CollectionsPricesContainer.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
+    <None Include="Service References\WS_Catalog\Service10.xsd">
+      <SubType>Designer</SubType>
     </None>
-    <None Include="Web References\WS_CAS\DomainsBillingTransactionsResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
+    <None Include="Service References\WS_Catalog\Service11.xsd">
+      <SubType>Designer</SubType>
     </None>
-    <None Include="Web References\WS_CAS\DomainServicesResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
+    <None Include="Service References\WS_Catalog\Service12.xsd">
+      <SubType>Designer</SubType>
     </None>
-    <None Include="Web References\WS_CAS\DomainTransactionsHistoryResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
+    <None Include="Service References\WS_Catalog\Service13.xsd">
+      <SubType>Designer</SubType>
     </None>
-    <None Include="Web References\WS_CAS\EntitlementResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
+    <None Include="Service References\WS_Catalog\Service14.xsd">
+      <SubType>Designer</SubType>
     </None>
-    <None Include="Web References\WS_CAS\Entitlements.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
+    <None Include="Service References\WS_Catalog\Service15.xsd">
+      <SubType>Designer</SubType>
     </None>
-    <None Include="Web References\WS_CAS\LicensedLinkResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
+    <None Include="Service References\WS_Catalog\Service2.xsd">
+      <SubType>Designer</SubType>
     </None>
-    <None Include="Web References\WS_CAS\MediaFileItemPricesContainer.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
+    <None Include="Service References\WS_Catalog\Service3.xsd">
+      <SubType>Designer</SubType>
     </None>
-    <None Include="Web References\WS_CAS\MediaFileItemPricesContainerResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
+    <None Include="Service References\WS_Catalog\Service4.xsd">
+      <SubType>Designer</SubType>
     </None>
-    <None Include="Web References\WS_CAS\module.disco" />
-    <None Include="Web References\WS_CAS\module.wsdl" />
-    <None Include="Web References\WS_CAS\NPVRResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
+    <None Include="Service References\WS_Catalog\Service5.xsd">
+      <SubType>Designer</SubType>
     </None>
-    <None Include="Web References\WS_CAS\PermittedCollectionContainer.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
+    <None Include="Service References\WS_Catalog\Service6.xsd">
+      <SubType>Designer</SubType>
     </None>
-    <None Include="Web References\WS_CAS\PermittedMediaContainer.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
+    <None Include="Service References\WS_Catalog\Service7.xsd">
+      <SubType>Designer</SubType>
     </None>
-    <None Include="Web References\WS_CAS\PermittedMediaContainerResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
+    <None Include="Service References\WS_Catalog\Service8.xsd">
+      <SubType>Designer</SubType>
     </None>
-    <None Include="Web References\WS_CAS\PermittedSubscriptionContainer.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
+    <None Include="Service References\WS_Catalog\Service9.xsd">
+      <SubType>Designer</SubType>
     </None>
-    <None Include="Web References\WS_CAS\PrePaidHistoryResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\WS_CAS\PrePaidPricesContainer.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\WS_CAS\PrePaidResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\WS_CAS\Reference.map">
-      <Generator>MSDiscoCodeGenerator</Generator>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Service References\WS_Catalog\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\WS_Catalog\Service.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\WS_Catalog\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\WS_Catalog\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\WS_Catalog\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-    <None Include="Web References\WS_CAS\Status.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\WS_CAS\SubscriptionsPricesContainer.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\WS_CAS\SubscriptionsPricesResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\WS_CAS\TransactionResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\WS_CAS\UserBillingTransactionsResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\WS_CAS\UserCAStatus.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
-    <None Include="Web References\WS_CAS\UserPrePaidContainer.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
     </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

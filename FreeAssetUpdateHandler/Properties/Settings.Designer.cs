@@ -22,15 +22,5 @@ namespace FreeAssetUpdateHandler.Properties {
                 return defaultInstance;
             }
         }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost:82/ws_cas/module.asmx")]
-        public string FreeAssetUpdateHandler_WS_CAS_module {
-            get {
-                return ((string)(this["FreeAssetUpdateHandler_WS_CAS_module"]));
-            }
-        }
     }
 }

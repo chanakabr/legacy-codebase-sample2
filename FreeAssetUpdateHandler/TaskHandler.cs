@@ -1,11 +1,12 @@
-﻿using FreeAssetUpdateHandler.WS_CAS;
-using KLogMonitor;
+﻿using KLogMonitor;
 using Newtonsoft.Json;
 using RemoteTasksCommon;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.ServiceModel;
+using System.ServiceModel.Channels;
 using System.Text;
 using TVinciShared;
 
@@ -18,71 +19,40 @@ namespace FreeAssetUpdateHandler
         public string HandleTask(string data)
         {
             string res = "failure";
-
+            WS_Catalog.IserviceClient client = null;            
             try
             {
-                log.InfoFormat("starting free asset handler request. data={0}", data);
+                log.InfoFormat("starting free asset index update handler request. data={0}", data);
 
                 FreeAssetUpdateRequest request = JsonConvert.DeserializeObject<FreeAssetUpdateRequest>(data);
-
-                string url = WS_Utils.GetTcmConfigValue("WS_CAS");
-                string username = string.Empty;
-                string password = string.Empty;
-
-                TasksCommon.RemoteTasksUtils.GetCredentials(request.GroupID, ref username, ref password, ApiObjects.eWSModules.CONDITIONALACCESS);
-
-                module cas = new module();
-
-                if (!string.IsNullOrEmpty(url))
+                if (request.AssetIds != null && request.AssetIds.Count > 0 && request.GroupID > 0)
                 {
-                    cas.Url = url;
-                }
-
-                bool success = false;
-                eObjectType type = eObjectType.Unknown;
-
-                switch (request.Type)
-                {
-                    case ApiObjects.eObjectType.Media:
+                    string sWSURL = WS_Utils.GetTcmConfigValue("WS_Catalog");
+                    if (!string.IsNullOrEmpty(sWSURL))
                     {
-                        type = eObjectType.Media;
-                        break;
+                        client = new WS_Catalog.IserviceClient();
+                        client.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
+                        bool isUpdateIndexSucceeded = client.UpdateIndex(request.AssetIds.ToArray(), request.GroupID, ApiObjects.eAction.Update);
+                        if (isUpdateIndexSucceeded)
+                        {
+                            res = "success";
+                        }
                     }
-                    case ApiObjects.eObjectType.Channel:
-                    {
-                        type = eObjectType.Channel;
-                        break;
-                    }
-                    case ApiObjects.eObjectType.EPG:
-                    {
-                        type = eObjectType.EPG;
-                        break;
-                    }
-                    case ApiObjects.eObjectType.Unknown:
-                    default:
-                    break;
-                }
-
-                Status status = cas.UpdateFreeFileTypesIndex(username, password,
-                    type, request.AssetIds.ToArray(), request.ModuleIds.ToArray());
-
-                if (status != null && status.Code == 0)
-                {
-                    success = true;
-                }
-
-                if (!success)
-                {
-                    throw new Exception(string.Format("Failed performing update of free asset.", string.Empty));
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed performing update of free asset. data = {0} message = {1}, stack trace= {2}, target site = {3}", 
-                    data, ex.Message, ex.StackTrace, ex.TargetSite), ex);
+                log.Error(string.Format("Couldn't update index on catalog due to the following error {0}", ex.Message), ex);
                 throw ex;
             }
-            
+            finally
+            {
+                if (client != null)
+                {
+                    client.Close();
+                }
+            }
+
             return res;
         }
     }
