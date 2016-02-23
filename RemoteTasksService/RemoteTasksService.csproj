@@ -167,6 +167,10 @@
       <Project>{ccf6860a-ae92-4f4b-8e05-cba885a959d8}</Project>
       <Name>ImageUploadHandler</Name>
     </ProjectReference>
+    <ProjectReference Include="..\InitiateNotificationActionHandler\InitiateNotificationActionHandler.csproj">
+      <Project>{ef6f5898-9ae0-45d3-8fa9-19566d0b49cf}</Project>
+      <Name>InitiateNotificationActionHandler</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MessageAnnouncementHandler\MessageAnnouncementHandler.csproj">
       <Project>{665fc35c-073a-4099-8abf-296d1f3d1d24}</Project>
       <Name>MessageAnnouncementHandler</Name>

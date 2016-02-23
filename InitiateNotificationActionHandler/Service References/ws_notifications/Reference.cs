@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace MessageAnnouncementHandler.ws_notifications {
+namespace InitiateNotificationActionHandler.ws_notifications {
     using System.Runtime.Serialization;
     using System;
     
@@ -80,7 +80,7 @@ namespace MessageAnnouncementHandler.ws_notifications {
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private MessageAnnouncementHandler.ws_notifications.NotificationRequestAction[] ActionsField;
+        private InitiateNotificationActionHandler.ws_notifications.NotificationRequestAction[] ActionsField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string AppNameField;
@@ -107,16 +107,16 @@ namespace MessageAnnouncementHandler.ws_notifications {
         private System.DateTime PublishDateField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private MessageAnnouncementHandler.ws_notifications.NotificationMessageStatus StatusField;
+        private InitiateNotificationActionHandler.ws_notifications.NotificationMessageStatus StatusField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private MessageAnnouncementHandler.ws_notifications.ExtraParams TagNotificationParamsField;
+        private InitiateNotificationActionHandler.ws_notifications.ExtraParams TagNotificationParamsField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string TitleField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private MessageAnnouncementHandler.ws_notifications.NotificationMessageType TypeField;
+        private InitiateNotificationActionHandler.ws_notifications.NotificationMessageType TypeField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string UdIDField;
@@ -125,7 +125,7 @@ namespace MessageAnnouncementHandler.ws_notifications {
         private long UserIDField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private MessageAnnouncementHandler.ws_notifications.NotificationMessageViewStatus ViewStatusField;
+        private InitiateNotificationActionHandler.ws_notifications.NotificationMessageViewStatus ViewStatusField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int nBadgeField;
@@ -144,7 +144,7 @@ namespace MessageAnnouncementHandler.ws_notifications {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public MessageAnnouncementHandler.ws_notifications.NotificationRequestAction[] Actions {
+        public InitiateNotificationActionHandler.ws_notifications.NotificationRequestAction[] Actions {
             get {
                 return this.ActionsField;
             }
@@ -261,7 +261,7 @@ namespace MessageAnnouncementHandler.ws_notifications {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public MessageAnnouncementHandler.ws_notifications.NotificationMessageStatus Status {
+        public InitiateNotificationActionHandler.ws_notifications.NotificationMessageStatus Status {
             get {
                 return this.StatusField;
             }
@@ -274,7 +274,7 @@ namespace MessageAnnouncementHandler.ws_notifications {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public MessageAnnouncementHandler.ws_notifications.ExtraParams TagNotificationParams {
+        public InitiateNotificationActionHandler.ws_notifications.ExtraParams TagNotificationParams {
             get {
                 return this.TagNotificationParamsField;
             }
@@ -300,7 +300,7 @@ namespace MessageAnnouncementHandler.ws_notifications {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public MessageAnnouncementHandler.ws_notifications.NotificationMessageType Type {
+        public InitiateNotificationActionHandler.ws_notifications.NotificationMessageType Type {
             get {
                 return this.TypeField;
             }
@@ -339,7 +339,7 @@ namespace MessageAnnouncementHandler.ws_notifications {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public MessageAnnouncementHandler.ws_notifications.NotificationMessageViewStatus ViewStatus {
+        public InitiateNotificationActionHandler.ws_notifications.NotificationMessageViewStatus ViewStatus {
             get {
                 return this.ViewStatusField;
             }
@@ -398,7 +398,7 @@ namespace MessageAnnouncementHandler.ws_notifications {
         
         private System.Collections.Generic.Dictionary<string, int[]> TagDictk__BackingFieldField;
         
-        private System.Collections.Generic.Dictionary<string, MessageAnnouncementHandler.ws_notifications.TagIDValue[]> dTagDictk__BackingFieldField;
+        private System.Collections.Generic.Dictionary<string, InitiateNotificationActionHandler.ws_notifications.TagIDValue[]> dTagDictk__BackingFieldField;
         
         private string dateFormatk__BackingFieldField;
         
@@ -436,7 +436,7 @@ namespace MessageAnnouncementHandler.ws_notifications {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute(Name="<dTagDict>k__BackingField", IsRequired=true)]
-        public System.Collections.Generic.Dictionary<string, MessageAnnouncementHandler.ws_notifications.TagIDValue[]> dTagDictk__BackingField {
+        public System.Collections.Generic.Dictionary<string, InitiateNotificationActionHandler.ws_notifications.TagIDValue[]> dTagDictk__BackingField {
             get {
                 return this.dTagDictk__BackingFieldField;
             }
@@ -714,7 +714,7 @@ namespace MessageAnnouncementHandler.ws_notifications {
         private int is_activeField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private MessageAnnouncementHandler.ws_notifications.SendVia sendViaField;
+        private InitiateNotificationActionHandler.ws_notifications.SendVia sendViaField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string siteGuidField;
@@ -746,7 +746,7 @@ namespace MessageAnnouncementHandler.ws_notifications {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public MessageAnnouncementHandler.ws_notifications.SendVia sendVia {
+        public InitiateNotificationActionHandler.ws_notifications.SendVia sendVia {
             get {
                 return this.sendViaField;
             }
@@ -899,7 +899,7 @@ namespace MessageAnnouncementHandler.ws_notifications {
         private long StartTimeField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private MessageAnnouncementHandler.ws_notifications.eAnnouncementStatus StatusField;
+        private InitiateNotificationActionHandler.ws_notifications.eAnnouncementStatus StatusField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string TimezoneField;
@@ -993,7 +993,7 @@ namespace MessageAnnouncementHandler.ws_notifications {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public MessageAnnouncementHandler.ws_notifications.eAnnouncementStatus Status {
+        public InitiateNotificationActionHandler.ws_notifications.eAnnouncementStatus Status {
             get {
                 return this.StatusField;
             }
@@ -1116,7 +1116,7 @@ namespace MessageAnnouncementHandler.ws_notifications {
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private MessageAnnouncementHandler.ws_notifications.MessageAnnouncement[] messageAnnouncementsField;
+        private InitiateNotificationActionHandler.ws_notifications.MessageAnnouncement[] messageAnnouncementsField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int totalCountField;
@@ -1132,7 +1132,7 @@ namespace MessageAnnouncementHandler.ws_notifications {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public MessageAnnouncementHandler.ws_notifications.MessageAnnouncement[] messageAnnouncements {
+        public InitiateNotificationActionHandler.ws_notifications.MessageAnnouncement[] messageAnnouncements {
             get {
                 return this.messageAnnouncementsField;
             }
@@ -1172,77 +1172,141 @@ namespace MessageAnnouncementHandler.ws_notifications {
     public interface INotificationService {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/AddNotificationRequest", ReplyAction="http://tempuri.org/INotificationService/AddNotificationRequestResponse")]
-        bool AddNotificationRequest(string sWSUserName, string sWSPassword, string siteGuid, MessageAnnouncementHandler.ws_notifications.NotificationTriggerType triggerType, int nMediaID);
+        bool AddNotificationRequest(string sWSUserName, string sWSPassword, string siteGuid, InitiateNotificationActionHandler.ws_notifications.NotificationTriggerType triggerType, int nMediaID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/AddNotificationRequest", ReplyAction="http://tempuri.org/INotificationService/AddNotificationRequestResponse")]
+        System.Threading.Tasks.Task<bool> AddNotificationRequestAsync(string sWSUserName, string sWSPassword, string siteGuid, InitiateNotificationActionHandler.ws_notifications.NotificationTriggerType triggerType, int nMediaID);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetDeviceNotifications", ReplyAction="http://tempuri.org/INotificationService/GetDeviceNotificationsResponse")]
-        MessageAnnouncementHandler.ws_notifications.NotificationMessage[] GetDeviceNotifications(string sWSUserName, string sWSPassword, string siteGuid, string sDeviceUDID, MessageAnnouncementHandler.ws_notifications.NotificationMessageType notificationType, MessageAnnouncementHandler.ws_notifications.NotificationMessageViewStatus viewStatus, System.Nullable<int> messageCount);
+        InitiateNotificationActionHandler.ws_notifications.NotificationMessage[] GetDeviceNotifications(string sWSUserName, string sWSPassword, string siteGuid, string sDeviceUDID, InitiateNotificationActionHandler.ws_notifications.NotificationMessageType notificationType, InitiateNotificationActionHandler.ws_notifications.NotificationMessageViewStatus viewStatus, System.Nullable<int> messageCount);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetDeviceNotifications", ReplyAction="http://tempuri.org/INotificationService/GetDeviceNotificationsResponse")]
+        System.Threading.Tasks.Task<InitiateNotificationActionHandler.ws_notifications.NotificationMessage[]> GetDeviceNotificationsAsync(string sWSUserName, string sWSPassword, string siteGuid, string sDeviceUDID, InitiateNotificationActionHandler.ws_notifications.NotificationMessageType notificationType, InitiateNotificationActionHandler.ws_notifications.NotificationMessageViewStatus viewStatus, System.Nullable<int> messageCount);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SetNotificationMessageViewStatus", ReplyAction="http://tempuri.org/INotificationService/SetNotificationMessageViewStatusResponse")]
-        bool SetNotificationMessageViewStatus(string sWSUserName, string sWSPassword, string siteGuid, System.Nullable<long> notificationRequestID, System.Nullable<long> notificationMessageID, MessageAnnouncementHandler.ws_notifications.NotificationMessageViewStatus viewStatus);
+        bool SetNotificationMessageViewStatus(string sWSUserName, string sWSPassword, string siteGuid, System.Nullable<long> notificationRequestID, System.Nullable<long> notificationMessageID, InitiateNotificationActionHandler.ws_notifications.NotificationMessageViewStatus viewStatus);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SetNotificationMessageViewStatus", ReplyAction="http://tempuri.org/INotificationService/SetNotificationMessageViewStatusResponse")]
+        System.Threading.Tasks.Task<bool> SetNotificationMessageViewStatusAsync(string sWSUserName, string sWSPassword, string siteGuid, System.Nullable<long> notificationRequestID, System.Nullable<long> notificationMessageID, InitiateNotificationActionHandler.ws_notifications.NotificationMessageViewStatus viewStatus);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetAllNotifications", ReplyAction="http://tempuri.org/INotificationService/GetAllNotificationsResponse")]
-        System.Collections.Generic.Dictionary<string, string[]> GetAllNotifications(string sWSUserName, string sWSPassword, MessageAnnouncementHandler.ws_notifications.NotificationTriggerType triggerType);
+        System.Collections.Generic.Dictionary<string, string[]> GetAllNotifications(string sWSUserName, string sWSPassword, InitiateNotificationActionHandler.ws_notifications.NotificationTriggerType triggerType);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetAllNotifications", ReplyAction="http://tempuri.org/INotificationService/GetAllNotificationsResponse")]
+        System.Threading.Tasks.Task<System.Collections.Generic.Dictionary<string, string[]>> GetAllNotificationsAsync(string sWSUserName, string sWSPassword, InitiateNotificationActionHandler.ws_notifications.NotificationTriggerType triggerType);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SubscribeByTag", ReplyAction="http://tempuri.org/INotificationService/SubscribeByTagResponse")]
         bool SubscribeByTag(string sWSUserName, string sWSPassword, string siteGuid, System.Collections.Generic.Dictionary<string, string[]> tags);
         
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SubscribeByTag", ReplyAction="http://tempuri.org/INotificationService/SubscribeByTagResponse")]
+        System.Threading.Tasks.Task<bool> SubscribeByTagAsync(string sWSUserName, string sWSPassword, string siteGuid, System.Collections.Generic.Dictionary<string, string[]> tags);
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UserSettings", ReplyAction="http://tempuri.org/INotificationService/UserSettingsResponse")]
-        bool UserSettings(string sWSUserName, string sWSPassword, [System.ServiceModel.MessageParameterAttribute(Name="userSettings")] MessageAnnouncementHandler.ws_notifications.UserSettings userSettings1);
+        bool UserSettings(string sWSUserName, string sWSPassword, [System.ServiceModel.MessageParameterAttribute(Name="userSettings")] InitiateNotificationActionHandler.ws_notifications.UserSettings userSettings1);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UserSettings", ReplyAction="http://tempuri.org/INotificationService/UserSettingsResponse")]
+        System.Threading.Tasks.Task<bool> UserSettingsAsync(string sWSUserName, string sWSPassword, InitiateNotificationActionHandler.ws_notifications.UserSettings userSettings);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UnsubscribeFollowUpByTag", ReplyAction="http://tempuri.org/INotificationService/UnsubscribeFollowUpByTagResponse")]
         bool UnsubscribeFollowUpByTag(string sWSUserName, string sWSPassword, string siteGuid, System.Collections.Generic.Dictionary<string, string[]> tags);
         
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UnsubscribeFollowUpByTag", ReplyAction="http://tempuri.org/INotificationService/UnsubscribeFollowUpByTagResponse")]
+        System.Threading.Tasks.Task<bool> UnsubscribeFollowUpByTagAsync(string sWSUserName, string sWSPassword, string siteGuid, System.Collections.Generic.Dictionary<string, string[]> tags);
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetUserStatusSubscriptions", ReplyAction="http://tempuri.org/INotificationService/GetUserStatusSubscriptionsResponse")]
         System.Collections.Generic.Dictionary<string, string[]> GetUserStatusSubscriptions(string sWSUserName, string sWSPassword, string siteGuid);
         
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetUserStatusSubscriptions", ReplyAction="http://tempuri.org/INotificationService/GetUserStatusSubscriptionsResponse")]
+        System.Threading.Tasks.Task<System.Collections.Generic.Dictionary<string, string[]>> GetUserStatusSubscriptionsAsync(string sWSUserName, string sWSPassword, string siteGuid);
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/IsTagNotificationExists", ReplyAction="http://tempuri.org/INotificationService/IsTagNotificationExistsResponse")]
         bool IsTagNotificationExists(string sWSUserName, string sWSPassword, string tagType, string tagValue);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/IsTagNotificationExists", ReplyAction="http://tempuri.org/INotificationService/IsTagNotificationExistsResponse")]
+        System.Threading.Tasks.Task<bool> IsTagNotificationExistsAsync(string sWSUserName, string sWSPassword, string tagType, string tagValue);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateNotificationPartnerSettings", ReplyAction="http://tempuri.org/INotificationService/UpdateNotificationPartnerSettingsResponse" +
             "")]
         ApiObjects.Response.Status UpdateNotificationPartnerSettings(string sWSUserName, string sWSPassword, ApiObjects.Notification.NotificationPartnerSettings settings);
         
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateNotificationPartnerSettings", ReplyAction="http://tempuri.org/INotificationService/UpdateNotificationPartnerSettingsResponse" +
+            "")]
+        System.Threading.Tasks.Task<ApiObjects.Response.Status> UpdateNotificationPartnerSettingsAsync(string sWSUserName, string sWSPassword, ApiObjects.Notification.NotificationPartnerSettings settings);
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetNotificationPartnerSettings", ReplyAction="http://tempuri.org/INotificationService/GetNotificationPartnerSettingsResponse")]
         ApiObjects.Notification.NotificationPartnerSettingsResponse GetNotificationPartnerSettings(string sWSUserName, string sWSPassword);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetNotificationPartnerSettings", ReplyAction="http://tempuri.org/INotificationService/GetNotificationPartnerSettingsResponse")]
+        System.Threading.Tasks.Task<ApiObjects.Notification.NotificationPartnerSettingsResponse> GetNotificationPartnerSettingsAsync(string sWSUserName, string sWSPassword);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateNotificationSettings", ReplyAction="http://tempuri.org/INotificationService/UpdateNotificationSettingsResponse")]
         ApiObjects.Response.Status UpdateNotificationSettings(string sWSUserName, string sWSPassword, string userId, ApiObjects.Notification.NotificationSettings settings);
         
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateNotificationSettings", ReplyAction="http://tempuri.org/INotificationService/UpdateNotificationSettingsResponse")]
+        System.Threading.Tasks.Task<ApiObjects.Response.Status> UpdateNotificationSettingsAsync(string sWSUserName, string sWSPassword, string userId, ApiObjects.Notification.NotificationSettings settings);
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetNotificationSettings", ReplyAction="http://tempuri.org/INotificationService/GetNotificationSettingsResponse")]
         ApiObjects.Notification.NotificationSettingsResponse GetNotificationSettings(string sWSUserName, string sWSPassword, int userId);
         
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetNotificationSettings", ReplyAction="http://tempuri.org/INotificationService/GetNotificationSettingsResponse")]
+        System.Threading.Tasks.Task<ApiObjects.Notification.NotificationSettingsResponse> GetNotificationSettingsAsync(string sWSUserName, string sWSPassword, int userId);
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/AddMessageAnnouncement", ReplyAction="http://tempuri.org/INotificationService/AddMessageAnnouncementResponse")]
-        MessageAnnouncementHandler.ws_notifications.AddMessageAnnouncementResponse AddMessageAnnouncement(string sWSUserName, string sWSPassword, MessageAnnouncementHandler.ws_notifications.MessageAnnouncement announcement);
+        InitiateNotificationActionHandler.ws_notifications.AddMessageAnnouncementResponse AddMessageAnnouncement(string sWSUserName, string sWSPassword, InitiateNotificationActionHandler.ws_notifications.MessageAnnouncement announcement);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/AddMessageAnnouncement", ReplyAction="http://tempuri.org/INotificationService/AddMessageAnnouncementResponse")]
+        System.Threading.Tasks.Task<InitiateNotificationActionHandler.ws_notifications.AddMessageAnnouncementResponse> AddMessageAnnouncementAsync(string sWSUserName, string sWSPassword, InitiateNotificationActionHandler.ws_notifications.MessageAnnouncement announcement);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SendMessageAnnouncement", ReplyAction="http://tempuri.org/INotificationService/SendMessageAnnouncementResponse")]
         bool SendMessageAnnouncement(string sWSUserName, string sWSPassword, long startTime, int id);
         
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SendMessageAnnouncement", ReplyAction="http://tempuri.org/INotificationService/SendMessageAnnouncementResponse")]
+        System.Threading.Tasks.Task<bool> SendMessageAnnouncementAsync(string sWSUserName, string sWSPassword, long startTime, int id);
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateMessageAnnouncement", ReplyAction="http://tempuri.org/INotificationService/UpdateMessageAnnouncementResponse")]
-        ApiObjects.Response.Status UpdateMessageAnnouncement(string sWSUserName, string sWSPassword, MessageAnnouncementHandler.ws_notifications.MessageAnnouncement announcement);
+        ApiObjects.Response.Status UpdateMessageAnnouncement(string sWSUserName, string sWSPassword, InitiateNotificationActionHandler.ws_notifications.MessageAnnouncement announcement);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateMessageAnnouncement", ReplyAction="http://tempuri.org/INotificationService/UpdateMessageAnnouncementResponse")]
+        System.Threading.Tasks.Task<ApiObjects.Response.Status> UpdateMessageAnnouncementAsync(string sWSUserName, string sWSPassword, InitiateNotificationActionHandler.ws_notifications.MessageAnnouncement announcement);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateMessageAnnouncementStatus", ReplyAction="http://tempuri.org/INotificationService/UpdateMessageAnnouncementStatusResponse")]
         ApiObjects.Response.Status UpdateMessageAnnouncementStatus(string sWSUserName, string sWSPassword, int id, bool status);
         
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateMessageAnnouncementStatus", ReplyAction="http://tempuri.org/INotificationService/UpdateMessageAnnouncementStatusResponse")]
+        System.Threading.Tasks.Task<ApiObjects.Response.Status> UpdateMessageAnnouncementStatusAsync(string sWSUserName, string sWSPassword, int id, bool status);
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/DeleteMessageAnnouncement", ReplyAction="http://tempuri.org/INotificationService/DeleteMessageAnnouncementResponse")]
         ApiObjects.Response.Status DeleteMessageAnnouncement(string sWSUserName, string sWSPassword, int id);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/DeleteMessageAnnouncement", ReplyAction="http://tempuri.org/INotificationService/DeleteMessageAnnouncementResponse")]
+        System.Threading.Tasks.Task<ApiObjects.Response.Status> DeleteMessageAnnouncementAsync(string sWSUserName, string sWSPassword, int id);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/InitiateNotificationAction", ReplyAction="http://tempuri.org/INotificationService/InitiateNotificationActionResponse")]
         bool InitiateNotificationAction(string sWSUserName, string sWSPassword, ApiObjects.eUserMessageAction userAction, int userId, string udid, string pushToken);
         
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/InitiateNotificationAction", ReplyAction="http://tempuri.org/INotificationService/InitiateNotificationActionResponse")]
+        System.Threading.Tasks.Task<bool> InitiateNotificationActionAsync(string sWSUserName, string sWSPassword, ApiObjects.eUserMessageAction userAction, int userId, string udid, string pushToken);
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/CreateSystemAnnouncement", ReplyAction="http://tempuri.org/INotificationService/CreateSystemAnnouncementResponse")]
         ApiObjects.Response.Status CreateSystemAnnouncement(string sWSUserName, string sWSPassword);
         
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/CreateSystemAnnouncement", ReplyAction="http://tempuri.org/INotificationService/CreateSystemAnnouncementResponse")]
+        System.Threading.Tasks.Task<ApiObjects.Response.Status> CreateSystemAnnouncementAsync(string sWSUserName, string sWSPassword);
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetAllMessageAnnouncements", ReplyAction="http://tempuri.org/INotificationService/GetAllMessageAnnouncementsResponse")]
-        MessageAnnouncementHandler.ws_notifications.GetAllMessageAnnouncementsResponse GetAllMessageAnnouncements(string sWSUserName, string sWSPassword, int pageSize, int pageIndex);
+        InitiateNotificationActionHandler.ws_notifications.GetAllMessageAnnouncementsResponse GetAllMessageAnnouncements(string sWSUserName, string sWSPassword, int pageSize, int pageIndex);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetAllMessageAnnouncements", ReplyAction="http://tempuri.org/INotificationService/GetAllMessageAnnouncementsResponse")]
+        System.Threading.Tasks.Task<InitiateNotificationActionHandler.ws_notifications.GetAllMessageAnnouncementsResponse> GetAllMessageAnnouncementsAsync(string sWSUserName, string sWSPassword, int pageSize, int pageIndex);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public interface INotificationServiceChannel : MessageAnnouncementHandler.ws_notifications.INotificationService, System.ServiceModel.IClientChannel {
+    public interface INotificationServiceChannel : InitiateNotificationActionHandler.ws_notifications.INotificationService, System.ServiceModel.IClientChannel {
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public partial class NotificationServiceClient : System.ServiceModel.ClientBase<MessageAnnouncementHandler.ws_notifications.INotificationService>, MessageAnnouncementHandler.ws_notifications.INotificationService {
+    public partial class NotificationServiceClient : System.ServiceModel.ClientBase<InitiateNotificationActionHandler.ws_notifications.INotificationService>, InitiateNotificationActionHandler.ws_notifications.INotificationService {
         
         public NotificationServiceClient() {
         }
@@ -1263,88 +1327,172 @@ namespace MessageAnnouncementHandler.ws_notifications {
                 base(binding, remoteAddress) {
         }
         
-        public bool AddNotificationRequest(string sWSUserName, string sWSPassword, string siteGuid, MessageAnnouncementHandler.ws_notifications.NotificationTriggerType triggerType, int nMediaID) {
+        public bool AddNotificationRequest(string sWSUserName, string sWSPassword, string siteGuid, InitiateNotificationActionHandler.ws_notifications.NotificationTriggerType triggerType, int nMediaID) {
             return base.Channel.AddNotificationRequest(sWSUserName, sWSPassword, siteGuid, triggerType, nMediaID);
         }
         
-        public MessageAnnouncementHandler.ws_notifications.NotificationMessage[] GetDeviceNotifications(string sWSUserName, string sWSPassword, string siteGuid, string sDeviceUDID, MessageAnnouncementHandler.ws_notifications.NotificationMessageType notificationType, MessageAnnouncementHandler.ws_notifications.NotificationMessageViewStatus viewStatus, System.Nullable<int> messageCount) {
+        public System.Threading.Tasks.Task<bool> AddNotificationRequestAsync(string sWSUserName, string sWSPassword, string siteGuid, InitiateNotificationActionHandler.ws_notifications.NotificationTriggerType triggerType, int nMediaID) {
+            return base.Channel.AddNotificationRequestAsync(sWSUserName, sWSPassword, siteGuid, triggerType, nMediaID);
+        }
+        
+        public InitiateNotificationActionHandler.ws_notifications.NotificationMessage[] GetDeviceNotifications(string sWSUserName, string sWSPassword, string siteGuid, string sDeviceUDID, InitiateNotificationActionHandler.ws_notifications.NotificationMessageType notificationType, InitiateNotificationActionHandler.ws_notifications.NotificationMessageViewStatus viewStatus, System.Nullable<int> messageCount) {
             return base.Channel.GetDeviceNotifications(sWSUserName, sWSPassword, siteGuid, sDeviceUDID, notificationType, viewStatus, messageCount);
         }
         
-        public bool SetNotificationMessageViewStatus(string sWSUserName, string sWSPassword, string siteGuid, System.Nullable<long> notificationRequestID, System.Nullable<long> notificationMessageID, MessageAnnouncementHandler.ws_notifications.NotificationMessageViewStatus viewStatus) {
+        public System.Threading.Tasks.Task<InitiateNotificationActionHandler.ws_notifications.NotificationMessage[]> GetDeviceNotificationsAsync(string sWSUserName, string sWSPassword, string siteGuid, string sDeviceUDID, InitiateNotificationActionHandler.ws_notifications.NotificationMessageType notificationType, InitiateNotificationActionHandler.ws_notifications.NotificationMessageViewStatus viewStatus, System.Nullable<int> messageCount) {
+            return base.Channel.GetDeviceNotificationsAsync(sWSUserName, sWSPassword, siteGuid, sDeviceUDID, notificationType, viewStatus, messageCount);
+        }
+        
+        public bool SetNotificationMessageViewStatus(string sWSUserName, string sWSPassword, string siteGuid, System.Nullable<long> notificationRequestID, System.Nullable<long> notificationMessageID, InitiateNotificationActionHandler.ws_notifications.NotificationMessageViewStatus viewStatus) {
             return base.Channel.SetNotificationMessageViewStatus(sWSUserName, sWSPassword, siteGuid, notificationRequestID, notificationMessageID, viewStatus);
         }
         
-        public System.Collections.Generic.Dictionary<string, string[]> GetAllNotifications(string sWSUserName, string sWSPassword, MessageAnnouncementHandler.ws_notifications.NotificationTriggerType triggerType) {
+        public System.Threading.Tasks.Task<bool> SetNotificationMessageViewStatusAsync(string sWSUserName, string sWSPassword, string siteGuid, System.Nullable<long> notificationRequestID, System.Nullable<long> notificationMessageID, InitiateNotificationActionHandler.ws_notifications.NotificationMessageViewStatus viewStatus) {
+            return base.Channel.SetNotificationMessageViewStatusAsync(sWSUserName, sWSPassword, siteGuid, notificationRequestID, notificationMessageID, viewStatus);
+        }
+        
+        public System.Collections.Generic.Dictionary<string, string[]> GetAllNotifications(string sWSUserName, string sWSPassword, InitiateNotificationActionHandler.ws_notifications.NotificationTriggerType triggerType) {
             return base.Channel.GetAllNotifications(sWSUserName, sWSPassword, triggerType);
+        }
+        
+        public System.Threading.Tasks.Task<System.Collections.Generic.Dictionary<string, string[]>> GetAllNotificationsAsync(string sWSUserName, string sWSPassword, InitiateNotificationActionHandler.ws_notifications.NotificationTriggerType triggerType) {
+            return base.Channel.GetAllNotificationsAsync(sWSUserName, sWSPassword, triggerType);
         }
         
         public bool SubscribeByTag(string sWSUserName, string sWSPassword, string siteGuid, System.Collections.Generic.Dictionary<string, string[]> tags) {
             return base.Channel.SubscribeByTag(sWSUserName, sWSPassword, siteGuid, tags);
         }
         
-        public bool UserSettings(string sWSUserName, string sWSPassword, MessageAnnouncementHandler.ws_notifications.UserSettings userSettings1) {
+        public System.Threading.Tasks.Task<bool> SubscribeByTagAsync(string sWSUserName, string sWSPassword, string siteGuid, System.Collections.Generic.Dictionary<string, string[]> tags) {
+            return base.Channel.SubscribeByTagAsync(sWSUserName, sWSPassword, siteGuid, tags);
+        }
+        
+        public bool UserSettings(string sWSUserName, string sWSPassword, InitiateNotificationActionHandler.ws_notifications.UserSettings userSettings1) {
             return base.Channel.UserSettings(sWSUserName, sWSPassword, userSettings1);
+        }
+        
+        public System.Threading.Tasks.Task<bool> UserSettingsAsync(string sWSUserName, string sWSPassword, InitiateNotificationActionHandler.ws_notifications.UserSettings userSettings) {
+            return base.Channel.UserSettingsAsync(sWSUserName, sWSPassword, userSettings);
         }
         
         public bool UnsubscribeFollowUpByTag(string sWSUserName, string sWSPassword, string siteGuid, System.Collections.Generic.Dictionary<string, string[]> tags) {
             return base.Channel.UnsubscribeFollowUpByTag(sWSUserName, sWSPassword, siteGuid, tags);
         }
         
+        public System.Threading.Tasks.Task<bool> UnsubscribeFollowUpByTagAsync(string sWSUserName, string sWSPassword, string siteGuid, System.Collections.Generic.Dictionary<string, string[]> tags) {
+            return base.Channel.UnsubscribeFollowUpByTagAsync(sWSUserName, sWSPassword, siteGuid, tags);
+        }
+        
         public System.Collections.Generic.Dictionary<string, string[]> GetUserStatusSubscriptions(string sWSUserName, string sWSPassword, string siteGuid) {
             return base.Channel.GetUserStatusSubscriptions(sWSUserName, sWSPassword, siteGuid);
+        }
+        
+        public System.Threading.Tasks.Task<System.Collections.Generic.Dictionary<string, string[]>> GetUserStatusSubscriptionsAsync(string sWSUserName, string sWSPassword, string siteGuid) {
+            return base.Channel.GetUserStatusSubscriptionsAsync(sWSUserName, sWSPassword, siteGuid);
         }
         
         public bool IsTagNotificationExists(string sWSUserName, string sWSPassword, string tagType, string tagValue) {
             return base.Channel.IsTagNotificationExists(sWSUserName, sWSPassword, tagType, tagValue);
         }
         
+        public System.Threading.Tasks.Task<bool> IsTagNotificationExistsAsync(string sWSUserName, string sWSPassword, string tagType, string tagValue) {
+            return base.Channel.IsTagNotificationExistsAsync(sWSUserName, sWSPassword, tagType, tagValue);
+        }
+        
         public ApiObjects.Response.Status UpdateNotificationPartnerSettings(string sWSUserName, string sWSPassword, ApiObjects.Notification.NotificationPartnerSettings settings) {
             return base.Channel.UpdateNotificationPartnerSettings(sWSUserName, sWSPassword, settings);
+        }
+        
+        public System.Threading.Tasks.Task<ApiObjects.Response.Status> UpdateNotificationPartnerSettingsAsync(string sWSUserName, string sWSPassword, ApiObjects.Notification.NotificationPartnerSettings settings) {
+            return base.Channel.UpdateNotificationPartnerSettingsAsync(sWSUserName, sWSPassword, settings);
         }
         
         public ApiObjects.Notification.NotificationPartnerSettingsResponse GetNotificationPartnerSettings(string sWSUserName, string sWSPassword) {
             return base.Channel.GetNotificationPartnerSettings(sWSUserName, sWSPassword);
         }
         
+        public System.Threading.Tasks.Task<ApiObjects.Notification.NotificationPartnerSettingsResponse> GetNotificationPartnerSettingsAsync(string sWSUserName, string sWSPassword) {
+            return base.Channel.GetNotificationPartnerSettingsAsync(sWSUserName, sWSPassword);
+        }
+        
         public ApiObjects.Response.Status UpdateNotificationSettings(string sWSUserName, string sWSPassword, string userId, ApiObjects.Notification.NotificationSettings settings) {
             return base.Channel.UpdateNotificationSettings(sWSUserName, sWSPassword, userId, settings);
+        }
+        
+        public System.Threading.Tasks.Task<ApiObjects.Response.Status> UpdateNotificationSettingsAsync(string sWSUserName, string sWSPassword, string userId, ApiObjects.Notification.NotificationSettings settings) {
+            return base.Channel.UpdateNotificationSettingsAsync(sWSUserName, sWSPassword, userId, settings);
         }
         
         public ApiObjects.Notification.NotificationSettingsResponse GetNotificationSettings(string sWSUserName, string sWSPassword, int userId) {
             return base.Channel.GetNotificationSettings(sWSUserName, sWSPassword, userId);
         }
         
-        public MessageAnnouncementHandler.ws_notifications.AddMessageAnnouncementResponse AddMessageAnnouncement(string sWSUserName, string sWSPassword, MessageAnnouncementHandler.ws_notifications.MessageAnnouncement announcement) {
+        public System.Threading.Tasks.Task<ApiObjects.Notification.NotificationSettingsResponse> GetNotificationSettingsAsync(string sWSUserName, string sWSPassword, int userId) {
+            return base.Channel.GetNotificationSettingsAsync(sWSUserName, sWSPassword, userId);
+        }
+        
+        public InitiateNotificationActionHandler.ws_notifications.AddMessageAnnouncementResponse AddMessageAnnouncement(string sWSUserName, string sWSPassword, InitiateNotificationActionHandler.ws_notifications.MessageAnnouncement announcement) {
             return base.Channel.AddMessageAnnouncement(sWSUserName, sWSPassword, announcement);
+        }
+        
+        public System.Threading.Tasks.Task<InitiateNotificationActionHandler.ws_notifications.AddMessageAnnouncementResponse> AddMessageAnnouncementAsync(string sWSUserName, string sWSPassword, InitiateNotificationActionHandler.ws_notifications.MessageAnnouncement announcement) {
+            return base.Channel.AddMessageAnnouncementAsync(sWSUserName, sWSPassword, announcement);
         }
         
         public bool SendMessageAnnouncement(string sWSUserName, string sWSPassword, long startTime, int id) {
             return base.Channel.SendMessageAnnouncement(sWSUserName, sWSPassword, startTime, id);
         }
         
-        public ApiObjects.Response.Status UpdateMessageAnnouncement(string sWSUserName, string sWSPassword, MessageAnnouncementHandler.ws_notifications.MessageAnnouncement announcement) {
+        public System.Threading.Tasks.Task<bool> SendMessageAnnouncementAsync(string sWSUserName, string sWSPassword, long startTime, int id) {
+            return base.Channel.SendMessageAnnouncementAsync(sWSUserName, sWSPassword, startTime, id);
+        }
+        
+        public ApiObjects.Response.Status UpdateMessageAnnouncement(string sWSUserName, string sWSPassword, InitiateNotificationActionHandler.ws_notifications.MessageAnnouncement announcement) {
             return base.Channel.UpdateMessageAnnouncement(sWSUserName, sWSPassword, announcement);
+        }
+        
+        public System.Threading.Tasks.Task<ApiObjects.Response.Status> UpdateMessageAnnouncementAsync(string sWSUserName, string sWSPassword, InitiateNotificationActionHandler.ws_notifications.MessageAnnouncement announcement) {
+            return base.Channel.UpdateMessageAnnouncementAsync(sWSUserName, sWSPassword, announcement);
         }
         
         public ApiObjects.Response.Status UpdateMessageAnnouncementStatus(string sWSUserName, string sWSPassword, int id, bool status) {
             return base.Channel.UpdateMessageAnnouncementStatus(sWSUserName, sWSPassword, id, status);
         }
         
+        public System.Threading.Tasks.Task<ApiObjects.Response.Status> UpdateMessageAnnouncementStatusAsync(string sWSUserName, string sWSPassword, int id, bool status) {
+            return base.Channel.UpdateMessageAnnouncementStatusAsync(sWSUserName, sWSPassword, id, status);
+        }
+        
         public ApiObjects.Response.Status DeleteMessageAnnouncement(string sWSUserName, string sWSPassword, int id) {
             return base.Channel.DeleteMessageAnnouncement(sWSUserName, sWSPassword, id);
+        }
+        
+        public System.Threading.Tasks.Task<ApiObjects.Response.Status> DeleteMessageAnnouncementAsync(string sWSUserName, string sWSPassword, int id) {
+            return base.Channel.DeleteMessageAnnouncementAsync(sWSUserName, sWSPassword, id);
         }
         
         public bool InitiateNotificationAction(string sWSUserName, string sWSPassword, ApiObjects.eUserMessageAction userAction, int userId, string udid, string pushToken) {
             return base.Channel.InitiateNotificationAction(sWSUserName, sWSPassword, userAction, userId, udid, pushToken);
         }
         
+        public System.Threading.Tasks.Task<bool> InitiateNotificationActionAsync(string sWSUserName, string sWSPassword, ApiObjects.eUserMessageAction userAction, int userId, string udid, string pushToken) {
+            return base.Channel.InitiateNotificationActionAsync(sWSUserName, sWSPassword, userAction, userId, udid, pushToken);
+        }
+        
         public ApiObjects.Response.Status CreateSystemAnnouncement(string sWSUserName, string sWSPassword) {
             return base.Channel.CreateSystemAnnouncement(sWSUserName, sWSPassword);
         }
         
-        public MessageAnnouncementHandler.ws_notifications.GetAllMessageAnnouncementsResponse GetAllMessageAnnouncements(string sWSUserName, string sWSPassword, int pageSize, int pageIndex) {
+        public System.Threading.Tasks.Task<ApiObjects.Response.Status> CreateSystemAnnouncementAsync(string sWSUserName, string sWSPassword) {
+            return base.Channel.CreateSystemAnnouncementAsync(sWSUserName, sWSPassword);
+        }
+        
+        public InitiateNotificationActionHandler.ws_notifications.GetAllMessageAnnouncementsResponse GetAllMessageAnnouncements(string sWSUserName, string sWSPassword, int pageSize, int pageIndex) {
             return base.Channel.GetAllMessageAnnouncements(sWSUserName, sWSPassword, pageSize, pageIndex);
+        }
+        
+        public System.Threading.Tasks.Task<InitiateNotificationActionHandler.ws_notifications.GetAllMessageAnnouncementsResponse> GetAllMessageAnnouncementsAsync(string sWSUserName, string sWSPassword, int pageSize, int pageIndex) {
+            return base.Channel.GetAllMessageAnnouncementsAsync(sWSUserName, sWSPassword, pageSize, pageIndex);
         }
     }
 }
