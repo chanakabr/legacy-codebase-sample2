@@ -9,11 +9,10 @@ namespace ApiObjects
     {
         public const string TASK = "distributed_tasks.process_free_item_update";
 
-        private eObjectType type;
-        private List<int> assetIds;
-        private List<int> moduleIds;
+        private eObjectType Type;
+        private List<int> AssetIds;        
 
-        public FreeItemUpdateData(int groupId, eObjectType type, List<int> assetIds, List<int> moduleIds, DateTime date) :
+        public FreeItemUpdateData(int groupId, eObjectType type, List<int> assetIds, DateTime updateIndexDate) :
             base(// id = guid
                  Guid.NewGuid().ToString(),
                 // task = const
@@ -22,18 +21,16 @@ namespace ApiObjects
             // Basic member initialization
             this.GroupId = groupId;
 
-            this.type = type;
-            this.assetIds = assetIds;
-            this.moduleIds = moduleIds;
+            this.Type = type;
+            this.AssetIds = assetIds;            
 
-            this.ETA = date;
+            this.ETA = updateIndexDate;
 
             this.args = new List<object>()
             {
                 groupId,
                 type.ToString(),
-                assetIds,
-                moduleIds
+                assetIds                
             };
         }
     }
