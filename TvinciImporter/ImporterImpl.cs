@@ -4884,7 +4884,7 @@ namespace TvinciImporter
 
         #region Notification
 
-        static public bool AddMessageAnnouncement(int groupID, string name, string message, int Recipients, DateTime date, string timezone, ref int id)
+        static public bool AddMessageAnnouncement(int groupID, bool Enabled, string name, string message, int Recipients, DateTime date, string timezone, ref int id)
         {            
             try
             {
@@ -4903,9 +4903,9 @@ namespace TvinciImporter
                 announcement.Message = message;
                 announcement.Name = name;
                 announcement.Recipients = (eAnnouncementRecipientsType)Recipients;
-                announcement.StartTime = ODBCWrapper.Utils.DateTimeToUnixTimestampMilliseconds(date);
+                announcement.StartTime = ODBCWrapper.Utils.DateTimeToUnixTimestamp(date);
                 announcement.Timezone = timezone;
-
+                announcement.Enabled = Enabled;
                 AddMessageAnnouncementResponse response = service.AddMessageAnnouncement(sWSUserName, sWSPass, announcement);
                 if (response != null && response.Status.Code == (int)ApiObjects.Response.eResponseStatus.OK)
                 {
@@ -4920,7 +4920,7 @@ namespace TvinciImporter
             return false;
         }
 
-        static public bool UpdateMessageAnnouncement(int groupID, int id, string name, string message, int Recipients, DateTime date, string timezone)
+        static public bool UpdateMessageAnnouncement(int groupID, int id, bool Enabled, string name, string message, int Recipients, DateTime date, string timezone)
         {
             try
             {
@@ -4939,10 +4939,41 @@ namespace TvinciImporter
                 announcement.Message = message;
                 announcement.Name = name;
                 announcement.Recipients = (eAnnouncementRecipientsType)Recipients;
-                announcement.StartTime = ODBCWrapper.Utils.DateTimeToUnixTimestampMilliseconds(date);
+                announcement.StartTime = ODBCWrapper.Utils.DateTimeToUnixTimestamp(date);
                 announcement.Timezone = timezone;
                 announcement.MessageAnnouncementId = id;
+                announcement.Enabled = Enabled;
                 ApiObjects.Response.Status response = service.UpdateMessageAnnouncement(sWSUserName, sWSPass, announcement);
+                if (response != null && response.Code == (int)ApiObjects.Response.eResponseStatus.OK)
+                {
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            return false;
+        }
+
+
+        static public bool UpdateMessageAnnouncementStatus(int groupID, int id, bool status)
+        {
+            try
+            {
+                //Call Notifications WCF service
+                string sWSURL = GetConfigVal("NotificationService");
+                Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
+                if (!string.IsNullOrEmpty(sWSURL))
+                    service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
+
+                string sIP = "1.1.1.1";
+                string sWSUserName = "";
+                string sWSPass = "";
+                int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupID);
+                TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "", "notifications", sIP, ref sWSUserName, ref sWSPass);
+              
+                ApiObjects.Response.Status response = service.UpdateMessageAnnouncementStatus(sWSUserName, sWSPass, id, status);
                 if (response != null && response.Code == (int)ApiObjects.Response.eResponseStatus.OK)
                 {
                     return true;
