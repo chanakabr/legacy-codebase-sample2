@@ -201,14 +201,31 @@ namespace WebAPI.Filters
 
                                     // If it is an enum, newtonsoft's bad "ToObject" doesn't do this easily, 
                                     // so we do it ourselves in this not so good looking way
+                                    Type u = Nullable.GetUnderlyingType(t);
                                     if (t.IsEnum)
                                     {
                                         var paramAsString = reqParams[p.Name].ToString();
                                         var names = t.GetEnumNames().ToList();
-
                                         if (names.Contains(paramAsString))
                                         {
                                             methodParams.Add(Enum.Parse(t, paramAsString));
+                                        }
+                                    }
+                                    // nullable enum
+                                    else if (u != null && u.IsEnum)
+                                    {
+                                        var paramAsString = reqParams[p.Name] != null ? reqParams[p.Name].ToString() : null;
+                                        if (paramAsString != null)
+                                        {
+                                            var names = u.GetEnumNames().ToList();
+                                            if (names.Contains(paramAsString))
+                                            {
+                                                methodParams.Add(Enum.Parse(u, paramAsString));
+                                            }
+                                        }
+                                        else
+                                        {
+                                            methodParams.Add(null);
                                         }
                                     }
                                     else
