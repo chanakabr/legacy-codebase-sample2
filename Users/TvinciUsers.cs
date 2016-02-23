@@ -1891,5 +1891,70 @@ namespace Users
             }
             return response;
         }
+
+        public override bool ChangeUsers(string initSiteGuid, string siteGuid, string udid, int groupId)
+        {
+            if (string.IsNullOrEmpty(initSiteGuid))
+            {
+                log.ErrorFormat("ChangeUsers: initSiteGuid or siteGuid are empty. initSiteGuid {0}, siteGuid = {1}", initSiteGuid, siteGuid);
+                return false;
+            }
+
+            if ((!string.IsNullOrEmpty(siteGuid) && initSiteGuid != siteGuid) || !string.IsNullOrEmpty(udid))
+            {
+                UserResponseObject initialUserObj = this.GetUserData(initSiteGuid);
+                UserResponseObject newUserObj = this.GetUserData(siteGuid);
+
+                if (initialUserObj == null || newUserObj == null)
+                {
+                    log.ErrorFormat("ChangeUsers: users not found for initSiteGuid = {0},{1}", initSiteGuid, siteGuid);
+                    return false;
+                }
+
+                int initialDomaId = initialUserObj.m_user.m_domianID;
+                int newDomainId = newUserObj.m_user.m_domianID;
+                
+                // if the domain is not the users domain
+                if (initialDomaId != 0 && newDomainId != 0)
+                {
+                    if (initialDomaId != newDomainId)
+                    {
+                        log.ErrorFormat("ChangeUsers: siteGuid is not in the same domain. siteGuid = {0}, domainId = {2}, siteGuid = {3}, domainId = {4}", initSiteGuid, initialDomaId, siteGuid, newDomainId);
+                        return false;
+                    }
+                }
+
+                // if udid is not in domain
+                if (!string.IsNullOrEmpty(udid))
+                {
+                    Domain domain = new Domain();                    
+                    
+                    if (!domain.Initialize(groupId, newDomainId))
+                    {
+                        log.ErrorFormat("ChangeUsers: error initializing domain = {0}", newDomainId);
+                        return false;
+                    }
+                    
+                    if (domain.m_deviceFamilies == null || domain.m_deviceFamilies.Count == 0)
+                    {
+                        log.ErrorFormat("ChangeUsers: udid is not in the domain. udid = {0}, domainId = {1}", udid, domain.m_nDomainID);
+                        return false;
+                    }
+                    foreach (var family in domain.m_deviceFamilies)
+                    {
+                        if (family.DeviceInstances.Where(d => d.m_deviceUDID == udid).FirstOrDefault() != null)
+                        {
+                            return true;
+                        }
+                    }
+                    log.ErrorFormat("ChangeUsers: udid is not in the domain. udid = {0}, domainId = {1}", udid, domain.m_nDomainID);
+                    return false;
+                }
+            }
+
+            Utils.AddInitiateNotificationActionToQueue(groupId, eUserMessageAction.Login, int.Parse(siteGuid), string.Empty);
+
+            return true;
+        }
     }
 }
