@@ -913,18 +913,21 @@ namespace DAL
             return newTransactionID;
         }
 
-        public static DataRowCollection Get_Announcement(List<eAnnouncementRecipientsType> recipientsTypes, List<long> announcementIds)
+        public static DataRowCollection Get_Announcement(int groupId, List<eAnnouncementRecipientsType> recipientsTypes, List<long> announcementIds, bool isAnd = false)
         {
             DataRowCollection rowCollection = null;
 
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAnnouncements");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
 
+            sp.AddParameter("@group_id", groupId);
+            sp.AddParameter("@and", Convert.ToInt16(isAnd));
+
             if (announcementIds != null && announcementIds.Count > 0)
-                sp.AddIDListParameter<long>("@IDs", announcementIds, "Id");
+                sp.AddIDListParameter<long>("@ids", announcementIds, "Id");
 
             if (recipientsTypes != null && recipientsTypes.Count > 0)
-                sp.AddIDListParameter<int>("@recipientTypes", recipientsTypes.Cast<int>().ToList(), "Id");
+                sp.AddIDListParameter<int>("@recipient_types", recipientsTypes.Cast<int>().ToList(), "Id");
 
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)

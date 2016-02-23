@@ -17,7 +17,8 @@ namespace ApiObjects.Notification
         public string UserId { get; set; }
         public string Udid { get; set; }
         public long UpdatedAt { get; set; }
-        public string SubscriptionGuestExternalIdentifier { get; set; }
+        public bool IsLoggedIn { get; set; }
+        public string SubscriptionExternalIdentifier { get; set; }
 
         public List<AnnouncementSubscription> SubscribedAnnouncements { get; set; }
     }
