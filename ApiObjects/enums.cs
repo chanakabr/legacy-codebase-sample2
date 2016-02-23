@@ -531,4 +531,16 @@ namespace ApiObjects
         IdentifyPushRegistration = 3,
         DeleteUser = 4
     }
+
+    public enum eAnnouncementStatus
+    {
+        [EnumMember]
+        NotSent = 0,
+        [EnumMember]
+        Sending = 1,
+        [EnumMember]
+        Sent = 2,
+        [EnumMember]
+        Aborted = 3
+    }
 }

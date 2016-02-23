@@ -18,6 +18,7 @@ using System.Web;
 using System.Xml;
 using System.Xml.Serialization;
 using Tvinci.Core.DAL;
+using TvinciImporter.Notification_WCF;
 using TVinciShared;
 
 namespace TvinciImporter
@@ -4881,6 +4882,77 @@ namespace TvinciImporter
         #endregion
 
         #region Notification
+
+        static public bool AddMessageAnnouncement(int groupID, string name, string message, int Recipients, DateTime date, string timezone, ref int id)
+        {            
+            try
+            {
+                //Call Notifications WCF service
+                string sWSURL = GetConfigVal("NotificationService");
+                Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
+                if (!string.IsNullOrEmpty(sWSURL))
+                    service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
+
+                string sIP = "1.1.1.1";
+                string sWSUserName = "";
+                string sWSPass = "";
+                int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupID);
+                TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "", "notifications", sIP, ref sWSUserName, ref sWSPass);
+                MessageAnnouncement announcement = new MessageAnnouncement();
+                announcement.Message = message;
+                announcement.Name = name;
+                announcement.Recipients = (eAnnouncementRecipientsType)Recipients;
+                announcement.StartTime = ODBCWrapper.Utils.DateTimeToUnixTimestampMilliseconds(date);
+                announcement.Timezone = timezone;
+
+                AddMessageAnnouncementResponse response = service.AddMessageAnnouncement(sWSUserName, sWSPass, announcement);
+                if (response != null && response.Status.Code == (int)ApiObjects.Response.eResponseStatus.OK)
+                {
+                    id = response.Id;
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            return false;
+        }
+
+        static public bool UpdateMessageAnnouncement(int groupID, int id, string name, string message, int Recipients, DateTime date, string timezone)
+        {
+            try
+            {
+                //Call Notifications WCF service
+                string sWSURL = GetConfigVal("NotificationService");
+                Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
+                if (!string.IsNullOrEmpty(sWSURL))
+                    service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
+
+                string sIP = "1.1.1.1";
+                string sWSUserName = "";
+                string sWSPass = "";
+                int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupID);
+                TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "", "notifications", sIP, ref sWSUserName, ref sWSPass);
+                MessageAnnouncement announcement = new MessageAnnouncement();
+                announcement.Message = message;
+                announcement.Name = name;
+                announcement.Recipients = (eAnnouncementRecipientsType)Recipients;
+                announcement.StartTime = ODBCWrapper.Utils.DateTimeToUnixTimestampMilliseconds(date);
+                announcement.Timezone = timezone;
+                announcement.MessageAnnouncementId = id;
+                ApiObjects.Response.Status response = service.UpdateMessageAnnouncement(sWSUserName, sWSPass, announcement);
+                if (response != null && response.Code == (int)ApiObjects.Response.eResponseStatus.OK)
+                {
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            return false;
+        }
 
         static public void UpdateNotificationsRequests(int groupid, int nMediaID)
         {

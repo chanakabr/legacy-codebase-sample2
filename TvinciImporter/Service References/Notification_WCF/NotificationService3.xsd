@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:ser="http://schemas.microsoft.com/2003/10/Serialization/" xmlns:tns="http://schemas.datacontract.org/2004/07/NotificationObj" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/NotificationObj" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:import schemaLocation="http://192.168.192.146/webservices/Notifications/NotificationService.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
-  <xs:import schemaLocation="http://192.168.192.146/webservices/Notifications/NotificationService.svc?xsd=xsd3" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+  <xs:import schemaLocation="http://localhost/ws_notification/NotificationService.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+  <xs:import schemaLocation="http://localhost/ws_notification/NotificationService.svc?xsd=xsd3" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+  <xs:import schemaLocation="http://localhost/ws_notification/NotificationService.svc?xsd=xsd7" namespace="http://schemas.datacontract.org/2004/07/ApiObjects" />
+  <xs:import schemaLocation="http://localhost/ws_notification/NotificationService.svc?xsd=xsd6" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Response" />
   <xs:simpleType name="NotificationTriggerType">
     <xs:restriction base="xs:string">
       <xs:enumeration value="Renewal">
@@ -145,6 +147,7 @@
     <xs:sequence>
       <xs:element xmlns:q1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" name="_x003C_TagDict_x003E_k__BackingField" nillable="true" type="q1:ArrayOfKeyValueOfstringArrayOfintty7Ep6D1" />
       <xs:element xmlns:q2="http://schemas.microsoft.com/2003/10/Serialization/Arrays" name="_x003C_dTagDict_x003E_k__BackingField" nillable="true" type="q2:ArrayOfKeyValueOfstringArrayOfTagIDValueok2Lvmes" />
+      <xs:element name="_x003C_dateFormat_x003E_k__BackingField" nillable="true" type="xs:string" />
       <xs:element name="_x003C_mediaID_x003E_k__BackingField" type="xs:int" />
       <xs:element name="_x003C_mediaPicURL_x003E_k__BackingField" nillable="true" type="xs:string" />
       <xs:element xmlns:q3="http://schemas.microsoft.com/2003/10/Serialization/Arrays" name="_x003C_notificationsID_x003E_k__BackingField" nillable="true" type="q3:ArrayOflong" />
@@ -175,4 +178,46 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="SendVia" nillable="true" type="tns:SendVia" />
+  <xs:complexType name="MessageAnnouncement">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Enabled" type="xs:boolean" />
+      <xs:element minOccurs="0" name="Message" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="MessageAnnouncementId" type="xs:int" />
+      <xs:element minOccurs="0" name="Name" nillable="true" type="xs:string" />
+      <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="Recipients" type="q4:eAnnouncementRecipientsType" />
+      <xs:element minOccurs="0" name="StartTime" type="xs:long" />
+      <xs:element minOccurs="0" name="Status" type="tns:eAnnouncementStatus" />
+      <xs:element minOccurs="0" name="Timezone" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="MessageAnnouncement" nillable="true" type="tns:MessageAnnouncement" />
+  <xs:simpleType name="eAnnouncementStatus">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="NotSent" />
+      <xs:enumeration value="Sending" />
+      <xs:enumeration value="Sent" />
+      <xs:enumeration value="Aborted" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="eAnnouncementStatus" nillable="true" type="tns:eAnnouncementStatus" />
+  <xs:complexType name="AddMessageAnnouncementResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Id" type="xs:int" />
+      <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/ApiObjects.Response" minOccurs="0" name="Status" nillable="true" type="q5:Status" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="AddMessageAnnouncementResponse" nillable="true" type="tns:AddMessageAnnouncementResponse" />
+  <xs:complexType name="GetAllMessageAnnouncementsResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="messageAnnouncements" nillable="true" type="tns:ArrayOfMessageAnnouncement" />
+      <xs:element minOccurs="0" name="totalCount" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="GetAllMessageAnnouncementsResponse" nillable="true" type="tns:GetAllMessageAnnouncementsResponse" />
+  <xs:complexType name="ArrayOfMessageAnnouncement">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="MessageAnnouncement" nillable="true" type="tns:MessageAnnouncement" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfMessageAnnouncement" nillable="true" type="tns:ArrayOfMessageAnnouncement" />
 </xs:schema>
