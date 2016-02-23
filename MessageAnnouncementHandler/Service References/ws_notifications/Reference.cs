@@ -1106,6 +1106,67 @@ namespace MessageAnnouncementHandler.ws_notifications {
         }
     }
     
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="GetAllMessageAnnouncementsResponse", Namespace="http://schemas.datacontract.org/2004/07/NotificationObj")]
+    [System.SerializableAttribute()]
+    public partial class GetAllMessageAnnouncementsResponse : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private MessageAnnouncementHandler.ws_notifications.MessageAnnouncement[] messageAnnouncementsField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int totalCountField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public MessageAnnouncementHandler.ws_notifications.MessageAnnouncement[] messageAnnouncements {
+            get {
+                return this.messageAnnouncementsField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.messageAnnouncementsField, value) != true)) {
+                    this.messageAnnouncementsField = value;
+                    this.RaisePropertyChanged("messageAnnouncements");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int totalCount {
+            get {
+                return this.totalCountField;
+            }
+            set {
+                if ((this.totalCountField.Equals(value) != true)) {
+                    this.totalCountField = value;
+                    this.RaisePropertyChanged("totalCount");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="ws_notifications.INotificationService")]
     public interface INotificationService {
@@ -1151,19 +1212,28 @@ namespace MessageAnnouncementHandler.ws_notifications {
         ApiObjects.Notification.NotificationSettingsResponse GetNotificationSettings(string sWSUserName, string sWSPassword, int userId);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/AddMessageAnnouncement", ReplyAction="http://tempuri.org/INotificationService/AddMessageAnnouncementResponse")]
-        MessageAnnouncementHandler.ws_notifications.AddMessageAnnouncementResponse AddMessageAnnouncement(string sWSUserName, string sWSPassword, int groupId, MessageAnnouncementHandler.ws_notifications.MessageAnnouncement announcement);
+        MessageAnnouncementHandler.ws_notifications.AddMessageAnnouncementResponse AddMessageAnnouncement(string sWSUserName, string sWSPassword, MessageAnnouncementHandler.ws_notifications.MessageAnnouncement announcement);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SendMessageAnnouncement", ReplyAction="http://tempuri.org/INotificationService/SendMessageAnnouncementResponse")]
-        bool SendMessageAnnouncement(string sWSUserName, string sWSPassword, int groupId, long startTime, int id);
+        bool SendMessageAnnouncement(string sWSUserName, string sWSPassword, long startTime, int id);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateMessageAnnouncement", ReplyAction="http://tempuri.org/INotificationService/UpdateMessageAnnouncementResponse")]
-        ApiObjects.Response.Status UpdateMessageAnnouncement(string sWSUserName, string sWSPassword, int groupId, MessageAnnouncementHandler.ws_notifications.MessageAnnouncement announcement);
+        ApiObjects.Response.Status UpdateMessageAnnouncement(string sWSUserName, string sWSPassword, MessageAnnouncementHandler.ws_notifications.MessageAnnouncement announcement);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateMessageAnnouncementStatus", ReplyAction="http://tempuri.org/INotificationService/UpdateMessageAnnouncementStatusResponse")]
-        ApiObjects.Response.Status UpdateMessageAnnouncementStatus(string sWSUserName, string sWSPassword, int groupId, int id, bool status);
+        ApiObjects.Response.Status UpdateMessageAnnouncementStatus(string sWSUserName, string sWSPassword, int id, bool status);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/DeleteMessageAnnouncement", ReplyAction="http://tempuri.org/INotificationService/DeleteMessageAnnouncementResponse")]
-        ApiObjects.Response.Status DeleteMessageAnnouncement(string sWSUserName, string sWSPassword, int groupId, int id);
+        ApiObjects.Response.Status DeleteMessageAnnouncement(string sWSUserName, string sWSPassword, int id);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/InitiateNotificationAction", ReplyAction="http://tempuri.org/INotificationService/InitiateNotificationActionResponse")]
+        bool InitiateNotificationAction(string sWSUserName, string sWSPassword, ApiObjects.eUserMessageAction userAction, int userId, string udid, string pushToken);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/CreateSystemAnnouncement", ReplyAction="http://tempuri.org/INotificationService/CreateSystemAnnouncementResponse")]
+        ApiObjects.Response.Status CreateSystemAnnouncement(string sWSUserName, string sWSPassword);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetAllMessageAnnouncements", ReplyAction="http://tempuri.org/INotificationService/GetAllMessageAnnouncementsResponse")]
+        MessageAnnouncementHandler.ws_notifications.GetAllMessageAnnouncementsResponse GetAllMessageAnnouncements(string sWSUserName, string sWSPassword, int pageSize, int pageIndex);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -1245,24 +1315,36 @@ namespace MessageAnnouncementHandler.ws_notifications {
             return base.Channel.GetNotificationSettings(sWSUserName, sWSPassword, userId);
         }
         
-        public MessageAnnouncementHandler.ws_notifications.AddMessageAnnouncementResponse AddMessageAnnouncement(string sWSUserName, string sWSPassword, int groupId, MessageAnnouncementHandler.ws_notifications.MessageAnnouncement announcement) {
-            return base.Channel.AddMessageAnnouncement(sWSUserName, sWSPassword, groupId, announcement);
+        public MessageAnnouncementHandler.ws_notifications.AddMessageAnnouncementResponse AddMessageAnnouncement(string sWSUserName, string sWSPassword, MessageAnnouncementHandler.ws_notifications.MessageAnnouncement announcement) {
+            return base.Channel.AddMessageAnnouncement(sWSUserName, sWSPassword, announcement);
         }
         
-        public bool SendMessageAnnouncement(string sWSUserName, string sWSPassword, int groupId, long startTime, int id) {
-            return base.Channel.SendMessageAnnouncement(sWSUserName, sWSPassword, groupId, startTime, id);
+        public bool SendMessageAnnouncement(string sWSUserName, string sWSPassword, long startTime, int id) {
+            return base.Channel.SendMessageAnnouncement(sWSUserName, sWSPassword, startTime, id);
         }
         
-        public ApiObjects.Response.Status UpdateMessageAnnouncement(string sWSUserName, string sWSPassword, int groupId, MessageAnnouncementHandler.ws_notifications.MessageAnnouncement announcement) {
-            return base.Channel.UpdateMessageAnnouncement(sWSUserName, sWSPassword, groupId, announcement);
+        public ApiObjects.Response.Status UpdateMessageAnnouncement(string sWSUserName, string sWSPassword, MessageAnnouncementHandler.ws_notifications.MessageAnnouncement announcement) {
+            return base.Channel.UpdateMessageAnnouncement(sWSUserName, sWSPassword, announcement);
         }
         
-        public ApiObjects.Response.Status UpdateMessageAnnouncementStatus(string sWSUserName, string sWSPassword, int groupId, int id, bool status) {
-            return base.Channel.UpdateMessageAnnouncementStatus(sWSUserName, sWSPassword, groupId, id, status);
+        public ApiObjects.Response.Status UpdateMessageAnnouncementStatus(string sWSUserName, string sWSPassword, int id, bool status) {
+            return base.Channel.UpdateMessageAnnouncementStatus(sWSUserName, sWSPassword, id, status);
         }
         
-        public ApiObjects.Response.Status DeleteMessageAnnouncement(string sWSUserName, string sWSPassword, int groupId, int id) {
-            return base.Channel.DeleteMessageAnnouncement(sWSUserName, sWSPassword, groupId, id);
+        public ApiObjects.Response.Status DeleteMessageAnnouncement(string sWSUserName, string sWSPassword, int id) {
+            return base.Channel.DeleteMessageAnnouncement(sWSUserName, sWSPassword, id);
+        }
+        
+        public bool InitiateNotificationAction(string sWSUserName, string sWSPassword, ApiObjects.eUserMessageAction userAction, int userId, string udid, string pushToken) {
+            return base.Channel.InitiateNotificationAction(sWSUserName, sWSPassword, userAction, userId, udid, pushToken);
+        }
+        
+        public ApiObjects.Response.Status CreateSystemAnnouncement(string sWSUserName, string sWSPassword) {
+            return base.Channel.CreateSystemAnnouncement(sWSUserName, sWSPassword);
+        }
+        
+        public MessageAnnouncementHandler.ws_notifications.GetAllMessageAnnouncementsResponse GetAllMessageAnnouncements(string sWSUserName, string sWSPassword, int pageSize, int pageIndex) {
+            return base.Channel.GetAllMessageAnnouncements(sWSUserName, sWSPassword, pageSize, pageIndex);
         }
     }
 }
