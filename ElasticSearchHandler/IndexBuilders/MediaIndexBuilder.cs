@@ -309,16 +309,16 @@ namespace ElasticSearchHandler.IndexBuilders
 
                 Task<DataSet> tDS = Task<DataSet>.Factory.StartNew(() => GroupMedias.ExecuteDataSet());
                 tDS.Wait();
-                DataSet ds = tDS.Result;
+                DataSet dataSet = tDS.Result;
 
-                if (ds != null && ds.Tables.Count > 0)
+                if (dataSet != null && dataSet.Tables.Count > 0)
                 {
-                    if (ds.Tables[0].Rows.Count > 0)
+                    if (dataSet.Tables[0].Rows.Count > 0)
                     {
-                        foreach (DataRow row in ds.Tables[0].Rows)
+                        foreach (DataRow row in dataSet.Tables[0].Rows)
                         {
                             Media media = new Media();
-                            if (ds.Tables[0].Columns != null && ds.Tables[0].Rows != null)
+                            if (dataSet.Tables[0].Columns != null && dataSet.Tables[0].Rows != null)
                             {
                                 #region media info
                                 media.m_nMediaID = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
@@ -408,9 +408,9 @@ namespace ElasticSearchHandler.IndexBuilders
                         }
 
                         #region - get all the media files types for each mediaId that have been selected.
-                        if (ds.Tables[1].Columns != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
+                        if (dataSet.Tables[1].Columns != null && dataSet.Tables[1].Rows != null && dataSet.Tables[1].Rows.Count > 0)
                         {
-                            foreach (DataRow row in ds.Tables[1].Rows)
+                            foreach (DataRow row in dataSet.Tables[1].Rows)
                             {
                                 int mediaID = ODBCWrapper.Utils.GetIntSafeVal(row, "media_id");
                                 string sMFT = ODBCWrapper.Utils.GetSafeStr(row, "media_type_id");
@@ -422,9 +422,15 @@ namespace ElasticSearchHandler.IndexBuilders
 
                                 int mediaTypeId;
 
-                                if (isFree && int.TryParse(sMFT, out mediaTypeId))
+                                if (isFree)
                                 {
-                                    theMedia.freeFileTypes.Add(mediaTypeId);
+                                    // if at least one of the media types is free - this media is free
+                                    theMedia.isFree = true;
+
+                                    if (int.TryParse(sMFT, out mediaTypeId))
+                                    {
+                                        theMedia.freeFileTypes.Add(mediaTypeId);
+                                    }
                                 }
                             }
                         }
@@ -433,9 +439,9 @@ namespace ElasticSearchHandler.IndexBuilders
                         #region - get regions of media
 
                         // Regions table should be 6h on stored procedure
-                        if (ds.Tables.Count > 5 && ds.Tables[5].Columns != null && ds.Tables[5].Rows != null)
+                        if (dataSet.Tables.Count > 5 && dataSet.Tables[5].Columns != null && dataSet.Tables[5].Rows != null)
                         {
-                            foreach (DataRow mediaRegionRow in ds.Tables[5].Rows)
+                            foreach (DataRow mediaRegionRow in dataSet.Tables[5].Rows)
                             {
                                 int mediaId = ODBCWrapper.Utils.ExtractInteger(mediaRegionRow, "MEDIA_ID");
                                 int regionId = ODBCWrapper.Utils.ExtractInteger(mediaRegionRow, "REGION_ID");
@@ -458,9 +464,9 @@ namespace ElasticSearchHandler.IndexBuilders
                         #endregion
 
                         #region - get all media tags
-                        if (ds.Tables[2].Columns != null && ds.Tables[2].Rows != null && ds.Tables[2].Rows.Count > 0)
+                        if (dataSet.Tables[2].Columns != null && dataSet.Tables[2].Rows != null && dataSet.Tables[2].Rows.Count > 0)
                         {
-                            foreach (DataRow row in ds.Tables[2].Rows)
+                            foreach (DataRow row in dataSet.Tables[2].Rows)
                             {
                                 int nTagMediaID = ODBCWrapper.Utils.GetIntSafeVal(row, "media_id");
                                 int mttn = ODBCWrapper.Utils.GetIntSafeVal(row, "tag_type_id");
@@ -514,11 +520,11 @@ namespace ElasticSearchHandler.IndexBuilders
 
                         #region get all translated metas and media info
 
-                        if (ds.Tables[3].Columns != null && ds.Tables[3].Rows != null && ds.Tables[3].Rows.Count > 0)
+                        if (dataSet.Tables[3].Columns != null && dataSet.Tables[3].Rows != null && dataSet.Tables[3].Rows.Count > 0)
                         {
                             Dictionary<string, string> dMetas;
 
-                            foreach (DataRow row in ds.Tables[3].Rows)
+                            foreach (DataRow row in dataSet.Tables[3].Rows)
                             {
                                 int mediaID = ODBCWrapper.Utils.GetIntSafeVal(row, "MEDIA_ID");
                                 int nLanguageID = ODBCWrapper.Utils.GetIntSafeVal(row, "LANGUAGE_ID");
@@ -571,9 +577,9 @@ namespace ElasticSearchHandler.IndexBuilders
                         #endregion
 
                         #region - get all translated media tags
-                        if (ds.Tables[4].Columns != null && ds.Tables[4].Rows != null && ds.Tables[4].Rows.Count > 0)
+                        if (dataSet.Tables[4].Columns != null && dataSet.Tables[4].Rows != null && dataSet.Tables[4].Rows.Count > 0)
                         {
-                            foreach (DataRow row in ds.Tables[4].Rows)
+                            foreach (DataRow row in dataSet.Tables[4].Rows)
                             {
                                 int nTagMediaID = ODBCWrapper.Utils.GetIntSafeVal(row, "media_id");
                                 int mttn = ODBCWrapper.Utils.GetIntSafeVal(row, "tag_type_id");
