@@ -37,6 +37,9 @@ namespace CachingHelpers
         #region Private Members
 
         protected ICachingService cacheService = null;
+        /// <summary>
+        /// How long will an object stay in cache IN MINUTES
+        /// </summary>
         protected double cacheTime;
         protected string cacheGroupConfiguration;
         protected string version;
@@ -118,6 +121,7 @@ namespace CachingHelpers
 
             if (!double.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue("GroupsCacheDocTimeout"), out result))
             {
+                // 24 hours
                 result = 1440.0;
             }
 
