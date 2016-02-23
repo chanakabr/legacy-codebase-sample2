@@ -375,24 +375,69 @@ public partial class adm_utils : System.Web.UI.Page
         }
         else
         {
-            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery(sTable);
-            if (sConnectionKey != "")
-                updateQuery.SetConnectionKey(sConnectionKey);
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", int.Parse(sStatus));
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("updater_id", "=", LoginManager.GetLoginID());
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.UtcNow);
-            updateQuery += "where ";
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", int.Parse(sID));
-            updateQuery.Execute();
-            updateQuery.Finish();
-            updateQuery = null;
-
-            // Update Media / Channel in Lucene
-            log.Debug("ChangeActiveStateRow - table:" + sTable + ", ID:" + sID);
-
             string sRet = "activation_" + sID.ToString() + "~~|~~";
 
             string pageParam = string.IsNullOrEmpty(sPage) ? "" : ", '" + sPage + "'";
+
+            if (sTable == "message_announcements")
+            {
+                Int32 groupID = LoginManager.GetLoginGroupID();
+                bool result = false;
+
+                bool bStatus = int.Parse(sStatus) == 1 ? true : false;
+                result = ImporterImpl.UpdateMessageAnnouncementStatus(groupID, int.Parse(sID), bStatus);
+                if (result)
+                {
+                    if (int.Parse(sStatus) == 1)
+                    {
+                        sRet += "<b>On</b> / <a href=\"javascript: ChangeActiveStateRow('" + sTable + "'," + sID.ToString() + ",0,'" + sConnectionKey + "'" + pageParam + ");\" ";
+                        sRet += " class='adm_table_link_div' >";
+                        sRet += "Off";
+                        sRet += "</a>";
+                    }
+                    else
+                    {
+                        sRet += "<b>Off</b> / <a href=\"javascript: ChangeActiveStateRow('" + sTable + "'," + sID.ToString() + ",1,'" + sConnectionKey + "'" + pageParam + ");\" ";
+                        sRet += " class='adm_table_link_div' >";
+                        sRet += "On";
+                        sRet += "</a>";
+                    }
+                }
+                else // fail to change status
+                {
+                    if (int.Parse(sStatus) != 1)
+                    {
+                        sRet += "<b>On</b> / <a href=\"javascript: ChangeActiveStateRow('" + sTable + "'," + sID.ToString() + ",0,'" + sConnectionKey + "'" + pageParam + ");\" ";
+                        sRet += " class='adm_table_link_div' >";
+                        sRet += "Off";
+                        sRet += "</a>";
+                    }
+                    else
+                    {
+                        sRet += "<b>Off</b> / <a href=\"javascript: ChangeActiveStateRow('" + sTable + "'," + sID.ToString() + ",1,'" + sConnectionKey + "'" + pageParam + ");\" ";
+                        sRet += " class='adm_table_link_div' >";
+                        sRet += "On";
+                        sRet += "</a>";
+                    }
+                }
+                return sRet;
+            }
+                ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery(sTable);
+                if (sConnectionKey != "")
+                    updateQuery.SetConnectionKey(sConnectionKey);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", int.Parse(sStatus));
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("updater_id", "=", LoginManager.GetLoginID());
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.UtcNow);
+                updateQuery += "where ";
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", int.Parse(sID));
+                updateQuery.Execute();
+                updateQuery.Finish();
+                updateQuery = null;
+           
+            // Update Media / Channel in Lucene
+            log.Debug("ChangeActiveStateRow - table:" + sTable + ", ID:" + sID);
+
+            
 
             if (int.Parse(sStatus) == 1)
             {
