@@ -1167,25 +1167,27 @@ namespace TVPApiModule.Services
             return clientResponse;
         }
 
-        public ClientResponseStatus ChangeUsers(string initSiteGuid, string siteGuid, string udid, int groupId)
+        public ClientResponseStatus ChangeUsers(string initSiteGuid, string siteGuid, string udid)
         {
-            ClientResponseStatus clientResponse =null;
+            TVPPro.SiteManager.TvinciPlatform.Users.Status result = null;
+            ClientResponseStatus clientResponse;
 
             try
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    clientResponse = m_Module.ChangeUsers(m_wsUserName, m_wsPassword, initSiteGuid, siteGuid, udid, groupId);
+                    result = m_Module.ChangeUsers(m_wsUserName, m_wsPassword, initSiteGuid, siteGuid, udid);
+                    clientResponse = new ClientResponseStatus(result.Code, result.Message);
                 }
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("Error receive user data Protocol ChangeUsers, Error Message: {0} Parameters :WS User name : {1} , ws Password: {2}", ex.ToString(), m_wsUserName, m_wsPassword);
-                clientResponse = new TVPApiModule.Objects.Responses.ClientResponseStatus();
-                clientResponse.Status = ResponseUtils.ReturnGeneralErrorStatus();
+                logger.ErrorFormat("Error calling webservice protocol : ChangeUsers, Error Message: {0}, Parameters: initSiteGuid : {1}, siteGuid: {2}", ex.Message, initSiteGuid, siteGuid);
+                clientResponse = ResponseUtils.ReturnGeneralErrorClientResponse("Error while calling webservice");
             }
 
             return clientResponse;
         }
+
     }
 }

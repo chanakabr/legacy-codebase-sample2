@@ -1500,18 +1500,23 @@ namespace TVPApiServices
 
             if (groupID > 0)
             {
-                if (AuthorizationManager.IsTokenizationEnabled() && !AuthorizationManager.IsSwitchingUsersAllowed(groupID))
+                if (AuthorizationManager.IsTokenizationEnabled() && (!AuthorizationManager.IsSwitchingUsersAllowed(groupID)))
                 {
                     AuthorizationManager.Instance.returnError(403);
                     return null;
                 }
                 try
                 {
-                    //users
-                    // if sababa :
-                    bool success = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).ChangeUsers(initObj.SiteGuid, siteGuid, initObj.UDID, groupID);
-
-                    response = AuthorizationManager.Instance.UpdateUserInToken(initObj.Token, siteGuid, groupID, initObj.UDID);
+                    ClientResponseStatus status = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).ChangeUsers(initObj.SiteGuid, siteGuid, initObj.UDID);
+                    if (status != null && status.Status != null && status.Status.Code == (int)eStatus.OK)
+                    {
+                        response = AuthorizationManager.Instance.UpdateUserInToken(initObj.Token, siteGuid, groupID, initObj.UDID);
+                    }
+                    else
+                    {
+                        AuthorizationManager.Instance.returnError(403);
+                        return null;
+                    }
                 }
                 catch (Exception ex)
                 {
