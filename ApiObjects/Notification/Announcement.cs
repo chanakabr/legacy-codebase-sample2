@@ -10,5 +10,6 @@ namespace ApiObjects.Notification
         public long AnnouncementId { get; set; }
         public string AnnouncementName { get; set; }
         public eAnnouncementRecipientsType RecipientType { get; set; }
+        public string SubscriptionExternalIdentifier { get; set; }
     }
 }

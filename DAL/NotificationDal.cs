@@ -712,7 +712,7 @@ namespace DAL
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncement");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
-            sp.AddParameter("@top", pageSize*(pageIndex+1));
+            sp.AddParameter("@top", pageSize * (pageIndex + 1));
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
@@ -862,6 +862,21 @@ namespace DAL
             return userNotification;
         }
 
+        public static bool SetUserNotificationData(int groupId, string userId, UserNotification userNotification)
+        {
+            bool result = false;
+            try
+            {
+                result = cbManager.Set(GetUserNotificationKey(groupId, userId), JsonConvert.SerializeObject(userNotification));
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while set user notification data. gid: {0}, user ID: {1}, ex: {2}", groupId, userId, ex);
+            }
+
+            return result;
+        }
+
         public static string Get_AnnouncementExternalIdByRecipients(int recipients)
         {
             string ret = string.Empty;
@@ -882,7 +897,6 @@ namespace DAL
             return ret;
         }
 
-
         public static int Insert_Announcement(int groupId, string announcementName, string externalAnnouncementId, int messageType, int announcementRecipientsType)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("Insert_Announcement");
@@ -898,7 +912,8 @@ namespace DAL
             int newTransactionID = spInsert.ExecuteReturnValue<int>();
             return newTransactionID;
         }
-        public static DataRowCollection Get_AnnouncementByRecipientsTypes(List<eAnnouncementRecipientsType> recipientsTypes, List<long> announcementIds)
+
+        public static DataRowCollection Get_Announcement(List<eAnnouncementRecipientsType> recipientsTypes, List<long> announcementIds)
         {
             DataRowCollection rowCollection = null;
 
@@ -920,7 +935,21 @@ namespace DAL
             }
 
             return rowCollection;
+        }
 
+        public static bool SetDeviceNotificationData(int groupId, string udid, DeviceNotificationData newDeviceNotificationData)
+        {
+            bool result = false;
+            try
+            {
+                result = cbManager.Set(GetDeviceDataKey(groupId, udid), JsonConvert.SerializeObject(newDeviceNotificationData));
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to set device notification. gid: {0}, udid: {1}, ex: {2}", groupId, udid, ex);
+            }
+
+            return result;
         }
     }
 }

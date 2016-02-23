@@ -54,7 +54,7 @@ namespace ApiObjects.SearchObjects
         /// </summary>
         [JsonProperty()]
         [DataMember]
-        public int fileType;
+        public List<int> fileTypes;
 
         /// <summary>
         /// List of epg channel IDs that the user is entitled to watch (either free or paid for)
