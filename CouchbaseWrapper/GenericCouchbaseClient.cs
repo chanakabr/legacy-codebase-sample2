@@ -139,5 +139,10 @@ namespace CouchbaseWrapper
         {
             return _client.Unlock(id, cas);
         }
+
+        public ServerStats Stats()
+        {
+            return _client.Stats();
+        }
     }
 }
