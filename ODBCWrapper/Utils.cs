@@ -741,6 +741,16 @@ namespace ODBCWrapper
             return TimeZoneInfo.ConvertTimeToUtc(unspecifiedKindTime, tst);
         }
 
+        public static DateTime ConvertFromUtc(DateTime time, string timezone)
+        {
+            DateTime unspecifiedKindTime = new DateTime(time.Year, time.Month, time.Day, time.Hour,
+                                             time.Minute, time.Second, DateTimeKind.Utc);
+
+            TimeZoneInfo tst = TimeZoneInfo.FindSystemTimeZoneById(timezone);
+
+            return TimeZoneInfo.ConvertTimeFromUtc(unspecifiedKindTime, tst);
+        }
+
         public static SqlQueryInfo GetSqlDataMonitor(SqlCommand command)
         {
             SqlQueryInfo sqlInfo = new SqlQueryInfo();

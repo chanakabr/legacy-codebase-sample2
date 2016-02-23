@@ -27,6 +27,7 @@ namespace TvinciImporter
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         protected const string ROUTING_KEY_PROCESS_IMAGE_UPLOAD = "PROCESS_IMAGE_UPLOAD\\{0}";
+        protected const string ROUTING_KEY_PROCESS_FREE_ITEM_UPDATE = "PROCESS_FREE_ITEM_UPDATE\\{0}";
 
         static string m_sLocker = "";
         static protected bool IsNodeExists(ref XmlNode theItem, string sXpath)
@@ -5440,52 +5441,35 @@ namespace TvinciImporter
             return result;
         }
 
-        public static bool InsertRemoteTaskIndexUpdate(int groupID, List<int> mediaIDs)
+        public static bool InsertRemoteTaskIndexUpdate(int groupID, eObjectType type, List<int> assetIDs, DateTime updateIndexDate)
         {
             bool result = false;
-
-            //ws_cas.module cas = new ws_cas.module();
-            //string ip = "1.1.1.1";
-            //string sWSUserName = "";
-            //string sWSPassword = "";
-
             //int parentGroupId = DAL.UtilsDal.GetParentGroupID(groupID);
 
-            //TVinciShared.WS_Utils.GetWSUNPass(parentGroupId, "InsertRemoteTaskIndexUpdate", "conditionalaccess", ip, ref sWSUserName, ref sWSPassword);
-            //string url = TVinciShared.WS_Utils.GetTcmConfigValue("conditionalaccess_ws");
+            try
+            {
+                // validate assets and updateIndexDate
+                if (assetIDs == null || assetIDs.Count == 0 || (DateTime.Now - updateIndexDate).TotalMilliseconds <= 0)
+                {
+                    return result;
+                }
 
-            //if (url != "")
-            //{
-            //    cas.Url = url;
-            //}
+                GenericCeleryQueue queue = new GenericCeleryQueue();
+                FreeItemUpdateData data = new FreeItemUpdateData(groupID, type, assetIDs, updateIndexDate);
+                bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_FREE_ITEM_UPDATE, groupID));
+                if (!enqueueSuccessful)
+                {
+                    log.ErrorFormat("Failed queuing free item index update {0}", data);
+                    return true;
+                }
+                else
+                    log.DebugFormat("New free item index update task created. Next update date: {0}, data: {1}", updateIndexDate, data);
 
-            //try
-            //{
-            //    if (mediaIDs == null)
-            //    {
-            //        mediaIDs = new List<int>();
-            //    }
-
-            //    var response = cas.InsertRemoteTaskIndexUpdate(sWSUserName, sWSPassword, mediaIDs.ToArray());
-
-            //    if (response == null)
-            //    {
-            //        log.Error("Failed Inserting remote task index update, got null response");
-            //    }
-            //    else if (response.Code == 0)
-            //    {
-            //        result = true;
-            //    }
-            //    else
-            //    {
-            //        log.ErrorFormat("Failed Inserting remote task index update, got status code {0}, message {1}", response.Code, response.Message);
-            //    }
-
-            //}
-            //catch (Exception ex)
-            //{
-            //    log.ErrorFormat("Failed Inserting remote task index update: ", ex);
-            //}
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed Inserting remote task index update: ", ex);
+            }
 
             return result;
         }

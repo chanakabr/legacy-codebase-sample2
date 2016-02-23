@@ -171,6 +171,13 @@ namespace Catalog
 
             if (definitions.entitlementSearchDefinitions != null)
             {
+                int[] fileTypes = null;
+
+                if (request.m_oFilter != null)
+                {
+                    fileTypes = request.m_oFilter.fileTypes;
+                }
+
                 var entitlementSearchDefinitions = definitions.entitlementSearchDefinitions;
 
                 List<int> epgChannelIds = new List<int>();
@@ -186,8 +193,9 @@ namespace Catalog
 
                 if (entitlementSearchDefinitions.shouldGetPurchasedAssets)
                 {
+
                     entitlementSearchDefinitions.entitledPaidForAssets =
-                       EntitledAssetsUtils.GetUserPPVAssets(parentGroupID, request.m_sSiteGuid, request.domainId, request.fileType, out purchasedEpgChannelIds);
+                       EntitledAssetsUtils.GetUserPPVAssets(parentGroupID, request.m_sSiteGuid, request.domainId, fileTypes, out purchasedEpgChannelIds);
                 }
 
                 if (freeEpgChannelIds != null)
@@ -224,7 +232,7 @@ namespace Catalog
                 if (entitlementSearchDefinitions.shouldGetPurchasedAssets)
                 {
                     entitlementSearchDefinitions.subscriptionSearchObjects =
-                        EntitledAssetsUtils.GetUserSubscriptionSearchObjects(request, parentGroupID, request.m_sSiteGuid, request.domainId, request.fileType,
+                        EntitledAssetsUtils.GetUserSubscriptionSearchObjects(request, parentGroupID, request.m_sSiteGuid, request.domainId, fileTypes,
                         request.order, entitlementMediaTypes, definitions.deviceRuleId);
                 }
 
@@ -232,7 +240,12 @@ namespace Catalog
                 {
                     // Convert the file type that we received in request (taken from groups_media_type)
                     // into the file type that the media file knows (based on the table media_files)
-                    entitlementSearchDefinitions.fileType = group.groupMediaFileTypeToFileType[request.fileType];
+                    entitlementSearchDefinitions.fileTypes = new List<int>();
+
+                    foreach (var fileType in fileTypes)
+                    {
+                        entitlementSearchDefinitions.fileTypes.Add(group.groupMediaFileTypeToFileType[fileType]);
+                    }
                 }
 
                 // TODO: Maybe this will be the method that gets the FREE epg channel IDs
@@ -276,15 +289,23 @@ namespace Catalog
 
         public UnifiedSearchDefinitions GetDefinitions(UnifiedSearchRequest request)
         {
-            // Make sure every time that cache time is 10 minutes
-            this.cacheTime = 10;
+            // if no request Id - simply build the value and return it
+            if (string.IsNullOrEmpty(request.requestId))
+            {
+                return this.BuildValue(request);
+            }
+            else
+            {
+                // Make sure every time that cache time is 10 minutes
+                this.cacheTime = 10;
 
-            string mutexName = string.Concat("Search Definitions GID_", request.m_nGroupID);
-            string cacheKey = 
-                string.Format("{0}_{1}_{2}_{3}", 
-                this.version, "Search_Definitions", request.m_sSiteGuid, request.requestId);
+                string mutexName = string.Concat("Search Definitions GID_", request.m_nGroupID);
+                string cacheKey =
+                    string.Format("{0}_{1}_{2}_{3}",
+                    this.version, "Search_Definitions", request.m_sSiteGuid, request.requestId);
 
-            return this.Get(cacheKey, mutexName, request);
+                return this.Get(cacheKey, mutexName, request);
+            }
         }
 
         #endregion
