@@ -860,7 +860,24 @@ namespace Catalog
                         {
                             int mediaID = ODBCWrapper.Utils.GetIntSafeVal(row, "media_id");
                             string sMFT = ODBCWrapper.Utils.GetSafeStr(row, "media_type_id");
-                            medias[mediaID].m_sMFTypes += string.Format("{0};", sMFT);
+                            bool isFree = ODBCWrapper.Utils.ExtractBoolean(row, "is_free");
+
+                            Media theMedia = medias[mediaID];
+
+                            theMedia.m_sMFTypes += string.Format("{0};", sMFT);
+
+                            int mediaTypeId;
+
+                            if (isFree)
+                            {
+                                // if at least one of the media types is free - this media is free
+                                theMedia.isFree = true;
+
+                                if (int.TryParse(sMFT, out mediaTypeId))
+                                {
+                                    theMedia.freeFileTypes.Add(mediaTypeId);
+                                }
+                            }
                         }
                     }
                     #endregion
