@@ -40,7 +40,7 @@ namespace MessageAnnouncementHandler
                 
                 bool success = false;
 
-                success = notificationsClient.SendMessageAnnouncement(username, password, request.GroupId, request.StartTime, request.MessageAnnouncementId);
+                success = notificationsClient.SendMessageAnnouncement(username, password, request.StartTime, request.MessageAnnouncementId);
 
                 if (!success)
                 {

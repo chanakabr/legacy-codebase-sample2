@@ -77,22 +77,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="Service References\ws_notifications\InitiateNotificationAction.ws_notifications.AddMessageAnnouncementResponse.datasource">
+    <None Include="Properties\DataSources\ApiObjects.Notification.NotificationPartnerSettingsResponse.datasource" />
+    <None Include="Properties\DataSources\ApiObjects.Notification.NotificationSettingsResponse.datasource" />
+    <None Include="Properties\DataSources\ApiObjects.Response.Status.datasource" />
+    <None Include="Service References\ws_notifications\InitiateNotificationActionHandler.ws_notifications.AddMessageAnnouncementResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\ws_notifications\InitiateNotificationAction.ws_notifications.GetAllMessageAnnouncementsResponse.datasource">
+    <None Include="Service References\ws_notifications\InitiateNotificationActionHandler.ws_notifications.GetAllMessageAnnouncementsResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\ws_notifications\InitiateNotificationAction.ws_notifications.NotificationMessage.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\ws_notifications\InitiateNotificationAction.ws_notifications.NotificationPartnerSettingsResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\ws_notifications\InitiateNotificationAction.ws_notifications.NotificationSettingsResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\ws_notifications\InitiateNotificationAction.ws_notifications.Status.datasource">
+    <None Include="Service References\ws_notifications\InitiateNotificationActionHandler.ws_notifications.NotificationMessage.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
     <None Include="Service References\ws_notifications\NotificationService.wsdl" />

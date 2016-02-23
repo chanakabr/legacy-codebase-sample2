@@ -9,8 +9,8 @@ using TVinciShared;
 using ApiObjects;
 using KLogMonitor;
 using System.Reflection;
-using InitiateNotificationAction;
-using InitiateNotificationAction.ws_notifications;
+using InitiateNotificationActionHandler;
+using InitiateNotificationActionHandler.ws_notifications;
 
 namespace InitiateNotificationActionHandler
 {
@@ -40,23 +40,7 @@ namespace InitiateNotificationActionHandler
 
                 bool success = false;
 
-                InitiateNotificationAction.ws_notifications.eUserMessageAction action = InitiateNotificationAction.ws_notifications.eUserMessageAction.IdentifyPushRegistration;
-
-                switch (request.UserAction)
-                {
-                    case (int)ApiObjects.eUserMessageAction.AnonymousPushRegistration:
-                        action = InitiateNotificationAction.ws_notifications.eUserMessageAction.AnonymousPushRegistration;
-                        break;
-                    case (int)ApiObjects.eUserMessageAction.IdentifyPushRegistration:
-                        action = InitiateNotificationAction.ws_notifications.eUserMessageAction.IdentifyPushRegistration;
-                        break;
-                    case (int)ApiObjects.eUserMessageAction.Login:
-                        action = InitiateNotificationAction.ws_notifications.eUserMessageAction.Login;
-                        break;
-                    case (int)ApiObjects.eUserMessageAction.Logout:
-                        action = InitiateNotificationAction.ws_notifications.eUserMessageAction.Logout;
-                        break;
-                }
+                eUserMessageAction action = (eUserMessageAction)request.UserAction;
 
                 success = notificationsClient.InitiateNotificationAction(username, password, action, request.UserId, request.Udid, request.pushToken);
 
