@@ -14,7 +14,7 @@ namespace CouchbaseManager
 
     public class CouchbaseManager
     {
-
+        private const int MAX_RETRY = 3;
         
 
         private static volatile Dictionary<string, CouchbaseClient> m_CouchbaseInstances = new Dictionary<string, CouchbaseClient>();
@@ -32,13 +32,51 @@ namespace CouchbaseManager
                 {
                     try
                     {
+                        bool isDone = false;
+                        int currentRetry = 0;
+
                         if (!m_CouchbaseInstances.ContainsKey(eBucket.ToString()))
                         {
-                            CouchbaseClient client = createNewInstance(eBucket);
-
-                            if (client != null)
+                            while (!isDone)
                             {
-                                m_CouchbaseInstances.Add(eBucket.ToString(), client);
+                                CouchbaseClient client = createNewInstance(eBucket);
+
+                                if (client != null)
+                                {
+                                    // test connection
+                                    bool isOK = true;
+                                    try
+                                    {
+                                        Enyim.Caching.Memcached.ServerStats stats = client.Stats();
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        isOK = false;
+
+                                        Logger.Logger.Log("GetInstance",
+                                                    string.Format("Connection test failed. error message = {0}, stack trace = {1}",
+                                                    ex.Message, ex.StackTrace),
+                                                    "CouchbaseManager");
+                                    }
+
+                                    if (!isOK)
+                                    {
+                                        currentRetry++;
+
+                                        if (currentRetry > MAX_RETRY)
+                                        {
+                                            isDone = true;
+                                            throw new Exception("Exceeded maximum number of Couchbase instance refresh");
+                                        }
+
+                                        Thread.Sleep(500);
+                                    }
+                                    else
+                                    {
+                                        m_CouchbaseInstances.Add(eBucket.ToString(), client);
+                                        isDone = true;
+                                    }
+                                }
                             }
                         }
                     }
@@ -62,6 +100,7 @@ namespace CouchbaseManager
                 try
                 {
                     m_CouchbaseInstances.TryGetValue(eBucket.ToString(), out tempClient);
+
                 }
                 catch (Exception ex)
                 {
@@ -71,25 +110,6 @@ namespace CouchbaseManager
                     m_oSyncLock.ExitReadLock();
                 }
             }
-
-            // test connection
-            bool isOK = true;
-            try
-            {
-                Enyim.Caching.Memcached.ServerStats stats = tempClient.Stats();
-            }
-            catch (Exception ex)
-            {
-                isOK = false;
-
-                Logger.Logger.Log("GetInstance",
-                            string.Format("Connection test failed. error message = {0}, stack trace = {1}",
-                            ex.Message, ex.StackTrace),
-                            "CouchbaseManager");
-            }
-
-            if (!isOK)
-                tempClient = RefreshInstance(eBucket);
 
             return tempClient;
         }

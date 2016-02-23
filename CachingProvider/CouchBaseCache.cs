@@ -22,7 +22,7 @@ namespace CachingProvider
             }
         }
         eCouchbaseBucket bucket = eCouchbaseBucket.DEFAULT;
-            
+
         private CouchBaseCache(eCouchbaseBucket eCacheName)
         {
             bucket = eCacheName;
@@ -75,24 +75,15 @@ namespace CachingProvider
                     // VBucketBelongsToAnotherServer
                     case 7:
                     // OutOfMemory
-                    case 82:
+                    case 130:
                     // InternalError
-                    case 84:
-                    // Busy
-                    case 85:
-                    // TemporaryFailure
-                    case 86:
-                    // SocketPoolTimeout 
-                    case 91:
-                    // UnableToLocateNode
-                    case 92:
-                    // NodeShutdown
-                    case 93:
-                    // OperationTimeout
-                    case 94:
-
+                    case 132:
                     // Busy
                     case 133:
+                    // TemporaryFailure
+                    case 134:
+                    // SocketPoolTimeout 
+                    case 91:
                     // SocketPoolTimeout
                     case 145:
                     // UnableToLocateNode
