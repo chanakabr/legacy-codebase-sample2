@@ -734,5 +734,10 @@ namespace CouchbaseWrapper
             }
             return result;
         }
+
+        public ServerStats Stats()
+        {
+            return _client.Stats();
+        }
     }
 }
