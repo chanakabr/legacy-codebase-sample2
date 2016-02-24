@@ -17,6 +17,8 @@ namespace CouchbaseManager
     public class CouchbaseManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private const int MAX_RETRY = 3;
+
         private static volatile Dictionary<string, CouchbaseClient> m_CouchbaseInstances = new Dictionary<string, CouchbaseClient>();
         private static object syncObj = new object();
         private static ReaderWriterLockSlim m_oSyncLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
@@ -31,13 +33,49 @@ namespace CouchbaseManager
                 {
                     try
                     {
+                        bool isDone = false;
+                        int currentRetry = 0;
+
                         if (!m_CouchbaseInstances.ContainsKey(eBucket.ToString()))
                         {
-                            CouchbaseClient client = createNewInstance(eBucket);
-
-                            if (client != null)
+                            while (!isDone)
                             {
-                                m_CouchbaseInstances.Add(eBucket.ToString(), client);
+                                CouchbaseClient client = createNewInstance(eBucket);
+
+                                if (client != null)
+                                {
+                                    // test connection
+                                    bool isOK = true;
+                                    try
+                                    {
+                                        Enyim.Caching.Memcached.ServerStats stats = client.Stats();
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        isOK = false;
+
+                                        log.ErrorFormat("Connection test failed. error message = {0}, stack trace = {1}",
+                                                    ex.Message, ex.StackTrace);
+                                    }
+
+                                    if (!isOK)
+                                    {
+                                        currentRetry++;
+
+                                        if (currentRetry > MAX_RETRY)
+                                        {
+                                            isDone = true;
+                                            throw new Exception("Exceeded maximum number of Couchbase instance refresh");
+                                        }
+
+                                        Thread.Sleep(100);
+                                    }
+                                    else
+                                    {
+                                        m_CouchbaseInstances.Add(eBucket.ToString(), client);
+                                        isDone = true;
+                                    }
+                                }
                             }
                         }
                     }
@@ -58,6 +96,7 @@ namespace CouchbaseManager
                 try
                 {
                     m_CouchbaseInstances.TryGetValue(eBucket.ToString(), out tempClient);
+
                 }
                 catch (Exception ex)
                 {
@@ -105,28 +144,25 @@ namespace CouchbaseManager
         /// <returns></returns>
         public static CouchbaseClient RefreshInstance(eCouchbaseBucket eBucket)
         {
-            if (m_CouchbaseInstances.ContainsKey(eBucket.ToString()))
-            {
-                if (m_oSyncLock.TryEnterWriteLock(1000))
-                {
-                    try
-                    {
-                        if (m_CouchbaseInstances.ContainsKey(eBucket.ToString()))
-                        {
-                            var client = m_CouchbaseInstances[eBucket.ToString()];
-                            client.Dispose();
 
-                            m_CouchbaseInstances.Remove(eBucket.ToString());
-                        }
-                    }
-                    catch (Exception ex)
+            if (m_oSyncLock.TryEnterWriteLock(1000))
+            {
+                try
+                {
+                    foreach (var key in new List<string>(m_CouchbaseInstances.Keys))
                     {
-                        log.Error("", ex);
+                        m_CouchbaseInstances[key].Dispose();
+                        m_CouchbaseInstances[key] = null;
                     }
-                    finally
-                    {
-                        m_oSyncLock.ExitWriteLock();
-                    }
+
+                    m_CouchbaseInstances.Clear();
+                }
+                catch (Exception ex)
+                {
+                }
+                finally
+                {
+                    m_oSyncLock.ExitWriteLock();
                 }
             }
 
