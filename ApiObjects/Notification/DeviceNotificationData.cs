@@ -11,12 +11,15 @@ namespace ApiObjects.Notification
     {
         public DeviceNotificationData()
         {
-            AnnouncementSubscriptions = new List<AnnouncementSubscription>();
+            this.SubscribedAnnouncements = new List<AnnouncementSubscription>();
         }
 
-        public string UserId { get; set; }
+        public int UserId { get; set; }
         public string Udid { get; set; }
         public long UpdatedAt { get; set; }
-        public List<AnnouncementSubscription> AnnouncementSubscriptions { get; set; }
+        public bool IsLoggedIn { get; set; }
+        public string SubscriptionExternalIdentifier { get; set; }
+
+        public List<AnnouncementSubscription> SubscribedAnnouncements { get; set; }
     }
 }

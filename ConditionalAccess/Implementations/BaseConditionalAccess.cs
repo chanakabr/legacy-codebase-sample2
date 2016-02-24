@@ -40,8 +40,7 @@ namespace ConditionalAccess
         private const long DEFAULT_RECONCILIATION_FREQUENCY_SECONDS = 7200;
         private const string ILLEGAL_CONTENT_ID = "Illegal content ID";
         private const string CONTENT_ID_WITH_A_RELATED_MEDIA = "Content ID with a related media";
-        protected const string ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION = "PROCESS_RENEW_SUBSCRIPTION\\{0}";
-        protected const string ROUTING_KEY_PROCESS_FREE_ITEM_UPDATE = "PROCESS_FREE_ITEM_UPDATE\\{0}";
+        protected const string ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION = "PROCESS_RENEW_SUBSCRIPTION\\{0}";        
         protected const string BILLING_CONNECTION_STRING = "BILLING_CONNECTION";
 
         public const string PRICE = "pri";

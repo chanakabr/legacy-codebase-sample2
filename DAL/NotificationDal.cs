@@ -35,7 +35,7 @@ namespace DAL
             return string.Format("device_data_{0}_{1}", groupId, udid);
         }
 
-        private static string GetUserNotificationKey(int groupId, string userId)
+        private static string GetUserNotificationKey(int groupId, int userId)
         {
             return string.Format("user_notification_{0}_{1}", groupId, userId);
         }
@@ -712,7 +712,7 @@ namespace DAL
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncement");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
-            sp.AddParameter("@top", pageSize*(pageIndex+1));
+            sp.AddParameter("@top", pageSize * (pageIndex + 1));
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
@@ -836,6 +836,8 @@ namespace DAL
                 string deviceString = cbManager.Get<string>(GetDeviceDataKey(groupId, udid));
                 if (!string.IsNullOrEmpty(deviceString))
                     deviceData = JsonConvert.DeserializeObject<DeviceNotificationData>(deviceString);
+                else
+                    log.DebugFormat("Device data wasn't found. GID: {0}, UDID: {1}", groupId, udid);
             }
             catch (Exception ex)
             {
@@ -845,7 +847,28 @@ namespace DAL
             return deviceData;
         }
 
-        public static UserNotification GetUserNotificationData(int groupId, string userId)
+        public static bool SetDeviceNotificationData(int groupId, string udid, DeviceNotificationData newDeviceNotificationData)
+        {
+            bool result = false;
+            try
+            {
+                result = cbManager.Set(GetDeviceDataKey(groupId, udid), JsonConvert.SerializeObject(newDeviceNotificationData));
+                if (!result)
+                {
+                    log.ErrorFormat("Error while trying to set device notification. gid: {0}, udid: {1}, data: {2}",
+                        groupId,
+                        udid,
+                        JsonConvert.SerializeObject(newDeviceNotificationData));
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to set device notification. gid: {0}, udid: {1}, ex: {2}", groupId, udid, ex);
+            }
+            return result;
+        }
+
+        public static UserNotification GetUserNotificationData(int groupId, int userId)
         {
             UserNotification userNotification = null;
             try
@@ -853,6 +876,8 @@ namespace DAL
                 string userNotificationString = cbManager.Get<string>(GetUserNotificationKey(groupId, userId));
                 if (!string.IsNullOrEmpty(userNotificationString))
                     userNotification = JsonConvert.DeserializeObject<UserNotification>(userNotificationString);
+                else
+                    log.DebugFormat("User notification data wasn't found. GID: {0}, UID: {1}", groupId, userId);
             }
             catch (Exception ex)
             {
@@ -860,6 +885,28 @@ namespace DAL
             }
 
             return userNotification;
+        }
+
+        public static bool SetUserNotificationData(int groupId, int userId, UserNotification userNotification)
+        {
+            bool result = false;
+            try
+            {
+                result = cbManager.Set(GetUserNotificationKey(groupId, userId), JsonConvert.SerializeObject(userNotification));
+                if (!result)
+                {
+                    log.ErrorFormat("Error while set user notification data. GID: {0}, user ID: {1}. data: {2}",
+                        groupId,
+                        userId,
+                        JsonConvert.SerializeObject(userNotification));
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while set user notification data. gid: {0}, user ID: {1}, ex: {2}", groupId, userId, ex);
+            }
+
+            return result;
         }
 
         public static string Get_AnnouncementExternalIdByRecipients(int recipients)
@@ -882,7 +929,6 @@ namespace DAL
             return ret;
         }
 
-
         public static int Insert_Announcement(int groupId, string announcementName, string externalAnnouncementId, int messageType, int announcementRecipientsType)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("Insert_Announcement");
@@ -898,18 +944,22 @@ namespace DAL
             int newTransactionID = spInsert.ExecuteReturnValue<int>();
             return newTransactionID;
         }
-        public static DataRowCollection Get_AnnouncementByRecipientsTypes(List<eAnnouncementRecipientsType> recipientsTypes, List<long> announcementIds)
+
+        public static DataRowCollection Get_Announcement(int groupId, List<eAnnouncementRecipientsType> recipientsTypes, List<long> announcementIds, bool isAnd = false)
         {
             DataRowCollection rowCollection = null;
 
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAnnouncements");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
 
+            sp.AddParameter("@group_id", groupId);
+            sp.AddParameter("@and", Convert.ToInt16(isAnd));
+
             if (announcementIds != null && announcementIds.Count > 0)
-                sp.AddIDListParameter<long>("@IDs", announcementIds, "Id");
+                sp.AddIDListParameter<long>("@ids", announcementIds, "Id");
 
             if (recipientsTypes != null && recipientsTypes.Count > 0)
-                sp.AddIDListParameter<int>("@recipientTypes", recipientsTypes.Cast<int>().ToList(), "Id");
+                sp.AddIDListParameter<int>("@recipient_types", recipientsTypes.Cast<int>().ToList(), "Id");
 
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
@@ -920,7 +970,6 @@ namespace DAL
             }
 
             return rowCollection;
-
         }
     }
 }

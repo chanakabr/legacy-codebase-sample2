@@ -45,9 +45,6 @@ namespace Catalog.Request
         public int from;
 
         [DataMember]
-        public int fileType;
-
-        [DataMember]
         public string requestId;
 
         #endregion

@@ -26,6 +26,7 @@ namespace TvinciImporter
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         protected const string ROUTING_KEY_PROCESS_IMAGE_UPLOAD = "PROCESS_IMAGE_UPLOAD\\{0}";
+        protected const string ROUTING_KEY_PROCESS_FREE_ITEM_UPDATE = "PROCESS_FREE_ITEM_UPDATE\\{0}";
 
         static string m_sLocker = "";
         static protected bool IsNodeExists(ref XmlNode theItem, string sXpath)
@@ -5349,74 +5350,149 @@ namespace TvinciImporter
         public static bool UpdateFreeFileTypeOfModule(int groupId, int moduleId)
         {
             bool result = false;
-
-            // Continue only if we have successfully extracted module Id from session
+            
             if (moduleId == 0)
             {
                 log.Error("Failed updating free item index because couldn't get module Id");
             }
             else
-            {
-                //result = UpdateFreeFileType(groupId, ws_cas.eObjectType.Media, new List<int>(), new List<int>() { moduleId });
+            {                
+                DataTable mediaIds = DAL.ImporterImpDAL.GetMediasByPPVModuleID(groupId, moduleId);
+                if (mediaIds != null)
+                {
+                    if (mediaIds.Rows != null)
+                    {
+                        if (mediaIds.Rows.Count == 0)
+                        {
+                            result = true;
+                        }
+                        else
+                        {
+                            List<int> mediaIDsToUpdate = new List<int>();
+                            foreach (DataRow dr in mediaIds.Rows)
+                            {
+                                int mediaIDToAdd = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_ID");
+                                if (mediaIDToAdd > 0)
+                                {
+                                    mediaIDsToUpdate.Add(mediaIDToAdd);
+                                }
+                            }
 
-                //****************************************
-                //TODO: update all the medias in the ppvModule
-                //****************************************
-                UpdateIndex(new List<int>() { 1 }, groupId, eAction.Update);
+                            if (mediaIDsToUpdate != null && mediaIDsToUpdate.Count > 0)
+                            {
+                                result = UpdateIndex(mediaIDsToUpdate, groupId, eAction.Update);
+                            }
+                        }
+                    }
+                }                
             }
 
             return result;
         }
 
-        public static bool InsertRemoteTaskIndexUpdate(int groupID, List<int> mediaIDs)
+        public static bool InsertRemoteTaskFreeItemsIndexUpdateByPPVModuleID(int groupId, eObjectType type, int moduleId, DateTime updateIndexDate)
         {
             bool result = false;
-
-            //ws_cas.module cas = new ws_cas.module();
-            //string ip = "1.1.1.1";
-            //string sWSUserName = "";
-            //string sWSPassword = "";
-
             //int parentGroupId = DAL.UtilsDal.GetParentGroupID(groupID);
 
-            //TVinciShared.WS_Utils.GetWSUNPass(parentGroupId, "InsertRemoteTaskIndexUpdate", "conditionalaccess", ip, ref sWSUserName, ref sWSPassword);
-            //string url = TVinciShared.WS_Utils.GetTcmConfigValue("conditionalaccess_ws");
+            try
+            {
+                if (moduleId == 0)
+                {
+                    log.Error("Failed updating free item index because couldn't get module Id");
+                }
+                else
+                {
+                    List<int> assetIDsToUpdate = new List<int>();
+                    switch (type)
+                    {
+                        case eObjectType.Unknown:
+                            break;
+                        case eObjectType.Media:
+                            DataTable mediaIDs = DAL.ImporterImpDAL.GetMediasByPPVModuleID(groupId, moduleId);
+                            if (mediaIDs != null && mediaIDs.Rows != null && mediaIDs.Rows.Count > 0)
+                            {
+                                foreach (DataRow dr in mediaIDs.Rows)
+                                {
+                                    int mediaIDToAdd = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_ID");
+                                    if (mediaIDToAdd > 0)
+                                    {
+                                        assetIDsToUpdate.Add(mediaIDToAdd);
+                                    }
+                                }
+                            }
+                            break;
+                        case eObjectType.Channel:
+                            break;
+                        case eObjectType.EPG:
+                            break;
+                        default:
+                            break;
+                    }
 
-            //if (url != "")
-            //{
-            //    cas.Url = url;
-            //}
+                    if (assetIDsToUpdate.Count == 0)
+                    {
+                        result = true;
+                    }
 
-            //try
-            //{
-            //    if (mediaIDs == null)
-            //    {
-            //        mediaIDs = new List<int>();
-            //    }
-
-            //    var response = cas.InsertRemoteTaskIndexUpdate(sWSUserName, sWSPassword, mediaIDs.ToArray());
-
-            //    if (response == null)
-            //    {
-            //        log.Error("Failed Inserting remote task index update, got null response");
-            //    }
-            //    else if (response.Code == 0)
-            //    {
-            //        result = true;
-            //    }
-            //    else
-            //    {
-            //        log.ErrorFormat("Failed Inserting remote task index update, got status code {0}, message {1}", response.Code, response.Message);
-            //    }
-
-            //}
-            //catch (Exception ex)
-            //{
-            //    log.ErrorFormat("Failed Inserting remote task index update: ", ex);
-            //}
+                    GenericCeleryQueue queue = new GenericCeleryQueue();
+                    FreeItemUpdateData data = new FreeItemUpdateData(groupId, type, assetIDsToUpdate, updateIndexDate);
+                    bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_FREE_ITEM_UPDATE, groupId));
+                    if (enqueueSuccessful)
+                    {
+                        log.DebugFormat("New free item index update task created. Next update date: {0}, data: {1}", updateIndexDate, data);
+                        result = true;
+                    }
+                    else
+                    {
+                        log.ErrorFormat("Failed queuing free item index update {0}", data);
+                    }                    
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed Inserting remote task index update: ", ex);
+            }
 
             return result;
         }
+
+        public static bool InsertRemoteTaskFreeItemsIndexUpdate(int groupID, eObjectType type, List<int> assetIDs, DateTime updateIndexDate)
+        {
+            bool result = false;
+            //int parentGroupId = DAL.UtilsDal.GetParentGroupID(groupID);
+
+            try
+            {
+                // validate assets and updateIndexDate
+                if (assetIDs == null || assetIDs.Count == 0 || (DateTime.Now - updateIndexDate).TotalMilliseconds <= 0)
+                {
+                    return result;
+                }
+
+                GenericCeleryQueue queue = new GenericCeleryQueue();
+                FreeItemUpdateData data = new FreeItemUpdateData(groupID, type, assetIDs, updateIndexDate);
+                bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_FREE_ITEM_UPDATE, groupID));
+                if (enqueueSuccessful)
+                {
+                    log.DebugFormat("New free item index update task created. Next update date: {0}, data: {1}", updateIndexDate, data);                    
+                    result = true;
+                }
+                else
+                {
+                    log.ErrorFormat("Failed queuing free item index update {0}", data);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed Inserting remote task index update: ", ex);
+            }
+
+            return result;
+        }
+
+        
     }
 }
 

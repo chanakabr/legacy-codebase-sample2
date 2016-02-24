@@ -14,7 +14,7 @@ namespace Catalog
 {
     public class EntitledAssetsUtils
     {
-        public static List<BaseSearchObject> GetUserSubscriptionSearchObjects(BaseRequest request, int groupId, string siteGuid, int domainId, int fileTypeId,
+        public static List<BaseSearchObject> GetUserSubscriptionSearchObjects(BaseRequest request, int groupId, string siteGuid, int domainId, int[] fileTypeIds,
             OrderObj order, string[] mediaTypes = null, int[] deviceRuleIds = null)
         {
             List<BaseSearchObject> result = new List<BaseSearchObject>();
@@ -55,8 +55,7 @@ namespace Catalog
                 string url = Utils.GetWSURL("ws_cas");
                 cas.Url = url;
 
-                var userBundles = cas.GetUserBundles(userName, password, domainId, 
-                    new int[] { fileTypeId });
+                var userBundles = cas.GetUserBundles(userName, password, domainId, fileTypeIds);
 
                 if (userBundles == null || userBundles.status == null)
                 {
@@ -89,7 +88,7 @@ namespace Catalog
             return result;
         }
 
-        internal static Dictionary<eAssetTypes, List<string>> GetUserPPVAssets(int groupId, string siteGuid, int domainId, int fileType, out List<int> epgChannelIds)
+        internal static Dictionary<eAssetTypes, List<string>> GetUserPPVAssets(int groupId, string siteGuid, int domainId, int[] fileTypes, out List<int> epgChannelIds)
         {
             Dictionary<eAssetTypes, List<string>> result = new Dictionary<eAssetTypes, List<string>>();
             epgChannelIds = new List<int>();
@@ -121,8 +120,7 @@ namespace Catalog
                 string url = Utils.GetWSURL("ws_cas");
                 cas.Url = url;
 
-                var purchasedAssets = cas.GetUserPurchasedAssets(userName, password, domainId, 
-                    new int[] { fileType });
+                var purchasedAssets = cas.GetUserPurchasedAssets(userName, password, domainId, fileTypes);
 
                 if (purchasedAssets == null || purchasedAssets.status == null)
                 {
