@@ -27,7 +27,6 @@ namespace CouchbaseManager
         {
             CouchbaseClient tempClient = null;
 
-
             if (!m_CouchbaseInstances.ContainsKey(eBucket.ToString()))
             {
                 if (m_oSyncLock.TryEnterWriteLock(1000))
