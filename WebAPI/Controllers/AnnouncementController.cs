@@ -26,9 +26,9 @@ namespace WebAPI.Controllers
         /// FeatureDisabled = 8009</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        public int Add(KalturaAnnouncement announcement)
+        public bool Add(KalturaAnnouncement announcement)
         {
-            int response = 0;
+            bool response = false;
 
             try
             {

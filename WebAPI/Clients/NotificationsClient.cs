@@ -207,7 +207,7 @@ namespace WebAPI.Clients
             return success;
         }
 
-        internal int AddAnnouncement(int groupId, Models.Notifications.KalturaAnnouncement announcement)
+        internal bool AddAnnouncement(int groupId, Models.Notifications.KalturaAnnouncement announcement)
         {
             AddMessageAnnouncementResponse response = null;
             Group group = GroupsManager.GetGroup(groupId);
@@ -277,7 +277,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            return response.Id;
+            return true;
         }
 
         internal bool UpdateAnnouncement(int groupId, Models.Notifications.KalturaAnnouncement announcement)
