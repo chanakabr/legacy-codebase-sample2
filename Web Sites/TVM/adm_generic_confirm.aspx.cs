@@ -257,15 +257,20 @@ public partial class adm_generic_confirm : System.Web.UI.Page
 
             log.Debug("Remove - Table: " + m_sTable + " Id:" + m_nID.ToString());
 
-            //Remove Media / Channel from Lucene 
-            bool result = false;
+            //Remove Media / Channel from Lucene             
             switch (m_sTable.ToLower())
             {
                 case "media":
-                    result = ImporterImpl.UpdateIndex(lIds, nGroupId, action);
+                    if (!ImporterImpl.UpdateIndex(lIds, nGroupId, action))
+                    {
+                        log.Error(string.Format("Failed updating index for mediaIDs: {0}, groupID: {1}", lIds, nGroupId));
+                    }
                     break;
                 case "channels":
-                    result = ImporterImpl.UpdateChannelIndex(nGroupId, lIds, action);
+                    if (!ImporterImpl.UpdateChannelIndex(nGroupId, lIds, action))
+                    {
+                        log.Error(string.Format("Failed updating channel index for channelIDs: {0}, groupID: {1}", lIds, nGroupId));
+                    }
                     break;
                 case "channels_media":
                     object oChannelId = ODBCWrapper.Utils.GetTableSingleVal("channels_media", "CHANNEL_ID", m_nID);//get channel+media_id 
@@ -276,7 +281,10 @@ public partial class adm_generic_confirm : System.Web.UI.Page
                         lIds.Clear();
                         lIds.Add(nChannelId);
 
-                        result = ImporterImpl.UpdateChannelIndex(nGroupId, lIds, action);
+                        if (!ImporterImpl.UpdateChannelIndex(nGroupId, lIds, action))
+                        {
+                            log.Error(string.Format("Failed updating channel index for channelIDs: {0}, groupID: {1}", lIds, nGroupId));
+                        }
                     }
                     break;
                 case "groups_device_families_limitation_modules":

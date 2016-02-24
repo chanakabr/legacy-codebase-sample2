@@ -253,15 +253,20 @@ public partial class adm_utils : System.Web.UI.Page
             if (nId != 0)
             {
                 idsToUpdate.Add(nId);
-            }
-            bool result = false;
+            }            
             switch (sTableName.ToLower())
             {
                 case "media":
-                    result = ImporterImpl.UpdateIndex(idsToUpdate, nGroupID, eAction);
+                    if (!ImporterImpl.UpdateIndex(idsToUpdate, nGroupID, eAction))
+                    {
+                        log.Error(string.Format("Failed updating index for mediaIDs: {0}, groupID: {1}", idsToUpdate, nGroupID));
+                    }
                     break;
                 case "channels":
-                    result = ImporterImpl.UpdateChannelIndex(nGroupID, idsToUpdate, eAction);
+                    if (!ImporterImpl.UpdateChannelIndex(nGroupID, idsToUpdate, eAction))
+                    {
+                        log.Error(string.Format("Failed updating channel index for channelIDs: {0}, groupID: {1}", idsToUpdate, nGroupID));
+                    }
                     break;
                 default:
                     break;

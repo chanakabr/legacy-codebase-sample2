@@ -510,8 +510,7 @@ public partial class adm_media : System.Web.UI.Page
     {
         Int32 nGroupID = LoginManager.GetLoginGroupID();
         eAction eAction;
-
-        bool result = false;
+        
         int nAction = int.Parse(sStatus);
         int nId = int.Parse(sID);
         List<int> idsToUpdate = new List<int>();
@@ -529,7 +528,10 @@ public partial class adm_media : System.Web.UI.Page
             eAction = eAction.Update;
         }
 
-        result = ImporterImpl.UpdateIndex(idsToUpdate, nGroupID, eAction);
+        if (!ImporterImpl.UpdateIndex(idsToUpdate, nGroupID, eAction))
+        {
+            log.Error(string.Format("Failed updating index for mediaIDs: {0}, groupID: {1}", idsToUpdate, nGroupID));
+        }
 
         NotifyMediaActivationChange(int.Parse(sID), int.Parse(sStatus));
         Notifiers.BaseMediaNotifier t = null;

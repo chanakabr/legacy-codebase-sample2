@@ -36,8 +36,10 @@ public partial class adm_media_new : System.Web.UI.Page
                 {
                     // Update record in Catalog (see the flow inside Update Index
                     int nGroupId = LoginManager.GetLoginGroupID();
-                    bool result = false;
-                    result = ImporterImpl.UpdateIndex(new List<int>() { nID }, nGroupId, ApiObjects.eAction.Update);
+                    if (!ImporterImpl.UpdateIndex(new List<int>() { nID }, nGroupId, ApiObjects.eAction.Update))
+                    {
+                        log.Error(string.Format("Failed updating index for mediaID: {0}, groupID: {1}", nID, nGroupId));
+                    }
                     ImporterImpl.UpdateNotificationsRequests(LoginManager.GetLoginGroupID(), nID);//Notification                     
                 }
 
