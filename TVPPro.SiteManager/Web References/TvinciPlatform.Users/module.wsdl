@@ -1722,6 +1722,24 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="ChangeUsers">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userIdToChange" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="udid" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ChangeUsersResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ChangeUsersResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="UserResponseObject" nillable="true" type="tns:UserResponseObject" />
       <s:element name="Status" nillable="true" type="tns:Status" />
       <s:element name="boolean" type="s:boolean" />
@@ -2230,6 +2248,12 @@
   </wsdl:message>
   <wsdl:message name="DeleteUserSoapOut">
     <wsdl:part name="parameters" element="tns:DeleteUserResponse" />
+  </wsdl:message>
+  <wsdl:message name="ChangeUsersSoapIn">
+    <wsdl:part name="parameters" element="tns:ChangeUsers" />
+  </wsdl:message>
+  <wsdl:message name="ChangeUsersSoapOut">
+    <wsdl:part name="parameters" element="tns:ChangeUsersResponse" />
   </wsdl:message>
   <wsdl:message name="CheckUserPasswordHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -2798,6 +2822,16 @@
   <wsdl:message name="DeleteUserHttpPostOut">
     <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
+  <wsdl:message name="ChangeUsersHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userId" type="s:string" />
+    <wsdl:part name="userIdToChange" type="s:string" />
+    <wsdl:part name="udid" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ChangeUsersHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
   <wsdl:portType name="UsersServiceSoap">
     <wsdl:operation name="CheckUserPassword">
       <wsdl:input message="tns:CheckUserPasswordSoapIn" />
@@ -3115,6 +3149,10 @@
       <wsdl:input message="tns:DeleteUserSoapIn" />
       <wsdl:output message="tns:DeleteUserSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="ChangeUsers">
+      <wsdl:input message="tns:ChangeUsersSoapIn" />
+      <wsdl:output message="tns:ChangeUsersSoapOut" />
+    </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="UsersServiceHttpPost">
     <wsdl:operation name="CheckUserPassword">
@@ -3364,6 +3402,10 @@
     <wsdl:operation name="DeleteUser">
       <wsdl:input message="tns:DeleteUserHttpPostIn" />
       <wsdl:output message="tns:DeleteUserHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ChangeUsers">
+      <wsdl:input message="tns:ChangeUsersHttpPostIn" />
+      <wsdl:output message="tns:ChangeUsersHttpPostOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="UsersServiceSoap" type="tns:UsersServiceSoap">
@@ -4072,6 +4114,15 @@
     </wsdl:operation>
     <wsdl:operation name="DeleteUser">
       <soap:operation soapAction="http://users.tvinci.com/DeleteUser" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ChangeUsers">
+      <soap:operation soapAction="http://users.tvinci.com/ChangeUsers" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -4793,6 +4844,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="ChangeUsers">
+      <soap12:operation soapAction="http://users.tvinci.com/ChangeUsers" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="UsersServiceHttpPost" type="tns:UsersServiceHttpPost">
     <http:binding verb="POST" />
@@ -5348,16 +5408,25 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="ChangeUsers">
+      <http:operation location="/ChangeUsers" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="UsersService">
     <wsdl:port name="UsersServiceSoap" binding="tns:UsersServiceSoap">
-      <soap:address location="http://localhost/ws_users/module.asmx" />
+      <soap:address location="http://localhost:81/ws_users/module.asmx" />
     </wsdl:port>
     <wsdl:port name="UsersServiceSoap12" binding="tns:UsersServiceSoap12">
-      <soap12:address location="http://localhost/ws_users/module.asmx" />
+      <soap12:address location="http://localhost:81/ws_users/module.asmx" />
     </wsdl:port>
     <wsdl:port name="UsersServiceHttpPost" binding="tns:UsersServiceHttpPost">
-      <http:address location="http://localhost/ws_users/module.asmx" />
+      <http:address location="http://localhost:81/ws_users/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

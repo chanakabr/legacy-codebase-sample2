@@ -187,6 +187,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         
         private System.Threading.SendOrPostCallback DeleteUserOperationCompleted;
         
+        private System.Threading.SendOrPostCallback ChangeUsersOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -461,6 +463,9 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         
         /// <remarks/>
         public event DeleteUserCompletedEventHandler DeleteUserCompleted;
+        
+        /// <remarks/>
+        public event ChangeUsersCompletedEventHandler ChangeUsersCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/CheckUserPassword", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -3314,6 +3319,43 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
             if ((this.DeleteUserCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.DeleteUserCompleted(this, new DeleteUserCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/ChangeUsers", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status ChangeUsers(string sWSUserName, string sWSPassword, string userId, string userIdToChange, string udid) {
+            object[] results = this.Invoke("ChangeUsers", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        userId,
+                        userIdToChange,
+                        udid});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void ChangeUsersAsync(string sWSUserName, string sWSPassword, string userId, string userIdToChange, string udid) {
+            this.ChangeUsersAsync(sWSUserName, sWSPassword, userId, userIdToChange, udid, null);
+        }
+        
+        /// <remarks/>
+        public void ChangeUsersAsync(string sWSUserName, string sWSPassword, string userId, string userIdToChange, string udid, object userState) {
+            if ((this.ChangeUsersOperationCompleted == null)) {
+                this.ChangeUsersOperationCompleted = new System.Threading.SendOrPostCallback(this.OnChangeUsersOperationCompleted);
+            }
+            this.InvokeAsync("ChangeUsers", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        userId,
+                        userIdToChange,
+                        udid}, this.ChangeUsersOperationCompleted, userState);
+        }
+        
+        private void OnChangeUsersOperationCompleted(object arg) {
+            if ((this.ChangeUsersCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.ChangeUsersCompleted(this, new ChangeUsersCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -6841,6 +6883,32 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         private object[] results;
         
         internal DeleteUserCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void ChangeUsersCompletedEventHandler(object sender, ChangeUsersCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class ChangeUsersCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal ChangeUsersCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }
