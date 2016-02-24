@@ -881,7 +881,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while trying to get user notification. gid: {0}, user ID: {1}, ex: {2}", groupId, userId, ex);
+                log.ErrorFormat("Error while trying to get user notification. GID: {0}, user ID: {1}, ex: {2}", groupId, userId, ex);
             }
 
             return userNotification;
