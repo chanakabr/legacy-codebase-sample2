@@ -37,37 +37,66 @@ public partial class adm_media_files_new : System.Web.UI.Page
             m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, true);
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
+                DateTime? currentEndDate = null;
+
+                // get current media file end date
+                if (Session["media_file_id"] != null)
+                {
+                    object endDate = ODBCWrapper.Utils.GetTableSingleVal("media_files", "end_date", int.Parse(Session["media_file_id"].ToString()));
+                    if (endDate != null)
+                    {
+                        currentEndDate = (DateTime)endDate;
+                    }                    
+                }
+                
                 Int32 nMediaFileID = DBManipulator.DoTheWork();
-                Int32 nMediaID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("media_files", "media_id", nMediaFileID).ToString());
-                int nLoginGroupId = LoginManager.GetLoginGroupID();
-                if (nMediaID != 0)
+                if (nMediaFileID > 0)
                 {
-                    bool updateResult;
-                    updateResult = ImporterImpl.UpdateIndex(new List<int>() { nMediaID }, nLoginGroupId, ApiObjects.eAction.Update);                    
-                }
-
-                try
-                {
-                    Notifiers.BaseMediaNotifier t = null;
-                    Notifiers.Utils.GetBaseMediaNotifierImpl(ref t, LoginManager.GetLoginGroupID());
-
-                    string errorMessage = "";
-
-                    if (t != null)
+                    // get mediaID and updated end date (if changed)
+                    DataRow mediaFileDetails = DAL.TvmDAL.GetMediaIDAndEndDateByMediaFileID(nMediaFileID);
+                    int nMediaID = 0;
+                    DateTime? updatedEndDate = null;
+                    if (mediaFileDetails != null)
                     {
-                        t.NotifyChange(nMediaID.ToString(), ref errorMessage);
+                        nMediaID = ODBCWrapper.Utils.GetIntSafeVal(mediaFileDetails, "media_id");
+                        updatedEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(mediaFileDetails, "end_date");
                     }
 
-                    if (!string.IsNullOrEmpty(errorMessage))
+                    int nLoginGroupId = LoginManager.GetLoginGroupID();
+                    if (nMediaID > 0)
                     {
-                        HttpContext.Current.Session["error_msg_sub"] = "Error in Package ID " + nMediaID + ":\r\n" + errorMessage;
+                        bool updateResult;
+                        updateResult = ImporterImpl.UpdateIndex(new List<int>() { nMediaID }, nLoginGroupId, ApiObjects.eAction.Update);
+                        // if updatedEndDate is in more than 2 years (approximately 730.5 days) we don't update the index (per Ira's request)
+                        if (updatedEndDate.HasValue && currentEndDate.HasValue && updatedEndDate.Value != currentEndDate.Value && (updatedEndDate.Value - DateTime.Now).TotalDays <= 730.5)
+                        {                            
+                            ImporterImpl.InsertRemoteTaskFreeItemsIndexUpdate(nLoginGroupId, ApiObjects.eObjectType.Media, new List<int>() { nMediaID }, updatedEndDate.Value);
+                        }
                     }
 
-                    return;
-                }
-                catch (Exception ex)
-                {
-                    log.Error("exception - " + nMediaID.ToString() + " : " + ex.Message, ex);
+                    try
+                    {
+                        Notifiers.BaseMediaNotifier t = null;
+                        Notifiers.Utils.GetBaseMediaNotifierImpl(ref t, LoginManager.GetLoginGroupID());
+
+                        string errorMessage = "";
+
+                        if (t != null)
+                        {
+                            t.NotifyChange(nMediaID.ToString(), ref errorMessage);
+                        }
+
+                        if (!string.IsNullOrEmpty(errorMessage))
+                        {
+                            HttpContext.Current.Session["error_msg_sub"] = "Error in Package ID " + nMediaID + ":\r\n" + errorMessage;
+                        }
+
+                        return;
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error("exception - " + nMediaID.ToString() + " : " + ex.Message, ex);
+                    }
                 }
 
                 return;
