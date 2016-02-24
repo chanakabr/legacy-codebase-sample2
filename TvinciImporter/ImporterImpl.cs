@@ -5350,26 +5350,114 @@ namespace TvinciImporter
         public static bool UpdateFreeFileTypeOfModule(int groupId, int moduleId)
         {
             bool result = false;
-
-            // Continue only if we have successfully extracted module Id from session
+            
             if (moduleId == 0)
             {
                 log.Error("Failed updating free item index because couldn't get module Id");
             }
             else
-            {
-                //result = UpdateFreeFileType(groupId, ws_cas.eObjectType.Media, new List<int>(), new List<int>() { moduleId });
+            {                
+                DataTable mediaIds = DAL.ImporterImpDAL.GetMediasByPPVModuleID(groupId, moduleId);
+                if (mediaIds != null)
+                {
+                    if (mediaIds.Rows != null)
+                    {
+                        if (mediaIds.Rows.Count == 0)
+                        {
+                            result = true;
+                        }
+                        else
+                        {
+                            List<int> mediaIDsToUpdate = new List<int>();
+                            foreach (DataRow dr in mediaIds.Rows)
+                            {
+                                int mediaIDToAdd = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_ID");
+                                if (mediaIDToAdd > 0)
+                                {
+                                    mediaIDsToUpdate.Add(mediaIDToAdd);
+                                }
+                            }
 
-                //****************************************
-                //TODO: update all the medias in the ppvModule
-                //****************************************
-                UpdateIndex(new List<int>() { 1 }, groupId, eAction.Update);
+                            if (mediaIDsToUpdate != null && mediaIDsToUpdate.Count > 0)
+                            {
+                                result = UpdateIndex(mediaIDsToUpdate, groupId, eAction.Update);
+                            }
+                        }
+                    }
+                }                
             }
 
             return result;
         }
 
-        public static bool InsertRemoteTaskIndexUpdate(int groupID, eObjectType type, List<int> assetIDs, DateTime updateIndexDate)
+        public static bool InsertRemoteTaskFreeItemsIndexUpdateByPPVModuleID(int groupId, eObjectType type, int moduleId, DateTime updateIndexDate)
+        {
+            bool result = false;
+            //int parentGroupId = DAL.UtilsDal.GetParentGroupID(groupID);
+
+            try
+            {
+                if (moduleId == 0)
+                {
+                    log.Error("Failed updating free item index because couldn't get module Id");
+                }
+                else
+                {
+                    List<int> assetIDsToUpdate = new List<int>();
+                    switch (type)
+                    {
+                        case eObjectType.Unknown:
+                            break;
+                        case eObjectType.Media:
+                            DataTable mediaIDs = DAL.ImporterImpDAL.GetMediasByPPVModuleID(groupId, moduleId);
+                            if (mediaIDs != null && mediaIDs.Rows != null && mediaIDs.Rows.Count > 0)
+                            {
+                                foreach (DataRow dr in mediaIDs.Rows)
+                                {
+                                    int mediaIDToAdd = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_ID");
+                                    if (mediaIDToAdd > 0)
+                                    {
+                                        assetIDsToUpdate.Add(mediaIDToAdd);
+                                    }
+                                }
+                            }
+                            break;
+                        case eObjectType.Channel:
+                            break;
+                        case eObjectType.EPG:
+                            break;
+                        default:
+                            break;
+                    }
+
+                    if (assetIDsToUpdate.Count == 0)
+                    {
+                        result = true;
+                    }
+
+                    GenericCeleryQueue queue = new GenericCeleryQueue();
+                    FreeItemUpdateData data = new FreeItemUpdateData(groupId, type, assetIDsToUpdate, updateIndexDate);
+                    bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_FREE_ITEM_UPDATE, groupId));
+                    if (enqueueSuccessful)
+                    {
+                        log.DebugFormat("New free item index update task created. Next update date: {0}, data: {1}", updateIndexDate, data);
+                        result = true;
+                    }
+                    else
+                    {
+                        log.ErrorFormat("Failed queuing free item index update {0}", data);
+                    }                    
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed Inserting remote task index update: ", ex);
+            }
+
+            return result;
+        }
+
+        public static bool InsertRemoteTaskFreeItemsIndexUpdate(int groupID, eObjectType type, List<int> assetIDs, DateTime updateIndexDate)
         {
             bool result = false;
             //int parentGroupId = DAL.UtilsDal.GetParentGroupID(groupID);
@@ -5385,13 +5473,15 @@ namespace TvinciImporter
                 GenericCeleryQueue queue = new GenericCeleryQueue();
                 FreeItemUpdateData data = new FreeItemUpdateData(groupID, type, assetIDs, updateIndexDate);
                 bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_FREE_ITEM_UPDATE, groupID));
-                if (!enqueueSuccessful)
+                if (enqueueSuccessful)
                 {
-                    log.ErrorFormat("Failed queuing free item index update {0}", data);
-                    return true;
+                    log.DebugFormat("New free item index update task created. Next update date: {0}, data: {1}", updateIndexDate, data);                    
+                    result = true;
                 }
                 else
-                    log.DebugFormat("New free item index update task created. Next update date: {0}, data: {1}", updateIndexDate, data);
+                {
+                    log.ErrorFormat("Failed queuing free item index update {0}", data);
+                }
 
             }
             catch (Exception ex)
@@ -5401,6 +5491,8 @@ namespace TvinciImporter
 
             return result;
         }
+
+        
     }
 }
 
