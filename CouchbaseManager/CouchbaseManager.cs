@@ -15,7 +15,6 @@ namespace CouchbaseManager
     public class CouchbaseManager
     {
         private const int MAX_RETRY = 3;
-        
 
         private static volatile Dictionary<string, CouchbaseClient> m_CouchbaseInstances = new Dictionary<string, CouchbaseClient>();
         private static object syncObj = new object();
@@ -24,7 +23,6 @@ namespace CouchbaseManager
         public static CouchbaseClient GetInstance(eCouchbaseBucket eBucket)
         {
             CouchbaseClient tempClient = null;
-
 
             if (!m_CouchbaseInstances.ContainsKey(eBucket.ToString()))
             {
@@ -152,8 +150,7 @@ namespace CouchbaseManager
                 {
                     try
                     {
-                        //if (m_CouchbaseInstances.ContainsKey(eBucket.ToString()))
-                        foreach (var key in m_CouchbaseInstances.Keys)
+                        foreach (var key in new List<string>(m_CouchbaseInstances.Keys))
                         {
                             m_CouchbaseInstances[key].Dispose();
                             m_CouchbaseInstances[key] = null;
