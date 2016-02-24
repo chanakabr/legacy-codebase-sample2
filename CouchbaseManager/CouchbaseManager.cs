@@ -69,7 +69,7 @@ namespace CouchbaseManager
                                             throw new Exception("Exceeded maximum number of Couchbase instance refresh");
                                         }
 
-                                        Thread.Sleep(500);
+                                        Thread.Sleep(100);
                                     }
                                     else
                                     {
@@ -144,28 +144,25 @@ namespace CouchbaseManager
         /// <returns></returns>
         public static CouchbaseClient RefreshInstance(eCouchbaseBucket eBucket)
         {
-            if (m_CouchbaseInstances.ContainsKey(eBucket.ToString()))
-            {
-                if (m_oSyncLock.TryEnterWriteLock(1000))
-                {
-                    try
-                    {
-                        //if (m_CouchbaseInstances.ContainsKey(eBucket.ToString()))
-                        foreach (var key in m_CouchbaseInstances.Keys)
-                        {
-                            m_CouchbaseInstances[key].Dispose();
-                            m_CouchbaseInstances[key] = null;
-                        }
 
-                        m_CouchbaseInstances.Clear();
-                    }
-                    catch (Exception ex)
+            if (m_oSyncLock.TryEnterWriteLock(1000))
+            {
+                try
+                {
+                    foreach (var key in new List<string>(m_CouchbaseInstances.Keys))
                     {
+                        m_CouchbaseInstances[key].Dispose();
+                        m_CouchbaseInstances[key] = null;
                     }
-                    finally
-                    {
-                        m_oSyncLock.ExitWriteLock();
-                    }
+
+                    m_CouchbaseInstances.Clear();
+                }
+                catch (Exception ex)
+                {
+                }
+                finally
+                {
+                    m_oSyncLock.ExitWriteLock();
                 }
             }
 

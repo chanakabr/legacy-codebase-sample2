@@ -95,6 +95,12 @@ namespace CouchbaseWrapper
 
         private void createInstance()
         {
+            if (_client != null)
+            {
+                _client.Dispose();
+                _client = null;
+            }
+
             if (m_oSyncLock.TryEnterWriteLock(1000))
             {
                 try
