@@ -23,22 +23,28 @@ namespace FreeAssetUpdateHandler
             try
             {
                 log.InfoFormat("starting free asset index update handler request. data={0}", data);
-
+                
                 FreeAssetUpdateRequest request = JsonConvert.DeserializeObject<FreeAssetUpdateRequest>(data);
-                if (request.AssetIds != null && request.AssetIds.Count > 0 && request.GroupID > 0)
+                ElasticSearchHandler.Updaters.IUpdateable updater = ElasticSearchHandler.Updaters.UpdaterFactory.CreateUpdater(request.GroupID, request.Type);
+
+                if (updater != null)
                 {
-                    string sWSURL = WS_Utils.GetTcmConfigValue("WS_Catalog");
-                    if (!string.IsNullOrEmpty(sWSURL))
+                    updater.Action = ApiObjects.eAction.Update;
+                    updater.IDs = request.AssetIds;
+
+                    bool result = updater.Start();
+
+                    if (result)
                     {
-                        client = new WS_Catalog.IserviceClient();
-                        client.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
-                        bool isUpdateIndexSucceeded = client.UpdateIndex(request.AssetIds.ToArray(), request.GroupID, ApiObjects.eAction.Update);
-                        if (isUpdateIndexSucceeded)
-                        {
-                            res = "success";
-                        }
+                        res = "success";
                     }
-                }
+                    else
+                    {
+                        throw new Exception(
+                            string.Format("Performing update action on asset of type {0} with id: [{1}] did not finish successfully.", 
+                            request.ToString(), string.Join(",", request.AssetIds)));
+                    }
+                } 
             }
             catch (Exception ex)
             {

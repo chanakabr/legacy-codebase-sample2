@@ -80,6 +80,10 @@
       <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>
       <Name>TVinciShared</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ElasticSearchHandler\ElasticSearchHandler.csproj">
+      <Project>{338e6394-a9e9-4d5c-8a6a-95797f6c429f}</Project>
+      <Name>ElasticSearchHandler</Name>
+    </ProjectReference>
     <ProjectReference Include="..\RemoteTasksCommon\RemoteTasksCommon.csproj">
       <Project>{680b9d3b-e9de-4d05-9280-f8e8b3128c48}</Project>
       <Name>RemoteTasksCommon</Name>
