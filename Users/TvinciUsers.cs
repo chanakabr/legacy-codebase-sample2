@@ -1892,56 +1892,53 @@ namespace Users
             return response;
         }
 
-        public override ApiObjects.Response.Status ChangeUsers(string initSiteGuid, string siteGuid, string udid, int groupId)
+        public override ApiObjects.Response.Status ChangeUsers(string userId, string userIdToChange, string udid, int groupId)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
-            if (string.IsNullOrEmpty(initSiteGuid))
+            if (string.IsNullOrEmpty(userId))
             {
-                log.ErrorFormat("ChangeUsers: initSiteGuid or siteGuid are empty. initSiteGuid {0}, siteGuid = {1}", initSiteGuid, siteGuid);
+                log.ErrorFormat("ChangeUsers: initSiteGuid or siteGuid are empty. userId {0}, userIdToChange = {1}", userId, userIdToChange);
                 response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 return response;
             }
 
-            if ((!string.IsNullOrEmpty(siteGuid) && initSiteGuid != siteGuid) || !string.IsNullOrEmpty(udid))
+            if (!string.IsNullOrEmpty(userIdToChange) && userId != userIdToChange)
             {
-                UserResponseObject initialUserObj = this.GetUserData(initSiteGuid);
-                UserResponseObject newUserObj = this.GetUserData(siteGuid);
+                UserResponseObject initialUserObj = this.GetUserData(userId);
+                UserResponseObject newUserObj = this.GetUserData(userIdToChange);
 
-                if (initialUserObj == null || newUserObj == null)
+                if (initialUserObj == null || newUserObj == null || initialUserObj.m_RespStatus != ResponseStatus.OK || newUserObj.m_RespStatus != ResponseStatus.OK ||
+                    initialUserObj.m_user == null || newUserObj.m_user == null)
                 {
-                    log.ErrorFormat("ChangeUsers: users not found - {0},{1}", initSiteGuid, siteGuid);
+                    log.ErrorFormat("ChangeUsers: users not found - {0},{1}", userId, userIdToChange);
                     response = new ApiObjects.Response.Status((int)eResponseStatus.UserDoesNotExist, "Users not found");
                     return response;
                 }
 
                 int initialDomaId = initialUserObj.m_user.m_domianID;
                 int newDomainId = newUserObj.m_user.m_domianID;
-                
+
                 // if the domain is not the users domain
-                if (initialDomaId != 0 && newDomainId != 0)
+                if (initialDomaId == 0 || newDomainId == 0 || initialDomaId != newDomainId)
                 {
-                    if (initialDomaId != newDomainId)
-                    {
-                        log.ErrorFormat("ChangeUsers: siteGuid is not in the same domain. siteGuid = {0}, domainId = {2}, siteGuid = {3}, domainId = {4}", initSiteGuid, initialDomaId, siteGuid, newDomainId);
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.UserNotExistsInDomain, "User is not in the same domain");
-                        return response;
-                    }
+                    log.ErrorFormat("ChangeUsers: users are not in the same domain. siteGuid = {0}, domainId = {2}, siteGuid = {3}, domainId = {4}", userId, initialDomaId, userIdToChange, newDomainId);
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.UserNotExistsInDomain, "Users are not in the same domain");
+                    return response;
                 }
 
                 // if udid is not in domain
                 if (!string.IsNullOrEmpty(udid))
                 {
                     Domain domain = new Domain();
-                    bool deviceInDomain = false;
-       
+
                     if (!domain.Initialize(groupId, newDomainId))
                     {
                         log.ErrorFormat("ChangeUsers: error initializing domain = {0}", newDomainId);
                         response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                         return response;
                     }
-                    
+
                     if (domain.m_deviceFamilies == null || domain.m_deviceFamilies.Count == 0)
                     {
                         log.ErrorFormat("ChangeUsers: udid is not in the domain. udid = {0}, domainId = {1}", udid, domain.m_nDomainID);
@@ -1953,23 +1950,23 @@ namespace Users
                     {
                         if (family.DeviceInstances.Where(d => d.m_deviceUDID == udid).FirstOrDefault() != null)
                         {
-                            deviceInDomain = true;
+                            Utils.AddInitiateNotificationActionToQueue(groupId, eUserMessageAction.ChangeUsers, int.Parse(userIdToChange), udid);
+                            return response;
                         }
                     }
 
-                    if (deviceInDomain)
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    else
-                    {
-                        log.ErrorFormat("ChangeUsers: udid is not in the domain. udid = {0}, domainId = {1}", udid, domain.m_nDomainID);
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.DeviceNotInDomain, "Device is not in domain");
-                    }
+                    log.ErrorFormat("ChangeUsers: udid is not in the domain. udid = {0}, domainId = {1}", udid, domain.m_nDomainID);
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.DeviceNotInDomain, "Device is not in domain");
                 }
-            }
-            if (response.Code == (int)eResponseStatus.OK)
-                Utils.AddInitiateNotificationActionToQueue(groupId, eUserMessageAction.Login, int.Parse(siteGuid), string.Empty);
 
-            return response;
+                return response;
+            }
+            else
+            {
+                log.ErrorFormat("ChangeUsers: User and new user and identical. {0}", userId);
+                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                return response;
+            }
         }
     }
 }
