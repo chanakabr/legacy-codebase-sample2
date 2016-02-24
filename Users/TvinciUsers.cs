@@ -1892,12 +1892,15 @@ namespace Users
             return response;
         }
 
-        public override bool ChangeUsers(string initSiteGuid, string siteGuid, string udid, int groupId)
+        public override ApiObjects.Response.Status ChangeUsers(string initSiteGuid, string siteGuid, string udid, int groupId)
         {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
             if (string.IsNullOrEmpty(initSiteGuid))
             {
                 log.ErrorFormat("ChangeUsers: initSiteGuid or siteGuid are empty. initSiteGuid {0}, siteGuid = {1}", initSiteGuid, siteGuid);
-                return false;
+                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                return response;
             }
 
             if ((!string.IsNullOrEmpty(siteGuid) && initSiteGuid != siteGuid) || !string.IsNullOrEmpty(udid))
@@ -1907,8 +1910,9 @@ namespace Users
 
                 if (initialUserObj == null || newUserObj == null)
                 {
-                    log.ErrorFormat("ChangeUsers: users not found for initSiteGuid = {0},{1}", initSiteGuid, siteGuid);
-                    return false;
+                    log.ErrorFormat("ChangeUsers: users not found - {0},{1}", initSiteGuid, siteGuid);
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.UserDoesNotExist, "Users not found");
+                    return response;
                 }
 
                 int initialDomaId = initialUserObj.m_user.m_domianID;
@@ -1920,41 +1924,52 @@ namespace Users
                     if (initialDomaId != newDomainId)
                     {
                         log.ErrorFormat("ChangeUsers: siteGuid is not in the same domain. siteGuid = {0}, domainId = {2}, siteGuid = {3}, domainId = {4}", initSiteGuid, initialDomaId, siteGuid, newDomainId);
-                        return false;
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.UserNotExistsInDomain, "User is not in the same domain");
+                        return response;
                     }
                 }
 
                 // if udid is not in domain
                 if (!string.IsNullOrEmpty(udid))
                 {
-                    Domain domain = new Domain();                    
-                    
+                    Domain domain = new Domain();
+                    bool deviceInDomain = false;
+       
                     if (!domain.Initialize(groupId, newDomainId))
                     {
                         log.ErrorFormat("ChangeUsers: error initializing domain = {0}", newDomainId);
-                        return false;
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                        return response;
                     }
                     
                     if (domain.m_deviceFamilies == null || domain.m_deviceFamilies.Count == 0)
                     {
                         log.ErrorFormat("ChangeUsers: udid is not in the domain. udid = {0}, domainId = {1}", udid, domain.m_nDomainID);
-                        return false;
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.DeviceNotInDomain, "Device is not in domain");
+                        return response;
                     }
+
                     foreach (var family in domain.m_deviceFamilies)
                     {
                         if (family.DeviceInstances.Where(d => d.m_deviceUDID == udid).FirstOrDefault() != null)
                         {
-                            return true;
+                            deviceInDomain = true;
                         }
                     }
-                    log.ErrorFormat("ChangeUsers: udid is not in the domain. udid = {0}, domainId = {1}", udid, domain.m_nDomainID);
-                    return false;
+
+                    if (deviceInDomain)
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    else
+                    {
+                        log.ErrorFormat("ChangeUsers: udid is not in the domain. udid = {0}, domainId = {1}", udid, domain.m_nDomainID);
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.DeviceNotInDomain, "Device is not in domain");
+                    }
                 }
             }
+            if (response.Code == (int)eResponseStatus.OK)
+                Utils.AddInitiateNotificationActionToQueue(groupId, eUserMessageAction.Login, int.Parse(siteGuid), string.Empty);
 
-            Utils.AddInitiateNotificationActionToQueue(groupId, eUserMessageAction.Login, int.Parse(siteGuid), string.Empty);
-
-            return true;
+            return response;
         }
     }
 }

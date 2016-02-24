@@ -59,7 +59,7 @@ namespace Users
         public abstract UserGroupRuleResponse ChangeParentalPInCodeByToken(string sSiteGuid, int nUserRuleID, string sChangePinToken, string sCode);
         public abstract DomainResponseObject AddNewDomain(string sUN, int nUserID, int nGroupID);
         public abstract ApiObjects.Response.Status DeleteUser(int userId);
-        public abstract bool ChangeUsers(string initSiteGuid, string siteGuid, string udid, int groupId);
+        public abstract ApiObjects.Response.Status ChangeUsers(string initSiteGuid, string siteGuid, string udid, int groupId);
 
         public virtual bool WriteToLog(string sSiteGUID, string sMessage, string sWriter)
         {
