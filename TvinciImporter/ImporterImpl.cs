@@ -5388,91 +5388,24 @@ namespace TvinciImporter
             }
 
             return result;
-        }
+        }        
 
-        public static bool InsertRemoteTaskFreeItemsIndexUpdateByPPVModuleID(int groupId, eObjectType type, int moduleId, DateTime updateIndexDate)
+        public static bool InsertFreeItemsIndexUpdate(int groupID, eObjectType type, List<int> assetIDs, DateTime updateIndexDate)
         {
             bool result = false;
-            //int parentGroupId = DAL.UtilsDal.GetParentGroupID(groupID);
-
-            try
-            {
-                if (moduleId == 0)
-                {
-                    log.Error("Failed updating free item index because couldn't get module Id");
-                }
-                else
-                {
-                    List<int> assetIDsToUpdate = new List<int>();
-                    switch (type)
-                    {
-                        case eObjectType.Unknown:
-                            break;
-                        case eObjectType.Media:
-                            DataTable mediaIDs = DAL.ImporterImpDAL.GetMediasByPPVModuleID(groupId, moduleId);
-                            if (mediaIDs != null && mediaIDs.Rows != null && mediaIDs.Rows.Count > 0)
-                            {
-                                foreach (DataRow dr in mediaIDs.Rows)
-                                {
-                                    int mediaIDToAdd = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_ID");
-                                    if (mediaIDToAdd > 0)
-                                    {
-                                        assetIDsToUpdate.Add(mediaIDToAdd);
-                                    }
-                                }
-                            }
-                            break;
-                        case eObjectType.Channel:
-                            break;
-                        case eObjectType.EPG:
-                            break;
-                        default:
-                            break;
-                    }
-
-                    if (assetIDsToUpdate.Count == 0)
-                    {
-                        result = true;
-                    }
-
-                    GenericCeleryQueue queue = new GenericCeleryQueue();
-                    FreeItemUpdateData data = new FreeItemUpdateData(groupId, type, assetIDsToUpdate, updateIndexDate);
-                    bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_FREE_ITEM_UPDATE, groupId));
-                    if (enqueueSuccessful)
-                    {
-                        log.DebugFormat("New free item index update task created. Next update date: {0}, data: {1}", updateIndexDate, data);
-                        result = true;
-                    }
-                    else
-                    {
-                        log.ErrorFormat("Failed queuing free item index update {0}", data);
-                    }                    
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Failed Inserting remote task index update: ", ex);
-            }
-
-            return result;
-        }
-
-        public static bool InsertRemoteTaskFreeItemsIndexUpdate(int groupID, eObjectType type, List<int> assetIDs, DateTime updateIndexDate)
-        {
-            bool result = false;
-            //int parentGroupId = DAL.UtilsDal.GetParentGroupID(groupID);
+            int parentGroupId = DAL.UtilsDal.GetParentGroupID(groupID);
 
             try
             {
                 // validate assets and updateIndexDate
-                if (assetIDs == null || assetIDs.Count == 0 || (DateTime.Now - updateIndexDate).TotalMilliseconds <= 0)
+                if (assetIDs == null || assetIDs.Count == 0)
                 {
                     return result;
                 }
 
                 GenericCeleryQueue queue = new GenericCeleryQueue();
-                FreeItemUpdateData data = new FreeItemUpdateData(groupID, type, assetIDs, updateIndexDate);
-                bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_FREE_ITEM_UPDATE, groupID));
+                FreeItemUpdateData data = new FreeItemUpdateData(parentGroupId, type, assetIDs, updateIndexDate);
+                bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_FREE_ITEM_UPDATE, parentGroupId));
                 if (enqueueSuccessful)
                 {
                     log.DebugFormat("New free item index update task created. Next update date: {0}, data: {1}", updateIndexDate, data);                    
