@@ -13,6 +13,8 @@ namespace CouchbaseWrapper
 
     public class CouchbaseManager
     {
+        private const int MAX_RETRY = 3;
+
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static volatile Dictionary<string, GenericCouchbaseClient> m_CouchbaseInstances = new Dictionary<string, GenericCouchbaseClient>();
         private static object locker = new object();
@@ -24,15 +26,51 @@ namespace CouchbaseWrapper
             {
                 lock (locker)
                 {
+                    bool isDone = false;
+                    int currentRetry = 0;
+
                     if (!m_CouchbaseInstances.ContainsKey(loweredBucketName))
                     {
                         try
                         {
-                            GenericCouchbaseClient client = createNewInstance(loweredBucketName);
-
-                            if (client != null)
+                            while (!isDone)
                             {
-                                m_CouchbaseInstances.Add(loweredBucketName, client);
+                                GenericCouchbaseClient client = createNewInstance(loweredBucketName);
+
+                                if (client != null)
+                                {
+                                    // test connection
+                                    bool isOK = true;
+                                    try
+                                    {
+                                        Enyim.Caching.Memcached.ServerStats stats = client.Stats();
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        isOK = false;
+
+                                        log.ErrorFormat("Connection test failed. error message = {0}, stack trace = {1}",
+                                                    ex.Message, ex.StackTrace, ex);
+                                    }
+
+                                    if (!isOK)
+                                    {
+                                        currentRetry++;
+
+                                        if (currentRetry > MAX_RETRY)
+                                        {
+                                            isDone = true;
+                                            throw new Exception("Exceeded maximum number of Couchbase instance refresh");
+                                        }
+
+                                        Thread.Sleep(500);
+                                    }
+                                    else
+                                    {
+                                        m_CouchbaseInstances.Add(loweredBucketName, client);
+                                        isDone = true;
+                                    }
+                                }
                             }
                         }
                         catch (Exception ex)
