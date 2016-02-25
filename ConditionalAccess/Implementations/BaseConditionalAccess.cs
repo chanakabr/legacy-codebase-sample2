@@ -11036,8 +11036,15 @@ namespace ConditionalAccess
                     }
                     else
                     {
-
-                        int[] arrUserIDs = oDomain.m_UsersIDs;
+                        List<int> arrUserIDs = new List<int>();
+                        if (oDomain.m_UsersIDs != null && oDomain.m_UsersIDs.Length > 0)
+                        {
+                            arrUserIDs.AddRange(oDomain.m_UsersIDs);
+                        }
+                        if (oDomain.m_DefaultUsersIDs != null && oDomain.m_DefaultUsersIDs.Length > 0)
+                        {
+                            arrUserIDs.AddRange(oDomain.m_DefaultUsersIDs);
+                        }
 
                         DataTable dtUserPurchases = null;
                         DataRow drUserPurchase = null;
@@ -11295,7 +11302,7 @@ namespace ConditionalAccess
 
             if (int.TryParse(sSiteGuid, out nSiteGuid))
             {
-                bResult = GetCancellationWindow(new int[] { nSiteGuid }, nAssetID, transactionType, nGroupID, ref dt);
+                bResult = GetCancellationWindow(new List<int> { nSiteGuid }, nAssetID, transactionType, nGroupID, ref dt);
             }
 
             return (bResult);
@@ -11310,7 +11317,7 @@ namespace ConditionalAccess
         /// <param name="p_nGroupID"></param>
         /// <param name="p_dtUserPurchases"></param>
         /// <returns></returns>
-        private bool GetCancellationWindow(int[] p_arrUserIDs, int p_nAssetID, eTransactionType p_enmServiceType, int p_nGroupID, ref DataTable p_dtUserPurchases)
+        private bool GetCancellationWindow(List<int> p_arrUserIDs, int p_nAssetID, eTransactionType p_enmServiceType, int p_nGroupID, ref DataTable p_dtUserPurchases)
         {
             TvinciPricing.UsageModule oUsageModule = null;
             bool bCancellationWindow = false;
@@ -11322,17 +11329,17 @@ namespace ConditionalAccess
             {
                 case eTransactionType.PPV:
                     {
-                        p_dtUserPurchases = ConditionalAccessDAL.Get_AllPPVPurchasesByUserIDsAndMediaFileID(p_nAssetID, p_arrUserIDs.ToList(), p_nGroupID);
+                        p_dtUserPurchases = ConditionalAccessDAL.Get_AllPPVPurchasesByUserIDsAndMediaFileID(p_nAssetID, p_arrUserIDs, p_nGroupID);
                         break;
                     }
                 case eTransactionType.Subscription:
                     {
-                        p_dtUserPurchases = ConditionalAccessDAL.Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode(p_nAssetID, p_arrUserIDs.ToList(), p_nGroupID);
+                        p_dtUserPurchases = ConditionalAccessDAL.Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode(p_nAssetID, p_arrUserIDs, p_nGroupID);
                         break;
                     }
                 case eTransactionType.Collection:
                     {
-                        p_dtUserPurchases = ConditionalAccessDAL.Get_AllCollectionPurchasesByUserIDsAndCollectionCode(p_nAssetID, p_arrUserIDs.ToList(), p_nGroupID);
+                        p_dtUserPurchases = ConditionalAccessDAL.Get_AllCollectionPurchasesByUserIDsAndCollectionCode(p_nAssetID, p_arrUserIDs, p_nGroupID);
                         break;
                     }
                 default:
@@ -14003,8 +14010,8 @@ namespace ConditionalAccess
             if (Math.Abs(TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate) - nextEndDate) > 60)
             {
                 // subscription purchase wasn't found
-                log.ErrorFormat("Subscription purchase last end date is not the same as next the new end date - canceling renew task. Purchase ID: {0}, sub end_date: {1}, data: {2}", 
-                    purchaseId, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate),logString);
+                log.ErrorFormat("Subscription purchase last end date is not the same as next the new end date - canceling renew task. Purchase ID: {0}, sub end_date: {1}, data: {2}",
+                    purchaseId, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate), logString);
                 return true;
             }
 
