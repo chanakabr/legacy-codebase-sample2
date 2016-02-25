@@ -53,6 +53,8 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
                     {
                         ImporterImpl.UpdateMessageAnnouncement(groupId, id, Enabled,name, message, recipients, date, timezone);
                     }
+                    EndOfAction();
+                    
 
                 return;
             }
@@ -71,6 +73,39 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
             
         }
     }
+
+    private void EndOfAction()
+    {
+
+        System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;
+        if (HttpContext.Current.Session["error_msg"] != null && HttpContext.Current.Session["error_msg"].ToString() != "")
+        {
+            // string sFailure = coll["failure_back_page"].ToString();
+            if (coll["failure_back_page"] != null)
+                HttpContext.Current.Response.Write("<script>window.document.location.href='" + coll["failure_back_page"].ToString() + "';</script>");
+            else
+                HttpContext.Current.Response.Write("<script>window.document.location.href='login.aspx';</script>");
+        }
+        else
+        {
+            if (HttpContext.Current.Request.QueryString["back_n_next"] != null)
+            {
+                HttpContext.Current.Session["last_page_html"] = null;
+                string s = HttpContext.Current.Session["back_n_next"].ToString();
+                HttpContext.Current.Response.Write("<script>window.document.location.href='" + s.ToString() + "';</script>");
+                HttpContext.Current.Session["back_n_next"] = null;
+            }
+            else
+            {
+                if (coll["success_back_page"] != null)
+                    HttpContext.Current.Response.Write("<script>window.document.location.href='" + coll["success_back_page"].ToString() + "';</script>");
+                else
+                    HttpContext.Current.Response.Write("<script>window.document.location.href='login.aspx';</script>");
+            }
+        }
+        CachingManager.CachingManager.RemoveFromCache("SetValue_" + coll["table_name"].ToString() + "_");
+    }
+    
 
     protected string GetLangMenu(Int32 nGroupID)
     {
@@ -171,12 +206,18 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
         DBRecordWebEditor theRecord = new DBRecordWebEditor("message_announcements", "adm_table_pager", sBack, "", "ID", announcementId, sBack, "");
         theRecord.SetConnectionKey("notifications_connection");
 
-        DataRecordCheckBoxField dr_enabled = new DataRecordCheckBoxField(true);
+        //DataRecordCheckBoxField dr_enabled = new DataRecordCheckBoxField(false);
+        //dr_enabled.setFiledName("Enabled");
+        //dr_enabled.Initialize("Enabled", "adm_table_header_nbg", "FormInput", "is_active", false);
+        //theRecord.AddRecord(dr_enabled);
+        
+        DataRecordShortIntField dr_enabled = new DataRecordShortIntField(false, 9, 9);
+        dr_enabled.Initialize("Enabled", "adm_table_header_nbg", "FormInput", "is_active", false);
         dr_enabled.setFiledName("Enabled");
-        dr_enabled.Initialize("Enabled", "adm_table_header_nbg", "FormInput", "is_active", true);
         theRecord.AddRecord(dr_enabled);
 
-        DataRecordDropDownField dr_message_recipient = new DataRecordDropDownField("", "name", "id", "", null, 60, false);
+
+        DataRecordDropDownField dr_message_recipient = new DataRecordDropDownField("", "name", "id", "", null, 60,false);
         dr_message_recipient.setFiledName("recipients");
         dr_message_recipient.SetSelectsDT(GetReceipentType());
         dr_message_recipient.Initialize("recipients", "adm_table_header_nbg", "FormInput", "recipients", true);
@@ -184,29 +225,40 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
 
         DataRecordShortTextField dr_name = new DataRecordShortTextField("ltr", true, 60, 256);
         dr_name.setFiledName("Name");
-        dr_name.Initialize("Name", "adm_table_header_nbg", "FormInput", "name", false);
+        dr_name.Initialize("Name", "adm_table_header_nbg", "FormInput", "name", true);
         theRecord.AddRecord(dr_name);
 
         DataRecordLongTextField dr_Message = new DataRecordLongTextField("ltr", true, 60, 4);
         dr_Message.setFiledName("Message");
-        dr_Message.Initialize("Message", "adm_table_header_nbg", "FormInput", "Message", false);
+        dr_Message.Initialize("Message", "adm_table_header_nbg", "FormInput", "Message", true);
         theRecord.AddRecord(dr_Message);
 
         DataRecordDateTimeField dr_start_date = new DataRecordDateTimeField(true);
         dr_start_date.setFiledName("StartDateTime");
-        dr_start_date.Initialize("Begin send date&time", "adm_table_header_nbg", "FormInput", "start_time", false);
+        dr_start_date.Initialize("Begin send date&time", "adm_table_header_nbg", "FormInput", "start_time", true);
         dr_start_date.SetDefault(DateTime.Now);
+        // get timezone by id 
+        if (announcementId != null)
+        {
+            string tempTimeZone = GetTimeZone(announcementId);
+            dr_start_date.setTimeZone(tempTimeZone);
+        }
         theRecord.AddRecord(dr_start_date);
+
+
 
         //int itimezone = 0;
         System.Data.DataTable tz = GetTimeZone();// TimeZoneInfo.GetSystemTimeZones();
         DataRecordDropDownField dr_time_zone = new DataRecordDropDownField("", "NAME", "id", "", null, 60, true);
         dr_time_zone.setFiledName("TimeZone");
         dr_time_zone.SetFieldType("string");
-        dr_time_zone.Initialize("Time Zone", "adm_table_header_nbg", "FormInput", "timezone", false);
+        dr_time_zone.Initialize("Time Zone", "adm_table_header_nbg", "FormInput", "timezone", true);
         dr_time_zone.SetSelectsDT(tz);
         dr_time_zone.SetDefaultVal("UTC");
         theRecord.AddRecord(dr_time_zone);
+
+
+
 
         string sTable = theRecord.GetTableHTML("adm_system_announcements_new.aspx?submited=1");
 
@@ -237,6 +289,21 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
             dt.Rows.Add(z.Id, z.Id);
         }
         return dt;
+    }
+
+    private string GetTimeZone(object id)
+    {
+        string timeZone = string.Empty;
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery.SetConnectionKey("notifications_connection");
+        int nID = 0;
+        int.TryParse(id.ToString(), out nID);
+        object otimezone = ODBCWrapper.Utils.GetTableSingleVal("message_announcements", "timezone", nID, 0, "notifications_connection");
+        if (otimezone != null)
+        {
+            timeZone = otimezone.ToString();
+        }
+        return timeZone;
     }
 
     private static DateTime getDateTime(string sVal, int nCounter, ref System.Collections.Specialized.NameValueCollection coll, ref bool bValid)
@@ -335,7 +402,7 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
                             switch (sFieldName)
                             {
                                 case "Enabled":
-                                    if (sVal == "on")
+                                    if (sVal == "1")
                                         Enabled = true;
                                     else
                                         Enabled = false;
@@ -395,6 +462,9 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
 
                     nCounter++;
                 }
+                //convert datetime to UTC
+                date = ODBCWrapper.Utils.ConvertToUtc(date, timezone);
+                
             }
             catch (Exception)
             {

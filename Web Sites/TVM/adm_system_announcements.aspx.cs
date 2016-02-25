@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
@@ -94,25 +95,36 @@ public partial class adm_system_announcements : System.Web.UI.Page
         Int32 nGroupID = LoginManager.GetLoginGroupID();
         string sGroupLang = GetMainLang();
         theTable.SetConnectionKey("notifications_connection");
-        theTable += "select a.* , CASE  WHEN a.recipients = 0 THEN  'All'  WHEN a.recipients = 1 THEN 'LoggedIn'  when a.recipients = 2 then 'Guests' ";
-        theTable += " when a.recipients = 3 then 'Other' end as recipients_type_name , ";
-        theTable += " CASE WHEN a.sent = 0 THEN  'NotSent'  WHEN a.sent = 1 THEN 'Sending' when a.sent = 2 then 'Sent' when a.sent = 3 then 'Aborted' end as sent_status ";
-        theTable += "  from message_announcements a   ";
-        theTable += "  where a.status = 1  And  ";
-        theTable += ODBCWrapper.Parameter.NEW_PARAM("a.group_id", "=", nGroupID);        
-        if (sOrderBy != "")
-        {
-            theTable += " order by ";
-            theTable += sOrderBy;
-        }
+
+        DataTable dt = GetAllMessageAnnouncements(nGroupID);
+        theTable.FillDataTable(dt);
+        //theTable += "select a.ID, a.recipients as 'recipientsCode', a.status, a.is_active, a.name, a.message, a.start_time, a.sent, a.updater_id, a.update_date,a.create_date, ";
+        //theTable += " a.group_id, a.timezone , " ;
+        //theTable += " CASE  WHEN a.recipients = 0 THEN  'All'  WHEN a.recipients = 1 THEN 'LoggedIn'  when a.recipients = 2 then 'Guests' ";
+        //theTable += " when a.recipients = 3 then 'Other' end as 'recipients' , ";
+        //theTable += " CASE WHEN a.sent = 0 THEN  'Not Sent'  WHEN a.sent = 1 THEN 'Sending' when a.sent = 2 then 'Sent' when a.sent = 3 then 'Aborted' end as 'message status' ";
+        //theTable += "  from message_announcements a   ";
+        //theTable += "  where a.status = 1  And  ";
+        //theTable += ODBCWrapper.Parameter.NEW_PARAM("a.group_id", "=", nGroupID);
+       
+        //if (sOrderBy != "")
+        //{
+        //    theTable += " order by ";
+        //    theTable += sOrderBy;
+        //}
+        //else
+        //{
+        //    theTable += " order by id desc ";
+        //}
         theTable.AddHiddenField("ID");
         theTable.AddHiddenField("group_id");
         theTable.AddHiddenField("status");
         theTable.AddHiddenField("is_active");
-        theTable.AddHiddenField("recipients");
+        theTable.AddHiddenField("recipientsCode");
         theTable.AddHiddenField("updater_id");
         theTable.AddHiddenField("update_date");
         theTable.AddHiddenField("create_date");
+        theTable.AddHiddenField("sent");
        
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.PUBLISH) &&  LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {
@@ -121,7 +133,7 @@ public partial class adm_system_announcements : System.Web.UI.Page
 
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {
-            DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_system_announcements_new.aspx", "Edit", "");
+            DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_system_announcements_new.aspx", "Edit", "sent=0");
             linkColumn1.AddQueryStringValue("message_announcement_id", "field=id");
             //linkColumn1.AddQueryStringValue("message_time_zone", "field=timezone");
             theTable.AddLinkColumn(linkColumn1);
@@ -171,6 +183,44 @@ public partial class adm_system_announcements : System.Web.UI.Page
 
     }
 
+    private DataTable GetAllMessageAnnouncements(int nGroupID)
+    {
+        DataTable dt = null;
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery.SetConnectionKey("notifications_connection");
+        selectQuery += "select a.ID, a.recipients as 'recipientsCode', a.status, a.is_active, a.name, a.message, a.start_time, a.sent, a.updater_id, a.update_date,a.create_date, ";
+        selectQuery += " a.group_id, a.timezone , ";
+        selectQuery += " CASE  WHEN a.recipients = 0 THEN  'All'  WHEN a.recipients = 1 THEN 'LoggedIn'  when a.recipients = 2 then 'Guests' ";
+        selectQuery += " when a.recipients = 3 then 'Other' end as 'recipients' , ";
+        selectQuery += " CASE WHEN a.sent = 0 THEN  'Not Sent'  WHEN a.sent = 1 THEN 'Sending' when a.sent = 2 then 'Sent' when a.sent = 3 then 'Aborted' end as 'message status' ";
+        selectQuery += "  from message_announcements a   ";
+        selectQuery += "  where a.status = 1  And  ";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("a.group_id", "=", nGroupID);
+        selectQuery += " order by id desc ";
+        
+        if (selectQuery.Execute("query", true) != null)
+        {
+            int nCount = selectQuery.Table("query").DefaultView.Count;
+            if (nCount > 0)
+            {
+                dt = selectQuery.Table("query");
+
+                foreach (DataRow dr in dt.Rows)
+                {
+                    DateTime date_time = ODBCWrapper.Utils.GetDateSafeVal(dr["start_time"]);
+                    string time_zone = ODBCWrapper.Utils.GetSafeStr(dr["timezone"]);
+                    DateTime local_date_time = ODBCWrapper.Utils.ConvertFromUtc(date_time, time_zone);
+                    dr["start_time"] = local_date_time;
+                }
+            }
+        }
+        selectQuery.Finish();
+        selectQuery = null;
+
+
+        return dt;
+    }
+
     public string GetPageContent(string sOrderBy, string sPageNum)
     {
         string sOldOrderBy = "";
@@ -192,29 +242,29 @@ public partial class adm_system_announcements : System.Web.UI.Page
         Response.Write(PageUtils.GetPreHeader() + ": System Announcements");
     }
 
-  
 
 
 
-    //public void UpdateOnOffStatus(string theTableName, string sID, string sStatus)
-    //{
-    //    try
-    //    {
+
+    public void UpdateOnOffStatus(string theTableName, string sID, string sStatus)
+    {
+        try
+        {
 
 
-    //        //Int32 groupID = LoginManager.GetLoginGroupID();
-    //        //bool result = false;
+            //Int32 groupID = LoginManager.GetLoginGroupID();
+            //bool result = false;
 
-    //        //bool bStatus = int.Parse(sStatus) == 1 ? true : false;
-    //        //result = ImporterImpl.UpdateMessageAnnouncementStatus(groupID, int.Parse(sID), bStatus);
-    //        //if (!result)
-    //        //{
+            //bool bStatus = int.Parse(sStatus) == 1 ? true : false;
+            //result = ImporterImpl.UpdateMessageAnnouncementStatus(groupID, int.Parse(sID), bStatus);
+            //if (!result)
+            //{
 
-    //        //}
-    //    }
-    //    catch (Exception)
-    //    {
+            //}
+        }
+        catch (Exception)
+        {
 
-    //    }
-    //}
+        }
+    }
 }
