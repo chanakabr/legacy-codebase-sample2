@@ -249,11 +249,12 @@ namespace WebAPI.Controllers
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <param name="language">Language Code</param>
         /// <param name="pager">Page size and index</param>
+        /// <param name="request_id">Current request identifier (used for paging)</param>
         /// <remarks>Possible status codes: Bad search request = 4002, Missing index = 4003, SyntaxError = 4004, InvalidSearchField = 4005</remarks>
         [Route("search"), HttpPost]
         [ApiAuthorize]
         public KalturaAssetInfoListResponse Search(KalturaOrder? order_by, List<KalturaIntegerValue> filter_types = null, string filter = null,
-            List<KalturaCatalogWithHolder> with = null, string language = null, KalturaFilterPager pager = null)
+            List<KalturaCatalogWithHolder> with = null, string language = null, KalturaFilterPager pager = null, string request_id = null)
         {
             KalturaAssetInfoListResponse response = null;
 
@@ -281,7 +282,8 @@ namespace WebAPI.Controllers
             {
                 // call client
                 response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language,
-                pager.PageIndex, pager.PageSize, filter, order_by, filter_types.Select(x => x.value).ToList(),
+                pager.PageIndex, pager.PageSize, filter, order_by, filter_types.Select(x => x.value).ToList(), 
+                request_id,
                 with.Select(x => x.type).ToList());
             }
             catch (ClientException ex)
