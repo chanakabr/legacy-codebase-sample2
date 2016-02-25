@@ -34,7 +34,7 @@ namespace InitiateNotificationActionHandler
                 string username = string.Empty;
                 string password = string.Empty;
 
-                TasksCommon.RemoteTasksUtils.GetCredentials(request.GroupId, ref username, ref password, ApiObjects.eWSModules.NOTIFICATION);
+                TasksCommon.RemoteTasksUtils.GetCredentials(request.GroupId, ref username, ref password, ApiObjects.eWSModules.NOTIFICATIONS);
 
                 if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(url))
                     throw new Exception(string.Format(

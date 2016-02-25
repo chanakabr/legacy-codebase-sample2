@@ -34,7 +34,7 @@ namespace MessageAnnouncementHandler
                 string username = string.Empty;
                 string password = string.Empty;
 
-                TasksCommon.RemoteTasksUtils.GetCredentials(request.GroupId, ref username, ref password, ApiObjects.eWSModules.NOTIFICATION);
+                TasksCommon.RemoteTasksUtils.GetCredentials(request.GroupId, ref username, ref password, ApiObjects.eWSModules.NOTIFICATIONS);
 
                 NotificationServiceClient notificationsClient = new NotificationServiceClient(string.Empty, url);
                 
