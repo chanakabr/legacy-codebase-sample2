@@ -205,17 +205,12 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
         string sBack = "adm_system_announcements.aspx?search_save=1";
         DBRecordWebEditor theRecord = new DBRecordWebEditor("message_announcements", "adm_table_pager", sBack, "", "ID", announcementId, sBack, "");
         theRecord.SetConnectionKey("notifications_connection");
-
-        //DataRecordCheckBoxField dr_enabled = new DataRecordCheckBoxField(false);
-        //dr_enabled.setFiledName("Enabled");
-        //dr_enabled.Initialize("Enabled", "adm_table_header_nbg", "FormInput", "is_active", false);
-        //theRecord.AddRecord(dr_enabled);
-        
+                
         DataRecordShortIntField dr_enabled = new DataRecordShortIntField(false, 9, 9);
         dr_enabled.Initialize("Enabled", "adm_table_header_nbg", "FormInput", "is_active", false);
         dr_enabled.setFiledName("Enabled");
+        dr_enabled.SetDefault(1);
         theRecord.AddRecord(dr_enabled);
-
 
         DataRecordDropDownField dr_message_recipient = new DataRecordDropDownField("", "name", "id", "", null, 60,false);
         dr_message_recipient.setFiledName("recipients");
@@ -244,11 +239,8 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
             dr_start_date.setTimeZone(tempTimeZone);
         }
         theRecord.AddRecord(dr_start_date);
-
-
-
-        //int itimezone = 0;
-        System.Data.DataTable tz = GetTimeZone();// TimeZoneInfo.GetSystemTimeZones();
+       
+        System.Data.DataTable tz = GetTimeZone();
         DataRecordDropDownField dr_time_zone = new DataRecordDropDownField("", "NAME", "id", "", null, 60, true);
         dr_time_zone.setFiledName("TimeZone");
         dr_time_zone.SetFieldType("string");
@@ -256,9 +248,6 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
         dr_time_zone.SetSelectsDT(tz);
         dr_time_zone.SetDefaultVal("UTC");
         theRecord.AddRecord(dr_time_zone);
-
-
-
 
         string sTable = theRecord.GetTableHTML("adm_system_announcements_new.aspx?submited=1");
 

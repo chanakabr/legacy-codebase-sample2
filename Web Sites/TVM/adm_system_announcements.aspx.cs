@@ -98,24 +98,7 @@ public partial class adm_system_announcements : System.Web.UI.Page
 
         DataTable dt = GetAllMessageAnnouncements(nGroupID);
         theTable.FillDataTable(dt);
-        //theTable += "select a.ID, a.recipients as 'recipientsCode', a.status, a.is_active, a.name, a.message, a.start_time, a.sent, a.updater_id, a.update_date,a.create_date, ";
-        //theTable += " a.group_id, a.timezone , " ;
-        //theTable += " CASE  WHEN a.recipients = 0 THEN  'All'  WHEN a.recipients = 1 THEN 'LoggedIn'  when a.recipients = 2 then 'Guests' ";
-        //theTable += " when a.recipients = 3 then 'Other' end as 'recipients' , ";
-        //theTable += " CASE WHEN a.sent = 0 THEN  'Not Sent'  WHEN a.sent = 1 THEN 'Sending' when a.sent = 2 then 'Sent' when a.sent = 3 then 'Aborted' end as 'message status' ";
-        //theTable += "  from message_announcements a   ";
-        //theTable += "  where a.status = 1  And  ";
-        //theTable += ODBCWrapper.Parameter.NEW_PARAM("a.group_id", "=", nGroupID);
-       
-        //if (sOrderBy != "")
-        //{
-        //    theTable += " order by ";
-        //    theTable += sOrderBy;
-        //}
-        //else
-        //{
-        //    theTable += " order by id desc ";
-        //}
+      
         theTable.AddHiddenField("ID");
         theTable.AddHiddenField("group_id");
         theTable.AddHiddenField("status");
@@ -249,17 +232,6 @@ public partial class adm_system_announcements : System.Web.UI.Page
     {
         try
         {
-
-
-            //Int32 groupID = LoginManager.GetLoginGroupID();
-            //bool result = false;
-
-            //bool bStatus = int.Parse(sStatus) == 1 ? true : false;
-            //result = ImporterImpl.UpdateMessageAnnouncementStatus(groupID, int.Parse(sID), bStatus);
-            //if (!result)
-            //{
-
-            //}
         }
         catch (Exception)
         {
