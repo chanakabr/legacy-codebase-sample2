@@ -87,6 +87,7 @@ namespace WebAPI.Clients
                 {
                     m_sDeviceId = udid,
                     m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                    m_bUseStartDate = true
                 },
                 m_sUserIP = Utils.Utils.GetClientIP(),
                 m_nGroupID = groupId,
@@ -166,7 +167,8 @@ namespace WebAPI.Clients
                 m_oFilter = new Filter()
                 {
                     m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
-                    m_sDeviceId = udid
+                    m_sDeviceId = udid,
+                    m_bUseStartDate = true
                 },
                 m_sUserIP = Utils.Utils.GetClientIP(),
                 m_nGroupID = groupId,
@@ -230,7 +232,8 @@ namespace WebAPI.Clients
                 m_oFilter = new Filter()
                 {
                     m_sDeviceId = udid,
-                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language)
+                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                    m_bUseStartDate = true
                 },
                 m_sUserIP = Utils.Utils.GetClientIP(),
                 m_nGroupID = groupId,
@@ -332,6 +335,7 @@ namespace WebAPI.Clients
                 {
                     m_sDeviceId = udid,
                     m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                    m_bUseStartDate = true
                 },
                 m_sUserIP = Utils.Utils.GetClientIP(),
                 m_nGroupID = groupId,
@@ -368,6 +372,7 @@ namespace WebAPI.Clients
                 {
                     m_sDeviceId = udid,
                     m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                    m_bUseStartDate = true
                 },
                 m_sLanguage = language,
                 m_sUserIP = Utils.Utils.GetClientIP(),
@@ -405,6 +410,7 @@ namespace WebAPI.Clients
                 {
                     m_sDeviceId = udid,
                     m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                    m_bUseStartDate = true
                 },
                 m_sLanguage = language,
                 m_sUserIP = Utils.Utils.GetClientIP(),
@@ -583,6 +589,7 @@ namespace WebAPI.Clients
                 {
                     m_sDeviceId = udid,
                     m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                    m_bUseStartDate = true
                 },
                 m_sUserIP = Utils.Utils.GetClientIP(),
                 m_nGroupID = groupId,
@@ -622,6 +629,7 @@ namespace WebAPI.Clients
                 {
                     m_sDeviceId = udid,
                     m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                    m_bUseStartDate = true
                 },
                 m_sUserIP = Utils.Utils.GetClientIP(),
                 m_nGroupID = groupId,
@@ -714,6 +722,7 @@ namespace WebAPI.Clients
                 {
                     m_sDeviceId = udid,
                     m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                    m_bUseStartDate = true
                 },
                 m_sUserIP = Utils.Utils.GetClientIP(),
                 m_nGroupID = groupId,
@@ -909,6 +918,7 @@ namespace WebAPI.Clients
                 {
                     m_sDeviceId = udid,
                     m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                    m_bUseStartDate = true
                 },
                 m_sSiteGuid = siteGuid,
                 m_sUserIP = Utils.Utils.GetClientIP(),

@@ -97,7 +97,7 @@ namespace WebAPI.Utils
                     {
                         m_nLanguage = request.m_oFilter.m_nLanguage,
                         m_sDeviceId = request.m_oFilter.m_sDeviceId,
-                        //m_sPlatform = platform.ToString()
+                        m_bUseStartDate = true
                     },
                     m_sSignature = request.m_sSignature,
                     m_sSignString = request.m_sSignString,
