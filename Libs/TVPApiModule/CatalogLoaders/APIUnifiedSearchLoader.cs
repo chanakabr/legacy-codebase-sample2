@@ -163,6 +163,8 @@ namespace TVPApiModule.CatalogLoaders
             result = new Objects.Responses.UnifiedSearchResponse();
             result.Status = new Objects.Responses.Status((int)response.status.Code, response.status.Message);
             result.TotalItems = response.m_nTotalItems;
+            // also add the request identifier to the reqsposne
+            result.RequestId = response.requestId;
 
             if (response.searchResults != null && response.searchResults.Count > 0)
             {
