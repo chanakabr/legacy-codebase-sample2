@@ -116,7 +116,7 @@ var List = function (listId, listTitle, pageName, withCalendar, dualListParent) 
                     // adding the calendar component
                     if (type == 'remove') {
                         if (withCalendar === true) {
-                            new Calendar(items[i], listLiItem);
+                            new Calendar(items[i], listLiItem, pageName);
                         }
                         else {
                             new Number(items[i], listLiItem);

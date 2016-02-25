@@ -220,7 +220,10 @@ public partial class adm_media_files : System.Web.UI.Page
             Int32 nMediaID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("media_files", "media_id", mediaFileID).ToString());
             if (nMediaID > 0)
             {
-                ImporterImpl.UpdateIndex(new List<int>() { nMediaID }, nGroupID, ApiObjects.eAction.Update);
+                if (!ImporterImpl.UpdateIndex(new List<int>() { nMediaID }, nGroupID, ApiObjects.eAction.Update))
+                {
+                    log.Error(string.Format("Failed updating index for mediaID: {0}, groupID: {1}", nMediaID, nGroupID));
+                }
             }
         }
     }

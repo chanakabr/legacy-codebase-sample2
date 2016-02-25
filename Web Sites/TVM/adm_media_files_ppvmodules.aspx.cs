@@ -10,6 +10,7 @@ using System.Globalization;
 using KLogMonitor;
 using System.Reflection;
 using TvinciImporter;
+using System.Data;
 
 public partial class adm_media_files_ppvmodules : System.Web.UI.Page
 {
@@ -167,35 +168,45 @@ public partial class adm_media_files_ppvmodules : System.Web.UI.Page
         updateQuery = null;
     }
 
-    protected void UpdatePPVModulesMediaFilesIDDates(Int32 nID, string sStartDate, string sEndDate)
+    protected bool UpdatePPVModulesMediaFilesIDDates(Int32 nID, string sStartDate, string sEndDate)
     {
-        DateTime? dStartDate = string.IsNullOrEmpty(sStartDate) ? null : (DateTime?)(DateTime.ParseExact(sStartDate, "dd/MM/yyyy", CultureInfo.InvariantCulture));
-        DateTime? dEndDate = string.IsNullOrEmpty(sEndDate) ? null : (DateTime?)(DateTime.ParseExact(sEndDate, "dd/MM/yyyy", CultureInfo.InvariantCulture));
-        ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("ppv_modules_media_files");
-        updateQuery.SetConnectionKey("pricing_connection");
-        if (dStartDate.HasValue)
+        bool res = false;
+        try
         {
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("start_date", "=", (DateTime)dStartDate);
+            DateTime? dStartDate = string.IsNullOrEmpty(sStartDate) ? null : (DateTime?)(DateTime.ParseExact(sStartDate, "dd/MM/yyyy", CultureInfo.InvariantCulture));
+            DateTime? dEndDate = string.IsNullOrEmpty(sEndDate) ? null : (DateTime?)(DateTime.ParseExact(sEndDate, "dd/MM/yyyy", CultureInfo.InvariantCulture));
+            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("ppv_modules_media_files");
+            updateQuery.SetConnectionKey("pricing_connection");
+            if (dStartDate.HasValue)
+            {
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("start_date", "=", (DateTime)dStartDate);
+            }
+            else
+            {
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("start_date", "=", DBNull.Value);
+            }
+
+            if (dEndDate.HasValue)
+            {
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("end_date", "=", (DateTime)dEndDate);
+            }
+            else
+            {
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("end_date", "=", DBNull.Value);
+            }
+
+            updateQuery += "where ";
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nID);
+            res = updateQuery.Execute();
+            updateQuery.Finish();
+            updateQuery = null;
         }
-        else
+        catch (Exception ex)
         {
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("start_date", "=", DBNull.Value);
+            log.Error("Error occurred while trying to execute UpdatePPVModulesMediaFilesIDDates", ex);
         }
 
-        if (dEndDate.HasValue)
-        {
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("end_date", "=", (DateTime)dEndDate);
-        }
-        else
-        {
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("end_date", "=", DBNull.Value);
-        }
-
-        updateQuery += "where ";
-        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nID);
-        updateQuery.Execute();
-        updateQuery.Finish();
-        updateQuery = null;
+        return res;
     }
 
     protected Int32 GetPPVModulesMediaFilesID(Int32 nPPVModuleID, Int32 nLogedInGroupID, ref Int32 nStatus)
@@ -260,7 +271,10 @@ public partial class adm_media_files_ppvmodules : System.Web.UI.Page
         int mediaID;
         if (int.TryParse(ODBCWrapper.Utils.GetTableSingleVal("media_files", "media_id", mediaFileID).ToString(), out mediaID))
         {
-            ImporterImpl.UpdateIndex(new List<int>() { mediaID }, nLogedInGroupID, ApiObjects.eAction.Update);
+            if (!ImporterImpl.UpdateIndex(new List<int>() { mediaID }, nLogedInGroupID, ApiObjects.eAction.Update))
+            {
+                log.Error(string.Format("Failed updating index for mediaID: {0}, groupID: {1}", mediaID, nLogedInGroupID));
+            }
         }
 
         try
@@ -281,13 +295,18 @@ public partial class adm_media_files_ppvmodules : System.Web.UI.Page
 
     public string changeItemDates(string sID, string sStartDate, string sEndDate)
     {
-        if (Session["media_file_id"] == null || Session["media_file_id"].ToString() == "" || Session["media_file_id"].ToString() == "0")
+        int mediaFileID;
+        if (Session["media_file_id"] == null || int.TryParse(Session["media_file_id"].ToString(), out mediaFileID) || mediaFileID == 0)
         {
             LoginManager.LogoutFromSite("index.html");
             return "";
         }
 
-        Int32 nOwnerGroupID = int.Parse(PageUtils.GetTableSingleVal("media_files", "group_id", int.Parse(Session["media_file_id"].ToString())).ToString());
+        DataRow mediaFileDetails = ODBCWrapper.Utils.GetTableSingleRowColumnsByParamValue("media_files", "id", mediaFileID.ToString(), new List<string>() { "group_id", "media_id", "start_date", "end_date" });
+        int nOwnerGroupID = ODBCWrapper.Utils.GetIntSafeVal(mediaFileDetails, "group_id");
+        int mediaID = ODBCWrapper.Utils.GetIntSafeVal(mediaFileDetails, "media_id");
+        DateTime? prevStartDate = ODBCWrapper.Utils.GetNullableDateSafeVal(mediaFileDetails, "start_date");
+        DateTime? prevEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(mediaFileDetails, "end_date");
         Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
         if (nLogedInGroupID != nOwnerGroupID && PageUtils.IsTvinciUser() == false)
         {
@@ -298,7 +317,31 @@ public partial class adm_media_files_ppvmodules : System.Web.UI.Page
         Int32 nPPVModuleMediaFilesID = GetPPVModulesMediaFilesID(int.Parse(sID), nLogedInGroupID, ref nStatus);
         if (nPPVModuleMediaFilesID != 0)
         {
-            UpdatePPVModulesMediaFilesIDDates(nPPVModuleMediaFilesID, sStartDate, sEndDate);
+            if (UpdatePPVModulesMediaFilesIDDates(nPPVModuleMediaFilesID, sStartDate, sEndDate))
+            {
+                DataRow updatedMediaFileDetails = ODBCWrapper.Utils.GetTableSingleRowColumnsByParamValue("media_files", "id", Session["media_file_id"].ToString(), new List<string>() { "start_date", "end_date" });
+                DateTime? updatedStartDate = ODBCWrapper.Utils.GetNullableDateSafeVal(updatedMediaFileDetails, "start_date");
+                DateTime? updatedEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(updatedMediaFileDetails, "end_date");
+                // check if changes in the start date require future index update call, incase updatedStartDate is in more than 2 years we don't update the index (per Ira's request)
+                if (updatedStartDate.HasValue && (updatedStartDate.Value > DateTime.UtcNow && updatedStartDate.Value <= DateTime.UtcNow.AddYears(2))
+                    && (!prevStartDate.HasValue || updatedStartDate.Value != prevStartDate.Value))
+                {
+                    if (!ImporterImpl.InsertFreeItemsIndexUpdate(nLogedInGroupID, ApiObjects.eObjectType.Media, new List<int>() { mediaID }, updatedStartDate.Value))
+                    {
+                        log.Error(string.Format("Failed inserting free items index update for startDate: {0}, mediaID: {1}, groupID: {2}", updatedStartDate.Value, mediaID, nLogedInGroupID));
+                    }
+                }
+
+                // check if changes in the end date require future index update call, incase updatedEndDate is in more than 2 years we don't update the index (per Ira's request)
+                if (updatedEndDate.HasValue && (updatedEndDate > DateTime.UtcNow && updatedEndDate.Value <= DateTime.UtcNow.AddYears(2))
+                    && (!prevEndDate.HasValue || updatedEndDate.Value != prevEndDate.Value))
+                {
+                    if (!ImporterImpl.InsertFreeItemsIndexUpdate(nLogedInGroupID, ApiObjects.eObjectType.Media, new List<int>() { mediaID }, updatedEndDate.Value))
+                    {
+                        log.Error(string.Format("Failed inserting free items index update for endDate: {0}, mediaID: {1}, groupID: {2}", updatedEndDate.Value, mediaID, nLogedInGroupID));
+                    }
+                }
+            }
         }
         return "";
     }

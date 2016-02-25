@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -9,6 +10,7 @@ using TVinciShared;
 
 public partial class adm_ppv_modules : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
 
@@ -215,7 +217,10 @@ public partial class adm_ppv_modules : System.Web.UI.Page
         int ppvModuleID;
         if (int.TryParse(sID, out ppvModuleID))
         {
-            ImporterImpl.UpdateFreeFileTypeOfModule(nGroupID, ppvModuleID);
+            if (!ImporterImpl.UpdateFreeFileTypeOfModule(nGroupID, ppvModuleID))
+            {
+                log.Error(string.Format("Failed updating index for ppvModule: {0}, groupID: {1}", ppvModuleID, nGroupID));
+            }
         }
     }
 

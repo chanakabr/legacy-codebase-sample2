@@ -118,17 +118,21 @@ public partial class adm_generic_remove : System.Web.UI.Page
                         if (epgCB.Status == 4) //remove permanent
                         {
                             oEpgBL.RemoveEpg(uID);
-                            //Delete from ElasticSearch
-                            bool result = false;
-                            result = ImporterImpl.UpdateEpgIndex(new List<ulong>() { epgCB.EpgID }, nGroupID, ApiObjects.eAction.Delete);
+                            //Delete from ElasticSearch                            
+                            if (!ImporterImpl.UpdateEpgIndex(new List<ulong>() { epgCB.EpgID }, nGroupID, ApiObjects.eAction.Delete))
+                            {
+                                log.Error(string.Format("Failed updating index for epgID: {0}, groupID: {1}", epgCB.EpgID, nGroupID));
+                            }
                         }
                         else if (epgCB.Status == 1)
                         {
                             epgCB.Status = 4;
                             bool res = oEpgBL.UpdateEpg(epgCB);
-                            //Update from ElasticSearch
-                            bool result = false;
-                            result = ImporterImpl.UpdateEpgIndex(new List<ulong>() { epgCB.EpgID }, nGroupID, ApiObjects.eAction.Update);
+                            //Update from ElasticSearch                            
+                            if (!ImporterImpl.UpdateEpgIndex(new List<ulong>() { epgCB.EpgID }, nGroupID, ApiObjects.eAction.Update))
+                            {
+                                log.Error(string.Format("Failed updating index for epgID: {0}, groupID: {1}", epgCB.EpgID, nGroupID));
+                            }
                         }
                     }
                 }
@@ -136,7 +140,7 @@ public partial class adm_generic_remove : System.Web.UI.Page
         }
         else
         {
-
+            int logedInGroupID = LoginManager.GetLoginGroupID();
             ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery(m_sTable);
             updateQuery.SetConnectionKey(m_sDB);
             // double confirm for remove
@@ -149,14 +153,16 @@ public partial class adm_generic_remove : System.Web.UI.Page
             updateQuery.Finish();
             updateQuery = null;
 
-            //Remove Media / Channel from Lucene 
-            bool result = false;
+            //Remove Media / Channel from Lucene             
             List<int> lIds = new List<int>() { m_nID };
 
             // media changed from pending to deleted - delete index
             if(rowsChanged > 0 && m_sTable.ToLower() == "media")
-            {                
-                result = ImporterImpl.UpdateIndex(lIds, LoginManager.GetLoginGroupID(), ApiObjects.eAction.Delete);                    
+            {
+                if (!ImporterImpl.UpdateIndex(lIds, logedInGroupID, ApiObjects.eAction.Delete))
+                {
+                    log.Error(string.Format("Failed updating index for mediaIDs: {0}, groupID: {1}", lIds, logedInGroupID));
+                }
             }
 
             ODBCWrapper.UpdateQuery updateQuery1 = new ODBCWrapper.UpdateQuery(m_sTable);
@@ -174,7 +180,10 @@ public partial class adm_generic_remove : System.Web.UI.Page
             // media changed from active to pending - update index
             if (rowsChanged > 0 && m_sTable.ToLower() == "media")
             {
-                result = ImporterImpl.UpdateIndex(lIds, LoginManager.GetLoginGroupID(), ApiObjects.eAction.Update);                    
+                if (!ImporterImpl.UpdateIndex(lIds, logedInGroupID, ApiObjects.eAction.Update))
+                {
+                    log.Error(string.Format("Failed updating index for mediaIDs: {0}, groupID: {1}", lIds, logedInGroupID));
+                }
             }
 
             DomainsWS.module domainWS;
@@ -185,21 +194,30 @@ public partial class adm_generic_remove : System.Web.UI.Page
 
             // if its not media
             if (m_sTable.ToLower() != "media")
-            {
+            { 
                 switch (m_sTable.ToLower())
-                {
+                {                        
                     case "ppv_modules":
-                        result = ImporterImpl.UpdateFreeFileTypeOfModule(LoginManager.GetLoginGroupID(), m_nID);
+                        if (!ImporterImpl.UpdateFreeFileTypeOfModule(logedInGroupID, m_nID))
+                        {
+                            log.Error(string.Format("Failed updating free file index for ppvModule: {0}, groupID: {1}", m_nID, logedInGroupID));
+                        }
                         break;
                     case "media_files":
                         Int32 nMediaID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("media_files", "media_id", m_nID).ToString());
                         if (nMediaID > 0)
                         {
-                            result = ImporterImpl.UpdateIndex(new List<int>() { nMediaID }, LoginManager.GetLoginGroupID(), ApiObjects.eAction.Update);
+                            if (!ImporterImpl.UpdateIndex(new List<int>() { nMediaID }, logedInGroupID, ApiObjects.eAction.Update))
+                            {
+                                log.Error(string.Format("Failed updating index for mediaID: {0}, groupID: {1}", nMediaID, logedInGroupID));
+                            }
                         }
                         break;
                     case "channels":
-                        result = ImporterImpl.UpdateChannelIndex(LoginManager.GetLoginGroupID(), lIds, ApiObjects.eAction.Delete);
+                        if (!ImporterImpl.UpdateChannelIndex(logedInGroupID, lIds, ApiObjects.eAction.Delete))
+                        {
+                            log.Error(string.Format("Failed updating channel index for channelIDs: {0}, groupID: {1}", lIds, logedInGroupID));
+                        }
                         break;
                     case "channels_media":
                         object oChannelId = ODBCWrapper.Utils.GetTableSingleVal("channels_media", "CHANNEL_ID", m_nID);//get channel+media_id 
@@ -210,7 +228,10 @@ public partial class adm_generic_remove : System.Web.UI.Page
                             lIds.Clear();
                             lIds.Add(nChannelId);
 
-                            result = ImporterImpl.UpdateChannelIndex(LoginManager.GetLoginGroupID(), lIds, ApiObjects.eAction.Delete);
+                            if (!ImporterImpl.UpdateChannelIndex(logedInGroupID, lIds, ApiObjects.eAction.Delete))
+                            {
+                                log.Error(string.Format("Failed updating channel index for channelIDs: {0}, groupID: {1}", lIds, logedInGroupID));
+                            }
                         }
                         break;
                     case "groups_device_families_limitation_modules":
@@ -220,7 +241,7 @@ public partial class adm_generic_remove : System.Web.UI.Page
                         {
                             int dlmID = int.Parse(oDlmID.ToString());
                             domainWS = new DomainsWS.module();
-                            TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
+                            TVinciShared.WS_Utils.GetWSUNPass(logedInGroupID, "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
                             sWSURL = GetWSURL("domains_ws");
                             if (sWSURL != "")
                                 domainWS.Url = sWSURL;
@@ -240,7 +261,7 @@ public partial class adm_generic_remove : System.Web.UI.Page
                         // delete from cache this DLM object                       
                         domainWS = new DomainsWS.module();
 
-                        TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
+                        TVinciShared.WS_Utils.GetWSUNPass(logedInGroupID, "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
                         sWSURL = GetWSURL("domains_ws");
                         if (sWSURL != "")
                             domainWS.Url = sWSURL;

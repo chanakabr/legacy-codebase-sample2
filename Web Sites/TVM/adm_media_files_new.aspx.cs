@@ -37,38 +37,78 @@ public partial class adm_media_files_new : System.Web.UI.Page
             m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, true);
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
+                DateTime? prevStartDate = null;
+                DateTime? prevEndDate = null;                
+
+                // get current media file end date
+                if (Session["media_file_id"] != null)
+                {
+                    DataRow mediaFileDetails = ODBCWrapper.Utils.GetTableSingleRowColumnsByParamValue("media_files", "id", Session["media_file_id"].ToString(), new List<string>() { "start_date", "end_date" });
+                    prevStartDate = ODBCWrapper.Utils.GetNullableDateSafeVal(mediaFileDetails, "start_date");
+                    prevEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(mediaFileDetails, "end_date");
+                }
+                
                 Int32 nMediaFileID = DBManipulator.DoTheWork();
-                Int32 nMediaID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("media_files", "media_id", nMediaFileID).ToString());
-                int nLoginGroupId = LoginManager.GetLoginGroupID();
-                if (nMediaID != 0)
+                if (nMediaFileID > 0)
                 {
-                    bool updateResult;
-                    updateResult = ImporterImpl.UpdateIndex(new List<int>() { nMediaID }, nLoginGroupId, ApiObjects.eAction.Update);
-                    updateResult = ImporterImpl.InsertRemoteTaskIndexUpdate(nLoginGroupId, new List<int>() { nMediaID });
-                }
+                    // get mediaID and updated end date (if changed)
+                    DataRow updatedMediaFileDetails = ODBCWrapper.Utils.GetTableSingleRowColumnsByParamValue("media_files", "id", nMediaFileID.ToString(), new List<string>() { "media_id", "start_date", "end_date" });
+                    int nMediaID = ODBCWrapper.Utils.GetIntSafeVal(updatedMediaFileDetails, "media_id");
+                    DateTime? updatedStartDate = ODBCWrapper.Utils.GetNullableDateSafeVal(updatedMediaFileDetails, "start_date");
+                    DateTime? updatedEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(updatedMediaFileDetails, "end_date");                    
+                    int nLoginGroupId = LoginManager.GetLoginGroupID();
 
-                try
-                {
-                    Notifiers.BaseMediaNotifier t = null;
-                    Notifiers.Utils.GetBaseMediaNotifierImpl(ref t, LoginManager.GetLoginGroupID());
-
-                    string errorMessage = "";
-
-                    if (t != null)
+                    if (nMediaID > 0)
                     {
-                        t.NotifyChange(nMediaID.ToString(), ref errorMessage);
+                        if (!ImporterImpl.UpdateIndex(new List<int>() { nMediaID }, nLoginGroupId, ApiObjects.eAction.Update))
+                        {
+                            log.Error(string.Format("Failed updating index for mediaID: {0}, groupID: {1}", nMediaID, nLoginGroupId));
+                        }
+
+                        // check if changes in the start date require future index update call, incase updatedStartDate is in more than 2 years we don't update the index (per Ira's request)
+                        if (updatedStartDate.HasValue && (updatedStartDate.Value > DateTime.UtcNow && updatedStartDate.Value <= DateTime.UtcNow.AddYears(2)) 
+                            && (!prevStartDate.HasValue || updatedStartDate.Value != prevStartDate.Value))
+                        {
+                            if (!ImporterImpl.InsertFreeItemsIndexUpdate(nLoginGroupId, ApiObjects.eObjectType.Media, new List<int>() { nMediaID }, updatedStartDate.Value))
+                            {
+                                log.Error(string.Format("Failed inserting free items index update for startDate: {0}, mediaID: {1}, groupID: {2}", updatedStartDate.Value, nMediaID, nLoginGroupId));
+                            }
+                        }
+
+                        // check if changes in the end date require future index update call, incase updatedEndDate is in more than 2 years we don't update the index (per Ira's request)
+                        if (updatedEndDate.HasValue && (updatedEndDate > DateTime.UtcNow && updatedEndDate.Value <= DateTime.UtcNow.AddYears(2)) 
+                            && (!prevEndDate.HasValue || updatedEndDate.Value != prevEndDate.Value))
+                        {
+                            if (!ImporterImpl.InsertFreeItemsIndexUpdate(nLoginGroupId, ApiObjects.eObjectType.Media, new List<int>() { nMediaID }, updatedEndDate.Value))
+                            {
+                                log.Error(string.Format("Failed inserting free items index update for endDate: {0}, mediaID: {1}, groupID: {2}", updatedEndDate.Value, nMediaID, nLoginGroupId));
+                            }
+                        }
                     }
 
-                    if (!string.IsNullOrEmpty(errorMessage))
+                    try
                     {
-                        HttpContext.Current.Session["error_msg_sub"] = "Error in Package ID " + nMediaID + ":\r\n" + errorMessage;
-                    }
+                        Notifiers.BaseMediaNotifier t = null;
+                        Notifiers.Utils.GetBaseMediaNotifierImpl(ref t, LoginManager.GetLoginGroupID());
 
-                    return;
-                }
-                catch (Exception ex)
-                {
-                    log.Error("exception - " + nMediaID.ToString() + " : " + ex.Message, ex);
+                        string errorMessage = "";
+
+                        if (t != null)
+                        {
+                            t.NotifyChange(nMediaID.ToString(), ref errorMessage);
+                        }
+
+                        if (!string.IsNullOrEmpty(errorMessage))
+                        {
+                            HttpContext.Current.Session["error_msg_sub"] = "Error in Package ID " + nMediaID + ":\r\n" + errorMessage;
+                        }
+
+                        return;
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error("exception - " + nMediaID.ToString() + " : " + ex.Message, ex);
+                    }
                 }
 
                 return;
