@@ -436,16 +436,25 @@ namespace CouchbaseManager
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
-                        var removeResult = bucket.Remove(key);
-
-                        if (removeResult.Exception != null)
+                        // if key doesn't exist, we're cool
+                        if (!bucket.Exists(key))
                         {
-                            throw removeResult.Exception;
+                            result = true;
                         }
-
-                        if (removeResult.Status == Couchbase.IO.ResponseStatus.Success)
+                        else
                         {
-                            result = removeResult.Success;
+                            // Otherwise, try to really remove the key
+                            var removeResult = bucket.Remove(key);
+
+                            if (removeResult.Exception != null)
+                            {
+                                throw removeResult.Exception;
+                            }
+
+                            if (removeResult.Status == Couchbase.IO.ResponseStatus.Success)
+                            {
+                                result = removeResult.Success;
+                            }
                         }
                     }
                 }

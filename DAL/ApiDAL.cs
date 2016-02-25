@@ -1035,13 +1035,17 @@ namespace DAL
 
                 if (lMediaIDs.Count == 0)
                 {
-                    var res = cbManager.View<MediaMarkLog>(new ViewManager(CB_MEDIA_MARK_DESGIN, "users_watch_history")
+                    var view = new ViewManager(CB_MEDIA_MARK_DESGIN, "users_watch_history")
                     {
                         startKey = new object[] { nSiteGuid, 0 },
-                        endKey = new object[] { nSiteGuid, string.Empty }
-                    });
+                        endKey = new object[] { nSiteGuid, string.Empty },
+                        shouldLookupById = true
+                    };
                     
-                    List<MediaMarkLog> sortedMediaMarksList = res.ToList();
+                    var res = cbManager.View<string>(view);
+
+                    // deserialize string to MediaMarkLog
+                    List<MediaMarkLog> sortedMediaMarksList = res.Select(current => JsonConvert.DeserializeObject<MediaMarkLog>(current)).ToList();
 
                     if (sortedMediaMarksList != null && sortedMediaMarksList.Count > 0)
                     {

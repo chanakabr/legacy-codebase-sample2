@@ -529,7 +529,8 @@ namespace ApiObjects
         Logout = 1,
         AnonymousPushRegistration = 2,
         IdentifyPushRegistration = 3,
-        DeleteUser = 4
+        DeleteUser = 4,
+        ChangeUsers = 5
     }
 
     public enum eAnnouncementStatus

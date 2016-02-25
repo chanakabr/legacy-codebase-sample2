@@ -850,6 +850,42 @@ namespace ODBCWrapper
             return result;
         }
 
+        public static DataRow GetTableSingleRowColumnsByParamValue(string tableName, string paramName, string paramID, List<string> columnsToFetch, string connectionKey = "", int timeInCache = -1)
+        {
+            DataRow result = null;
+            if (columnsToFetch != null && columnsToFetch.Count > 0)
+            {                
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+
+                if (timeInCache != -1)
+                {
+                    selectQuery.SetCachedSec(timeInCache);
+                }
+
+                if (connectionKey != "")
+                {
+                    selectQuery.SetConnectionKey(connectionKey);
+                }            
+                selectQuery += string.Format("SELECT {0} FROM " + tableName + " WHERE ", string.Join(",", columnsToFetch));
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM(paramName, "=", paramID);
+
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    var table = selectQuery.Table("query");
+
+                    if (table != null && table.DefaultView.Count > 0 && table.Rows != null && table.Rows.Count > 0)
+                    {
+                        result = table.Rows[0];
+                    }
+                }
+
+                selectQuery.Finish();
+                selectQuery = null;
+            }
+
+            return result;
+        }
+
         public static DataTable GetCompleteTable(string tableName, string connectionKey = "", int timeInCache = -1)
         {
             DataTable result = null;
