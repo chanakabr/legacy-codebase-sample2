@@ -3618,7 +3618,7 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Search Media and EPG")]
         public TVPApiModule.Objects.Responses.UnifiedSearchResponse SearchAssets(InitializationObject initObj, List<int> filter_types, string filter, string order_by,
-            List<string> with, int page_index, int? page_size)
+            List<string> with, int page_index, int? page_size, string request_id)
         {
             TVPApiModule.Objects.Responses.UnifiedSearchResponse response = null;
 

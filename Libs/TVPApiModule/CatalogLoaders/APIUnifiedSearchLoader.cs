@@ -35,6 +35,12 @@ namespace TVPApiModule.CatalogLoaders
             set;
         }
 
+        public string RequestId
+        {
+            get;
+            set;
+        }
+
         public APIUnifiedSearchLoader(int groupID, PlatformType platform, int domainId, string userIP, int pageSize, int pageIndex,
             List<int> assetTypes, string filter, List<string> with, List<ePersonalFilter> personalFilters, string localeLanguage)
             : base(groupID, userIP, pageSize, pageIndex)
@@ -57,7 +63,8 @@ namespace TVPApiModule.CatalogLoaders
                 filterQuery = Filter,
                 order = Order,
                 nameAndDescription = Query,
-                personalFilters = PersonalFilters
+                personalFilters = PersonalFilters,
+                requestId = this.RequestId
             };
         }
 

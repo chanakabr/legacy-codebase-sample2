@@ -278,7 +278,8 @@ namespace TVPApiServices
         List<RecordedSeriesObject> GetSeriesRecordings(InitializationObject initObj, int pageSize, int pageIndex, RecordedEPGOrderObj recordedEPGOrderObj);
 
         [OperationContract]
-        TVPApiModule.Objects.Responses.UnifiedSearchResponse SearchAssets(InitializationObject initObj, List<int> filter_types, string filter, string order_by, List<string> with, int page_index, int? page_size);
+        TVPApiModule.Objects.Responses.UnifiedSearchResponse SearchAssets(InitializationObject initObj, 
+            List<int> filter_types, string filter, string order_by, List<string> with, int page_index, int? page_size, string request_id);
 
         [OperationContract]
         WatchHistory WatchHistory(InitializationObject initObj, List<int> filter_types, eWatchStatus filter_status, int? days, List<string> with, int? page_index, int page_size);
