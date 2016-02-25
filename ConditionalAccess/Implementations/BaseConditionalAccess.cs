@@ -5172,7 +5172,7 @@ namespace ConditionalAccess
             }
             catch (Exception ex)
             {
-                log.Error("Exception at GetUserPermittedItems. {0} - " , ex);
+                log.Error("Exception at GetUserPermittedItems. {0} - ", ex);
                 entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
             return entitlementsResponse;
@@ -5616,7 +5616,7 @@ namespace ConditionalAccess
             }
             catch (Exception ex)
             {
-                log.Error("Exception at GetUserPermittedSubscriptions. {0} - " , ex);
+                log.Error("Exception at GetUserPermittedSubscriptions. {0} - ", ex);
                 entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
             return entitlementsResponse;
@@ -8111,7 +8111,7 @@ namespace ConditionalAccess
                     int domainID = 0;
                     List<int> allUsersInDomain = Utils.GetAllUsersDomainBySiteGUID(sUserGUID, m_nGroupID, ref domainID);
                     TvinciUsers.DomainSuspentionStatus userSuspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
-                    UserEntitlementsObject userEntitlements = new UserEntitlementsObject();                    
+                    UserEntitlementsObject userEntitlements = new UserEntitlementsObject();
 
                     // check if user is valid
                     if (Utils.IsUserValid(sUserGUID, m_nGroupID, ref domainID, ref userSuspendStatus) && userSuspendStatus == TvinciUsers.DomainSuspentionStatus.OK)
@@ -8611,7 +8611,7 @@ namespace ConditionalAccess
         /// </summary>
         public virtual DomainTransactionsHistoryResponse GetDomainTransactionsHistory(int domainID, DateTime dStartDate, DateTime dEndDate, int pageSize, int pageIndex)
         {
-            DomainTransactionsHistoryResponse domainTransactionsHistoryResponse = new DomainTransactionsHistoryResponse();       
+            DomainTransactionsHistoryResponse domainTransactionsHistoryResponse = new DomainTransactionsHistoryResponse();
 
             if (domainID == 0)
             {
@@ -8629,18 +8629,18 @@ namespace ConditionalAccess
                     return domainTransactionsHistoryResponse;
                 }
 
-                DataTable domainBillingHistory = ConditionalAccessDAL.GetDomainBillingHistory(m_nGroupID, domainID, 0, dStartDate, dEndDate);                
+                DataTable domainBillingHistory = ConditionalAccessDAL.GetDomainBillingHistory(m_nGroupID, domainID, 0, dStartDate, dEndDate);
 
                 if (domainBillingHistory == null || domainBillingHistory.Rows == null || domainBillingHistory.Rows.Count == 0)
                 {
                     domainTransactionsHistoryResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no history billing for domain");
                     domainTransactionsHistoryResponse.TransactionsCount = 0;
                     return domainTransactionsHistoryResponse;
-                }                
+                }
                 List<DataRow> filteredRows = new List<DataRow>();
 
-                if(pageIndex > 0)
-                {                   
+                if (pageIndex > 0)
+                {
                     int takeTop = pageIndex * pageSize;
                     Int64 maxTransactionID = (from row in domainBillingHistory.AsEnumerable().Take(takeTop)
                                               select row.Field<Int64>("ID")).ToList().Min();
@@ -8648,7 +8648,7 @@ namespace ConditionalAccess
                                     where (Int64)row["ID"] < maxTransactionID
                                     select row).Take(pageSize).ToList();
                 }
-                else 
+                else
                 {
                     filteredRows.AddRange(domainBillingHistory.AsEnumerable().Take(pageSize));
                 }
@@ -12844,12 +12844,12 @@ namespace ConditionalAccess
                         }
                     case eTransactionType.Subscription:
                         {
-                            response = GetUsersEntitlementSubscriptionsItems(userIds, isExpired, domainID, shouldCheckByDomain, pageSize, pageIndex);                            
-                            break; 
+                            response = GetUsersEntitlementSubscriptionsItems(userIds, isExpired, domainID, shouldCheckByDomain, pageSize, pageIndex);
+                            break;
                         }
                     case eTransactionType.Collection:
                         {
-                            response = GetUsersEntitlementCollectionsItems(userIds, isExpired, domainID, shouldCheckByDomain, pageSize, pageIndex);                           
+                            response = GetUsersEntitlementCollectionsItems(userIds, isExpired, domainID, shouldCheckByDomain, pageSize, pageIndex);
                             break;
                         }
                     default:
@@ -12918,29 +12918,29 @@ namespace ConditionalAccess
             Entitlement entitlement = new Entitlement();
 
             entitlement.type = eTransactionType.Collection;
-            entitlement.entitlementId = ODBCWrapper.Utils.GetSafeStr(dataRow,"COLLECTION_CODE");
+            entitlement.entitlementId = ODBCWrapper.Utils.GetSafeStr(dataRow, "COLLECTION_CODE");
 
             entitlement.endDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "END_DATE");
-            int maxUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow,"MAX_NUM_OF_USES");
-            int currentUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow,"NUM_OF_USES");
-            entitlement.lastViewDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow,"LAST_VIEW_DATE");
+            int maxUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "MAX_NUM_OF_USES");
+            int currentUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "NUM_OF_USES");
+            entitlement.lastViewDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "LAST_VIEW_DATE");
 
             if (isExpired && maxUses != 0 && currentUses >= maxUses)
             {
                 entitlement.endDate = entitlement.lastViewDate;
             }
 
-            entitlement.currentDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow,"cDate");
-            entitlement.purchaseDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow,"CREATE_DATE");
-            entitlement.purchaseID = ODBCWrapper.Utils.GetIntSafeVal(dataRow,"ID");
+            entitlement.currentDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "cDate");
+            entitlement.purchaseDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "CREATE_DATE");
+            entitlement.purchaseID = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "ID");
             entitlement.paymentMethod = GetBillingTransMethod(ODBCWrapper.Utils.GetIntSafeVal(dataRow, "billing_transaction_id"), ODBCWrapper.Utils.GetSafeStr(dataRow, "BILLING_GUID"));
-            entitlement.deviceUDID = ODBCWrapper.Utils.GetSafeStr(dataRow,"device_name");
+            entitlement.deviceUDID = ODBCWrapper.Utils.GetSafeStr(dataRow, "device_name");
             entitlement.deviceName = string.Empty;
             if (!string.IsNullOrEmpty(entitlement.deviceUDID))
             {
                 entitlement.deviceName = GetDeviceName(entitlement.deviceUDID);
             }
-            
+
             if (ODBCWrapper.Utils.GetIntSafeVal(dataRow, "WAIVER") == 0 &&
               entitlement.lastViewDate < entitlement.purchaseDate)// user didn't waiver yet and didn't use the PPV yet
             {
