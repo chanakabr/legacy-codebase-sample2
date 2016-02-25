@@ -454,6 +454,11 @@ namespace WebAPI.Clients
                 log.ErrorFormat("Error while DeleteAnnouncement.  groupID: {0}, exception: {1}", groupId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
 
             result = Mapper.Map<List<KalturaAnnouncement>>(response.messageAnnouncements);
 

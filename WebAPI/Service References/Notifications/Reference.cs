@@ -1427,6 +1427,12 @@ namespace WebAPI.Notifications {
         
         [System.Runtime.Serialization.EnumMemberAttribute()]
         IdentifyPushRegistration = 3,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        DeleteUser = 4,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        ChangeUsers = 5,
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -1437,6 +1443,9 @@ namespace WebAPI.Notifications {
         
         [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private WebAPI.Notifications.Status StatusField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Collections.Generic.List<WebAPI.Notifications.MessageAnnouncement> messageAnnouncementsField;
@@ -1451,6 +1460,19 @@ namespace WebAPI.Notifications {
             }
             set {
                 this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public WebAPI.Notifications.Status Status {
+            get {
+                return this.StatusField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.StatusField, value) != true)) {
+                    this.StatusField = value;
+                    this.RaisePropertyChanged("Status");
+                }
             }
         }
         
