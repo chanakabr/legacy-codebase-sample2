@@ -130,7 +130,7 @@ namespace WebAPI.Controllers
         /// </summary>       
         /// <returns></returns>
         /// <remarks>Possible status codes: FeatureDisabled = 8009, FailCreateAnnouncement = 8011</remarks>
-        [Route("createannouncement"), HttpPost]
+        [Route("createAnnouncement"), HttpPost]
         [ApiAuthorize]
         public bool CreateAnnouncement()
         {
