@@ -216,7 +216,7 @@ namespace ApiObjects
         SOCIAL,
         CONDITIONALACCESS,
         CATALOG,
-        NOTIFICATION,
+        NOTIFICATIONS,
         REMOTETASK
     }
 
