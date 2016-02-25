@@ -1517,6 +1517,8 @@ namespace TVinciShared
         protected long? m_nMaxValue;
         protected long? m_nMinValue;
 
+        protected string m_filedPrivateName;
+
         public DataRecordShortIntField(bool bEnabled, long nWidth, long nMaxLength, int? minVal = null, int? maxVal = null)
             : base()
         {
@@ -1525,6 +1527,12 @@ namespace TVinciShared
             m_nMaxLength = nMaxLength;
             m_nMinValue = minVal;
             m_nMaxValue = maxVal;
+            m_filedPrivateName = string.Empty;
+        }
+
+        public void setFiledName(string name)
+        {
+            m_filedPrivateName = name;
         }
 
         public override string GetFieldHtml(long nID)
@@ -1556,6 +1564,8 @@ namespace TVinciShared
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_type' value='int'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_must' value='" + m_bMust.ToString() + "'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_field' value='" + m_sFieldName + "'/>";
+            sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_fieldName' value='" + m_filedPrivateName + "'/>";
+
             if (m_nMinValue.HasValue)
                 sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_min' value='" + m_nMinValue + "'/>";
             if (m_nMaxValue.HasValue)
@@ -3528,6 +3538,9 @@ namespace TVinciShared
     {
         protected bool m_bEnabled;
         protected string m_filedPrivateName;
+        protected string m_time_zone;
+
+
         public override string GetFieldType()
         {
             return "datetime";
@@ -3537,11 +3550,20 @@ namespace TVinciShared
         {
             m_filedPrivateName = name;
         }
+        public void setTimeZone(string timeZone)
+        {
+            if (!string.IsNullOrEmpty(timeZone))
+            {
+                m_time_zone = timeZone;
+            }
+        }
+
         public DataRecordDateTimeField(bool bEnabled)
             : base()
         {
             m_bEnabled = bEnabled;
             m_filedPrivateName = string.Empty;
+            m_time_zone = string.Empty;
         }
 
         public void SetDefault(DateTime t)
@@ -3613,6 +3635,12 @@ namespace TVinciShared
                 m_sStartValue = m_sDefaultVal;
             if (m_sStartValue != "")
             {
+                if (!string.IsNullOrEmpty(m_time_zone))
+                {                    
+                    DateTime dateTime = ODBCWrapper.Utils.GetDateSafeVal(m_sStartValue, "dd/MM/yyyy H:mm");
+                    dateTime = ODBCWrapper.Utils.ConvertFromUtc(dateTime, m_time_zone);
+                    m_sStartValue = dateTime.ToString("dd/MM/yyyy HH:mm");                    
+                }
                 sStartDate = m_sStartValue.Split(' ')[0].ToString();
                 sStartTime = m_sStartValue.Split(' ')[1].ToString();
                 sStartDay = sStartDate.Split('/')[0].ToString();

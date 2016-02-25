@@ -429,15 +429,14 @@ namespace ODBCWrapper
             }
         }
 
-
-        static public DateTime GetDateSafeVal(object o)
+        static public DateTime GetDateSafeVal(object o, string format = "M/dd/yyyy h:mm:ss tt")
         {
             try
             {
                 if (o != null && o != DBNull.Value)
                 {
                     DateTime dt = new DateTime();
-                    string format = "M/dd/yyyy h:mm:ss tt";
+                    //string format = "M/dd/yyyy h:mm:ss tt";
                     //string format = "dd/MM/yyyy HH:mm:ss";
 
                     if (DateTime.TryParseExact(o.ToString(), format, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out dt))

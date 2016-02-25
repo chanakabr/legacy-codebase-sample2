@@ -4986,6 +4986,67 @@ namespace TvinciImporter
             return false;
         }
 
+
+        //static public DataTable GetAllMessageAnnouncements(int groupid)
+        //{
+        //    DataTable dt = null;
+        //    try
+        //    {
+        //        //Call Notifications WCF service
+        //        string sWSURL = GetConfigVal("NotificationService");
+        //        Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
+        //        if (!string.IsNullOrEmpty(sWSURL))
+        //            service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
+
+        //        string sIP = "1.1.1.1";
+        //        string sWSUserName = "";
+        //        string sWSPass = "";
+        //        int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupid);
+        //        TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "", "notifications", sIP, ref sWSUserName, ref sWSPass);
+
+        //        GetAllMessageAnnouncementsResponse response = service.GetAllMessageAnnouncements(sWSUserName, sWSPass, 0 ,0);
+
+        //        if (response != null && response.totalCount > 0)
+        //        {
+        //            dt = null;
+        //        }
+        //        else
+        //        {
+        //            dt = new DataTable();
+
+        //            dt.Columns.Add("ID", typeof(int));
+        //            dt.Columns.Add("recipientsCode", typeof(int));
+        //            dt.Columns.Add("status", typeof(int));
+        //            dt.Columns.Add("is_active", typeof(int));
+        //            dt.Columns.Add("name", typeof(string));
+        //            dt.Columns.Add("message", typeof(string));
+        //            dt.Columns.Add("start_time", typeof(DateTime));
+        //            dt.Columns.Add("sent", typeof(int));
+        //            dt.Columns.Add("updater_id", typeof(int));
+        //            dt.Columns.Add("update_date", typeof(DateTime));
+        //            dt.Columns.Add("create_date", typeof(DateTime));
+        //            dt.Columns.Add("group_id", typeof(int));
+        //            dt.Columns.Add("timezone", typeof(string));
+        //            dt.Columns.Add("recipients", typeof(string));
+        //            dt.Columns.Add("message status", typeof(string));
+
+
+        //            foreach (MessageAnnouncement ma in response.messageAnnouncements)
+        //            {
+        //                dt.Rows.Add(  ma.MessageAnnouncementId, (int)ma.Recipients, 1, ma.Enabled, ma.Name, ma.Message, ma.StartTime, (int)ma.Status
+        //                    ma.Message, ma.Name, ma.MessageAnnouncementId);
+                        
+        //            }
+        //        }
+        //    }
+        //    catch (Exception)
+        //    {
+        //        dt = null;
+        //    }
+        //    return dt;
+
+        //}
+
         static public void UpdateNotificationsRequests(int groupid, int nMediaID)
         {
             ParameterizedThreadStart start = new ParameterizedThreadStart(UpdateNotification);
