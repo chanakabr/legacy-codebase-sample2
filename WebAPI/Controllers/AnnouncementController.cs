@@ -78,7 +78,7 @@ namespace WebAPI.Controllers
         /// <param name="id">Id of the announcement.</param>
         /// <param name="status">Status to update to.</param>
         /// <returns></returns>
-        /// <remarks>AnnouncementNotFound = 8006, AnnouncementUpdateNotAllowed = 8007</remarks>
+        /// <remarks>AnnouncementNotFound = 8006, AnnouncementUpdateNotAllowed = 8007, FeatureDisabled = 8009</remarks>
         [Route("updateStatus"), HttpPost]
         [ApiAuthorize]
         public bool UpdateStatus(int id, bool status)
@@ -104,7 +104,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">Id of the announcement.</param>
         /// <returns></returns>
-        /// <remarks>AnnouncementNotFound = 8006, AnnouncementUpdateNotAllowed = 8007</remarks>
+        /// <remarks>AnnouncementNotFound = 8006, FeatureDisabled = 8009</remarks>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
         public bool Delete(int id)
@@ -155,6 +155,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="pager">Paging the request</param>
         /// <returns></returns>
+        /// <remarks>FeatureDisabled = 8009</remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
         public KalturaMessageAnnouncementListResponse List(KalturaFilterPager pager = null)
