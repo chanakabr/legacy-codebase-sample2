@@ -339,6 +339,12 @@ namespace CouchbaseManager
             catch (Exception ex)
             {
                 log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Add with key = {0}, error = {1}, ST = {2}", key, ex.Message, ex.StackTrace), ex);
+
+                if (ex.InnerException != null)
+                {
+                    log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Add with key = {0}, inner exception = {1}, ST = {2}", key,
+                        ex.InnerException.Message, ex.InnerException.StackTrace), ex.InnerException);
+                }
             }
 
             return result;
@@ -355,33 +361,45 @@ namespace CouchbaseManager
         {
             bool result = false;
 
-            using (var cluster = new Cluster(clientConfiguration))
+            try
             {
-                using (var bucket = cluster.OpenBucket(bucketName))
+                using (var cluster = new Cluster(clientConfiguration))
                 {
-                    var insertResult = bucket.Upsert(key, value, expiration);
-
-                    if (insertResult != null)
+                    using (var bucket = cluster.OpenBucket(bucketName))
                     {
-                        if (insertResult.Exception != null)
-                        {
-                            throw insertResult.Exception;
-                        }
+                        var insertResult = bucket.Upsert(key, value, expiration);
 
-                        if (insertResult.Status == Couchbase.IO.ResponseStatus.Success)
+                        if (insertResult != null)
                         {
-                            result = insertResult.Success;
-                        }
-                        else
-                        {
-                            HandleStatusCode(insertResult.Status);
+                            if (insertResult.Exception != null)
+                            {
+                                throw insertResult.Exception;
+                            }
 
-                            insertResult = bucket.Upsert(key, value, expiration);
+                            if (insertResult.Status == Couchbase.IO.ResponseStatus.Success)
+                            {
+                                result = insertResult.Success;
+                            }
+                            else
+                            {
+                                HandleStatusCode(insertResult.Status);
+
+                                insertResult = bucket.Upsert(key, value, expiration);
+                            }
                         }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Set with key = {0}, error = {1}, ST = {2}", key, ex.Message, ex.StackTrace), ex);
 
+                if (ex.InnerException != null)
+                {
+                    log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Set with key = {0}, inner exception = {1}, ST = {2}", key,
+                        ex.InnerException.Message, ex.InnerException.StackTrace), ex.InnerException);
+                }
+            }
             return result;
         }
 
@@ -421,6 +439,12 @@ namespace CouchbaseManager
             catch (Exception ex)
             {
                 log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Get with key = {0}, error = {1}, ST = {2}", key, ex.Message, ex.StackTrace), ex);
+
+                if (ex.InnerException != null)
+                {
+                    log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Get with key = {0}, inner exception = {1}, ST = {2}", key,
+                        ex.InnerException.Message, ex.InnerException.StackTrace), ex.InnerException);
+                }
             }
 
             return result;
@@ -461,7 +485,13 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Get with key = {0}, error = {1}, ST = {2}", key, ex.Message, ex.StackTrace), ex);
+                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed remove with key = {0}, error = {1}, ST = {2}", key, ex.Message, ex.StackTrace), ex);
+
+                if (ex.InnerException != null)
+                {
+                    log.ErrorFormat("CouchBaseCache - " + string.Format("Failed remove with key = {0}, inner exception = {1}, ST = {2}", key,
+                        ex.InnerException.Message, ex.InnerException.StackTrace), ex.InnerException);
+                }
             }
 
             return result;
@@ -506,6 +536,12 @@ namespace CouchbaseManager
             catch (Exception ex)
             {
                 log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Get with key = {0}, error = {1}, ST = {2}", key, ex.Message, ex.StackTrace), ex);
+
+                if (ex.InnerException != null)
+                {
+                    log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Get with key = {0}, inner exception = {1}, ST = {2}", key,
+                        ex.InnerException.Message, ex.InnerException.StackTrace), ex.InnerException);
+                }
             }
 
             return result;
