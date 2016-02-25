@@ -135,7 +135,6 @@ public partial class adm_system_announcements : System.Web.UI.Page
         {
             DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_system_announcements_new.aspx", "Edit", "sent=0");
             linkColumn1.AddQueryStringValue("message_announcement_id", "field=id");
-            //linkColumn1.AddQueryStringValue("message_time_zone", "field=timezone");
             theTable.AddLinkColumn(linkColumn1);
         }
 
