@@ -62,7 +62,7 @@ namespace WebAPI.Clients
         }
 
         public KalturaAssetInfoListResponse SearchAssets(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
-            string filter, KalturaOrder? orderBy, List<int> assetTypes, List<KalturaCatalogWith> with)
+            string filter, KalturaOrder? orderBy, List<int> assetTypes, string requestId, List<KalturaCatalogWith> with)
         {
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
@@ -97,7 +97,8 @@ namespace WebAPI.Clients
                 order = order,
                 assetTypes = assetTypes,
                 m_sSiteGuid = siteGuid,
-                domainId = domainId
+                domainId = domainId,
+                requestId = requestId
             };
 
             // build failover cache key
@@ -136,6 +137,8 @@ namespace WebAPI.Clients
 
                 result.TotalCount = searchResponse.m_nTotalItems;
             }
+
+            result.RequestId = searchResponse.requestId;
 
             return result;
         }
