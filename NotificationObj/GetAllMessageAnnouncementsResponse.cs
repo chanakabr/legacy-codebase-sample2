@@ -8,6 +8,7 @@ namespace NotificationObj
 {
     public class GetAllMessageAnnouncementsResponse
     {
+        public ApiObjects.Response.Status Status;
         public List<MessageAnnouncement> messageAnnouncements;
         public int totalCount;
     }
