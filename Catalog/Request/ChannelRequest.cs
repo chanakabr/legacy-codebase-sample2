@@ -240,7 +240,7 @@ namespace Catalog.Request
             switch (orderBy)
             {
                 case OrderBy.VIEWS:
-                    result = Catalog.SlidingWindowCountFacet(nGroupId, media, windowTime, now, Catalog.STAT_ACTION_MEDIA_HIT);
+                    result = Catalog.SlidingWindowCountFacet(nGroupId, media, windowTime, now, Catalog.STAT_ACTION_FIRST_PLAY);
                     break;
                 case OrderBy.RATING:
                     result = Catalog.SlidingWindowStatisticsFacet(nGroupId, media, windowTime, now, Catalog.STAT_ACTION_RATES, Catalog.STAT_ACTION_RATE_VALUE_FIELD, ElasticSearch.Searcher.ESTermsStatsFacet.FacetCompare.eCompareType.MEAN);
