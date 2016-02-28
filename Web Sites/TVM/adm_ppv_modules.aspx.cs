@@ -119,7 +119,7 @@ public partial class adm_ppv_modules : System.Web.UI.Page
         }
         theTable.AddHiddenField("ID");
         theTable.AddHiddenField("status");
-        theTable.AddActivationField("ppv_modules");
+        theTable.AddActivationField("ppv_modules", "adm_ppv_modules.aspx");
         theTable.AddHiddenField("is_active");
         string sGroupLang = GetMainLang();
         /*

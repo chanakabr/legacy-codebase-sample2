@@ -296,17 +296,18 @@ public partial class adm_media_files_ppvmodules : System.Web.UI.Page
     public string changeItemDates(string sID, string sStartDate, string sEndDate)
     {
         int mediaFileID;
-        if (Session["media_file_id"] == null || int.TryParse(Session["media_file_id"].ToString(), out mediaFileID) || mediaFileID == 0)
+        if (Session["media_file_id"] == null || !int.TryParse(Session["media_file_id"].ToString(), out mediaFileID) || mediaFileID == 0)
         {
             LoginManager.LogoutFromSite("index.html");
             return "";
         }
-
-        DataRow mediaFileDetails = ODBCWrapper.Utils.GetTableSingleRowColumnsByParamValue("media_files", "id", mediaFileID.ToString(), new List<string>() { "group_id", "media_id", "start_date", "end_date" });
+        
+        DataRow mediaFileDetails = ODBCWrapper.Utils.GetTableSingleRowColumnsByParamValue("media_files", "id", mediaFileID.ToString(), new List<string>() { "group_id", "media_id" });        
+        int mediaID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("media_files", "media_id", mediaFileID).ToString());
         int nOwnerGroupID = ODBCWrapper.Utils.GetIntSafeVal(mediaFileDetails, "group_id");
-        int mediaID = ODBCWrapper.Utils.GetIntSafeVal(mediaFileDetails, "media_id");
-        DateTime? prevStartDate = ODBCWrapper.Utils.GetNullableDateSafeVal(mediaFileDetails, "start_date");
-        DateTime? prevEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(mediaFileDetails, "end_date");
+        DataRow ppvModuleMediaFileDetails = ODBCWrapper.Utils.GetTableSingleRowColumnsByParamValue("ppv_modules_media_files", "media_file_id", mediaFileID.ToString(), new List<string>() { "group_id", "start_date", "end_date" }, "pricing_connection");
+        DateTime? prevStartDate = ODBCWrapper.Utils.GetNullableDateSafeVal(ppvModuleMediaFileDetails, "start_date");
+        DateTime? prevEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(ppvModuleMediaFileDetails, "end_date");
         Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
         if (nLogedInGroupID != nOwnerGroupID && PageUtils.IsTvinciUser() == false)
         {
@@ -319,9 +320,9 @@ public partial class adm_media_files_ppvmodules : System.Web.UI.Page
         {
             if (UpdatePPVModulesMediaFilesIDDates(nPPVModuleMediaFilesID, sStartDate, sEndDate))
             {
-                DataRow updatedMediaFileDetails = ODBCWrapper.Utils.GetTableSingleRowColumnsByParamValue("media_files", "id", Session["media_file_id"].ToString(), new List<string>() { "start_date", "end_date" });
-                DateTime? updatedStartDate = ODBCWrapper.Utils.GetNullableDateSafeVal(updatedMediaFileDetails, "start_date");
-                DateTime? updatedEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(updatedMediaFileDetails, "end_date");
+                DataRow updatedppvModuleMediaFileDetails = ODBCWrapper.Utils.GetTableSingleRowColumnsByParamValue("ppv_modules_media_files", "media_file_id", mediaFileID.ToString(), new List<string>() { "group_id", "start_date", "end_date" }, "pricing_connection");
+                DateTime? updatedStartDate = ODBCWrapper.Utils.GetNullableDateSafeVal(updatedppvModuleMediaFileDetails, "start_date");
+                DateTime? updatedEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(updatedppvModuleMediaFileDetails, "end_date");
                 // check if changes in the start date require future index update call, incase updatedStartDate is in more than 2 years we don't update the index (per Ira's request)
                 if (updatedStartDate.HasValue && (updatedStartDate.Value > DateTime.UtcNow && updatedStartDate.Value <= DateTime.UtcNow.AddYears(2))
                     && (!prevStartDate.HasValue || updatedStartDate.Value != prevStartDate.Value))

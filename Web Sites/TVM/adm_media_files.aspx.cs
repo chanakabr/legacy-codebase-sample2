@@ -134,7 +134,7 @@ public partial class adm_media_files : System.Web.UI.Page
         theTable.AddVideoField("media_files");
         theTable.AddOrderNumField("media_files", "ID", "order_num", "Order number");
         theTable.AddHiddenField("order_num");
-        theTable.AddActivationField("media_files");
+        theTable.AddActivationField("media_files", "adm_media_files.aspx");
         theTable.AddOnOffField("Ads Enabled", "media_files~~|~~ADS_ENABLED~~|~~id~~|~~Yes~~|~~No");
         if (sOrderBy != "")
         {
