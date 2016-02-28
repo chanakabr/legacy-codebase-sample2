@@ -216,7 +216,7 @@ namespace ApiObjects
         SOCIAL,
         CONDITIONALACCESS,
         CATALOG,
-        NOTIFICATION,
+        NOTIFICATIONS,
         REMOTETASK
     }
 
@@ -435,7 +435,8 @@ namespace ApiObjects
     [Serializable]
     public enum eSetupTask
     {
-        BuildIPToCountry
+        BuildIPToCountry,
+        InitializeFreeItemUpdateQueue
     }
 
 

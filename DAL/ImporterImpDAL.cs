@@ -55,7 +55,12 @@ namespace DAL
             spGetMediasByPPVModuleID.AddParameter("@GroupID", groupID);
             spGetMediasByPPVModuleID.AddParameter("@PpvModuleID", ppvModuleID);
 
-            dt = spGetMediasByPPVModuleID.Execute();
+            DataSet ds = spGetMediasByPPVModuleID.ExecuteDataSet();
+
+            if (ds != null)
+            {
+                dt = ds.Tables[0];
+            }            
             
             return dt;
         }
