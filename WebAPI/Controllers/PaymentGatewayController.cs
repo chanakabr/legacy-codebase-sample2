@@ -90,7 +90,8 @@ namespace WebAPI.Controllers
         /// payment gateway selection is disabled = 6028, service forbidden = 500004
         /// </remarks>
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param>
-        [Route("delete"), HttpPost]     
+        [Route("delete"), HttpPost]
+        [ApiAuthorize]
         public bool Delete(int payment_gateway_id)
         {
             bool response = false;
