@@ -11,14 +11,13 @@ using MessageAnnouncementHandler.ws_notifications;
 using ApiObjects.Response;
 using System.Data;
 using System.Reflection;
+using System.ServiceModel;
 
 namespace MessageAnnouncementHandler
 {
     public class TaskHandler : ITaskHandler
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
-        #region ITaskHandler Members
 
         public string HandleTask(string data)
         {
@@ -36,16 +35,18 @@ namespace MessageAnnouncementHandler
 
                 TasksCommon.RemoteTasksUtils.GetCredentials(request.GroupId, ref username, ref password, ApiObjects.eWSModules.NOTIFICATIONS);
 
-                NotificationServiceClient notificationsClient = new NotificationServiceClient(string.Empty, url);
-                
-                bool success = false;
-
-                success = notificationsClient.SendMessageAnnouncement(username, password, request.StartTime, request.MessageAnnouncementId);
-
-                if (!success)
+                using (NotificationServiceClient notificationsClient = new NotificationServiceClient())
                 {
-                    throw new Exception(string.Format(
-                        "Announcement did not finish successfully. group: {0} start time: {1} Id: {2}", request.GroupId, request.StartTime, request.MessageAnnouncementId));
+                    notificationsClient.Endpoint.Address = new EndpointAddress(url);
+                    bool success = false;
+
+                    success = notificationsClient.SendMessageAnnouncement(username, password, request.StartTime, request.MessageAnnouncementId);
+
+                    if (!success)
+                    {
+                        throw new Exception(string.Format(
+                            "Announcement did not finish successfully. group: {0} start time: {1} Id: {2}", request.GroupId, request.StartTime, request.MessageAnnouncementId));
+                    }
                 }
             }
             catch (Exception)
@@ -55,7 +56,5 @@ namespace MessageAnnouncementHandler
 
             return result;
         }
-
-        #endregion
     }
 }
