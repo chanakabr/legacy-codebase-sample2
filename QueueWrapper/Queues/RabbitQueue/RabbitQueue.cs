@@ -4,90 +4,141 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using KLogMonitor;
-using System.Reflection;
+using RabbitMQ.Client.Impl;
 
 namespace QueueWrapper
 {
     public class RabbitQueue : IQueueImpl
     {
-        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        #region Members
+        private static readonly KLogger log = new KLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private string m_sHostName = string.Empty;
-        private string m_sUserName = string.Empty;
-        private string m_sPassword = string.Empty;
-        private string m_sPort = string.Empty;
-        private string m_sRoutingKey = string.Empty;
-        private string m_sExchange = string.Empty;
-        private string m_sQueue = string.Empty;
-        private string m_sVirtualHost = string.Empty;
-        private string m_sExchangeType = string.Empty;
-        private bool m_bSetContentType = false;
-        private ConfigType m_eConfigType = ConfigType.DefaultConfig;
+        #region Must Have Members
+
+        private string hostName = string.Empty;
+        private string userName = string.Empty;
+        private string password = string.Empty;
+        private string exchange = string.Empty;
 
         #endregion
 
-        #region CTOR
+        #region Optional Members
+
+        private string port = string.Empty;
+        private string contentType = string.Empty;
+
+        public string ContentType
+        {
+            get
+            {
+                return contentType;
+            }
+            set
+            {
+                contentType = value;
+            }
+        }
+
+        #endregion
+
+        #region Essentials for ENQUEUE
+
+        #endregion
+
+        #region Essentials for DEQUEUE
+
+
+        #endregion
+
+        #region Essentials for Single Connection
+
+        private string queue = string.Empty;
+        private string routingKey = string.Empty;
+
+        #endregion
+
+        #region Unclear Members
+
+        private string virtualHost = string.Empty;
+        private string exchangeType = string.Empty;
+
+        #endregion
+
+        private ConfigType m_eConfigType = ConfigType.DefaultConfig;
 
         public RabbitQueue()
         {
             ReadRabbitParameters();
         }
 
-        //the parameter will ensure that the config values are the ones relevent for the speceific Queue Type 
-        public RabbitQueue(ConfigType eType, bool bSetContentType)
+        /// <summary>
+        /// Initialize RabbitQueue - with option to specify if default content type is needed
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="useDefaultContentType"></param>
+        public RabbitQueue(ConfigType type, bool useDefaultContentType = true)
         {
-            m_eConfigType = eType;
-            m_bSetContentType = bSetContentType;
+            m_eConfigType = type;
+
+            if (useDefaultContentType)
+            {
+                this.contentType = "application/json";
+            }
+
             ReadRabbitParameters();
         }
 
-        #endregion
-
-        #region IQueuable Methods
-
-        public virtual bool Enqueue(string sDataToIndex, string sRouteKey)
+        /// <summary>
+        /// Initialiazes a Rabbit Connection and enqueues a message to it
+        /// </summary>
+        /// <param name="dataToIndex"></param>
+        /// <param name="routingKey"></param>
+        /// <returns></returns>
+        public virtual bool Enqueue(string dataToIndex, string routingKey)
         {
-            bool bIsEnqueueSucceeded = false;
+            bool success = false;
+
             try
             {
-                if (!string.IsNullOrEmpty(sDataToIndex))
+                if (!string.IsNullOrEmpty(dataToIndex))
                 {
-                    RabbitConfigurationData configData = CreateRabbitConfigurationData();
-                    configData.RoutingKey = sRouteKey;
+                    RabbitConfigurationData configurationData = CreateRabbitConfigurationData();
 
-                    if (configData != null)
+                    if (configurationData != null)
                     {
-                        bIsEnqueueSucceeded = RabbitConnection.Instance.Publish(configData, sDataToIndex);
+                        configurationData.RoutingKey = routingKey;
+
+                        success = RabbitConnection.Instance.Publish(configurationData, dataToIndex);
                     }
                 }
             }
             catch (Exception ex)
             {
-                logger.Error("", ex);
+                log.ErrorFormat("Failed enqueue of message {0}", dataToIndex, ex);
             }
 
-            return bIsEnqueueSucceeded;
+            return success;
         }
 
-        public virtual T Dequeue<T>(string sQueueName, out string sAckId)
+        public virtual T Dequeue<T>(string queueName, out string ackId)
         {
-            sAckId = string.Empty;
+            ackId = string.Empty;
 
-            T sReturnedData = default(T);
-            string sMessage = string.Empty;
+            T returnedObject = default(T);
+            string message = string.Empty;
 
-            if (!string.IsNullOrEmpty(sQueueName))
+            if (!string.IsNullOrEmpty(queueName))
             {
                 RabbitConfigurationData configData = CreateRabbitConfigurationData();
+
                 if (configData != null)
                 {
-                    configData.QueueName = sQueueName;
-                    sMessage = RabbitConnection.Instance.Subscribe(configData, ref sAckId);
+                    configData.QueueName = queueName;
 
-                    if (!string.IsNullOrEmpty(sMessage))
+                    message = RabbitConnection.Instance.Subscribe(configData, ref ackId);
+
+                    if (!string.IsNullOrEmpty(message))
                     {
-                        sReturnedData = Utils.JsonToObject<T>(sMessage);
+                        returnedObject = Utils.JsonToObject<T>(message);
                     }
                 }
             }
@@ -96,7 +147,7 @@ namespace QueueWrapper
                 // Write log ?
             }
 
-            return sReturnedData;
+            return returnedObject;
         }
 
         public virtual bool Ack(string sQueueName, string sAckId)
@@ -113,46 +164,125 @@ namespace QueueWrapper
             return bResult;
         }
 
-        #endregion
-
-        #region Private Methods
-
         private void ReadRabbitParameters()
         {
-            m_sHostName = Utils.GetConfigValue("hostName");
-            m_sUserName = Utils.GetConfigValue("userName");
-            m_sPassword = Utils.GetConfigValue("password");
-            m_sPort = Utils.GetConfigValue("port");
+            hostName = Utils.GetConfigValue("hostName");
+            userName = Utils.GetConfigValue("userName");
+            password = Utils.GetConfigValue("password");
+            port = Utils.GetConfigValue("port");
 
             switch (m_eConfigType)
             {
                 case ConfigType.DefaultConfig:
                     {
-                        m_sRoutingKey = Utils.GetConfigValue("routingKey");
-                        m_sExchange = Utils.GetConfigValue("exchange");
-                        m_sQueue = Utils.GetConfigValue("queue");
-                        m_sVirtualHost = Utils.GetConfigValue("virtualHost");
-                        m_sExchangeType = Utils.GetConfigValue("exchangeType");
+                        routingKey = Utils.GetConfigValue("routingKey");
+                        exchange = Utils.GetConfigValue("exchange");
+                        queue = Utils.GetConfigValue("queue");
+                        virtualHost = Utils.GetConfigValue("virtualHost");
+                        exchangeType = Utils.GetConfigValue("exchangeType");
                         break;
                     }
                 case ConfigType.PictureConfig:
                     {
-                        m_sRoutingKey = Utils.GetConfigValue("routingKeyPicture");
-                        m_sExchange = Utils.GetConfigValue("exchangePicture");
-                        m_sQueue = Utils.GetConfigValue("queuePicture");
-                        m_sVirtualHost = Utils.GetConfigValue("virtualHostPicture");
-                        m_sExchangeType = Utils.GetConfigValue("exchangeTypePicture");
+                        routingKey = Utils.GetConfigValue("routingKeyPicture");
+                        exchange = Utils.GetConfigValue("exchangePicture");
+                        queue = Utils.GetConfigValue("queuePicture");
+                        virtualHost = Utils.GetConfigValue("virtualHostPicture");
+                        exchangeType = Utils.GetConfigValue("exchangeTypePicture");
                         break;
                     }
                 case ConfigType.SocialFeedConfig:
                     {
-                        m_sRoutingKey = Utils.GetConfigValue("routingKeySocialFeed");
-                        m_sExchange = Utils.GetConfigValue("exchangeSocialFeed");
-                        m_sQueue = Utils.GetConfigValue("queueSocialFeed");
-                        m_sVirtualHost = Utils.GetConfigValue("virtualHostSocialFeed");
-                        m_sExchangeType = Utils.GetConfigValue("exchangeTypeSocialFeed");
+                        routingKey = Utils.GetConfigValue("routingKeySocialFeed");
+                        exchange = Utils.GetConfigValue("exchangeSocialFeed");
+                        queue = Utils.GetConfigValue("queueSocialFeed");
+                        virtualHost = Utils.GetConfigValue("virtualHostSocialFeed");
+                        exchangeType = Utils.GetConfigValue("exchangeTypeSocialFeed");
+
+                        break;
                     }
-                    break;
+                case ConfigType.EPGConfig:
+                    {
+                        routingKey = Utils.GetConfigValue("routingKeyEPG");
+                        exchange = Utils.GetConfigValue("exchangeEPG");
+                        queue = Utils.GetConfigValue("queueEPG");
+                        virtualHost = Utils.GetConfigValue("virtualHostEPG");
+                        exchangeType = Utils.GetConfigValue("exchangeTypeEPG");
+
+                        break;
+                    }
+                case ConfigType.ProfessionalServicesNotificationsConfig:
+                    {
+                        routingKey = Utils.GetConfigValue("ProfessionalServices.routingKey");
+                        exchange = Utils.GetConfigValue("ProfessionalServices.exchange");
+                        queue = ".";
+                        virtualHost = Utils.GetConfigValue("ProfessionalServices.virtualHost");
+                        exchangeType = Utils.GetConfigValue("ProfessionalServices.exchangeType");
+
+                        // default values - to avoid embarrassments 
+                        if (string.IsNullOrEmpty(routingKey))
+                        {
+                            routingKey = "*";
+                        }
+
+                        if (string.IsNullOrEmpty(virtualHost))
+                        {
+                            virtualHost = "/";
+                        }
+
+                        if (string.IsNullOrEmpty(exchangeType))
+                        {
+                            exchangeType = "topic";
+                        }
+
+                        if (string.IsNullOrEmpty(exchange))
+                        {
+                            exchange = "ps_notifications";
+                        }
+
+                        break;
+                    }
+                case ConfigType.IndexingDataConfig:
+                    {
+                        routingKey = Utils.GetConfigValue("IndexingData.routingKey");
+                        exchange = Utils.GetConfigValue("IndexingData.exchange");
+                        queue = ".";
+                        virtualHost = Utils.GetConfigValue("IndexingData.virtualHost");
+                        exchangeType = Utils.GetConfigValue("IndexingData.exchangeType");
+
+                        // default values - to avoid embarrassments 
+                        if (string.IsNullOrEmpty(routingKey))
+                        {
+                            routingKey = "*";
+                        }
+
+                        if (string.IsNullOrEmpty(virtualHost))
+                        {
+                            virtualHost = "/";
+                        }
+
+                        if (string.IsNullOrEmpty(exchangeType))
+                        {
+                            exchangeType = "topic";
+                        }
+
+                        if (string.IsNullOrEmpty(exchange))
+                        {
+                            exchange = "scheduled_tasks";
+                        }
+
+                        break;
+                    }
+
+                case ConfigType.ImageUpload:
+                    {
+                        routingKey = Utils.GetConfigValue("routingKey");
+                        exchange = Utils.GetConfigValue("ImageUpload.exchange");
+                        queue = Utils.GetConfigValue("queue");
+                        virtualHost = Utils.GetConfigValue("virtualHost");
+                        exchangeType = Utils.GetConfigValue("exchangeType");
+                        break;
+                    }
                 default:
                     break;
             }
@@ -160,18 +290,19 @@ namespace QueueWrapper
 
         protected virtual RabbitConfigurationData CreateRabbitConfigurationData()
         {
-
             RabbitConfigurationData configData = null;
 
-            if (!string.IsNullOrEmpty(this.m_sHostName) && !string.IsNullOrEmpty(this.m_sUserName) && !string.IsNullOrEmpty(this.m_sPassword) && !string.IsNullOrEmpty(this.m_sPort)
-                && !string.IsNullOrEmpty(this.m_sRoutingKey) && !string.IsNullOrEmpty(this.m_sExchange) && !string.IsNullOrEmpty(this.m_sQueue) && !string.IsNullOrEmpty(this.m_sVirtualHost)
-                && !string.IsNullOrEmpty(this.m_sExchangeType))
+            // If any of these members is missing, we have nothing to do
+            if (string.IsNullOrEmpty(hostName) ||
+                string.IsNullOrEmpty(userName) ||
+                string.IsNullOrEmpty(password) ||
+                string.IsNullOrEmpty(exchange))
             {
-                configData = new RabbitConfigurationData(m_sExchange, m_sQueue, m_sRoutingKey, m_sHostName, m_sPassword, m_sExchangeType, m_sVirtualHost, m_sUserName, m_sPort);
-                if (m_bSetContentType)
-                {
-                    configData.setContentType = true;
-                }
+                log.Error("Could not create Rabbit configuration data. Essential TCM values are missing. Check TCM of hostname, username, password, exchange.");
+            }
+            else
+            {
+                configData = new RabbitConfigurationData(exchange, queue, routingKey, hostName, password, exchangeType, virtualHost, userName, port, contentType);
             }
 
             return configData;
@@ -181,10 +312,5 @@ namespace QueueWrapper
         {
             RabbitConnection.Instance.Dispose();
         }
-
-        #endregion
-
-
-
     }
 }

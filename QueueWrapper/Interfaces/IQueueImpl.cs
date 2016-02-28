@@ -7,10 +7,10 @@ namespace QueueWrapper
 {
     public interface IQueueImpl : IDisposable
     {
-        bool Enqueue(string sMessage, string sRouteKey);
+        bool Enqueue(string message, string routingKey);
 
-        T Dequeue<T>(string sQueueName, out string sAckId);
+        T Dequeue<T>(string queueName, out string ackId);
 
-        bool Ack(string sQueueName, string sAckId);
+        bool Ack(string queueName, string ackId);
     }
 }
