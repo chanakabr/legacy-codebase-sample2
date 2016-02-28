@@ -29,9 +29,10 @@ public partial class adm_notification_settings : System.Web.UI.Page
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
                 DBManipulator.DoTheWork("notifications_connection");
+                
                 return;
             }
-        }
+        }      
     }
 
     protected void GetMainMenu()
@@ -89,7 +90,9 @@ public partial class adm_notification_settings : System.Web.UI.Page
         }
 
         object groupId = LoginManager.GetLoginGroupID();
-        int tableID = GetNotificationSettingsID(ODBCWrapper.Utils.GetIntSafeVal(groupId));
+        bool  push = true;
+        bool push_sa = true;
+        int tableID = GetNotificationSettingsID(ODBCWrapper.Utils.GetIntSafeVal(groupId), ref push, ref push_sa);
         // check ig groupid is parent , if so show page with all filed else (not parent show a message)
         bool isParentGroup = IsParentGroup(ODBCWrapper.Utils.GetIntSafeVal(groupId));
 
@@ -104,6 +107,8 @@ public partial class adm_notification_settings : System.Web.UI.Page
             {
                 t = tableID;
             }
+
+          
             string sBack = "adm_notification_settings.aspx";
 
             DBRecordWebEditor theRecord = new DBRecordWebEditor("notification_settings", "adm_table_pager", sBack, "", "ID", t, sBack, "");
@@ -111,10 +116,13 @@ public partial class adm_notification_settings : System.Web.UI.Page
 
             DataRecordCheckBoxField push_notification_enabled = new DataRecordCheckBoxField(true);
             push_notification_enabled.Initialize("Push notification enabled", "adm_table_header_nbg", "FormInput", "push_notification_enabled", false);
+            push_notification_enabled.SetValue(push ? "1": "0");
+            
             theRecord.AddRecord(push_notification_enabled);
 
             DataRecordCheckBoxField push_system_announcements_enabled = new DataRecordCheckBoxField(true);
             push_system_announcements_enabled.Initialize("Push system announcements enabled", "adm_table_header_nbg", "FormInput", "push_system_announcements_enabled", false);
+            push_system_announcements_enabled.SetValue(push_sa? "1":"0");
             theRecord.AddRecord(push_system_announcements_enabled);
 
             sTable = theRecord.GetTableHTML("adm_notification_settings.aspx?submited=1");
@@ -122,7 +130,7 @@ public partial class adm_notification_settings : System.Web.UI.Page
         return sTable;
     }
 
-    private int GetNotificationSettingsID(int groupID)
+    private int GetNotificationSettingsID(int groupID, ref bool push, ref bool push_sa)
     {
 
         int notificationSettingId = 0;
@@ -130,7 +138,7 @@ public partial class adm_notification_settings : System.Web.UI.Page
         {
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery.SetConnectionKey("notifications_connection");
-            selectQuery += "select ID from notification_settings where status=1 and ";
+            selectQuery += "select ID, push_notification_enabled, push_system_announcements_enabled from notification_settings where status=1 and ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupID);
             if (selectQuery.Execute("query", true) != null)
             {
@@ -138,6 +146,8 @@ public partial class adm_notification_settings : System.Web.UI.Page
                 if (nCount > 0)
                 {
                     notificationSettingId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row, "ID");
+                    push = ODBCWrapper.Utils.ExtractBoolean(selectQuery.Table("query").DefaultView[0].Row, "push_notification_enabled");
+                    push_sa = ODBCWrapper.Utils.ExtractBoolean(selectQuery.Table("query").DefaultView[0].Row, "push_system_announcements_enabled");
                 }
             }
             selectQuery.Finish();
