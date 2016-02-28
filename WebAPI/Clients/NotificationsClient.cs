@@ -473,7 +473,7 @@ namespace WebAPI.Clients
 
             try
             {
-                eUserMessageAction action = string.IsNullOrEmpty(userId) ? eUserMessageAction.AnonymousPushRegistration : eUserMessageAction.IdentifyPushRegistration;
+                eUserMessageAction action = string.IsNullOrEmpty(userId) || userId == "0" ? eUserMessageAction.AnonymousPushRegistration : eUserMessageAction.IdentifyPushRegistration;
                 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
