@@ -11,6 +11,7 @@ using KLogMonitor;
 using System.Reflection;
 using InitiateNotificationActionHandler;
 using InitiateNotificationActionHandler.ws_notifications;
+using System.ServiceModel;
 
 namespace InitiateNotificationActionHandler
 {
@@ -31,6 +32,13 @@ namespace InitiateNotificationActionHandler
                 InitiateNotificationActionRequest request = JsonConvert.DeserializeObject<InitiateNotificationActionRequest>(data);
 
                 string url = WS_Utils.GetTcmConfigValue("ws_notifications");
+
+                if (string.IsNullOrEmpty(url))
+                {
+                    log.Error("did not find ws_notifications URL");
+                    throw new Exception("did not find ws_notifications URL");
+                }
+
                 string username = string.Empty;
                 string password = string.Empty;
 
@@ -38,20 +46,23 @@ namespace InitiateNotificationActionHandler
 
                 if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(url))
                     throw new Exception(string.Format(
-                        "Notifications service - invalid Credentials or URL: Group: {0}, username: {1}, password: {2}, URL: {3}", request.GroupId, username,password,url));
+                        "Notifications service - invalid Credentials or URL: Group: {0}, username: {1}, password: {2}, URL: {3}", request.GroupId, username, password, url));
 
-                NotificationServiceClient notificationsClient = new NotificationServiceClient(string.Empty, url);
-
-                bool success = false;
-
-                eUserMessageAction action = (eUserMessageAction)request.UserAction;
-
-                success = notificationsClient.InitiateNotificationAction(username, password, action, request.UserId, request.Udid, request.pushToken);
-
-                if (!success)
+                using (NotificationServiceClient notificationsClient = new NotificationServiceClient())
                 {
-                    throw new Exception(string.Format(
-                        "Announcement did not finish successfully. group: {0} user id: {1} Udid: {2}, push token: {3}", request.GroupId, request.UserId, request.Udid, request.pushToken));
+                    bool success = false;
+
+                    notificationsClient.Endpoint.Address = new EndpointAddress(url);
+
+                    eUserMessageAction action = (eUserMessageAction)request.UserAction;
+
+                    success = notificationsClient.InitiateNotificationAction(username, password, action, request.UserId, request.Udid, request.pushToken);
+
+                    if (!success)
+                    {
+                        throw new Exception(string.Format(
+                            "Announcement did not finish successfully. group: {0} user id: {1} Udid: {2}, push token: {3}", request.GroupId, request.UserId, request.Udid, request.pushToken));
+                    }
                 }
             }
             catch (Exception ex)

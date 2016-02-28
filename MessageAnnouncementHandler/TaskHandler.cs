@@ -30,6 +30,13 @@ namespace MessageAnnouncementHandler
                 MessageAnnouncementRequest request = JsonConvert.DeserializeObject<MessageAnnouncementRequest>(data);
 
                 string url = WS_Utils.GetTcmConfigValue("ws_notifications");
+
+                if (string.IsNullOrEmpty(url))
+                {
+                    log.Error("did not find ws_notifications URL");
+                    throw new Exception("did not find ws_notifications URL");
+                }
+
                 string username = string.Empty;
                 string password = string.Empty;
 
