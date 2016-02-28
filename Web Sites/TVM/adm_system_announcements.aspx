@@ -17,6 +17,7 @@
 <script type="text/javascript">
     function GetPageTable(orderBy, pageNum) {
         RS.Execute("adm_system_announcements.aspx", "GetPageContent", orderBy, pageNum, callback_page_content, errorCallback);
+        
         var err = document.getElementById("<%= hfError.ClientID %>").value;
         if (err) {
             alert(err);

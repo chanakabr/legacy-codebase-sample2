@@ -13,18 +13,19 @@ public partial class adm_system_announcements : System.Web.UI.Page
     protected string m_sMenu;
     protected string m_sSubMenu;
 
+   
     protected void Page_PreRender(object sender, EventArgs e)
     {
-        if (HttpContext.Current.Session["error_msg_sub"] != null || Session["error_msg_sub"] != null)
+        if (HttpContext.Current.Session["error_msg"] != null || Session["error_msg"] != null)
         {
-            hfError.Value = (HttpContext.Current.Session["error_msg_sub"] != null)
-                ? Session["error_msg_sub"].ToString()
-                : HttpContext.Current.Session["error_msg_sub"].ToString();
+            hfError.Value = (HttpContext.Current.Session["error_msg"] != null)
+                ? Session["error_msg"].ToString()
+                : HttpContext.Current.Session["error_msg"].ToString();
 
-            HttpContext.Current.Session["error_msg_sub"] = null;
+            HttpContext.Current.Session["error_msg"] = null;
         }
-    }
 
+    }
     protected void Page_Load(object sender, EventArgs e)
     {
         if (LoginManager.CheckLogin() == false)

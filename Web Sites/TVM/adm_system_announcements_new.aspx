@@ -31,7 +31,9 @@
     }
     function GetPageTable(orderBy, pageNum) {
         RS.Execute("adm_system_announcements_new.aspx", "GetPageContent", orderBy, pageNum, callback_page_content_with_editor, errorCallback);
+       
     }
+
 </script>
 </head>
 <body class="admin_body" onload="GetPageTable('' , 0);">
@@ -77,7 +79,8 @@
 				</table>
 			</td>
 		</tr>
-		<!-- all working area -->
+		
+        <!-- all working area -->
 		<tr>
 			<td>
 				<table cellpadding=0 cellspacing=0>
@@ -93,6 +96,8 @@
 						</td>
 						<!-- empty area -->
 						<td style="width:10px; white-space:nowrap;" nowrap>&nbsp;</td>
+                          
+         
 						<!-- main working area -->
 						<td style="width:800px;" valign=top nowrap>
 							<!-- working area -->
@@ -121,16 +126,30 @@
 								    <td id="page_content" width=100% nowrap=nowrap>
 								    </td>
 								</tr>
+                                <tr>      
+                                    <td>
+                                        <asp:Label ID="lblError" Text="" runat="server"  Visible ="false" ForeColor="Red"></asp:Label>
+                                    </td>
+                                </tr>
+
 							</table>
+                           
 						</td>
 					</tr>
+
+
 				</table>
 			</td>
 		</tr>
+        
+       
 	</table>
+    
+   
+  
 </form>
 <div class="footer">
-	<table>
+	<table>       
 		<tr>
 			<td>
 				<div class="rights"> Copyright © 2006 Kaltura Ltd. All rights reserved. | &nbsp;<a style="color:#0080ff;" tabindex="2000" href="mailto:info@kaltura.com">Contact Us</a></div></td><td ><img src="images/admin-footerLogo.png" alt="Kaltura" />

@@ -15,7 +15,7 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected string m_sLangMenu;
-
+           
     protected void Page_Load(object sender, EventArgs e)
     {
         if (LoginManager.CheckLogin() == false)
@@ -28,10 +28,11 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
         if (AMS.Web.RemoteScripting.InvokeMethod(this))
             return;
         if (!IsPostBack)
-        {
+        {  
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString().Trim() == "1")
             {
 
+                ApiObjects.Response.Status result = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
                     int id = int.Parse(Session["message_announcement_id"].ToString());
                     int groupId = LoginManager.GetLoginGroupID();
                     string name = string.Empty;
@@ -45,16 +46,20 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
 
                     if (Session["message_announcement_id"] != null && Session["message_announcement_id"].ToString() == "0")
                     {
-                        ImporterImpl.AddMessageAnnouncement(groupId, Enabled,name, message, recipients, date, timezone, ref id);//Notification   
+                        result = ImporterImpl.AddMessageAnnouncement(groupId, Enabled,name, message, recipients, date, timezone, ref id);//Notification                           
                         Session["message_announcement_id"] = id;
 
                     }
                     else
                     {
-                        ImporterImpl.UpdateMessageAnnouncement(groupId, id, Enabled,name, message, recipients, date, timezone);
+                        result = ImporterImpl.UpdateMessageAnnouncement(groupId, id, Enabled,name, message, recipients, date, timezone);
                     }
-                    EndOfAction();
-                    
+                    if (result != null && result.Code != (int)ApiObjects.Response.eResponseStatus.OK)
+                    {
+                        Session["error_msg"] = result.Message;
+                        Session["error_msg_s"] = result.Message;
+                    }
+                    EndOfAction();                    
 
                 return;
             }
@@ -62,15 +67,26 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
 
             m_sMenu = TVinciShared.Menu.GetMainMenu(7, true, ref nMenuID);
             m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, true);
-            if (Request.QueryString["message_announcement_id"] != null &&
-                Request.QueryString["message_announcement_id"].ToString() != "")
+            if (Request.QueryString["message_announcement_id"] != null && Request.QueryString["message_announcement_id"].ToString() != "")
             {
                 Session["message_announcement_id"] = int.Parse(Request.QueryString["message_announcement_id"].ToString());               
             }
             else
-                Session["message_announcement_id"] = 0;       
+                Session["message_announcement_id"] = 0;
 
-            
+            if (Session["error_msg_s"] != null && Session["error_msg_s"].ToString() != "")
+            {
+                lblError.Visible = true;
+                lblError.Text = Session["error_msg_s"].ToString();
+                Session["error_msg_s"] = null;
+            }
+            else
+            {
+                lblError.Visible = false;
+                lblError.Text = "";
+            }
+
+           
         }
     }
 
@@ -80,11 +96,14 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
         System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;
         if (HttpContext.Current.Session["error_msg"] != null && HttpContext.Current.Session["error_msg"].ToString() != "")
         {
-            // string sFailure = coll["failure_back_page"].ToString();
             if (coll["failure_back_page"] != null)
+            {
                 HttpContext.Current.Response.Write("<script>window.document.location.href='" + coll["failure_back_page"].ToString() + "';</script>");
+            }
             else
+            {
                 HttpContext.Current.Response.Write("<script>window.document.location.href='login.aspx';</script>");
+            }
         }
         else
         {
@@ -102,8 +121,8 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
                 else
                     HttpContext.Current.Response.Write("<script>window.document.location.href='login.aspx';</script>");
             }
-        }
-        CachingManager.CachingManager.RemoveFromCache("SetValue_" + coll["table_name"].ToString() + "_");
+            CachingManager.CachingManager.RemoveFromCache("SetValue_" + coll["table_name"].ToString() + "_");
+        }        
     }
     
 
@@ -192,6 +211,7 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
 
     public string GetPageContent(string sOrderBy, string sPageNum)
     {
+       
         if (Session["error_msg"] != null && Session["error_msg"].ToString() != "")
         {
             Session["error_msg"] = "";
@@ -204,8 +224,8 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
             
         string sBack = "adm_system_announcements.aspx?search_save=1";
         DBRecordWebEditor theRecord = new DBRecordWebEditor("message_announcements", "adm_table_pager", sBack, "", "ID", announcementId, sBack, "");
-        theRecord.SetConnectionKey("notifications_connection");
-                
+        theRecord.SetConnectionKey("notifications_connection");      
+
         DataRecordShortIntField dr_enabled = new DataRecordShortIntField(false, 9, 9);
         dr_enabled.Initialize("Enabled", "adm_table_header_nbg", "FormInput", "is_active", false);
         dr_enabled.setFiledName("Enabled");
@@ -215,7 +235,7 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
         DataRecordDropDownField dr_message_recipient = new DataRecordDropDownField("", "name", "id", "", null, 60,false);
         dr_message_recipient.setFiledName("recipients");
         dr_message_recipient.SetSelectsDT(GetReceipentType());
-        dr_message_recipient.Initialize("recipients", "adm_table_header_nbg", "FormInput", "recipients", true);
+        dr_message_recipient.Initialize("Recipients", "adm_table_header_nbg", "FormInput", "recipients", true);
         theRecord.AddRecord(dr_message_recipient);
 
         DataRecordShortTextField dr_name = new DataRecordShortTextField("ltr", true, 60, 256);
@@ -230,7 +250,7 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
 
         DataRecordDateTimeField dr_start_date = new DataRecordDateTimeField(true);
         dr_start_date.setFiledName("StartDateTime");
-        dr_start_date.Initialize("Begin send date&time", "adm_table_header_nbg", "FormInput", "start_time", true);
+        dr_start_date.Initialize("Begin send date & time", "adm_table_header_nbg", "FormInput", "start_time", true);
         dr_start_date.SetDefault(DateTime.Now);
         // get timezone by id 
         if (announcementId != null)
@@ -262,7 +282,10 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
         int i = 0;
         foreach (ApiObjects.eAnnouncementRecipientsType r in Enum.GetValues(typeof(ApiObjects.eAnnouncementRecipientsType)))
         {
-            dt.Rows.Add((int)r, r);
+            if ((int)r != (int)ApiObjects.eAnnouncementRecipientsType.Other)
+            {
+                dt.Rows.Add((int)r, r);
+            }
         }
         return dt;
     }
