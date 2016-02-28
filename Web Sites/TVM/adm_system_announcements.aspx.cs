@@ -46,6 +46,7 @@ public partial class adm_system_announcements : System.Web.UI.Page
             else
                 Session["search_save"] = null;
         }
+        Session["message_announcement_id"] = null;
     }
 
     protected void GetMainMenu()

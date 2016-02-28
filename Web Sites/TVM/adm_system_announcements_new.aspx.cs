@@ -28,38 +28,48 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
         if (AMS.Web.RemoteScripting.InvokeMethod(this))
             return;
         if (!IsPostBack)
-        {  
+        {
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString().Trim() == "1")
             {
 
                 ApiObjects.Response.Status result = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
-                    int id = int.Parse(Session["message_announcement_id"].ToString());
-                    int groupId = LoginManager.GetLoginGroupID();
-                    string name = string.Empty;
-                    string message = string.Empty;
-                    string timezone = string.Empty;
-                    int recipients = 0;
-                    DateTime date = new DateTime();
-                    bool Enabled = false;
+                int id = 0;
+                if (Session["message_announcement_id"] != null && Session["message_announcement_id"].ToString() != "")
+                {
+                    id = int.Parse(Session["message_announcement_id"].ToString());
+                }
+                int groupId = LoginManager.GetLoginGroupID();
+                string name = string.Empty;
+                string message = string.Empty;
+                string timezone = string.Empty;
+                int recipients = 0;
+                DateTime date = new DateTime();
+                bool Enabled = false;
 
-                    PageFiled(ref Enabled, ref recipients, ref name, ref message, ref date, ref timezone);
+                PageFiled(ref Enabled, ref recipients, ref name, ref message, ref date, ref timezone);
 
-                    if (Session["message_announcement_id"] != null && Session["message_announcement_id"].ToString() == "0")
-                    {
-                        result = ImporterImpl.AddMessageAnnouncement(groupId, Enabled,name, message, recipients, date, timezone, ref id);//Notification                           
-                        Session["message_announcement_id"] = id;
+                if (id == 0)
+                {
+                    result = ImporterImpl.AddMessageAnnouncement(groupId, Enabled, name, message, recipients, date, timezone, ref id);//Notification                           
+                    Session["message_announcement_id"] = id;
 
-                    }
-                    else
-                    {
-                        result = ImporterImpl.UpdateMessageAnnouncement(groupId, id, Enabled,name, message, recipients, date, timezone);
-                    }
-                    if (result != null && result.Code != (int)ApiObjects.Response.eResponseStatus.OK)
-                    {
-                        Session["error_msg"] = result.Message;
-                        Session["error_msg_s"] = result.Message;
-                    }
-                    EndOfAction();                    
+                }
+                else
+                {
+                    result = ImporterImpl.UpdateMessageAnnouncement(groupId, id, Enabled, name, message, recipients, date, timezone);
+                }
+                if (result == null)
+                {
+                    Session["error_msg_s"] = "Error";
+                    Session["error_msg"] = "Error";
+                }
+                else if (result.Code != (int)ApiObjects.Response.eResponseStatus.OK)
+                {
+                    Session["error_msg"] = result.Message;
+                    Session["error_msg_s"] = result.Message;
+                }
+
+                EndOfAction();
 
                 return;
             }
@@ -71,14 +81,16 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
             {
                 Session["message_announcement_id"] = int.Parse(Request.QueryString["message_announcement_id"].ToString());               
             }
-            else
+            else if (Session["message_announcement_id"] == null || Session["message_announcement_id"].ToString() == "")
+            {
                 Session["message_announcement_id"] = 0;
+            }
 
             if (Session["error_msg_s"] != null && Session["error_msg_s"].ToString() != "")
             {
                 lblError.Visible = true;
                 lblError.Text = Session["error_msg_s"].ToString();
-                Session["error_msg_s"] = null;
+                Session["error_msg_s"] = null;                
             }
             else
             {
@@ -97,7 +109,7 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
         if (HttpContext.Current.Session["error_msg"] != null && HttpContext.Current.Session["error_msg"].ToString() != "")
         {
             if (coll["failure_back_page"] != null)
-            {
+            {                
                 HttpContext.Current.Response.Write("<script>window.document.location.href='" + coll["failure_back_page"].ToString() + "';</script>");
             }
             else
