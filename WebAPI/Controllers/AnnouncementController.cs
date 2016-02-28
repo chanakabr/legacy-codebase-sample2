@@ -48,7 +48,8 @@ namespace WebAPI.Controllers
         /// Update an existing future system annoucement push notification. Annoucement can only be updated only before sending
         /// </summary>
         /// <param name="announcement">The announcement to update.
-        /// timezone param should be taken from the 'name of timezone' from: https://msdn.microsoft.com/en-us/library/ms912391(v=winembedded.11).aspx </param>
+        /// timezone param should be taken from the 'name of timezone' from: https://msdn.microsoft.com/en-us/library/ms912391(v=winembedded.11).aspx
+        /// Recipients values: All, LoggedIn, Guests</param>
         /// <returns></returns>
         /// <remarks>Possible status codes: AnnouncementMessageTooLong = 8010, AnnouncementMessageIsEmpty = 8004, AnnouncementInvalidStartTime = 8005, AnnouncementNotFound = 8006,
         /// AnnouncementUpdateNotAllowed = 8007, FeatureDisabled = 8009</remarks>
