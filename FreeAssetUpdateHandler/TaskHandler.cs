@@ -25,12 +25,12 @@ namespace FreeAssetUpdateHandler
                 log.InfoFormat("starting free asset index update handler request. data={0}", data);
                 
                 FreeAssetUpdateRequest request = JsonConvert.DeserializeObject<FreeAssetUpdateRequest>(data);
-                ElasticSearchHandler.Updaters.IUpdateable updater = ElasticSearchHandler.Updaters.UpdaterFactory.CreateUpdater(request.GroupID, request.Type);
+                ElasticSearchHandler.Updaters.IUpdateable updater = ElasticSearchHandler.Updaters.UpdaterFactory.CreateUpdater(request.group_id, request.type);
 
                 if (updater != null)
                 {
                     updater.Action = ApiObjects.eAction.Update;
-                    updater.IDs = request.AssetIds;
+                    updater.IDs = request.asset_ids;
 
                     bool result = updater.Start();
 
@@ -42,7 +42,7 @@ namespace FreeAssetUpdateHandler
                     {
                         throw new Exception(
                             string.Format("Performing update action on asset of type {0} with id: [{1}] did not finish successfully.", 
-                            request.ToString(), string.Join(",", request.AssetIds)));
+                            request.ToString(), string.Join(",", request.asset_ids)));
                     }
                 } 
             }

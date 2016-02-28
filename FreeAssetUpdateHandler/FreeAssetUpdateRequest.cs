@@ -12,7 +12,7 @@ namespace FreeAssetUpdateHandler
     public class FreeAssetUpdateRequest
     {
         [JsonProperty("group_id")]
-        public int GroupID
+        public int group_id
         {
             get;
             set;
@@ -20,14 +20,14 @@ namespace FreeAssetUpdateHandler
 
         [JsonProperty("type", Required = Required.Always)]
         [JsonConverter(typeof(StringEnumConverter))]
-        public ApiObjects.eObjectType Type
+        public ApiObjects.eObjectType type
         {
             get;
             set;
         }
 
         [JsonProperty("asset_ids", Required = Required.Always)]
-        public List<int> AssetIds
+        public List<int> asset_ids
         {
             get;
             set;
