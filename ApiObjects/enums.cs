@@ -435,7 +435,8 @@ namespace ApiObjects
     [Serializable]
     public enum eSetupTask
     {
-        BuildIPToCountry
+        BuildIPToCountry,
+        InitializeFreeItemUpdateQueue
     }
 
 
