@@ -12,7 +12,7 @@ namespace ApiObjects
         private eObjectType type;
         private List<int> asset_ids;        
 
-        public FreeItemUpdateData(int groupId, eObjectType type, List<int> assetIds, DateTime updateIndexDate) :
+        public FreeItemUpdateData(int groupId, eObjectType type, List<int> asset_ids, DateTime updateIndexDate) :
             base(// id = guid
                  Guid.NewGuid().ToString(),
                 // task = const
@@ -22,7 +22,7 @@ namespace ApiObjects
             this.GroupId = groupId;
 
             this.type = type;
-            this.asset_ids = assetIds;            
+            this.asset_ids = asset_ids;            
 
             this.ETA = updateIndexDate;
 
@@ -30,7 +30,7 @@ namespace ApiObjects
             {
                 groupId,
                 type.ToString(),
-                assetIds                
+                asset_ids                
             };
         }
     }
