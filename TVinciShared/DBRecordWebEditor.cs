@@ -3538,7 +3538,7 @@ namespace TVinciShared
     {
         protected bool m_bEnabled;
         protected string m_filedPrivateName;
-        protected string m_time_zone;
+        protected string m_timeZone;
 
 
         public override string GetFieldType()
@@ -3554,7 +3554,7 @@ namespace TVinciShared
         {
             if (!string.IsNullOrEmpty(timeZone))
             {
-                m_time_zone = timeZone;
+                m_timeZone = timeZone;
             }
         }
 
@@ -3563,7 +3563,7 @@ namespace TVinciShared
         {
             m_bEnabled = bEnabled;
             m_filedPrivateName = string.Empty;
-            m_time_zone = string.Empty;
+            m_timeZone = string.Empty;
         }
 
         public void SetDefault(DateTime t)
@@ -3635,10 +3635,10 @@ namespace TVinciShared
                 m_sStartValue = m_sDefaultVal;
             if (m_sStartValue != "")
             {
-                if (!string.IsNullOrEmpty(m_time_zone))
+                if (!string.IsNullOrEmpty(m_timeZone))
                 {                    
                     DateTime dateTime = ODBCWrapper.Utils.GetDateSafeVal(m_sStartValue, "dd/MM/yyyy H:mm");
-                    dateTime = ODBCWrapper.Utils.ConvertFromUtc(dateTime, m_time_zone);
+                    dateTime = ODBCWrapper.Utils.ConvertFromUtc(dateTime, m_timeZone);
                     m_sStartValue = dateTime.ToString("dd/MM/yyyy HH:mm");                    
                 }
                 sStartDate = m_sStartValue.Split(' ')[0].ToString();
@@ -3780,6 +3780,10 @@ namespace TVinciShared
             return sTmp;
         }
     }
+
+
+
+   
 
 
     /// <summary>

@@ -4884,8 +4884,9 @@ namespace TvinciImporter
 
         #region Notification
 
-        static public bool AddMessageAnnouncement(int groupID, bool Enabled, string name, string message, int Recipients, DateTime date, string timezone, ref int id)
-        {            
+        static public ApiObjects.Response.Status AddMessageAnnouncement(int groupID, bool Enabled, string name, string message, int Recipients, DateTime date, string timezone, ref int id)
+        {
+            AddMessageAnnouncementResponse response =null;
             try
             {
                 //Call Notifications WCF service
@@ -4906,21 +4907,20 @@ namespace TvinciImporter
                 announcement.StartTime = ODBCWrapper.Utils.DateTimeToUnixTimestamp(date);
                 announcement.Timezone = timezone;
                 announcement.Enabled = Enabled;
-                AddMessageAnnouncementResponse response = service.AddMessageAnnouncement(sWSUserName, sWSPass, announcement);
+                response = service.AddMessageAnnouncement(sWSUserName, sWSPass, announcement);
                 if (response != null && response.Status.Code == (int)ApiObjects.Response.eResponseStatus.OK)
                 {
-                    id = response.Id;
-                    return true;
-                }
+                    id = response.Id;                    
+                }                
+                return response.Status;
             }
             catch (Exception)
             {
-                return false;
-            }
-            return false;
+                return new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
+            }           
         }
 
-        static public bool UpdateMessageAnnouncement(int groupID, int id, bool Enabled, string name, string message, int Recipients, DateTime date, string timezone)
+        static public ApiObjects.Response.Status UpdateMessageAnnouncement(int groupID, int id, bool Enabled, string name, string message, int Recipients, DateTime date, string timezone)
         {
             try
             {
@@ -4944,16 +4944,12 @@ namespace TvinciImporter
                 announcement.MessageAnnouncementId = id;
                 announcement.Enabled = Enabled;
                 ApiObjects.Response.Status response = service.UpdateMessageAnnouncement(sWSUserName, sWSPass, announcement);
-                if (response != null && response.Code == (int)ApiObjects.Response.eResponseStatus.OK)
-                {
-                    return true;
-                }
+                return response;               
             }
             catch (Exception)
             {
-                return false;
+                return new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString()); ;
             }
-            return false;
         }
 
 
