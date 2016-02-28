@@ -134,7 +134,9 @@ namespace TVinciShared
                 if (dt.DefaultView[0].Row[m_sFieldName] != DBNull.Value)
                 {
                     DateTime t = (DateTime)(dt.DefaultView[0].Row[m_sFieldName]);
+
                     m_sStartValue = t.Hour.ToString() + ":" + t.Minute.ToString();
+
                 }
                 else
                     m_sStartValue = "00:00";
@@ -149,7 +151,14 @@ namespace TVinciShared
                     DateTime t = (DateTime)(dt.DefaultView[0].Row[m_sFieldName]);
                     m_sStartValue = DateUtils.GetStrFromDate(t);
                     m_sStartValue += " ";
-                    m_sStartValue += t.Hour.ToString() + ":" + t.Minute.ToString();
+                    if (t.Minute.ToString().Length == 1)
+                    {
+                        m_sStartValue += t.Hour.ToString() + ":0" + t.Minute.ToString();
+                    }
+                    else
+                    {
+                        m_sStartValue += t.Hour.ToString() + ":" + t.Minute.ToString();
+                    }
                 }
             }
             else
