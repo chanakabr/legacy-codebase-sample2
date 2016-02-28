@@ -40,6 +40,12 @@ namespace SetupTaskHandler
                         success = worker.BuildIndex();
                         break;
                     }
+                    case ApiObjects.eSetupTask.InitializeFreeItemUpdateQueue:
+                    {
+                        var worker = new FreeItemUpdateQueueBuilder();
+                        success = worker.InitializeQueue();
+                        break;
+                    }
                     default:
                     {
                         break;
