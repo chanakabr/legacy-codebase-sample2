@@ -9,8 +9,8 @@ namespace ApiObjects
     {
         public const string TASK = "distributed_tasks.process_free_item_update";
 
-        private eObjectType Type;
-        private List<int> AssetIds;        
+        private eObjectType type;
+        private List<int> asset_ids;        
 
         public FreeItemUpdateData(int groupId, eObjectType type, List<int> assetIds, DateTime updateIndexDate) :
             base(// id = guid
@@ -21,8 +21,8 @@ namespace ApiObjects
             // Basic member initialization
             this.GroupId = groupId;
 
-            this.Type = type;
-            this.AssetIds = assetIds;            
+            this.type = type;
+            this.asset_ids = assetIds;            
 
             this.ETA = updateIndexDate;
 
