@@ -120,8 +120,8 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:  
-        /// Payment gateway id required = 6005, Payment gateway not set for household = 6007, Payment gateway not valid = 6043, Payment method not set for household = 6048,
-        /// Payment method id required = 6050, Error saving payment gateway household payment method = 6052, Payment gateway not support payment method = 6056
+        /// Payment gateway not set for household = 6007, Payment gateway not valid = 6043, Payment method not set for household = 6048,
+        /// Error saving payment gateway household payment method = 6052, Payment gateway not support payment method = 6056
         /// </remarks>
         /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
         /// <param name="payment_method_id">Payment method Identifier</param> 
