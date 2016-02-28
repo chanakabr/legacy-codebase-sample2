@@ -29,7 +29,7 @@ namespace ApiObjects
             this.args = new List<object>()
             {
                 groupId,
-                type,
+                type.ToString(),
                 asset_ids                
             };
         }
