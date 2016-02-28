@@ -833,10 +833,8 @@ namespace DAL
             DeviceNotificationData deviceData = null;
             try
             {
-                string deviceString = cbManager.Get<string>(GetDeviceDataKey(groupId, udid));
-                if (!string.IsNullOrEmpty(deviceString))
-                    deviceData = JsonConvert.DeserializeObject<DeviceNotificationData>(deviceString);
-                else
+                DeviceNotificationData deviceString = cbManager.Get<DeviceNotificationData>(GetDeviceDataKey(groupId, udid));
+                if (deviceString == null)
                     log.DebugFormat("Device data wasn't found. GID: {0}, UDID: {1}", groupId, udid);
             }
             catch (Exception ex)
@@ -852,7 +850,7 @@ namespace DAL
             bool result = false;
             try
             {
-                result = cbManager.Set(GetDeviceDataKey(groupId, udid), JsonConvert.SerializeObject(newDeviceNotificationData));
+                result = cbManager.Set(GetDeviceDataKey(groupId, udid), newDeviceNotificationData);
                 if (!result)
                 {
                     log.ErrorFormat("Error while trying to set device notification. gid: {0}, udid: {1}, data: {2}",
@@ -873,10 +871,8 @@ namespace DAL
             UserNotification userNotification = null;
             try
             {
-                string userNotificationString = cbManager.Get<string>(GetUserNotificationKey(groupId, userId));
-                if (!string.IsNullOrEmpty(userNotificationString))
-                    userNotification = JsonConvert.DeserializeObject<UserNotification>(userNotificationString);
-                else
+                UserNotification userNotificationString = cbManager.Get<UserNotification>(GetUserNotificationKey(groupId, userId));
+                if (userNotificationString == null)
                     log.DebugFormat("User notification data wasn't found. GID: {0}, UID: {1}", groupId, userId);
             }
             catch (Exception ex)
@@ -892,7 +888,7 @@ namespace DAL
             bool result = false;
             try
             {
-                result = cbManager.Set(GetUserNotificationKey(groupId, userId), JsonConvert.SerializeObject(userNotification));
+                result = cbManager.Set(GetUserNotificationKey(groupId, userId), userNotification);
                 if (!result)
                 {
                     log.ErrorFormat("Error while set user notification data. GID: {0}, user ID: {1}. data: {2}",
