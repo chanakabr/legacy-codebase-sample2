@@ -200,14 +200,25 @@ namespace ElasticSearchHandler.IndexBuilders
 
                         if (currentChannel.m_nChannelTypeID == (int)ChannelType.KSQL)
                         {
-                            // If there is at least 1 media type, build its definitions
-                            if (currentChannel.m_nMediaType != null && 
-                                currentChannel.m_nMediaType.Count(type => type != Channel.EPG_ASSET_TYPE) > 0)
+                            try
                             {
-                                UnifiedSearchDefinitions definitions = ElasticsearchTasksCommon.Utils.BuildSearchDefinitions(currentChannel, true);
+                                // If there is at least 1 media type, build its definitions
+                                if (currentChannel.m_nMediaType != null &&
+                                    currentChannel.m_nMediaType.Count(type => type != Channel.EPG_ASSET_TYPE) > 0)
+                                {
+                                    UnifiedSearchDefinitions definitions = ElasticsearchTasksCommon.Utils.BuildSearchDefinitions(currentChannel, true);
 
-                                unifiedQueryBuilder.SearchDefinitions = definitions;
-                                channelQuery = unifiedQueryBuilder.BuildSearchQueryString();
+                                    unifiedQueryBuilder.SearchDefinitions = definitions;
+                                    channelQuery = unifiedQueryBuilder.BuildSearchQueryString();
+                                }
+                            }
+                            catch (KalturaException ex)
+                            {
+                                log.ErrorFormat("Tried to index an invalid KSQL Channel. ID = {0}, message = {1}", currentChannel.m_nChannelID, ex.Message, ex);
+                            }
+                            catch (Exception ex)
+                            {
+                                throw ex;
                             }
                         }
                         else
