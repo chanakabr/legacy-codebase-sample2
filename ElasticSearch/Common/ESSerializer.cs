@@ -167,9 +167,9 @@ namespace ElasticSearch.Common
 
             #endregion
 
-            #region Add Free file types
+            #region Add Is Free + Free file types
 
-            // Add this field only if there are regions on the media object
+            // Add this field only if there are free file types on the media object
             if (media.freeFileTypes != null && media.freeFileTypes.Count > 0)
             {
                 recordBuilder.Append(", \"free_file_types\": [");
@@ -185,6 +185,9 @@ namespace ElasticSearch.Common
 
                 recordBuilder.Append("]");
             }
+
+            recordBuilder.Append(", \"is_free\": ");
+            recordBuilder.Append(Convert.ToInt32(media.isFree));
 
             #endregion
 
