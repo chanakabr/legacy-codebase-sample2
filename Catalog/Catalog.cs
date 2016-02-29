@@ -2892,67 +2892,75 @@ namespace Catalog
                              * 
                              */
 
-                            //////////////////// Wait for Next Version (Joker)
-                            //GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.MEDIA, assetIdToAssetStatsMapping);
-
-                            Dictionary<int, int[]> dict = CatalogDAL.Get_MediaStatistics(dStartDate, dEndDate, nGroupID, lAssetIDs);
-                            if (dict.Count > 0)
+                            if (Utils.IsGroupIDContainedInConfig(nGroupID, "USING_DB_FOR_ASSETS_STATS", ';'))
                             {
-                                foreach (KeyValuePair<int, int[]> kvp in dict)
+                                #region Old Get MediaStatistics code - goes to DB for views and to CB for likes\rate\votes
+
+                                Dictionary<int, int[]> dict = CatalogDAL.Get_MediaStatistics(dStartDate, dEndDate, nGroupID, lAssetIDs);
+                                if (dict.Count > 0)
                                 {
-                                    if (assetIdToAssetStatsMapping.ContainsKey(kvp.Key))
+                                    foreach (KeyValuePair<int, int[]> kvp in dict)
                                     {
-                                        assetIdToAssetStatsMapping[kvp.Key].m_nViews = kvp.Value[ASSET_STATS_VIEWS_INDEX];
-                                        if (isBuzzNotEmpty)
+                                        if (assetIdToAssetStatsMapping.ContainsKey(kvp.Key))
                                         {
-                                            string strAssetID = kvp.Key.ToString();
-                                            if (buzzDict.ContainsKey(strAssetID) && buzzDict[strAssetID] != null)
+                                            assetIdToAssetStatsMapping[kvp.Key].m_nViews = kvp.Value[ASSET_STATS_VIEWS_INDEX];
+                                            if (isBuzzNotEmpty)
                                             {
-                                                assetIdToAssetStatsMapping[kvp.Key].m_buzzAverScore = buzzDict[strAssetID];
-                                            }
-                                            else
-                                            {
-                                                log.Error("Error - " + GetAssetStatsResultsLogMsg(String.Concat("No buzz meter found for media id: ", kvp.Key), nGroupID, lAssetIDs, dStartDate, dEndDate, eType));
+                                                string strAssetID = kvp.Key.ToString();
+                                                if (buzzDict.ContainsKey(strAssetID) && buzzDict[strAssetID] != null)
+                                                {
+                                                    assetIdToAssetStatsMapping[kvp.Key].m_buzzAverScore = buzzDict[strAssetID];
+                                                }
+                                                else
+                                                {
+                                                    log.Error("Error - " + GetAssetStatsResultsLogMsg(String.Concat("No buzz meter found for media id: ", kvp.Key), nGroupID, lAssetIDs, dStartDate, dEndDate, eType));
+                                                }                                                
                                             }
                                         }
+                                    } // foreach
+                                }
+                                else
+                                {
+                                    log.Error("Error - " + GetAssetStatsResultsLogMsg("No media views retrieved from DB. ", nGroupID, lAssetIDs, dStartDate, dEndDate, eType));
+                                }
+
+                                // save monitor and logs context data
+                                ContextData contextData = new ContextData();
+
+                                // bring social actions from CB social bucket
+                                Task<AssetStatsResult.SocialPartialAssetStatsResult>[] tasks = new Task<AssetStatsResult.SocialPartialAssetStatsResult>[lAssetIDs.Count];
+                                for (int i = 0; i < lAssetIDs.Count; i++)
+                                {
+                                    tasks[i] = Task.Factory.StartNew<AssetStatsResult.SocialPartialAssetStatsResult>((item) =>
+                                    {
+								        // load monitor and logs context data
+								        contextData.Load();
+
+                                        return GetSocialAssetStats(nGroupID, (int)item, eType, dStartDate, dEndDate);
                                     }
-                                } // foreach
+                                        , lAssetIDs[i]);
+                                }
+                                Task.WaitAll(tasks);
+                                for (int i = 0; i < tasks.Length; i++)
+                                {
+                                    if (tasks[i] != null)
+                                    {
+                                        AssetStatsResult.SocialPartialAssetStatsResult socialData = tasks[i].Result;
+                                        if (socialData != null && assetIdToAssetStatsMapping.ContainsKey(socialData.assetId))
+                                        {
+                                            assetIdToAssetStatsMapping[socialData.assetId].m_nLikes = socialData.likesCounter;
+                                            assetIdToAssetStatsMapping[socialData.assetId].m_dRate = socialData.rate;
+                                            assetIdToAssetStatsMapping[socialData.assetId].m_nVotes = socialData.votes;
+                                        }
+                                    }
+                                    tasks[i].Dispose();
+                                }
+                                #endregion
                             }
                             else
                             {
-                                log.Error("Error - " + GetAssetStatsResultsLogMsg("No media views retrieved from DB. ", nGroupID, lAssetIDs, dStartDate, dEndDate, eType));
-                            }
-
-                            // save monitor and logs context data
-                            ContextData contextData = new ContextData();
-
-                            // bring social actions from CB social bucket
-                            Task<AssetStatsResult.SocialPartialAssetStatsResult>[] tasks = new Task<AssetStatsResult.SocialPartialAssetStatsResult>[lAssetIDs.Count];
-                            for (int i = 0; i < lAssetIDs.Count; i++)
-                            {
-                                tasks[i] = Task.Factory.StartNew<AssetStatsResult.SocialPartialAssetStatsResult>((item) =>
-                                {
-                                    // load monitor and logs context data
-                                    contextData.Load();
-
-                                    return GetSocialAssetStats(nGroupID, (int)item, eType, dStartDate, dEndDate);
-                                }
-                                    , lAssetIDs[i]);
-                            }
-                            Task.WaitAll(tasks);
-                            for (int i = 0; i < tasks.Length; i++)
-                            {
-                                if (tasks[i] != null)
-                                {
-                                    AssetStatsResult.SocialPartialAssetStatsResult socialData = tasks[i].Result;
-                                    if (socialData != null && assetIdToAssetStatsMapping.ContainsKey(socialData.assetId))
-                                    {
-                                        assetIdToAssetStatsMapping[socialData.assetId].m_nLikes = socialData.likesCounter;
-                                        assetIdToAssetStatsMapping[socialData.assetId].m_dRate = socialData.rate;
-                                        assetIdToAssetStatsMapping[socialData.assetId].m_nVotes = socialData.votes;
-                                    }
-                                }
-                                tasks[i].Dispose();
+                                /************* For versions after Joker that don't want to use DB for getting stats, we fetch the data from ES statistics index **********/
+                                GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.MEDIA, assetIdToAssetStatsMapping);
                             }
 
                         }
@@ -2995,42 +3003,50 @@ namespace Catalog
                         }
                         else
                         {
-                            //////////////////// Wait for Next Version (Joker)
-                            // we bring data from ES statistics index.
-                            //GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.EPG, assetIdToAssetStatsMapping);
-
-                            // save monitor and logs context data
-                            ContextData contextData = new ContextData();
-
-                            // we bring data from social bucket in CB.
-                            Task<AssetStatsResult.SocialPartialAssetStatsResult>[] tasks = new Task<AssetStatsResult.SocialPartialAssetStatsResult>[lAssetIDs.Count];
-                            for (int i = 0; i < lAssetIDs.Count; i++)
+                            if (Utils.IsGroupIDContainedInConfig(nGroupID, "GROUPS_USING_DB_FOR_ASSETS_STATS", ';'))
                             {
-                                tasks[i] = Task.Factory.StartNew<AssetStatsResult.SocialPartialAssetStatsResult>((item) =>
-                                {
-                                    // load monitor and logs context data
-                                    contextData.Load();
+                                #region Old Get MediaStatistics code - goes to DB for views and to CB for likes\rate\votes
 
-                                    return GetSocialAssetStats(nGroupID, (int)item, eType, dStartDate, dEndDate);
-                                }
-                                    , lAssetIDs[i]);
-                            }
-                            Task.WaitAll(tasks);
-                            for (int i = 0; i < tasks.Length; i++)
-                            {
-                                if (tasks[i] != null)
-                                {
-                                    AssetStatsResult.SocialPartialAssetStatsResult socialData = tasks[i].Result;
-                                    if (socialData != null && assetIdToAssetStatsMapping.ContainsKey(socialData.assetId))
+                                // save monitor and logs context data
+                                ContextData contextData = new ContextData();
+
+                                // we bring data from social bucket in CB.
+                                Task<AssetStatsResult.SocialPartialAssetStatsResult>[] tasks = new Task<AssetStatsResult.SocialPartialAssetStatsResult>[lAssetIDs.Count];
+                                for (int i = 0; i < lAssetIDs.Count; i++)
+                                {                                    
+                                    tasks[i] = Task.Factory.StartNew<AssetStatsResult.SocialPartialAssetStatsResult>((item) =>
                                     {
-                                        assetIdToAssetStatsMapping[socialData.assetId].m_nLikes = socialData.likesCounter;
-                                        assetIdToAssetStatsMapping[socialData.assetId].m_dRate = socialData.rate;
-                                        assetIdToAssetStatsMapping[socialData.assetId].m_nVotes = socialData.votes;
+                                        // load monitor and logs context data
+                                        contextData.Load();
+
+                                        return GetSocialAssetStats(nGroupID, (int)item, eType, dStartDate, dEndDate);
                                     }
+                                        , lAssetIDs[i]);
                                 }
-                                tasks[i].Dispose();
+                                Task.WaitAll(tasks);
+                                for (int i = 0; i < tasks.Length; i++)
+                                {
+                                    if (tasks[i] != null)
+                                    {
+                                        AssetStatsResult.SocialPartialAssetStatsResult socialData = tasks[i].Result;
+                                        if (socialData != null && assetIdToAssetStatsMapping.ContainsKey(socialData.assetId))
+                                        {
+                                            assetIdToAssetStatsMapping[socialData.assetId].m_nLikes = socialData.likesCounter;
+                                            assetIdToAssetStatsMapping[socialData.assetId].m_dRate = socialData.rate;
+                                            assetIdToAssetStatsMapping[socialData.assetId].m_nVotes = socialData.votes;
+                                        }
+                                    }
+                                    tasks[i].Dispose();
+                                }
+                                #endregion
+                            }
+                            else
+                            {
+                                /************* For versions after Joker that don't want to use DB for getting stats, we fetch the data from ES statistics index **********/
+                                GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.EPG, assetIdToAssetStatsMapping);
                             }
                         }
+
                         break;
                     }
                 default:
