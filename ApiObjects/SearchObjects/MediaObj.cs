@@ -129,7 +129,8 @@ namespace ApiObjects.SearchObjects
                 m_sUpdateDate = this.m_sUpdateDate,
                 m_sUserTypes = this.m_sUserTypes,
                 geoBlockRule = this.geoBlockRule,
-                epgIdentifier = this.epgIdentifier
+                epgIdentifier = this.epgIdentifier,
+                isFree = this.isFree
             };
 
             clone.m_dMeatsValues = (from meta in this.m_dMeatsValues select meta).ToDictionary(x => x.Key, x => x.Value);
