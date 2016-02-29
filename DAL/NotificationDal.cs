@@ -833,8 +833,8 @@ namespace DAL
             DeviceNotificationData deviceData = null;
             try
             {
-                DeviceNotificationData deviceString = cbManager.Get<DeviceNotificationData>(GetDeviceDataKey(groupId, udid));
-                if (deviceString == null)
+                deviceData = cbManager.Get<DeviceNotificationData>(GetDeviceDataKey(groupId, udid));
+                if (deviceData == null)
                     log.DebugFormat("Device data wasn't found. GID: {0}, UDID: {1}", groupId, udid);
             }
             catch (Exception ex)
@@ -871,8 +871,8 @@ namespace DAL
             UserNotification userNotification = null;
             try
             {
-                UserNotification userNotificationString = cbManager.Get<UserNotification>(GetUserNotificationKey(groupId, userId));
-                if (userNotificationString == null)
+                userNotification = cbManager.Get<UserNotification>(GetUserNotificationKey(groupId, userId));
+                if (userNotification == null)
                     log.DebugFormat("User notification data wasn't found. GID: {0}, UID: {1}", groupId, userId);
             }
             catch (Exception ex)
