@@ -5510,41 +5510,43 @@ namespace TvinciImporter
         public static bool UpdateFreeFileTypeOfModule(int groupId, int moduleId)
         {
             bool result = false;
-            
             if (moduleId == 0)
             {
                 log.Error("Failed updating free item index because couldn't get module Id");
             }
             else
-            {                
-                DataTable mediaIds = DAL.ImporterImpDAL.GetMediasByPPVModuleID(groupId, moduleId);
-                if (mediaIds != null)
+            {
+                DataTable mediaIds = DAL.ImporterImpDAL.GetMediasByPPVModuleID(groupId, moduleId, 0);
+                while (mediaIds != null && mediaIds.Rows != null)
                 {
-                    if (mediaIds.Rows != null)
+                    if (mediaIds.Rows.Count == 0)
                     {
-                        if (mediaIds.Rows.Count == 0)
-                        {
-                            result = true;
-                        }
-                        else
-                        {
-                            List<int> mediaIDsToUpdate = new List<int>();
-                            foreach (DataRow dr in mediaIds.Rows)
-                            {
-                                int mediaIDToAdd = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_ID");
-                                if (mediaIDToAdd > 0)
-                                {
-                                    mediaIDsToUpdate.Add(mediaIDToAdd);
-                                }
-                            }
+                        return true;
+                    }
 
-                            if (mediaIDsToUpdate != null && mediaIDsToUpdate.Count > 0)
-                            {
-                                result = UpdateIndex(mediaIDsToUpdate, groupId, eAction.Update);
-                            }
+                    List<int> mediaIDsToUpdate = new List<int>();
+                    foreach (DataRow dr in mediaIds.Rows)
+                    {
+                        int mediaIDToAdd = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_ID");
+                        if (mediaIDToAdd > 0)
+                        {
+                            mediaIDsToUpdate.Add(mediaIDToAdd);
                         }
                     }
-                }                
+
+                    //reset mediaIds
+                    mediaIds = null;
+
+                    if (mediaIDsToUpdate != null && mediaIDsToUpdate.Count > 0)
+                    {
+                        result = UpdateIndex(mediaIDsToUpdate, groupId, eAction.Update);
+                        if (result)
+                        {
+                            int lastMediaID = mediaIDsToUpdate.Last();
+                            mediaIds = DAL.ImporterImpDAL.GetMediasByPPVModuleID(groupId, moduleId, lastMediaID);
+                        }
+                    }
+                }
             }
 
             return result;
