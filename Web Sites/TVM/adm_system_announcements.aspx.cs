@@ -178,7 +178,7 @@ public partial class adm_system_announcements : System.Web.UI.Page
         selectQuery += " when a.recipients = 3 then 'Other' end as 'recipients' , ";
         selectQuery += " CASE WHEN a.sent = 0 THEN  'Not Sent'  WHEN a.sent = 1 THEN 'Sending' when a.sent = 2 then 'Sent' when a.sent = 3 then 'Aborted' end as 'message status' ";
         selectQuery += "  from message_announcements a   ";
-        selectQuery += "  where a.status = 1  And  ";
+        selectQuery += "  where a.status <> 2  And  ";
         selectQuery += ODBCWrapper.Parameter.NEW_PARAM("a.group_id", "=", nGroupID);
         selectQuery += " order by id desc ";
         
