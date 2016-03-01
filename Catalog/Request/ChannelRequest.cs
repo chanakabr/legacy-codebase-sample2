@@ -241,7 +241,22 @@ namespace Catalog.Request
             switch (orderBy)
             {
                 case OrderBy.VIEWS:
-                    result = Catalog.SlidingWindowCountFacet(nGroupId, media, windowTime, now, Catalog.STAT_ACTION_FIRST_PLAY);
+                    if (Utils.IsGroupIDContainedInConfig(nGroupId, "GROUPS_USING_DB_FOR_ASSETS_STATS", ';'))
+                    {
+                        result = new List<int>();
+                        Dictionary<int, int[]> dict = CatalogDAL.Get_MediaStatistics(windowTime, DateTime.UtcNow, nGroupId, media);
+                        if (dict != null && dict.Count > 0)
+                        {
+                            result = (from pair in dict
+                                     orderby pair.Value descending
+                                     select pair.Key).ToList();
+                        }
+                    }
+                    /************* For versions after Joker that don't want to use DB for getting view stats (first_play), we fetch the data from ES statistics index **********/
+                    else
+                    {
+                        result = Catalog.SlidingWindowCountFacet(nGroupId, media, windowTime, now, Catalog.STAT_ACTION_FIRST_PLAY);
+                    }
                     break;
                 case OrderBy.RATING:
                     result = Catalog.SlidingWindowStatisticsFacet(nGroupId, media, windowTime, now, Catalog.STAT_ACTION_RATES, Catalog.STAT_ACTION_RATE_VALUE_FIELD, ElasticSearch.Searcher.ESTermsStatsFacet.FacetCompare.eCompareType.MEAN);
