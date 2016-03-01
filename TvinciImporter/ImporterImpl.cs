@@ -18,6 +18,7 @@ using System.Web;
 using System.Xml;
 using System.Xml.Serialization;
 using Tvinci.Core.DAL;
+using TvinciImporter.Notification_WCF;
 using TVinciShared;
 
 namespace TvinciImporter
@@ -4883,6 +4884,165 @@ namespace TvinciImporter
 
         #region Notification
 
+        static public ApiObjects.Response.Status AddMessageAnnouncement(int groupID, bool Enabled, string name, string message, int Recipients, DateTime date, string timezone, ref int id)
+        {
+            AddMessageAnnouncementResponse response =null;
+            try
+            {
+                //Call Notifications WCF service
+                string sWSURL = GetConfigVal("NotificationService");
+                Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
+                if (!string.IsNullOrEmpty(sWSURL))
+                    service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
+
+                string sIP = "1.1.1.1";
+                string sWSUserName = "";
+                string sWSPass = "";
+                int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupID);
+                TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "", "notifications", sIP, ref sWSUserName, ref sWSPass);
+                MessageAnnouncement announcement = new MessageAnnouncement();
+                announcement.Message = message;
+                announcement.Name = name;
+                announcement.Recipients = (eAnnouncementRecipientsType)Recipients;
+                announcement.StartTime = ODBCWrapper.Utils.DateTimeToUnixTimestamp(date);
+                announcement.Timezone = timezone;
+                announcement.Enabled = Enabled;
+                response = service.AddMessageAnnouncement(sWSUserName, sWSPass, announcement);
+                if (response != null && response.Status.Code == (int)ApiObjects.Response.eResponseStatus.OK)
+                {
+                    id = response.Id;                    
+                }                
+                return response.Status;
+            }
+            catch (Exception)
+            {
+                return new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
+            }           
+        }
+
+        static public ApiObjects.Response.Status UpdateMessageAnnouncement(int groupID, int id, bool Enabled, string name, string message, int Recipients, DateTime date, string timezone)
+        {
+            try
+            {
+                //Call Notifications WCF service
+                string sWSURL = GetConfigVal("NotificationService");
+                Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
+                if (!string.IsNullOrEmpty(sWSURL))
+                    service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
+
+                string sIP = "1.1.1.1";
+                string sWSUserName = "";
+                string sWSPass = "";
+                int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupID);
+                TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "", "notifications", sIP, ref sWSUserName, ref sWSPass);
+                MessageAnnouncement announcement = new MessageAnnouncement();
+                announcement.Message = message;
+                announcement.Name = name;
+                announcement.Recipients = (eAnnouncementRecipientsType)Recipients;
+                announcement.StartTime = ODBCWrapper.Utils.DateTimeToUnixTimestamp(date);
+                announcement.Timezone = timezone;
+                announcement.MessageAnnouncementId = id;
+                announcement.Enabled = Enabled;
+                ApiObjects.Response.Status response = service.UpdateMessageAnnouncement(sWSUserName, sWSPass, announcement);
+                return response;               
+            }
+            catch (Exception)
+            {
+                return new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString()); ;
+            }
+        }
+
+
+        static public bool UpdateMessageAnnouncementStatus(int groupID, int id, bool status)
+        {
+            try
+            {
+                //Call Notifications WCF service
+                string sWSURL = GetConfigVal("NotificationService");
+                Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
+                if (!string.IsNullOrEmpty(sWSURL))
+                    service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
+
+                string sIP = "1.1.1.1";
+                string sWSUserName = "";
+                string sWSPass = "";
+                int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupID);
+                TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "", "notifications", sIP, ref sWSUserName, ref sWSPass);
+              
+                ApiObjects.Response.Status response = service.UpdateMessageAnnouncementStatus(sWSUserName, sWSPass, id, status);
+                if (response != null && response.Code == (int)ApiObjects.Response.eResponseStatus.OK)
+                {
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            return false;
+        }
+
+
+        //static public DataTable GetAllMessageAnnouncements(int groupid)
+        //{
+        //    DataTable dt = null;
+        //    try
+        //    {
+        //        //Call Notifications WCF service
+        //        string sWSURL = GetConfigVal("NotificationService");
+        //        Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
+        //        if (!string.IsNullOrEmpty(sWSURL))
+        //            service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
+
+        //        string sIP = "1.1.1.1";
+        //        string sWSUserName = "";
+        //        string sWSPass = "";
+        //        int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupid);
+        //        TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "", "notifications", sIP, ref sWSUserName, ref sWSPass);
+
+        //        GetAllMessageAnnouncementsResponse response = service.GetAllMessageAnnouncements(sWSUserName, sWSPass, 0 ,0);
+
+        //        if (response != null && response.totalCount > 0)
+        //        {
+        //            dt = null;
+        //        }
+        //        else
+        //        {
+        //            dt = new DataTable();
+
+        //            dt.Columns.Add("ID", typeof(int));
+        //            dt.Columns.Add("recipientsCode", typeof(int));
+        //            dt.Columns.Add("status", typeof(int));
+        //            dt.Columns.Add("is_active", typeof(int));
+        //            dt.Columns.Add("name", typeof(string));
+        //            dt.Columns.Add("message", typeof(string));
+        //            dt.Columns.Add("start_time", typeof(DateTime));
+        //            dt.Columns.Add("sent", typeof(int));
+        //            dt.Columns.Add("updater_id", typeof(int));
+        //            dt.Columns.Add("update_date", typeof(DateTime));
+        //            dt.Columns.Add("create_date", typeof(DateTime));
+        //            dt.Columns.Add("group_id", typeof(int));
+        //            dt.Columns.Add("timezone", typeof(string));
+        //            dt.Columns.Add("recipients", typeof(string));
+        //            dt.Columns.Add("message status", typeof(string));
+
+
+        //            foreach (MessageAnnouncement ma in response.messageAnnouncements)
+        //            {
+        //                dt.Rows.Add(  ma.MessageAnnouncementId, (int)ma.Recipients, 1, ma.Enabled, ma.Name, ma.Message, ma.StartTime, (int)ma.Status
+        //                    ma.Message, ma.Name, ma.MessageAnnouncementId);
+                        
+        //            }
+        //        }
+        //    }
+        //    catch (Exception)
+        //    {
+        //        dt = null;
+        //    }
+        //    return dt;
+
+        //}
+
         static public void UpdateNotificationsRequests(int groupid, int nMediaID)
         {
             ParameterizedThreadStart start = new ParameterizedThreadStart(UpdateNotification);
@@ -5350,41 +5510,43 @@ namespace TvinciImporter
         public static bool UpdateFreeFileTypeOfModule(int groupId, int moduleId)
         {
             bool result = false;
-            
             if (moduleId == 0)
             {
                 log.Error("Failed updating free item index because couldn't get module Id");
             }
             else
-            {                
-                DataTable mediaIds = DAL.ImporterImpDAL.GetMediasByPPVModuleID(groupId, moduleId);
-                if (mediaIds != null)
+            {
+                DataTable mediaIds = DAL.ImporterImpDAL.GetMediasByPPVModuleID(groupId, moduleId, 0);
+                while (mediaIds != null && mediaIds.Rows != null)
                 {
-                    if (mediaIds.Rows != null)
+                    if (mediaIds.Rows.Count == 0)
                     {
-                        if (mediaIds.Rows.Count == 0)
-                        {
-                            result = true;
-                        }
-                        else
-                        {
-                            List<int> mediaIDsToUpdate = new List<int>();
-                            foreach (DataRow dr in mediaIds.Rows)
-                            {
-                                int mediaIDToAdd = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_ID");
-                                if (mediaIDToAdd > 0)
-                                {
-                                    mediaIDsToUpdate.Add(mediaIDToAdd);
-                                }
-                            }
+                        return true;
+                    }
 
-                            if (mediaIDsToUpdate != null && mediaIDsToUpdate.Count > 0)
-                            {
-                                result = UpdateIndex(mediaIDsToUpdate, groupId, eAction.Update);
-                            }
+                    List<int> mediaIDsToUpdate = new List<int>();
+                    foreach (DataRow dr in mediaIds.Rows)
+                    {
+                        int mediaIDToAdd = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_ID");
+                        if (mediaIDToAdd > 0)
+                        {
+                            mediaIDsToUpdate.Add(mediaIDToAdd);
                         }
                     }
-                }                
+
+                    //reset mediaIds
+                    mediaIds = null;
+
+                    if (mediaIDsToUpdate != null && mediaIDsToUpdate.Count > 0)
+                    {
+                        result = UpdateIndex(mediaIDsToUpdate, groupId, eAction.Update);
+                        if (result)
+                        {
+                            int lastMediaID = mediaIDsToUpdate.Last();
+                            mediaIds = DAL.ImporterImpDAL.GetMediasByPPVModuleID(groupId, moduleId, lastMediaID);
+                        }
+                    }
+                }
             }
 
             return result;

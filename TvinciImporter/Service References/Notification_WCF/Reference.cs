@@ -400,6 +400,8 @@ namespace TvinciImporter.Notification_WCF {
         
         private System.Collections.Generic.Dictionary<string, TvinciImporter.Notification_WCF.TagIDValue[]> dTagDictk__BackingFieldField;
         
+        private string dateFormatk__BackingFieldField;
+        
         private int mediaIDk__BackingFieldField;
         
         private string mediaPicURLk__BackingFieldField;
@@ -442,6 +444,19 @@ namespace TvinciImporter.Notification_WCF {
                 if ((object.ReferenceEquals(this.dTagDictk__BackingFieldField, value) != true)) {
                     this.dTagDictk__BackingFieldField = value;
                     this.RaisePropertyChanged("dTagDictk__BackingField");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute(Name="<dateFormat>k__BackingField", IsRequired=true)]
+        public string dateFormatk__BackingField {
+            get {
+                return this.dateFormatk__BackingFieldField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.dateFormatk__BackingFieldField, value) != true)) {
+                    this.dateFormatk__BackingFieldField = value;
+                    this.RaisePropertyChanged("dateFormatk__BackingField");
                 }
             }
         }
@@ -856,6 +871,302 @@ namespace TvinciImporter.Notification_WCF {
         }
     }
     
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="MessageAnnouncement", Namespace="http://schemas.datacontract.org/2004/07/NotificationObj")]
+    [System.SerializableAttribute()]
+    public partial class MessageAnnouncement : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool EnabledField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string MessageField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int MessageAnnouncementIdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string NameField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private ApiObjects.eAnnouncementRecipientsType RecipientsField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private long StartTimeField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private TvinciImporter.Notification_WCF.eAnnouncementStatus StatusField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string TimezoneField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool Enabled {
+            get {
+                return this.EnabledField;
+            }
+            set {
+                if ((this.EnabledField.Equals(value) != true)) {
+                    this.EnabledField = value;
+                    this.RaisePropertyChanged("Enabled");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Message {
+            get {
+                return this.MessageField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.MessageField, value) != true)) {
+                    this.MessageField = value;
+                    this.RaisePropertyChanged("Message");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int MessageAnnouncementId {
+            get {
+                return this.MessageAnnouncementIdField;
+            }
+            set {
+                if ((this.MessageAnnouncementIdField.Equals(value) != true)) {
+                    this.MessageAnnouncementIdField = value;
+                    this.RaisePropertyChanged("MessageAnnouncementId");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Name {
+            get {
+                return this.NameField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.NameField, value) != true)) {
+                    this.NameField = value;
+                    this.RaisePropertyChanged("Name");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public ApiObjects.eAnnouncementRecipientsType Recipients {
+            get {
+                return this.RecipientsField;
+            }
+            set {
+                if ((this.RecipientsField.Equals(value) != true)) {
+                    this.RecipientsField = value;
+                    this.RaisePropertyChanged("Recipients");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public long StartTime {
+            get {
+                return this.StartTimeField;
+            }
+            set {
+                if ((this.StartTimeField.Equals(value) != true)) {
+                    this.StartTimeField = value;
+                    this.RaisePropertyChanged("StartTime");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public TvinciImporter.Notification_WCF.eAnnouncementStatus Status {
+            get {
+                return this.StatusField;
+            }
+            set {
+                if ((this.StatusField.Equals(value) != true)) {
+                    this.StatusField = value;
+                    this.RaisePropertyChanged("Status");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Timezone {
+            get {
+                return this.TimezoneField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.TimezoneField, value) != true)) {
+                    this.TimezoneField = value;
+                    this.RaisePropertyChanged("Timezone");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="eAnnouncementStatus", Namespace="http://schemas.datacontract.org/2004/07/NotificationObj")]
+    public enum eAnnouncementStatus : int {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        NotSent = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Sending = 1,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Sent = 2,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Aborted = 3,
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="AddMessageAnnouncementResponse", Namespace="http://schemas.datacontract.org/2004/07/NotificationObj")]
+    [System.SerializableAttribute()]
+    public partial class AddMessageAnnouncementResponse : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int IdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private ApiObjects.Response.Status StatusField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int Id {
+            get {
+                return this.IdField;
+            }
+            set {
+                if ((this.IdField.Equals(value) != true)) {
+                    this.IdField = value;
+                    this.RaisePropertyChanged("Id");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public ApiObjects.Response.Status Status {
+            get {
+                return this.StatusField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.StatusField, value) != true)) {
+                    this.StatusField = value;
+                    this.RaisePropertyChanged("Status");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="GetAllMessageAnnouncementsResponse", Namespace="http://schemas.datacontract.org/2004/07/NotificationObj")]
+    [System.SerializableAttribute()]
+    public partial class GetAllMessageAnnouncementsResponse : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private TvinciImporter.Notification_WCF.MessageAnnouncement[] messageAnnouncementsField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int totalCountField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public TvinciImporter.Notification_WCF.MessageAnnouncement[] messageAnnouncements {
+            get {
+                return this.messageAnnouncementsField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.messageAnnouncementsField, value) != true)) {
+                    this.messageAnnouncementsField = value;
+                    this.RaisePropertyChanged("messageAnnouncements");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int totalCount {
+            get {
+                return this.totalCountField;
+            }
+            set {
+                if ((this.totalCountField.Equals(value) != true)) {
+                    this.totalCountField = value;
+                    this.RaisePropertyChanged("totalCount");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="Notification_WCF.INotificationService")]
     public interface INotificationService {
@@ -886,6 +1197,46 @@ namespace TvinciImporter.Notification_WCF {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/IsTagNotificationExists", ReplyAction="http://tempuri.org/INotificationService/IsTagNotificationExistsResponse")]
         bool IsTagNotificationExists(string sWSUserName, string sWSPassword, string tagType, string tagValue);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateNotificationPartnerSettings", ReplyAction="http://tempuri.org/INotificationService/UpdateNotificationPartnerSettingsResponse" +
+            "")]
+        ApiObjects.Response.Status UpdateNotificationPartnerSettings(string sWSUserName, string sWSPassword, ApiObjects.Notification.NotificationPartnerSettings settings);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetNotificationPartnerSettings", ReplyAction="http://tempuri.org/INotificationService/GetNotificationPartnerSettingsResponse")]
+        ApiObjects.Notification.NotificationPartnerSettingsResponse GetNotificationPartnerSettings(string sWSUserName, string sWSPassword);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateNotificationSettings", ReplyAction="http://tempuri.org/INotificationService/UpdateNotificationSettingsResponse")]
+        ApiObjects.Response.Status UpdateNotificationSettings(string sWSUserName, string sWSPassword, string userId, ApiObjects.Notification.NotificationSettings settings);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetNotificationSettings", ReplyAction="http://tempuri.org/INotificationService/GetNotificationSettingsResponse")]
+        ApiObjects.Notification.NotificationSettingsResponse GetNotificationSettings(string sWSUserName, string sWSPassword, int userId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/AddMessageAnnouncement", ReplyAction="http://tempuri.org/INotificationService/AddMessageAnnouncementResponse")]
+        TvinciImporter.Notification_WCF.AddMessageAnnouncementResponse AddMessageAnnouncement(string sWSUserName, string sWSPassword, TvinciImporter.Notification_WCF.MessageAnnouncement announcement);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SendMessageAnnouncement", ReplyAction="http://tempuri.org/INotificationService/SendMessageAnnouncementResponse")]
+        bool SendMessageAnnouncement(string sWSUserName, string sWSPassword, long startTime, int id);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateMessageAnnouncement", ReplyAction="http://tempuri.org/INotificationService/UpdateMessageAnnouncementResponse")]
+        ApiObjects.Response.Status UpdateMessageAnnouncement(string sWSUserName, string sWSPassword, TvinciImporter.Notification_WCF.MessageAnnouncement announcement);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateMessageAnnouncementStatus", ReplyAction="http://tempuri.org/INotificationService/UpdateMessageAnnouncementStatusResponse")]
+        ApiObjects.Response.Status UpdateMessageAnnouncementStatus(string sWSUserName, string sWSPassword, int id, bool status);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/DeleteMessageAnnouncement", ReplyAction="http://tempuri.org/INotificationService/DeleteMessageAnnouncementResponse")]
+        ApiObjects.Response.Status DeleteMessageAnnouncement(string sWSUserName, string sWSPassword, int id);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/InitiateNotificationAction", ReplyAction="http://tempuri.org/INotificationService/InitiateNotificationActionResponse")]
+        bool InitiateNotificationAction(string sWSUserName, string sWSPassword, ApiObjects.eUserMessageAction userAction, int userId, string udid, string pushToken);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/CreateSystemAnnouncement", ReplyAction="http://tempuri.org/INotificationService/CreateSystemAnnouncementResponse")]
+        ApiObjects.Response.Status CreateSystemAnnouncement(string sWSUserName, string sWSPassword);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetAllMessageAnnouncements", ReplyAction="http://tempuri.org/INotificationService/GetAllMessageAnnouncementsResponse")]
+        TvinciImporter.Notification_WCF.GetAllMessageAnnouncementsResponse GetAllMessageAnnouncements(string sWSUserName, string sWSPassword, int pageSize, int pageIndex);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SetPush", ReplyAction="http://tempuri.org/INotificationService/SetPushResponse")]
+        ApiObjects.Response.Status SetPush(string sWSUserName, string sWSPassword, ApiObjects.eUserMessageAction userAction, int userId, string udid, string pushToken);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -949,6 +1300,58 @@ namespace TvinciImporter.Notification_WCF {
         
         public bool IsTagNotificationExists(string sWSUserName, string sWSPassword, string tagType, string tagValue) {
             return base.Channel.IsTagNotificationExists(sWSUserName, sWSPassword, tagType, tagValue);
+        }
+        
+        public ApiObjects.Response.Status UpdateNotificationPartnerSettings(string sWSUserName, string sWSPassword, ApiObjects.Notification.NotificationPartnerSettings settings) {
+            return base.Channel.UpdateNotificationPartnerSettings(sWSUserName, sWSPassword, settings);
+        }
+        
+        public ApiObjects.Notification.NotificationPartnerSettingsResponse GetNotificationPartnerSettings(string sWSUserName, string sWSPassword) {
+            return base.Channel.GetNotificationPartnerSettings(sWSUserName, sWSPassword);
+        }
+        
+        public ApiObjects.Response.Status UpdateNotificationSettings(string sWSUserName, string sWSPassword, string userId, ApiObjects.Notification.NotificationSettings settings) {
+            return base.Channel.UpdateNotificationSettings(sWSUserName, sWSPassword, userId, settings);
+        }
+        
+        public ApiObjects.Notification.NotificationSettingsResponse GetNotificationSettings(string sWSUserName, string sWSPassword, int userId) {
+            return base.Channel.GetNotificationSettings(sWSUserName, sWSPassword, userId);
+        }
+        
+        public TvinciImporter.Notification_WCF.AddMessageAnnouncementResponse AddMessageAnnouncement(string sWSUserName, string sWSPassword, TvinciImporter.Notification_WCF.MessageAnnouncement announcement) {
+            return base.Channel.AddMessageAnnouncement(sWSUserName, sWSPassword, announcement);
+        }
+        
+        public bool SendMessageAnnouncement(string sWSUserName, string sWSPassword, long startTime, int id) {
+            return base.Channel.SendMessageAnnouncement(sWSUserName, sWSPassword, startTime, id);
+        }
+        
+        public ApiObjects.Response.Status UpdateMessageAnnouncement(string sWSUserName, string sWSPassword, TvinciImporter.Notification_WCF.MessageAnnouncement announcement) {
+            return base.Channel.UpdateMessageAnnouncement(sWSUserName, sWSPassword, announcement);
+        }
+        
+        public ApiObjects.Response.Status UpdateMessageAnnouncementStatus(string sWSUserName, string sWSPassword, int id, bool status) {
+            return base.Channel.UpdateMessageAnnouncementStatus(sWSUserName, sWSPassword, id, status);
+        }
+        
+        public ApiObjects.Response.Status DeleteMessageAnnouncement(string sWSUserName, string sWSPassword, int id) {
+            return base.Channel.DeleteMessageAnnouncement(sWSUserName, sWSPassword, id);
+        }
+        
+        public bool InitiateNotificationAction(string sWSUserName, string sWSPassword, ApiObjects.eUserMessageAction userAction, int userId, string udid, string pushToken) {
+            return base.Channel.InitiateNotificationAction(sWSUserName, sWSPassword, userAction, userId, udid, pushToken);
+        }
+        
+        public ApiObjects.Response.Status CreateSystemAnnouncement(string sWSUserName, string sWSPassword) {
+            return base.Channel.CreateSystemAnnouncement(sWSUserName, sWSPassword);
+        }
+        
+        public TvinciImporter.Notification_WCF.GetAllMessageAnnouncementsResponse GetAllMessageAnnouncements(string sWSUserName, string sWSPassword, int pageSize, int pageIndex) {
+            return base.Channel.GetAllMessageAnnouncements(sWSUserName, sWSPassword, pageSize, pageIndex);
+        }
+        
+        public ApiObjects.Response.Status SetPush(string sWSUserName, string sWSPassword, ApiObjects.eUserMessageAction userAction, int userId, string udid, string pushToken) {
+            return base.Channel.SetPush(sWSUserName, sWSPassword, userAction, userId, udid, pushToken);
         }
     }
 }

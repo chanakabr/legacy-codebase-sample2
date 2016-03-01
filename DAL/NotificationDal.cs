@@ -28,7 +28,7 @@ namespace DAL
         private const string SP_UPDATE_NOTIFICATION_MESSAGE_VIEW_STATUS = "UpdateNotificationMessageViewStatus";
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.NOTIFICATION);
+        private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.STATISTICS);
 
         private static string GetDeviceDataKey(int groupId, string udid)
         {
@@ -810,6 +810,16 @@ namespace DAL
             spInsert.ExecuteDataSet();
         }
 
+        public static void Update_MessageAnnouncementResultMessageId(int id, int groupId, string resultMsgId)
+        {
+            ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("UpdateMessageAnnouncement");
+            spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            spInsert.AddParameter("@ID", id);
+            spInsert.AddParameter("@result_message_id", resultMsgId);
+            spInsert.AddParameter("@response_date", DateTime.UtcNow);
+            spInsert.ExecuteDataSet();
+        }
+
         public static void Delete_MessageAnnouncement(int id, int groupId)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("UpdateMessageAnnouncement");
@@ -824,7 +834,7 @@ namespace DAL
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateMessageAnnouncementActiveStatus");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             sp.AddParameter("@ID", messageAnnouncementId);
-            sp.AddParameter("@status", status);
+            sp.AddParameter("@ActiveStatus", status);
             DataSet ds = sp.ExecuteDataSet();
         }
 
@@ -833,10 +843,8 @@ namespace DAL
             DeviceNotificationData deviceData = null;
             try
             {
-                string deviceString = cbManager.Get<string>(GetDeviceDataKey(groupId, udid));
-                if (!string.IsNullOrEmpty(deviceString))
-                    deviceData = JsonConvert.DeserializeObject<DeviceNotificationData>(deviceString);
-                else
+                deviceData = cbManager.Get<DeviceNotificationData>(GetDeviceDataKey(groupId, udid));
+                if (deviceData == null)
                     log.DebugFormat("Device data wasn't found. GID: {0}, UDID: {1}", groupId, udid);
             }
             catch (Exception ex)
@@ -852,7 +860,7 @@ namespace DAL
             bool result = false;
             try
             {
-                result = cbManager.Set(GetDeviceDataKey(groupId, udid), JsonConvert.SerializeObject(newDeviceNotificationData));
+                result = cbManager.Set(GetDeviceDataKey(groupId, udid), newDeviceNotificationData);
                 if (!result)
                 {
                     log.ErrorFormat("Error while trying to set device notification. gid: {0}, udid: {1}, data: {2}",
@@ -873,10 +881,8 @@ namespace DAL
             UserNotification userNotification = null;
             try
             {
-                string userNotificationString = cbManager.Get<string>(GetUserNotificationKey(groupId, userId));
-                if (!string.IsNullOrEmpty(userNotificationString))
-                    userNotification = JsonConvert.DeserializeObject<UserNotification>(userNotificationString);
-                else
+                userNotification = cbManager.Get<UserNotification>(GetUserNotificationKey(groupId, userId));
+                if (userNotification == null)
                     log.DebugFormat("User notification data wasn't found. GID: {0}, UID: {1}", groupId, userId);
             }
             catch (Exception ex)
@@ -892,7 +898,7 @@ namespace DAL
             bool result = false;
             try
             {
-                result = cbManager.Set(GetUserNotificationKey(groupId, userId), JsonConvert.SerializeObject(userNotification));
+                result = cbManager.Set(GetUserNotificationKey(groupId, userId), userNotification);
                 if (!result)
                 {
                     log.ErrorFormat("Error while set user notification data. GID: {0}, user ID: {1}. data: {2}",
@@ -909,12 +915,13 @@ namespace DAL
             return result;
         }
 
-        public static string Get_AnnouncementExternalIdByRecipients(int recipients)
+        public static string Get_AnnouncementExternalIdByRecipients(int groupId, int recipients)
         {
             string ret = string.Empty;
 
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAnnouncementExternalIdByRecipients");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@recipients", recipients);
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)

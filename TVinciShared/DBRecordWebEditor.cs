@@ -134,7 +134,9 @@ namespace TVinciShared
                 if (dt.DefaultView[0].Row[m_sFieldName] != DBNull.Value)
                 {
                     DateTime t = (DateTime)(dt.DefaultView[0].Row[m_sFieldName]);
+
                     m_sStartValue = t.Hour.ToString() + ":" + t.Minute.ToString();
+
                 }
                 else
                     m_sStartValue = "00:00";
@@ -149,7 +151,14 @@ namespace TVinciShared
                     DateTime t = (DateTime)(dt.DefaultView[0].Row[m_sFieldName]);
                     m_sStartValue = DateUtils.GetStrFromDate(t);
                     m_sStartValue += " ";
-                    m_sStartValue += t.Hour.ToString() + ":" + t.Minute.ToString();
+                    if (t.Minute.ToString().Length == 1)
+                    {
+                        m_sStartValue += t.Hour.ToString() + ":0" + t.Minute.ToString();
+                    }
+                    else
+                    {
+                        m_sStartValue += t.Hour.ToString() + ":" + t.Minute.ToString();
+                    }
                 }
             }
             else
@@ -276,6 +285,7 @@ namespace TVinciShared
         protected long m_nWidth;
         protected long m_nMaxLength;
         protected int m_extID;
+        protected string m_filedPrivateName;
 
         public DataRecordShortTextField(string sDir, bool bEnabled, long nWidth, long nMaxLength)
             : base()
@@ -286,6 +296,7 @@ namespace TVinciShared
             m_nMaxLength = nMaxLength;
             m_bIsPass = false;
             m_extID = 0;
+            m_filedPrivateName = string.Empty;
         }
 
         public DataRecordShortTextField(string sDir, bool bEnabled, long nWidth, long nMaxLength, int extID)
@@ -297,11 +308,17 @@ namespace TVinciShared
             m_nMaxLength = nMaxLength;
             m_bIsPass = false;
             m_extID = extID;
+            m_filedPrivateName = string.Empty;
         }
 
         public void SetPassword()
         {
             m_bIsPass = true;
+        }
+
+        public void setFiledName(string name)
+        {
+            m_filedPrivateName = name;
         }
 
         public override string GetFieldHtml(long nID)
@@ -343,6 +360,7 @@ namespace TVinciShared
             sTmp.Append("<input tabindex=\"2000\" tabindex=\"").Append((nID + 1).ToString()).Append("\" type='hidden' name='").Append(nID.ToString()).Append("_type' value='string'/>");
             sTmp.Append("<input tabindex=\"2000\" tabindex=\"").Append((nID + 1).ToString()).Append("\" type='hidden' name='").Append(nID.ToString()).Append("_must' value='").Append(m_bMust.ToString()).Append("'/>");
             sTmp.Append("<input tabindex=\"2000\" tabindex=\"").Append((nID + 1).ToString()).Append("\" type='hidden' name='").Append(nID.ToString()).Append("_field' value='").Append(m_sFieldName).Append("'/>");
+            sTmp.Append("<input tabindex=\"2000\" tabindex=\"").Append((nID + 1).ToString()).Append("\" type='hidden' name='").Append(nID.ToString()).Append("_fieldName' value='").Append(m_filedPrivateName).Append("'/>");
             if (m_extID > 0)
             {
                 sTmp.Append("<input tabindex=\"2000\" tabindex=\"").Append((nID + 1).ToString()).Append("\" type='hidden' name='").Append(nID.ToString()).Append("_ext' value='").Append(m_extID).Append("'/>");
@@ -1379,10 +1397,16 @@ namespace TVinciShared
     public class DataRecordCheckBoxField : BaseDataRecordField
     {
         protected bool m_bEnabled;
+        protected string m_filedPrivateName;
         public DataRecordCheckBoxField(bool bEnabled)
             : base()
         {
-            m_bEnabled = bEnabled;
+            m_bEnabled = bEnabled; 
+            m_filedPrivateName= string.Empty;
+        }
+        public void setFiledName(string name)
+        {
+            m_filedPrivateName = name;
         }
 
         public string GetInnerFieldHtml(long nID)
@@ -1401,6 +1425,8 @@ namespace TVinciShared
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_type' value='checkbox'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_must' value='" + m_bMust.ToString() + "'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_field' value='" + m_sFieldName + "'/>";
+
+            sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_fieldName' value='" + m_filedPrivateName + "'/>";
 
             return sTmp;
         }
@@ -1500,6 +1526,8 @@ namespace TVinciShared
         protected long? m_nMaxValue;
         protected long? m_nMinValue;
 
+        protected string m_filedPrivateName;
+
         public DataRecordShortIntField(bool bEnabled, long nWidth, long nMaxLength, int? minVal = null, int? maxVal = null)
             : base()
         {
@@ -1508,6 +1536,12 @@ namespace TVinciShared
             m_nMaxLength = nMaxLength;
             m_nMinValue = minVal;
             m_nMaxValue = maxVal;
+            m_filedPrivateName = string.Empty;
+        }
+
+        public void setFiledName(string name)
+        {
+            m_filedPrivateName = name;
         }
 
         public override string GetFieldHtml(long nID)
@@ -1539,6 +1573,8 @@ namespace TVinciShared
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_type' value='int'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_must' value='" + m_bMust.ToString() + "'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_field' value='" + m_sFieldName + "'/>";
+            sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_fieldName' value='" + m_filedPrivateName + "'/>";
+
             if (m_nMinValue.HasValue)
                 sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_min' value='" + m_nMinValue + "'/>";
             if (m_nMaxValue.HasValue)
@@ -2759,6 +2795,7 @@ namespace TVinciShared
         protected string m_sDir;
         protected long m_nWidth;
         protected long m_nHeight;
+        protected string m_filedPrivateName;
         public DataRecordLongTextField(string sDir, bool bEnabled, long nWidth, long nHeight)
             : base()
         {
@@ -2766,6 +2803,11 @@ namespace TVinciShared
             m_sDir = sDir;
             m_nWidth = nWidth;
             m_nHeight = nHeight;
+            m_filedPrivateName = string.Empty;
+        }
+        public void setFiledName(string name)
+        {
+            m_filedPrivateName = name;
         }
 
         public override string GetFieldHtml(long nID)
@@ -2788,6 +2830,7 @@ namespace TVinciShared
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_type' value='long_string'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_must' value='" + m_bMust.ToString() + "'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_field' value='" + m_sFieldName + "'/>";
+            sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_fieldName' value='" + m_filedPrivateName + "'/>";
             sTmp += "</td>";
             sTmp += "</tr>";
             return sTmp;
@@ -2813,6 +2856,7 @@ namespace TVinciShared
         DataTable m_dtQueryDT;
         //string m_sDefaultVal;
         string m_sNoSelectStr;
+        protected string m_filedPrivateName;
         public DataRecordDropDownField(string sRefTable, string sTextField, string sValueField, string sWhereField, object sWhereVal, Int32 nWidth, bool bWithNoSelect)
             : base()
         {
@@ -2832,6 +2876,12 @@ namespace TVinciShared
             m_sQueryString = "";
             m_sFieldType = "int";
             m_dtQueryDT = null;
+            m_filedPrivateName = string.Empty;
+        }
+
+        public void setFiledName(string name)
+        {
+            m_filedPrivateName = name;
         }
 
         public void SetSelectsDT(DataTable dt)
@@ -3011,6 +3061,7 @@ namespace TVinciShared
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_type' value='" + m_sFieldType + "'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_must' value='" + m_bMust.ToString() + "'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_field' value='" + m_sFieldName + "'/>";
+            sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_fieldName' value='" + m_filedPrivateName + "'/>";
             return sTmp;
         }
 
@@ -3495,15 +3546,33 @@ namespace TVinciShared
     public class DataRecordDateTimeField : BaseDataRecordField
     {
         protected bool m_bEnabled;
+        protected string m_filedPrivateName;
+        protected string m_timeZone;
+
 
         public override string GetFieldType()
         {
             return "datetime";
         }
+
+        public void setFiledName(string name)
+        {
+            m_filedPrivateName = name;
+        }
+        public void setTimeZone(string timeZone)
+        {
+            if (!string.IsNullOrEmpty(timeZone))
+            {
+                m_timeZone = timeZone;
+            }
+        }
+
         public DataRecordDateTimeField(bool bEnabled)
             : base()
         {
             m_bEnabled = bEnabled;
+            m_filedPrivateName = string.Empty;
+            m_timeZone = string.Empty;
         }
 
         public void SetDefault(DateTime t)
@@ -3575,6 +3644,12 @@ namespace TVinciShared
                 m_sStartValue = m_sDefaultVal;
             if (m_sStartValue != "")
             {
+                if (!string.IsNullOrEmpty(m_timeZone))
+                {                    
+                    DateTime dateTime = ODBCWrapper.Utils.GetDateSafeVal(m_sStartValue, "dd/MM/yyyy H:mm");
+                    dateTime = ODBCWrapper.Utils.ConvertFromUtc(dateTime, m_timeZone);
+                    m_sStartValue = dateTime.ToString("dd/MM/yyyy HH:mm");                    
+                }
                 sStartDate = m_sStartValue.Split(' ')[0].ToString();
                 sStartTime = m_sStartValue.Split(' ')[1].ToString();
                 sStartDay = sStartDate.Split('/')[0].ToString();
@@ -3607,6 +3682,8 @@ namespace TVinciShared
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_type' value='datetime'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_must' value='" + m_bMust.ToString() + "'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_field' value='" + m_sFieldName + "'/>";
+            sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_fieldName' value='" + m_filedPrivateName + "'/>";
+            
             sTmp += "&nbsp;&nbsp;";
             sTmp += GetSelectsHtml(nID, sStartMin, sStartHour);
 
@@ -3712,6 +3789,10 @@ namespace TVinciShared
             return sTmp;
         }
     }
+
+
+
+   
 
 
     /// <summary>

@@ -103,16 +103,6 @@ namespace NotificationObj
         ElisaEmailNotification = 2
     }
 
-    public enum eAnnouncementStatus
-    {
-        [EnumMember]
-        NotSent = 0,
-        [EnumMember]
-        Sending = 1,
-        [EnumMember]
-        Sent = 2,
-        [EnumMember]
-        Aborted = 3
-    }
+   
 }
 

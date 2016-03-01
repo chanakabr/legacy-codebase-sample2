@@ -552,7 +552,7 @@ namespace ElasticSearch.Common
                         {
                             lResult = jToken.Select(item =>
                             {
-                                return (string)item.SelectToken(".");
+                                return (string)item.ToString();
                             }
                             ).ToList();
                         }
