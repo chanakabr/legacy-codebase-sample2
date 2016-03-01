@@ -2939,7 +2939,7 @@ namespace Catalog
                             }
                             else
                             {
-                                /************* For versions after Joker that don't want to use DB for getting stats, we fetch the date from ES statistics index **********/
+                                /************* For versions after Joker that don't want to use DB for getting stats, we fetch the data from ES statistics index **********/
                                 GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.MEDIA, assetIdToAssetStatsMapping);                                
                             }
 
@@ -3016,7 +3016,7 @@ namespace Catalog
                             }
                             else
                             {
-                                /************* For versions after Joker that don't want to use DB for getting stats, we fetch the date from ES statistics index **********/
+                                /************* For versions after Joker that don't want to use DB for getting stats, we fetch the data from ES statistics index **********/
                                 GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.EPG, assetIdToAssetStatsMapping);
                             }
                         }
