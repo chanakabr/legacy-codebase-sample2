@@ -2892,7 +2892,7 @@ namespace Catalog
                              * 
                              */
 
-                            if (Utils.IsGroupIDContainedInConfig(nGroupID, "USING_DB_FOR_ASSETS_STATS", ';'))
+                            if (Utils.IsGroupIDContainedInConfig(nGroupID, "GROUPS_USING_DB_FOR_ASSETS_STATS", ';'))
                             {
                                 #region Old Get MediaStatistics code - goes to DB for views and to CB for likes\rate\votes
 
