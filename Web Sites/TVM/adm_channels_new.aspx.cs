@@ -587,20 +587,25 @@ public partial class adm_channels_new : System.Web.UI.Page
         dr_bio.Initialize("Description", "adm_table_header_nbg", "FormInput", "DESCRIPTION", false);
         theRecord.AddRecord(dr_bio);
 
-        DataRecordCheckBoxField dr_rss = new DataRecordCheckBoxField(true);
-        dr_rss.Initialize("Enable feed ", "adm_table_header_nbg", "FormInput", "IS_RSS", false);
-        theRecord.AddRecord(dr_rss);
+        //DataRecordCheckBoxField dr_rss = new DataRecordCheckBoxField(true);
+        //dr_rss.Initialize("Enable feed ", "adm_table_header_nbg", "FormInput", "IS_RSS", false);
+        //theRecord.AddRecord(dr_rss);
 
-        DataRecordMultiField dr_channels = new DataRecordMultiField("categories", "id", "id", "categories_channels", "channel_ID", "category_id", false, "ltr", 60, "tags");
-        dr_channels.Initialize("Categories", "adm_table_header_nbg", "FormInput", "ADMIN_NAME", false);
-        string sQuery = "select ADMIN_NAME as txt,id as val from categories where status=1 and group_id=" + LoginManager.GetLoginGroupID().ToString();
-        sQuery += " order by ADMIN_NAME";
-        dr_channels.SetCollectionQuery(sQuery);
-        theRecord.AddRecord(dr_channels);
+        int channelID = 0;
+        string categories = "No Categories";
+        if (channelId != null && int.TryParse(channelId.ToString(), out channelID))
+        {
+            categories = GetChannelCategories(channelID);
+        }
 
-        DataRecordTimeField dr_relevant_time = new DataRecordTimeField();
-        dr_relevant_time.Initialize("Linear Start Time", "adm_table_header_nbg", "FormInput", "LINEAR_START_TIME", false);
-        theRecord.AddRecord(dr_relevant_time);
+        DataRecordShortTextField dr_categories = new DataRecordShortTextField("ltr", false, 60, 20);
+        dr_categories.Initialize("Categories", "adm_table_header_nbg", "FormInput", "", false);
+        dr_categories.SetValue(categories);
+        theRecord.AddRecord(dr_categories);
+
+        //DataRecordTimeField dr_relevant_time = new DataRecordTimeField();
+        //dr_relevant_time.Initialize("Linear Start Time", "adm_table_header_nbg", "FormInput", "LINEAR_START_TIME", false);
+        //theRecord.AddRecord(dr_relevant_time);
 
         if (channelId != null && !string.IsNullOrEmpty(channelId.ToString()))
         {
@@ -621,18 +626,18 @@ public partial class adm_channels_new : System.Web.UI.Page
             theRecord.AddRecord(dr_logo_Pic);
         }
 
-        string sDefPT = "";
-        object oDefPT = ODBCWrapper.Utils.GetTableSingleVal("groups", "DEFAULT_PLAYLIST_TEMPLATE_ID", LoginManager.GetLoginGroupID());
-        if (oDefPT != DBNull.Value && oDefPT != null)
-            sDefPT = oDefPT.ToString();
+        //string sDefPT = "";
+        //object oDefPT = ODBCWrapper.Utils.GetTableSingleVal("groups", "DEFAULT_PLAYLIST_TEMPLATE_ID", LoginManager.GetLoginGroupID());
+        //if (oDefPT != DBNull.Value && oDefPT != null)
+        //    sDefPT = oDefPT.ToString();
 
-        DataRecordDropDownField dr_pli_template = new DataRecordDropDownField("play_list_items_templates_types", "NAME", "id", "", null, 60, true);
-        sQuery = "select name as txt,id as id from play_list_items_templates_types where status=1 and is_active=1 and group_id= " + LoginManager.GetLoginGroupID().ToString();
-        dr_pli_template.SetSelectsQuery(sQuery);
-        dr_pli_template.Initialize("Playlist schema", "adm_table_header_nbg", "FormInput", "PLAYLIST_TEMPLATE_ID", false);
-        dr_pli_template.SetNoSelectStr("---");
-        dr_pli_template.SetDefaultVal(sDefPT);
-        theRecord.AddRecord(dr_pli_template);
+        //DataRecordDropDownField dr_pli_template = new DataRecordDropDownField("play_list_items_templates_types", "NAME", "id", "", null, 60, true);
+        //string sQuery = "select name as txt,id as id from play_list_items_templates_types where status=1 and is_active=1 and group_id= " + LoginManager.GetLoginGroupID().ToString();
+        //dr_pli_template.SetSelectsQuery(sQuery);
+        //dr_pli_template.Initialize("Playlist schema", "adm_table_header_nbg", "FormInput", "PLAYLIST_TEMPLATE_ID", false);
+        //dr_pli_template.SetNoSelectStr("---");
+        //dr_pli_template.SetDefaultVal(sDefPT);
+        //theRecord.AddRecord(dr_pli_template);
 
         DataRecordRadioField dr_cut_type = new DataRecordRadioField("lu_cut_type", "description", "id", "", null);
         dr_cut_type.Initialize("Cut Tags Type", "adm_table_header_nbg", "FormInput", "IS_AND", false);
@@ -648,11 +653,13 @@ public partial class adm_channels_new : System.Web.UI.Page
             AddIntFields(ref theRecord);
             AddBoolFields(ref theRecord);
             AddCutBy(ref theRecord);
-        }
-        if (int.Parse(Session["channel_type"].ToString()) == 1)
             AddOrderBy(ref theRecord, true);
+        }
         else
+        {
             AddOrderBy(ref theRecord, false);
+        }
+
         DataRecordRadioField dr_channels_order_by_dir = new DataRecordRadioField("lu_channels_order_by_DIR", "description", "id", "", null);
         dr_channels_order_by_dir.Initialize("Order Direction", "adm_table_header_nbg", "FormInput", "ORDER_BY_DIR", true);
         dr_channels_order_by_dir.SetDefault(0);
@@ -854,5 +861,29 @@ public partial class adm_channels_new : System.Web.UI.Page
         }
 
         return imageUrl;
+    }
+
+    private string GetChannelCategories(int channelID)
+    {
+        List<string> categories = new List<string>();
+        
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery += "select c.admin_name from categories c left join categories_channels cc on c.ID=cc.CATEGORY_ID";
+        selectQuery += "where c.IS_ACTIVE = 1 and c.STATUS = 1 and cc.STATUS = 1 and";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("cc.CHANNEL_ID", "=", channelID);
+        if (selectQuery.Execute("query", true) != null)
+        {
+            int nCount = selectQuery.Table("query").DefaultView.Count;
+            for (int i = 0; i < nCount; i++)
+            {
+                string category = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "admin_name", i);
+                if (!string.IsNullOrEmpty(category))
+                    categories.Add(category);
+            }
+        }
+        selectQuery.Finish();
+        selectQuery = null;
+
+        return string.Join(";",categories.ToArray());
     }
 }
