@@ -834,7 +834,7 @@ namespace DAL
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateMessageAnnouncementActiveStatus");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             sp.AddParameter("@ID", messageAnnouncementId);
-            sp.AddParameter("@status", status);
+            sp.AddParameter("@ActiveStatus", status);
             DataSet ds = sp.ExecuteDataSet();
         }
 
@@ -915,12 +915,13 @@ namespace DAL
             return result;
         }
 
-        public static string Get_AnnouncementExternalIdByRecipients(int recipients)
+        public static string Get_AnnouncementExternalIdByRecipients(int groupId, int recipients)
         {
             string ret = string.Empty;
 
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAnnouncementExternalIdByRecipients");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@recipients", recipients);
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
