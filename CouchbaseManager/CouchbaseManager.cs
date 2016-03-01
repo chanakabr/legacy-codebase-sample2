@@ -312,7 +312,12 @@ namespace CouchbaseManager
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
-                        var insertResult = bucket.Insert(key, value, expiration);
+                        IOperationResult insertResult = null;
+                        
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                        {
+                            insertResult = bucket.Insert(key, value, expiration);
+                        }
 
                         if (insertResult != null)
                         {
@@ -328,9 +333,11 @@ namespace CouchbaseManager
                             else
                             {
                                 HandleStatusCode(insertResult.Status);
-
-                                insertResult = bucket.Insert(key, value, expiration);
-
+                                
+                                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                                {
+                                    insertResult = bucket.Insert(key, value, expiration);
+                                }
                             }
                         }
                     }
@@ -367,7 +374,12 @@ namespace CouchbaseManager
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
-                        var insertResult = bucket.Upsert(key, value, expiration);
+                        IOperationResult insertResult = null;
+
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                        {
+                            insertResult = bucket.Upsert(key, value, expiration);
+                        }
 
                         if (insertResult != null)
                         {
@@ -383,8 +395,11 @@ namespace CouchbaseManager
                             else
                             {
                                 HandleStatusCode(insertResult.Status);
-
-                                insertResult = bucket.Upsert(key, value, expiration);
+                                
+                                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                                {
+                                    insertResult = bucket.Upsert(key, value, expiration);
+                                }
                             }
                         }
                     }
@@ -413,7 +428,12 @@ namespace CouchbaseManager
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
-                        var getResult = bucket.Get<T>(key);
+                        IOperationResult<T> getResult;
+
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                        {
+                            getResult = bucket.Get<T>(key);
+                        }
 
                         if (getResult != null)
                         {
@@ -429,8 +449,10 @@ namespace CouchbaseManager
                             else
                             {
                                 HandleStatusCode(getResult.Status);
-
-                                result = bucket.Get<T>(key).Value;
+                                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                                {
+                                    result = bucket.Get<T>(key).Value;
+                                }
                             }
                         }
                     }
@@ -460,15 +482,27 @@ namespace CouchbaseManager
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
+                        bool exists;
+
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                        {
+                            exists = bucket.Exists(key);
+                        }
+
                         // if key doesn't exist, we're cool
-                        if (!bucket.Exists(key))
+                        if (!exists)
                         {
                             result = true;
                         }
                         else
                         {
                             // Otherwise, try to really remove the key
-                            var removeResult = bucket.Remove(key);
+                            IOperationResult removeResult;
+                            
+                            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                            {
+                                removeResult = bucket.Remove(key);
+                            }
 
                             if (removeResult.Exception != null)
                             {
@@ -508,7 +542,11 @@ namespace CouchbaseManager
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
-                        var getResult = bucket.Get<T>(key);
+                        IOperationResult<T> getResult;
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                        {
+                            getResult = bucket.Get<T>(key);
+                        }
 
                         if (getResult != null)
                         {
@@ -526,7 +564,11 @@ namespace CouchbaseManager
                             {
                                 HandleStatusCode(getResult.Status);
 
-                                result = bucket.Get<T>(key).Value;
+                                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                                {
+                                    result = bucket.Get<T>(key).Value;
+                                }
+
                                 version = getResult.Cas;
                             }
                         }
@@ -564,8 +606,12 @@ namespace CouchbaseManager
             {
                 using (var bucket = cluster.OpenBucket(bucketName))
                 {
-                    var setResult = bucket.Upsert(key, value, version, expiration);
-
+                    IOperationResult setResult;
+ 
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                    {
+                        setResult = bucket.Upsert(key, value, version, expiration);
+                    }
                     if (setResult != null)
                     {
                         if (setResult.Exception != null)
@@ -581,7 +627,10 @@ namespace CouchbaseManager
                         {
                             HandleStatusCode(setResult.Status);
 
-                            setResult = bucket.Upsert(key, value, version, expiration);
+                            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                            {
+                                setResult = bucket.Upsert(key, value, version, expiration);
+                            }
                         }
                     }
                 }
@@ -599,8 +648,12 @@ namespace CouchbaseManager
             {
                 using (var bucket = cluster.OpenBucket(bucketName))
                 {
-                    var setResult = bucket.Upsert(key, value, version, expiration);
-
+                    IOperationResult setResult;
+ 
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                    {
+                        setResult = bucket.Upsert(key, value, version, expiration);
+                    }
                     if (setResult != null)
                     {
                         if (setResult.Exception != null)
@@ -617,7 +670,11 @@ namespace CouchbaseManager
                         {
                             HandleStatusCode(setResult.Status);
 
-                            setResult = bucket.Upsert(key, value, version, expiration);
+                            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                            {
+                                setResult = bucket.Upsert(key, value, version, expiration);
+                            }
+
                             newVersion = setResult.Cas;
                         }
                     }
@@ -644,7 +701,12 @@ namespace CouchbaseManager
             {
                 using (var bucket = cluster.OpenBucket(bucketName))
                 {
-                    var setResult = bucket.Upsert<T>(key, value, version, expiration);
+
+                    IOperationResult setResult;
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                    {
+                        setResult = bucket.Upsert<T>(key, value, version, expiration);
+                    }
 
                     if (setResult != null)
                     {
@@ -661,7 +723,10 @@ namespace CouchbaseManager
                         {
                             HandleStatusCode(setResult.Status);
 
-                            setResult = bucket.Upsert<T>(key, value, version, expiration);
+                            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                            {
+                                setResult = bucket.Upsert<T>(key, value, version, expiration);
+                            }
                         }
                     }
                 }
@@ -679,7 +744,12 @@ namespace CouchbaseManager
             {
                 using (var bucket = cluster.OpenBucket(bucketName))
                 {
-                    var setResult = bucket.Upsert<T>(key, value, version, expiration);
+                    IOperationResult setResult;
+
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                    {
+                        setResult = bucket.Upsert<T>(key, value, version, expiration);
+                    }
 
                     if (setResult != null)
                     {
@@ -696,8 +766,12 @@ namespace CouchbaseManager
                         else
                         {
                             HandleStatusCode(setResult.Status);
+                            
+                            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                            {
+                                setResult = bucket.Upsert<T>(key, value, version, expiration);
+                            }
 
-                            setResult = bucket.Upsert<T>(key, value, version, expiration);
                             newVersion = setResult.Cas;
                         }
                     }
@@ -753,7 +827,12 @@ namespace CouchbaseManager
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
-                        var getResult = bucket.Get<T>(keys);
+                        IDictionary<string, IOperationResult<T>> getResult;
+
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                        {
+                            getResult = bucket.Get<T>(keys);
+                        }
 
                         // Success until proven otherwise
                         Couchbase.IO.ResponseStatus status = Couchbase.IO.ResponseStatus.Success;
