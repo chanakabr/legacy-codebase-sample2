@@ -278,7 +278,7 @@ namespace CouchbaseManager
         private static string ObjectToJson<T>(T obj)
         {
             if (obj != null)
-                return Newtonsoft.Json.JsonConvert.SerializeObject(obj);
+                return Newtonsoft.Json.JsonConvert.SerializeObject(obj, Newtonsoft.Json.Formatting.None);
             else
                 return string.Empty;
         }
@@ -399,6 +399,60 @@ namespace CouchbaseManager
                                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
                                 {
                                     insertResult = bucket.Upsert(key, value, expiration);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Set with key = {0}, error = {1}, ST = {2}", key, ex.Message, ex.StackTrace), ex);
+
+                if (ex.InnerException != null)
+                {
+                    log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Set with key = {0}, inner exception = {1}, ST = {2}", key,
+                        ex.InnerException.Message, ex.InnerException.StackTrace), ex.InnerException);
+                }
+            }
+            return result;
+        }
+
+        public bool Set<T>(string key, T value, uint expiration = 0)
+        {
+            bool result = false;
+
+            try
+            {
+                using (var cluster = new Cluster(clientConfiguration))
+                {
+                    using (var bucket = cluster.OpenBucket(bucketName))
+                    {
+                        IOperationResult insertResult = null;
+
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                        {
+                            insertResult = bucket.Upsert<T>(key, value, expiration);
+                        }
+
+                        if (insertResult != null)
+                        {
+                            if (insertResult.Exception != null)
+                            {
+                                throw insertResult.Exception;
+                            }
+
+                            if (insertResult.Status == Couchbase.IO.ResponseStatus.Success)
+                            {
+                                result = insertResult.Success;
+                            }
+                            else
+                            {
+                                HandleStatusCode(insertResult.Status);
+
+                                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                                {
+                                    insertResult = bucket.Upsert<T>(key, value, expiration);
                                 }
                             }
                         }
