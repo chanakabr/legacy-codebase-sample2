@@ -265,11 +265,13 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
         dr_start_date.Initialize("Begin send date & time", "adm_table_header_nbg", "FormInput", "start_time", true);
         dr_start_date.SetDefault(DateTime.Now);
         // get timezone by id 
+        string tempTimeZone = "UTC";
         if (announcementId != null)
         {
-            string tempTimeZone = GetTimeZone(announcementId);
-            dr_start_date.setTimeZone(tempTimeZone);
+            tempTimeZone = GetTimeZone(announcementId);
         }
+        dr_start_date.setTimeZone(tempTimeZone);
+        
         theRecord.AddRecord(dr_start_date);
        
         System.Data.DataTable tz = GetTimeZone();
