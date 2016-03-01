@@ -549,7 +549,7 @@ namespace Users
             }
 
             // all validations pass, add new home network to domain
-            if (!DomainDal.Insert_NewHomeNetwork(m_nGroupID, candidate.UID, lDomainID, candidate.Name, candidate.Description, candidate.IsActive, candidate.CreateDate))
+            if (DomainDal.Insert_NewHomeNetwork(m_nGroupID, candidate.UID, lDomainID, candidate.Name, candidate.Description, candidate.IsActive, candidate.CreateDate) == null)
             {
                 // failed to insert
                 res.eReason = NetworkResponseStatus.Error;
@@ -572,34 +572,34 @@ namespace Users
             return res;
         }
 
-        public virtual NetworkResponseObject UpdateDomainHomeNetwork(long lDomainID, string sNetworkID, string sNetworkName, string sNetworkDesc, bool bIsActive)
+        public virtual ApiObjects.Response.Status UpdateDomainHomeNetwork(long domainID, string networkID, string networkName, string networkDesc, bool isActive)
         {
-            NetworkResponseObject res = null;
+            ApiObjects.Response.Status res = null;
             HomeNetwork candidate = null;
             HomeNetwork existingNetwork = null;
             int numOfAllowedNetworks = 0;
             int numOfActiveNetworks = 0;
             int frequency = 0;
             DateTime dtLastDeactivationDate = DateTime.MinValue;
-            if (!UpdateRemoveHomeNetworkCommon(lDomainID, sNetworkID, sNetworkName, sNetworkDesc, bIsActive, out res,
+            if (!UpdateRemoveHomeNetworkCommon(domainID, networkID, networkName, networkDesc, isActive, out res,
                 ref candidate, ref existingNetwork, ref numOfAllowedNetworks, ref numOfActiveNetworks, ref frequency, ref dtLastDeactivationDate))
             {
                 return res;
             }
-            res = UpdateDomainHomeNetworkInner(lDomainID, numOfAllowedNetworks, numOfActiveNetworks, frequency,
+            res = UpdateDomainHomeNetworkInner(domainID, numOfAllowedNetworks, numOfActiveNetworks, frequency,
                 candidate, existingNetwork, dtLastDeactivationDate, ref res);
 
-            if (res != null && res.bSuccess && res.eReason == NetworkResponseStatus.OK)
+            if (res != null && res.Code == (int)eResponseStatus.OK)
             {
                 DomainsCache oDomainCache = DomainsCache.Instance();
-                oDomainCache.RemoveDomain((int)lDomainID);
+                oDomainCache.RemoveDomain((int)domainID);
             }
             return res;
         }
 
-        public virtual NetworkResponseObject RemoveDomainHomeNetwork(long lDomainID, string sNetworkID)
+        public virtual ApiObjects.Response.Status RemoveDomainHomeNetwork(long lDomainID, string sNetworkID)
         {
-            NetworkResponseObject res = null;
+            ApiObjects.Response.Status res = null;
             HomeNetwork candidate = null;
             HomeNetwork existingNetwork = null;
             int numOfAllowedNetworks = 0;
@@ -613,7 +613,7 @@ namespace Users
             }
 
             res = RemoveDomainHomeNetworkInner(lDomainID, numOfAllowedNetworks, numOfActiveNetworks, frequency, candidate, existingNetwork, dtLastDeactivationDate, ref res);
-            if (res != null && res.bSuccess && res.eReason == NetworkResponseStatus.OK)
+            if (res != null && res.Code == (int)ApiObjects.Response.eResponseStatus.OK)
             {
                 DomainsCache oDomainCache = DomainsCache.Instance();
                 oDomainCache.RemoveDomain((int)lDomainID);
@@ -816,12 +816,12 @@ namespace Users
 
         #region Protected abstract
 
-        protected abstract NetworkResponseObject RemoveDomainHomeNetworkInner(long lDomainID, int numOfAllowedNetworks,
+        protected abstract ApiObjects.Response.Status RemoveDomainHomeNetworkInner(long lDomainID, int numOfAllowedNetworks,
             int numOfActiveNetworks, int frequency, HomeNetwork candidate,
-            HomeNetwork existingNetwork, DateTime dtLastDeactivationDate, ref NetworkResponseObject res);
+            HomeNetwork existingNetwork, DateTime dtLastDeactivationDate, ref ApiObjects.Response.Status res);
 
-        protected abstract NetworkResponseObject UpdateDomainHomeNetworkInner(long lDomainID, int numOfAllowedNetworks, int numOfActiveNetworks,
-            int frequency, HomeNetwork candidate, HomeNetwork existingNetwork, DateTime dtLastDeactivationDate, ref NetworkResponseObject res);
+        protected abstract ApiObjects.Response.Status UpdateDomainHomeNetworkInner(long lDomainID, int numOfAllowedNetworks, int numOfActiveNetworks,
+            int frequency, HomeNetwork candidate, HomeNetwork existingNetwork, DateTime dtLastDeactivationDate, ref ApiObjects.Response.Status res);
 
         /*
          * 07/04/2014
@@ -1105,30 +1105,32 @@ namespace Users
         }
 
         private bool UpdateRemoveHomeNetworkCommon(long lDomainID, string sNetworkID, string sNetworkName, string sNetworkDesc, bool bIsActive,
-            out NetworkResponseObject res, ref HomeNetwork nullifiedCandidate, ref HomeNetwork nullifiedExistingNetwork,
+            out ApiObjects.Response.Status res, ref HomeNetwork nullifiedCandidate, ref HomeNetwork nullifiedExistingNetwork,
             ref int numOfAllowedNetworks, ref int numOfActiveNetworks, ref int frequency, ref DateTime dtLastDeactivationDate)
         {
             bool retVal = true;
-            res = new NetworkResponseObject(false, NetworkResponseStatus.Error);
+            res = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             List<HomeNetwork> lstOfHomeNetworks = null;
             DataTable dt = null;
-            if (IsHomeNetworkInputInvalid(lDomainID, sNetworkID))
+            if (string.IsNullOrEmpty(sNetworkID) || lDomainID == 0)
             {
-                res.eReason = NetworkResponseStatus.InvalidInput;
-                res.bSuccess = false;
+                res = new ApiObjects.Response.Status((int)eResponseStatus.ExternalIdentifierRequired, "External identifier is required");
                 retVal = false;
                 return retVal;
             }
 
             nullifiedCandidate = new HomeNetwork(sNetworkName, sNetworkID, sNetworkDesc, DateTime.UtcNow, bIsActive);
 
-            if (!DomainDal.Get_ProximityDetectionDataForUpdating(m_nGroupID, lDomainID, sNetworkID, ref numOfAllowedNetworks, ref frequency, ref dtLastDeactivationDate, ref dt))
+            //get domain dlm
+            DomainsCache oDomainsCache = DomainsCache.Instance();
+            Domain domain = oDomainsCache.GetDomain((int)lDomainID, m_nGroupID);
+            long dlmId = domain.m_nLimit;
+
+            if (!DomainDal.Get_ProximityDetectionDataForUpdating(m_nGroupID, lDomainID, sNetworkID, ref numOfAllowedNetworks, ref frequency, ref dtLastDeactivationDate, ref dt, dlmId))
             {
                 // failed to extract data from db. log and return err
                 log.Debug("UpdateRemoveHomeNetworkCommon - " + GetUpdateHomeNetworkErrMsg("DomainDal.Get_ProximityDetectionDataForUpdating failed.", lDomainID, nullifiedCandidate, frequency, numOfAllowedNetworks, numOfActiveNetworks));
 
-                res.eReason = NetworkResponseStatus.Error;
-                res.bSuccess = false;
                 retVal = false;
                 return retVal;
             }
@@ -1139,8 +1141,7 @@ namespace Users
 
             if (nullifiedExistingNetwork == null)
             {
-                res.eReason = NetworkResponseStatus.NetworkDoesNotExist;
-                res.bSuccess = false;
+                res = new ApiObjects.Response.Status((int)eResponseStatus.HomeNetworkDoesNotExist, "Home network does not exist");
                 retVal = false;
 
                 return retVal;
@@ -1400,6 +1401,84 @@ namespace Users
             {
                 log.Error("GetDeviceRegistrationStatus - " + string.Format("Failed ex = {0}, udid = {1}, domainId = {2}", ex.Message, udid, domainId), ex);
             }
+            return response;
+        }
+
+        public virtual HomeNetworkResponse AddDomainHomeNetwork(long domainId, string externalId, string name, string description, bool isActive)
+        {
+            HomeNetworkResponse response = new HomeNetworkResponse()
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            List<HomeNetwork> lstOfHomeNetworks = null;
+            int numOfAllowedNetworks = 0;
+            int numOfActiveNetworks = 0;
+
+            // check network id is valid
+            if (string.IsNullOrEmpty(externalId))
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExternalIdentifierRequired, "External identifier is required");
+                return response;
+            }
+
+            HomeNetwork candidate = new HomeNetwork(name, externalId, description, DateTime.UtcNow, isActive);
+            DomainsCache oDomainsCache = DomainsCache.Instance();
+            Domain domain = oDomainsCache.GetDomain((int)domainId, m_nGroupID);
+            long dlmId = domain.m_nLimit;
+            DataTable dt = null;
+            if (!DomainDal.Get_ProximityDetectionDataForInsertion(m_nGroupID, domainId, ref numOfAllowedNetworks, ref dt, dlmId))
+            {
+                // failed to extract data from DB.
+                // log and return err
+
+                log.Debug("AddHomeNetworkToDomain - " + GetUpdateHomeNetworkErrMsg("Failed to extract data from DB", domainId, candidate, 0, numOfAllowedNetworks, numOfActiveNetworks));
+                return response;
+            }
+
+            GetListOfExistingHomeNetworksForInsertion(dt, out lstOfHomeNetworks, out numOfActiveNetworks);
+
+            // check if network already exists
+            if (lstOfHomeNetworks.Contains(candidate))
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.HomeNetworkAlreadyExists, "Home network already exists for household");
+                return response;
+            }
+
+            // check quantity limitation
+            if (!IsSatisfiesQuantityConstraint(numOfAllowedNetworks, numOfActiveNetworks))
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.HomeNetworkLimitation, "Home networks exceeded limit");
+                return response;
+            }
+
+            // all validations pass, add new home network to domain
+            DataTable dtInsertedNetwork = DomainDal.Insert_NewHomeNetwork(m_nGroupID, candidate.UID, domainId, candidate.Name, candidate.Description, candidate.IsActive, candidate.CreateDate);
+            if (dtInsertedNetwork == null)
+            {
+                // failed to insert
+                // log
+                log.Debug("AddHomeNetworkToDomain - " + String.Concat("Failed to add to domain: ", domainId, " the home network: ", candidate.ToString()));
+                return response;
+            }
+            else
+            {
+                response.HomeNetwork = new HomeNetwork()
+                {
+                    UID = ODBCWrapper.Utils.GetSafeStr(dtInsertedNetwork.Rows[0]["NETWORK_ID"]),
+                    Name = ODBCWrapper.Utils.GetSafeStr(dtInsertedNetwork.Rows[0]["NAME"]),
+                    Description = ODBCWrapper.Utils.GetSafeStr(dtInsertedNetwork.Rows[0]["DESCRIPTION"]),
+                    IsActive = ODBCWrapper.Utils.GetIntSafeVal(dtInsertedNetwork.Rows[0]["IS_ACTIVE"]) != 0,
+                    CreateDate = ODBCWrapper.Utils.GetDateSafeVal(dtInsertedNetwork.Rows[0]["CREATE_DATE"])
+                };
+
+                // remove domain from cache 
+                DomainsCache oDomainCache = DomainsCache.Instance();
+                oDomainCache.RemoveDomain((int)domainId);
+
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+
             return response;
         }
     }

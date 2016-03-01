@@ -1,31 +1,25 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Configuration;
-using System.Web;
-using ConditionalAccess.TvinciUsers;
-using System.Xml.Serialization;
-using System.IO;
-using System.Xml;
-using System.Data;
-using DAL;
-using M1BL;
-using System.Collections;
-using Tvinci.Core.DAL;
 using ApiObjects;
-using QueueWrapper;
-using Newtonsoft.Json;
+using ApiObjects.Billing;
 using ApiObjects.MediaIndexingObjects;
-using GroupsCacheManager;
-using ConditionalAccess.TvinciPricing;
+using ApiObjects.PlayCycle;
 using ApiObjects.Response;
 using ConditionalAccess.Response;
+using ConditionalAccess.TvinciPricing;
+using ConditionalAccess.TvinciUsers;
+using DAL;
+using GroupsCacheManager;
 using KLogMonitor;
+using QueueWrapper;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using System.Reflection;
-using ApiObjects.Billing;
-using TVinciShared;
+using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
+using TVinciShared;
 
 namespace ConditionalAccess
 {
@@ -47,6 +41,17 @@ namespace ConditionalAccess
         private const string ILLEGAL_CONTENT_ID = "Illegal content ID";
         private const string CONTENT_ID_WITH_A_RELATED_MEDIA = "Content ID with a related media";
         protected const string ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION = "PROCESS_RENEW_SUBSCRIPTION\\{0}";
+        protected const string BILLING_CONNECTION_STRING = "BILLING_CONNECTION";
+
+        public const string PRICE = "pri";
+        public const string CURRENCY = "cu";
+        public const string USER_IP = "up";
+        public const string COUPON_CODE = "cc";
+        public const string DEVICE_NAME = "ldn";
+        public const string DUMMY = "dummy";
+        public const string HISTORY = "history";
+
+        protected const int PAYMENT_GATEWAY = 1000;
 
         #region Abstract methods
         protected abstract TvinciBilling.BillingResponse HandleBaseRenewMPPBillingCharge(string sSiteGuid, double dPrice,
@@ -78,7 +83,7 @@ namespace ConditionalAccess
         protected abstract bool HandleChargeUserForMediaFileBillingSuccess(string sWSUsername, string sWSPassword, string sSiteGUID, int domianID, TvinciPricing.Subscription relevantSub,
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode,
             string sDeviceName, TvinciBilling.BillingResponse br, string sCustomData, TvinciPricing.PPVModule thePPVModule,
-            long lMediaFileID, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy, ref TvinciBilling.module wsBillingService, 
+            long lMediaFileID, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy, ref TvinciBilling.module wsBillingService,
             string billingGuid = null, DateTime? startDate = null, DateTime? endDate = null);
 
         protected abstract bool HandlePPVBillingSuccess(ref TransactionResponse response, string siteGUID, long houseHoldID, Subscription relevantSub, double price, string currency,
@@ -1851,7 +1856,7 @@ namespace ConditionalAccess
         public virtual bool CancelSubscription(string sSiteGUID, string sSubscriptionCode, Int32 nSubscriptionPurchaseID)
         {
             bool bRet = false;
-            TvinciPricing.Subscription theSub = null;            
+            TvinciPricing.Subscription theSub = null;
             try
             {
                 string sWSUserName = string.Empty;
@@ -1865,7 +1870,7 @@ namespace ConditionalAccess
                         m.Url = sPricingURL;
                     }
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
-                    theSub = m.GetSubscriptionData(sWSUserName, sWSPass, sSubscriptionCode, string.Empty, string.Empty, string.Empty, false);                    
+                    theSub = m.GetSubscriptionData(sWSUserName, sWSPass, sSubscriptionCode, string.Empty, string.Empty, string.Empty, false);
                 }
 
                 if (theSub != null && theSub.m_oUsageModule != null && theSub.m_oSubscriptionPriceCode != null && theSub.m_bIsRecurring)
@@ -2854,7 +2859,6 @@ namespace ConditionalAccess
                 priceValue = 0;
                 TvinciPricing.Currency oCurrency = null;
                 sCurrency = "n/a";
-                bool isRecurring = subscription.m_bIsRecurring;
 
                 if (AppUsageModule != null)
                 {
@@ -3850,7 +3854,7 @@ namespace ConditionalAccess
             Int32 nRelPP = ExtractRelevantPrePaidID(price);
 
             int domainID = 0;
-            List<int> lUsersIds = Utils.GetAllUsersDomainBySiteGUID(sSiteGUID, m_nGroupID, ref domainID);
+            List<int> lUsersIds = Utils.GetAllUsersInDomainBySiteGUIDIncludeDeleted(sSiteGUID, m_nGroupID, ref domainID);
 
             if (IsPurchasedAsPurePPV(price))
             {
@@ -5123,6 +5127,166 @@ namespace ConditionalAccess
             return ret;
 
         }
+
+        /// <summary>
+        /// Get User Permitted Items
+        /// </summary>
+        public virtual Entitlements GetUsersEntitlementPPVItems(List<int> lUsersIDs, bool isExpired, int domainID = 0, bool shouldCheckByDomain = true, int pageSize = 500, int pageIndex = 0)
+        {
+            Entitlements entitlementsResponse = new Entitlements();
+            List<int> mediaFileIds = new List<int>();
+            try
+            {
+                // Get domainID from one of the users
+                if (shouldCheckByDomain && domainID == 0 && lUsersIDs.Count > 0)
+                {
+                    UserResponseObject user = Utils.GetExistUser(lUsersIDs.First().ToString(), m_nGroupID);
+                    if (user != null && user.m_RespStatus == ResponseStatus.OK && user.m_user != null)
+                    {
+                        domainID = user.m_user.m_domianID;
+                    }
+                }
+
+                DataTable allPPVModules = ConditionalAccessDAL.Get_All_Users_PPV_modules(lUsersIDs, isExpired, domainID);
+                if (allPPVModules == null || allPPVModules.Rows == null || allPPVModules.Rows.Count == 0)
+                {
+                    entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no permitted items");
+                    return entitlementsResponse;
+                }
+
+                //Get Iteration Rows according page size and index
+                IEnumerable<DataRow> iterationRows = GetIterationRows(pageSize, pageIndex, allPPVModules);
+
+                Entitlement entitlement = null;
+                foreach (DataRow dr in iterationRows)
+                {
+                    entitlement = CreatePPVEntitelment(dr);
+                    if (entitlement != null)
+                    {
+                        if (!mediaFileIds.Contains(entitlement.mediaFileID))
+                        {
+                            mediaFileIds.Add(entitlement.mediaFileID);
+                        }
+                        entitlementsResponse.entitelments.Add(entitlement);
+                    }
+                }
+
+                TvinciAPI.MeidaMaper[] mapper = Utils.GetMediaMapper(m_nGroupID, mediaFileIds.ToArray());
+
+
+                foreach (Entitlement entitlementRes in entitlementsResponse.entitelments)
+                {
+                    int mediaID = mapper.Where(x => x.m_nMediaFileID == entitlementRes.mediaFileID).FirstOrDefault().m_nMediaID;
+                    entitlementRes.mediaID = mediaID;
+                }
+
+                entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception at GetUserPermittedItems. {0} - ", ex);
+                entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            }
+            return entitlementsResponse;
+        }
+
+        private static IEnumerable<DataRow> GetIterationRows(int pageSize, int pageIndex, DataTable usersPermittedItems)
+        {
+            IEnumerable<DataRow> iterationRows = null;
+            List<DataRow> filteredRows = null;
+
+            if (pageIndex > 0 && pageSize > 0)
+            {
+                int takeTop = pageIndex * pageSize;
+                Int64 maxTransactionID = (from row in usersPermittedItems.AsEnumerable().Take(takeTop)
+                                          select row.Field<Int64>("ID")).ToList().Min();
+                filteredRows = (from row in usersPermittedItems.AsEnumerable()
+                                where (Int64)row["ID"] < maxTransactionID
+                                select row).Take(pageSize).ToList();
+            }
+
+            if (filteredRows != null)
+            {
+                iterationRows = filteredRows;
+            }
+            else if (pageSize > -1)
+            {
+                iterationRows = usersPermittedItems.AsEnumerable().Take(pageSize);
+            }
+            else
+            {
+                iterationRows = usersPermittedItems.AsEnumerable();
+            }
+            return iterationRows;
+        }
+
+        private Entitlement CreatePPVEntitelment(DataRow dataRow)
+        {
+            TvinciPricing.UsageModule oUsageModule = null;
+            Entitlement entitlement = new Entitlement();
+
+            entitlement.type = eTransactionType.PPV;
+            entitlement.entitlementId = ODBCWrapper.Utils.GetSafeStr(dataRow, "ppv");
+            entitlement.currentUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "NUM_OF_USES");
+
+            entitlement.endDate = new DateTime(2099, 1, 1);
+            if (dataRow["END_DATE"] != null && dataRow["END_DATE"] != DBNull.Value)
+                entitlement.endDate = (DateTime)(dataRow["END_DATE"]);
+
+            entitlement.currentDate = DateTime.UtcNow;
+            if (dataRow["cDate"] != null && dataRow["cDate"] != DBNull.Value)
+                entitlement.currentDate = (DateTime)(dataRow["cDate"]);
+
+            entitlement.lastViewDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow["LAST_VIEW_DATE"]);
+
+            entitlement.purchaseDate = DateTime.UtcNow;
+            if (dataRow["START_DATE"] != null && dataRow["START_DATE"] != DBNull.Value)
+                entitlement.purchaseDate = (DateTime)(dataRow["START_DATE"]);
+
+            entitlement.purchaseID = (int)ODBCWrapper.Utils.GetLongSafeVal(dataRow, "ID");
+            entitlement.paymentMethod = GetBillingTransMethod(ODBCWrapper.Utils.GetIntSafeVal(dataRow, "billing_transaction_id"), ODBCWrapper.Utils.GetSafeStr(dataRow, "BILLING_GUID"));
+            entitlement.deviceUDID = ODBCWrapper.Utils.GetSafeStr(dataRow, "device_name");
+            if (!string.IsNullOrEmpty(entitlement.deviceUDID))
+            {
+                entitlement.deviceName = GetDeviceName(entitlement.deviceUDID);
+            }
+
+            if (ODBCWrapper.Utils.GetIntSafeVal(dataRow, "WAIVER") == 0 &&
+                entitlement.lastViewDate < entitlement.purchaseDate)// user didn't waiver yet and didn't use the PPV yet
+            {
+                bool cancellationWindow = false;
+                IsCancellationWindow(ref oUsageModule, entitlement.entitlementId, entitlement.purchaseDate, ref cancellationWindow, eTransactionType.PPV);
+                entitlement.cancelWindow = cancellationWindow;
+            }
+
+            entitlement.maxUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "MAX_NUM_OF_USES");
+            entitlement.mediaFileID = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "MEDIA_FILE_ID");
+            entitlement.mediaID = 0;
+
+            return entitlement;
+
+        }
+
+        private static string GetDeviceName(string deviceUDID)
+        {
+            string deviceName = string.Empty;
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += " select name from devices where ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("device_id", "=", deviceUDID);
+            selectQuery.SetConnectionKey("users_connection");
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                    deviceName = selectQuery.Table("query").DefaultView[0].Row["name"].ToString();
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+
+            return deviceName;
+        }
+
         /// <summary>
         /// Get User Permitted Subscriptions
         /// </summary>
@@ -5130,12 +5294,12 @@ namespace ConditionalAccess
         {
             PermittedSubscriptionContainer[] response = null;
             int userId, domainID = 0;
-            TvinciUsers.DomainSuspentionStatus userSuspendStatus = TvinciUsers.DomainSuspentionStatus.OK;            
+            TvinciUsers.DomainSuspentionStatus userSuspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
             if (int.TryParse(sSiteGUID, out userId) && Utils.IsUserValid(sSiteGUID, m_nGroupID, ref domainID, ref userSuspendStatus))
             {
-                response = GetUserPermittedSubscriptions(new List<int>() { int.Parse(sSiteGUID) }, false, 0, domainID);                
+                response = GetUserPermittedSubscriptions(new List<int>() { int.Parse(sSiteGUID) }, false, 0, domainID);
             }
-            
+
             return response;
         }
         /// <summary>
@@ -5421,6 +5585,117 @@ namespace ConditionalAccess
                 ret = null;
             }
             return ret;
+        }
+
+        private Entitlements GetUsersEntitlementSubscriptionsItems(List<int> userIds, bool isExpired, int domainID, bool shouldCheckByDomain, int pageSize, int pageIndex)
+        {
+            Entitlements entitlementsResponse = new Entitlements();
+
+            try
+            {
+                // Get domainID from one of the users
+                if (shouldCheckByDomain && domainID == 0 && userIds.Count > 0)
+                {
+                    UserResponseObject user = Utils.GetExistUser(userIds.First().ToString(), m_nGroupID);
+                    if (user != null && user.m_RespStatus == ResponseStatus.OK && user.m_user != null)
+                    {
+                        domainID = user.m_user.m_domianID;
+                    }
+                }
+
+                DataTable allSubscriptionsPurchases = ConditionalAccessDAL.Get_UsersPermittedSubscriptions(userIds, isExpired, domainID);
+
+                if (allSubscriptionsPurchases == null || allSubscriptionsPurchases.Rows == null || allSubscriptionsPurchases.Rows.Count == 0)
+                {
+                    entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no permitted items");
+                    return entitlementsResponse;
+                }
+
+                //Get Iteration Rows according page size and index
+                IEnumerable<DataRow> iterationRows = GetIterationRows(pageSize, pageIndex, allSubscriptionsPurchases);
+
+                Entitlement entitlement = null;
+                foreach (DataRow dr in iterationRows)
+                {
+                    entitlement = CreateSubscriptionEntitelment(dr, isExpired);
+                    if (entitlement != null)
+                    {
+                        entitlementsResponse.entitelments.Add(entitlement);
+                    }
+                }
+
+                entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception at GetUserPermittedSubscriptions. {0} - ", ex);
+                entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            }
+            return entitlementsResponse;
+        }
+
+        private Entitlement CreateSubscriptionEntitelment(DataRow dataRow, bool isExpired)
+        {
+            TvinciPricing.UsageModule oUsageModule = null;
+            Entitlement entitlement = new Entitlement();
+
+            entitlement.type = eTransactionType.Subscription;
+            entitlement.entitlementId = ODBCWrapper.Utils.GetSafeStr(dataRow, "SUBSCRIPTION_CODE");
+            entitlement.currentUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "NUM_OF_USES");
+            entitlement.maxUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "MAX_NUM_OF_USES");
+
+            DateTime endDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "END_DATE");
+            entitlement.purchaseDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "START_DATE");
+            entitlement.lastViewDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "LAST_VIEW_DATE");
+
+            // check whether subscription is in its grace period
+            int gracePeriodMinutes = ODBCWrapper.Utils.GetIntSafeVal(dataRow["GRACE_PERIOD_MINUTES"]);
+            entitlement.IsInGracePeriod = false;
+            if (!isExpired && endDate < DateTime.UtcNow)
+            {
+                endDate = endDate.AddMinutes(gracePeriodMinutes);
+                entitlement.IsInGracePeriod = true;
+            }
+
+            entitlement.recurringStatus = false;
+            entitlement.nextRenewalDate = DateTime.MaxValue;
+            if (ODBCWrapper.Utils.GetIntSafeVal(dataRow, "IS_RECURRING_STATUS") == 1)
+            {
+                entitlement.recurringStatus = true;
+                entitlement.nextRenewalDate = endDate;
+            }
+
+            if (isExpired && entitlement.maxUses != 0 && entitlement.currentUses >= entitlement.maxUses)
+            {
+                endDate = entitlement.lastViewDate;
+            }
+
+            entitlement.isRenewable = false;
+            if (ODBCWrapper.Utils.GetIntSafeVal(dataRow["IS_RECURRING"]) == 1)
+                entitlement.isRenewable = true;
+
+            entitlement.endDate = endDate;
+            entitlement.currentDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "cDate");
+
+            if (ODBCWrapper.Utils.GetIntSafeVal(dataRow, "WAIVER") == 0 &&
+               entitlement.lastViewDate < entitlement.purchaseDate)// user didn't waiver yet and didn't use the PPV yet
+            {
+                bool cancellationWindow = false;
+                IsCancellationWindow(ref oUsageModule, entitlement.entitlementId, entitlement.purchaseDate, ref cancellationWindow, eTransactionType.Subscription);
+                entitlement.cancelWindow = cancellationWindow;
+            }
+
+            entitlement.purchaseID = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "ID");
+            entitlement.paymentMethod = GetBillingTransMethod(ODBCWrapper.Utils.GetIntSafeVal(dataRow, "billing_transaction_id"), ODBCWrapper.Utils.GetSafeStr(dataRow, "BILLING_GUID"));
+            entitlement.deviceUDID = ODBCWrapper.Utils.GetSafeStr(dataRow, "device_name");
+            entitlement.deviceName = string.Empty;
+            if (!string.IsNullOrEmpty(entitlement.deviceUDID))
+            {
+                entitlement.deviceName = GetDeviceName(entitlement.deviceUDID);
+            }
+
+            entitlement.mediaFileID = 0;
+            return entitlement;
         }
 
         /// <summary>
@@ -7848,7 +8123,7 @@ namespace ConditionalAccess
                     int domainID = 0;
                     List<int> allUsersInDomain = Utils.GetAllUsersDomainBySiteGUID(sUserGUID, m_nGroupID, ref domainID);
                     TvinciUsers.DomainSuspentionStatus userSuspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
-                    UserEntitlementsObject userEntitlements = new UserEntitlementsObject();                    
+                    UserEntitlementsObject userEntitlements = new UserEntitlementsObject();
 
                     // check if user is valid
                     if (Utils.IsUserValid(sUserGUID, m_nGroupID, ref domainID, ref userSuspendStatus) && userSuspendStatus == TvinciUsers.DomainSuspentionStatus.OK)
@@ -8348,51 +8623,49 @@ namespace ConditionalAccess
         /// </summary>
         public virtual DomainTransactionsHistoryResponse GetDomainTransactionsHistory(int domainID, DateTime dStartDate, DateTime dEndDate, int pageSize, int pageIndex)
         {
-            DomainTransactionsHistoryResponse domainTransactionsHistoryResponse = null;            
+            DomainTransactionsHistoryResponse domainTransactionsHistoryResponse = new DomainTransactionsHistoryResponse();
 
             if (domainID == 0)
             {
+                domainTransactionsHistoryResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Invalid DomainID");
+                domainTransactionsHistoryResponse.TransactionsCount = 0;
                 return domainTransactionsHistoryResponse;
             }
 
             try
             {
+                if (pageSize <= 0)
+                {
+                    domainTransactionsHistoryResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "PageSize must be above 0");
+                    domainTransactionsHistoryResponse.TransactionsCount = 0;
+                    return domainTransactionsHistoryResponse;
+                }
+
                 DataTable domainBillingHistory = ConditionalAccessDAL.GetDomainBillingHistory(m_nGroupID, domainID, 0, dStartDate, dEndDate);
-                domainTransactionsHistoryResponse = new DomainTransactionsHistoryResponse();
 
                 if (domainBillingHistory == null || domainBillingHistory.Rows == null || domainBillingHistory.Rows.Count == 0)
                 {
                     domainTransactionsHistoryResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no history billing for domain");
+                    domainTransactionsHistoryResponse.TransactionsCount = 0;
                     return domainTransactionsHistoryResponse;
                 }
+                List<DataRow> filteredRows = new List<DataRow>();
 
-                IEnumerable<DataRow> iterationRows = null;
-                List<DataRow> filteredRows = null;
-
-                if(pageIndex > 0 && pageSize > 0)
-                {                   
+                if (pageIndex > 0)
+                {
                     int takeTop = pageIndex * pageSize;
                     Int64 maxTransactionID = (from row in domainBillingHistory.AsEnumerable().Take(takeTop)
-                                                select row.Field<Int64>("ID")).ToList().Min();
+                                              select row.Field<Int64>("ID")).ToList().Min();
                     filteredRows = (from row in domainBillingHistory.AsEnumerable()
                                     where (Int64)row["ID"] < maxTransactionID
                                     select row).Take(pageSize).ToList();
-                }                
-
-                if (filteredRows != null)
-                {
-                    iterationRows = filteredRows;
-                }
-                else if (pageSize > -1)
-                {
-                    iterationRows = domainBillingHistory.AsEnumerable().Take(pageSize);
                 }
                 else
                 {
-                    iterationRows = domainBillingHistory.AsEnumerable();
+                    filteredRows.AddRange(domainBillingHistory.AsEnumerable().Take(pageSize));
                 }
 
-                foreach (DataRow dr in iterationRows)
+                foreach (DataRow dr in filteredRows)
                 {
                     TransactionHistoryContainer transactionHistory = GetBillingTransactionContainerFromDataRow(dr, true);
                     if (transactionHistory != null)
@@ -8402,7 +8675,7 @@ namespace ConditionalAccess
                         domainTransactionsHistoryResponse.TransactionsHistory.Add(transactionHistory);
                     }
                 }
-                domainTransactionsHistoryResponse.TransactionsCount = domainBillingHistory.Rows.Count;                
+                domainTransactionsHistoryResponse.TransactionsCount = domainBillingHistory.Rows.Count;
                 domainTransactionsHistoryResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
 
@@ -8507,7 +8780,7 @@ namespace ConditionalAccess
 
                 for (int i = nStartIndex; i < nTopNum; i++)
                 {
-                    theResp.m_Transactions[i] = GetBillingTransactionContainerFromDataRow(dvBillHistory[i].Row, false) as BillingTransactionContainer;                    
+                    theResp.m_Transactions[i] = GetBillingTransactionContainerFromDataRow(dvBillHistory[i].Row, false) as BillingTransactionContainer;
                 } // for
 
                 response.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -8664,26 +8937,40 @@ namespace ConditionalAccess
                     res.m_sPurchasedItemCode = nMediaID.ToString();
                 }
 
-                //if (nBILLING_METHOD >= 1)
-                PaymentMethod pm = (PaymentMethod)(nBILLING_METHOD);
+                PaymentMethod pm = PaymentMethod.Unknown;
 
-                if (!Enum.IsDefined(typeof(PaymentMethod), nBILLING_METHOD))
+                if (nBILLING_PROVIDER == PAYMENT_GATEWAY)
                 {
-                    pm = PaymentMethod.Unknown;
+                    res.m_sPaymentMethodExtraDetails = string.Format("{0}:{1}", "PaymentGateway", nBILLING_METHOD.ToString());
+
+                    PaymentGatewayTransaction paymentGatewayTransaction = GetTransactionDetails(nBILLING_PROVIDER_REFFERENCE);
+
+                    if (paymentGatewayTransaction != null)
+                    {
+                        res.m_sPaymentMethodExtraDetails += string.Format(", PaymentMethod:{0}, PaymentDetails:{1}",
+                            paymentGatewayTransaction.PaymentMethod, paymentGatewayTransaction.PaymentDetails);
+                    }
+                }
+                else
+                {
+                    //if (nBILLING_METHOD >= 1)
+                    if (Enum.IsDefined(typeof(PaymentMethod), nBILLING_METHOD))
+                    {
+                        pm = (PaymentMethod)(nBILLING_METHOD);
+                    }
+
+                    if (pm == PaymentMethod.CreditCard || pm == PaymentMethod.Visa || pm == PaymentMethod.MasterCard)
+                    {
+                        res.m_sPaymentMethodExtraDetails = sLAST_FOUR_DIGITS;
+                    }
+
+                    if (pm == PaymentMethod.SMS || pm == PaymentMethod.M1)
+                    {
+                        res.m_sPaymentMethodExtraDetails = sCellNum;
+                    }
                 }
 
                 res.m_ePaymentMethod = pm;
-
-
-                if (pm == PaymentMethod.CreditCard || pm == PaymentMethod.Visa || pm == PaymentMethod.MasterCard)
-                {
-                    res.m_sPaymentMethodExtraDetails = sLAST_FOUR_DIGITS;
-                }
-
-                if (pm == PaymentMethod.SMS || pm == PaymentMethod.M1)
-                {
-                    res.m_sPaymentMethodExtraDetails = sCellNum;
-                }
 
                 res.m_bIsRecurring = false;
 
@@ -8724,7 +9011,7 @@ namespace ConditionalAccess
 
             catch (Exception ex)
             {
-                log.Error("GetBillingTransactionContainerFromDataRow - " + string.Format("DataRow={0}, ex={1} ", dr, ex.Message), ex);                
+                log.Error("GetBillingTransactionContainerFromDataRow - " + string.Format("DataRow={0}, ex={1} ", dr, ex.Message), ex);
             }
 
             finally
@@ -8736,6 +9023,11 @@ namespace ConditionalAccess
             }
 
             return res;
+        }
+
+        private PaymentGatewayTransaction GetTransactionDetails(int billingProviderRefference)
+        {
+            return DAL.BillingDAL.GetPaymentGatewayTransactionByID(billingProviderRefference, BILLING_CONNECTION_STRING);
         }
 
         /// <summary>
@@ -9056,14 +9348,10 @@ namespace ConditionalAccess
         /// <summary>
         /// Get Custom Data For Subscription
         /// </summary>
-        protected virtual string GetCustomDataForSubscription(TvinciPricing.Subscription theSub, TvinciPricing.Campaign campaign, string sSubscriptionCode, string sCampaignCode,
-    string sSiteGUID, double dPrice, string sCurrency, string sCouponCode, string sUserIP,
-    string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sOverrideEndDate, string sPreviewModuleID, bool previewEntitled)
+        protected virtual string GetCustomDataForSubscription(TvinciPricing.Subscription theSub, TvinciPricing.Campaign campaign, string sSubscriptionCode, string sCampaignCode, string sSiteGUID, double dPrice, string sCurrency,
+            string sCouponCode, string sUserIP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sOverrideEndDate, string sPreviewModuleID, bool previewEntitled, bool isDummy = false, bool saveHistory = false)
         {
-
-
             bool bIsRecurring = theSub.m_bIsRecurring;
-
 
             Int32 nRecPeriods = theSub.m_nNumberOfRecPeriods;
             StringBuilder sb = new StringBuilder();
@@ -9138,6 +9426,14 @@ namespace ConditionalAccess
                 sb.Append("<prevlc>");
                 sb.Append(theSub.m_oPreviewModule.m_tsFullLifeCycle);
                 sb.Append("</prevlc>");
+            }
+            if (isDummy)
+            {
+                sb.Append(string.Format("<{0}>1</{0}>", DUMMY));
+            }
+            if (saveHistory)
+            {
+                sb.Append(string.Format("<{0}>1</{0}>", HISTORY));
             }
             sb.Append("</customdata>");
             return sb.ToString();
@@ -11505,7 +11801,7 @@ namespace ConditionalAccess
                         log.Error("Domain status: " + oDomain.m_DomainStatus.ToString());
                     }
                     else
-                    {                        
+                    {
                         DataTable dtUserPurchases = null;
                         DataRow drUserPurchase = null;
                         string sPurchasingSiteGuid = string.Empty;
@@ -11808,8 +12104,9 @@ namespace ConditionalAccess
 
         /*This method shall set the waiver flag on the user entitlement table (susbcriptions/ppv/collection_purchases) 
          * and the waiver_date field to the current date.*/
-        public virtual bool WaiverTransaction(string sSiteGuid, int nAssetID, eTransactionType transactionType)
+        public virtual ApiObjects.Response.Status WaiverTransaction(string sSiteGuid, int nAssetID, eTransactionType transactionType)
         {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = "Error" };
             bool bRes = false;
             System.Data.DataTable dt = null;
 
@@ -11817,9 +12114,12 @@ namespace ConditionalAccess
             {
                 // Get domainID to support waiver a transaction made by a deleted user (not the current p_sSiteGuid)
                 long domainid = 0;
-                if (Utils.ValidateUser(m_nGroupID, sSiteGuid, ref domainid) != ResponseStatus.OK || domainid == 0)
+                ResponseStatus responseStatus = Utils.ValidateUser(m_nGroupID, sSiteGuid, ref domainid);
+                if (responseStatus != ResponseStatus.OK || domainid == 0)
                 {
-                    return false;
+                    status = SetResponseStatus(responseStatus);
+                    log.ErrorFormat("User validation failed: {0}, sSiteGuid: {1}", status.Message, sSiteGuid);
+                    return status;
                 }
 
                 bool bCancellationWindow = GetCancellationWindow(nAssetID, transactionType, ref dt, (int)domainid);
@@ -11839,13 +12139,15 @@ namespace ConditionalAccess
                             bRes = ConditionalAccessDAL.WaiverCollectionPurchaseTransaction(sSiteGuid, nAssetID, (int)domainid);
                             break;
                         default:
-                            return false;
+                            bRes = false;
+                            break;
                     }
                 }
 
 
                 if (bRes)
                 {
+                    status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK, Message = "OK" };
                     WriteToUserLog(sSiteGuid, string.Format("user :{0} waiver cancellation for {1} item :{2}", sSiteGuid, Enum.GetName(typeof(eTransactionType), transactionType), nAssetID));
                 }
             }
@@ -11864,7 +12166,7 @@ namespace ConditionalAccess
                 #endregion
             }
 
-            return bRes;
+            return status;
         }
 
         private bool TryGetFileUrlLinks(int mediaFileID, string userIP, string siteGuid, ref string mainUrl, ref string altUrl,
@@ -11877,7 +12179,7 @@ namespace ConditionalAccess
 
             if (shouldUseDalOrCatalog)
             {
-                res = ConditionalAccessDAL.GetFileUrlLinks(mediaFileID, siteGuid, m_nGroupID, ref mainUrl, ref altUrl, ref mainStreamingCoID, ref altStreamingCoID);
+                res = ConditionalAccessDAL.GetFileUrlLinks(mediaFileID, siteGuid, m_nGroupID, ref mainUrl, ref altUrl, ref mainStreamingCoID, ref altStreamingCoID, ref nMediaID);
             }
             else
             {
@@ -11905,6 +12207,7 @@ namespace ConditionalAccess
                             altUrl = mf.m_oFile.m_sAltUrl;
                             mainStreamingCoID = mf.m_oFile.m_nCdnID;
                             altStreamingCoID = mf.m_oFile.m_nAltCdnID;
+                            nMediaID = mf.m_oFile.m_nMediaID;
                         }
                     }
                 }
@@ -11950,7 +12253,6 @@ namespace ConditionalAccess
                     if (prices != null && prices.Length > 0)
                     {
                         int nMediaID = 0;
-                        int nRuleID = 0;
                         List<int> lRuleIDS = new List<int>();
                         TvinciDomains.DomainResponseStatus mediaConcurrencyResponse;
 
@@ -11974,7 +12276,8 @@ namespace ConditionalAccess
 
                                     if (sBasicLink.ToLower().Trim().EndsWith(fileMainUrl.ToLower().Trim()) || bIsDynamic)
                                     {
-                                        mediaConcurrencyResponse = CheckMediaConcurrency(sSiteGuid, nMediaFileID, sDeviceName, prices, nMediaID, sUserIP, ref lRuleIDS);
+                                        int domainID = 0;
+                                        mediaConcurrencyResponse = CheckMediaConcurrency(sSiteGuid, nMediaFileID, sDeviceName, prices, nMediaID, sUserIP, ref lRuleIDS, ref domainID);
                                         if (mediaConcurrencyResponse == TvinciDomains.DomainResponseStatus.OK)
                                         {
                                             if (IsItemPurchased(prices[0]))
@@ -12005,7 +12308,7 @@ namespace ConditionalAccess
                                             res.Status.Code = ConcurrencyResponseToResponseStatus(mediaConcurrencyResponse);
 
                                             // create PlayCycle
-                                            CreatePlayCycle(sSiteGuid, nMediaFileID, sUserIP, sDeviceName, nMediaID, nRuleID, lRuleIDS);
+                                            CreatePlayCycle(sSiteGuid, nMediaFileID, sUserIP, sDeviceName, nMediaID, lRuleIDS, domainID);
                                         }
                                         else
                                         {
@@ -12155,22 +12458,36 @@ namespace ConditionalAccess
         }
 
         /*******************************************************************************************
-         * This method create the PLAY_CYCLE_KEY key in DB with the (media_concurrency) mc_rule_id 
+         * This method create the PlayCycleSession in CB and also inserts into DB with the (media_concurrency) mc_rule_id 
          ***************************************************************************************** */
-        private void CreatePlayCycle(string sSiteGuid, Int32 nMediaFileID, string sUserIP, string sDeviceName, int nMediaID, int nRuleID, List<int> lRuleIDS)
+        private void CreatePlayCycle(string sSiteGuid, Int32 nMediaFileID, string sUserIP, string sDeviceName, int nMediaID, List<int> lRuleIDS, int domainID)
         {
+            int ruleID = 0;
             // create PlayCycle       
             if (lRuleIDS != null && lRuleIDS.Count > 0)
             {
-                nRuleID = lRuleIDS[0]; // take the first rule (probably will be just one rule)
+                ruleID = lRuleIDS[0]; // take the first rule (probably will be just one rule)
             }
-            string sPlayCycleKey = Guid.NewGuid().ToString();
+            string sPlayCycleKey;
+            PlayCycleSession playCycleSession = null;
+            if (!Utils.IsAnonymousUser(sSiteGuid))
+            {
+                playCycleSession = Tvinci.Core.DAL.CatalogDAL.InsertPlayCycleSession(sSiteGuid, nMediaFileID, m_nGroupID, sDeviceName, 0, ruleID, domainID);
+            }
+            if (playCycleSession != null && !string.IsNullOrEmpty(playCycleSession.PlayCycleKey))
+            {
+                sPlayCycleKey = playCycleSession.PlayCycleKey;
+            }
+            else
+            {
+                sPlayCycleKey = Guid.NewGuid().ToString();
+            }
             int nCountryID = Utils.GetCountryIDByIP(sUserIP);
-            Tvinci.Core.DAL.CatalogDAL.Insert_NewPlayCycleKey(this.m_nGroupID, nMediaID, nMediaFileID, sSiteGuid, 0, sDeviceName, nCountryID, sPlayCycleKey, nRuleID);
+            Tvinci.Core.DAL.CatalogDAL.InsertPlayCycleKey(sSiteGuid, nMediaID, nMediaFileID, sDeviceName, 0, nCountryID, ruleID, m_nGroupID, sPlayCycleKey);
         }
 
         private TvinciDomains.DomainResponseStatus CheckMediaConcurrency(string sSiteGuid, Int32 nMediaFileID, string sDeviceName, MediaFileItemPricesContainer[] prices,
-            int nMediaID, string sUserIP, ref List<int> lRuleIDS)
+            int nMediaID, string sUserIP, ref List<int> lRuleIDS, ref int domainID)
         {
             TvinciDomains.DomainResponseStatus response = TvinciDomains.DomainResponseStatus.OK;
             TvinciDomains.module domainsWS = null;
@@ -12238,7 +12555,7 @@ namespace ConditionalAccess
 
                         validationResponse = domainsWS.ValidateLimitationModule(sWSUserName, sWSPass, sDeviceName, nDeviceFamilyBrand, lSiteGuid, 0,
                             TvinciDomains.ValidationType.Concurrency, mcRule.RuleID, 0, nMediaID);
-                        if (response == TvinciDomains.DomainResponseStatus.OK) // when there is more then one rule  - change response status only when status is still OK (that mean that this is the first time it's change)
+                        if (response == TvinciDomains.DomainResponseStatus.OK && validationResponse != null) // when there is more then one rule  - change response status only when status is still OK (that mean that this is the first time it's change)
                         {
                             response = validationResponse.m_eStatus;
                         }
@@ -12250,6 +12567,13 @@ namespace ConditionalAccess
                            TvinciDomains.ValidationType.Concurrency, 0, 0, nMediaID);
                     response = validationResponse.m_eStatus;
                 }
+
+                // get domainID from response
+                if (validationResponse != null)
+                {
+                    domainID = (int)validationResponse.m_lDomainID;
+                }
+
                 return response;
             }
             catch (Exception ex)
@@ -12555,7 +12879,7 @@ namespace ConditionalAccess
         /// <summary>
         /// Get users' entitlements (PPV or subscriptions or collections)
         /// </summary>
-        public virtual Entitlements GetUsersEntitlements(int domainID, List<int> userIds, eTransactionType type, bool isExpired = false, int numOfItems = 0, bool shouldCheckByDomain = true)
+        public virtual Entitlements GetUsersEntitlements(int domainID, List<int> userIds, eTransactionType type, bool isExpired = false, int numOfItems = 0, bool shouldCheckByDomain = true, int pageSize = 500, int pageIndex = 0)
         {
             Entitlements response = new Entitlements();
             response.status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
@@ -12567,55 +12891,21 @@ namespace ConditionalAccess
 
             try
             {
-
                 switch (type)
                 {
                     case eTransactionType.PPV:
                         {
-                            PermittedMediaContainer[] pmc = GetUserPermittedItems(userIds, false, 0, domainID, shouldCheckByDomain);
-                            if (pmc != null)
-                            {
-                                // fill Entitlement object
-                                response.status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, "OK");
-                                response.entitelments = new List<Entitlement>();
-                                foreach (PermittedMediaContainer item in pmc)
-                                {
-                                    Entitlement ent = new Entitlement(item);
-                                    response.entitelments.Add(ent);
-                                }
-                            }
+                            response = GetUsersEntitlementPPVItems(userIds, isExpired, domainID, shouldCheckByDomain, pageSize, pageIndex);
                             break;
                         }
                     case eTransactionType.Subscription:
                         {
-                            PermittedSubscriptionContainer[] psc = GetUserPermittedSubscriptions(userIds, false, 0, domainID, shouldCheckByDomain);
-                            if (psc != null)
-                            {
-                                // fill Entitlement object
-                                response.status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, "OK");
-                                response.entitelments = new List<Entitlement>();
-                                foreach (PermittedSubscriptionContainer item in psc)
-                                {
-                                    Entitlement ent = new Entitlement(item);
-                                    response.entitelments.Add(ent);
-                                }
-                            }
+                            response = GetUsersEntitlementSubscriptionsItems(userIds, isExpired, domainID, shouldCheckByDomain, pageSize, pageIndex);
                             break;
                         }
                     case eTransactionType.Collection:
                         {
-                            PermittedCollectionContainer[] pcc = GetUserPermittedCollections(userIds, false, 0, domainID, shouldCheckByDomain);
-                            if (pcc != null)
-                            {
-                                // fill Entitlement object
-                                response.status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, "OK");
-                                response.entitelments = new List<Entitlement>();
-                                foreach (PermittedCollectionContainer item in pcc)
-                                {
-                                    Entitlement ent = new Entitlement(item);
-                                    response.entitelments.Add(ent);
-                                }
-                            }
+                            response = GetUsersEntitlementCollectionsItems(userIds, isExpired, domainID, shouldCheckByDomain, pageSize, pageIndex);
                             break;
                         }
                     default:
@@ -12631,13 +12921,99 @@ namespace ConditionalAccess
             return response;
         }
 
-        public virtual Entitlements GetUserEntitlements(string siteGuid, eTransactionType type)
+        private Entitlements GetUsersEntitlementCollectionsItems(List<int> userIds, bool isExpired, int domainID, bool shouldCheckByDomain, int pageSize, int pageIndex)
+        {
+            Entitlements entitlementsResponse = new Entitlements();
+            try
+            {
+                // Get domainID from one of the users
+                if (shouldCheckByDomain && domainID == 0 && userIds.Count > 0)
+                {
+                    UserResponseObject user = Utils.GetExistUser(userIds.First().ToString(), m_nGroupID);
+                    if (user != null && user.m_RespStatus == ResponseStatus.OK && user.m_user != null)
+                    {
+                        domainID = user.m_user.m_domianID;
+                    }
+                }
+
+                DataTable allCollectionsPurchases = ConditionalAccessDAL.Get_UsersPermittedCollections(userIds, isExpired, domainID);
+                if (allCollectionsPurchases == null || allCollectionsPurchases.Rows == null || allCollectionsPurchases.Rows.Count == 0)
+                {
+                    entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no permitted items");
+                    return entitlementsResponse;
+                }
+
+                //Get Iteration Rows according page size and index
+                IEnumerable<DataRow> iterationRows = GetIterationRows(pageSize, pageIndex, allCollectionsPurchases);
+
+                Entitlement entitlement = null;
+                foreach (DataRow dr in iterationRows)
+                {
+                    entitlement = CreateCollectionEntitelment(dr, isExpired);
+                    if (entitlement != null)
+                    {
+                        if (entitlement != null)
+                        {
+                            entitlementsResponse.entitelments.Add(entitlement);
+                        }
+                    }
+                }
+                entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception at GetUserPermittedCollections {0} - ", ex);
+                entitlementsResponse.status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
+            }
+            return entitlementsResponse;
+        }
+
+        private Entitlement CreateCollectionEntitelment(DataRow dataRow, bool isExpired)
+        {
+            TvinciPricing.UsageModule oUsageModule = null;
+            Entitlement entitlement = new Entitlement();
+
+            entitlement.type = eTransactionType.Collection;
+            entitlement.entitlementId = ODBCWrapper.Utils.GetSafeStr(dataRow, "COLLECTION_CODE");
+
+            entitlement.endDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "END_DATE");
+            int maxUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "MAX_NUM_OF_USES");
+            int currentUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "NUM_OF_USES");
+            entitlement.lastViewDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "LAST_VIEW_DATE");
+
+            if (isExpired && maxUses != 0 && currentUses >= maxUses)
+            {
+                entitlement.endDate = entitlement.lastViewDate;
+            }
+
+            entitlement.currentDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "cDate");
+            entitlement.purchaseDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "CREATE_DATE");
+            entitlement.purchaseID = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "ID");
+            entitlement.paymentMethod = GetBillingTransMethod(ODBCWrapper.Utils.GetIntSafeVal(dataRow, "billing_transaction_id"), ODBCWrapper.Utils.GetSafeStr(dataRow, "BILLING_GUID"));
+            entitlement.deviceUDID = ODBCWrapper.Utils.GetSafeStr(dataRow, "device_name");
+            entitlement.deviceName = string.Empty;
+            if (!string.IsNullOrEmpty(entitlement.deviceUDID))
+            {
+                entitlement.deviceName = GetDeviceName(entitlement.deviceUDID);
+            }
+
+            if (ODBCWrapper.Utils.GetIntSafeVal(dataRow, "WAIVER") == 0 &&
+              entitlement.lastViewDate < entitlement.purchaseDate)// user didn't waiver yet and didn't use the PPV yet
+            {
+                bool cancellationWindow = false;
+                IsCancellationWindow(ref oUsageModule, entitlement.entitlementId, entitlement.purchaseDate, ref cancellationWindow, eTransactionType.Subscription);
+                entitlement.cancelWindow = cancellationWindow;
+            }
+            return entitlement;
+        }
+
+        public virtual Entitlements GetUserEntitlements(string siteGuid, eTransactionType type, bool isExpired = false, int pageSize = 500, int pageIndex = 0)
         {
             int userId, domainID = 0;
             TvinciUsers.DomainSuspentionStatus userSuspendStatus = TvinciUsers.DomainSuspentionStatus.OK;
             if (int.TryParse(siteGuid, out userId) && Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID, ref userSuspendStatus))
             {
-                return GetUsersEntitlements(domainID, new List<int>() { userId }, type, false, 0, false);
+                return GetUsersEntitlements(domainID, new List<int>() { userId }, type, isExpired, 0, false, pageSize, pageIndex);
             }
             else
             {
@@ -12647,22 +13023,22 @@ namespace ConditionalAccess
             }
         }
 
-        public virtual Entitlements GetDomainEntitlements(int domainId, eTransactionType type)
+        public virtual Entitlements GetDomainEntitlements(int domainId, eTransactionType type, bool isExpired = false, int pageSize = 500, int pageIndex = 0)
         {
             List<int> intUsersList = GetDomainsUsers(domainId);
-            return GetUsersEntitlements(domainId, intUsersList, type);
+            return GetUsersEntitlements(domainId, intUsersList, type, isExpired);
         }
 
         /// <summary>
         /// Purchase
         /// </summary>
         public virtual TransactionResponse Purchase(string siteguid, long household, double price, string currency, int contentId, int productId,
-                                                 eTransactionType transactionType, string coupon, string userIp, string deviceName, int paymentGwId)
+                                                 eTransactionType transactionType, string coupon, string userIp, string deviceName, int paymentGwId, int paymentMethodId)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             // log request
-            string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, contentId {4}, productId {5}, productType {6}, coupon {7}, userIp {8}, deviceName {9}, paymentGwId {10}",
+            string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, contentId {4}, productId {5}, productType {6}, coupon {7}, userIp {8}, deviceName {9}, paymentGwId {10}, paymentMethodId {11}",
                 !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,     // {0}
                 household,                                                     // {1}
                 price,                                                         // {2}  
@@ -12673,7 +13049,7 @@ namespace ConditionalAccess
                 !string.IsNullOrEmpty(coupon) ? coupon : string.Empty,         // {7}
                 !string.IsNullOrEmpty(userIp) ? userIp : string.Empty,         // {8}
                 !string.IsNullOrEmpty(deviceName) ? deviceName : string.Empty, // {9}
-                paymentGwId);                                                  // {10}
+                paymentGwId, paymentMethodId);                                                  // {10,11}
 
             log.Debug(logString);
 
@@ -12735,13 +13111,13 @@ namespace ConditionalAccess
                 switch (transactionType)
                 {
                     case eTransactionType.PPV:
-                        response = PurchasePPV(siteguid, household, price, currency, contentId, productId, coupon, userIp, deviceName, paymentGwId);
+                        response = PurchasePPV(siteguid, household, price, currency, contentId, productId, coupon, userIp, deviceName, paymentGwId, paymentMethodId);
                         break;
                     case eTransactionType.Subscription:
-                        response = PurchaseSubscription(siteguid, household, price, currency, productId, coupon, userIp, deviceName, paymentGwId);
+                        response = PurchaseSubscription(siteguid, household, price, currency, productId, coupon, userIp, deviceName, paymentGwId, paymentMethodId);
                         break;
                     case eTransactionType.Collection:
-                        response = PurchaseCollection(siteguid, household, price, currency, productId, coupon, userIp, deviceName, paymentGwId);
+                        response = PurchaseCollection(siteguid, household, price, currency, productId, coupon, userIp, deviceName, paymentGwId, paymentMethodId);
                         break;
                     default:
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Illegal product ID");
@@ -12859,12 +13235,12 @@ namespace ConditionalAccess
         }
 
 
-        private TransactionResponse PurchaseCollection(string siteguid, long householdId, double price, string currency, int productId, string coupon, string userIp, string deviceName, int paymentGwId)
+        private TransactionResponse PurchaseCollection(string siteguid, long householdId, double price, string currency, int productId, string coupon, string userIp, string deviceName, int paymentGwId, int paymentMethodId)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             // log request
-            string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, productId {4}, coupon {5}, userIp {6}, deviceName {7}, paymentGwId {8}",
+            string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, productId {4}, coupon {5}, userIp {6}, deviceName {7}, paymentGwId {8}, paymentMethodId {9}",
                 !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,     // {0}
                 householdId,                                                   // {1}
                 price,                                                         // {2}  
@@ -12873,7 +13249,7 @@ namespace ConditionalAccess
                 !string.IsNullOrEmpty(coupon) ? coupon : string.Empty,         // {5}
                 !string.IsNullOrEmpty(userIp) ? userIp : string.Empty,         // {6}
                 !string.IsNullOrEmpty(deviceName) ? deviceName : string.Empty, // {7}
-                paymentGwId);                                                  // {8}
+                paymentGwId, paymentMethodId);                                 // {8,9}
 
             try
             {
@@ -12909,7 +13285,7 @@ namespace ConditionalAccess
                         string billingGuid = Guid.NewGuid().ToString();
 
                         // purchase
-                        response = HandlePurchase(siteguid, householdId, price, currency, userIp, customData, productId, TvinciBilling.eTransactionType.Collection, billingGuid, paymentGwId, 0);
+                        response = HandlePurchase(siteguid, householdId, price, currency, userIp, customData, productId, TvinciBilling.eTransactionType.Collection, billingGuid, paymentGwId, 0, paymentMethodId);
                         if (response != null &&
                             response.Status != null)
                         {
@@ -12994,12 +13370,12 @@ namespace ConditionalAccess
 
 
         private TransactionResponse PurchaseSubscription(string siteguid, long householdId, double price, string currency, int productId,
-                                                      string coupon, string userIp, string deviceName, int paymentGwId)
+                                                      string coupon, string userIp, string deviceName, int paymentGwId, int paymentMethodId)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             // log request
-            string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, productId {4}, coupon {5}, userIp {6}, deviceName {7}, paymentGwId {8}",
+            string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, productId {4}, coupon {5}, userIp {6}, deviceName {7}, paymentGwId {8}, paymentMethodId {9}",
                 !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,     // {0}
                 householdId,                                                   // {1}
                 price,                                                         // {2}  
@@ -13008,7 +13384,7 @@ namespace ConditionalAccess
                 !string.IsNullOrEmpty(coupon) ? coupon : string.Empty,         // {5}
                 !string.IsNullOrEmpty(userIp) ? userIp : string.Empty,         // {6}
                 !string.IsNullOrEmpty(deviceName) ? deviceName : string.Empty, // {7}
-                paymentGwId);
+                paymentGwId, paymentMethodId);
 
             try
             {
@@ -13045,7 +13421,7 @@ namespace ConditionalAccess
 
                         // purchase
                         response = HandlePurchase(siteguid, householdId, price, currency, userIp, customData, productId,
-                                                  TvinciBilling.eTransactionType.Subscription, billingGuid, paymentGwId, 0);
+                                                  TvinciBilling.eTransactionType.Subscription, billingGuid, paymentGwId, 0, paymentMethodId);
                         if (response != null &&
                             response.Status != null)
                         {
@@ -13089,26 +13465,31 @@ namespace ConditionalAccess
                                             TvinciBilling.module wsBillingService = null;
                                             InitializeBillingModule(ref wsBillingService, ref billingUserName, ref billingPassword);
                                             paymentGatewayResponse = wsBillingService.GetPaymentGatewayByBillingGuid(billingUserName, billingPassword, householdId, billingGuid);
-                                            if (paymentGatewayResponse == null)
+
+                                            DateTime nextRenewalDate = endDate.Value.AddMinutes(-5); // default                                           
+
+                                            if (paymentGatewayResponse != null)
                                             {
                                                 // error getting PG
                                                 log.Error("Error getting the PG - no renewal taks sent");
                                             }
                                             else
                                             {
-                                                // enqueue renew transaction
-                                                RenewTransactionsQueue queue = new RenewTransactionsQueue();
-                                                DateTime nextRenewalDate = endDate.Value.AddMinutes(paymentGatewayResponse.RenewalStartMinutes);
-                                                RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseID, billingGuid,
-                                                    TVinciShared.DateUtils.DateTimeToUnixTimestamp((DateTime)endDate), nextRenewalDate);
-                                                bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
-                                                if (!enqueueSuccessful)
-                                                {
-                                                    log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
-                                                }
-                                                else
-                                                    log.DebugFormat("New task created (upon subscription purchase success). next renewal date: {0}, data: {1}", nextRenewalDate, data);
+                                                nextRenewalDate = endDate.Value.AddMinutes(paymentGatewayResponse.RenewalStartMinutes);
                                             }
+
+                                            // enqueue renew transaction
+                                            RenewTransactionsQueue queue = new RenewTransactionsQueue();
+
+                                            RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseID, billingGuid,
+                                                TVinciShared.DateUtils.DateTimeToUnixTimestamp((DateTime)endDate), nextRenewalDate);
+                                            bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
+                                            if (!enqueueSuccessful)
+                                            {
+                                                log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
+                                            }
+                                            else
+                                                log.DebugFormat("New task created (upon subscription purchase success). next renewal date: {0}, data: {1}", nextRenewalDate, data);
                                         }
                                         catch (Exception ex)
                                         {
@@ -13177,12 +13558,12 @@ namespace ConditionalAccess
 
 
         private TransactionResponse PurchasePPV(string siteguid, long householdId, double price, string currency, int contentId, int productId, string coupon,
-                                                string userIp, string deviceName, int paymentGwId)
+                                                string userIp, string deviceName, int paymentGwId, int paymentMethodId)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             // log request
-            string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, contentId {4}, productId {5}, coupon {6}, userIp {7}, deviceName {8}, paymentGwId {9}",
+            string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, contentId {4}, productId {5}, coupon {6}, userIp {7}, deviceName {8}, paymentGwId {9}, paymentMethodId {10}",
                 !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,     // {0}
                 householdId,                                                   // {1}
                 price,                                                         // {2}  
@@ -13192,7 +13573,7 @@ namespace ConditionalAccess
                 !string.IsNullOrEmpty(coupon) ? coupon : string.Empty,         // {6}
                 !string.IsNullOrEmpty(userIp) ? userIp : string.Empty,         // {7}
                 !string.IsNullOrEmpty(deviceName) ? deviceName : string.Empty, // {8}
-                paymentGwId);                                                  // {9}
+                paymentGwId, paymentMethodId);                                 // {9,10}
 
             try
             {
@@ -13233,7 +13614,7 @@ namespace ConditionalAccess
                                                                                               string.Empty, string.Empty, deviceName);
 
                 if (ePriceReason == PriceReason.ForPurchase ||
-                   (ePriceReason == PriceReason.SubscriptionPurchased && oPrice.m_dPrice > 0))
+                    (ePriceReason == PriceReason.SubscriptionPurchased && oPrice.m_dPrice > 0))
                 {
                     // item is for purchase
                     if (oPrice.m_dPrice == price && oPrice.m_oCurrency.m_sCurrencyCD3 == currency)
@@ -13254,7 +13635,7 @@ namespace ConditionalAccess
                         string billingGuid = Guid.NewGuid().ToString();
 
                         // purchase
-                        response = HandlePurchase(siteguid, householdId, price, currency, userIp, customData, productId, TvinciBilling.eTransactionType.PPV, billingGuid, paymentGwId, contentId);
+                        response = HandlePurchase(siteguid, householdId, price, currency, userIp, customData, productId, TvinciBilling.eTransactionType.PPV, billingGuid, paymentGwId, contentId, paymentMethodId);
                         if (response != null &&
                             response.Status != null)
                         {
@@ -13595,29 +13976,35 @@ namespace ConditionalAccess
                                             TvinciBilling.module wsBillingService = null;
                                             InitializeBillingModule(ref wsBillingService, ref billingUserName, ref billingPassword);
                                             paymentGatewayResponse = wsBillingService.GetPaymentGatewayByBillingGuid(billingUserName, billingPassword, householdId, billingGuid);
+
+                                            DateTime nextRenewalDate = subscriptionEndDate.Value.AddMinutes(-5); // default
+
                                             if (paymentGatewayResponse == null)
                                             {
                                                 // error getting PG
                                                 log.Error("Error getting the PG");
                                             }
+                                            else
+                                            {
+                                                nextRenewalDate = subscriptionEndDate.Value.AddMinutes(paymentGatewayResponse.RenewalStartMinutes);
+                                            }
+
+                                            // enqueue renew transaction
+                                            RenewTransactionsQueue queue = new RenewTransactionsQueue();
+                                            RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseID, billingGuid, TVinciShared.DateUtils.DateTimeToUnixTimestamp((DateTime)subscriptionEndDate),
+                                                nextRenewalDate);
+                                            bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
+                                            if (!enqueueSuccessful)
+                                            {
+                                                log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
+                                            }
+                                            else
+                                                log.DebugFormat("New task created (upon process subscription receipt response). Next renewal date: {0} data: {1}", nextRenewalDate, data);
                                         }
                                         catch (Exception ex)
                                         {
                                             log.Error("Error while trying to get the PG", ex);
                                         }
-
-                                        // enqueue renew transaction
-                                        RenewTransactionsQueue queue = new RenewTransactionsQueue();
-                                        DateTime nextRenewalDate = subscriptionEndDate.Value.AddMinutes(paymentGatewayResponse.RenewalStartMinutes);
-                                        RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseID, billingGuid, TVinciShared.DateUtils.DateTimeToUnixTimestamp((DateTime)subscriptionEndDate),
-                                            nextRenewalDate);
-                                        bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
-                                        if (!enqueueSuccessful)
-                                        {
-                                            log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
-                                        }
-                                        else
-                                            log.DebugFormat("New task created (upon process subscription receipt response). Next renewal date: {0} data: {1}", nextRenewalDate, data);
                                     }
 
                                     // build notification message
@@ -13685,11 +14072,11 @@ namespace ConditionalAccess
         }
 
         protected TransactionResponse HandlePurchase(string siteGUID, long houseHoldID, double price, string currency, string userIP, string customData,
-                                                  int productID, TvinciBilling.eTransactionType transactionType, string billingGuid, int paymentGWId, int contentId)
+                                                  int productID, TvinciBilling.eTransactionType transactionType, string billingGuid, int paymentGWId, int contentId, int paymentMethodId)
         {
             TransactionResponse response = new TransactionResponse();
 
-            string logString = string.Format("fail get response from billing service siteGUID={0}, houseHoldID={1}, price={2}, currency={3}, userIP={4}, customData={5}, productID={6}, (int)transactionType={7}, billingGuid={8}, paymentGWId={9}",
+            string logString = string.Format("fail get response from billing service siteGUID={0}, houseHoldID={1}, price={2}, currency={3}, userIP={4}, customData={5}, productID={6}, (int)transactionType={7}, billingGuid={8}, paymentGWId={9}, paymentMethodId = {10}",
                                        !string.IsNullOrEmpty(siteGUID) ? siteGUID : string.Empty,              // {0}
                                        houseHoldID,                                                            // {1}
                                        price,                                                                  // {2}
@@ -13699,7 +14086,7 @@ namespace ConditionalAccess
                                        productID,                                                              // {6}
                                        (int)transactionType,                                                   // {7}
                                        !string.IsNullOrEmpty(billingGuid) ? billingGuid : string.Empty,        // {8}
-                                       paymentGWId);                                                           // {9}
+                                       paymentGWId, paymentMethodId);                                           // {9,10}
 
             try
             {
@@ -13709,28 +14096,9 @@ namespace ConditionalAccess
                 InitializeBillingModule(ref wsBillingService, ref userName, ref password);
 
                 // call new billing method for charge adapter
-                var transactionResponse = wsBillingService.Transact(userName, password, siteGUID, (int)houseHoldID, price, currency, userIP, customData, productID, transactionType, contentId, billingGuid, paymentGWId);
+                var transactionResponse = wsBillingService.Transact(userName, password, siteGUID, (int)houseHoldID, price, currency, userIP, customData, productID, transactionType, contentId, billingGuid, paymentGWId, paymentMethodId);
 
-                if (transactionResponse != null)
-                {
-                    // convert response to purchase response
-                    response.PGReferenceID = transactionResponse.PGReferenceID != null ? transactionResponse.PGReferenceID : string.Empty;
-                    response.PGResponseCode = transactionResponse.PGResponseID != null ? transactionResponse.PGResponseID : string.Empty;
-                    response.TransactionID = transactionResponse.TransactionID.ToString();
-                    response.State = transactionResponse.State.ToString();
-                    response.FailReasonCode = transactionResponse.FailReasonCode;
-                    response.StartDateSeconds = transactionResponse.StartDateSeconds;
-                    response.EndDateSeconds = transactionResponse.EndDateSeconds;
-                    response.AutoRenewing = transactionResponse.AutoRenewing;
-
-                    if (transactionResponse.Status != null)
-                        response.Status = new ApiObjects.Response.Status((int)transactionResponse.Status.Code, transactionResponse.Status.Message);
-                    else
-                    {
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "No status returned from billing service");
-                        log.Error("Received error from billing service. " + logString);
-                    }
-                }
+                response = ConvertTransactResultToTransactionResponse(logString, transactionResponse);
             }
             catch (Exception ex)
             {
@@ -13772,28 +14140,8 @@ namespace ConditionalAccess
                 var transactionResponse = wsBillingService.VerifyReceipt(userName, password, siteGUID, (int)houseHoldID, price, currency, userIP, customData, productID, productCode, transactionType,
                                                                          contentId, purchaseToken, paymentGWName, billingGuid);
 
-                if (transactionResponse != null)
-                {
-                    // convert response to purchase response
-                    response.PGReferenceID = transactionResponse.PGReferenceID != null ? transactionResponse.PGReferenceID : string.Empty;
-                    response.PGResponseCode = transactionResponse.PGResponseID != null ? transactionResponse.PGResponseID : string.Empty;
-                    response.TransactionID = transactionResponse.TransactionID.ToString();
-                    response.State = transactionResponse.State.ToString();
-                    response.FailReasonCode = transactionResponse.FailReasonCode;
-                    response.StartDateSeconds = transactionResponse.StartDateSeconds;
-                    response.EndDateSeconds = transactionResponse.EndDateSeconds;
-                    response.AutoRenewing = transactionResponse.AutoRenewing;
+                response = ConvertTransactResultToTransactionResponse(logString, transactionResponse);
 
-                    if (transactionResponse.Status != null)
-                    {
-                        response.Status = new ApiObjects.Response.Status((int)transactionResponse.Status.Code, transactionResponse.Status.Message);
-                    }
-                    else
-                    {
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "No status returned from billing service");
-                        log.Error("Received error from billing service. " + logString);
-                    }
-                }
             }
             catch (Exception ex)
             {
@@ -14208,7 +14556,7 @@ namespace ConditionalAccess
                 TvinciPricing.PrePaidModule relevantPP = null;
                 TvinciPricing.Price oPrice = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(contentId, thePPVModule, siteguid, string.Empty, m_nGroupID,
                                                                                               ref ePriceReason, ref relevantSub, ref relevantCol, ref relevantPP,
-                                                                                              string.Empty, string.Empty, deviceName);
+                                                                                              string.Empty, string.Empty, deviceName, true);
 
                 if (ePriceReason != PriceReason.ForPurchase && !(ePriceReason == PriceReason.SubscriptionPurchased && oPrice.m_dPrice > 0))
                 {
@@ -14238,7 +14586,7 @@ namespace ConditionalAccess
                     mediaID, productId.ToString(), string.Empty, string.Empty, userIp, country, string.Empty, deviceName);
 
                 string billingGuid = Guid.NewGuid().ToString();
-               
+
                 // purchase
                 string sWSUserName = string.Empty;
                 string sWSPass = string.Empty;
@@ -14368,7 +14716,7 @@ namespace ConditionalAccess
                 string customData = GetCustomDataForSubscription(subscription, null, productId.ToString(), string.Empty, siteguid, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3,
                                                                  string.Empty, userIp, country, string.Empty, deviceName, string.Empty,
                                                                  entitleToPreview ? subscription.m_oPreviewModule.m_nID + "" : string.Empty,
-                                                                 entitleToPreview);
+                                                                 entitleToPreview, true, saveHistory);
 
                 // create new GUID for billing transaction
                 string billingGuid = Guid.NewGuid().ToString();
@@ -14379,7 +14727,7 @@ namespace ConditionalAccess
                 string sWSPass = string.Empty;
                 TvinciBilling.BillingResponse billingResponse = new TvinciBilling.BillingResponse();
                 billingResponse.m_oStatus = TvinciBilling.BillingResponseStatus.UnKnown;
-
+                long lBillingTransactionID = 0;
                 if (saveHistory)
                 {
                     InitializeBillingModule(ref wsBillingService, ref sWSUserName, ref sWSPass);
@@ -14403,7 +14751,7 @@ namespace ConditionalAccess
                 }
 
                 // purchase passed
-                long lBillingTransactionID = 0;
+                long.TryParse(billingResponse.m_sRecieptCode, out lBillingTransactionID);
                 long purchaseID = 0;
 
                 TransactionResponse response = null;
@@ -14411,7 +14759,7 @@ namespace ConditionalAccess
                 // grant entitlement
                 var result = HandleSubscriptionBillingSuccess(ref response, siteguid, householdId, subscription, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, string.Empty,
                     userIp, country, deviceName, lBillingTransactionID, customData, productId, billingGuid.ToString(),
-                    entitleToPreview, false, startDate, ref purchaseID, ref endDate);
+                    entitleToPreview, subscription.m_bIsRecurring, startDate, ref purchaseID, ref endDate);
 
                 if (result)
                 {
@@ -14421,6 +14769,24 @@ namespace ConditionalAccess
                     if (subscription.m_nDomainLimitationModule != 0)
                     {
                         UpdateDLM(householdId, subscription.m_nDomainLimitationModule);
+                    }
+
+                    if (subscription.m_bIsRecurring)
+                    {
+
+                        DateTime nextRenewalDate = endDate.Value.AddMinutes(1); // default                                           
+
+                        // enqueue renew transaction
+                        RenewTransactionsQueue queue = new RenewTransactionsQueue();
+                        RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseID, billingGuid,
+                            TVinciShared.DateUtils.DateTimeToUnixTimestamp((DateTime)endDate), nextRenewalDate);
+                        bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
+                        if (!enqueueSuccessful)
+                        {
+                            log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
+                        }
+                        else
+                            log.DebugFormat("New task created (upon subscription purchase success). next renewal date: {0}, data: {1}", nextRenewalDate, data);
                     }
                 }
 
@@ -14443,7 +14809,6 @@ namespace ConditionalAccess
                         log.ErrorFormat("Error while enqueue purchase record: {0}, data: {1}", status.Message, logString);
                     }
                 }
-
             }
             catch (Exception ex)
             {
@@ -14588,13 +14953,12 @@ namespace ConditionalAccess
         public bool Renew(string siteguid, long purchaseId, string billingGuid, long nextEndDate, ref bool shouldUpdateTaskStatus)
         {
             // log request
-            string logString = string.Format("Purchase request: siteguid {0}, purchaseId {1}, billingGuid {2}, endDateLong {3}",
-                !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,       // {0}
-                purchaseId,                                                      // {1}
-                !string.IsNullOrEmpty(billingGuid) ? billingGuid : string.Empty, // {2}
-                nextEndDate);                                                    // {3}
+            string logString = string.Format("Purchase request: siteguid {0}, purchaseId {1}, billingGuid {2}, endDateLong {3}", siteguid, purchaseId, billingGuid, nextEndDate);
 
             log.DebugFormat("Starting renewal process. data: {0}", logString);
+
+            string customData = string.Empty;                   
+            long householdId = 0;
 
             string userIp = "1.1.1.1";
 
@@ -14609,7 +14973,6 @@ namespace ConditionalAccess
             // get subscription purchase 
             DataRow subscriptionPurchaseRow = DAL.ConditionalAccessDAL.Get_SubscriptionPurchaseForRenewal(m_nGroupID, purchaseId, billingGuid);
 
-
             // validate subscription received
             if (subscriptionPurchaseRow == null)
             {
@@ -14621,6 +14984,46 @@ namespace ConditionalAccess
 
             // get product ID
             long productId = ODBCWrapper.Utils.ExtractInteger(subscriptionPurchaseRow, "SUBSCRIPTION_CODE"); // AKA subscription ID/CODE
+
+            ResponseStatus userValidStatus = ResponseStatus.OK;
+            userValidStatus = Utils.ValidateUser(m_nGroupID, siteguid, ref householdId);
+
+            try
+            {
+                customData = ODBCWrapper.Utils.ExtractString(subscriptionPurchaseRow, "CUSTOMDATA"); // AKA subscription ID/CODE
+
+                if (userValidStatus == ResponseStatus.OK && !string.IsNullOrEmpty(customData))
+                {
+                    XmlDocument doc = new XmlDocument();
+                    doc.LoadXml(customData);
+                    XmlNode theRequest = doc.FirstChild;
+
+                    bool isDummy = XmlUtils.IsNodeExists(ref theRequest, DUMMY);
+                    bool saveHistory = XmlUtils.IsNodeExists(ref theRequest, HISTORY);
+                    string deviceName = XmlUtils.GetSafeValue(DEVICE_NAME, ref theRequest);
+
+                    if (isDummy)
+                    {
+                        /// call GrantSubsription
+                        var res = GrantSubscription(siteguid, householdId, (int)productId, userIp, deviceName, saveHistory);
+                        if (res.Code == (int)eResponseStatus.OK)
+                        {
+                            log.DebugFormat("Renew Dummy GrantSubscription Succeeded, data: {0}", logString);
+                            return true;
+                        }
+                        else
+                        {
+                            log.DebugFormat("Renew Dummy GrantSubscription failed, data: {0}", logString);
+                            return true;
+                        }
+                    }
+                }
+            }
+            catch (Exception exc)
+            {
+                log.ErrorFormat("Renew: Error while getting data from xml, data: {0}, error: {1}", logString, exc);
+                return false;
+            }
 
             // get end date
             DateTime endDate = ODBCWrapper.Utils.ExtractDateTime(subscriptionPurchaseRow, "END_DATE");
@@ -14645,15 +15048,12 @@ namespace ConditionalAccess
 
             log.DebugFormat("subscription purchase found and validated. data: {0}", logString);
 
-            // validate user object
-            ResponseStatus userValidStatus = ResponseStatus.OK;
-            long householdId = 0;
-            userValidStatus = Utils.ValidateUser(m_nGroupID, siteguid, ref householdId);
-            bool shouldSwitchToMasterUser = false;            
+            // validate user object               
+            bool shouldSwitchToMasterUser = false;
 
             // check if we need to set isSwitchToMasterUser = true so we will update subscription details to master user instead of user where needed
             if (userValidStatus == ResponseStatus.UserDoesNotExist)
-            {                
+            {
                 shouldSwitchToMasterUser = true;
                 householdId = ODBCWrapper.Utils.GetLongSafeVal(subscriptionPurchaseRow, "DOMAIN_ID");
                 string masterSiteGuid = string.Empty;
@@ -14675,7 +15075,7 @@ namespace ConditionalAccess
                 else
                 {
                     log.WarnFormat("SiteGuid: {0} does not exist, changing renew SiteGuid value to MasterSiteGuid: {1}", siteguid, masterSiteGuid);
-                    siteguid = masterSiteGuid;                    
+                    siteguid = masterSiteGuid;
                 }
             }
 
@@ -14697,7 +15097,9 @@ namespace ConditionalAccess
             }
 
             // get transaction details
+            //--------------------------------------------
             DataRow renewDetailsRow = DAL.ConditionalAccessDAL.Get_RenewDetails(m_nGroupID, purchaseId, billingGuid);
+
             if (renewDetailsRow == null)
             {
                 // transaction details weren't found
@@ -14706,27 +15108,6 @@ namespace ConditionalAccess
             }
 
             log.DebugFormat("Renew details received. data: {0}", logString);
-
-            // get billing method
-            int billingMethod = ODBCWrapper.Utils.GetIntSafeVal(renewDetailsRow, "BILLING_METHOD");
-
-            // get price
-            double price = ODBCWrapper.Utils.GetDoubleSafeVal(renewDetailsRow, "PRICE");
-
-            // get currency
-            string currency = ODBCWrapper.Utils.GetSafeStr(renewDetailsRow, "CURRENCY_CODE");
-
-            // get extra parameters
-            string extraParams = ODBCWrapper.Utils.GetSafeStr(renewDetailsRow, "EXTRA_PARAMS");
-
-            // get payment number
-            int paymentNumber = ODBCWrapper.Utils.GetIntSafeVal(renewDetailsRow, "PAYMENT_NUMBER");
-
-            // get number of payments
-            int numOfPayments = ODBCWrapper.Utils.GetIntSafeVal(renewDetailsRow, "number_of_payments");
-
-            // get total number of payments
-            int totalNumOfPayments = ODBCWrapper.Utils.GetIntSafeVal(renewDetailsRow, "total_number_of_payments");
 
             // get subscription data
             string wsUsername = string.Empty;
@@ -14760,9 +15141,18 @@ namespace ConditionalAccess
 
             log.DebugFormat("Subscription data received. data: {0}", logString);
 
+            // get payment number
+            int paymentNumber = ODBCWrapper.Utils.GetIntSafeVal(renewDetailsRow, "PAYMENT_NUMBER");
+
+            // get number of payments
+            int numOfPayments = ODBCWrapper.Utils.GetIntSafeVal(renewDetailsRow, "number_of_payments");
+
+            // get total number of payments
+            int totalNumOfPayments = ODBCWrapper.Utils.GetIntSafeVal(renewDetailsRow, "total_number_of_payments");
+
             // check if purchased with preview module
             bool isPurchasedWithPreviewModule;
-            isPurchasedWithPreviewModule = ApiDAL.Get_IsPurchasedWithPreviewModuleByBillingGuid(m_nGroupID, billingGuid, (int)purchaseId);            
+            isPurchasedWithPreviewModule = ApiDAL.Get_IsPurchasedWithPreviewModuleByBillingGuid(m_nGroupID, billingGuid, (int)purchaseId);
 
             paymentNumber = Utils.CalcPaymentNumber(numOfPayments, paymentNumber, isPurchasedWithPreviewModule);
             if (numOfPayments > 0 && paymentNumber > numOfPayments)
@@ -14778,11 +15168,13 @@ namespace ConditionalAccess
             paymentNumber++;
 
             // get MPP
-            string customData = string.Empty;
             int recPeriods = 0;
             bool isMPPRecurringInfinitely = false;
             int maxVLCOfSelectedUsageModule = 0;
             string couponCode = string.Empty;
+            double price = 0;
+            string currency = "n/a";
+
             try
             {
                 GetMultiSubscriptionUsageModule(siteguid, userIp, (int)purchaseId, paymentNumber, totalNumOfPayments, numOfPayments, isPurchasedWithPreviewModule,
@@ -14829,79 +15221,195 @@ namespace ConditionalAccess
             {
                 case ConditionalAccess.TvinciBilling.eTransactionState.OK:
                     {
-                        // renew subscription success!
-                        log.DebugFormat("Transaction renew success. data: {0}", logString);
+                        return HandleRenewSubscriptionSuccess(siteguid, purchaseId, billingGuid, logString, productId, ref endDate, householdId, price, currency, paymentNumber,
+                            totalNumOfPayments, subscription, customData, maxVLCOfSelectedUsageModule, billingUserName, billingPassword, wsBillingService, transactionResponse);
+                    }
 
-                        // get billing gateway
-                        TvinciBilling.PaymentGateway paymentGateway = null;
-                        try
-                        {
-                            paymentGateway = wsBillingService.GetPaymentGatewayByBillingGuid(billingUserName, billingPassword, householdId, billingGuid);
-                            if (paymentGateway == null)
-                            {
-                                // error getting PG
-                                log.Error("Transaction occurred! Error while trying to get the PG");
-                                return true;
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            log.Error("Transaction occurred! Error while trying to get the PG", ex);
-                            return true;
-                        }
+                case ConditionalAccess.TvinciBilling.eTransactionState.Pending:
+                    {
+                        // renew subscription pending!
+                        return HandleRenewSubscriptionPending(siteguid, purchaseId, billingGuid, logString, productId, endDate, householdId, shouldSwitchToMasterUser, price, currency,
+                            billingUserName, billingPassword, wsBillingService);
+                    }
 
-                        // update end-date
-                        if (transactionResponse.EndDateSeconds > 0)
-                        {
-                            // end-date returned: EndDate = PG_End_Date + Configured_PG_Start_Renew_Time
-                            endDate = DateUtils.UnixTimeStampToDateTime(transactionResponse.EndDateSeconds);
-                            log.DebugFormat("New end-date was updated according to PG. EndDate={0}", endDate);
-                        }
-                        else
-                        {
-                            // end wasn't retuned - get next end date from MPP
-                            endDate = Utils.GetEndDateTime(endDate, maxVLCOfSelectedUsageModule);
-                            log.DebugFormat("New end-date was updated according to MPP. EndDate={0}", endDate);
-                        }
+                case ConditionalAccess.TvinciBilling.eTransactionState.Failed:
+                    {
+                        // renew subscription failed!
+                        return HandleRenewSubscriptionFailed(siteguid, purchaseId, logString, productId, subscription);
+                    }
+                default:
+                    {
+                        log.Error("Transaction state is unknown");
+                        return false;
+                    }
+            }
 
-                        // update MPP renew data
-                        try
-                        {
-                            ConditionalAccessDAL.Update_MPPRenewalData(purchaseId, true, endDate, 0, "CA_CONNECTION_STRING");
-                            WriteToUserLog(siteguid, string.Format("Successfully renewed. Product ID: {0}, price: {1}, currency: {2}, purchase ID: {3}, Billing Transition ID: {4}",
-                                productId,                           // {0}
-                                price,                               // {1}
-                                currency,                            // {2}
-                                purchaseId,                          // {3}
-                                transactionResponse.TransactionID)); // {4}
-                        }
-                        catch (Exception ex)
-                        {
-                            log.Error("Error while trying to update MPP renew data", ex);
-                            return true;
-                        }
+        }
 
-                        // update billing_transactions subscriptions_purchased reference  
-                        if (transactionResponse.TransactionID > 0)
-                            ApiDAL.Update_PurchaseIDInBillingTransactions(transactionResponse.TransactionID, purchaseId);
-                        else
-                            log.Error("Error while trying update billing_transactions subscriptions_purchased reference");
+        private bool HandleRenewSubscriptionFailed(string siteguid, long purchaseId, string logString, long productId, TvinciPricing.Subscription subscription)
+        {
+            log.DebugFormat("Transaction renew failed. data: {0}", logString);
 
-                        // enqueue renew transaction
-                        RenewTransactionsQueue queue = new RenewTransactionsQueue();
-                        DateTime nextRenewalDate = endDate.AddMinutes(paymentGateway.RenewalStartMinutes);                        
-                        RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseId, billingGuid, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate), nextRenewalDate);
-                        bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
-                        if (!enqueueSuccessful)
-                        {
-                            log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
-                            return true;
-                        }
-                        else
-                            log.DebugFormat("New task created (upon renew success response). Next renewal date: {0}, data: {1}", nextRenewalDate, data);
+            // Try to cancel subscription
+            if (ConditionalAccessDAL.CancelSubscription((int)purchaseId, m_nGroupID, siteguid, subscription.m_SubscriptionCode) == 0)
+            {
+                log.Error("Error while trying to cancel subscription");
+                return false;
+            }
+            else
+            {
+                log.Debug("Subscription was canceled");
+            }
 
-                        // PS message 
-                        var dicData = new Dictionary<string, object>()
+            WriteToUserLog(siteguid, string.Format("Transaction renew failed. Product ID: {0}, purchase ID: {1}",
+                 productId,                           // {0}
+                 purchaseId));                        // {1}
+
+            return true;
+        }
+
+        private bool HandleRenewSubscriptionPending(string siteguid, long purchaseId, string billingGuid, string logString, long productId, DateTime endDate, long householdId, bool shouldSwitchToMasterUser, double price, string currency, string billingUserName, string billingPassword, TvinciBilling.module wsBillingService)
+        {
+            log.DebugFormat("Transaction renew pending. data: {0}", logString);
+
+            // get billing gateway
+            TvinciBilling.PaymentGateway paymentGatewayResponse = null;
+            try
+            {
+                // check if to update siteGuid in subscription_purchases to masterSiteGuid and set renewal to masterSiteGuid
+                if (shouldSwitchToMasterUser)
+                {
+                    ConditionalAccessDAL.Update_SubscriptionPurchaseRenewalSiteGuid(m_nGroupID, billingGuid, (int)purchaseId, siteguid, "CA_CONNECTION_STRING");
+                }
+
+                paymentGatewayResponse = wsBillingService.GetPaymentGatewayByBillingGuid(billingUserName, billingPassword, householdId, billingGuid);
+
+                DateTime nextRenewalDate = DateTime.UtcNow.AddMinutes(60); // default
+
+                if (paymentGatewayResponse == null)
+                {
+                    // error getting PG
+                    log.Error("Error while trying to get the PG");
+                }
+                else if (paymentGatewayResponse.RenewalIntervalMinutes > 0)
+                {
+                    nextRenewalDate = DateTime.UtcNow.AddMinutes(paymentGatewayResponse.RenewalIntervalMinutes);
+                }
+
+                // enqueue renew transaction
+                RenewTransactionsQueue queue = new RenewTransactionsQueue();
+                RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseId, billingGuid, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate), nextRenewalDate);
+                bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
+                if (!enqueueSuccessful)
+                {
+                    log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
+                    return false;
+                }
+                else
+                    log.DebugFormat("New task created (upon renew pending response). Next renewal date: {0}, data: {1}", nextRenewalDate, data);
+
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error while trying to get the PG", ex);
+                return false;
+            }
+
+            log.DebugFormat("pending renew returned. subID: {0}, price: {1}, currency: {2}, userID: {3}",
+                productId, // {0}
+                price,     // {1}
+                currency,  // {2}
+                siteguid); // {3}
+            WriteToUserLog(siteguid, string.Format("pending renew returned. Product ID: {0}, price: {1}, currency: {2}, purchase ID: {3}",
+                  productId,                           // {0}
+                  price,                               // {1}
+                  currency,                            // {2}
+                  purchaseId));                        // {3}
+
+            return true;
+        }
+
+        private bool HandleRenewSubscriptionSuccess(string siteguid, long purchaseId, string billingGuid, string logString, long productId, ref DateTime endDate, long householdId,
+            double price, string currency, int paymentNumber, int totalNumOfPayments, TvinciPricing.Subscription subscription, string customData, int maxVLCOfSelectedUsageModule,
+            string billingUserName, string billingPassword, TvinciBilling.module wsBillingService, TvinciBilling.TransactResult transactionResponse)
+        {
+            // renew subscription success!
+            log.DebugFormat("Transaction renew success. data: {0}", logString);
+
+            // get billing gateway
+            TvinciBilling.PaymentGateway paymentGateway = null;
+            try
+            {
+                paymentGateway = wsBillingService.GetPaymentGatewayByBillingGuid(billingUserName, billingPassword, householdId, billingGuid);
+                if (paymentGateway == null)
+                {
+                    // error getting PG
+                    log.Error("Transaction occurred! Error while trying to get the PG");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Transaction occurred! Error while trying to get the PG", ex);
+                return true;
+            }
+
+            // update end-date
+            if (transactionResponse.EndDateSeconds > 0)
+            {
+                // end-date returned: EndDate = PG_End_Date + Configured_PG_Start_Renew_Time
+                endDate = DateUtils.UnixTimeStampToDateTime(transactionResponse.EndDateSeconds);
+                log.DebugFormat("New end-date was updated according to PG. EndDate={0}", endDate);
+            }
+            else
+            {
+                // end wasn't retuned - get next end date from MPP
+                endDate = Utils.GetEndDateTime(endDate, maxVLCOfSelectedUsageModule);
+                log.DebugFormat("New end-date was updated according to MPP. EndDate={0}", endDate);
+            }
+
+            // update MPP renew data
+            try
+            {
+                ConditionalAccessDAL.Update_MPPRenewalData(purchaseId, true, endDate, 0, "CA_CONNECTION_STRING", siteguid);
+                WriteToUserLog(siteguid, string.Format("Successfully renewed. Product ID: {0}, price: {1}, currency: {2}, purchase ID: {3}, Billing Transition ID: {4}",
+                    productId,                           // {0}
+                    price,                               // {1}
+                    currency,                            // {2}
+                    purchaseId,                          // {3}
+                    transactionResponse.TransactionID)); // {4}
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error while trying to update MPP renew data", ex);
+                return true;
+            }
+
+            // update billing_transactions subscriptions_purchased reference  
+            if (transactionResponse.TransactionID > 0)
+                ApiDAL.Update_PurchaseIDInBillingTransactions(transactionResponse.TransactionID, purchaseId);
+            else
+                log.Error("Error while trying update billing_transactions subscriptions_purchased reference");
+
+            // enqueue renew transaction
+            RenewTransactionsQueue queue = new RenewTransactionsQueue();
+            DateTime nextRenewalDate = endDate.AddMinutes(-5);
+
+            if (paymentGateway != null)
+            {
+                nextRenewalDate = endDate.AddMinutes(paymentGateway.RenewalStartMinutes);
+            }
+            RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseId, billingGuid, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate), nextRenewalDate);
+            bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
+            if (!enqueueSuccessful)
+            {
+                log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
+                return true;
+            }
+            else
+                log.DebugFormat("New task created (upon renew success response). Next renewal date: {0}, data: {1}", nextRenewalDate, data);
+
+            // PS message 
+            var dicData = new Dictionary<string, object>()
                                         {
                                             {"BillingTransactionID", transactionResponse.TransactionID},
                                             {"SiteGUID", siteguid},
@@ -14913,110 +15421,16 @@ namespace ConditionalAccess
                                             {"SubscriptionCode", subscription.m_SubscriptionCode}
                                         };
 
-                        this.EnqueueEventRecord(NotifiedAction.ChargedSubscriptionRenewal, dicData);
+            this.EnqueueEventRecord(NotifiedAction.ChargedSubscriptionRenewal, dicData);
 
-                        log.DebugFormat("Successfully renewed. productId: {0}, price: {1}, currency: {2}, userID: {3}, billingTransactionId: {4}",
-                            productId,                          // {0}
-                            price,                              // {1}
-                            currency,                           // {2}
-                            siteguid,                           // {3}
-                            transactionResponse.TransactionID); // {4}
+            log.DebugFormat("Successfully renewed. productId: {0}, price: {1}, currency: {2}, userID: {3}, billingTransactionId: {4}",
+                productId,                          // {0}
+                price,                              // {1}
+                currency,                           // {2}
+                siteguid,                           // {3}
+                transactionResponse.TransactionID); // {4}
 
-                        return true;
-                    }
-
-                case ConditionalAccess.TvinciBilling.eTransactionState.Pending:
-                    {
-                        // renew subscription pending!
-                        log.DebugFormat("Transaction renew pending. data: {0}", logString);
-
-                        // get billing gateway
-                        TvinciBilling.PaymentGateway paymentGatewayResponse = null;
-                        try
-                        {
-                            paymentGatewayResponse = wsBillingService.GetPaymentGatewayByBillingGuid(billingUserName, billingPassword, householdId, billingGuid);
-                            if (paymentGatewayResponse == null)
-                            {
-                                // error getting PG
-                                log.Error("Error while trying to get the PG");
-                                return false;
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            log.Error("Error while trying to get the PG", ex);
-                            return false;
-                        }
-
-                        // enqueue renew transaction
-                        if (paymentGatewayResponse.RenewalIntervalMinutes > 0)
-                        {
-                            RenewTransactionsQueue queue = new RenewTransactionsQueue();
-                            DateTime nextRenewalDate = DateTime.UtcNow.AddMinutes(paymentGatewayResponse.RenewalIntervalMinutes);
-                            // check if to update siteGuid in subscription_purchases to masterSiteGuid and set renewal to masterSiteGuid
-                            if (shouldSwitchToMasterUser)
-                            {
-                                ConditionalAccessDAL.Update_SubscriptionPurchaseRenewalSiteGuid(m_nGroupID, billingGuid, (int)purchaseId, siteguid, "CA_CONNECTION_STRING");                                
-                            }
-
-                            RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseId, billingGuid, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate), nextRenewalDate);
-                            bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
-                            if (!enqueueSuccessful)
-                            {
-                                log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
-                                return false;
-                            }
-                            else
-                                log.DebugFormat("New task created (upon renew pending response). Next renewal date: {0}, data: {1}", nextRenewalDate, data);
-                        }
-                        else
-                        {
-                            // Error - interval value is 0
-                            log.ErrorFormat("Renew interval must be more than 0. Purchase ID: {0}, Billing GUID: {1}", purchaseId, billingGuid);
-                        }
-
-                        log.DebugFormat("pending renew returned. subID: {0}, price: {1}, currency: {2}, userID: {3}",
-                            productId, // {0}
-                            price,     // {1}
-                            currency,  // {2}
-                            siteguid); // {3}
-                        WriteToUserLog(siteguid, string.Format("pending renew returned. Product ID: {0}, price: {1}, currency: {2}, purchase ID: {3}",
-                              productId,                           // {0}
-                              price,                               // {1}
-                              currency,                            // {2}
-                              purchaseId));                        // {3}
-
-                        return true;
-                    }
-
-                case ConditionalAccess.TvinciBilling.eTransactionState.Failed:
-                    {
-                        // renew subscription failed!
-                        log.DebugFormat("Transaction renew failed. data: {0}", logString);
-
-                        // Try to cancel subscription
-                        if (ConditionalAccessDAL.CancelSubscription((int)purchaseId, m_nGroupID, siteguid, subscription.m_SubscriptionCode) == 0)
-                        {
-                            log.Error("Error while trying to cancel subscription");
-                            return false;
-                        }
-                        else
-                        {
-                            log.Debug("Subscription was canceled");
-                        }
-
-                        WriteToUserLog(siteguid, string.Format("Transaction renew failed. Product ID: {0}, purchase ID: {1}",
-                             productId,                           // {0}
-                             purchaseId));                        // {1}
-
-                        return true;
-                    }
-                default:
-                    {
-                        log.Error("Transaction state is unknown");
-                        return false;
-                    }
-            }
+            return true;
         }
 
         public bool UpdateSubscriptionRenewingStatus(long purchaseId, string billingGuid, bool isActive)
@@ -15258,7 +15672,7 @@ namespace ConditionalAccess
             List<EntitlementObject> ppvEntitlementsToDelete = new List<EntitlementObject>();
 
             // get ppvs ids by product codes if there are external ppv entitlements
-            Dictionary<long, PPVModule>  ppvsModulesDictionary = GetPpvModulesDataForExternalEntitlements(userId, ref ppvEntitlementsToInsert);
+            Dictionary<long, PPVModule> ppvsModulesDictionary = GetPpvModulesDataForExternalEntitlements(userId, ref ppvEntitlementsToInsert);
 
             var ppvDictionary = DAL.ConditionalAccessDAL.Get_AllUsersEntitlements((int)householdId, null);
             if (ppvDictionary != null && ppvDictionary.Count > 0)
@@ -15273,7 +15687,7 @@ namespace ConditionalAccess
                         if (DateUtils.UnixTimeStampToDateTime(ppvEntitlement.EndDateSeconds) != ppv.endDate || DateUtils.UnixTimeStampToDateTime(ppvEntitlement.StartDateSeconds) != ppv.startDate)
                         {
                             ppvEntitlement.PurchaseId = ppv.ID;
-                            
+
                             // update ppv
                             UpdateReconciledPPVEntitlement(householdId, ppvEntitlement, ppvsModulesDictionary);
                         }
@@ -15402,7 +15816,7 @@ namespace ConditionalAccess
             {
                 //grant entitlements
                 int contentId = 0;
-                
+
                 foreach (var ppv in ppvsToInsert)
                 {
                     if (ppv != null && int.TryParse(ppv.ContentId, out contentId))
@@ -15612,6 +16026,694 @@ namespace ConditionalAccess
                     }
                 }
             }
+        }
+
+        public UserBundlesResponse GetUserBundles(int domainID, int[] fileTypeIDs)
+        {
+            UserBundlesResponse response = new UserBundlesResponse()
+            {
+                channels = new List<int>(),
+                status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
+            };
+
+            // Validate the fileTypeIDs
+            if (!Utils.ValidateFileTypesConatainedInGroup(m_nGroupID, fileTypeIDs))
+            {
+                response.status.Code = (int)eResponseStatus.InvalidFileType;
+                response.status.Message = eResponseStatus.InvalidFileType.ToString();
+                return response;
+            }
+
+            string sPricingUsername = string.Empty;
+            string sPricingPassword = string.Empty;
+            Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sPricingUsername, ref sPricingPassword);
+            ConditionalAccess.UserEntitlementsObject.BundleEntitlements bundleEntitlements = new UserEntitlementsObject.BundleEntitlements();
+            Utils.InitializeUsersBundles(domainID, m_nGroupID, new List<int>(), sPricingUsername, sPricingPassword, bundleEntitlements);
+            if (bundleEntitlements != null)
+            {
+                // Get all subscriptions
+                if (bundleEntitlements.FileTypeIdToSubscriptionMappings != null && bundleEntitlements.FileTypeIdToSubscriptionMappings.Count > 0)
+                {
+                    if (fileTypeIDs != null && fileTypeIDs.Length > 0)
+                    {
+                        // Get subscriptions that don't have specific fileTypeIDs defined
+                        if (bundleEntitlements.FileTypeIdToSubscriptionMappings.ContainsKey(0) && bundleEntitlements.FileTypeIdToSubscriptionMappings[0].Count > 0)
+                        {
+                            response.channels.AddRange(Utils.GetChannelsListFromSubscriptions(bundleEntitlements.FileTypeIdToSubscriptionMappings[0]));
+                        }
+
+                        // Get subscriptions that have the specific fileTypeID defined
+                        foreach (int fileTypeID in fileTypeIDs)
+                        {
+                            if (bundleEntitlements.FileTypeIdToSubscriptionMappings.ContainsKey(fileTypeID) && bundleEntitlements.FileTypeIdToSubscriptionMappings[fileTypeID].Count > 0)
+                            {
+                                response.channels.AddRange(Utils.GetChannelsListFromSubscriptions(bundleEntitlements.FileTypeIdToSubscriptionMappings[fileTypeID]));
+                            }
+                        }
+                    }
+
+                    //Incase we want to ignore filetypeIDs (sent as null or empty)
+                    else
+                    {
+                        response.channels.AddRange(Utils.GetChannelsListFromSubscriptions(bundleEntitlements.SubscriptionsData.Values.ToList()));
+                    }
+                }
+
+                if (response.channels != null && response.channels.Count > 0)
+                {
+                    response.channels = response.channels.Distinct().ToList();
+                }
+
+                // Get all collections
+                if (bundleEntitlements.CollectionsData != null && bundleEntitlements.CollectionsData.Count > 0)
+                {
+                    foreach (Collection collection in bundleEntitlements.CollectionsData.Values)
+                    {
+                        if (collection.m_sCodes != null)
+                        {
+                            // Get channels from collections
+                            foreach (BundleCodeContainer bundleCode in collection.m_sCodes)
+                            {
+                                int channelID;
+                                if (int.TryParse(bundleCode.m_sCode, out channelID) && !response.channels.Contains(channelID))
+                                {
+                                    response.channels.Add(channelID);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                response.status.Code = (int)eResponseStatus.OK;
+                response.status.Message = eResponseStatus.OK.ToString();
+            }
+
+            return response;
+        }
+
+        public UserPurhcasedAssetsResponse GetUserPurchasedAssets(int domainID, int[] fileTypeIDs)
+        {
+            UserPurhcasedAssetsResponse response = new UserPurhcasedAssetsResponse()
+            {
+                assets = new List<KeyValuePair<eAssetTypes, List<string>>>(),
+                status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
+            };
+
+            // Validate the fileTypeIDs
+            if (!Utils.ValidateFileTypesConatainedInGroup(m_nGroupID, fileTypeIDs))
+            {
+                response.status.Code = (int)eResponseStatus.InvalidFileType;
+                response.status.Message = eResponseStatus.InvalidFileType.ToString();
+                return response;
+            }
+
+            try
+            {
+                // Get all PPV Entitlements            
+                Dictionary<string, int> entitlements = ConditionalAccessDAL.Get_AllUsersEntitlements(domainID, new List<int>()).Values.ToDictionary(x => x.ppvCode.ToString(), x => x.purchasedAsMediaFileID);
+                if (entitlements != null && entitlements.Count > 0)
+                {
+                    string sPricingUsername = string.Empty;
+                    string sPricingPassword = string.Empty;
+                    Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sPricingUsername, ref sPricingPassword);
+                    TvinciPricing.mdoule pricingModule = new mdoule();
+                    string pricingWSURL = Utils.GetWSURL("pricing_ws");
+                    if (!string.IsNullOrEmpty(pricingWSURL))
+                    {
+                        pricingModule.Url = pricingWSURL;
+                        // Get PPV Modules data
+                        TvinciPricing.PPVModuleResponse ppvModulesResponse = pricingModule.GetPPVModulesData(sPricingUsername, sPricingPassword, entitlements.Keys.Cast<string>().ToArray(), String.Empty, String.Empty, String.Empty);
+                        if (ppvModulesResponse != null && ppvModulesResponse.Status.Code == (int)eResponseStatus.OK && ppvModulesResponse.PPVModules.Length > 0)
+                        {
+                            List<int> mediaFilesToMap = new List<int>();
+                            foreach (PPVModule ppvModule in ppvModulesResponse.PPVModules)
+                            {
+                                if (fileTypeIDs != null && fileTypeIDs.Length > 0)
+                                {
+                                    // PPV does not have specific file types defined --> supports all file types, add PPV purchased mediaFile to list
+                                    if (ppvModule.m_relatedFileTypes == null)
+                                    {
+                                        if (!mediaFilesToMap.Contains(entitlements[ppvModule.m_sObjectCode]))
+                                        {
+                                            mediaFilesToMap.Add(entitlements[ppvModule.m_sObjectCode]);
+                                        }
+                                    }
+
+                                    // PPV has one of the requested file types, add PPV purchased mediaFile to list
+                                    else if (ppvModule.m_relatedFileTypes.Length > 0)
+                                    {
+                                        int[] relevantFileTypes = ppvModule.m_relatedFileTypes.Intersect(fileTypeIDs).ToArray();
+                                        if (relevantFileTypes != null && relevantFileTypes.Length > 0)
+                                        {
+                                            if (!mediaFilesToMap.Contains(entitlements[ppvModule.m_sObjectCode]))
+                                            {
+                                                mediaFilesToMap.Add(entitlements[ppvModule.m_sObjectCode]);
+                                            }
+                                        }
+                                    }
+                                }
+                                //Incase we want to ignore filetypeIDs (sent as null or empty)
+                                else
+                                {
+                                    if (!mediaFilesToMap.Contains(entitlements[ppvModule.m_sObjectCode]))
+                                    {
+                                        mediaFilesToMap.Add(entitlements[ppvModule.m_sObjectCode]);
+                                    }
+                                }
+                            }
+
+                            // Get mediaIds according to mediaFiles from ws_api (MapMediaFiles)
+                            if (mediaFilesToMap.Count > 0)
+                            {
+                                string sAPIUsername = string.Empty;
+                                string sAPIPassword = string.Empty;
+                                Utils.GetWSCredentials(m_nGroupID, eWSModules.API, ref sAPIUsername, ref sAPIPassword);
+                                TvinciAPI.MeidaMaper[] mapper = Utils.GetMediaMapper(m_nGroupID, mediaFilesToMap.ToArray(), sAPIUsername, sAPIPassword);
+
+                                // Add mediaIDs to response
+                                if (mapper != null && mapper.Length > 0)
+                                {
+                                    response.assets.Add(new KeyValuePair<eAssetTypes, List<string>>(eAssetTypes.MEDIA, mapper.Select(x => x.m_nMediaID.ToString()).ToList()));
+                                }
+                            }
+
+                        }
+                    }
+                }
+                // add all ppvCode to the assets of the response
+            }
+            catch (Exception ex)
+            {
+                response.status.Code = (int)eResponseStatus.Error;
+                response.status.Message = eResponseStatus.Error.ToString();
+                StringBuilder sb = new StringBuilder("Exception at GetUserPurchasedAssets. ");
+                sb.Append(String.Concat("Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(", DomainID: ", domainID));
+                sb.Append(", FileTypes: ");
+                foreach (int fileTypeID in fileTypeIDs)
+                {
+                    sb.Append(String.Concat(fileTypeID, ", "));
+                }
+                sb.Append(String.Concat("Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(", Stack Trace: ", ex.StackTrace));
+
+                log.Error("Exception - " + sb.ToString(), ex);
+            }
+
+            return response;
+        }
+
+        public ApiObjects.Response.Status RecordTransaction(string userId, long householdId, int state, string paymentGatewayReferenceID, string paymentGatewayResponseCode, int customDataId,
+              double price, string currency, int contentId, int productId, eTransactionType transactionType, string paymentDetails, string paymentMethod, int paymentGatewayId, string paymentMethodExternalID)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+
+            try
+            {
+                // 1. validate user and household
+                //---------------------------------
+                status = Utils.ValidateUserAndDomain(m_nGroupID, userId, ref householdId);
+                if (status.Code != (int)eResponseStatus.OK || householdId <= 0)
+                {
+                    return status;
+                }
+
+                // 2. Get Custom Data by Id  
+                string customData = string.Empty;
+                if (customDataId == 0 || !BillingDAL.Get_CustomDataByID((long)customDataId, ref customData, BILLING_CONNECTION_STRING) || string.IsNullOrEmpty(customData))
+                {
+                    log.ErrorFormat("SetEntitlement - Invalid Custom data identifier {0}", customDataId.ToString());
+                    return new ApiObjects.Response.Status((int)eResponseStatus.InvalidCustomDataIdentifier, "Invalid Custom data identifier");
+                }
+
+                // Get Price, currency from customData
+                //-------------------------------------
+                double customDataPrice = 0.0;
+                string customDataCurrency = string.Empty;
+                string userIP = string.Empty;
+                string coupon = string.Empty;
+                string udid = string.Empty; //TODO
+
+                GetDataFromCustomData(customDataId, customData, ref customDataPrice, ref customDataCurrency, ref userIP, ref coupon, ref udid);
+
+                if (price != customDataPrice || string.IsNullOrEmpty(currency) || (currency != customDataCurrency))
+                {
+                    log.ErrorFormat("SetEntitlement - mismatch price {0}, currency {1} input with custom data Id {2}", price.ToString(), currency, customDataId.ToString());
+                }
+
+                // 3. grant entitlement according to ppv/ sub..
+                TransactionResponse transactionResponse = new TransactionResponse();
+                switch (transactionType)
+                {
+                    // choose price or customDataPrice
+                    case eTransactionType.PPV:
+                        status = RecordPPVEntitlement(userId, householdId, contentId, productId, transactionType, coupon, price, currency, customData, userIP, udid, state, paymentGatewayId, paymentGatewayReferenceID,
+                            paymentGatewayResponseCode, paymentDetails, paymentMethod, paymentMethodExternalID);
+                        break;
+
+                    case eTransactionType.Subscription:
+                        status = RecordSubscriptionEntitlement(userId, householdId, contentId, productId, transactionType, coupon, price, currency, customData, userIP, udid, state, paymentGatewayId,
+                            paymentGatewayReferenceID, paymentGatewayResponseCode, paymentDetails, paymentMethod, paymentMethodExternalID);
+                        break;
+                    case eTransactionType.Collection:
+                    default:
+                        break;
+                }
+                return status;
+            }
+            catch (Exception ex)
+            {
+                log.Error("SetEntitlement ", ex);
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "error SetEntitlement");
+                return status;
+            }
+        }
+
+        private ApiObjects.Response.Status RecordSubscriptionEntitlement(string userId, long householdId, int contentId, int productId, eTransactionType transactionType, string coupon,
+            double price, string currency, string customData, string userIP, string udid, int state, int paymentGatewayId, string paymentGatewayReferenceID, string paymentGatewayResponseCode,
+            string paymentDetails, string paymentMethod, string paymentMethodExternalID)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+
+            // log request
+            string logString = string.Format("RecoredSubscriptionEntitlement request: siteguid {0}, household {1}, price {2}, currency {3}, productId {4}, coupon {5}, userIp {6}, paymentGatewayId {7}",
+                !string.IsNullOrEmpty(userId) ? userId : string.Empty, householdId, price, !string.IsNullOrEmpty(currency) ? currency : string.Empty, productId,
+                !string.IsNullOrEmpty(coupon) ? coupon : string.Empty, !string.IsNullOrEmpty(userIP) ? userIP : string.Empty, paymentGatewayId);
+
+            log.Debug(logString);
+
+            try
+            {
+                string country = string.Empty;
+                if (!string.IsNullOrEmpty(userIP))
+                {
+                    // get country by user IP
+                    country = TVinciShared.WS_Utils.GetIP2CountryCode(userIP);
+                }
+
+                // validate price
+                PriceReason priceReason = PriceReason.UnKnown;
+                TvinciPricing.Subscription subscription = null;
+                TvinciPricing.Price priceResponse = Utils.GetSubscriptionFinalPrice(m_nGroupID, productId.ToString(), userId, coupon, ref priceReason, ref subscription, country, string.Empty, string.Empty);
+
+                if (priceResponse == null)
+                {
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Error Getting price");
+                    log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
+                    return status;
+                }
+
+                bool entitleToPreview = priceReason == PriceReason.EntitledToPreviewModule;
+
+                if (priceReason == PriceReason.ForPurchase || entitleToPreview)
+                {
+                    // item is for purchase
+                    if (priceResponse.m_dPrice == price && priceResponse.m_oCurrency.m_sCurrencyCD3 == currency)
+                    {
+                        // create new GUID for billing transaction
+                        string billingGuid = Guid.NewGuid().ToString();
+
+                        // RecordTransaction
+                        //------------------
+                        TransactionResponse transactionResponse = RecordBillingTransaction(userId, householdId, contentId, productId, transactionType, paymentDetails, paymentMethod,
+                            paymentGatewayId, billingGuid, customData, paymentGatewayReferenceID, paymentGatewayResponseCode, state, paymentMethodExternalID);
+
+                        if (transactionResponse == null || transactionResponse.Status == null)
+                        {
+                            log.ErrorFormat("Error: failed to record transaction, data: {0}", logString);
+                            return new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
+                        }
+
+                        // Status OK + (State OK || State Pending) = grant entitlement
+                        if (transactionResponse.Status.Code == (int)eResponseStatus.OK &&
+                            (transactionResponse.State.Equals(eTransactionState.OK.ToString()) ||
+                            transactionResponse.State.Equals(eTransactionState.Pending.ToString())))
+                        {
+                            // purchase passed
+                            long purchaseID = 0;
+
+                            // update entitlement date
+                            DateTime entitlementDate = DateTime.UtcNow;
+                            DateTime? endDate = null;
+                            transactionResponse.CreatedAt = DateUtils.DateTimeToUnixTimestamp(entitlementDate);
+
+                            // grant entitlement
+                            bool handleBillingPassed = HandleSubscriptionBillingSuccess(ref transactionResponse, userId, householdId, subscription, price, currency, coupon, userIP,
+                                country, udid, long.Parse(transactionResponse.TransactionID), customData, productId, billingGuid.ToString(), entitleToPreview, subscription.m_bIsRecurring,
+                                entitlementDate, ref purchaseID, ref endDate);
+
+                            if (handleBillingPassed && endDate.HasValue)
+                            {
+                                status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+                                WriteToUserLog(userId, string.Format("Subscription Purchase, productId:{0}, PurchaseID:{1}, BillingTransactionID:{2}",
+                                    productId, purchaseID, transactionResponse.TransactionID));
+
+                                // entitlement passed, update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
+                                if (subscription.m_nDomainLimitationModule != 0)
+                                {
+                                    UpdateDLM(householdId, subscription.m_nDomainLimitationModule);
+                                }
+
+                                if (subscription.m_bIsRecurring)
+                                {
+                                    TvinciBilling.PaymentGateway paymentGatewayResponse = null;
+                                    try
+                                    {
+                                        // call billing process renewal
+                                        string billingUserName = string.Empty;
+                                        string billingPassword = string.Empty;
+                                        TvinciBilling.module wsBillingService = null;
+                                        InitializeBillingModule(ref wsBillingService, ref billingUserName, ref billingPassword);
+                                        paymentGatewayResponse = wsBillingService.GetPaymentGatewayByBillingGuid(billingUserName, billingPassword, householdId, billingGuid);
+
+                                        DateTime nextRenewalDate = endDate.Value.AddMinutes(-5); //default
+                                        if (paymentGatewayResponse == null)
+                                        {
+                                            // error getting PG
+                                            log.Error("Error getting the PG - no renewal taks sent");
+                                        }
+                                        else
+                                        {
+                                            nextRenewalDate = endDate.Value.AddMinutes(paymentGatewayResponse.RenewalStartMinutes);
+                                        }
+                                        // enqueue renew transaction
+                                        RenewTransactionsQueue queue = new RenewTransactionsQueue();
+                                        RenewTransactionData data = new RenewTransactionData(m_nGroupID, userId, purchaseID, billingGuid,
+                                            TVinciShared.DateUtils.DateTimeToUnixTimestamp((DateTime)endDate), nextRenewalDate);
+                                        bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
+                                        if (!enqueueSuccessful)
+                                        {
+                                            log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
+                                        }
+                                        else
+                                            log.DebugFormat("New task created (upon subscription purchase success). next renewal date: {0}, data: {1}", nextRenewalDate, data);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.Error("Error while trying to get the PG", ex);
+                                    }
+                                }
+
+                                // build notification message
+                                var dicData = new Dictionary<string, object>()
+                                    {
+                                        {"SubscriptionCode", productId},
+                                        {"BillingTransactionID", transactionResponse.TransactionID},
+                                        {"SiteGUID", userId},
+                                        {"PurchaseID", purchaseID},
+                                        {"CouponCode", coupon},
+                                        {"CustomData", customData}
+                                    };
+                                // notify purchase
+                                if (!this.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData))
+                                {
+                                    log.ErrorFormat("Error while enqueue purchase record: {0}, data: {1}", transactionResponse.Status.Message, logString);
+                                }
+                            }
+                            else
+                            {
+                                // purchase passed, entitlement failed
+                                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "purchase passed but entitlement failed");
+                                log.ErrorFormat("Error: {0}, data: {1}", transactionResponse.Status.Message, logString);
+                            }
+                        }
+                        else
+                        {
+                            // purchase failed - received error status
+                            status = new ApiObjects.Response.Status(transactionResponse.Status.Code, transactionResponse.Status.Message);
+                            log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
+                        }
+
+                    }
+                    else
+                    {
+                        // incorrect price
+                        status = new ApiObjects.Response.Status((int)eResponseStatus.IncorrectPrice, "The price of the request is not the actual price");
+                        log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
+                    }
+                }
+                else
+                {
+                    // item not for purchase
+                    status = SetResponseStatus(priceReason);
+                    log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Empty, ex);
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            }
+            return status;
+        }
+
+        private ApiObjects.Response.Status RecordPPVEntitlement(string userId, long householdId, int contentId, int productId, eTransactionType transactionType, string coupon, double price,
+            string currency, string customData, string userIP, string udid, int state, int paymentGatewayId, string paymentGatewayReferenceID, string paymentGatewayResponseCode, string paymentDetails,
+            string paymentMethod, string paymentMethodExternalID)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+            // log request
+            string logString = string.Empty;
+            string.Format("RecoredPPVEntitlement request: siteguid {0}, household {1}, price {2}, currency {3}, contentId {4}, productId {5}, productType {6}, coupon {7}, userIp {8}, paymentGatewayId {9}",
+                !string.IsNullOrEmpty(userId) ? userId : string.Empty, householdId, price, !string.IsNullOrEmpty(currency) ? currency : string.Empty,
+                contentId, productId, transactionType.ToString(), !string.IsNullOrEmpty(coupon) ? coupon : string.Empty, !string.IsNullOrEmpty(userIP) ? userIP : string.Empty, paymentGatewayId);
+
+            log.Debug(logString);
+
+            try
+            {
+                // validate content ID
+                if (contentId < 1)
+                {
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, ILLEGAL_CONTENT_ID);
+                    log.ErrorFormat("Error: {0}, contentId: {1}", status.Message, contentId.ToString());
+                    return status;
+                }
+
+                // validate content ID related media
+                int mediaID = ConditionalAccess.Utils.GetMediaIDFromFileID(contentId, m_nGroupID);
+                if (mediaID < 1)
+                {
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Content ID with a related media");
+                    log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
+                    return status;
+                }
+
+                // validate PPV 
+                TvinciPricing.PPVModule thePPVModule = null;
+                status = ValidatePPVModuleCode(productId, contentId, ref thePPVModule);
+                if (status.Code != (int)eResponseStatus.OK)
+                {
+                    log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
+                    return status;
+                }
+
+                // validate price
+                PriceReason priceReason = PriceReason.UnKnown;
+                TvinciPricing.Subscription relevantSub = null;
+                TvinciPricing.Collection relevantCol = null;
+                TvinciPricing.PrePaidModule relevantPP = null;
+                TvinciPricing.Price mediaPrice = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(contentId, thePPVModule, userId, coupon, m_nGroupID,
+                                                                                              ref priceReason, ref relevantSub, ref relevantCol, ref relevantPP,
+                                                                                              string.Empty, string.Empty, string.Empty);
+                if (mediaPrice == null)
+                {
+                    // incorrect price
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Error Getting price");
+                    log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
+                    return status;
+                }
+
+                if (priceReason == PriceReason.ForPurchase || (priceReason == PriceReason.SubscriptionPurchased && mediaPrice.m_dPrice > 0))
+                {
+                    // item is for purchase                    
+                    if (mediaPrice.m_dPrice == price && mediaPrice.m_oCurrency.m_sCurrencyCD3 == currency)
+                    {
+                        // create new GUID for billing transaction
+                        string billingGuid = Guid.NewGuid().ToString();
+
+                        // RecordTransaction
+                        //------------------
+                        TransactionResponse transactionResponse = RecordBillingTransaction(userId, householdId, contentId, productId, transactionType, paymentDetails, paymentMethod,
+                            paymentGatewayId, billingGuid, customData, paymentGatewayReferenceID, paymentGatewayResponseCode, state, paymentMethodExternalID);
+
+                        if (transactionResponse == null || transactionResponse.Status == null)
+                        {
+                            // purchase failed - no status error
+                            log.ErrorFormat("Error: failed to record transaction, data: {0}", logString);
+                            return new ApiObjects.Response.Status((int)eResponseStatus.Error, "purchase failed");
+                        }
+
+                        // Status OK + (State OK || State Pending) = grant entitlement
+                        if (transactionResponse.Status.Code == (int)eResponseStatus.OK &&
+                            (transactionResponse.State.Equals(eTransactionState.OK.ToString()) ||
+                            transactionResponse.State.Equals(eTransactionState.Pending.ToString())))
+                        {
+                            string country = string.Empty;
+                            if (!string.IsNullOrEmpty(userIP))
+                            {
+                                // get country by user IP
+                                country = TVinciShared.WS_Utils.GetIP2CountryCode(userIP);
+                            }
+                            // purchase passed
+                            long purchaseId = 0;
+
+                            // update entitlement date
+                            DateTime entitlementDate = DateTime.UtcNow;
+                            transactionResponse.CreatedAt = DateUtils.DateTimeToUnixTimestamp(entitlementDate);
+
+                            // grant entitlement
+                            bool handleBillingPassed = HandlePPVBillingSuccess(ref transactionResponse, userId, householdId, relevantSub, price, currency, coupon, userIP,
+                                            country, userId, long.Parse(transactionResponse.TransactionID), customData, thePPVModule,
+                                          productId, contentId, billingGuid, entitlementDate, ref purchaseId);
+
+                            if (handleBillingPassed)
+                            {
+                                status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "OK");
+
+                                WriteToUserLog(userId, string.Format("PPV Purchase, ProductID:{0}, ContentID:{1}, PurchaseID:{2}, BillingTransactionID:{3}",
+                                    productId, contentId, purchaseId, transactionResponse.TransactionID));
+
+                                // entitlement passed - build notification message
+                                var dicData = new Dictionary<string, object>()
+                                    {
+                                        {"MediaFileID", contentId},
+                                        {"BillingTransactionID", transactionResponse.TransactionID},
+                                        {"PPVModuleCode", productId},
+                                        {"SiteGUID", userId},
+                                        {"CouponCode", coupon},
+                                        {"CustomData", customData},
+                                        {"PurchaseID", purchaseId}
+                                    };
+
+                                // notify purchase
+                                if (!this.EnqueueEventRecord(NotifiedAction.ChargedMediaFile, dicData))
+                                {
+                                    status = new ApiObjects.Response.Status(transactionResponse.Status.Code, transactionResponse.Status.Message);
+                                    log.DebugFormat("Error while enqueue purchase record: {0}, data: {1}", status.Message, logString);
+                                }
+                            }
+                            else
+                            {
+                                // purchase passed, entitlement failed
+                                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "purchase passed, entitlement failed");
+                                log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
+                            }
+                        }
+                        else
+                        {
+                            // purchase failed - received error status
+                            status = new ApiObjects.Response.Status(transactionResponse.Status.Code, transactionResponse.Status.Message);
+                            log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
+                        }
+                    }
+                    else
+                    {
+                        // incorrect price
+                        status = new ApiObjects.Response.Status((int)eResponseStatus.IncorrectPrice, "The request price is incorrect");
+                        log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
+                    }
+                }
+                else
+                {
+                    // not for purchase
+                    status = SetResponseStatus(priceReason);
+                    log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
+                }
+            }
+            catch (Exception ex)
+            {
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error);
+                log.Error("Exception occurred. data: " + logString, ex);
+            }
+            return status;
+        }
+
+        private static void GetDataFromCustomData(int customDataId, string customData, ref double customDataPrice, ref string customDataCurrency, ref string userIP, ref string coupon, ref string udid)
+        {
+            try
+            {
+                XmlDocument doc = new XmlDocument();
+                doc.LoadXml(customData);
+                XmlNode theRequest = doc.FirstChild;
+
+                customDataCurrency = XmlUtils.GetSafeValue(CURRENCY, ref theRequest);
+                userIP = XmlUtils.GetSafeValue(USER_IP, ref theRequest);
+                coupon = XmlUtils.GetSafeValue(COUPON_CODE, ref theRequest);
+                udid = XmlUtils.GetSafeValue(DEVICE_NAME, ref theRequest);
+                if (!Double.TryParse(XmlUtils.GetSafeValue(PRICE, ref theRequest), out customDataPrice))
+                {
+                    customDataPrice = 0.0;
+                }
+
+            }
+            catch (Exception exc)
+            {
+                log.ErrorFormat("SetEntitlement - error load custom data xml {0} Exception:{1}", customDataId, exc);
+                throw exc;
+            }
+        }
+
+        private TransactionResponse RecordBillingTransaction(string userId, long householdId, int contentId, int productId, eTransactionType transactionType, string paymentDetails,
+            string paymentMethod, int paymentGatewayId, string billingGuid, string customData, string paymentGatewayReferenceID, string paymentGatewayResponseCode, int state, string paymentMethodExternalID)
+        {
+            TransactionResponse response = new TransactionResponse();
+
+            string logString = string.Format("RecordBillingTransaction billing service siteGUID={0}, houseHoldID={1}, customData={2}, productID={3}, transactionType={4}, billingGuid={5}, paymentGatewayId={6}",
+                                       !string.IsNullOrEmpty(userId) ? userId : string.Empty, householdId, !string.IsNullOrEmpty(customData) ? customData : string.Empty,
+                                       productId, (int)transactionType, !string.IsNullOrEmpty(billingGuid) ? billingGuid : string.Empty, paymentGatewayId);
+            log.Debug(logString);
+
+            try
+            {
+                string userName = string.Empty;
+                string password = string.Empty;
+                TvinciBilling.module wsBillingService = null;
+                InitializeBillingModule(ref wsBillingService, ref userName, ref password);
+
+                // call new billing method for charge adapter
+                var transactionResponse = wsBillingService.RecordTransaction(userName, password, userId, (int)householdId, paymentGatewayReferenceID, paymentGatewayResponseCode, productId, (int)transactionType,
+                                                                                billingGuid, contentId, string.Empty, state, paymentGatewayId, 0, paymentMethod, paymentDetails, customData, paymentMethodExternalID);
+
+                response = ConvertTransactResultToTransactionResponse(logString, transactionResponse);
+            }
+            catch (Exception ex)
+            {
+                log.Error(logString, ex);
+                response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            }
+
+            return response;
+        }
+
+        private static TransactionResponse ConvertTransactResultToTransactionResponse(string logString, TvinciBilling.TransactResult transactResult)
+        {
+            TransactionResponse response = new TransactionResponse();
+
+            if (transactResult != null)
+            {
+                // convert response to purchase response
+                //--------------------------------------
+                response.PGReferenceID = transactResult.PGReferenceID != null ? transactResult.PGReferenceID : string.Empty;
+                response.PGResponseCode = transactResult.PGResponseID != null ? transactResult.PGResponseID : string.Empty;
+                response.TransactionID = transactResult.TransactionID.ToString();
+                response.State = transactResult.State.ToString();
+                response.FailReasonCode = transactResult.FailReasonCode;
+                response.StartDateSeconds = transactResult.StartDateSeconds;
+                response.EndDateSeconds = transactResult.EndDateSeconds;
+                response.AutoRenewing = transactResult.AutoRenewing;
+
+                if (transactResult.Status != null)
+                    response.Status = new ApiObjects.Response.Status((int)transactResult.Status.Code, transactResult.Status.Message);
+                else
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "No status returned from billing service");
+                    log.Error("Received error from billing service. " + logString);
+                }
+            }
+            return response;
         }
     }
 }

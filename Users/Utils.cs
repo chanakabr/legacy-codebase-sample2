@@ -14,6 +14,7 @@ using System.Security.AccessControl;
 using Users.Cache;
 using KLogMonitor;
 using ApiObjects.Response;
+using QueueWrapper.Queues.QueueObjects;
 
 namespace Users
 {
@@ -24,6 +25,7 @@ namespace Users
         public const int USER_COGUID_LENGTH = 15;
         internal static readonly DateTime FICTIVE_DATE = new DateTime(2000, 1, 1); // fictive date. must match with the       
         internal static readonly int CONCURRENCY_MILLISEC_THRESHOLD = 65000; // default result of GetDateSafeVal in ODBCWrapper.Utils
+        protected const string ROUTING_KEY_INITIATE_NOTIFICATION_ACTION = "PROCESS_INITIATE_NOTIFICATION_ACTION";
 
 
         static public Int32 GetGroupID(string sWSUserName, string sPass)
@@ -930,7 +932,7 @@ namespace Users
                     break;
                 case DeviceResponseStatus.DeviceNotExists:
                     result.Code = (int)eResponseStatus.DeviceNotExists;
-                    result.Message = "Device des not exists";
+                    result.Message = "Device does not exists";
                     break;
                 case DeviceResponseStatus.OK:
                     result.Code = (int)eResponseStatus.OK;
@@ -940,6 +942,39 @@ namespace Users
                     result.Code = (int)eResponseStatus.ExceededLimit;
                     result.Message = "Exceeded limit";
                     break;
+                default:
+                    result.Code = (int)eResponseStatus.Error;
+                    result.Message = "Error";
+                    break;
+            }
+
+            return result;
+        }
+
+        internal static ApiObjects.Response.Status ConvertDeviceStateToResponseObject(DeviceState deviceState)
+        {
+            ApiObjects.Response.Status result = new ApiObjects.Response.Status();
+
+            switch (deviceState)
+            {
+                case DeviceState.NotExists:
+                     result.Code = (int)eResponseStatus.DeviceNotExists;
+                    result.Message = "Device does not exists";
+                    break;
+                //case DeviceState.Pending:
+                //    result.Code = (int)eResponseStatus.dev;
+                //    result.Message = "Device des not exists";
+                //    break;
+                //case DeviceState.Activated:
+                //     result.Code = (int)eResponseStatus.DeviceNotExists;
+                //    result.Message = "Device des not exists";
+                //    break;
+                //case DeviceState.UnActivated:
+                //     result.Code = (int)eResponseStatus.DeviceNotExists;
+                //    result.Message = "Device des not exists";
+                //    break;
+                case DeviceState.UnKnown:
+                case DeviceState.Error:
                 default:
                     result.Code = (int)eResponseStatus.Error;
                     result.Message = "Error";
@@ -969,6 +1004,21 @@ namespace Users
             selectQuery = null;
 
             return isAllowed;
+        }
+
+        public static bool AddInitiateNotificationActionToQueue(int groupId, eUserMessageAction userAction, int userId, string udid, string pushToken = "")
+        {
+            InitiateNotificationActionQueue que = new InitiateNotificationActionQueue();
+            ApiObjects.QueueObjects.UserNotificationData messageAnnouncementData = new ApiObjects.QueueObjects.UserNotificationData(groupId, (int)userAction, userId, udid, pushToken);
+
+            bool res = que.Enqueue(messageAnnouncementData, ROUTING_KEY_INITIATE_NOTIFICATION_ACTION);
+
+            if (res)
+                log.DebugFormat("Successfully inserted a message to notification action queue. user id: {0}, device id: {1}, push token: {2}, group id: {3}, user action: {4}", userId, udid, pushToken, groupId, userAction);
+            else
+                log.ErrorFormat("Error while inserting to notification action queue.  user id: {0}, device id: {1}, push token: {2}, group id: {3}, user action: {4}", userId, udid, pushToken, groupId, userAction);
+
+            return res;
         }
     }
 

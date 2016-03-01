@@ -18,6 +18,7 @@ using System.Web;
 using System.Xml;
 using System.Xml.Serialization;
 using Tvinci.Core.DAL;
+using TvinciImporter.Notification_WCF;
 using TVinciShared;
 
 namespace TvinciImporter
@@ -26,6 +27,7 @@ namespace TvinciImporter
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         protected const string ROUTING_KEY_PROCESS_IMAGE_UPLOAD = "PROCESS_IMAGE_UPLOAD\\{0}";
+        protected const string ROUTING_KEY_PROCESS_FREE_ITEM_UPDATE = "PROCESS_FREE_ITEM_UPDATE\\{0}";
 
         static string m_sLocker = "";
         static protected bool IsNodeExists(ref XmlNode theItem, string sXpath)
@@ -4177,6 +4179,9 @@ namespace TvinciImporter
                 string sName = GetItemParameterVal(ref theItem, "name");
                 string sMLHandling = GetItemParameterVal(ref theItem, "ml_handling");
 
+                if (string.IsNullOrEmpty(sName))
+                    continue;
+
                 TranslatorStringHolder metaHolder = new TranslatorStringHolder();
                 XmlNodeList theContainers = theItem.SelectNodes("container");
                 Int32 nCount1 = theContainers.Count;
@@ -4879,6 +4884,165 @@ namespace TvinciImporter
 
         #region Notification
 
+        static public ApiObjects.Response.Status AddMessageAnnouncement(int groupID, bool Enabled, string name, string message, int Recipients, DateTime date, string timezone, ref int id)
+        {
+            AddMessageAnnouncementResponse response =null;
+            try
+            {
+                //Call Notifications WCF service
+                string sWSURL = GetConfigVal("NotificationService");
+                Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
+                if (!string.IsNullOrEmpty(sWSURL))
+                    service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
+
+                string sIP = "1.1.1.1";
+                string sWSUserName = "";
+                string sWSPass = "";
+                int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupID);
+                TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "", "notifications", sIP, ref sWSUserName, ref sWSPass);
+                MessageAnnouncement announcement = new MessageAnnouncement();
+                announcement.Message = message;
+                announcement.Name = name;
+                announcement.Recipients = (eAnnouncementRecipientsType)Recipients;
+                announcement.StartTime = ODBCWrapper.Utils.DateTimeToUnixTimestamp(date);
+                announcement.Timezone = timezone;
+                announcement.Enabled = Enabled;
+                response = service.AddMessageAnnouncement(sWSUserName, sWSPass, announcement);
+                if (response != null && response.Status.Code == (int)ApiObjects.Response.eResponseStatus.OK)
+                {
+                    id = response.Id;                    
+                }                
+                return response.Status;
+            }
+            catch (Exception)
+            {
+                return new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
+            }           
+        }
+
+        static public ApiObjects.Response.Status UpdateMessageAnnouncement(int groupID, int id, bool Enabled, string name, string message, int Recipients, DateTime date, string timezone)
+        {
+            try
+            {
+                //Call Notifications WCF service
+                string sWSURL = GetConfigVal("NotificationService");
+                Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
+                if (!string.IsNullOrEmpty(sWSURL))
+                    service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
+
+                string sIP = "1.1.1.1";
+                string sWSUserName = "";
+                string sWSPass = "";
+                int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupID);
+                TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "", "notifications", sIP, ref sWSUserName, ref sWSPass);
+                MessageAnnouncement announcement = new MessageAnnouncement();
+                announcement.Message = message;
+                announcement.Name = name;
+                announcement.Recipients = (eAnnouncementRecipientsType)Recipients;
+                announcement.StartTime = ODBCWrapper.Utils.DateTimeToUnixTimestamp(date);
+                announcement.Timezone = timezone;
+                announcement.MessageAnnouncementId = id;
+                announcement.Enabled = Enabled;
+                ApiObjects.Response.Status response = service.UpdateMessageAnnouncement(sWSUserName, sWSPass, announcement);
+                return response;               
+            }
+            catch (Exception)
+            {
+                return new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString()); ;
+            }
+        }
+
+
+        static public bool UpdateMessageAnnouncementStatus(int groupID, int id, bool status)
+        {
+            try
+            {
+                //Call Notifications WCF service
+                string sWSURL = GetConfigVal("NotificationService");
+                Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
+                if (!string.IsNullOrEmpty(sWSURL))
+                    service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
+
+                string sIP = "1.1.1.1";
+                string sWSUserName = "";
+                string sWSPass = "";
+                int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupID);
+                TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "", "notifications", sIP, ref sWSUserName, ref sWSPass);
+              
+                ApiObjects.Response.Status response = service.UpdateMessageAnnouncementStatus(sWSUserName, sWSPass, id, status);
+                if (response != null && response.Code == (int)ApiObjects.Response.eResponseStatus.OK)
+                {
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            return false;
+        }
+
+
+        //static public DataTable GetAllMessageAnnouncements(int groupid)
+        //{
+        //    DataTable dt = null;
+        //    try
+        //    {
+        //        //Call Notifications WCF service
+        //        string sWSURL = GetConfigVal("NotificationService");
+        //        Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
+        //        if (!string.IsNullOrEmpty(sWSURL))
+        //            service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
+
+        //        string sIP = "1.1.1.1";
+        //        string sWSUserName = "";
+        //        string sWSPass = "";
+        //        int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupid);
+        //        TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "", "notifications", sIP, ref sWSUserName, ref sWSPass);
+
+        //        GetAllMessageAnnouncementsResponse response = service.GetAllMessageAnnouncements(sWSUserName, sWSPass, 0 ,0);
+
+        //        if (response != null && response.totalCount > 0)
+        //        {
+        //            dt = null;
+        //        }
+        //        else
+        //        {
+        //            dt = new DataTable();
+
+        //            dt.Columns.Add("ID", typeof(int));
+        //            dt.Columns.Add("recipientsCode", typeof(int));
+        //            dt.Columns.Add("status", typeof(int));
+        //            dt.Columns.Add("is_active", typeof(int));
+        //            dt.Columns.Add("name", typeof(string));
+        //            dt.Columns.Add("message", typeof(string));
+        //            dt.Columns.Add("start_time", typeof(DateTime));
+        //            dt.Columns.Add("sent", typeof(int));
+        //            dt.Columns.Add("updater_id", typeof(int));
+        //            dt.Columns.Add("update_date", typeof(DateTime));
+        //            dt.Columns.Add("create_date", typeof(DateTime));
+        //            dt.Columns.Add("group_id", typeof(int));
+        //            dt.Columns.Add("timezone", typeof(string));
+        //            dt.Columns.Add("recipients", typeof(string));
+        //            dt.Columns.Add("message status", typeof(string));
+
+
+        //            foreach (MessageAnnouncement ma in response.messageAnnouncements)
+        //            {
+        //                dt.Rows.Add(  ma.MessageAnnouncementId, (int)ma.Recipients, 1, ma.Enabled, ma.Name, ma.Message, ma.StartTime, (int)ma.Status
+        //                    ma.Message, ma.Name, ma.MessageAnnouncementId);
+                        
+        //            }
+        //        }
+        //    }
+        //    catch (Exception)
+        //    {
+        //        dt = null;
+        //    }
+        //    return dt;
+
+        //}
+
         static public void UpdateNotificationsRequests(int groupid, int nMediaID)
         {
             ParameterizedThreadStart start = new ParameterizedThreadStart(UpdateNotification);
@@ -5008,7 +5172,29 @@ namespace TvinciImporter
 
                                     if (wsCatalog != null)
                                     {
-                                        isUpdateIndexSucceeded = wsCatalog.UpdateIndex(arrMediaIds, nParentGroupID, eAction);
+                                        WSCatalog.eAction actionCatalog = WSCatalog.eAction.On;
+
+                                        switch (eAction)
+                                        {
+                                            case eAction.Off:
+                                            actionCatalog = WSCatalog.eAction.Off;
+                                            break;
+                                            case eAction.On:
+                                            actionCatalog = WSCatalog.eAction.On;
+                                            break;
+                                            case eAction.Update:
+                                            actionCatalog = WSCatalog.eAction.Update;
+                                            break;
+                                            case eAction.Delete:
+                                            actionCatalog = WSCatalog.eAction.Delete;
+                                            break;
+                                            case eAction.Rebuild:
+                                            actionCatalog = WSCatalog.eAction.Rebuild;
+                                            break;
+                                            default:
+                                            break;
+                                        }
+                                        isUpdateIndexSucceeded = wsCatalog.UpdateIndex(arrMediaIds, nParentGroupID, actionCatalog);
 
                                         string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
                                         log.DebugFormat("Update index {0} in catalog '{1}'", sInfo, sEndPointAddress);
@@ -5082,7 +5268,30 @@ namespace TvinciImporter
 
                                     if (wsCatalog != null)
                                     {
-                                        isUpdateChannelIndexSucceeded = wsCatalog.UpdateChannelIndex(arrChannelIds, nParentGroupID, eAction);
+                                        WSCatalog.eAction actionCatalog = WSCatalog.eAction.On;
+
+                                        switch (eAction)
+                                        {
+                                            case eAction.Off:
+                                            actionCatalog = WSCatalog.eAction.Off;
+                                            break;
+                                            case eAction.On:
+                                            actionCatalog = WSCatalog.eAction.On;
+                                            break;
+                                            case eAction.Update:
+                                            actionCatalog = WSCatalog.eAction.Update;
+                                            break;
+                                            case eAction.Delete:
+                                            actionCatalog = WSCatalog.eAction.Delete;
+                                            break;
+                                            case eAction.Rebuild:
+                                            actionCatalog = WSCatalog.eAction.Rebuild;
+                                            break;
+                                            default:
+                                            break;
+                                        }
+
+                                        isUpdateChannelIndexSucceeded = wsCatalog.UpdateChannelIndex(arrChannelIds, nParentGroupID, actionCatalog);
 
                                         string sInfo = isUpdateChannelIndexSucceeded == true ? "succeeded" : "not succeeded";
                                         log.DebugFormat("Update channel index {0} in catalog '{1}'", sInfo, sEndPointAddress);
@@ -5145,7 +5354,26 @@ namespace TvinciImporter
 
                             if (wsCatalog != null)
                             {
-                                res &= wsCatalog.UpdateOperator(nParentGroupID, nOperatorID, nSubscriptionID, lChannelID, oe);
+                                WSCatalog.eOperatorEvent oeCatalog = WSCatalog.eOperatorEvent.ChannelAddedToSubscription;
+
+                                switch (oe)
+                                {
+                                    case eOperatorEvent.ChannelAddedToSubscription:
+                                    oeCatalog = WSCatalog.eOperatorEvent.ChannelAddedToSubscription;
+                                    break;
+                                    case eOperatorEvent.ChannelRemovedFromSubscription:
+                                    oeCatalog = WSCatalog.eOperatorEvent.ChannelRemovedFromSubscription;
+                                    break;
+                                    case eOperatorEvent.SubscriptionAddedToOperator:
+                                    oeCatalog = WSCatalog.eOperatorEvent.SubscriptionAddedToOperator;
+                                    break;
+                                    case eOperatorEvent.SubscriptionRemovedFromOperator:
+                                    oeCatalog = WSCatalog.eOperatorEvent.SubscriptionRemovedFromOperator;
+                                    break;
+                                    default:
+                                    break;
+                                }
+                                res &= wsCatalog.UpdateOperator(nParentGroupID, nOperatorID, nSubscriptionID, lChannelID, oeCatalog);
 
                                 wsCatalog.Close();
                             }
@@ -5213,7 +5441,30 @@ namespace TvinciImporter
 
                                     if (wsCatalog != null)
                                     {
-                                        isUpdateIndexSucceeded = wsCatalog.UpdateEpgIndex(arrEPGIds, nParentGroupID, eAction);
+                                        WSCatalog.eAction actionCatalog = WSCatalog.eAction.On;
+
+                                        switch (eAction)
+                                        {
+                                            case eAction.Off:
+                                            actionCatalog = WSCatalog.eAction.Off;
+                                            break;
+                                            case eAction.On:
+                                            actionCatalog = WSCatalog.eAction.On;
+                                            break;
+                                            case eAction.Update:
+                                            actionCatalog = WSCatalog.eAction.Update;
+                                            break;
+                                            case eAction.Delete:
+                                            actionCatalog = WSCatalog.eAction.Delete;
+                                            break;
+                                            case eAction.Rebuild:
+                                            actionCatalog = WSCatalog.eAction.Rebuild;
+                                            break;
+                                            default:
+                                            break;
+                                        }
+
+                                        isUpdateIndexSucceeded = wsCatalog.UpdateEpgIndex(arrEPGIds, nParentGroupID, actionCatalog);
 
                                         string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
                                         log.DebugFormat("Update index {0} in catalog '{1}'", sInfo, sEndPointAddress);
@@ -5255,6 +5506,88 @@ namespace TvinciImporter
             }
             return result;
         }
+
+        public static bool UpdateFreeFileTypeOfModule(int groupId, int moduleId)
+        {
+            bool result = false;
+            if (moduleId == 0)
+            {
+                log.Error("Failed updating free item index because couldn't get module Id");
+            }
+            else
+            {
+                DataTable mediaIds = DAL.ImporterImpDAL.GetMediasByPPVModuleID(groupId, moduleId, 0);
+                while (mediaIds != null && mediaIds.Rows != null)
+                {
+                    if (mediaIds.Rows.Count == 0)
+                    {
+                        return true;
+                    }
+
+                    List<int> mediaIDsToUpdate = new List<int>();
+                    foreach (DataRow dr in mediaIds.Rows)
+                    {
+                        int mediaIDToAdd = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_ID");
+                        if (mediaIDToAdd > 0)
+                        {
+                            mediaIDsToUpdate.Add(mediaIDToAdd);
+                        }
+                    }
+
+                    //reset mediaIds
+                    mediaIds = null;
+
+                    if (mediaIDsToUpdate != null && mediaIDsToUpdate.Count > 0)
+                    {
+                        result = UpdateIndex(mediaIDsToUpdate, groupId, eAction.Update);
+                        if (result)
+                        {
+                            int lastMediaID = mediaIDsToUpdate.Last();
+                            mediaIds = DAL.ImporterImpDAL.GetMediasByPPVModuleID(groupId, moduleId, lastMediaID);
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }        
+
+        public static bool InsertFreeItemsIndexUpdate(int groupID, eObjectType type, List<int> assetIDs, DateTime updateIndexDate)
+        {
+            bool result = false;
+            int parentGroupId = DAL.UtilsDal.GetParentGroupID(groupID);
+
+            try
+            {
+                // validate assets and updateIndexDate
+                if (assetIDs == null || assetIDs.Count == 0)
+                {
+                    return result;
+                }
+
+                GenericCeleryQueue queue = new GenericCeleryQueue();
+                FreeItemUpdateData data = new FreeItemUpdateData(parentGroupId, type, assetIDs, updateIndexDate);
+                bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_FREE_ITEM_UPDATE, parentGroupId));
+                if (enqueueSuccessful)
+                {
+                    log.DebugFormat("New free item index update task created. Next update date: {0}, data: {1}", updateIndexDate, data);                    
+                    result = true;
+                }
+                else
+                {
+                    log.ErrorFormat("Failed queuing free item index update {0}", data);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed Inserting remote task index update: ", ex);
+            }
+
+            return result;
+        }
+
+        
     }
 }
 

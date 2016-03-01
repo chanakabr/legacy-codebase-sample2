@@ -42,6 +42,10 @@ namespace ApiObjects.Response
         DuplicatePin = 1028,
         UserAlreadyInDomain = 1029,
         NotAllowedToDelete = 1030,
+        HomeNetworkAlreadyExists = 1031,
+        HomeNetworkLimitation = 1032,
+        HomeNetworkDoesNotExist = 1033,
+        HomeNetworkFrequency = 1034,
 
         // User Section 2000 - 2999
         UserDoesNotExist = 2000,
@@ -96,6 +100,8 @@ namespace ApiObjects.Response
         UnableToPurchaseCollectionPurchased = 3027,
         FileToMediaMismatch = 3028,
         ReconciliationFrequencyLimitation = 3029,
+        InvalidCustomDataIdentifier = 3030,
+        InvalidFileType = 3031,
 
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,
@@ -145,6 +151,7 @@ namespace ApiObjects.Response
         ExportFrequencyMinValue = 5018,
         AliasMustBeUnique = 5019, 
         AliasRequired = 5020,
+        UserParentalRuleNotExists = 5021,
 
         // Billing 6000 - 6999
         IncorrectPrice = 6000,
@@ -190,11 +197,33 @@ namespace ApiObjects.Response
         PaymentGatewayAdapterFailReasonUnknown = 6045,
         NoPartnerConfigurationToUpdate = 6046,
         NoConfigurationValueToUpdate = 6047,
+        PaymentMethodNotSetForHousehold = 6048,
+        PaymentMethodNotExist = 6049,
+        PaymentMethodIdRequired = 6050,
+        PaymentMethodExternalIdRequired = 6051,
+        ErrorSavingPaymentGatewayHouseholdPaymentMethod = 6052,        
+        PaymentMethodAlreadySetToHouseholdPaymentGateway = 6054,
+        PaymentMethodNameRequired = 6055,
+        PaymentGatewayNotSupportPaymentMethod = 6056,        
 
         // social 7000 - 7999
         Conflict = 7000,
-        MinFriendsLimitation = 7001
+        MinFriendsLimitation = 7001,
 
         //Pricing 8000-8999
+
+        // notification 8000-899
+        NoNotificationSettingsSent = 8000,
+        PushNotificationFalse = 8001, //"push notification false can't comabin with push system announcements true";
+        NoNotificationPartnerSettings = 8002,
+        NoNotificationSettings = 8003,        
+        AnnouncementMessageIsEmpty = 8004,
+        AnnouncementInvalidStartTime = 8005,
+        AnnouncementNotFound = 8006,
+        AnnouncementUpdateNotAllowed = 8007,
+        AnnouncementInvalidTimezone = 8008,
+        FeatureDisabled = 8009,
+        AnnouncementMessageTooLong = 8010,
+        FailCreateAnnouncement = 8011
     }
 }

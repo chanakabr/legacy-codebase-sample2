@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading;
 using CachingProvider;
 using DAL;
-using Enyim.Caching.Memcached;
 using ApiObjects;
 using CouchbaseManager;
 using KLogMonitor;

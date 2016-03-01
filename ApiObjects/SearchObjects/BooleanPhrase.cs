@@ -10,6 +10,7 @@ namespace ApiObjects.SearchObjects
     /// Represents a boolean phrase with child nodes - each of them can be either another boolean phrase or a leaf
     /// </summary>
     [DataContract]
+    [Serializable]
     public class BooleanPhrase : BooleanPhraseNode
     {
         #region Data Members

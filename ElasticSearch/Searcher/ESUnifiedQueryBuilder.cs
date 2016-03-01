@@ -8,7 +8,7 @@ namespace ElasticSearch.Searcher
 {
     public class ESUnifiedQueryBuilder
     {
-        #region Data Members
+        #region Consts and readonlys 
 
         protected static readonly List<string> DEFAULT_RETURN_FIELDS = new List<string>(7) { 
                 "\"_id\"", "\"_index\"", "\"_type\"", "\"_score\"", "\"group_id\"", "\"name\"", "\"cache_date\"",  "\"update_date\""};
@@ -18,6 +18,24 @@ namespace ElasticSearch.Searcher
         public static readonly string METAS = "METAS";
         public static readonly string TAGS = "TAGS";
         public static readonly string ES_DATE_FORMAT = "yyyyMMddHHmmss";
+
+        public const string ENTITLED_ASSETS_FIELD = "entitled_assets";
+
+        protected static readonly ESPrefix epgPrefixTerm = new ESPrefix()
+        {
+            Key = "_type",
+            Value = "epg"
+        };
+
+        protected static readonly ESPrefix mediaPrefixTerm = new ESPrefix()
+        {
+            Key = "_type",
+            Value = "media"
+        };
+
+        #endregion
+
+        #region Data Members
 
         protected static int MAX_RESULTS;
         
@@ -43,7 +61,31 @@ namespace ElasticSearch.Searcher
             set;
         }
 
+        public int From
+        {
+            get;
+            set;
+        }
+
         public List<string> ReturnFields
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// A search query/filter represeting the search for entitled assets
+        /// </summary>
+        public string EntitlementSearchQuery
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// A bool query containing all
+        /// </summary>
+        public BoolQuery SubscriptionsQuery
         {
             get;
             set;
@@ -143,7 +185,18 @@ namespace ElasticSearch.Searcher
                 PageSize = MAX_RESULTS;
             }
 
-            int fromIndex = (PageIndex <= 0) ? 0 : PageSize * PageIndex;
+            int fromIndex = 0;
+
+            // If we have a defined offset for search, use it
+            if (this.From > 0)
+            {
+                fromIndex = this.From;
+            }
+            else
+            {
+                // Otherwise, we calculate the "from" by "page size times page index";
+                fromIndex = (PageIndex <= 0) ? 0 : PageSize * PageIndex;
+            }
 
             StringBuilder filteredQueryBuilder = new StringBuilder();
 
@@ -187,20 +240,9 @@ namespace ElasticSearch.Searcher
             return fullQuery;
         }
 
-        public void BuildInnerFilterAndQuery(out BaseFilterCompositeType filterPart, out IESTerm queryTerm, bool bIgnoreDeviceRuleID = false, bool bAddActive = true)
+        public void BuildInnerFilterAndQuery(out BaseFilterCompositeType filterPart, out IESTerm queryTerm, 
+            bool ignoreDeviceRuleID = false, bool isActiveOnly = true)
         {
-            ESPrefix epgPrefixTerm = new ESPrefix()
-            {
-                Key = "_type",
-                Value = "epg"
-            };
-
-            ESPrefix mediaPrefixTerm = new ESPrefix()
-            {
-                Key = "_type",
-                Value = "media"
-            };
-
             // Eventual filter will be:
             //
             // AND: [
@@ -240,7 +282,7 @@ namespace ElasticSearch.Searcher
                 Value = this.SearchDefinitions.groupId.ToString()
             };
 
-            if (bAddActive)
+            if (isActiveOnly)
             {
                 ESTerm isActiveTerm = new ESTerm(true)
                 {
@@ -250,6 +292,9 @@ namespace ElasticSearch.Searcher
             
                 globalFilter.AddChild(isActiveTerm);
             }
+
+            #region Specific assets - included and excluded
+
             // If specific assets should return, filter their IDs.
             // Add an IN Clause (Terms) to the matching filter (media, EPG etc.)
             if (this.SearchDefinitions.specificAssets != null)
@@ -285,10 +330,47 @@ namespace ElasticSearch.Searcher
                 }
             }
 
+            // If specific assets should return, filter their IDs.
+            // Add an IN Clause (Terms) to the matching filter (media, EPG etc.)
+            if (this.SearchDefinitions.excludedAssets != null)
+            {
+                foreach (var item in this.SearchDefinitions.excludedAssets)
+                {
+                    ESTerms idsTerm = new ESTerms(true)
+                    {
+                        Key = "_id",
+                        isNot = true
+                    };
+
+                    idsTerm.Value.AddRange(item.Value);
+
+                    switch (item.Key)
+                    {
+                        case ApiObjects.eAssetTypes.UNKNOWN:
+                        break;
+                        case ApiObjects.eAssetTypes.EPG:
+                        {
+                            epgFilter.AddChild(idsTerm);
+                            break;
+                        }
+                        case ApiObjects.eAssetTypes.NPVR:
+                        break;
+                        case ApiObjects.eAssetTypes.MEDIA:
+                        {
+                            mediaFilter.AddChild(idsTerm);
+                            break;
+                        }
+                        default:
+                        break;
+                    }
+                }
+            }
+
+            #endregion
+
             // Dates filter: 
             // If it is media, it should start before now and end after now
             // If it is EPG, it should start and end around the current week
-
 
             // epg ranges
             if (this.SearchDefinitions.shouldSearchEpg)
@@ -445,7 +527,7 @@ namespace ElasticSearch.Searcher
                     }                    
                 }
 
-                if (!bIgnoreDeviceRuleID)
+                if (!ignoreDeviceRuleID)
                     mediaFilter.AddChild(deviceRulesTerms);
 
                 #endregion
@@ -1037,6 +1119,111 @@ namespace ElasticSearch.Searcher
             return typesString.ToString();
         }
 
+        /// <summary>
+        /// Connects with "OR" several, different queries alltogther.
+        /// </summary>
+        /// <param name="unifiedSearchDefinitions"></param>
+        /// <returns></returns>
+        public string BuildMultiSearchQueryString(List<UnifiedSearchDefinitions> unifiedSearchDefinitions)
+        {
+            this.ReturnFields = DEFAULT_RETURN_FIELDS.ToList();
+
+            this.ReturnFields.Add("\"epg_id\"");
+            this.ReturnFields.Add("\"media_id\"");
+
+            // This is a query-filter.
+            // First comes query
+            // Then comes filter
+            // Query is for non-exact phrases
+            // Filter is for exact phrases
+
+            // filtered query :
+            //  {
+            //      { 
+            //          query : {},
+            //          filter : {}
+            //      }
+            // }
+
+            string fullQuery = string.Empty;
+
+            if (this.SearchDefinitions == null)
+            {
+                return fullQuery;
+            }
+
+            FilteredQuery filteredQuery = new FilteredQuery(true)
+            {
+                PageIndex = 0,
+                PageSize = 0
+            };
+
+            filteredQuery.Filter = new QueryFilter();
+            filteredQuery.Filter.FilterSettings = new FilterCompositeType(CutWith.OR);
+
+            BoolQuery boolquery = new BoolQuery();
+
+            ESUnifiedQueryBuilder innerQueryBuilder = new ESUnifiedQueryBuilder(null, this.GroupID);
+
+            foreach (var definition in unifiedSearchDefinitions)
+            {
+                BaseFilterCompositeType filterPart;
+                IESTerm queryTerm;
+
+                innerQueryBuilder.SearchDefinitions = definition;
+                innerQueryBuilder.BuildInnerFilterAndQuery(out filterPart, out queryTerm);
+
+                filteredQuery.Filter.FilterSettings.AddChild(filterPart);
+                boolquery.AddChild(queryTerm, CutWith.OR);
+            }
+
+            filteredQuery.Query = boolquery;
+
+            PageSize = MAX_RESULTS;
+
+            int fromIndex = 0;
+
+            StringBuilder filteredQueryBuilder = new StringBuilder();
+
+            filteredQueryBuilder.Append("{");
+            filteredQueryBuilder.AppendFormat(" \"size\": {0}, ", PageSize);
+            filteredQueryBuilder.AppendFormat(" \"from\": {0}, ", fromIndex);
+
+            // TODO - find if the search is exact or not!
+            bool bExact = false;
+
+            // If not exact, order by score, and vice versa
+            string sSort = GetSort(this.SearchDefinitions.order, !bExact);
+
+            // Join return fields with commas
+            if (ReturnFields.Count > 0)
+            {
+                filteredQueryBuilder.Append("\"fields\": [");
+
+                filteredQueryBuilder.Append(ReturnFields.Aggregate((current, next) => string.Format("{0}, {1}", current, next)));
+
+                filteredQueryBuilder.Append("], ");
+            }
+
+            filteredQueryBuilder.AppendFormat("{0}, ", sSort);
+            filteredQueryBuilder.Append(" \"query\": { \"filtered\": {");
+
+            if (filteredQuery.Query != null && !filteredQuery.Query.IsEmpty())
+            {
+                string queryPart = filteredQuery.Query.ToString();
+
+                if (!string.IsNullOrEmpty(queryPart))
+                {
+                    filteredQueryBuilder.AppendFormat(" \"query\": {0},", queryPart.ToString());
+                }
+            }
+
+            filteredQueryBuilder.Append(filteredQuery.Filter.ToString());
+            filteredQueryBuilder.Append(" } } }");
+            fullQuery = filteredQueryBuilder.ToString();
+
+            return fullQuery;
+        }
         #endregion
 
         #region Protected and Private Methods
@@ -1083,7 +1270,7 @@ namespace ElasticSearch.Searcher
         /// </summary>
         /// <param name="root"></param>
         /// <returns></returns>
-        protected static IESTerm ConvertToQuery(BooleanPhraseNode root)
+        protected IESTerm ConvertToQuery(BooleanPhraseNode root)
         {
             IESTerm term = null;
 
@@ -1091,107 +1278,116 @@ namespace ElasticSearch.Searcher
             if (root.type == BooleanNodeType.Leaf)
             {
                 BooleanLeaf leaf = root as BooleanLeaf;
-                bool isNumeric = leaf.valueType == typeof(int) || leaf.valueType == typeof(long);
 
-                string value = string.Empty;
-
-                // First find out the value to use in the filter body 
-                if (isNumeric)
+                // Special case - if this is the entitled assets leaf, we build a specific term for it
+                if (leaf.field == ENTITLED_ASSETS_FIELD)
                 {
-                    value = leaf.value.ToString();
-                }
-                else if (leaf.valueType == typeof(DateTime))
-                {
-                    DateTime date = Convert.ToDateTime(leaf.value);
-
-                    if (date != null)
-                    {
-                        value = date.ToString(ES_DATE_FORMAT);
-                    }
+                    term = BuildEntitledAssetsQuery();
                 }
                 else
                 {
-                    value = leaf.value.ToString().ToLower();
-                }
+                    bool isNumeric = leaf.valueType == typeof(int) || leaf.valueType == typeof(long);
 
-                // "Match" when search is not exact (contains)
-                if (leaf.operand == ApiObjects.ComparisonOperator.Contains ||
-                    leaf.operand == ApiObjects.ComparisonOperator.WordStartsWith)
-                {
-                    string field = string.Empty;
+                    string value = string.Empty;
 
-                    if (leaf.operand == ApiObjects.ComparisonOperator.WordStartsWith)
+                    // First find out the value to use in the filter body 
+                    if (isNumeric)
                     {
-                        field = string.Format("{0}.autocomplete", leaf.field);
+                        value = leaf.value.ToString();
+                    }
+                    else if (leaf.valueType == typeof(DateTime))
+                    {
+                        DateTime date = Convert.ToDateTime(leaf.value);
+
+                        if (date != null)
+                        {
+                            value = date.ToString(ES_DATE_FORMAT);
+                        }
                     }
                     else
                     {
-                        field = string.Format("{0}.analyzed", leaf.field);
+                        value = leaf.value.ToString().ToLower();
                     }
 
-                    term = new ESMatchQuery(ESMatchQuery.eMatchQueryType.match)
+                    // "Match" when search is not exact (contains)
+                    if (leaf.operand == ApiObjects.ComparisonOperator.Contains ||
+                        leaf.operand == ApiObjects.ComparisonOperator.WordStartsWith)
                     {
-                        Field = field,
-                        eOperator = CutWith.AND,
-                        Query = value
-                    };
-                }
-                // "bool" with "must_not" when no contains
-                else if (leaf.operand == ApiObjects.ComparisonOperator.NotContains)
-                {
-                    string field = string.Format("{0}.analyzed", leaf.field);
+                        string field = string.Empty;
 
-                    term = new BoolQuery();
+                        if (leaf.operand == ApiObjects.ComparisonOperator.WordStartsWith)
+                        {
+                            field = string.Format("{0}.autocomplete", leaf.field);
+                        }
+                        else
+                        {
+                            field = string.Format("{0}.analyzed", leaf.field);
+                        }
 
-                    (term as BoolQuery).AddNot(
-                        new ESMatchQuery(ESMatchQuery.eMatchQueryType.match)
+                        term = new ESMatchQuery(ESMatchQuery.eMatchQueryType.match)
                         {
                             Field = field,
                             eOperator = CutWith.AND,
                             Query = value
-                        });
-                }
-                // "Term" when search is equals/not equals
-                else if (leaf.operand == ApiObjects.ComparisonOperator.Equals ||
-                    leaf.operand == ApiObjects.ComparisonOperator.NotEquals)
-                {
-                    term = new ESTerm(isNumeric)
+                        };
+                    }
+                    // "bool" with "must_not" when no contains
+                    else if (leaf.operand == ApiObjects.ComparisonOperator.NotContains)
                     {
-                        Key = leaf.field,
-                        Value = value
-                    };
-                }
-                else if (leaf.operand == ApiObjects.ComparisonOperator.Prefix)
-                {
-                    term = new ESPrefix()
-                    {
-                        Key = leaf.field,
-                        Value = value
-                    };
-                }
-                else if (leaf.operand == ApiObjects.ComparisonOperator.In)
-                {
-                    term = new ESTerms(false)
-                    {
-                        Key = leaf.field
-                    };
+                        string field = string.Format("{0}.analyzed", leaf.field);
 
-                    (term as ESTerms).Value.AddRange(leaf.value as IEnumerable<string>);
-                }
-                else if (leaf.operand == ApiObjects.ComparisonOperator.NotIn)
-                {
-                    term = new ESTerms(false)
-                    {
-                        Key = leaf.field,
-                        isNot = true
-                    };
+                        term = new BoolQuery();
 
-                    (term as ESTerms).Value.AddRange(leaf.value as IEnumerable<string>);
-                }
-                // Other cases are "Range"
-                else
-                {
-                    term = ConvertToRange(leaf.field, value, leaf.operand, isNumeric);
+                        (term as BoolQuery).AddNot(
+                            new ESMatchQuery(ESMatchQuery.eMatchQueryType.match)
+                            {
+                                Field = field,
+                                eOperator = CutWith.AND,
+                                Query = value
+                            });
+                    }
+                    // "Term" when search is equals/not equals
+                    else if (leaf.operand == ApiObjects.ComparisonOperator.Equals ||
+                        leaf.operand == ApiObjects.ComparisonOperator.NotEquals)
+                    {
+                        term = new ESTerm(isNumeric)
+                        {
+                            Key = leaf.field,
+                            Value = value
+                        };
+                    }
+                    else if (leaf.operand == ApiObjects.ComparisonOperator.Prefix)
+                    {
+                        term = new ESPrefix()
+                        {
+                            Key = leaf.field,
+                            Value = value
+                        };
+                    }
+                    else if (leaf.operand == ApiObjects.ComparisonOperator.In)
+                    {
+                        term = new ESTerms(false)
+                        {
+                            Key = leaf.field
+                        };
+
+                        (term as ESTerms).Value.AddRange(leaf.value as IEnumerable<string>);
+                    }
+                    else if (leaf.operand == ApiObjects.ComparisonOperator.NotIn)
+                    {
+                        term = new ESTerms(false)
+                        {
+                            Key = leaf.field,
+                            isNot = true
+                        };
+
+                        (term as ESTerms).Value.AddRange(leaf.value as IEnumerable<string>);
+                    }
+                    // Other cases are "Range"
+                    else
+                    {
+                        term = ConvertToRange(leaf.field, value, leaf.operand, isNumeric);
+                    }
                 }
             }
             // If it is a phrase, join all children in a bool query with the corresponding operand
@@ -1262,6 +1458,143 @@ namespace ElasticSearch.Searcher
             }
 
             return (term);
+        }
+
+        private IESTerm BuildEntitledAssetsQuery()
+        {
+            BoolQuery result = new BoolQuery();
+
+            BaseFilterCompositeType assetsFilter = new FilterCompositeType(CutWith.OR);
+
+            if (this.SearchDefinitions.entitlementSearchDefinitions.freeAssets != null)
+            {
+                // Build terms of free assets
+                foreach (var item in this.SearchDefinitions.entitlementSearchDefinitions.freeAssets)
+                {
+                    FilterCompositeType idsFilter = new FilterCompositeType(CutWith.AND);
+
+                    ESTerms idsTerm = new ESTerms(true)
+                    {
+                        Key = "_id"
+                    };
+
+                    idsTerm.Value.AddRange(item.Value);
+
+                    idsFilter.AddChild(idsTerm);
+
+                    switch (item.Key)
+                    {
+                        case ApiObjects.eAssetTypes.EPG:
+                        {
+                            idsFilter.AddChild(epgPrefixTerm);
+                            break;
+                        }
+                        case ApiObjects.eAssetTypes.MEDIA:
+                        {
+                            idsFilter.AddChild(mediaPrefixTerm);
+                            break;
+                        }
+                        case ApiObjects.eAssetTypes.UNKNOWN:
+                        case ApiObjects.eAssetTypes.NPVR:
+                        default:
+                        break;
+                    }
+
+                    assetsFilter.AddChild(idsFilter);
+                }
+            }
+
+            // Alternative: just check the is_free member
+            ESTerm isFreeTerm = new ESTerm(true)
+            {
+                Key = "is_free",
+                Value = "1"
+            };
+
+            if (this.SearchDefinitions.entitlementSearchDefinitions.entitledPaidForAssets != null)
+            {
+                // Build terms of assets (PPVs) the user purchased and is entitled to watch
+                foreach (var item in this.SearchDefinitions.entitlementSearchDefinitions.entitledPaidForAssets)
+                {
+                    FilterCompositeType idsFilter = new FilterCompositeType(CutWith.AND);
+
+                    ESTerms idsTerm = new ESTerms(true)
+                    {
+                        Key = "_id"
+                    };
+
+                    idsTerm.Value.AddRange(item.Value);
+
+                    idsFilter.AddChild(idsTerm);
+
+                    switch (item.Key)
+                    {
+                        case ApiObjects.eAssetTypes.EPG:
+                        {
+                            idsFilter.AddChild(epgPrefixTerm);
+                            break;
+                        }
+                        case ApiObjects.eAssetTypes.MEDIA:
+                        {
+                            idsFilter.AddChild(mediaPrefixTerm);
+                            break;
+                        }
+                        case ApiObjects.eAssetTypes.UNKNOWN:
+                        case ApiObjects.eAssetTypes.NPVR:
+                        default:
+                        break;
+                    }
+
+                    assetsFilter.AddChild(idsFilter);
+                }
+            }
+
+            ESFilteredQuery specificAssetsTerm = new ESFilteredQuery()
+            {
+                Filter = new QueryFilter()
+                {
+                   FilterSettings = assetsFilter
+                }
+            };
+
+            ESTerms fileTypeTerm = null;
+
+            if (this.SearchDefinitions.entitlementSearchDefinitions.fileTypes != null &&
+                this.SearchDefinitions.entitlementSearchDefinitions.fileTypes.Count > 0)
+            {
+                fileTypeTerm = new ESTerms(true)
+                    {
+                        Key = "free_file_types",
+                    };
+                var fileTypes = this.SearchDefinitions.entitlementSearchDefinitions.fileTypes.Select(t => t.ToString());
+                fileTypeTerm.Value.AddRange(fileTypes);
+
+            }
+
+            // EPG Channel IDs
+            if (this.SearchDefinitions.entitlementSearchDefinitions.epgChannelIds != null)
+            {
+                ESTerms channelsTerm = new ESTerms(true)
+                {
+                    Key = "epg_channel_id"
+                };
+
+                channelsTerm.Value.AddRange(this.SearchDefinitions.entitlementSearchDefinitions.epgChannelIds.Select(i => i.ToString()));
+
+                result.AddChild(channelsTerm, CutWith.OR);
+            }
+
+            // Connect all the channels in the entitled user's subscriptions
+            result.AddChild(this.SubscriptionsQuery, CutWith.OR);
+            result.AddChild(specificAssetsTerm, CutWith.OR);
+            result.AddChild(isFreeTerm, CutWith.OR);
+
+            if (fileTypeTerm != null)
+            {
+                result.AddChild(fileTypeTerm, CutWith.OR);
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -1450,111 +1783,6 @@ namespace ElasticSearch.Searcher
 
         #endregion
 
-        /// <summary>
-        /// Connects with "OR" several, different queries alltogther.
-        /// </summary>
-        /// <param name="unifiedSearchDefinitions"></param>
-        /// <returns></returns>
-        public string BuildMultiSearchQueryString(List<UnifiedSearchDefinitions> unifiedSearchDefinitions)
-        {
-            this.ReturnFields = DEFAULT_RETURN_FIELDS.ToList();
-            
-            this.ReturnFields.Add("\"epg_id\"");
-            this.ReturnFields.Add("\"media_id\"");
-
-            // This is a query-filter.
-            // First comes query
-            // Then comes filter
-            // Query is for non-exact phrases
-            // Filter is for exact phrases
-
-            // filtered query :
-            //  {
-            //      { 
-            //          query : {},
-            //          filter : {}
-            //      }
-            // }
-
-            string fullQuery = string.Empty;
-
-            if (this.SearchDefinitions == null)
-            {
-                return fullQuery;
-            }
-
-            FilteredQuery filteredQuery = new FilteredQuery(true)
-            {
-                PageIndex = 0,
-                PageSize = 0
-            };
-
-            filteredQuery.Filter = new QueryFilter();
-            filteredQuery.Filter.FilterSettings = new FilterCompositeType(CutWith.OR);
-
-            BoolQuery boolquery = new BoolQuery();
-
-            ESUnifiedQueryBuilder innerQueryBuilder = new ESUnifiedQueryBuilder(null, this.GroupID);
-
-            foreach (var definition in unifiedSearchDefinitions)
-            {
-                BaseFilterCompositeType filterPart;
-                IESTerm queryTerm;
-            
-                innerQueryBuilder.SearchDefinitions = definition;
-                innerQueryBuilder.BuildInnerFilterAndQuery(out filterPart, out queryTerm);
-
-                filteredQuery.Filter.FilterSettings.AddChild(filterPart);
-                boolquery.AddChild(queryTerm, CutWith.OR);
-            }
-
-            filteredQuery.Query = boolquery;
-
-            PageSize = MAX_RESULTS;
-
-            int fromIndex = 0;
-
-            StringBuilder filteredQueryBuilder = new StringBuilder();
-
-            filteredQueryBuilder.Append("{");
-            filteredQueryBuilder.AppendFormat(" \"size\": {0}, ", PageSize);
-            filteredQueryBuilder.AppendFormat(" \"from\": {0}, ", fromIndex);
-
-            // TODO - find if the search is exact or not!
-            bool bExact = false;
-
-            // If not exact, order by score, and vice versa
-            string sSort = GetSort(this.SearchDefinitions.order, !bExact);
-
-            // Join return fields with commas
-            if (ReturnFields.Count > 0)
-            {
-                filteredQueryBuilder.Append("\"fields\": [");
-
-                filteredQueryBuilder.Append(ReturnFields.Aggregate((current, next) => string.Format("{0}, {1}", current, next)));
-
-                filteredQueryBuilder.Append("], ");
-            }
-
-            filteredQueryBuilder.AppendFormat("{0}, ", sSort);
-            filteredQueryBuilder.Append(" \"query\": { \"filtered\": {");
-
-            if (filteredQuery.Query != null && !filteredQuery.Query.IsEmpty())
-            {
-                string queryPart = filteredQuery.Query.ToString();
-
-                if (!string.IsNullOrEmpty(queryPart))
-                {
-                    filteredQueryBuilder.AppendFormat(" \"query\": {0},", queryPart.ToString());
-                }
-            }
-
-            filteredQueryBuilder.Append(filteredQuery.Filter.ToString());
-            filteredQueryBuilder.Append(" } } }");
-            fullQuery = filteredQueryBuilder.ToString();
-
-            return fullQuery;
-        }
     }
 
 }

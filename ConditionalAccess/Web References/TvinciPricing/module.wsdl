@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://pricing.tvinci.com/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:s1="http://pricing.tvinci.com/AbstractTypes" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://pricing.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://pricing.tvinci.com/" xmlns:s1="http://pricing.tvinci.com/AbstractTypes" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://pricing.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://pricing.tvinci.com/">
       <s:element name="GetCurrencyValues">
@@ -1286,6 +1286,31 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="GetPPVModulesData">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sPPVCode" type="tns:ArrayOfString" />
+            <s:element minOccurs="0" maxOccurs="1" name="sCountryCd2" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sLanguageCode3" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sDeviceName" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPPVModulesDataResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetPPVModulesDataResult" type="tns:PPVModuleResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="PPVModuleResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="PPVModules" type="tns:ArrayOfPPVModule" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="Currency" nillable="true" type="tns:Currency" />
       <s:element name="ArrayOfSubscription" nillable="true" type="tns:ArrayOfSubscription" />
       <s:element name="string" nillable="true" type="s:string" />
@@ -1316,6 +1341,7 @@
       <s:element name="ArrayOfPreviewModule" nillable="true" type="tns:ArrayOfPreviewModule" />
       <s:element name="SubscriptionsResponse" nillable="true" type="tns:SubscriptionsResponse" />
       <s:element name="ArrayOfCollection" nillable="true" type="tns:ArrayOfCollection" />
+      <s:element name="PPVModuleResponse" nillable="true" type="tns:PPVModuleResponse" />
     </s:schema>
     <s:schema targetNamespace="http://pricing.tvinci.com/AbstractTypes">
       <s:import namespace="http://schemas.xmlsoap.org/soap/encoding/" />
@@ -1623,6 +1649,12 @@
   </wsdl:message>
   <wsdl:message name="GetPPVModulesByProductCodesSoapOut">
     <wsdl:part name="parameters" element="tns:GetPPVModulesByProductCodesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetPPVModulesDataSoapIn">
+    <wsdl:part name="parameters" element="tns:GetPPVModulesData" />
+  </wsdl:message>
+  <wsdl:message name="GetPPVModulesDataSoapOut">
+    <wsdl:part name="parameters" element="tns:GetPPVModulesDataResponse" />
   </wsdl:message>
   <wsdl:message name="GetCurrencyValuesHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -2100,6 +2132,17 @@
   <wsdl:message name="GetPPVModulesByProductCodesHttpPostOut">
     <wsdl:part name="Body" element="tns:ArrayOfPPVModule" />
   </wsdl:message>
+  <wsdl:message name="GetPPVModulesDataHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sPPVCode" type="s1:StringArray" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetPPVModulesDataHttpPostOut">
+    <wsdl:part name="Body" element="tns:PPVModuleResponse" />
+  </wsdl:message>
   <wsdl:portType name="mdouleSoap">
     <wsdl:operation name="GetCurrencyValues">
       <wsdl:input message="tns:GetCurrencyValuesSoapIn" />
@@ -2296,6 +2339,10 @@
     <wsdl:operation name="GetPPVModulesByProductCodes">
       <wsdl:input message="tns:GetPPVModulesByProductCodesSoapIn" />
       <wsdl:output message="tns:GetPPVModulesByProductCodesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPPVModulesData">
+      <wsdl:input message="tns:GetPPVModulesDataSoapIn" />
+      <wsdl:output message="tns:GetPPVModulesDataSoapOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="mdouleHttpPost">
@@ -2494,6 +2541,10 @@
     <wsdl:operation name="GetPPVModulesByProductCodes">
       <wsdl:input message="tns:GetPPVModulesByProductCodesHttpPostIn" />
       <wsdl:output message="tns:GetPPVModulesByProductCodesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPPVModulesData">
+      <wsdl:input message="tns:GetPPVModulesDataHttpPostIn" />
+      <wsdl:output message="tns:GetPPVModulesDataHttpPostOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="mdouleSoap" type="tns:mdouleSoap">
@@ -2932,6 +2983,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetPPVModulesByProductCodes">
       <soap:operation soapAction="http://pricing.tvinci.com/GetPPVModulesByProductCodes" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPPVModulesData">
+      <soap:operation soapAction="http://pricing.tvinci.com/GetPPVModulesData" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -3383,6 +3443,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetPPVModulesData">
+      <soap12:operation soapAction="http://pricing.tvinci.com/GetPPVModulesData" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="mdouleHttpPost" type="tns:mdouleHttpPost">
     <http:binding verb="POST" />
@@ -3827,16 +3896,25 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetPPVModulesData">
+      <http:operation location="/GetPPVModulesData" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="mdoule">
     <wsdl:port name="mdouleSoap" binding="tns:mdouleSoap">
-      <soap:address location="http://192.168.192.146/Webservices/Pricing/module.asmx" />
+      <soap:address location="http://localhost/Pricing_For_Sunny/module.asmx" />
     </wsdl:port>
     <wsdl:port name="mdouleSoap12" binding="tns:mdouleSoap12">
-      <soap12:address location="http://192.168.192.146/Webservices/Pricing/module.asmx" />
+      <soap12:address location="http://localhost/Pricing_For_Sunny/module.asmx" />
     </wsdl:port>
     <wsdl:port name="mdouleHttpPost" binding="tns:mdouleHttpPost">
-      <http:address location="http://192.168.192.146/Webservices/Pricing/module.asmx" />
+      <http:address location="http://localhost/Pricing_For_Sunny/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

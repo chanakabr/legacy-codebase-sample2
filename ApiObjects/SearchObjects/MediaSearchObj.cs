@@ -46,6 +46,7 @@ namespace ApiObjects.SearchObjects
     }
 
 
+    [Serializable]
     public class MediaSearchObj : BaseSearchObject
     {        
         public OrderObj m_oOrder;

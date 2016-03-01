@@ -68,6 +68,8 @@ namespace Catalog.Request
                     }
                     else //LuceneWrapper
                     {
+                        #region Lucene
+                        
                         GroupManager groupManager = new GroupManager();
                         CatalogCache catalogCache = CatalogCache.Instance();
                         int nParentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
@@ -172,6 +174,8 @@ namespace Catalog.Request
                                 #endregion
                             }
                         }
+                        #endregion
+
                     }
                 }
                 return (BaseResponse)response;

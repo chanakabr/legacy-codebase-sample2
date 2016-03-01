@@ -12,6 +12,7 @@ namespace ApiObjects.SearchObjects
     /// Representing the abstract class of a node in a tree-boolean phrase
     /// </summary>
     [DataContract]
+    [Serializable]
     public abstract class BooleanPhraseNode
     {
         #region Consts
@@ -29,7 +30,6 @@ namespace ApiObjects.SearchObjects
         public BooleanPhraseNode()
         {
         }
-
 
         #region Parse Expression
 
@@ -196,7 +196,6 @@ namespace ApiObjects.SearchObjects
 
             return comparisonOperator;
         }
-
 
         // returns a list of tokens when each token represents one of the following:
         //   operand - "(or" or "(and" 
@@ -408,6 +407,26 @@ namespace ApiObjects.SearchObjects
             }
 
             return true;
+        }
+
+        #endregion
+
+        #region Statis Methods
+
+        public static void ReplaceLeafWithPhrase(ref BooleanPhraseNode filterTree,
+            Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping, BooleanLeaf leaf, BooleanPhraseNode newPhrase)
+        {
+            // If there is a parent to this leaf - remove the old leaf and add the new phrase instead of it
+            if (parentMapping.ContainsKey(leaf))
+            {
+                parentMapping[leaf].nodes.Remove(leaf);
+                parentMapping[leaf].nodes.Add(newPhrase);
+            }
+            else
+            // If it doesn't exist in the mapping, it's probably the root
+            {
+                filterTree = newPhrase;
+            }
         }
 
         #endregion

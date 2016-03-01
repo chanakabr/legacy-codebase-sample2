@@ -106,6 +106,18 @@ namespace GroupsCacheManager
         [JsonProperty("search_recommendation_engine_enrichments")]
         public int SearchRecommendationEngineEnrichments;
 
+        /// <summary>
+        /// The media types of this group that represent linear channels
+        /// </summary>
+        [JsonProperty("linear_channel_media_types")]
+        public List<int> linearChannelMediaTypes;
+
+        /// <summary>
+        /// Mapping based on the table groups_media_type
+        /// </summary>
+        [JsonProperty("group_media_file_type_to_file_type")]
+        public Dictionary<int, int> groupMediaFileTypeToFileType;
+
         #endregion
 
         #region CTOR
@@ -132,6 +144,8 @@ namespace GroupsCacheManager
             this.mediaTypesIdToName = new Dictionary<int, string>();
             this.mediaTypesNameToId = new Dictionary<string, int>();
             this.channelIDs = new HashSet<int>();
+            this.linearChannelMediaTypes = new List<int>();
+            this.groupMediaFileTypeToFileType = new Dictionary<int, int>();
         }
 
         public List<long> GetOperatorChannelIDs(int nOperatorID)
@@ -674,7 +688,7 @@ namespace GroupsCacheManager
                 CatalogDAL.GetMediaTypes(this.m_nParentGroupID,
                     out this.mediaTypesIdToName,
                     out this.mediaTypesNameToId,
-                    out mediaTypeParents);
+                    out mediaTypeParents, out linearChannelMediaTypes);
             }
         }
 

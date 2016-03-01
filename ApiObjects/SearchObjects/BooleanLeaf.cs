@@ -10,6 +10,7 @@ namespace ApiObjects.SearchObjects
     /// Represents a leaf in a boolean phrase - compares a field to a value
     /// </summary>
     [DataContract]
+    [Serializable]
     public class BooleanLeaf : BooleanPhraseNode
     {
         #region Data Members

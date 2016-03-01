@@ -1,21 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Configuration;
-using System.Security.Cryptography;
-using ConditionalAccess.TvinciPricing;
-using System.Web;
-using Tvinic.GoogleAPI;
-using System.Data;
-using System.Xml;
-using DAL;
-using ConditionalAccess.TvinciUsers;
-using ApiObjects;
-using KLogMonitor;
-using System.Reflection;
+﻿using ApiObjects;
 using ApiObjects.Response;
 using ConditionalAccess.TvinciDomains;
+using ConditionalAccess.TvinciPricing;
+using ConditionalAccess.TvinciUsers;
+using DAL;
+using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Web;
+using System.Xml;
+using Tvinic.GoogleAPI;
 
 namespace ConditionalAccess
 {
@@ -1111,7 +1109,7 @@ namespace ConditionalAccess
                     nPPVPurchaseCount = ConditionalAccessDAL.Get_PPVPurchaseCount(nGroupID, sSiteGUID, subCode, nMediaFileID);
                 }
                 p = GetPriceAfterDiscount(p, discModule, nPPVPurchaseCount);
-                
+
                 dtDiscountEnd = discModule.m_dEndDate;
             }
 
@@ -1549,7 +1547,8 @@ namespace ConditionalAccess
 
         internal static TvinciPricing.Price GetMediaFileFinalPriceForNonGetItemsPrices(Int32 nMediaFileID, TvinciPricing.PPVModule ppvModule, string sSiteGUID, string sCouponCode, Int32 nGroupID,
                                                                                        ref PriceReason theReason, ref TvinciPricing.Subscription relevantSub, ref TvinciPricing.Collection relevantCol,
-                                                                                       ref TvinciPricing.PrePaidModule relevantPP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
+                                                                                       ref TvinciPricing.PrePaidModule relevantPP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME,
+                                                                                       bool shouldIgnoreBundlePurchases = false)
         {
             Dictionary<int, int> mediaFileTypesMapping = null;
             List<int> allUsersInDomain = null;
@@ -1580,7 +1579,7 @@ namespace ConditionalAccess
             }
             if (!string.IsNullOrEmpty(sSiteGUID))
             {
-                allUsersInDomain = GetAllUsersDomainBySiteGUID(sSiteGUID, nGroupID, ref domainID);
+                allUsersInDomain = GetAllUsersInDomainBySiteGUIDIncludeDeleted(sSiteGUID, nGroupID, ref domainID);
 
                 if (ppvModule != null && ppvModule.m_relatedFileTypes != null && ppvModule.m_relatedFileTypes.Length > 0)
                 {
@@ -1615,7 +1614,8 @@ namespace ConditionalAccess
             return GetMediaFileFinalPrice(nMediaFileID, validMediaFiles[nMediaFileID], ppvModule, sSiteGUID, sCouponCode, nGroupID, true, ref theReason, ref relevantSub,
                 ref relevantCol, ref relevantPP, ref sFirstDeviceNameFound, sCouponCode, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty,
                 mediaFileTypesMapping, allUsersInDomain, nMediaFileTypeID, sAPIUsername, sAPIPassword, sPricingUsername, sPricingPassword,
-                ref bCancellationWindow, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref relatedMediaFileIDs, ref dtStartDate, ref dtEndDate, ref dtDiscountEndDate, domainID);
+                ref bCancellationWindow, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref relatedMediaFileIDs, ref dtStartDate, ref dtEndDate, ref dtDiscountEndDate, domainID,
+                null, 0, TvinciUsers.DomainSuspentionStatus.Suspended, true, shouldIgnoreBundlePurchases);
         }
 
         internal static void GetApiAndPricingCredentials(int nGroupID, ref string sPricingUsername, ref string sPricingPassword,
@@ -1707,8 +1707,9 @@ namespace ConditionalAccess
 
         internal static bool IsAnonymousUser(string siteGuid)
         {
-            return string.IsNullOrEmpty(siteGuid) || siteGuid.Trim().Equals("0");
-        }        
+            int userID = 0;
+            return (!int.TryParse(siteGuid, out userID) || userID <= 0);
+        }
 
         internal static TvinciPricing.Price GetMediaFileFinalPrice(Int32 nMediaFileID, MediaFileStatus eMediaFileStatus, TvinciPricing.PPVModule ppvModule, string sSiteGUID,
             string sCouponCode, Int32 nGroupID, bool bIsValidForPurchase, ref PriceReason theReason, ref TvinciPricing.Subscription relevantSub,
@@ -1716,8 +1717,8 @@ namespace ConditionalAccess
             string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sClientIP, Dictionary<int, int> mediaFileTypesMapping,
             List<int> allUserIDsInDomain, int nMediaFileTypeID, string sAPIUsername, string sAPIPassword, string sPricingUsername,
             string sPricingPassword, ref bool bCancellationWindow, ref string purchasedBySiteGuid, ref int purchasedAsMediaFileID,
-            ref List<int> relatedMediaFileIDs, ref DateTime? p_dtStartDate, ref DateTime? p_dtEndDate, ref DateTime? dtDiscountEndDate, int domainID, UserEntitlementsObject userEntitlements = null, 
-            int mediaID = 0, TvinciUsers.DomainSuspentionStatus userSuspendStatus = TvinciUsers.DomainSuspentionStatus.Suspended, bool shouldCheckUserStatus = true)
+            ref List<int> relatedMediaFileIDs, ref DateTime? p_dtStartDate, ref DateTime? p_dtEndDate, ref DateTime? dtDiscountEndDate, int domainID, UserEntitlementsObject userEntitlements = null,
+            int mediaID = 0, TvinciUsers.DomainSuspentionStatus userSuspendStatus = TvinciUsers.DomainSuspentionStatus.Suspended, bool shouldCheckUserStatus = true, bool shouldIgnoreBundlePurchases = false)
         {
             if (ppvModule == null)
             {
@@ -1818,7 +1819,7 @@ namespace ConditionalAccess
                                 theReason = PriceReason.PPVPurchased;
                             }
                         }
-                        else
+                        else if (!shouldIgnoreBundlePurchases)
                         {
                             if (sSubCode.Length > 0)
                             {
@@ -1887,7 +1888,7 @@ namespace ConditionalAccess
                         collPurchase = userEntitlements.userBundleEntitlements.EntitledCollections;
                         GetUserValidBundles(mediaID, nMediaFileID, eMediaFileStatus, nGroupID, fileTypes, allUserIDsInDomain, sPricingUsername, sPricingPassword, relatedMediaFileIDs, subsPurchase,
                                             collPurchase, userEntitlements.userBundleEntitlements.FileTypeIdToSubscriptionMappings, userEntitlements.userBundleEntitlements.SubscriptionsData,
-                                            userEntitlements.userBundleEntitlements.CollectionsData, userEntitlements.userBundleEntitlements.ChannelsToSubscriptionMappings, 
+                                            userEntitlements.userBundleEntitlements.CollectionsData, userEntitlements.userBundleEntitlements.ChannelsToSubscriptionMappings,
                                             userEntitlements.userBundleEntitlements.ChannelsToCollectionsMappings, ref relevantValidSubscriptions, ref relevantValidCollections);
                     }
                     else
@@ -1918,14 +1919,11 @@ namespace ConditionalAccess
                                         relevantSub = TVinciShared.ObjectCopier.Clone<TvinciPricing.Subscription>((TvinciPricing.Subscription)(s));
                                         theReason = PriceReason.GeoCommerceBlocked;
                                     }
-                                    else
+                                    else if (IsItemPurchased(price, subp, ppvModule) && !shouldIgnoreBundlePurchases)
                                     {
-                                        if (IsItemPurchased(price, subp, ppvModule))
-                                        {
-                                            price = TVinciShared.ObjectCopier.Clone<TvinciPricing.Price>((TvinciPricing.Price)(subp));
-                                            relevantSub = TVinciShared.ObjectCopier.Clone<TvinciPricing.Subscription>((TvinciPricing.Subscription)(s));
-                                            theReason = PriceReason.SubscriptionPurchased;
-                                        }
+                                        price = TVinciShared.ObjectCopier.Clone<TvinciPricing.Price>((TvinciPricing.Price)(subp));
+                                        relevantSub = TVinciShared.ObjectCopier.Clone<TvinciPricing.Subscription>((TvinciPricing.Subscription)(s));
+                                        theReason = PriceReason.SubscriptionPurchased;
 
                                         bEnd = true;
                                         break;
@@ -1934,7 +1932,7 @@ namespace ConditionalAccess
                             }
 
                             //cancellationWindow by relevantSub
-                            if (relevantSub.m_MultiSubscriptionUsageModule != null && relevantSub.m_MultiSubscriptionUsageModule.Count() > 0)
+                            if (relevantSub != null && relevantSub.m_MultiSubscriptionUsageModule != null && relevantSub.m_MultiSubscriptionUsageModule.Count() > 0)
                             {
                                 if (subsPurchase.ContainsKey(relevantSub.m_SubscriptionCode))
                                 {
@@ -2150,6 +2148,55 @@ namespace ConditionalAccess
                 {
                     domainID = userResponseObj.m_user.m_domianID;
                     lDomainsUsers = GetDomainsUsers(userResponseObj.m_user.m_domianID, nGroupID, sDomainsUsername, sDomainsPassword, true);
+                }
+                else
+                {
+                    lDomainsUsers.Add(int.Parse(sSiteGUID));
+                }
+            }
+
+            //change the user pending to users without (-1)
+            lDomainsUsers = lDomainsUsers.ConvertAll(x => Math.Abs(x));
+
+            return lDomainsUsers;
+        }
+
+        internal static List<int> GetAllUsersInDomainBySiteGUIDIncludeDeleted(string sSiteGUID, Int32 nGroupID, ref int domainID)
+        {
+            List<int> lDomainsUsers = new List<int>();
+
+            if (string.IsNullOrEmpty(sSiteGUID) || sSiteGUID.Equals("0"))
+            {
+                return lDomainsUsers;
+            }
+
+            using (TvinciUsers.UsersService u = new TvinciUsers.UsersService())
+            {
+                string sUsersUsername = string.Empty;
+                string sUsersPassword = string.Empty;
+                string sDomainsUsername = string.Empty;
+                string sDomainsPassword = string.Empty;
+                GetUsersAndDomainsCredentials(nGroupID, ref sUsersUsername, ref sUsersPassword, ref sDomainsUsername, ref sDomainsPassword);
+
+                string sWSURL = Utils.GetWSURL("users_ws");
+                if (!string.IsNullOrEmpty(sWSURL))
+                {
+                    u.Url = sWSURL;
+                }
+                TvinciUsers.UserResponseObject userResponseObj = u.GetUserData(sUsersUsername, sUsersPassword, sSiteGUID, string.Empty);
+
+                if (userResponseObj.m_RespStatus == TvinciUsers.ResponseStatus.OK && userResponseObj.m_user.m_domianID != 0)
+                {
+                    domainID = userResponseObj.m_user.m_domianID;
+                    Dictionary<int, int> allUsersFromDB = DomainDal.GetUsersInDomainIncludeDeleted(domainID, nGroupID);
+                    if (allUsersFromDB != null)
+                    {
+                        lDomainsUsers = allUsersFromDB.Keys.ToList();
+                    }
+                    else
+                    {
+                        lDomainsUsers.Add(int.Parse(sSiteGUID));
+                    }
                 }
                 else
                 {
@@ -3116,11 +3163,11 @@ namespace ConditionalAccess
         internal static bool IsUserValid(string siteGuid, int groupID, ref int domainID, ref TvinciUsers.DomainSuspentionStatus eSuspnedStatus)
         {
             bool res = false;
-            
+
             long temp = 0;
             if (!Int64.TryParse(siteGuid, out temp) || temp < 1)
                 return false;
-            
+
             string wsUsername = string.Empty;
             string wsPassword = string.Empty;
             Utils.GetWSCredentials(groupID, eWSModules.USERS, ref wsUsername, ref wsPassword);
@@ -3403,9 +3450,9 @@ namespace ConditionalAccess
         /// <param name="groupId"></param>
         /// <param name="domainId"></param>
         /// <returns></returns>
-        public static DomainStatus ValidateDomain(int groupId, int domainId)
+        public static ApiObjects.Response.Status ValidateDomain(int groupId, int domainId)
         {
-            DomainStatus status = DomainStatus.Error;
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = "Error validating domain" };
 
             string username = string.Empty;
             string password = string.Empty;
@@ -3422,10 +3469,7 @@ namespace ConditionalAccess
             try
             {
                 DomainResponse response = domainsService.GetDomainInfo(username, password, domainId);
-                if (!Enum.TryParse(response.Status.Message.ToString(), out status))
-                {
-                    status = DomainStatus.Error;
-                }
+                status = new ApiObjects.Response.Status(response.Status.Code, response.Status.Message);
             }
             catch (Exception ex)
             {
@@ -3435,7 +3479,6 @@ namespace ConditionalAccess
             }
             return status;
         }
-
 
         public static int CalcPaymentNumber(int nNumOfPayments, int nPaymentNumber, bool bIsPurchasedWithPreviewModule)
         {
@@ -3484,7 +3527,7 @@ namespace ConditionalAccess
             return res;
         }
 
-        internal static void InitializeUsersEntitlements(int m_nGroupID, int domainID, List<int> allUsersInDomain, TvinciAPI.MeidaMaper[] mapper, UserEntitlementsObject.PPVEntitlements userPpvEntitlements)                                
+        internal static void InitializeUsersEntitlements(int m_nGroupID, int domainID, List<int> allUsersInDomain, TvinciAPI.MeidaMaper[] mapper, UserEntitlementsObject.PPVEntitlements userPpvEntitlements)
         {
             // Get all user entitlements
             userPpvEntitlements.EntitlementsDictionary = ConditionalAccessDAL.Get_AllUsersEntitlements(domainID, allUsersInDomain);
@@ -3517,7 +3560,7 @@ namespace ConditionalAccess
                 }
             }
             else
-            {                
+            {
                 foreach (int mediaFileID in mediaIdGroupFileTypeMappings.Where(dic => dic.Key.StartsWith(mediaID.ToString())).Select(dic => dic.Value).ToList<int>())
                 {
                     relatedFileTypes.Add(mediaFileID);
@@ -3621,7 +3664,7 @@ namespace ConditionalAccess
                     {
                         sb.Append(String.Concat(lstUserIDs[i], ", "));
                     }
-                }                
+                }
                 else
                 {
                     sb.Append(" User IDs is null or empty. ");
@@ -3866,7 +3909,7 @@ namespace ConditionalAccess
                     if (subscriptionsData[subsCode].m_sCodes != null)
                     {
                         foreach (BundleCodeContainer bundleCode in subscriptionsData[subsCode].m_sCodes)
-                        {                            
+                        {
                             int channelID;
                             if (int.TryParse(bundleCode.m_sCode, out channelID))
                                 channelsToCheck.Add(channelID);
@@ -3985,6 +4028,125 @@ namespace ConditionalAccess
                     client.Close();
                 }
             }
+        }
+
+        internal static bool ValidateFileTypesConatainedInGroup(int m_nGroupID, int[] fileTypeIDs)
+        {
+            bool isContained = true;
+            // isContained set to true incase we want to ignore filetypeIDs (sent as null or empty)
+            if (fileTypeIDs != null && fileTypeIDs.Length > 0)
+            {
+                // Get all the group file types
+                Dictionary<int, int> groupFileTypes = ConditionalAccessDAL.Get_GroupMediaTypesIDs(m_nGroupID);
+                if (groupFileTypes != null && groupFileTypes.Count > 0)
+                {
+                    // Validate that all the fileTypeIDs in the request are contained in the groupFileTypes
+                    if (groupFileTypes.Keys.Intersect(fileTypeIDs).Count() != fileTypeIDs.Length)
+                    {
+                        isContained = false;
+                    }
+                }
+            }
+
+            return isContained;
+        }
+
+        internal static ApiObjects.Response.Status ValidateUserAndDomain(int groupId, string siteGuid, ref long householdId)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+            status.Code = -1;
+
+            // If no user - go immediately to domain validation
+            if (string.IsNullOrEmpty(siteGuid))
+            {
+                status.Code = (int)eResponseStatus.OK;
+            }
+            else
+            {
+                // Get response from users WS
+                ResponseStatus userStatus = ValidateUser(groupId, siteGuid, ref householdId);
+                if (householdId == 0)
+                {
+                    status.Code = (int)eResponseStatus.UserWithNoDomain;
+                    status.Message = eResponseStatus.UserWithNoDomain.ToString();
+                }
+                else
+                {
+                    // Most of the cases are not interesting - focus only on those that matter
+                    switch (userStatus)
+                    {
+                        case ResponseStatus.OK:
+                            {
+                                status.Code = (int)eResponseStatus.OK;
+                                break;
+                            }
+                        case ResponseStatus.UserDoesNotExist:
+                            {
+                                status.Code = (int)eResponseStatus.UserDoesNotExist;
+                                status.Message = eResponseStatus.UserDoesNotExist.ToString();
+                                break;
+                            }
+                        case ResponseStatus.UserNotIndDomain:
+                            {
+                                status.Code = (int)eResponseStatus.UserNotInDomain;
+                                status.Message = "User Not In Domain";
+                                break;
+                            }
+                        case ResponseStatus.UserWithNoDomain:
+                            {
+                                status.Code = (int)eResponseStatus.UserWithNoDomain;
+                                status.Message = eResponseStatus.UserWithNoDomain.ToString();
+                                break;
+                            }
+                        case ResponseStatus.UserSuspended:
+                            {
+                                status.Code = (int)eResponseStatus.UserSuspended;
+                                status.Message = eResponseStatus.UserSuspended.ToString();
+                                break;
+                            }
+                        // Most cases will return general error
+                        default:
+                            {
+                                status.Code = (int)eResponseStatus.Error;
+                                status.Message = "Error validating user";
+                                break;
+                            }
+                    }
+                }
+            }
+
+            // If user is valid (or we don't have one)
+            if (status.Code == (int)eResponseStatus.OK && householdId != 0)
+            {
+                //Get response from domains WS                
+                status = ValidateDomain(groupId, (int)householdId);
+            }
+            return status;
+        }
+
+        internal static List<int> GetChannelsListFromSubscriptions(List<Subscription> subscriptions)
+        {
+            List<int> channelsList = new List<int>();
+            if (subscriptions != null && subscriptions.Count > 0)
+            {
+                foreach (Subscription subscription in subscriptions)
+                {
+                    if (subscription.m_sCodes != null)
+                    {
+                        // Get channels from subscriptions
+                        foreach (BundleCodeContainer bundleCode in subscription.m_sCodes)
+                        {
+                            int channelID;
+                            if (int.TryParse(bundleCode.m_sCode, out channelID) && !channelsList.Contains(channelID))
+                            {
+                                channelsList.Add(channelID);
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return channelsList;
         }
 
     }

@@ -2,11 +2,11 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="TvinciImporter.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="TvinciImporter_Lucene_WCF_Service" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://lucene.prd.tvincidns.com/v1_1/Service.svc</Value>
-    </Setting>
     <Setting Name="TvinciImporter_WS_Encryptor_Encryptor" Type="(Web Service URL)" Scope="Application">
       <Value Profile="(Default)">http://192.168.16.70:333/Encryptor.asmx</Value>
+    </Setting>
+    <Setting Name="TvinciImporter_Lucene_WCF_Service" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://localhost/LuceneWCF/Service.svc</Value>
     </Setting>
   </Settings>
 </SettingsFile>

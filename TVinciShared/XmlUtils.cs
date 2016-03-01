@@ -34,6 +34,12 @@ namespace TVinciShared
         {
             try
             {
+                if (theRoot.SelectSingleNode(sQueryKey) == null ||
+                    theRoot.SelectSingleNode(sQueryKey).FirstChild == null)
+                {
+                    return "";
+                }
+
                 return theRoot.SelectSingleNode(sQueryKey).FirstChild.Value;
             }
             catch

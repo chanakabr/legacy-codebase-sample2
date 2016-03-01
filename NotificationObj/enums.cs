@@ -102,5 +102,7 @@ namespace NotificationObj
         [EnumMember]
         ElisaEmailNotification = 2
     }
+
+   
 }
 
