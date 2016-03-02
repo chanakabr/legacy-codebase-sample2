@@ -10,9 +10,9 @@ namespace ApiObjects
     {
         public string Code { get; set; }
 
-        public string Title { get; set; }
+        public List<KeyValuePair<string,string>>  Title { get; set; } // lang, title
 
-        public string Description { get; set; }
+        public List<KeyValuePair<string, string>> Description { get; set; } // lang, description 
 
         public DateTime StartDate { get; set; }
 
@@ -36,10 +36,11 @@ namespace ApiObjects
 
         public List<string> Channels { get; set; }
 
+        public List<string> FileTypes { get; set; }
+
         public eIngestAction Action { get; set; }
 
         public bool IsActive { get; set; }
-
 
     }
 }

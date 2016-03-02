@@ -948,6 +948,39 @@ namespace DAL
             }
             return 999;
         }
+
+        public static bool IsCodeUnique(int groupID, string code)
+        {
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Is_CodeUnique");
+                sp.SetConnectionKey("pricing_connection");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@Code", code);
+                return sp.ExecuteReturnValue<bool>();
+            }
+            catch (Exception ex)
+            {
+                HandleException(string.Empty, ex);
+            }
+            return false;
+        }
+
+        public static int ValidateMPP(int groupID, string code, string internalDiscount, List<string> pricePlansCodes, List<string> channels, List<string> fileTypes,
+            ApiObjects.eIngestAction action)
+        {
+            StoredProcedure sp = new StoredProcedure("ValidateMPP");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@Name", code);
+            sp.AddParameter("@InternalDiscount", internalDiscount);
+            sp.AddIDListParameter<string>("@PricePlansCodes", pricePlansCodes, "STR");
+            sp.AddIDListParameter<string>("@Channels", channels, "STR");
+            sp.AddIDListParameter<string>("@FileTypes", fileTypes, "STR");
+            sp.AddParameter("@Action", (int)action);
+            
+            return sp.ExecuteReturnValue<int>();
+        }
     }
 }
 
