@@ -364,6 +364,68 @@ namespace CouchbaseManager
         /// <param name="value"></param>
         /// <param name="expiration">TTL in seconds</param>
         /// <returns></returns>
+        public bool Add<T>(string key, T value, uint expiration = 0)
+        {
+            bool result = false;
+
+            try
+            {
+                using (var cluster = new Cluster(clientConfiguration))
+                {
+                    using (var bucket = cluster.OpenBucket(bucketName))
+                    {
+                        IOperationResult insertResult = null;
+
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                        {
+                            insertResult = bucket.Insert<T>(key, value, expiration);
+                        }
+
+                        if (insertResult != null)
+                        {
+                            if (insertResult.Exception != null)
+                            {
+                                throw insertResult.Exception;
+                            }
+
+                            if (insertResult.Status == Couchbase.IO.ResponseStatus.Success)
+                            {
+                                result = insertResult.Success;
+                            }
+                            else
+                            {
+                                HandleStatusCode(insertResult.Status);
+
+                                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                                {
+                                    insertResult = bucket.Insert<T>(key, value, expiration);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Add with key = {0}, error = {1}, ST = {2}", key, ex.Message, ex.StackTrace), ex);
+
+                if (ex.InnerException != null)
+                {
+                    log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Add with key = {0}, inner exception = {1}, ST = {2}", key,
+                        ex.InnerException.Message, ex.InnerException.StackTrace), ex.InnerException);
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <param name="expiration">TTL in seconds</param>
+        /// <returns></returns>
         public bool Set(string key, object value, uint expiration = 0)
         {
             bool result = false;
@@ -418,6 +480,14 @@ namespace CouchbaseManager
             return result;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <param name="expiration">TTL in seconds</param>
+        /// <returns></returns>
         public bool Set<T>(string key, T value, uint expiration = 0)
         {
             bool result = false;
