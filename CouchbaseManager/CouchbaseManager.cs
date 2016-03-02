@@ -461,11 +461,11 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Set with key = {0}, error = {1}, ST = {2}", key, ex.Message, ex.StackTrace), ex);
+                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Set<T> with key = {0}, error = {1}, ST = {2}", key, ex.Message, ex.StackTrace), ex);
 
                 if (ex.InnerException != null)
                 {
-                    log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Set with key = {0}, inner exception = {1}, ST = {2}", key,
+                    log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Set<T> with key = {0}, inner exception = {1}, ST = {2}", key,
                         ex.InnerException.Message, ex.InnerException.StackTrace), ex.InnerException);
                 }
             }
