@@ -816,7 +816,7 @@ namespace TVPApiServices
                 {
                     //XXX: Do the UDID empty stuff
                     bool isSingleLogin = TVPApi.ConfigManager.GetInstance().GetConfig(groupID, initObj.Platform).SiteConfiguration.Data.Features.SingleLogin.SupportFeature;
-                    new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SignOut(initObj.SiteGuid, initObj.UDID, string.Empty, isSingleLogin);
+                    new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SignOut(initObj.SiteGuid, initObj.UDID, initObj.UDID, isSingleLogin);
 
                     AuthorizationManager.Instance.DeleteAccessToken(initObj.Token);
                 }
