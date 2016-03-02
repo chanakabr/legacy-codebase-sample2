@@ -166,7 +166,7 @@ namespace Catalog.Request
                 // If this is a new request - generate a new GUID for it
                 if (string.IsNullOrEmpty(request.requestId))
                 {
-                    request.requestId = Guid.NewGuid().ToString();
+                    request.requestId = request.filterQuery.Replace(' ', '_');
                 }
 
                 int totalItems = 0;

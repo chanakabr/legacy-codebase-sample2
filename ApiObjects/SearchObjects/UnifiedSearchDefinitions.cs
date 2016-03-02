@@ -8,7 +8,7 @@ using System.Text;
 namespace ApiObjects.SearchObjects
 {
     [DataContract]
-    [JsonObject()]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.Auto)]
     [Serializable]
     public class UnifiedSearchDefinitions : BaseSearchObject
     {
@@ -62,10 +62,31 @@ namespace ApiObjects.SearchObjects
         /// <summary>
         /// The important part - the tree of filter conditions, connected with Ands/Ors.
         /// </summary>
-        [JsonProperty()]
-        [DataMember]
+        [JsonIgnore]
         public BooleanPhraseNode filterPhrase;
 
+        private string filterPhraseString;
+
+        [JsonProperty(PropertyName = "filter_phrase")]
+        public string filter_phrase
+        {
+            get
+            {
+                if (filterPhrase != null)
+                {
+                    var jObject = Newtonsoft.Json.Linq.JObject.FromObject(filterPhrase);
+
+                    filterPhraseString = BooleanPhraseNode.Serialize(filterPhrase);
+                }
+
+                return filterPhraseString;
+            }
+            set
+            {
+                filterPhrase = BooleanPhraseNode.Deserialize(value);
+                filterPhraseString = value;
+            }
+        }
         /// <summary>
         /// Whether or not use the default start date range filter or not
         /// </summary>
@@ -228,6 +249,7 @@ namespace ApiObjects.SearchObjects
 
         #region Ctor
 
+        [JsonConstructor]
         public UnifiedSearchDefinitions()
         {
             pageIndex = 0;
@@ -258,6 +280,7 @@ namespace ApiObjects.SearchObjects
 
             entitlementSearchDefinitions = null;
         }
+
 
         #endregion
     }

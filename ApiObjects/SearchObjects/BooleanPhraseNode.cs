@@ -1,4 +1,6 @@
 ﻿using ApiObjects.Response;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,6 +15,7 @@ namespace ApiObjects.SearchObjects
     /// </summary>
     [DataContract]
     [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public abstract class BooleanPhraseNode
     {
         #region Consts
@@ -22,6 +25,17 @@ namespace ApiObjects.SearchObjects
 
         #endregion
 
+        #region Static
+        protected static TypeNameSerializationBinder binder;
+
+        static BooleanPhraseNode()
+        {
+            binder = new TypeNameSerializationBinder("ApiObjects.SearchObjects.{0}, ApiObjects");
+        }
+
+        #endregion
+
+        [JsonProperty()]
         public abstract BooleanNodeType type
         {
             get;
@@ -430,11 +444,64 @@ namespace ApiObjects.SearchObjects
         }
 
         #endregion
+
+        internal static BooleanPhraseNode Deserialize(string value)
+        {
+            BooleanPhraseNode result = null;
+            JObject jObject = JObject.Parse(value);
+
+            result = JsonConvert.DeserializeObject<BooleanPhraseNode>(value,
+                new JsonSerializerSettings()
+                {
+                    TypeNameHandling = TypeNameHandling.Auto,
+                    Binder = binder
+                });
+
+            return result;
+        }
+
+        internal static string Serialize(BooleanPhraseNode value)
+        {
+            string json = JsonConvert.SerializeObject(value, Formatting.Indented, new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.All,
+                Binder = binder
+            });
+
+            return json;
+        }
     }
 
     public enum BooleanNodeType
     {
         Leaf,
         Parent
+    }
+
+    public class TypeNameSerializationBinder : SerializationBinder
+    {
+        public string TypeFormat
+        {
+            get;
+            private set;
+        }
+
+        public TypeNameSerializationBinder(string typeFormat)
+        {
+            TypeFormat = typeFormat;
+        }
+
+        public override void BindToName(Type serializedType, out string assemblyName, out string typeName)
+        {
+            assemblyName = null;
+            typeName = serializedType.Name;
+        }
+
+        public override Type BindToType(string assemblyName, string typeName)
+        {
+            string resolvedTypeName = string.Format(TypeFormat, typeName);
+
+            return Type.GetType(resolvedTypeName, true);
+        }
     }
 }

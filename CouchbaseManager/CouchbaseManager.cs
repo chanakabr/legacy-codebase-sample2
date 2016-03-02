@@ -44,6 +44,8 @@ namespace CouchbaseManager
         private static object syncObj = new object();
         private static ReaderWriterLockSlim m_oSyncLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
+        protected static Couchbase.Core.Serialization.DefaultSerializer serializer;
+
         #endregion
 
         #region Data Members
@@ -56,6 +58,22 @@ namespace CouchbaseManager
 
         #region Ctor
 
+        static CouchbaseManager()
+        {
+            //binder = new TypeNameSerializationBinder("ApiObjects.SearchObjects.{0}, ApiObjects");
+
+            serializer = serializer = new DefaultSerializer();
+
+            // DeserializationSettings
+            serializer.DeserializationSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto;
+            serializer.DeserializationSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
+            serializer.DeserializationSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
+
+            // SerializerSettings
+            serializer.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
+            serializer.SerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto;
+            serializer.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
+        }
         /// <summary>
         /// Initializes a CouchbaseManager instance with configuration in web.config, according to predefined bucket sections
         /// </summary>
@@ -119,7 +137,7 @@ namespace CouchbaseManager
             Couchbase.Core.Serialization.DefaultSerializer serializer = new DefaultSerializer();
             serializer.DeserializationSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto;
             serializer.SerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto;
-            
+
             return serializer;   
         }
 
