@@ -801,6 +801,8 @@ namespace Users
             {
                 Utils.AddInitiateNotificationActionToQueue(nGroupID, eUserMessageAction.Logout, siteGuid, sDeviceUDID);
             }
+            else
+                log.ErrorFormat("SignOut: error while logging user out: user: {0}, group: {1}, error: {2}", siteGuid, nGroupID, retVal.m_RespStatus);
 
             return retVal;
         }
