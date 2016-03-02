@@ -43,7 +43,8 @@ namespace Users
         private ICachingService cache = null;
         private readonly double cacheTTL;
         private readonly bool shouldUseCache;
-        private string userKeyCache = "user";        
+        private string userKeyCache = "user";
+        private const int RETRY_LIMIT = 3;
         #endregion
 
         private static UsersCache instance = null;
@@ -112,6 +113,8 @@ namespace Users
         internal bool InsertUser(User user, int groupID)
         {
             bool isInsertSuccess = false;
+            Random r = new Random();
+            int limitRetries = RETRY_LIMIT;
             try
             {
                 if (shouldUseCache)
@@ -124,9 +127,18 @@ namespace Users
                     string key = string.Format("group_{0}_{1}_{2}", groupID, userKeyCache, user.m_sSiteGUID);
 
                     //insert user to cache
-                    for (int i = 0; i < 3 && !isInsertSuccess; i++)
+                    while (limitRetries > 0)
                     {
                         isInsertSuccess = this.cache.SetJson<User>(key, user, cacheTTL);
+                        if (!isInsertSuccess)
+                        {
+                            Thread.Sleep(r.Next(50));
+                            limitRetries--;
+                        }
+                        else
+                        {
+                            break;
+                        }
                     }
 
                     if (!isInsertSuccess)
@@ -152,6 +164,8 @@ namespace Users
         internal bool RemoveUser(int userID, int groupID)
         {
             bool isRemoveSuccess = false;
+            Random r = new Random();
+            int limitRetries = RETRY_LIMIT;
             try
             {
                 if (shouldUseCache)
@@ -159,12 +173,21 @@ namespace Users
                     string key = string.Format("group_{0}_{1}_{2}", groupID, userKeyCache, userID);
 
                     //remove user from cache
-                    for (int i = 0; i < 3 && !isRemoveSuccess; i++)
+                    while (limitRetries > 0)
                     {
                         BaseModuleCache cacheModule = cache.Remove(key);
                         if (cacheModule != null && cacheModule.result != null)
                         {
                             isRemoveSuccess = (bool)cacheModule.result;
+                        }
+                        if (!isRemoveSuccess)
+                        {
+                            Thread.Sleep(r.Next(50));
+                            limitRetries--;
+                        }
+                        else
+                        {
+                            break;
                         }
                     }
 

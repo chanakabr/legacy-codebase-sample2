@@ -59,6 +59,7 @@ namespace Users.Cache
         private readonly double dCacheTT;
         private string sDomainKeyCache = "domain_";
         private string sDLMCache = "DLM_";
+        private const int RETRY_LIMIT = 3;
         #endregion
 
         #region Constants
@@ -146,6 +147,8 @@ namespace Users.Cache
         internal Domain GetDomain(int nDomainID, int nGroupID, bool bInsertToCache = true)
         {
             Domain oDomain = null;
+            Random r = new Random();
+            int limitRetries = RETRY_LIMIT;
             try
             {
                 string sKey = string.Format("{0}{1}", sDomainKeyCache, nDomainID);
@@ -161,10 +164,19 @@ namespace Users.Cache
                     // if bInsertToCache = true = need to insert the domain to cache 
                     if (bInsertToCache)
                     {
-                        for (int i = 0; i < 3 && !bInsert; i++)
+                        while (limitRetries > 0)
                         {
                             //try insert to Cache                                              
-                            bInsert = this.cache.SetJson<Domain>(sKey, oDomain, dCacheTT); // set this Domain object anyway - Shouldn't get here if domain already exsits 
+                            bInsert = this.cache.SetJson<Domain>(sKey, oDomain, dCacheTT); // set this Domain object anyway - Shouldn't get here if domain already exsits
+                            if (!bInsert)
+                            {
+                                Thread.Sleep(r.Next(50));
+                                limitRetries--;
+                            }
+                            else
+                            {
+                                break;
+                            }
                         }
                     }
                 }
@@ -186,6 +198,8 @@ namespace Users.Cache
         internal bool InsertDomain(Domain domain)
         {
             bool bInsert = false;
+            Random r = new Random();
+            int limitRetries = RETRY_LIMIT;
             try
             {
                 if (domain == null)
@@ -196,9 +210,18 @@ namespace Users.Cache
                 string sKey = string.Format("{0}{1}", sDomainKeyCache, domain.m_nDomainID);
 
                 //try insert to Cache
-                for (int i = 0; i < 3 && !bInsert; i++)
+                while (limitRetries > 0)
                 {
                     bInsert = this.cache.SetJson<Domain>(sKey, domain, dCacheTT); // set this Domain object anyway - Shouldn't get here if domain already exsits 
+                    if (!bInsert)
+                    {
+                        Thread.Sleep(r.Next(50));
+                        limitRetries--;
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
                 return bInsert;
             }
@@ -212,17 +235,28 @@ namespace Users.Cache
         internal bool RemoveDomain(int nDomainID)
         {
             bool bIsRemove = false;
+            Random r = new Random();
+            int limitRetries = RETRY_LIMIT;
             try
             {
                 string sKey = string.Format("{0}{1}", sDomainKeyCache, nDomainID);
 
                 //try remove domain from cache 
-                for (int i = 0; i < 3 && !bIsRemove; i++)
+                while (limitRetries > 0)
                 {
                     BaseModuleCache bModule = cache.Remove(sKey);
                     if (bModule != null && bModule.result != null)
                     {
                         bIsRemove = (bool)bModule.result;
+                    }
+                    if (!bIsRemove)
+                    {
+                        Thread.Sleep(r.Next(50));
+                        limitRetries--;
+                    }
+                    else
+                    {
+                        break;
                     }
                 }
                 return bIsRemove;
@@ -332,6 +366,8 @@ namespace Users.Cache
             string sKey = string.Empty;
             sKey = string.Format("{0}{1}", sDLMCache, nDomainLimitID);
             oLimitationsManager = null;
+            Random r = new Random();
+            int limitRetries = RETRY_LIMIT;
 
             // try to get the DLM id from cache
             bool bSuccess = this.cache.GetJsonAsT<LimitationsManager>(sKey, out oLimitationsManager);
@@ -342,12 +378,21 @@ namespace Users.Cache
                 oLimitationsManager = DomainFactory.GetDLM(nGroupID, nDomainLimitID);
 
                 if (oLimitationsManager == null)
-                    return false; 
+                    return false;
 
-                for (int i = 0; i < 3 && !bInsert; i++)
+                while (limitRetries > 0)
                 {
                     //try insert to Cache                                              
                     bInsert = this.cache.SetJson<LimitationsManager>(sKey, oLimitationsManager, dCacheTT); // set this DLM object anyway
+                    if (!bInsert)
+                    {
+                        Thread.Sleep(r.Next(50));
+                        limitRetries--;
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
             }
             if (oLimitationsManager != null)
@@ -359,17 +404,28 @@ namespace Users.Cache
         internal bool RemoveDLM(int nDlmID)
         {
             bool bIsRemove = false;
+            Random r = new Random();
+            int limitRetries = RETRY_LIMIT;
             try
             {
                 string sKey = string.Format("{0}{1}", sDLMCache, nDlmID);
 
                 //try remove domain from cache 
-                for (int i = 0; i < 3 && !bIsRemove; i++)
+                while (limitRetries > 0)                
                 {
                     BaseModuleCache bModule = cache.Remove(sKey);
                     if (bModule != null && bModule.result != null)
                     {
                         bIsRemove = (bool)bModule.result;
+                    }
+                    if (!bIsRemove)
+                    {
+                        Thread.Sleep(r.Next(50));
+                        limitRetries--;
+                    }
+                    else
+                    {
+                        break;
                     }
                 }
                 return bIsRemove;
