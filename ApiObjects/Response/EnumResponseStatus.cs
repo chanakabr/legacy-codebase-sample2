@@ -210,6 +210,8 @@ namespace ApiObjects.Response
         Conflict = 7000,
         MinFriendsLimitation = 7001,
 
+        //Pricing 8000-8999
+
         // notification 8000-899
         NoNotificationSettingsSent = 8000,
         PushNotificationFalse = 8001, //"push notification false can't comabin with push system announcements true";

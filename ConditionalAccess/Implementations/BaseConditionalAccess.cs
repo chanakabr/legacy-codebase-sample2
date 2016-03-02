@@ -50,6 +50,7 @@ namespace ConditionalAccess
         public const string DEVICE_NAME = "ldn";
         public const string DUMMY = "dummy";
         public const string HISTORY = "history";
+        public const string RECURRING_NUMBER = "recurringnumber";
 
         protected const int PAYMENT_GATEWAY = 1000;
 
@@ -9348,8 +9349,9 @@ namespace ConditionalAccess
         /// <summary>
         /// Get Custom Data For Subscription
         /// </summary>
-        protected virtual string GetCustomDataForSubscription(TvinciPricing.Subscription theSub, TvinciPricing.Campaign campaign, string sSubscriptionCode, string sCampaignCode, string sSiteGUID, double dPrice, string sCurrency,
-            string sCouponCode, string sUserIP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sOverrideEndDate, string sPreviewModuleID, bool previewEntitled, bool isDummy = false, bool saveHistory = false)
+        protected virtual string GetCustomDataForSubscription(TvinciPricing.Subscription theSub, TvinciPricing.Campaign campaign, string sSubscriptionCode, string sCampaignCode, string sSiteGUID,
+            double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sOverrideEndDate, string sPreviewModuleID,
+            bool previewEntitled, bool isDummy = false, int recurringNumber = 0, bool saveHistory = false)
         {
             bool bIsRecurring = theSub.m_bIsRecurring;
 
@@ -9421,7 +9423,7 @@ namespace ConditionalAccess
             sb.Append("<cu>");
             sb.Append(sCurrency);
             sb.Append("</cu>");
-            if (theSub != null && theSub.m_oPreviewModule != null && theSub.m_oPreviewModule.m_tsFullLifeCycle != null && previewEntitled)
+            if (theSub != null && theSub.m_oPreviewModule != null && theSub.m_oPreviewModule.m_tsFullLifeCycle > 0 && previewEntitled)
             {
                 sb.Append("<prevlc>");
                 sb.Append(theSub.m_oPreviewModule.m_tsFullLifeCycle);
@@ -9430,14 +9432,15 @@ namespace ConditionalAccess
             if (isDummy)
             {
                 sb.Append(string.Format("<{0}>1</{0}>", DUMMY));
+                sb.Append(string.Format("<{0}>{1}</{0}>", RECURRING_NUMBER, recurringNumber));
+                if (saveHistory)
+                {
+                    sb.Append(string.Format("<{0}>1</{0}>", HISTORY));
+                }
             }
-            if (saveHistory)
-            {
-                sb.Append(string.Format("<{0}>1</{0}>", HISTORY));
-            }
+            
             sb.Append("</customdata>");
             return sb.ToString();
-
         }
 
         protected virtual string GetCustomDataForCollection(TvinciPricing.Collection theCol, string sCollectionCode,
@@ -14431,7 +14434,7 @@ namespace ConditionalAccess
                         status = GrantPPV(siteguid, householdId, contentId, productId, userIp, deviceName, history);
                         break;
                     case eTransactionType.Subscription:
-                        status = GrantSubscription(siteguid, householdId, productId, userIp, deviceName, history);
+                        status = GrantSubscription(siteguid, householdId, productId, userIp, deviceName, history, 1);
                         break;
                     case eTransactionType.Collection:
                         status = GrantCollection(siteguid, householdId, productId, userIp, deviceName, history);
@@ -14659,7 +14662,7 @@ namespace ConditionalAccess
         }
 
         private ApiObjects.Response.Status GrantSubscription(string siteguid, long householdId, int productId, string userIp, string deviceName, bool saveHistory,
-             DateTime? startDate = null, DateTime? endDate = null)
+             int recurringNumber, DateTime? startDate = null, DateTime? endDate = null)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -14716,7 +14719,7 @@ namespace ConditionalAccess
                 string customData = GetCustomDataForSubscription(subscription, null, productId.ToString(), string.Empty, siteguid, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3,
                                                                  string.Empty, userIp, country, string.Empty, deviceName, string.Empty,
                                                                  entitleToPreview ? subscription.m_oPreviewModule.m_nID + "" : string.Empty,
-                                                                 entitleToPreview, true, saveHistory);
+                                                                 entitleToPreview, true, recurringNumber, saveHistory);
 
                 // create new GUID for billing transaction
                 string billingGuid = Guid.NewGuid().ToString();
@@ -14957,8 +14960,8 @@ namespace ConditionalAccess
 
             log.DebugFormat("Starting renewal process. data: {0}", logString);
 
-            string customData = string.Empty;                   
-            long householdId = 0;
+            string customData = string.Empty;
+            long householdId = 0;            
 
             string userIp = "1.1.1.1";
 
@@ -14999,23 +15002,9 @@ namespace ConditionalAccess
                     XmlNode theRequest = doc.FirstChild;
 
                     bool isDummy = XmlUtils.IsNodeExists(ref theRequest, DUMMY);
-                    bool saveHistory = XmlUtils.IsNodeExists(ref theRequest, HISTORY);
-                    string deviceName = XmlUtils.GetSafeValue(DEVICE_NAME, ref theRequest);
-
                     if (isDummy)
                     {
-                        /// call GrantSubsription
-                        var res = GrantSubscription(siteguid, householdId, (int)productId, userIp, deviceName, saveHistory);
-                        if (res.Code == (int)eResponseStatus.OK)
-                        {
-                            log.DebugFormat("Renew Dummy GrantSubscription Succeeded, data: {0}", logString);
-                            return true;
-                        }
-                        else
-                        {
-                            log.DebugFormat("Renew Dummy GrantSubscription failed, data: {0}", logString);
-                            return true;
-                        }
+                        return HandleDummySubsciptionRenewal(siteguid, billingGuid, logString, householdId, userIp, productId, theRequest);
                     }
                 }
             }
@@ -15244,6 +15233,58 @@ namespace ConditionalAccess
                     }
             }
 
+        }
+
+        private bool HandleDummySubsciptionRenewal(string siteguid, string billingGuid, string logString, long householdId, string userIp, long productId, XmlNode theRequest)
+        {
+            bool saveHistory = XmlUtils.IsNodeExists(ref theRequest, HISTORY);
+            string deviceName = XmlUtils.GetSafeValue(DEVICE_NAME, ref theRequest);
+            int recurringNumber = 0;
+            int numOfPayments = 0;
+            if (!int.TryParse(XmlUtils.GetSafeValue(RECURRING_NUMBER, ref theRequest), out recurringNumber))
+            {
+                // Subscription ended
+                log.ErrorFormat("Renew Dummy GrantSubscription failed, error at parse recurringNumber,  data: {0}", logString);
+                WriteToUserLog(siteguid, string.Format("Subscription ended. subscriptionID = {0}, numOfPayments={1}, paymentNumber={2}, numOfPayments={3}, billingGuid={4}",
+                    productId, numOfPayments, recurringNumber, numOfPayments, billingGuid));
+                return false;
+            }
+
+            if (!int.TryParse(XmlUtils.GetSafeParValue("//p", "o", ref theRequest), out numOfPayments))
+            {
+                // Subscription ended
+                log.ErrorFormat("Renew Dummy GrantSubscription failed, error at parse //p o,  data: {0}", logString);
+                WriteToUserLog(siteguid, string.Format("Subscription ended. subscriptionID = {0}, numOfPayments={1}, paymentNumber={2}, numOfPayments={3}, billingGuid={4}",
+                    productId, numOfPayments, recurringNumber, numOfPayments, billingGuid));
+                return false;
+
+            }
+
+            recurringNumber = Utils.CalcPaymentNumber(numOfPayments, recurringNumber, false);
+            if (numOfPayments > 0 && recurringNumber > numOfPayments)
+            {
+                // Subscription ended
+                log.ErrorFormat("Subscription ended. numOfPayments={0}, paymentNumber={1}, numOfPayments={2}", numOfPayments, recurringNumber, numOfPayments);
+                WriteToUserLog(siteguid, string.Format("Subscription ended. subscriptionID = {0}, numOfPayments={1}, paymentNumber={2}, numOfPayments={3}, billingGuid={4}",
+                    productId, numOfPayments, recurringNumber, numOfPayments, billingGuid));
+                return true;
+            }
+
+            // calculate payment (recurring) number
+            recurringNumber++;
+
+            /// call GrantSubsription
+            var res = GrantSubscription(siteguid, householdId, (int)productId, userIp, deviceName, saveHistory, recurringNumber);
+            if (res.Code == (int)eResponseStatus.OK)
+            {
+                log.DebugFormat("Renew Dummy GrantSubscription Succeeded, data: {0}", logString);
+                return true;
+            }
+            else
+            {
+                log.DebugFormat("Renew Dummy GrantSubscription failed, data: {0}", logString);
+                return true;
+            }
         }
 
         private bool HandleRenewSubscriptionFailed(string siteguid, long purchaseId, string logString, long productId, TvinciPricing.Subscription subscription)
@@ -16013,7 +16054,7 @@ namespace ConditionalAccess
                         if (subscription.EndDateSeconds != 0)
                             endDate = DateUtils.UnixTimeStampToDateTime(subscription.EndDateSeconds);
 
-                        var res = GrantSubscription(userId, householdId, (int)subscription.ProductId, string.Empty, string.Empty, false, startDate, endDate);
+                        var res = GrantSubscription(userId, householdId, (int)subscription.ProductId, string.Empty, string.Empty, false, 0, startDate, endDate);
                         string logString = string.Format("userId = {0}, subscriptionId = {1}, subscriptionproductCode = {2}", userId, subscription.ProductId, subscription.ProductCode);
                         if (res.Code != (int)eResponseStatus.OK)
                         {
