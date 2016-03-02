@@ -676,19 +676,57 @@ namespace DAL
         }
 
 
-        public static int Insert_NewPriceCode(int groupID, string code, double price, int currencyID, string alias)
+        public static int Insert_PriceCode(int groupID, string code, double price, int currencyID)
         {
             try
             {
-                StoredProcedure sp = new StoredProcedure("Insert_NewPriceCode");
+                StoredProcedure sp = new StoredProcedure("Insert_PriceCode");
                 sp.SetConnectionKey("pricing_connection");
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@PriceCode", code);
                 sp.AddParameter("@Price", price);
                 sp.AddParameter("@CurrencyID", currencyID);
-                sp.AddParameter("@Date", DateTime.UtcNow);               
-                sp.AddParameter("@alias", alias);                
+                sp.AddParameter("@Date", DateTime.UtcNow);       
 
+                return sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                HandleException(string.Empty, ex);
+            }
+            return 999;
+        }
+
+        public static int Update_PriceCode(int groupID, string code, double price, int currencyID)
+        {
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Update_PriceCode");
+                sp.SetConnectionKey("pricing_connection");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@PriceCode", code);
+                sp.AddParameter("@Price", price);
+                sp.AddParameter("@CurrencyID", currencyID);
+                sp.AddParameter("@Date", DateTime.UtcNow);
+
+                return sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                HandleException(string.Empty, ex);
+            }
+            return 999;
+        }
+
+        public static int Delete_PriceCode(int groupID, string code)
+        {
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Delete_PriceCode");
+                sp.SetConnectionKey("pricing_connection");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@PriceCode", code);               
+                sp.AddParameter("@Date", DateTime.UtcNow);
                 return sp.ExecuteReturnValue<int>();
             }
             catch (Exception ex)
@@ -760,11 +798,11 @@ namespace DAL
         }
 
         public static int InsertUsageModule(int groupID, string virtualName, int viewLifeCycle, int maxUsageModuleLifeCycle, int maxNumberOfViews,bool waiver, int waiverPeriod, bool isOfflinePlayBack,
-            int ext_discount_id, int internal_discount_id, int pricing_id, int coupon_id, int type,  int subscription_only, int is_renew, int num_of_rec_periods, int device_limit_id, string alias)
+            int ext_discount_id, int internal_discount_id, int pricing_id, int coupon_id, int type,  int subscription_only, int is_renew, int num_of_rec_periods, int device_limit_id)
         {
             try
             {
-                StoredProcedure sp = new StoredProcedure("Insert_NewUsageModule");
+                StoredProcedure sp = new StoredProcedure("Insert_UsageModule");
                 sp.SetConnectionKey("pricing_connection");
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@Name", virtualName);
@@ -790,7 +828,6 @@ namespace DAL
 
                 sp.AddParameter("@isOfflinePlayBack", isOfflinePlayBack == true ? 1 : 0);
                 sp.AddParameter("@Date", DateTime.UtcNow);
-                sp.AddParameter("@alias", alias);
 
                 return sp.ExecuteReturnValue<int>();
             }
@@ -869,6 +906,47 @@ namespace DAL
                 HandleException(string.Empty, ex);
             }
             return 999;   
+        }
+
+        public static int UpdatetUsageModule(int groupID, string virtualName, int viewLifeCycle, int maxUsageModuleLifeCycle, int maxNumberOfViews, bool waiver, int waiverPeriod, bool isOfflinePlayBack,
+            int ext_discount_id, int internal_discount_id, int pricing_id, int coupon_id, int type, int subscription_only, int is_renew, int num_of_rec_periods, int device_limit_id)
+        {
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Update_UsageModule");
+                sp.SetConnectionKey("pricing_connection");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@Name", virtualName);
+                sp.AddParameter("@viewLifeCycle", viewLifeCycle);
+                sp.AddParameter("@maxUsageModuleLifeCycle", maxUsageModuleLifeCycle);
+                sp.AddParameter("@maxNumberOfViews", maxNumberOfViews);
+                // multi usage module
+                if (type == 2)
+                {
+                    sp.AddParameter("@ext_discount_id", ext_discount_id);
+                    sp.AddParameter("@internal_discount_id", internal_discount_id);
+                    sp.AddParameter("@pricing_id", pricing_id);
+                    sp.AddParameter("@coupon_id", coupon_id);
+                    sp.AddParameter("@type", type);
+                    sp.AddParameter("@subscription_only", subscription_only);
+                    sp.AddParameter("@is_renew", is_renew);
+                    sp.AddParameter("@num_of_rec_periods", num_of_rec_periods);
+                    sp.AddParameter("@device_limit_id", device_limit_id);
+                }
+                //Regulation cancelation
+                sp.AddParameter("@waiver", waiver == true ? 1 : 0);
+                sp.AddParameter("@waiverPeriod", waiverPeriod);
+
+                sp.AddParameter("@isOfflinePlayBack", isOfflinePlayBack == true ? 1 : 0);
+                sp.AddParameter("@Date", DateTime.UtcNow);
+
+                return sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                HandleException(string.Empty, ex);
+            }
+            return 999;
         }
     }
 }
