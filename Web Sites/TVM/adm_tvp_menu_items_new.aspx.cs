@@ -32,6 +32,8 @@ public partial class adm_tvp_menu_items_new : System.Web.UI.Page
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
                 string sLink = Request.Form["4_val"].ToString();
+                sLink = sLink.Replace("''", "\"");
+
                 string sType = Request.Form["4_type"].ToString();
                 int nNoFollow = int.Parse(Request.Form["5_val"].ToString());
                 Int32 nID = DBManipulator.DoTheWork(sConnKey);
