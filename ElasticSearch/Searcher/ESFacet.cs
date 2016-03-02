@@ -484,7 +484,7 @@ namespace ElasticSearch.Searcher
 
                 if (stats1 == null && stats2 == null)
                     return 0;
-                else if (stats2 == null)
+                else if (stats1 == null)
                     return 1;
                 else if (stats2 == null)
                     return -1;

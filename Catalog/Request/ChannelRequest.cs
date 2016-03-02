@@ -261,18 +261,9 @@ namespace Catalog.Request
                         Dictionary<int, int[]> dict = CatalogDAL.Get_MediaStatistics(windowTime, DateTime.UtcNow, nGroupId, media);
                         if (dict != null && dict.Count > 0)
                         {
-                            if (isDesc)
-                            {
-                                result = (from pair in dict
-                                          orderby pair.Value descending
-                                          select pair.Key).ToList();
-                            }
-                            else
-                            {
-                                result = (from pair in dict
-                                          orderby pair.Value ascending
-                                          select pair.Key).ToList();
-                            }
+                            result = (from pair in dict
+                                        orderby pair.Value descending
+                                        select pair.Key).ToList();
                         }
                     }
                     /************* For versions after Joker that don't want to use DB for getting view stats (first_play), we fetch the data from ES statistics index **********/
@@ -297,13 +288,14 @@ namespace Catalog.Request
 
             if (result != null && result.Count > 0)
             {
+                // all results are returned ordered by descending
                 if (isDesc)
-                {
-                    result.Reverse();
+                {                    
                     result = Utils.ListPaging(result, pageSize, PageIndex);
                 }
                 else
                 {
+                    result.Reverse();
                     result = Utils.ListPaging(result, pageSize, PageIndex);
                 }
             }
