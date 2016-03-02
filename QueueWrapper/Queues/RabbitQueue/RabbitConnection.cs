@@ -95,7 +95,7 @@ namespace QueueWrapper
                     }
                     catch (Exception ex)
                     {
-                        log.Error("", ex);
+                        log.Error("Error in nested rabbit", ex);
                     }
                     finally
                     {
@@ -137,7 +137,7 @@ namespace QueueWrapper
                 }
                 catch (Exception ex)
                 {
-                    log.Error("", ex);
+                    log.Error("Error in Ack rabbit", ex);
                 }
             }
 
@@ -171,13 +171,13 @@ namespace QueueWrapper
                         // If failed, retry until we reach limit - with a new connection
                         catch (OperationInterruptedException ex)
                         {
-                            log.ErrorFormat("Failed publishing message to rabbit. Message = {0}", message, ex);
+                            log.ErrorFormat("Failed publishing message to rabbit. Message = {0}, EX = {1}", message, ex);
                             ClearConnection();
                             IncreaseFailCounter();
                             return Publish(configuration, message);
                         }
 
-                        if (this.m_Model != null)
+                        if (this.m_Model != null) 
                         {
                             var body = Encoding.UTF8.GetBytes(message.ToString());
                             IBasicProperties properties = m_Model.CreateBasicProperties();
@@ -188,13 +188,15 @@ namespace QueueWrapper
                                 properties.ContentType = configuration.ContentType;
                             }
 
-                            using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_RABBITMQ, null, null, null, null)
-                            {
-                                Database = configuration.Exchange
-                            })
+                            using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_RABBITMQ, null, null, null, null) { Database = configuration.Exchange })
                             {
                                 m_Model.BasicPublish(configuration.Exchange, configuration.RoutingKey, properties, body);
                             }
+
+                            log.DebugFormat("Rabbit message sent. configuration.Exchange: {0}, configuration.RoutingKey: {1}, body: {2}",
+                                configuration != null && configuration.Exchange != null ? configuration.Exchange : string.Empty,
+                                configuration != null && configuration.RoutingKey != null ? configuration.RoutingKey : string.Empty,
+                                body);
 
                             isPublishSucceeded = true;
                             ResetFailCounter();
@@ -202,13 +204,13 @@ namespace QueueWrapper
                     }
                     catch (OperationInterruptedException ex)
                     {
-                        log.ErrorFormat("Failed publishing message to rabbit. Message = {0}", message, ex);
+                        log.ErrorFormat("Failed publishing message to rabbit. Message = {0}, EX = {1}", message, ex);
                         string msg = ex.Message;
                         ClearConnection();
                     }
                     catch (Exception ex)
                     {
-                        log.ErrorFormat("Failed publishing message to rabbit. Message = {0}", message, ex);
+                        log.ErrorFormat("Failed publishing message to rabbit. Message = {0}, EX = {1}", message, ex);
                         IncreaseFailCounter();
                         string msg = ex.Message;
                     }
@@ -216,7 +218,7 @@ namespace QueueWrapper
                 else
                 {
                     string host = string.Empty;
-                    
+
                     if (configuration != null)
                     {
                         host = configuration.Host;
@@ -300,7 +302,7 @@ namespace QueueWrapper
                 }
                 catch (Exception ex)
                 {
-                    log.Error("", ex);
+                    log.Error("Error in Subscribe", ex);
                 }
             }
 
@@ -432,7 +434,7 @@ namespace QueueWrapper
                 this.m_Model.Close();
                 this.m_Model = null;
             }
-        } 
+        }
 
         #endregion
     }
