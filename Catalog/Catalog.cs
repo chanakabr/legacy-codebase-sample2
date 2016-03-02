@@ -4248,6 +4248,10 @@ namespace Catalog
 			filter.AddChild(esMediaIdTerms);
 			#endregion
 
+            #region define order filter
+            // if no ordering is specified the default is order by count descending
+            #endregion
+
 			filteredQuery.Filter.FilterSettings = filter;
 
 			ESTermsFacet facet = new ESTermsFacet(STAT_SLIDING_WINDOW_FACET_NAME, "media_id", 100000);
@@ -4262,6 +4266,7 @@ namespace Catalog
 		{
 			List<int> result = new List<int>();
 
+            // if no ordering is specified to BuildSlidingWindowCountFacetRequest function then default is order by count descending
 			string sFacetQuery = BuildSlidingWindowCountFacetRequest(nGroupId, lMediaIds, dtStartDate, dtEndDate, action);
 
 
@@ -4385,6 +4390,7 @@ namespace Catalog
 					{
 						int mediaId;
 
+                        // sorts order by descending (due to FacetCompare)
 						lFacetResult.Sort(new ESTermsStatsFacet.FacetCompare(compareType));
 
 						foreach (var stats in lFacetResult)
