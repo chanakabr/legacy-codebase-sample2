@@ -15,7 +15,7 @@ namespace WebAPI.Controllers
     public class TransactionController : ApiController
     {
         /// <summary>
-        /// Purchase specific product or subscription utilizing the household’s pre-assigned payment gateway. Upon successful charge entitlements to use the requested product or subscription are granted.
+        /// Purchase specific product or subscription for a household. Upon successful charge entitlements to use the requested product or subscription are granted. 
         /// </summary>
         /// <param name="price">Net sum to charge – as a one-time transaction. Price must match the previously provided price for the specified content. </param>
         /// <param name="currency">Identifier for paying currency, according to ISO 4217</param>
@@ -23,8 +23,8 @@ namespace WebAPI.Controllers
         /// <param name="product_id">Identifier for the package from which this content is offered</param>        
         /// <param name="product_type">Package type. Possible values: PPV, Subscription, Collection</param>
         /// <param name="coupon">Coupon code</param> 
-        /// <param name="payment_gateway_id">Payment gateway identifier</param>
-        /// <param name="payment_method_id">Payment method identifier</param>
+        /// <param name="payment_gateway_id">Identifier for a pre-associated payment gateway. If not provided – the account’s default payment gateway is used</param>
+        /// <param name="payment_method_id">Identifier for a pre-entered payment method. If not provided – the household’s default payment method is used</param>
         /// <remarks>Possible status codes: 
         /// User not in domain = 1005, Invalid user = 1026, User does not exist = 2000, User suspended = 2001, Coupon not valid = 3020, Unable to purchase - PPV purchased = 3021,  Unable to purchase - Free = 3022,  Unable to purchase - For purchase subscription only = 3023,
         ///  Unable to purchase - Subscription purchased = 3024, Not for purchase = 3025, Unable to purchase - Collection purchased = 3027, 
