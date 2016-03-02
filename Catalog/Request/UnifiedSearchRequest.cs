@@ -116,7 +116,15 @@ namespace Catalog.Request
                 if (!string.IsNullOrEmpty(request.filterQuery))
                 {
                     Status status = BooleanPhraseNode.ParseSearchExpression(filterQuery, ref filterTree);
-                    if (status.Code != (int)eResponseStatus.OK)
+
+                    if (status == null)
+                    {
+                        return new UnifiedSearchResponse()
+                        {
+                            status = new Status((int)eResponseStatus.SyntaxError, "Could not parse search expression")
+                        };
+                    }
+                    else  if (status.Code != (int)eResponseStatus.OK)
                     {
                         return new UnifiedSearchResponse()
                         {
