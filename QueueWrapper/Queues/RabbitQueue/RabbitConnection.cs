@@ -177,7 +177,7 @@ namespace QueueWrapper
                             return Publish(configuration, message);
                         }
 
-                        if (this.m_Model != null) 
+                        if (this.m_Model != null)
                         {
                             var body = Encoding.UTF8.GetBytes(message.ToString());
                             IBasicProperties properties = m_Model.CreateBasicProperties();
@@ -196,7 +196,7 @@ namespace QueueWrapper
                             log.DebugFormat("Rabbit message sent. configuration.Exchange: {0}, configuration.RoutingKey: {1}, body: {2}",
                                 configuration != null && configuration.Exchange != null ? configuration.Exchange : string.Empty,
                                 configuration != null && configuration.RoutingKey != null ? configuration.RoutingKey : string.Empty,
-                                body);
+                                message);
 
                             isPublishSucceeded = true;
                             ResetFailCounter();
