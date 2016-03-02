@@ -10,6 +10,7 @@ using Couchbase;
 using Couchbase.Configuration;
 using Couchbase.Configuration.Client.Providers;
 using Couchbase.Configuration.Client;
+using Couchbase.Core.Serialization;
 
 namespace CouchbaseManager
 {
@@ -109,6 +110,17 @@ namespace CouchbaseManager
                     };
                 }
             }
+
+            this.clientConfiguration.Serializer = GetSerializer;
+        }
+
+        private ITypeSerializer GetSerializer()
+        {
+            Couchbase.Core.Serialization.DefaultSerializer serializer = new DefaultSerializer();
+            serializer.DeserializationSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto;
+            serializer.SerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto;
+            
+            return serializer;   
         }
 
         private string GetBucketName(string configurationSection)
