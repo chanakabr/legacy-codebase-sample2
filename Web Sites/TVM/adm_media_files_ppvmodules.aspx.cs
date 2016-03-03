@@ -327,7 +327,7 @@ public partial class adm_media_files_ppvmodules : System.Web.UI.Page
                 if (updatedStartDate.HasValue && (updatedStartDate.Value > DateTime.UtcNow && updatedStartDate.Value <= DateTime.UtcNow.AddYears(2))
                     && (!prevStartDate.HasValue || updatedStartDate.Value != prevStartDate.Value))
                 {
-                    if (!ImporterImpl.InsertFreeItemsIndexUpdate(nLogedInGroupID, ApiObjects.eObjectType.Media, new List<int>() { mediaID }, updatedStartDate.Value))
+                    if (!RabbitHelper.InsertFreeItemsIndexUpdate(nLogedInGroupID, ApiObjects.eObjectType.Media, new List<int>() { mediaID }, updatedStartDate.Value))
                     {
                         log.Error(string.Format("Failed inserting free items index update for startDate: {0}, mediaID: {1}, groupID: {2}", updatedStartDate.Value, mediaID, nLogedInGroupID));
                     }
@@ -337,7 +337,7 @@ public partial class adm_media_files_ppvmodules : System.Web.UI.Page
                 if (updatedEndDate.HasValue && (updatedEndDate > DateTime.UtcNow && updatedEndDate.Value <= DateTime.UtcNow.AddYears(2))
                     && (!prevEndDate.HasValue || updatedEndDate.Value != prevEndDate.Value))
                 {
-                    if (!ImporterImpl.InsertFreeItemsIndexUpdate(nLogedInGroupID, ApiObjects.eObjectType.Media, new List<int>() { mediaID }, updatedEndDate.Value))
+                    if (!RabbitHelper.InsertFreeItemsIndexUpdate(nLogedInGroupID, ApiObjects.eObjectType.Media, new List<int>() { mediaID }, updatedEndDate.Value))
                     {
                         log.Error(string.Format("Failed inserting free items index update for endDate: {0}, mediaID: {1}, groupID: {2}", updatedEndDate.Value, mediaID, nLogedInGroupID));
                     }
