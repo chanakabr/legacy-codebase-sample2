@@ -248,7 +248,7 @@ namespace Catalog.Request
                         if (dict != null && dict.Count > 0)
                         {
                             result = (from pair in dict
-                                        orderby pair.Value descending
+                                        orderby pair.Value[0] descending
                                         select pair.Key).ToList();
                         }
                     }
