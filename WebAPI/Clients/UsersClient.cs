@@ -768,5 +768,31 @@ namespace WebAPI.Clients
 
             return true;
         }
+
+        public bool SignOut(int groupId, int userId, string ip, string deviceId)
+        {
+            UserResponseObject response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+            
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Users.SignOut(group.UsersCredentials.Username, group.UsersCredentials.Password, userId.ToString(), string.Empty, ip, deviceId, group.ShouldSupportSingleLogin);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while Login. Username: {0}, Password: {1}, exception: {2}", group.UsersCredentials.Username, group.UsersCredentials.Password, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response.m_RespStatus != ResponseStatus.SessionLoggedOut)
+            {
+                throw new ClientException((int)response.m_RespStatus, StatusCode.Error.ToString());
+            }
+
+            return true;
+        }
     }
 }

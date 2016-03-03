@@ -482,5 +482,32 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        /// <summary>
+        /// Logout the calling user.
+        /// </summary>
+        /// <returns></returns>
+        [Route("Logout"), HttpPost]
+        public bool Logout()
+        {
+            bool response = false;
+
+            KS ks = KS.GetFromRequest();
+            int groupId = ks.GroupId;
+            int userId = int.Parse(ks.UserId);
+            string udid = KSUtils.ExtractKSPayload().UDID;
+            string ip = Utils.Utils.GetClientIP();
+
+            try
+            {
+                response = ClientsManager.UsersClient().SignOut(groupId, userId, ip, udid);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
     }
 }
