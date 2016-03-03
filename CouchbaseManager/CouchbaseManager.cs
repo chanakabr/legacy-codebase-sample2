@@ -74,6 +74,7 @@ namespace CouchbaseManager
                                     {
                                         m_CouchbaseInstances.Add(eBucket.ToString(), client);
                                         isDone = true;
+                                        log.InfoFormat("New couchbase instance created successfully for bucket: {0}, retry #: {1}", eBucket.ToString(), currentRetry);
                                     }
                                 }
                             }
@@ -148,16 +149,17 @@ namespace CouchbaseManager
             {
                 try
                 {
-                    foreach (var key in new List<string>(m_CouchbaseInstances.Keys))
-                    {
-                        m_CouchbaseInstances[key].Dispose();
-                        m_CouchbaseInstances[key] = null;
-                    }
+                    if(m_CouchbaseInstances.ContainsKey(eBucket.ToString())){
+                        m_CouchbaseInstances[eBucket.ToString()].Dispose();
+                        m_CouchbaseInstances.Remove(eBucket.ToString());
 
-                    m_CouchbaseInstances.Clear();
+                        log.InfoFormat("Remove couchbase intance for bucket: " + eBucket.ToString());
+                    }
+                    
                 }
                 catch (Exception ex)
                 {
+                    log.Error("Failed refreshing couchbase instance for bucket: " + eBucket.ToString(), ex);
                 }
                 finally
                 {

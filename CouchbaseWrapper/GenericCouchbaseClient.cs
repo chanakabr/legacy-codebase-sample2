@@ -139,12 +139,13 @@ namespace CouchbaseWrapper
                                     throw new Exception("Exceeded maximum number of Couchbase instance refresh");
                                 }
 
-                                Thread.Sleep(500);
+                                Thread.Sleep(100);
                             }
                             else
                             {
                                 _client = client;
                                 isDone = true;
+                                log.InfoFormat("New couchbase instance created successfully, retry #: {0}", currentRetry);
                             }
                         }
                     }
