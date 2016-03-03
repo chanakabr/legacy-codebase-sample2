@@ -62,12 +62,16 @@ namespace CouchbaseWrapper
                                             throw new Exception("Exceeded maximum number of Couchbase instance refresh");
                                         }
 
-                                        Thread.Sleep(500);
+                                        Thread.Sleep(100);
                                     }
                                     else
                                     {
                                         m_CouchbaseInstances.Add(loweredBucketName, client);
                                         isDone = true;
+
+                                        Logger.Logger.Log("GetInstance",
+                                            string.Format("New couchbase instance created successfully for bucket: {0}, retry #: {1}", loweredBucketName.ToString(), currentRetry),
+                                            "CouchbaseManager");
                                     }
                                 }
                             }

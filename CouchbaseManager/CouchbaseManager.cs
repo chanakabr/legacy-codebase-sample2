@@ -67,12 +67,15 @@ namespace CouchbaseManager
                                             throw new Exception("Exceeded maximum number of Couchbase instance refresh");
                                         }
 
-                                        Thread.Sleep(500);
+                                        Thread.Sleep(100);
                                     }
                                     else
                                     {
                                         m_CouchbaseInstances.Add(eBucket.ToString(), client);
                                         isDone = true;
+                                        Logger.Logger.Log("GetInstance",
+                                            string.Format("New couchbase instance created successfully for bucket: {0}, retry #: {1}", eBucket.ToString(), currentRetry),
+                                            "CouchbaseManager");
                                     }
                                 }
                             }
@@ -150,16 +153,19 @@ namespace CouchbaseManager
                 {
                     try
                     {
-                        foreach (var key in new List<string>(m_CouchbaseInstances.Keys))
+                        if (m_CouchbaseInstances.ContainsKey(eBucket.ToString()))
                         {
-                            m_CouchbaseInstances[key].Dispose();
-                            m_CouchbaseInstances[key] = null;
-                        }
+                            m_CouchbaseInstances[eBucket.ToString()].Dispose();
+                            m_CouchbaseInstances.Remove(eBucket.ToString());
 
-                        m_CouchbaseInstances.Clear();
+                            Logger.Logger.Log("INFO Refresh instance", "Remove couchbase intance for bucket: " + eBucket.ToString(), "CouchbaseManager");
+                        }
                     }
                     catch (Exception ex)
                     {
+                        Logger.Logger.Log("ERROR Refresh instance",
+                            "Failed refreshing couchbase instance for bucket: " + eBucket.ToString() + " error = " + ex.ToString(),
+                            "CouchbaseManager");
                     }
                     finally
                     {
