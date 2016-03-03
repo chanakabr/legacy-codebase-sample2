@@ -155,6 +155,12 @@ namespace Catalog.Request
         {
             List<BaseSearchObject> searchObjectsList = new List<BaseSearchObject>();
 
+            // Validate all channels parameter
+            if (allChannels == null || allChannels.Count == 0)
+            {
+                return searchObjectsList;
+            }
+
             BaseSearchObject[] searchObjectsArray = new BaseSearchObject[allChannels.Count];
             Task[] channelsSearchObjectTasks = new Task[allChannels.Count];
 

@@ -72,9 +72,12 @@ namespace Catalog
                 // Get channels from cache
                 List<GroupsCacheManager.Channel> allChannels = groupManager.GetChannels(channelIds.ToList(), group.m_nParentGroupID);
 
-                // Build search object for each channel
-                var searchObjects = BundleAssetsRequest.BuildBaseSearchObjects(request, group, allChannels, mediaTypes, deviceRuleIds, order);
-                result.AddRange(searchObjects);
+                if (allChannels != null && allChannels.Count > 0)
+                {
+                    // Build search object for each channel
+                    var searchObjects = BundleAssetsRequest.BuildBaseSearchObjects(request, group, allChannels, mediaTypes, deviceRuleIds, order);
+                    result.AddRange(searchObjects);
+                }
             }
 
             return result;
