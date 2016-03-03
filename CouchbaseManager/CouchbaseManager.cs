@@ -149,13 +149,13 @@ namespace CouchbaseManager
             {
                 try
                 {
-                    if(m_CouchbaseInstances.ContainsKey(eBucket.ToString())){
+                    if (m_CouchbaseInstances.ContainsKey(eBucket.ToString()))
+                    {
                         m_CouchbaseInstances[eBucket.ToString()].Dispose();
                         m_CouchbaseInstances.Remove(eBucket.ToString());
 
                         log.InfoFormat("Remove couchbase intance for bucket: " + eBucket.ToString());
                     }
-                    
                 }
                 catch (Exception ex)
                 {
