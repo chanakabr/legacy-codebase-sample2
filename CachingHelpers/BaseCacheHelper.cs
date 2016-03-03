@@ -234,8 +234,8 @@ namespace CachingHelpers
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Get - Couldn't get object in cache by key {0}. ex = {1}",
-                    cacheKey, ex);
+                log.ErrorFormat("Get: Couldn't get object in cache by key {0}. ex = {1}, ST = {2}",
+                    cacheKey, ex, ex.StackTrace);
 
                 if (this.OnErrorOccurred != null)
                 {
