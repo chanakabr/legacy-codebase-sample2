@@ -3756,6 +3756,7 @@ namespace Catalog
 					switch (domainsResp.m_eStatus)
 					{
 						case WS_Domains.DomainResponseStatus.ConcurrencyLimitation:
+                        case WS_Domains.DomainResponseStatus.MediaConcurrencyLimitation:
 						{
 							res = true;
 							break;
