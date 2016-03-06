@@ -697,6 +697,7 @@ namespace CouchbaseManager
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
                         IOperationResult<T> getResult;
+
                         using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
                         {
                             getResult = bucket.Get<T>(key);
@@ -766,6 +767,7 @@ namespace CouchbaseManager
                     {
                         setResult = bucket.Upsert(key, value, version, expiration);
                     }
+
                     if (setResult != null)
                     {
                         if (setResult.Exception != null)
@@ -855,8 +857,8 @@ namespace CouchbaseManager
             {
                 using (var bucket = cluster.OpenBucket(bucketName))
                 {
-
                     IOperationResult setResult;
+
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
                     {
                         setResult = bucket.Upsert<T>(key, value, version, expiration);
@@ -1227,7 +1229,12 @@ namespace CouchbaseManager
             {
                 using (var bucket = cluster.OpenBucket(bucketName))
                 {
-                    var incrementResult = bucket.Increment(key, delta);
+                    IOperationResult<ulong> incrementResult = null;
+                    
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                    {
+                        incrementResult = bucket.Increment(key, delta);
+                    }
 
                     if (incrementResult != null)
                     {

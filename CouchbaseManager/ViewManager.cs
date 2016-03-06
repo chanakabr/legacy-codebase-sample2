@@ -1,4 +1,5 @@
-﻿using Couchbase.Core;
+﻿using Couchbase;
+using Couchbase.Core;
 using Couchbase.Views;
 using KLogMonitor;
 using System;
@@ -201,7 +202,12 @@ namespace CouchbaseManager
 
             if (!shouldLookupById)
             {
-                var queryResult = bucket.Query<object>(query);
+                IViewResult<object> queryResult = null;
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                {
+                    queryResult = bucket.Query<object>(query);
+                }
 
                 // If something went wrong - log it and throw exception (if there is one)
                 if (!queryResult.Success)
@@ -220,8 +226,13 @@ namespace CouchbaseManager
 
                     // Get the documents based on the IDs that are taken from the view query result
                     var ids = queryResult.Rows.Select(row => row.Id).ToList();
-                    var getResults = bucket.Get<T>(ids);
+                    IDictionary<string, IOperationResult<T>> getResults = null;
 
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                    {
+                        getResults = bucket.Get<T>(ids);
+                    }
+                    
                     // Run on all Get results
                     foreach (var getResult in getResults)
                     {
@@ -245,7 +256,12 @@ namespace CouchbaseManager
             }
             else
             {
-                var queryResult = bucket.Query<T>(query);
+                IViewResult<T> queryResult = null;
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                {
+                    queryResult = bucket.Query<T>(query);
+                }
 
                 // If something went wrong - log it and throw exception (if there is one)
                 if (!queryResult.Success)
@@ -275,8 +291,12 @@ namespace CouchbaseManager
             List<KeyValuePair<object, T1>> result = new List<KeyValuePair<object, T1>>();
 
             IViewQuery query = InitializeQuery(bucket);
-
-            var queryResult = bucket.Query<T1>(query);
+            IViewResult<T1> queryResult = null;
+            
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+            {
+                queryResult = bucket.Query<T1>(query);
+            }
 
             // If something went wrong - log it and throw exception (if there is one)
             if (!queryResult.Success)
@@ -305,8 +325,12 @@ namespace CouchbaseManager
             List<string> result = new List<string>();
 
             IViewQuery query = InitializeQuery(bucket);
+            IViewResult<object> queryResult = null;
 
-            var queryResult = bucket.Query<object>(query);
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+            {
+                queryResult = bucket.Query<object>(query);
+            }
 
             // If something went wrong - log it and throw exception (if there is one)
             if (!queryResult.Success)
@@ -338,7 +362,12 @@ namespace CouchbaseManager
 
             if (shouldLookupById)
             {
-                var queryResult = bucket.Query<object>(query);
+                IViewResult<object> queryResult = null;
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                {
+                    queryResult = bucket.Query<object>(query);
+                }
 
                 // If something went wrong - log it and throw exception (if there is one)
                 if (!queryResult.Success)
@@ -363,10 +392,12 @@ namespace CouchbaseManager
                         idsAndKeys.Add(row.Id, (object)row.Key);
                     }
 
-                    //var ids = (row => 
-                    //    row.Id).ToList();
+                    IDictionary<string, IOperationResult<T>> getResults = null;
 
-                    var getResults = bucket.Get<T>(idsAndKeys.Keys.ToList());
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                    {
+                        getResults = bucket.Get<T>(idsAndKeys.Keys.ToList());
+                    }
 
                     // Run on all Get results
                     foreach (var getResult in getResults)
@@ -397,7 +428,12 @@ namespace CouchbaseManager
             }
             else
             {
-                var queryResult = bucket.Query<T>(query);
+                IViewResult<T> queryResult = null;
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                {
+                    queryResult = bucket.Query<T>(query);
+                }
 
                 // If something went wrong - log it and throw exception (if there is one)
                 if (!queryResult.Success)
