@@ -489,7 +489,7 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
                     nCounter++;
                 }
                 //convert datetime to UTC
-                date = ODBCWrapper.Utils.ConvertToUtc(date, timezone);
+                ////date = ODBCWrapper.Utils.ConvertToUtc(date, timezone);
                 
             }
             catch (Exception)
