@@ -10,6 +10,7 @@ using Couchbase;
 using Couchbase.Configuration;
 using Couchbase.Configuration.Client.Providers;
 using Couchbase.Configuration.Client;
+using Couchbase.Core.Serialization;
 
 namespace CouchbaseManager
 {
@@ -43,6 +44,8 @@ namespace CouchbaseManager
         private static object syncObj = new object();
         private static ReaderWriterLockSlim m_oSyncLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
+        protected static Couchbase.Core.Serialization.DefaultSerializer serializer;
+
         #endregion
 
         #region Data Members
@@ -55,6 +58,22 @@ namespace CouchbaseManager
 
         #region Ctor
 
+        static CouchbaseManager()
+        {
+            //binder = new TypeNameSerializationBinder("ApiObjects.SearchObjects.{0}, ApiObjects");
+
+            serializer = serializer = new DefaultSerializer();
+
+            // DeserializationSettings
+            serializer.DeserializationSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto;
+            serializer.DeserializationSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
+            serializer.DeserializationSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
+
+            // SerializerSettings
+            serializer.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
+            serializer.SerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto;
+            serializer.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
+        }
         /// <summary>
         /// Initializes a CouchbaseManager instance with configuration in web.config, according to predefined bucket sections
         /// </summary>
@@ -109,6 +128,17 @@ namespace CouchbaseManager
                     };
                 }
             }
+
+            this.clientConfiguration.Serializer = GetSerializer;
+        }
+
+        private ITypeSerializer GetSerializer()
+        {
+            Couchbase.Core.Serialization.DefaultSerializer serializer = new DefaultSerializer();
+            serializer.DeserializationSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto;
+            serializer.SerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto;
+
+            return serializer;   
         }
 
         private string GetBucketName(string configurationSection)
@@ -667,6 +697,7 @@ namespace CouchbaseManager
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
                         IOperationResult<T> getResult;
+
                         using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
                         {
                             getResult = bucket.Get<T>(key);
@@ -736,6 +767,7 @@ namespace CouchbaseManager
                     {
                         setResult = bucket.Upsert(key, value, version, expiration);
                     }
+
                     if (setResult != null)
                     {
                         if (setResult.Exception != null)
@@ -825,8 +857,8 @@ namespace CouchbaseManager
             {
                 using (var bucket = cluster.OpenBucket(bucketName))
                 {
-
                     IOperationResult setResult;
+
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
                     {
                         setResult = bucket.Upsert<T>(key, value, version, expiration);
@@ -1197,7 +1229,12 @@ namespace CouchbaseManager
             {
                 using (var bucket = cluster.OpenBucket(bucketName))
                 {
-                    var incrementResult = bucket.Increment(key, delta);
+                    IOperationResult<ulong> incrementResult = null;
+                    
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                    {
+                        incrementResult = bucket.Increment(key, delta);
+                    }
 
                     if (incrementResult != null)
                     {

@@ -3280,5 +3280,49 @@ namespace DAL
             }
         }
 
+        public static List<KeyValuePair<int, DateTime>> GetFreeItemsToInitialize(int groupId, ref int mediaFileIDMin)
+        {
+            List<KeyValuePair<int, DateTime>> itemsToInitialize = null;
+            ODBCWrapper.StoredProcedure spGetMediasByPPVModuleID = new ODBCWrapper.StoredProcedure("Get_FreeItemsToInitialize");
+            spGetMediasByPPVModuleID.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spGetMediasByPPVModuleID.AddParameter("@GroupID", groupId);
+            spGetMediasByPPVModuleID.AddParameter("@MediaFileIDMin", mediaFileIDMin);
+
+            DataTable dt = spGetMediasByPPVModuleID.Execute();
+
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                itemsToInitialize = new List<KeyValuePair<int, DateTime>>();
+                foreach (DataRow dr in dt.Rows)
+                {
+                    int mediaID = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_id");
+                    mediaFileIDMin = ODBCWrapper.Utils.GetIntSafeVal(dr, "id");
+                    if (mediaID > 0)
+                    {
+                        DateTime? mediaFileStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "media_file_start_date");
+                        DateTime? mediaFileEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "media_file_end_date");
+                        DateTime? ppvModuleMediaFileStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "ppv_module_media_file_start_date");
+                        DateTime? ppvModuleMediaFileEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "ppv_module_media_file_end_date");
+                        if (mediaFileStartDate.HasValue && mediaFileStartDate.Value > DateTime.UtcNow && mediaFileStartDate.Value <= DateTime.UtcNow.AddYears(2))
+                        {
+                            itemsToInitialize.Add(new KeyValuePair<int,DateTime>(mediaID, mediaFileStartDate.Value));
+                        }
+                        if (mediaFileEndDate.HasValue && mediaFileEndDate.Value > DateTime.UtcNow && mediaFileEndDate.Value <= DateTime.UtcNow.AddYears(2))
+                        {
+                            itemsToInitialize.Add(new KeyValuePair<int,DateTime>(mediaID, mediaFileEndDate.Value));
+                        }
+                        if (ppvModuleMediaFileStartDate.HasValue && ppvModuleMediaFileStartDate.Value > DateTime.UtcNow && ppvModuleMediaFileStartDate.Value <= DateTime.UtcNow.AddYears(2))
+                        {
+                            itemsToInitialize.Add(new KeyValuePair<int,DateTime>(mediaID, ppvModuleMediaFileStartDate.Value));
+                        }
+                        if (ppvModuleMediaFileEndDate.HasValue && ppvModuleMediaFileEndDate.Value > DateTime.UtcNow && ppvModuleMediaFileEndDate.Value <= DateTime.UtcNow.AddYears(2))
+                        {
+                            itemsToInitialize.Add(new KeyValuePair<int,DateTime>(mediaID, ppvModuleMediaFileEndDate.Value));
+                        }
+                    }
+                }                
+            }
+            return itemsToInitialize;
+        }
     }
 }

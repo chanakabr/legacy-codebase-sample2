@@ -116,7 +116,15 @@ namespace Catalog.Request
                 if (!string.IsNullOrEmpty(request.filterQuery))
                 {
                     Status status = BooleanPhraseNode.ParseSearchExpression(filterQuery, ref filterTree);
-                    if (status.Code != (int)eResponseStatus.OK)
+
+                    if (status == null)
+                    {
+                        return new UnifiedSearchResponse()
+                        {
+                            status = new Status((int)eResponseStatus.SyntaxError, "Could not parse search expression")
+                        };
+                    }
+                    else  if (status.Code != (int)eResponseStatus.OK)
                     {
                         return new UnifiedSearchResponse()
                         {
@@ -158,7 +166,7 @@ namespace Catalog.Request
                 // If this is a new request - generate a new GUID for it
                 if (string.IsNullOrEmpty(request.requestId))
                 {
-                    request.requestId = Guid.NewGuid().ToString();
+                    request.requestId = request.filterQuery.Replace(' ', '_');
                 }
 
                 int totalItems = 0;

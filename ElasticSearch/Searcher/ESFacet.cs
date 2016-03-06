@@ -406,7 +406,18 @@ namespace ElasticSearch.Searcher
                 try
                 {
                     var jObject = JObject.Parse(resJson);
+
+                    if (jObject == null)
+                    {
+                        return dFacetResults;
+                    }
+
                     var facets = jObject["facets"];
+
+                    if (facets == null)
+                    {
+                        return dFacetResults;
+                    }
 
                     foreach (JToken token in facets)
                     {
@@ -473,7 +484,7 @@ namespace ElasticSearch.Searcher
 
                 if (stats1 == null && stats2 == null)
                     return 0;
-                else if (stats2 == null)
+                else if (stats1 == null)
                     return 1;
                 else if (stats2 == null)
                     return -1;

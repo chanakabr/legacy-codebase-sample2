@@ -242,9 +242,12 @@ namespace Catalog
                     // into the file type that the media file knows (based on the table media_files)
                     entitlementSearchDefinitions.fileTypes = new List<int>();
 
-                    foreach (var fileType in fileTypes)
+                    if (fileTypes != null)
                     {
-                        entitlementSearchDefinitions.fileTypes.Add(group.groupMediaFileTypeToFileType[fileType]);
+                        foreach (var fileType in fileTypes)
+                        {
+                            entitlementSearchDefinitions.fileTypes.Add(group.groupMediaFileTypeToFileType[fileType]);
+                        }
                     }
                 }
 
