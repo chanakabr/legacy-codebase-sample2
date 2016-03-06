@@ -16756,5 +16756,38 @@ namespace ConditionalAccess
             }
             return response;
         }
+
+        public ApiObjects.Response.Status UpdateRecordedTransaction(long householdId, string paymentGatewayReferenceID, string paymentDetails, string paymentMethod, int paymentGatewayId, 
+            string paymentMethodExternalId)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+
+            string logData = string.Format("paymentGatewayReferenceID: {0}, paymentDetails: {1}, paymentMethod: {2}, paymentGatewayId: {3}, paymentMethodExternalId: {4}",
+               paymentGatewayReferenceID, paymentDetails, paymentMethod, paymentGatewayId, paymentMethodExternalId);
+            try
+            {
+                string userName = string.Empty;
+                string password = string.Empty;
+                TvinciBilling.module wsBillingService = null;
+                InitializeBillingModule(ref wsBillingService, ref userName, ref password);
+
+                // call new billing method for charge adapter
+                var response = wsBillingService.UpdateRecordedTransaction(userName, password, (int)householdId, paymentGatewayReferenceID, paymentDetails, paymentMethod, paymentGatewayId, 
+                    paymentMethodExternalId);
+
+                if (response != null)
+                {
+                    status = new ApiObjects.Response.Status() { Code = response.Code, Message = response.Message };
+                }
+            }
+            catch (Exception ex)
+            {
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error);
+                log.Error("Exception occurred. data: " + logData, ex);
+            }
+
+            return status;
+            
+        }
     }
 }
