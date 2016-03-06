@@ -302,23 +302,34 @@ namespace Catalog
 
         public UnifiedSearchDefinitions GetDefinitions(UnifiedSearchRequest request)
         {
-            // if no request Id - simply build the value and return it
-            if (string.IsNullOrEmpty(request.requestId))
-            {
-                return this.BuildValue(request);
-            }
-            else
-            {
-                // Make sure every time that cache time is 10 minutes
-                this.cacheTime = 10;
-
-                string mutexName = string.Concat("Search Definitions GID_", request.m_nGroupID);
-                string cacheKey =
+            UnifiedSearchDefinitions result = null;
+            string cacheKey =
                     string.Format("{0}_{1}_{2}_{3}",
                     this.version, "Search_Definitions", request.m_sSiteGuid, request.requestId);
 
-                return this.Get(cacheKey, mutexName, request);
+            // Make sure every time that cache time is 10 minutes
+            this.cacheTime = 10;
+
+            // if no request Id - simply build the value and return it
+            if (string.IsNullOrEmpty(request.requestId))
+            {
+                result = this.BuildValue(request);
             }
+            // If this is first page - build value
+            else if (request.m_nPageIndex == 0)
+            {
+                result = this.BuildValue(request);
+
+                this.cacheService.Set(cacheKey, new CachingProvider.BaseModuleCache(result), cacheTime);
+            }
+            else
+            {
+                string mutexName = string.Concat("Search Definitions GID_", request.m_nGroupID);
+                
+                result = this.Get(cacheKey, mutexName, request);
+            }
+
+            return result;
         }
 
         #endregion
