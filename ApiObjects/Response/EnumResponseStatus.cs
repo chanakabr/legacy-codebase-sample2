@@ -226,8 +226,17 @@ namespace ApiObjects.Response
 
 
         //Pricing 9000-9999
-        NoInternalDiscount = 9000,
-        NoPricePlansCodes = 9001
+        MppIsNull = 9000,
+        CodeIsMandatory = 9001,
+        MissingDiscountCode = 9002,
+        MissingPricePlan = 9003,
+        CodeMustBeUnique = 9004,
+        CodeNotExist = 9005,
+        DiscountCodeNotExist = 9006,
+        MissingPricePlans = 9007,
+        MissingChannels = 9008,
+        MissingFileTypes = 9009,
+        FailInsertMPP = 9010
 
 
 

@@ -981,6 +981,29 @@ namespace DAL
             
             return sp.ExecuteReturnValue<int>();
         }
+
+        public static bool InsertMPP(int groupID, ApiObjects.IngestMultiPricePlan mpp)
+        {
+            StoredProcedure sp = new StoredProcedure("Insert_MPP]");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@Name", mpp.Code);
+            sp.AddParameter("@StartDate", mpp.StartDate);
+            sp.AddParameter("@EndDate", mpp.EndDate);
+            sp.AddParameter("@GracePeriodMinutes", mpp.GracePeriodMinutes);
+            sp.AddParameter("@IsActive", mpp.IsActive);
+            sp.AddParameter("@InternalDiscount", mpp.InternalDiscount);
+            sp.AddParameter("@IsRenewable", mpp.IsRenewable);
+            sp.AddParameter("@ProductCode", mpp.ProductCode);            
+            sp.AddKeyValueListParameter<string, string>("@Description", mpp.Description, "key", "value");
+            sp.AddKeyValueListParameter<string,string>("@Title", mpp.Title, "key","value");
+            sp.AddIDListParameter<string>("@PricePlansCodes", mpp.PricePlansCodes, "STR");
+            sp.AddIDListParameter<string>("@Channels", mpp.Channels, "STR");
+            sp.AddIDListParameter<string>("@FileTypes", mpp.FileTypes, "STR");
+            sp.AddParameter("@Date", DateTime.UtcNow);
+
+            return sp.ExecuteReturnValue<bool>();
+        }
     }
 }
 

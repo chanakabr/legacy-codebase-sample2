@@ -4914,7 +4914,7 @@ namespace TvinciImporter
                 }                
                 return response.Status;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
             }           
