@@ -2779,6 +2779,7 @@ namespace Catalog
 
                 if (Int32.TryParse(rates[i].term, out assetId) && assetId > 0 && assetIDsToStatsMapping.ContainsKey(assetId))
                 {
+                    assetIDsToStatsMapping[assetId].m_nVotes = rates[i].count;
                     assetIDsToStatsMapping[assetId].m_dRate = rates[i].mean;
                 }
 

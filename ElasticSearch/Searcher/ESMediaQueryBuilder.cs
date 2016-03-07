@@ -671,6 +671,10 @@ namespace ElasticSearch.Searcher
             {
                 sSort.Append(" \"_score\": ");
             }
+            else if (oOrderObj.m_eOrderBy == OrderBy.RELATED)
+            {
+                sSort.Append(" \"votes\": ");
+            }
             else
             {
                 sSort.AppendFormat(" \"{0}\": ", Enum.GetName(typeof(OrderBy), oOrderObj.m_eOrderBy).ToLower());
