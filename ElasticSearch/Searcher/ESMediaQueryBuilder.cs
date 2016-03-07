@@ -671,7 +671,7 @@ namespace ElasticSearch.Searcher
             {
                 sSort.Append(" \"_score\": ");
             }
-            else if (oOrderObj.m_eOrderBy == OrderBy.RELATED)
+            else if (oOrderObj.m_eOrderBy == OrderBy.VOTES_COUNT)
             {
                 sSort.Append(" \"votes\": ");
             }
