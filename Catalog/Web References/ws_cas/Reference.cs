@@ -9452,12 +9452,24 @@ namespace Catalog.ws_cas {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class KeyValuePairOfeAssetTypesListOfString {
+    public partial class KeyValuePair {
         
-        private string[] valueField;
+        private string keyField;
+        
+        private string valueField;
         
         /// <remarks/>
-        public string[] Value {
+        public string key {
+            get {
+                return this.keyField;
+            }
+            set {
+                this.keyField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string value {
             get {
                 return this.valueField;
             }
@@ -9475,13 +9487,12 @@ namespace Catalog.ws_cas {
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class UserPurhcasedAssetsResponse {
         
-        private KeyValuePairOfeAssetTypesListOfString[] assetsField;
+        private KeyValuePair[] assetsField;
         
         private Status statusField;
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable=false)]
-        public KeyValuePairOfeAssetTypesListOfString[] assets {
+        public KeyValuePair[] assets {
             get {
                 return this.assetsField;
             }

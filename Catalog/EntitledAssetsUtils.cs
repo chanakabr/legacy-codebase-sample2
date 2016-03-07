@@ -151,6 +151,22 @@ namespace Catalog
                 {
                     throw new KalturaException(purchasedAssets.status.Message, purchasedAssets.status.Code);
                 }
+
+                // Process result from CAS - create dictionary based on key/value pairs
+                foreach (var currentAsset in purchasedAssets.assets)
+                {
+                    eAssetTypes currentType = eAssetTypes.UNKNOWN;
+
+                    if (Enum.TryParse<eAssetTypes>(currentAsset.key, out currentType))
+                    {
+                        if (!result.ContainsKey(currentType))
+                        {
+                            result.Add(currentType, new List<string>());
+                        }
+
+                        result[currentType].Add(currentAsset.value);
+                    }
+                }
             }
 
             return result;

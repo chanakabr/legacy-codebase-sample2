@@ -16156,7 +16156,7 @@ namespace ConditionalAccess
         {
             UserPurhcasedAssetsResponse response = new UserPurhcasedAssetsResponse()
             {
-                assets = new List<KeyValuePair<eAssetTypes, List<string>>>(),
+                assets = new List<ApiObjects.KeyValuePair>(),
                 status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
             };
 
@@ -16234,10 +16234,11 @@ namespace ConditionalAccess
                                 // Add mediaIDs to response
                                 if (mapper != null && mapper.Length > 0)
                                 {
-                                    response.assets.Add(new KeyValuePair<eAssetTypes, List<string>>(eAssetTypes.MEDIA, mapper.Select(x => x.m_nMediaID.ToString()).ToList()));
+                                    response.assets.AddRange(
+                                        mapper.Select(x => new ApiObjects.KeyValuePair(eAssetTypes.MEDIA.ToString(),
+                                            x.m_nMediaID.ToString())));
                                 }
                             }
-
                         }
                     }
                 }

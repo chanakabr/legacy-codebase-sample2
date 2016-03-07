@@ -635,10 +635,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>Catalog_api_API</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://52.31.200.113:8030/cas_v3_8/module.asmx">
+    <WebReferenceUrl Include="http://localhost:82/ws_cas/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\ws_cas\</RelPath>
-      <UpdateFromURL>http://52.31.200.113:8030/cas_v3_8/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost:82/ws_cas/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>

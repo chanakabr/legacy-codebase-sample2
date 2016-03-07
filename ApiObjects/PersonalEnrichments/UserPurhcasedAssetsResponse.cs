@@ -8,7 +8,7 @@ namespace ApiObjects
 {
     public class UserPurhcasedAssetsResponse
     {
-        public List<KeyValuePair<eAssetTypes, List<string>>> assets;
+        public List<ApiObjects.KeyValuePair> assets;
         public Status status;
     }
 }
