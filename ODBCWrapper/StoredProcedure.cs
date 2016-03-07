@@ -102,10 +102,11 @@ namespace ODBCWrapper
 
         private object CreateDataTable<T1, T2>(List<KeyValuePair<T1, T2>> oListValue, string colNameKey, string colNameValue)
         {
-            DataTable table = new DataTable();
+            DataTable table = new DataTable();            
             table.Columns.Add(colNameKey, typeof(T1));
             table.Columns.Add(colNameValue, typeof(T2));
 
+            
             foreach (KeyValuePair<T1, T2> obj in oListValue)
             {
                 DataRow dr = table.NewRow();

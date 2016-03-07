@@ -103,7 +103,6 @@
     <Compile Include="DevicePinResponse.cs" />
     <Compile Include="IngestBusinessModules\IngestMultiPricePlan.cs" />
     <Compile Include="IngestBusinessModules\MultiPricePlanResponse.cs" />
-    <Compile Include="IngestBusinessModules\ResponseMPP.cs" />
     <Compile Include="Notification\Announcement.cs" />
     <Compile Include="Notification\AnnouncementSubscription.cs" />
     <Compile Include="Notification\DeviceNotificationData.cs" />

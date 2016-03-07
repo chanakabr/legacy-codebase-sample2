@@ -966,25 +966,86 @@ namespace DAL
             return false;
         }
 
-        public static int ValidateMPP(int groupID, string code, string internalDiscount, List<string> pricePlansCodes, List<string> channels, List<string> fileTypes,
-            ApiObjects.eIngestAction action)
+        public static DataSet ValidateMPP(int groupID, string code, string internalDiscount, List<string> pricePlansCodes, List<string> channels, List<string> fileTypes,
+            string previewModule, ApiObjects.eIngestAction action)
         {
             StoredProcedure sp = new StoredProcedure("ValidateMPP");
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@GroupID", groupID);
             sp.AddParameter("@Name", code);
+            sp.AddParameter("@PreviewModule", previewModule);
             sp.AddParameter("@InternalDiscount", internalDiscount);
             sp.AddIDListParameter<string>("@PricePlansCodes", pricePlansCodes, "STR");
             sp.AddIDListParameter<string>("@Channels", channels, "STR");
             sp.AddIDListParameter<string>("@FileTypes", fileTypes, "STR");
             sp.AddParameter("@Action", (int)action);
             
-            return sp.ExecuteReturnValue<int>();
+            return sp.ExecuteDataSet();
         }
 
-        public static bool InsertMPP(int groupID, ApiObjects.IngestMultiPricePlan mpp)
+        public static int InsertMPP(int groupID, ApiObjects.IngestMultiPricePlan mpp, List<KeyValuePair<int, int>> pricePlansCodes, List<int> channels, List<int> fileTypes, 
+            int previewModuleID, int internalDiscountID)
         {
-            StoredProcedure sp = new StoredProcedure("Insert_MPP]");
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Insert_MPP");
+                sp.SetConnectionKey("pricing_connection");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@Name", mpp.Code);
+                sp.AddParameter("@StartDate", mpp.StartDate);
+                sp.AddParameter("@EndDate", mpp.EndDate);
+                sp.AddParameter("@GracePeriodMinutes", mpp.GracePeriodMinutes);
+                sp.AddParameter("@IsActive", mpp.IsActive);
+                sp.AddParameter("@InternalDiscountID", internalDiscountID);
+                sp.AddParameter("@PreviewModuleID", previewModuleID);
+                sp.AddParameter("@IsRenewable", mpp.IsRenewable);
+                sp.AddParameter("@ProductCode", mpp.ProductCode);
+                if (mpp.Description != null)
+                {
+                    sp.AddKeyValueListParameter<string, string>("@Description", mpp.Description, "key", "value");
+                }
+                if (mpp.Title != null)
+                {
+                    sp.AddKeyValueListParameter<string, string>("@Title", mpp.Title, "key", "value");
+                }
+                sp.AddKeyValueListParameter<int, int>("@PricePlansCodes", pricePlansCodes, "key", "value");
+
+                sp.AddIDListParameter<int>("@Channels", channels, "Id");
+                sp.AddIDListParameter<int>("@FileTypes", fileTypes, "Id");
+                sp.AddParameter("@Date", DateTime.UtcNow);
+                sp.AddParameter("@OrderNum", mpp.OrderNum);
+                sp.AddParameter("@NumOfRecPeriods", mpp.NumOfRecPeriods);
+                sp.AddParameter("@SubscriptionOnly", mpp.SubscriptionOnly);
+
+                return sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                HandleException(string.Empty, ex);
+            }
+            return 0;
+        }      
+        public static int DeleteMPP(int groupID, string multiPricePlan)
+        {
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Delete_MPP");
+                sp.SetConnectionKey("pricing_connection");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@Date", DateTime.UtcNow);
+                sp.AddParameter("@PricePlansCode", multiPricePlan);
+                return sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                HandleException(string.Empty, ex);
+            }
+            return 0;
+        }
+
+        public static int UpdateMPP(int groupID, ApiObjects.IngestMultiPricePlan mpp, List<KeyValuePair<int, int>> pricePlansCodes, List<int> channels, List<int> fileTypes, int previewModuleID, int internalDiscountID)
+        {
+            StoredProcedure sp = new StoredProcedure("Update_MPP");
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@GroupID", groupID);
             sp.AddParameter("@Name", mpp.Code);
@@ -992,17 +1053,28 @@ namespace DAL
             sp.AddParameter("@EndDate", mpp.EndDate);
             sp.AddParameter("@GracePeriodMinutes", mpp.GracePeriodMinutes);
             sp.AddParameter("@IsActive", mpp.IsActive);
-            sp.AddParameter("@InternalDiscount", mpp.InternalDiscount);
+            sp.AddParameter("@InternalDiscountID", internalDiscountID);
+            sp.AddParameter("@PreviewModuleID", previewModuleID);
             sp.AddParameter("@IsRenewable", mpp.IsRenewable);
-            sp.AddParameter("@ProductCode", mpp.ProductCode);            
-            sp.AddKeyValueListParameter<string, string>("@Description", mpp.Description, "key", "value");
-            sp.AddKeyValueListParameter<string,string>("@Title", mpp.Title, "key","value");
-            sp.AddIDListParameter<string>("@PricePlansCodes", mpp.PricePlansCodes, "STR");
-            sp.AddIDListParameter<string>("@Channels", mpp.Channels, "STR");
-            sp.AddIDListParameter<string>("@FileTypes", mpp.FileTypes, "STR");
+            sp.AddParameter("@ProductCode", mpp.ProductCode);
+            if (mpp.Description != null)
+            {
+                sp.AddKeyValueListParameter<string, string>("@Description", mpp.Description, "key", "value");
+            }
+            if (mpp.Title != null)
+            {
+                sp.AddKeyValueListParameter<string, string>("@Title", mpp.Title, "key", "value");
+            }
+            
+            sp.AddKeyValueListParameter<int, int>("@PricePlansCodes", pricePlansCodes, "key", "value");
+            sp.AddIDListParameter<int>("@Channels", channels, "Id");
+            sp.AddIDListParameter<int>("@FileTypes", fileTypes, "Id");
             sp.AddParameter("@Date", DateTime.UtcNow);
+            sp.AddParameter("@OrderNum", mpp.OrderNum);
+            sp.AddParameter("@NumOfRecPeriods", mpp.NumOfRecPeriods);
+            sp.AddParameter("@SubscriptionOnly", mpp.SubscriptionOnly);
 
-            return sp.ExecuteReturnValue<bool>();
+            return sp.ExecuteReturnValue<int>(); ;
         }
     }
 }

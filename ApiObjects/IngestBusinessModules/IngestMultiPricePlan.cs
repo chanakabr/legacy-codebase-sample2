@@ -26,10 +26,12 @@ namespace ApiObjects
 
         public bool IsRenewable { get; set; }
 
+        public bool SubscriptionOnly { get; set; }
+        
         public string PreviewModule { get; set; }
 
         public string DomainLimitationModule { get; set; }
-
+                
         public int GracePeriodMinutes { get; set; }
 
         public List<string> PricePlansCodes { get; set; }
@@ -41,6 +43,10 @@ namespace ApiObjects
         public eIngestAction Action { get; set; }
 
         public bool IsActive { get; set; }
+
+        public int OrderNum { get; set; }
+
+        public int NumOfRecPeriods { get; set; }
 
     }
 }
