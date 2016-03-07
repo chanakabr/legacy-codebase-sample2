@@ -298,7 +298,7 @@ namespace AdapterControllers.RecommendationEngineAdapter {
         AdapterControllers.RecommendationEngineAdapter.AdapterStatus SetConfiguration(int recommendationEngineId, AdapterControllers.RecommendationEngineAdapter.KeyValue[] settings, int partnerId, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetChannelRecommendations", ReplyAction="http://tempuri.org/IService/GetChannelRecommendationsResponse")]
-        AdapterControllers.RecommendationEngineAdapter.RecommendationsResult GetChannelRecommendations(int recommendationEngineId, string externalChannelId, AdapterControllers.RecommendationEngineAdapter.KeyValue[] enrichments, string freeParam, long timeStamp, string signature);
+        AdapterControllers.RecommendationEngineAdapter.RecommendationsResult GetChannelRecommendations(int recommendationEngineId, string externalChannelId, AdapterControllers.RecommendationEngineAdapter.KeyValue[] enrichments, string freeParam, long timeStamp, string signature, int pageIndex, int pageSize);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetRelatedRecommendations", ReplyAction="http://tempuri.org/IService/GetRelatedRecommendationsResponse")]
         AdapterControllers.RecommendationEngineAdapter.RecommendationsResult GetRelatedRecommendations(int recommendationEngineId, int mediaId, int mediaTypeId, AdapterControllers.RecommendationEngineAdapter.KeyValue[] enrichments, string freeParam, int[] filterTypeIds, int pageIndex, int pageSize, long timeStamp, string signature);
@@ -341,8 +341,8 @@ namespace AdapterControllers.RecommendationEngineAdapter {
             return base.Channel.SetConfiguration(recommendationEngineId, settings, partnerId, timeStamp, signature);
         }
         
-        public AdapterControllers.RecommendationEngineAdapter.RecommendationsResult GetChannelRecommendations(int recommendationEngineId, string externalChannelId, AdapterControllers.RecommendationEngineAdapter.KeyValue[] enrichments, string freeParam, long timeStamp, string signature) {
-            return base.Channel.GetChannelRecommendations(recommendationEngineId, externalChannelId, enrichments, freeParam, timeStamp, signature);
+        public AdapterControllers.RecommendationEngineAdapter.RecommendationsResult GetChannelRecommendations(int recommendationEngineId, string externalChannelId, AdapterControllers.RecommendationEngineAdapter.KeyValue[] enrichments, string freeParam, long timeStamp, string signature, int pageIndex, int pageSize) {
+            return base.Channel.GetChannelRecommendations(recommendationEngineId, externalChannelId, enrichments, freeParam, timeStamp, signature, pageIndex, pageSize);
         }
         
         public AdapterControllers.RecommendationEngineAdapter.RecommendationsResult GetRelatedRecommendations(int recommendationEngineId, int mediaId, int mediaTypeId, AdapterControllers.RecommendationEngineAdapter.KeyValue[] enrichments, string freeParam, int[] filterTypeIds, int pageIndex, int pageSize, long timeStamp, string signature) {
