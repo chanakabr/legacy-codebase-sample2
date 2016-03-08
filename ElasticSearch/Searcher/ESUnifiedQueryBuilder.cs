@@ -1466,10 +1466,14 @@ namespace ElasticSearch.Searcher
 
             BaseFilterCompositeType assetsFilter = new FilterCompositeType(CutWith.OR);
 
-            if (this.SearchDefinitions.entitlementSearchDefinitions.freeAssets != null)
+            var entitlementSearchDefinitions = this.SearchDefinitions.entitlementSearchDefinitions;
+
+            #region Free Assets
+
+            if (entitlementSearchDefinitions.freeAssets != null)
             {
                 // Build terms of free assets
-                foreach (var item in this.SearchDefinitions.entitlementSearchDefinitions.freeAssets)
+                foreach (var item in entitlementSearchDefinitions.freeAssets)
                 {
                     FilterCompositeType idsFilter = new FilterCompositeType(CutWith.AND);
 
@@ -1504,6 +1508,8 @@ namespace ElasticSearch.Searcher
                 }
             }
 
+            #endregion
+
             // Alternative: just check the is_free member
             ESTerm isFreeTerm = new ESTerm(true)
             {
@@ -1511,10 +1517,12 @@ namespace ElasticSearch.Searcher
                 Value = "1"
             };
 
-            if (this.SearchDefinitions.entitlementSearchDefinitions.entitledPaidForAssets != null)
+            #region Specific Assets
+
+            if (entitlementSearchDefinitions.entitledPaidForAssets != null)
             {
                 // Build terms of assets (PPVs) the user purchased and is entitled to watch
-                foreach (var item in this.SearchDefinitions.entitlementSearchDefinitions.entitledPaidForAssets)
+                foreach (var item in entitlementSearchDefinitions.entitledPaidForAssets)
                 {
                     FilterCompositeType idsFilter = new FilterCompositeType(CutWith.AND);
 
@@ -1557,38 +1565,65 @@ namespace ElasticSearch.Searcher
                 }
             };
 
+            #endregion
+
             ESTerms fileTypeTerm = null;
 
-            if (this.SearchDefinitions.entitlementSearchDefinitions.fileTypes != null &&
-                this.SearchDefinitions.entitlementSearchDefinitions.fileTypes.Count > 0)
+            if (entitlementSearchDefinitions.fileTypes != null &&
+                entitlementSearchDefinitions.fileTypes.Count > 0)
             {
                 fileTypeTerm = new ESTerms(true)
                     {
                         Key = "free_file_types",
                     };
-                var fileTypes = this.SearchDefinitions.entitlementSearchDefinitions.fileTypes.Select(t => t.ToString());
+                var fileTypes = entitlementSearchDefinitions.fileTypes.Select(t => t.ToString());
                 fileTypeTerm.Value.AddRange(fileTypes);
             }
 
             // EPG Channel IDs
-            if (this.SearchDefinitions.entitlementSearchDefinitions.epgChannelIds != null)
+            if (entitlementSearchDefinitions.epgChannelIds != null)
             {
                 ESTerms channelsTerm = new ESTerms(true)
                 {
                     Key = "epg_channel_id"
                 };
 
-                channelsTerm.Value.AddRange(this.SearchDefinitions.entitlementSearchDefinitions.epgChannelIds.Select(i => i.ToString()));
+                channelsTerm.Value.AddRange(entitlementSearchDefinitions.epgChannelIds.Select(i => i.ToString()));
 
                 result.AddChild(channelsTerm, CutWith.OR);
             }
 
-            // Connect all the channels in the entitled user's subscriptions
-            result.AddChild(this.SubscriptionsQuery, CutWith.OR);
-            result.AddChild(specificAssetsTerm, CutWith.OR);
+            //
+            if (entitlementSearchDefinitions.shouldGetPurchasedAssets)
+            {
+                // if we want ONLY ENTITLED assets
+                // and user has no entitlements:
+                // create an empty, dummy query
+                if (!entitlementSearchDefinitions.shouldGetFreeAssets &&
+                    this.SubscriptionsQuery.IsEmpty() && specificAssetsTerm.Filter.FilterSettings.IsEmpty())
+                {
+                    result.AddChild(new ESTerm(true)
+                    {
+                        Key = "_uid",
+                        Value = "-1"
+                    }, 
+                    CutWith.OR);
+                }
+                else
+                {
+
+                    // Connect all the channels in the entitled user's subscriptions
+                    result.AddChild(this.SubscriptionsQuery, CutWith.OR);
+                    result.AddChild(specificAssetsTerm, CutWith.OR);
+                }
+            }
+            else
+            {
+
+            }
 
             // Get free assets only if requested in definitions
-            if (this.SearchDefinitions.entitlementSearchDefinitions.shouldGetFreeAssets)
+            if (entitlementSearchDefinitions.shouldGetFreeAssets)
             {
                 result.AddChild(isFreeTerm, CutWith.OR);
 
