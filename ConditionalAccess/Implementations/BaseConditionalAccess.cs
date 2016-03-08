@@ -13471,10 +13471,10 @@ namespace ConditionalAccess
 
                                             DateTime nextRenewalDate = endDate.Value.AddMinutes(-5); // default                                           
 
-                                            if (paymentGatewayResponse != null)
+                                            if (paymentGatewayResponse == null)
                                             {
                                                 // error getting PG
-                                                log.Error("Error getting the PG - no renewal taks sent");
+                                                log.Error("Error getting the PG - GetPaymentGatewayByBillingGuid");
                                             }
                                             else
                                             {
