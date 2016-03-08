@@ -291,7 +291,7 @@ namespace Catalog
             catch (Exception ex)
             {
                 log.ErrorFormat("failed building unified search definitions. ex = {0}, st = {1}", ex, ex.StackTrace);
-                throw new Exception(ex.Message);
+                throw ex;
             }
 
             return definitions;
