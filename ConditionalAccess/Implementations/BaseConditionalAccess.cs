@@ -16171,24 +16171,24 @@ namespace ConditionalAccess
             try
             {
                 // Get all PPV Entitlements
-                var getAllUserEntitlements = ConditionalAccessDAL.Get_AllUsersEntitlements(domainID, new List<int>());
+                Dictionary<string, EntitlementObject> getAllUserEntitlements = ConditionalAccessDAL.Get_AllUsersEntitlements(domainID, new List<int>());
 
-                //Dictionary<string, int> oldEntitlements = getAllUserEntitlements.Values.ToDictionary(x => x.ppvCode.ToString(), x => x.purchasedAsMediaFileID);
-                Dictionary<string, List<int>> entitlements = new Dictionary<string, List<int>>();
+                // Map entitlements in an accessible dictionary
+                Dictionary<string, List<int>> ppvToMediaFileIDsDictionary = new Dictionary<string, List<int>>();
 
                 foreach (var currentEntitlement in getAllUserEntitlements.Values)
                 {
-                    string ppvCode =currentEntitlement.ppvCode.ToString();
+                    string ppvCode = currentEntitlement.ppvCode.ToString();
 
-                    if (!entitlements.ContainsKey(ppvCode))
+                    if (!ppvToMediaFileIDsDictionary.ContainsKey(ppvCode))
                     {
-                        entitlements.Add(ppvCode, new List<int>());
+                        ppvToMediaFileIDsDictionary.Add(ppvCode, new List<int>());
                     }
 
-                    entitlements[ppvCode].Add(currentEntitlement.purchasedAsMediaFileID);
+                    ppvToMediaFileIDsDictionary[ppvCode].Add(currentEntitlement.purchasedAsMediaFileID);
                 }
 
-                if (entitlements != null && entitlements.Count > 0)
+                if (ppvToMediaFileIDsDictionary != null && ppvToMediaFileIDsDictionary.Count > 0)
                 {
                     string sPricingUsername = string.Empty;
                     string sPricingPassword = string.Empty;
@@ -16199,7 +16199,7 @@ namespace ConditionalAccess
                     {
                         pricingModule.Url = pricingWSURL;
                         // Get PPV Modules data
-                        TvinciPricing.PPVModuleResponse ppvModulesResponse = pricingModule.GetPPVModulesData(sPricingUsername, sPricingPassword, entitlements.Keys.Cast<string>().ToArray(), String.Empty, String.Empty, String.Empty);
+                        TvinciPricing.PPVModuleResponse ppvModulesResponse = pricingModule.GetPPVModulesData(sPricingUsername, sPricingPassword, ppvToMediaFileIDsDictionary.Keys.Cast<string>().ToArray(), String.Empty, String.Empty, String.Empty);
                         if (ppvModulesResponse != null && ppvModulesResponse.Status.Code == (int)eResponseStatus.OK && ppvModulesResponse.PPVModules.Length > 0)
                         {
                             List<int> mediaFilesToMap = new List<int>();
@@ -16210,7 +16210,7 @@ namespace ConditionalAccess
                                     // PPV does not have specific file types defined --> supports all file types, add PPV purchased mediaFile to list
                                     if (ppvModule.m_relatedFileTypes == null)
                                     {
-                                        foreach (var entitlement in entitlements[ppvModule.m_sObjectCode])
+                                        foreach (var entitlement in ppvToMediaFileIDsDictionary[ppvModule.m_sObjectCode])
                                         {
                                             if (!mediaFilesToMap.Contains(entitlement))
                                             {
@@ -16225,36 +16225,26 @@ namespace ConditionalAccess
                                         int[] relevantFileTypes = ppvModule.m_relatedFileTypes.Intersect(fileTypeIDs).ToArray();
                                         if (relevantFileTypes != null && relevantFileTypes.Length > 0)
                                         {
-                                            foreach (var entitlement in entitlements[ppvModule.m_sObjectCode])
+                                            foreach (var entitlement in ppvToMediaFileIDsDictionary[ppvModule.m_sObjectCode])
                                             {
                                                 if (!mediaFilesToMap.Contains(entitlement))
                                                 {
                                                     mediaFilesToMap.Add(entitlement);
                                                 }
                                             }
-
-                                            //if (!mediaFilesToMap.Contains(entitlements[ppvModule.m_sObjectCode]))
-                                            //{
-                                            //    mediaFilesToMap.Add(entitlements[ppvModule.m_sObjectCode]);
-                                            //}
                                         }
                                     }
                                 }
                                 //Incase we want to ignore filetypeIDs (sent as null or empty)
                                 else
                                 {
-                                    foreach (var entitlement in entitlements[ppvModule.m_sObjectCode])
+                                    foreach (var entitlement in ppvToMediaFileIDsDictionary[ppvModule.m_sObjectCode])
                                     {
                                         if (!mediaFilesToMap.Contains(entitlement))
                                         {
                                             mediaFilesToMap.Add(entitlement);
                                         }
                                     }
-
-                                    //if (!mediaFilesToMap.Contains(entitlements[ppvModule.m_sObjectCode]))
-                                    //{
-                                    //    mediaFilesToMap.Add(entitlements[ppvModule.m_sObjectCode]);
-                                    //}
                                 }
                             }
 
