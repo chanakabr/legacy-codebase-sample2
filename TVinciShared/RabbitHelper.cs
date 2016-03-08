@@ -49,5 +49,13 @@ namespace TVinciShared
 
             return result;
         }
+
+        public static bool IsFutureIndexUpdate(DateTime? previousDate, DateTime? currentDate)
+        {
+            return currentDate.HasValue 
+                    && (currentDate > DateTime.UtcNow && currentDate.Value <= DateTime.UtcNow.AddYears(2))
+                    && (!previousDate.HasValue || currentDate.Value != previousDate.Value);
+        }
+
     }
 }

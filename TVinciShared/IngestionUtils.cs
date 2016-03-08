@@ -319,6 +319,63 @@ namespace TVinciShared
             return nMediaFileID;
         }
 
+        static public Int32 GetPicMediaFileIDWithDates(Int32 nPicType,
+            Int32 nMediaID, Int32 nGroupID, Int32 nMediaQualityID, bool bUnActivate, ref DateTime? startDate, ref DateTime? endDate, string sLanguage = "")
+        {
+            if (nPicType == 0)
+                return 0;
+            if (bUnActivate == true)
+                UnActivateAllMediaFilePics(nPicType, nMediaID, nGroupID, nMediaQualityID, sLanguage);
+            Int32 nMediaFileID = 0;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetCachedSec(0);
+            selectQuery += "select id, start_date, end_date from media_files where ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_TYPE_ID", "=", nPicType);
+            selectQuery += "and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_QUALITY_ID", "=", nMediaQualityID);
+            selectQuery += "and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_ID", "=", nMediaID);
+            selectQuery += "and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+            if (!string.IsNullOrEmpty(sLanguage))
+            {
+                selectQuery += "and";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE", "=", sLanguage);
+            }
+            DataTable dt = selectQuery.Execute("query", true);
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                 nMediaFileID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "id");
+                 startDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dt.Rows[0], "start_date");
+                 endDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dt.Rows[0], "end_date");
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            if (nMediaFileID == 0)
+            {
+                ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("media_files");
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_ID", "=", nMediaID);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_TYPE_ID", "=", nPicType);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE", "=", sLanguage);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_QUALITY_ID", "=", nMediaQualityID);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("REF_ID", "=", 0);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("EDITOR_REMARKS", "=", "Created by the XTI Service");
+                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);
+
+                bool isInserted = insertQuery.Execute();
+                insertQuery.Finish();
+                insertQuery = null;
+                if (isInserted)
+                {
+                    return GetPicMediaFileID(nPicType, nMediaID, nGroupID, nMediaQualityID, false, sLanguage);
+                }
+            }
+            return nMediaFileID;
+        }
+
         static public void UpdateMediaPromoFile(Int32 nMediaID,
             string sMainLang,
             Int32 nGroupID,
