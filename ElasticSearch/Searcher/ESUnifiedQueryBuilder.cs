@@ -1568,7 +1568,6 @@ namespace ElasticSearch.Searcher
                     };
                 var fileTypes = this.SearchDefinitions.entitlementSearchDefinitions.fileTypes.Select(t => t.ToString());
                 fileTypeTerm.Value.AddRange(fileTypes);
-
             }
 
             // EPG Channel IDs
@@ -1587,11 +1586,16 @@ namespace ElasticSearch.Searcher
             // Connect all the channels in the entitled user's subscriptions
             result.AddChild(this.SubscriptionsQuery, CutWith.OR);
             result.AddChild(specificAssetsTerm, CutWith.OR);
-            result.AddChild(isFreeTerm, CutWith.OR);
 
-            if (fileTypeTerm != null)
+            // Get free assets only if requested in definitions
+            if (this.SearchDefinitions.entitlementSearchDefinitions.shouldGetFreeAssets)
             {
-                result.AddChild(fileTypeTerm, CutWith.OR);
+                result.AddChild(isFreeTerm, CutWith.OR);
+
+                if (fileTypeTerm != null)
+                {
+                    result.AddChild(fileTypeTerm, CutWith.OR);
+                }
             }
 
             return result;
