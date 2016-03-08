@@ -16170,8 +16170,24 @@ namespace ConditionalAccess
 
             try
             {
-                // Get all PPV Entitlements            
-                Dictionary<string, int> entitlements = ConditionalAccessDAL.Get_AllUsersEntitlements(domainID, new List<int>()).Values.ToDictionary(x => x.ppvCode.ToString(), x => x.purchasedAsMediaFileID);
+                // Get all PPV Entitlements
+                var getAllUserEntitlements = ConditionalAccessDAL.Get_AllUsersEntitlements(domainID, new List<int>());
+
+                //Dictionary<string, int> oldEntitlements = getAllUserEntitlements.Values.ToDictionary(x => x.ppvCode.ToString(), x => x.purchasedAsMediaFileID);
+                Dictionary<string, List<int>> entitlements = new Dictionary<string, List<int>>();
+
+                foreach (var currentEntitlement in getAllUserEntitlements.Values)
+                {
+                    string ppvCode =currentEntitlement.ppvCode.ToString();
+
+                    if (!entitlements.ContainsKey(ppvCode))
+                    {
+                        entitlements.Add(ppvCode, new List<int>());
+                    }
+
+                    entitlements[ppvCode].Add(currentEntitlement.purchasedAsMediaFileID);
+                }
+
                 if (entitlements != null && entitlements.Count > 0)
                 {
                     string sPricingUsername = string.Empty;
@@ -16194,9 +16210,12 @@ namespace ConditionalAccess
                                     // PPV does not have specific file types defined --> supports all file types, add PPV purchased mediaFile to list
                                     if (ppvModule.m_relatedFileTypes == null)
                                     {
-                                        if (!mediaFilesToMap.Contains(entitlements[ppvModule.m_sObjectCode]))
+                                        foreach (var entitlement in entitlements[ppvModule.m_sObjectCode])
                                         {
-                                            mediaFilesToMap.Add(entitlements[ppvModule.m_sObjectCode]);
+                                            if (!mediaFilesToMap.Contains(entitlement))
+                                            {
+                                                mediaFilesToMap.Add(entitlement);
+                                            }
                                         }
                                     }
 
@@ -16206,20 +16225,36 @@ namespace ConditionalAccess
                                         int[] relevantFileTypes = ppvModule.m_relatedFileTypes.Intersect(fileTypeIDs).ToArray();
                                         if (relevantFileTypes != null && relevantFileTypes.Length > 0)
                                         {
-                                            if (!mediaFilesToMap.Contains(entitlements[ppvModule.m_sObjectCode]))
+                                            foreach (var entitlement in entitlements[ppvModule.m_sObjectCode])
                                             {
-                                                mediaFilesToMap.Add(entitlements[ppvModule.m_sObjectCode]);
+                                                if (!mediaFilesToMap.Contains(entitlement))
+                                                {
+                                                    mediaFilesToMap.Add(entitlement);
+                                                }
                                             }
+
+                                            //if (!mediaFilesToMap.Contains(entitlements[ppvModule.m_sObjectCode]))
+                                            //{
+                                            //    mediaFilesToMap.Add(entitlements[ppvModule.m_sObjectCode]);
+                                            //}
                                         }
                                     }
                                 }
                                 //Incase we want to ignore filetypeIDs (sent as null or empty)
                                 else
                                 {
-                                    if (!mediaFilesToMap.Contains(entitlements[ppvModule.m_sObjectCode]))
+                                    foreach (var entitlement in entitlements[ppvModule.m_sObjectCode])
                                     {
-                                        mediaFilesToMap.Add(entitlements[ppvModule.m_sObjectCode]);
+                                        if (!mediaFilesToMap.Contains(entitlement))
+                                        {
+                                            mediaFilesToMap.Add(entitlement);
+                                        }
                                     }
+
+                                    //if (!mediaFilesToMap.Contains(entitlements[ppvModule.m_sObjectCode]))
+                                    //{
+                                    //    mediaFilesToMap.Add(entitlements[ppvModule.m_sObjectCode]);
+                                    //}
                                 }
                             }
 
