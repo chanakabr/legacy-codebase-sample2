@@ -16,8 +16,8 @@ namespace RemoteTasksService
         protected void Application_Start(object sender, EventArgs e)
         {
             // set monitor and log configuration files
-            KMonitor.Configure("log4net.config", KLogEnums.AppType.WCF);
-            KLogger.Configure("log4net.config", KLogEnums.AppType.WCF);
+            KMonitor.Configure("log4net.config", KLogEnums.AppType.WS);
+            KLogger.Configure("log4net.config", KLogEnums.AppType.WS);
 
             RouteTable.Routes.Add(new ServiceRoute("", new WebServiceHostFactory(), typeof(Service)));
             TCMClient.Settings.Instance.Init();
@@ -30,7 +30,8 @@ namespace RemoteTasksService
 
         protected void Application_BeginRequest(object sender, EventArgs e)
         {
-
+            // get request ID
+            HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY] = Guid.NewGuid().ToString();
         }
 
         protected void Application_AuthenticateRequest(object sender, EventArgs e)
