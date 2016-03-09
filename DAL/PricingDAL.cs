@@ -1000,13 +1000,13 @@ namespace DAL
                 sp.AddParameter("@PreviewModuleID", previewModuleID);
                 sp.AddParameter("@IsRenewable", mpp.IsRenewable);
                 sp.AddParameter("@ProductCode", mpp.ProductCode);
-                if (mpp.Description != null)
+                if (mpp.Descriptions != null)
                 {
-                    sp.AddKeyValueListParameter<string, string>("@Description", mpp.Description, "key", "value");
+                    sp.AddKeyValueListParameter<string, string>("@Description", mpp.Descriptions, "key", "value");
                 }
-                if (mpp.Title != null)
+                if (mpp.Titles != null)
                 {
-                    sp.AddKeyValueListParameter<string, string>("@Title", mpp.Title, "key", "value");
+                    sp.AddKeyValueListParameter<string, string>("@Title", mpp.Titles, "key", "value");
                 }
                 sp.AddKeyValueListParameter<int, int>("@PricePlansCodes", pricePlansCodes, "key", "value");
 
@@ -1057,13 +1057,13 @@ namespace DAL
             sp.AddParameter("@PreviewModuleID", previewModuleID);
             sp.AddParameter("@IsRenewable", mpp.IsRenewable);
             sp.AddParameter("@ProductCode", mpp.ProductCode);
-            if (mpp.Description != null)
+            if (mpp.Descriptions != null)
             {
-                sp.AddKeyValueListParameter<string, string>("@Description", mpp.Description, "key", "value");
+                sp.AddKeyValueListParameter<string, string>("@Description", mpp.Descriptions, "key", "value");
             }
-            if (mpp.Title != null)
+            if (mpp.Titles != null)
             {
-                sp.AddKeyValueListParameter<string, string>("@Title", mpp.Title, "key", "value");
+                sp.AddKeyValueListParameter<string, string>("@Title", mpp.Titles, "key", "value");
             }
             
             sp.AddKeyValueListParameter<int, int>("@PricePlansCodes", pricePlansCodes, "key", "value");
@@ -1108,6 +1108,49 @@ namespace DAL
                 sp.AddParameter("@FullLifeCycleID", fullLifeCycleID);
                 sp.AddParameter("@ViewLifeCycleID", viewLifeCycleID);
                 sp.AddParameter("@Date", DateTime.UtcNow);
+                return sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                HandleException(string.Empty, ex);
+            }
+            return 0;
+        }
+
+        public static int UpdatePricePlane(int groupID, ApiObjects.IngestPricePlan pricePlan, int pricCodeID, int fullLifeCycleID, int viewLifeCycleID)
+        {
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Update_PricePlane");
+                sp.SetConnectionKey("pricing_connection");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@Name", pricePlan.Code);
+                sp.AddParameter("@IsActive", pricePlan.IsActive);
+                sp.AddParameter("@MaxViews", pricePlan.MaxViews);
+                sp.AddParameter("@IsRenewable", pricePlan.IsRenewable);
+                sp.AddParameter("@RecurringPeriods", pricePlan.RecurringPeriods);
+                sp.AddParameter("@PricCodeID", pricCodeID);
+                sp.AddParameter("@FullLifeCycleID", fullLifeCycleID);
+                sp.AddParameter("@ViewLifeCycleID", viewLifeCycleID);
+                sp.AddParameter("@Date", DateTime.UtcNow);
+                return sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                HandleException(string.Empty, ex);
+            }
+            return 0;
+        }
+
+        public static int DeletePricePlan(int groupID, string pricePlan)
+        {
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Delete_PricePlan");
+                sp.SetConnectionKey("pricing_connection");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@Date", DateTime.UtcNow);
+                sp.AddParameter("@PricePlan", pricePlan);
                 return sp.ExecuteReturnValue<int>();
             }
             catch (Exception ex)
