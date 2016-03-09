@@ -40,7 +40,7 @@ namespace ApiObjects
 
         public List<string> FileTypes { get; set; }
 
-        public eIngestAction Action { get; set; }
+        //public eIngestAction Action { get; set; }
 
         public bool IsActive { get; set; }
 

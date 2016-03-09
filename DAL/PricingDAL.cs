@@ -1076,6 +1076,45 @@ namespace DAL
 
             return sp.ExecuteReturnValue<int>(); ;
         }
+
+        public static DataSet ValidatePricePlan(int groupID, string code, string fullLifeCycle, string viewLifeCycle, string priceCode, 
+            ApiObjects.eIngestAction action)
+        {
+            StoredProcedure sp = new StoredProcedure("ValidatePricePlan");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@Name", code);
+            sp.AddParameter("@FullLifeCycle", fullLifeCycle);
+            sp.AddParameter("@ViewLifeCycle", viewLifeCycle);
+            sp.AddParameter("@PriceCode", priceCode);
+            sp.AddParameter("@Action", (int)action);
+
+            return sp.ExecuteDataSet();
+        }
+
+        public static int InsertPricePlane(int groupID, ApiObjects.IngestPricePlan pricePlan, int pricCodeID, int fullLifeCycleID, int viewLifeCycleID)
+        {
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Insert_PricePlane");
+                sp.SetConnectionKey("pricing_connection");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@Name", pricePlan.Code);
+                sp.AddParameter("@IsActive", pricePlan.IsActive);
+                sp.AddParameter("@MaxViews", pricePlan.MaxViews);
+                sp.AddParameter("@IsRenewable", pricePlan.IsRenewable);
+                sp.AddParameter("@RecurringPeriods", pricePlan.RecurringPeriods);
+                sp.AddParameter("@PricCodeID", pricCodeID);
+                sp.AddParameter("@FullLifeCycleID", fullLifeCycleID);
+                sp.AddParameter("@ViewLifeCycleID", viewLifeCycleID);
+                return sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                HandleException(string.Empty, ex);
+            }
+            return 0;
+        }
     }
 }
 

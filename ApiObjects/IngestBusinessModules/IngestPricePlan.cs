@@ -18,14 +18,13 @@ namespace ApiObjects
 
         public string PriceCode { get; set; }
 
-        public string CouponGroup { get; set; }
-
         public bool IsRenewable { get; set; }
 
         public string RecurringPeriods { get; set; }
 
-        public eIngestAction Action { get; set; }
+        //public eIngestAction Action { get; set; }
 
         public bool IsActive { get; set; }
+
     }
 }
