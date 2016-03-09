@@ -1107,6 +1107,7 @@ namespace DAL
                 sp.AddParameter("@PricCodeID", pricCodeID);
                 sp.AddParameter("@FullLifeCycleID", fullLifeCycleID);
                 sp.AddParameter("@ViewLifeCycleID", viewLifeCycleID);
+                sp.AddParameter("@Date", DateTime.UtcNow);
                 return sp.ExecuteReturnValue<int>();
             }
             catch (Exception ex)
