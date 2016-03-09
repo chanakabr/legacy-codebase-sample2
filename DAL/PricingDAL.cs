@@ -1002,11 +1002,11 @@ namespace DAL
                 sp.AddParameter("@ProductCode", mpp.ProductCode);
                 if (mpp.Descriptions != null)
                 {
-                    sp.AddKeyValueListParameter<string, string>("@Description", mpp.Descriptions, "key", "value");
+                    sp.AddKeyValueListParameter<string, string>("@Description", mpp.Descriptions.Select(d => new KeyValuePair<string, string>(d.key, d.value)).ToList(), "key", "value");
                 }
                 if (mpp.Titles != null)
                 {
-                    sp.AddKeyValueListParameter<string, string>("@Title", mpp.Titles, "key", "value");
+                    sp.AddKeyValueListParameter<string, string>("@Title", mpp.Titles.Select(t => new KeyValuePair<string, string>(t.key, t.value)).ToList(), "key", "value");
                 }
                 sp.AddKeyValueListParameter<int, int>("@PricePlansCodes", pricePlansCodes, "key", "value");
 
@@ -1059,11 +1059,11 @@ namespace DAL
             sp.AddParameter("@ProductCode", mpp.ProductCode);
             if (mpp.Descriptions != null)
             {
-                sp.AddKeyValueListParameter<string, string>("@Description", mpp.Descriptions, "key", "value");
+                sp.AddKeyValueListParameter<string, string>("@Description", mpp.Descriptions.Select(d => new KeyValuePair<string, string>(d.key, d.value)).ToList(), "key", "value");
             }
             if (mpp.Titles != null)
             {
-                sp.AddKeyValueListParameter<string, string>("@Title", mpp.Titles, "key", "value");
+                sp.AddKeyValueListParameter<string, string>("@Title", mpp.Descriptions.Select(t => new KeyValuePair<string, string>(t.key, t.value)).ToList(), "key", "value");
             }
             
             sp.AddKeyValueListParameter<int, int>("@PricePlansCodes", pricePlansCodes, "key", "value");

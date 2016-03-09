@@ -8,9 +8,9 @@ namespace ApiObjects
 {
     public class IngestMultiPricePlan : IngestModule
     {
-        public List<KeyValuePair<string,string>>  Titles { get; set; } // lang, title
+        public List<KeyValuePair>  Titles { get; set; } // lang, title
 
-        public List<KeyValuePair<string, string>> Descriptions { get; set; } // lang, description 
+        public List<KeyValuePair> Descriptions { get; set; } // lang, description 
 
         public DateTime StartDate { get; set; }
 
@@ -37,8 +37,6 @@ namespace ApiObjects
         public List<string> Channels { get; set; }
 
         public List<string> FileTypes { get; set; }
-
-        //public eIngestAction Action { get; set; }
 
         public bool IsActive { get; set; }
 
