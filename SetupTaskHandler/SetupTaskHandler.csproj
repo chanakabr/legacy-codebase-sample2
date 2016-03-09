@@ -56,7 +56,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FreeItemUpdateQueueBuilder.cs" />
     <Compile Include="IPToCountryIndexBuilder.cs" />
     <Compile Include="SetupTaskRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
