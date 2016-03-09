@@ -236,10 +236,10 @@ namespace ApiObjects.Response
         MissingPricePlans = 9007,
         MissingChannels = 9008,
         MissingFileTypes = 9009,
-        FailInsertMPP = 9010,
-        FailUpdateMPP = 9011, 
+        FailInsert = 9010,
+        FailUpdate = 9011, 
         PreviewModuleNotExist = 9012,
-        FailDeleteMPP = 9013
+        FailDelete = 9013,
 
 
 
