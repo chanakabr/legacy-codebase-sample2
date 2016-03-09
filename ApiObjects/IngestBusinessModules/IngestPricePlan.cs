@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace ApiObjects
 {
-    public class IngestPricePlan
+    public class IngestPricePlan : IngestModule
     {
-        public string Code { get; set; }
-
         public string FullLifeCycle { get; set; }
 
         public string ViewLifeCycle { get; set; }
@@ -25,6 +23,5 @@ namespace ApiObjects
         //public eIngestAction Action { get; set; }
 
         public bool IsActive { get; set; }
-
     }
 }

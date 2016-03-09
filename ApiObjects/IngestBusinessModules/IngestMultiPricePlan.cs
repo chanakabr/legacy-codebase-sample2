@@ -6,13 +6,11 @@ using System.Threading.Tasks;
 
 namespace ApiObjects
 {
-    public class IngestMultiPricePlan
+    public class IngestMultiPricePlan : IngestModule
     {
-        public string Code { get; set; }
+        public List<KeyValuePair<string,string>>  Titles { get; set; } // lang, title
 
-        public List<KeyValuePair<string,string>>  Title { get; set; } // lang, title
-
-        public List<KeyValuePair<string, string>> Description { get; set; } // lang, description 
+        public List<KeyValuePair<string, string>> Descriptions { get; set; } // lang, description 
 
         public DateTime StartDate { get; set; }
 
@@ -47,6 +45,5 @@ namespace ApiObjects
         public int OrderNum { get; set; }
 
         public int NumOfRecPeriods { get; set; }
-
     }
 }
