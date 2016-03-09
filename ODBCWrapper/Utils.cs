@@ -865,7 +865,7 @@ namespace ODBCWrapper
                 {
                     selectQuery.SetConnectionKey(connectionKey);
                 }
-                selectQuery += string.Format("SELECT {0} FROM {1] WHERE ", string.Join(",", columnsToFetch), tableName);
+                selectQuery += string.Format("SELECT {0} FROM " + tableName + " WHERE ", string.Join(",", columnsToFetch));                
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM(paramName, "=", paramID);
 
                 if (selectQuery.Execute("query", true) != null)
