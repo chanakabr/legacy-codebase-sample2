@@ -229,6 +229,9 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 case WebAPI.ConditionalAccess.PriceReason.UserSuspended:
                     result = Models.Pricing.KalturaPurchaseStatus.user_suspended;
                     break;
+                case WebAPI.ConditionalAccess.PriceReason.NotForPurchase:
+                    result = Models.Pricing.KalturaPurchaseStatus.not_for_purchase;
+                    break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown purchase status");
             }
