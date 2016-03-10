@@ -40,7 +40,7 @@ namespace ApiObjects
 
         public bool IsActive { get; set; }
 
-        public int OrderNum { get; set; }
+        public int OrderNumber { get; set; }
 
         public int NumOfRecPeriods { get; set; }
     }

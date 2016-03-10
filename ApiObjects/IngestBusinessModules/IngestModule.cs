@@ -9,5 +9,7 @@ namespace ApiObjects
     public abstract class IngestModule
     {
         public string Code { get; set; }
+
+        public eIngestAction Action { get; set; }
     }
 }
