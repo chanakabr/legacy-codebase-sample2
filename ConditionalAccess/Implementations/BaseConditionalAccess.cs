@@ -15260,7 +15260,7 @@ namespace ConditionalAccess
 
             }
 
-            recurringNumber = Utils.CalcPaymentNumber(numOfPayments, recurringNumber, false);
+            //recurringNumber = Utils.CalcPaymentNumber(numOfPayments, recurringNumber, false);
             if (numOfPayments > 0 && recurringNumber > numOfPayments)
             {
                 // Subscription ended
