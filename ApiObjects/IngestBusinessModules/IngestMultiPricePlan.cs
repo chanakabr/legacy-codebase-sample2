@@ -40,6 +40,12 @@ namespace ApiObjects
 
         public bool IsActive { get; set; }
 
+<<<<<<< HEAD
         public int OrderNum { get; set; }       
+=======
+        public int OrderNumber { get; set; }
+
+        public int NumOfRecPeriods { get; set; }
+>>>>>>> 4643f134c29a4feb7ff971e93c489f5e35a02e27
     }
 }

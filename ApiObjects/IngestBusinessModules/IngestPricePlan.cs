@@ -20,8 +20,6 @@ namespace ApiObjects
 
         public string RecurringPeriods { get; set; }
 
-        //public eIngestAction Action { get; set; }
-
         public bool IsActive { get; set; }
     }
 }

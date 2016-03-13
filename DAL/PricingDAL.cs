@@ -1013,7 +1013,12 @@ namespace DAL
                 sp.AddIDListParameter<int>("@Channels", channels, "Id");
                 sp.AddIDListParameter<int>("@FileTypes", fileTypes, "Id");
                 sp.AddParameter("@Date", DateTime.UtcNow);
+<<<<<<< HEAD
                 sp.AddParameter("@OrderNum", mpp.OrderNum);
+=======
+                sp.AddParameter("@OrderNum", mpp.OrderNumber);
+                //sp.AddParameter("@NumOfRecPeriods", mpp.NumOfRecPeriods);
+>>>>>>> 4643f134c29a4feb7ff971e93c489f5e35a02e27
                 sp.AddParameter("@SubscriptionOnly", mpp.SubscriptionOnly);
 
                 return sp.ExecuteReturnValue<int>();
@@ -1069,7 +1074,12 @@ namespace DAL
             sp.AddIDListParameter<int>("@Channels", channels, "Id");
             sp.AddIDListParameter<int>("@FileTypes", fileTypes, "Id");
             sp.AddParameter("@Date", DateTime.UtcNow);
+<<<<<<< HEAD
             sp.AddParameter("@OrderNum", mpp.OrderNum);
+=======
+            sp.AddParameter("@OrderNum", mpp.OrderNumber);
+            sp.AddParameter("@NumOfRecPeriods", mpp.NumOfRecPeriods);
+>>>>>>> 4643f134c29a4feb7ff971e93c489f5e35a02e27
             sp.AddParameter("@SubscriptionOnly", mpp.SubscriptionOnly);
 
             return sp.ExecuteReturnValue<int>(); ;
