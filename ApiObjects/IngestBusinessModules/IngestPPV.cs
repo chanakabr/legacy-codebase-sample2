@@ -10,11 +10,11 @@ namespace ApiObjects
     {
         public string PriceCode { get; set; }
 
-        public string PricePlan { get; set; }
+        public string UsageModule { get; set; }
 
         public string Discount { get; set; }
 
-        public string GroupCoupon { get; set; }
+        public string CouponGroup { get; set; }
             
         public bool SubscriptionOnly { get; set; }
 
@@ -26,5 +26,6 @@ namespace ApiObjects
 
         public List<string> FileTypes { get; set; }
 
+        public bool IsActive { get; set; }
     }
 }
