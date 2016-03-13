@@ -101,10 +101,11 @@
     <Compile Include="Billing\PaymentGatewayAssociate.cs" />
     <Compile Include="Billing\PaymentMethod.cs" />
     <Compile Include="DevicePinResponse.cs" />
-    <Compile Include="IngestBusinessModules\IngestPPV.cs" />
     <Compile Include="IngestBusinessModules\IngestModule.cs" />
     <Compile Include="IngestBusinessModules\IngestMultiPricePlan.cs" />
-    <Compile Include="IngestBusinessModules\IngestPPV.cs" />
+    <Compile Include="IngestBusinessModules\IngestPPV.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Notification\Announcement.cs" />
     <Compile Include="Notification\AnnouncementSubscription.cs" />
     <Compile Include="Notification\DeviceNotificationData.cs" />
