@@ -1014,8 +1014,7 @@ namespace DAL
                 sp.AddIDListParameter<int>("@FileTypes", fileTypes, "Id");
                 sp.AddParameter("@Date", DateTime.UtcNow);
                 sp.AddParameter("@OrderNum", mpp.OrderNumber);
-                sp.AddParameter("@SubscriptionOnly", mpp.SubscriptionOnly);
-
+                
                 return sp.ExecuteReturnValue<int>();
             }
             catch (Exception ex)
@@ -1070,8 +1069,7 @@ namespace DAL
             sp.AddIDListParameter<int>("@Channels", channels, "Id");
             sp.AddIDListParameter<int>("@FileTypes", fileTypes, "Id");
             sp.AddParameter("@Date", DateTime.UtcNow);
-            sp.AddParameter("@OrderNum", mpp.OrderNumber);
-            sp.AddParameter("@SubscriptionOnly", mpp.SubscriptionOnly);
+            sp.AddParameter("@OrderNum", mpp.OrderNumber);            
 
             return sp.ExecuteReturnValue<int>(); ;
         }

@@ -23,8 +23,6 @@ namespace ApiObjects
         public string ProductCode { get; set; }
 
         public bool IsRenewable { get; set; }
-
-        public bool SubscriptionOnly { get; set; }
         
         public string PreviewModule { get; set; }
 
