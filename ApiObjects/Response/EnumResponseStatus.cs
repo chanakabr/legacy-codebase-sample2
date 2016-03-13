@@ -235,11 +235,8 @@ namespace ApiObjects.Response
         DiscountCodeNotExist = 9006,
         MissingPricePlans = 9007,
         MissingChannels = 9008,
-        MissingFileTypes = 9009,
-        FailInsert = 9010,
-        FailUpdate = 9011, 
-        PreviewModuleNotExist = 9012,
-        FailDelete = 9013,
+        MissingFileTypes = 9009,       
+        PreviewModuleNotExist = 9010
 
 
 

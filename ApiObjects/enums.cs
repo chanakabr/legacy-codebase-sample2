@@ -553,17 +553,5 @@ namespace ApiObjects
         Delete = 2
     }
 
-    public enum eIngestValidates
-    {
-        Code = 0,
-        Discount = 1,
-        PreviewModule = 2,
-        PricePlan = 3,
-        Channels = 4,
-        FileTypes = 5,
-        PriceCode = 6,
-        GroupCoupon = 7,
-        FullLifeCycle = 8,
-        ViewLifeCycle = 9
-    }
+   
 }
