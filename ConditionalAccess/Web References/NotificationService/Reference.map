@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <DiscoveryClientResultsFile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Results>
-    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.SchemaReference" url="http://localhost/WS_Notification/NotificationService.svc?xsd=xsd0" filename="NotificationService.xsd" />
-    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.SchemaReference" url="http://localhost/WS_Notification/NotificationService.svc?xsd=xsd1" filename="NotificationService0.xsd" />
-    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.SchemaReference" url="http://localhost/WS_Notification/NotificationService.svc?xsd=xsd2" filename="NotificationService1.xsd" />
-    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.ContractReference" url="http://localhost/WS_Notification/NotificationService.svc?wsdl" filename="NotificationService.wsdl" />
-    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.DiscoveryDocumentReference" url="http://localhost/WS_Notification/NotificationService.svc?disco" filename="NotificationService.disco" />
-    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.SchemaReference" url="http://localhost/WS_Notification/NotificationService.svc?xsd=xsd3" filename="NotificationService2.xsd" />
+    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.SchemaReference" url="http://54.72.1.39:8030/Notification_V3_4/NotificationService.svc?xsd=xsd2" filename="NotificationService.xsd" />
+    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.SchemaReference" url="http://54.72.1.39:8030/Notification_V3_4/NotificationService.svc?xsd=xsd3" filename="NotificationService0.xsd" />
+    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.SchemaReference" url="http://54.72.1.39:8030/Notification_V3_4/NotificationService.svc?xsd=xsd0" filename="NotificationService1.xsd" />
+    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.SchemaReference" url="http://54.72.1.39:8030/Notification_V3_4/NotificationService.svc?xsd=xsd1" filename="NotificationService2.xsd" />
+    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.ContractReference" url="http://54.72.1.39:8030/Notification_V3_4/NotificationService.svc?wsdl" filename="NotificationService.wsdl" />
+    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.SchemaReference" url="http://54.72.1.39:8030/Notification_V3_4/NotificationService.svc?xsd=xsd4" filename="NotificationService3.xsd" />
+    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.DiscoveryDocumentReference" url="http://54.72.1.39:8030/Notification_V3_4/NotificationService.svc?disco" filename="NotificationService.disco" />
   </Results>
 </DiscoveryClientResultsFile>

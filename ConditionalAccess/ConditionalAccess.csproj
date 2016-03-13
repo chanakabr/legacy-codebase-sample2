@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ConditionalAccess</RootNamespace>
     <AssemblyName>ConditionalAccess</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -42,6 +42,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -51,6 +52,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Local|AnyCPU'">
     <OutputPath>bin\Local\</OutputPath>
@@ -60,11 +62,12 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\External\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\tvincicommon\External\Couchbase-2.2.5\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -217,53 +220,53 @@
     <None Include="Service References\WS_Catalog\ConditionalAccess.WS_Catalog.Response.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\WS_Catalog\Service.wsdl" />
-    <None Include="Service References\WS_Catalog\Service.xsd">
+    <None Include="Service References\WS_Catalog\Service15.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service1.wsdl" />
-    <None Include="Service References\WS_Catalog\Service1.xsd">
+    <None Include="Service References\WS_Catalog\Service151.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service10.xsd">
+    <None Include="Service References\WS_Catalog\Service1510.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service11.xsd">
+    <None Include="Service References\WS_Catalog\Service1511.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service12.xsd">
+    <None Include="Service References\WS_Catalog\Service1512.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service13.xsd">
+    <None Include="Service References\WS_Catalog\Service1513.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service14.xsd">
+    <None Include="Service References\WS_Catalog\Service1514.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service2.xsd">
+    <None Include="Service References\WS_Catalog\Service152.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service3.xsd">
+    <None Include="Service References\WS_Catalog\Service153.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service4.xsd">
+    <None Include="Service References\WS_Catalog\Service154.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service5.xsd">
+    <None Include="Service References\WS_Catalog\Service155.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service6.xsd">
+    <None Include="Service References\WS_Catalog\Service156.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service7.xsd">
+    <None Include="Service References\WS_Catalog\Service157.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service8.xsd">
+    <None Include="Service References\WS_Catalog\Service158.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service9.xsd">
+    <None Include="Service References\WS_Catalog\Service159.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\WS_Catalog\Service2.wsdl" />
+    <None Include="Service References\WS_Catalog\Service21.wsdl" />
     <None Include="Web References\NotificationService\ArrayOfKeyValueOfstringArrayOfstringty7Ep6D1KeyValueOfstringArrayOfstringty7Ep6D1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -281,6 +284,9 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Web References\NotificationService\NotificationService2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Web References\NotificationService\NotificationService3.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Web References\NotificationService\Reference.map">
@@ -309,6 +315,9 @@
     <None Include="Web References\TvinciAPI\FileTypeContainer.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\TvinciAPI\GenericRuleResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\TvinciAPI\GenericWriteResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -319,6 +328,9 @@
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\TvinciAPI\GroupRule.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciAPI\LanguageObj.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\TvinciAPI\MediaConcurrencyRule.datasource">
@@ -333,6 +345,15 @@
     <None Include="Web References\TvinciAPI\MeidaMaper.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\TvinciAPI\ParentalRulesResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciAPI\PinResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciAPI\PurchaseSettingsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\TvinciAPI\RateMediaObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -340,7 +361,13 @@
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
+    <None Include="Web References\TvinciAPI\RegionsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\TvinciAPI\Scheduling.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciAPI\Status.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\TvinciAPI\TagResponseObject.datasource">
@@ -358,6 +385,9 @@
     <None Include="Web References\TvinciDomains\ChangeDLMObj.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\TvinciDomains\DeviceResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\TvinciDomains\DeviceResponseObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -367,10 +397,19 @@
     <None Include="Web References\TvinciDomains\Domain.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\TvinciDomains\DomainResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\TvinciDomains\DomainResponseObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\TvinciDomains\DomainResponseStatus.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciDomains\DomainStatusResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciDomains\DomainStatusResponse2.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\TvinciDomains\HomeNetwork.datasource">
@@ -385,6 +424,9 @@
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
     <None Include="Web References\TvinciDomains\ResponseDLMStatus.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciDomains\Status1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\TvinciDomains\StatusObject.datasource">
@@ -405,7 +447,16 @@
     <None Include="Web References\TvinciUsers\KeyValuePair.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\TvinciUsers\PinCodeResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\TvinciUsers\ResponseStatus.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciUsers\ResponseStatus1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciUsers\Status.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\TvinciUsers\UserBasicData.datasource">
@@ -417,6 +468,12 @@
     <None Include="Web References\TvinciUsers\UserItemList.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\TvinciUsers\UserResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\TvinciUsers\UsersResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\TvinciUsers\UserState.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -425,10 +482,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://localhost/ws_api/api.asmx">
+    <WebReferenceUrl Include="http://54.72.1.39:8030/api_v3_4/api.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciAPI\</RelPath>
-      <UpdateFromURL>http://localhost/ws_api/api.asmx</UpdateFromURL>
+      <UpdateFromURL>http://54.72.1.39:8030/api_v3_4/api.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -436,10 +493,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>ConditionalAccess_TvinciAPI_API</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/ws_notification/NotificationService.svc">
+    <WebReferenceUrl Include="http://54.72.1.39:8030/notification_v3_4/NotificationService.svc">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\NotificationService\</RelPath>
-      <UpdateFromURL>http://localhost/ws_notification/NotificationService.svc</UpdateFromURL>
+      <UpdateFromURL>http://54.72.1.39:8030/notification_v3_4/NotificationService.svc</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -447,10 +504,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>ConditionalAccess_NotificationService_NotificationService</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/ws_domains/module.asmx">
+    <WebReferenceUrl Include="http://54.72.1.39:8030/domains_v3_4/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciDomains\</RelPath>
-      <UpdateFromURL>http://localhost/ws_domains/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://54.72.1.39:8030/domains_v3_4/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -458,10 +515,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>ConditionalAccess_TvinciDomains_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/WS_Billing_B/module.asmx">
+    <WebReferenceUrl Include="http://54.72.1.39:8030/billing_v3_4/module.asmx">
       <UrlBehavior>Static</UrlBehavior>
       <RelPath>Web References\TvinciBilling\</RelPath>
-      <UpdateFromURL>http://localhost/WS_Billing_B/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://54.72.1.39:8030/billing_v3_4/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -474,10 +531,10 @@
       <RelPath>Web References\TvinciPricing\</RelPath>
       <UpdateFromURL>http://localhost/ws_Pricing/module.asmx</UpdateFromURL>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/WS_Pricing/module.asmx">
+    <WebReferenceUrl Include="http://54.72.1.39:8030/pricing_v3_4/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPricing\</RelPath>
-      <UpdateFromURL>http://localhost/WS_Pricing/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://54.72.1.39:8030/pricing_v3_4/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -485,10 +542,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>ConditionalAccess_TvinciPricing_mdoule</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/WS_Users/module.asmx">
+    <WebReferenceUrl Include="http://54.72.1.39:8030/users_v3_4/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciUsers\</RelPath>
-      <UpdateFromURL>http://localhost/WS_Users/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://54.72.1.39:8030/users_v3_4/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -743,9 +800,6 @@
     <WCFMetadataStorage Include="Service References\WS_Catalog\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\WS_Catalog\Service.disco" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Service References\WS_Catalog\configuration91.svcinfo" />
   </ItemGroup>
   <ItemGroup>
@@ -756,6 +810,9 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\WS_Catalog\Service1.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -3673,13 +3673,13 @@
   </wsdl:binding>
   <wsdl:service name="mdoule">
     <wsdl:port name="mdouleSoap" binding="tns:mdouleSoap">
-      <soap:address location="http://localhost/WS_Pricing/module.asmx" />
+      <soap:address location="http://54.72.1.39:8030/pricing_v3_4/module.asmx" />
     </wsdl:port>
     <wsdl:port name="mdouleSoap12" binding="tns:mdouleSoap12">
-      <soap12:address location="http://localhost/WS_Pricing/module.asmx" />
+      <soap12:address location="http://54.72.1.39:8030/pricing_v3_4/module.asmx" />
     </wsdl:port>
     <wsdl:port name="mdouleHttpPost" binding="tns:mdouleHttpPost">
-      <http:address location="http://localhost/WS_Pricing/module.asmx" />
+      <http:address location="http://54.72.1.39:8030/pricing_v3_4/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

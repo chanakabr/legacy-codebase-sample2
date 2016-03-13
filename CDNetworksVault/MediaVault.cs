@@ -54,7 +54,7 @@ namespace CDNetworksVault
             string sRtmp = sSchema + "://" + sHost + sPath;
             string sContent_url = sRtmp + sFileName;
             Logger.Logger.Log("Get URL", "Before New", "GetURL");
-            Ikeygen authobj = new keygen4Lib.keygenClass();
+            Ikeygen authobj = new keygen4Lib.keygen();
             Logger.Logger.Log("Get URL", "After New", "GetURL");
             //IPHostEntry host = Dns.Resolve(Dns.GetHostName());
             //string sServer_ip = host.AddressList[0].ToString();
