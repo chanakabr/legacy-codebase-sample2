@@ -66,7 +66,7 @@ namespace Ingest.Importers
             }
 
             // get filename
-            string filename = DateTime.UtcNow.ToString("yyyyMMdd HHmmssfff");
+            string filename = DateTime.UtcNow.ToString("yyyyMMdd_HH-mm-ss-fff");
             var attribute = xmlDoc.FirstChild.Attributes["report_filename"];
             if (attribute != null && !string.IsNullOrEmpty(attribute.InnerText))
                 filename = string.Format("{0}_{1}", attribute.InnerText, filename);
