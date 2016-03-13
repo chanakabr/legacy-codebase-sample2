@@ -61,23 +61,23 @@ namespace Ingest.Importers
             {
                 log.ErrorFormat("failed to load price plans xml.", ex);
                 report = string.Format("failed to load price plans xml with error {0}", ex.Message);
-                WriteReportLogToFile(report, response.ReportFilename);
+                WriteReportLogToFile(report, response.ReportId);
                 return response;
             }
 
             // get filename
             string filename = DateTime.UtcNow.ToString("yyyyMMdd_HH-mm-ss-fff");
-            var attribute = xmlDoc.FirstChild.Attributes["report_filename"];
+            var attribute = xmlDoc.FirstChild.Attributes["id"];
             if (attribute != null && !string.IsNullOrEmpty(attribute.InnerText))
                 filename = string.Format("{0}_{1}", attribute.InnerText, filename);
 
-            response.ReportFilename = filename;
+            response.ReportId = filename;
 
-            ProccessPricePlans(groupId, xmlDoc, response.ReportFilename);
+            ProccessPricePlans(groupId, xmlDoc, response.ReportId);
 
-            ProccessMultiPricePlans(groupId, xmlDoc, response.ReportFilename);
+            ProccessMultiPricePlans(groupId, xmlDoc, response.ReportId);
 
-            ProccessPPVs(groupId, xmlDoc, response.ReportFilename);
+            ProccessPPVs(groupId, xmlDoc, response.ReportId);
 
             response.Status = new Ingest.Models.Status((int)StatusCodes.OK, StatusCodes.OK.ToString());
 

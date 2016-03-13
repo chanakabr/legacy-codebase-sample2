@@ -10,7 +10,7 @@ namespace Ingest.Models
     public class BusinessModuleIngestResponse
     {
         [DataMember]
-        public string ReportFilename { get; set; }
+        public string ReportId { get; set; }
 
         [DataMember]
         public Status Status { get; set; }
