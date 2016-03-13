@@ -18,7 +18,7 @@ namespace ApiObjects
             
         public bool SubscriptionOnly { get; set; }
 
-        public string Title { get; set; }
+        public List<KeyValuePair> Descriptions { get; set; } // lang, description
 
         public bool FirstDeviceLimitation { get; set; }
 

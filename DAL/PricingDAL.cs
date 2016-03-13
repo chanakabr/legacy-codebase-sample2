@@ -1042,7 +1042,8 @@ namespace DAL
             return 0;
         }
 
-        public static int UpdateMPP(int groupID, ApiObjects.IngestMultiPricePlan mpp, List<KeyValuePair<int, int>> pricePlansCodes, List<int> channels, List<int> fileTypes, int previewModuleID, int internalDiscountID)
+        public static int UpdateMPP(int groupID, ApiObjects.IngestMultiPricePlan mpp, List<KeyValuePair<int, int>> pricePlansCodes, List<int> channels, List<int> fileTypes, 
+            int previewModuleID, int internalDiscountID)
         {
             StoredProcedure sp = new StoredProcedure("Update_MPP");
             sp.SetConnectionKey("pricing_connection");
@@ -1158,7 +1159,8 @@ namespace DAL
             return 0;
         }
 
-        public static DataSet ValidatePPV(int groupID, string code, string priceCode, string pricePlan, string discount, string groupCoupon, ApiObjects.eIngestAction action)
+        public static DataSet ValidatePPV(int groupID, string code, string priceCode, string pricePlan, string discount, string groupCoupon, List<string> fileTypes,
+            ApiObjects.eIngestAction action)
         {
             StoredProcedure sp = new StoredProcedure("ValidatePPV");
             sp.SetConnectionKey("pricing_connection");
@@ -1169,16 +1171,13 @@ namespace DAL
             sp.AddParameter("@discount", discount);
             sp.AddParameter("@groupCoupon", groupCoupon);
             sp.AddParameter("@Action", (int)action);
+            sp.AddIDListParameter<string>("@FileTypes", fileTypes, "STR");
 
             return sp.ExecuteDataSet();
         }
 
-        public static int UpdatePPV(int groupID, ApiObjects.IngestPPV ppv)
-        {
-            throw new NotImplementedException();
-        }
 
-        public static int InsertPPV(int groupID, ApiObjects.IngestPPV ppv, int priceCodeID, int pricePlanID, int discountID, int groupCouponID)
+        public static int InsertPPV(int groupID, ApiObjects.IngestPPV ppv, int priceCodeID, int pricePlanID, int discountID, int groupCouponID, List<int> fileTypes)
         {
             StoredProcedure sp = new StoredProcedure("Insert_PPVModule");
             sp.SetConnectionKey("pricing_connection");
@@ -1191,9 +1190,55 @@ namespace DAL
             sp.AddParameter("@subscriptionOnly", ppv.SubscriptionOnly);
             sp.AddParameter("@firstDeviceLimitation", ppv.FirstDeviceLimitation);
             sp.AddParameter("@productCode", ppv.ProductCode);
+            sp.AddIDListParameter<int>("@FileTypes", fileTypes, "Id");
             sp.AddParameter("@Date", DateTime.UtcNow);
 
+            if (ppv.Descriptions != null)
+            {
+                sp.AddKeyValueListParameter<string, string>("@Description", ppv.Descriptions.Select(d => new KeyValuePair<string, string>(d.key, d.value)).ToList(), "key", "value");
+            }
+
             return sp.ExecuteReturnValue<int>();
+        }
+
+        public static int UpdatePPV(int groupID, ApiObjects.IngestPPV ppv, int priceCodeID, int pricePlanID, int discountID, int groupCouponID, List<int> fileTypes)
+        {
+            StoredProcedure sp = new StoredProcedure("Update_PPVModule");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@Name", ppv.Code);
+            sp.AddParameter("@priceCode", priceCodeID);
+            sp.AddParameter("@pricePlan", pricePlanID);
+            sp.AddParameter("@discount", discountID);
+            sp.AddParameter("@groupCoupon", groupCouponID);
+            sp.AddParameter("@subscriptionOnly", ppv.SubscriptionOnly);
+            sp.AddParameter("@firstDeviceLimitation", ppv.FirstDeviceLimitation);
+            sp.AddParameter("@productCode", ppv.ProductCode);
+            sp.AddIDListParameter<int>("@FileTypes", fileTypes, "Id");
+            sp.AddParameter("@Date", DateTime.UtcNow);
+            if (ppv.Descriptions != null)
+            {
+                sp.AddKeyValueListParameter<string, string>("@Description", ppv.Descriptions.Select(d => new KeyValuePair<string, string>(d.key, d.value)).ToList(), "key", "value");
+            }
+            return sp.ExecuteReturnValue<int>();
+        }
+
+        public static int DeletePPV(int groupID, string ppv)
+        {
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Delete_PPV");
+                sp.SetConnectionKey("pricing_connection");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@Date", DateTime.UtcNow);
+                sp.AddParameter("@PPV", ppv);
+                return sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                HandleException(string.Empty, ex);
+            }
+            return 0;
         }
     }
 }
