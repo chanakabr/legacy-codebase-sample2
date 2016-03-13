@@ -104,6 +104,7 @@
     <Compile Include="IngestBusinessModules\BusinessModuleResponse.cs" />
     <Compile Include="IngestBusinessModules\IngestModule.cs" />
     <Compile Include="IngestBusinessModules\IngestMultiPricePlan.cs" />
+    <Compile Include="IngestBusinessModules\IngestPPV.cs" />
     <Compile Include="Notification\Announcement.cs" />
     <Compile Include="Notification\AnnouncementSubscription.cs" />
     <Compile Include="Notification\DeviceNotificationData.cs" />

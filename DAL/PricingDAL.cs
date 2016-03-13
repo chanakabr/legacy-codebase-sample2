@@ -686,7 +686,7 @@ namespace DAL
                 sp.AddParameter("@PriceCode", code);
                 sp.AddParameter("@Price", price);
                 sp.AddParameter("@CurrencyID", currencyID);
-                sp.AddParameter("@Date", DateTime.UtcNow);       
+                sp.AddParameter("@Date", DateTime.UtcNow);
 
                 return sp.ExecuteReturnValue<int>();
             }
@@ -725,7 +725,7 @@ namespace DAL
                 StoredProcedure sp = new StoredProcedure("Delete_PriceCode");
                 sp.SetConnectionKey("pricing_connection");
                 sp.AddParameter("@GroupID", groupID);
-                sp.AddParameter("@PriceCode", code);               
+                sp.AddParameter("@PriceCode", code);
                 sp.AddParameter("@Date", DateTime.UtcNow);
                 return sp.ExecuteReturnValue<int>();
             }
@@ -797,8 +797,8 @@ namespace DAL
             return 999;
         }
 
-        public static int InsertUsageModule(int groupID, string virtualName, int viewLifeCycle, int maxUsageModuleLifeCycle, int maxNumberOfViews,bool waiver, int waiverPeriod, bool isOfflinePlayBack,
-            int ext_discount_id, int internal_discount_id, int pricing_id, int coupon_id, int type,  int subscription_only, int is_renew, int num_of_rec_periods, int device_limit_id)
+        public static int InsertUsageModule(int groupID, string virtualName, int viewLifeCycle, int maxUsageModuleLifeCycle, int maxNumberOfViews, bool waiver, int waiverPeriod, bool isOfflinePlayBack,
+            int ext_discount_id, int internal_discount_id, int pricing_id, int coupon_id, int type, int subscription_only, int is_renew, int num_of_rec_periods, int device_limit_id)
         {
             try
             {
@@ -809,7 +809,7 @@ namespace DAL
                 sp.AddParameter("@viewLifeCycle", viewLifeCycle);
                 sp.AddParameter("@maxUsageModuleLifeCycle", maxUsageModuleLifeCycle);
                 sp.AddParameter("@maxNumberOfViews", maxNumberOfViews);
-               // multi usage module
+                // multi usage module
                 if (type == 2)
                 {
                     sp.AddParameter("@ext_discount_id", ext_discount_id);
@@ -823,7 +823,7 @@ namespace DAL
                     sp.AddParameter("@device_limit_id", device_limit_id);
                 }
                 //Regulation cancelation
-                sp.AddParameter("@waiver", waiver==true? 1:0);
+                sp.AddParameter("@waiver", waiver == true ? 1 : 0);
                 sp.AddParameter("@waiverPeriod", waiverPeriod);
 
                 sp.AddParameter("@isOfflinePlayBack", isOfflinePlayBack == true ? 1 : 0);
@@ -838,7 +838,7 @@ namespace DAL
             return 999;
         }
 
-        public static int InserPPVModule(int groupID, string ppvName, int usageModuleCode, string couponGroupCode, int discountModuleCode, int priceCode, bool subscriptionOnly, bool firstDeviceLimitation, 
+        public static int InserPPVModule(int groupID, string ppvName, int usageModuleCode, string couponGroupCode, int discountModuleCode, int priceCode, bool subscriptionOnly, bool firstDeviceLimitation,
             Dictionary<string, List<string>> descriptionDict, string productCode, string alias)
         {
             try
@@ -851,7 +851,7 @@ namespace DAL
                 sp.AddParameter("@couponGroupCode", couponGroupCode);
                 sp.AddParameter("@discountModuleCode", discountModuleCode);
                 sp.AddParameter("@priceCode", priceCode);
-                sp.AddParameter("@subscriptionOnly", subscriptionOnly== true? 1:0);
+                sp.AddParameter("@subscriptionOnly", subscriptionOnly == true ? 1 : 0);
                 sp.AddParameter("@firstDeviceLimitation", firstDeviceLimitation == true ? 1 : 0);
                 sp.AddParameter("@productCode", productCode);
                 sp.AddKeyValueListParameter<string, string>("@descriptionDict", descriptionDict, "key", "value");
@@ -864,7 +864,7 @@ namespace DAL
             {
                 HandleException(string.Empty, ex);
             }
-            return 999;   
+            return 999;
         }
 
         public static bool CheckAliasIsUniqe(int groupID, string alias, string tableName)
@@ -883,7 +883,7 @@ namespace DAL
             {
                 HandleException(string.Empty, ex);
             }
-            return false;   
+            return false;
         }
 
         public static int InsertPreviewModule(int groupID, string name, int fullLifeCycle, int nonRenewPeriod, string alias)
@@ -905,7 +905,7 @@ namespace DAL
             {
                 HandleException(string.Empty, ex);
             }
-            return 999;   
+            return 999;
         }
 
         public static int UpdatetUsageModule(int groupID, string virtualName, int viewLifeCycle, int maxUsageModuleLifeCycle, int maxNumberOfViews, bool waiver, int waiverPeriod, bool isOfflinePlayBack,
@@ -979,11 +979,11 @@ namespace DAL
             sp.AddIDListParameter<string>("@Channels", channels, "STR");
             sp.AddIDListParameter<string>("@FileTypes", fileTypes, "STR");
             sp.AddParameter("@Action", (int)action);
-            
+
             return sp.ExecuteDataSet();
         }
 
-        public static int InsertMPP(int groupID, ApiObjects.IngestMultiPricePlan mpp, List<KeyValuePair<int, int>> pricePlansCodes, List<int> channels, List<int> fileTypes, 
+        public static int InsertMPP(int groupID, ApiObjects.IngestMultiPricePlan mpp, List<KeyValuePair<int, int>> pricePlansCodes, List<int> channels, List<int> fileTypes,
             int previewModuleID, int internalDiscountID)
         {
             try
@@ -1014,7 +1014,6 @@ namespace DAL
                 sp.AddIDListParameter<int>("@FileTypes", fileTypes, "Id");
                 sp.AddParameter("@Date", DateTime.UtcNow);
                 sp.AddParameter("@OrderNum", mpp.OrderNum);
-                sp.AddParameter("@NumOfRecPeriods", mpp.NumOfRecPeriods);
                 sp.AddParameter("@SubscriptionOnly", mpp.SubscriptionOnly);
 
                 return sp.ExecuteReturnValue<int>();
@@ -1024,7 +1023,7 @@ namespace DAL
                 HandleException(string.Empty, ex);
             }
             return 0;
-        }      
+        }
         public static int DeleteMPP(int groupID, string multiPricePlan)
         {
             try
@@ -1065,19 +1064,18 @@ namespace DAL
             {
                 sp.AddKeyValueListParameter<string, string>("@Title", mpp.Descriptions.Select(t => new KeyValuePair<string, string>(t.key, t.value)).ToList(), "key", "value");
             }
-            
+
             sp.AddKeyValueListParameter<int, int>("@PricePlansCodes", pricePlansCodes, "key", "value");
             sp.AddIDListParameter<int>("@Channels", channels, "Id");
             sp.AddIDListParameter<int>("@FileTypes", fileTypes, "Id");
             sp.AddParameter("@Date", DateTime.UtcNow);
             sp.AddParameter("@OrderNum", mpp.OrderNum);
-            sp.AddParameter("@NumOfRecPeriods", mpp.NumOfRecPeriods);
             sp.AddParameter("@SubscriptionOnly", mpp.SubscriptionOnly);
 
             return sp.ExecuteReturnValue<int>(); ;
         }
 
-        public static DataSet ValidatePricePlan(int groupID, string code, string fullLifeCycle, string viewLifeCycle, string priceCode, 
+        public static DataSet ValidatePricePlan(int groupID, string code, string fullLifeCycle, string viewLifeCycle, string priceCode,
             ApiObjects.eIngestAction action)
         {
             StoredProcedure sp = new StoredProcedure("ValidatePricePlan");
@@ -1158,6 +1156,44 @@ namespace DAL
                 HandleException(string.Empty, ex);
             }
             return 0;
+        }
+
+        public static DataSet ValidatePPV(int groupID, string code, string priceCode, string pricePlan, string discount, string groupCoupon, ApiObjects.eIngestAction action)
+        {
+            StoredProcedure sp = new StoredProcedure("ValidatePPV");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@Name", code);
+            sp.AddParameter("@priceCode", priceCode);
+            sp.AddParameter("@pricePlan", pricePlan);
+            sp.AddParameter("@discount", discount);
+            sp.AddParameter("@groupCoupon", groupCoupon);
+            sp.AddParameter("@Action", (int)action);
+
+            return sp.ExecuteDataSet();
+        }
+
+        public static int UpdatePPV(int groupID, ApiObjects.IngestBusinessModules.IngestPPV ppv)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static int InsertPPV(int groupID, ApiObjects.IngestBusinessModules.IngestPPV ppv, int priceCodeID, int pricePlanID, int discountID, int groupCouponID)
+        {
+            StoredProcedure sp = new StoredProcedure("Insert_PPVModule");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@Name", ppv.Code);
+            sp.AddParameter("@priceCode", priceCodeID);
+            sp.AddParameter("@pricePlan", pricePlanID);
+            sp.AddParameter("@discount", discountID);
+            sp.AddParameter("@groupCoupon", groupCouponID);
+            sp.AddParameter("@subscriptionOnly", ppv.SubscriptionOnly);
+            sp.AddParameter("@firstDeviceLimitation", ppv.FirstDeviceLimitation);
+            sp.AddParameter("@productCode", ppv.ProductCode);
+            sp.AddParameter("@Date", DateTime.UtcNow);
+
+            return sp.ExecuteReturnValue<int>();
         }
     }
 }
