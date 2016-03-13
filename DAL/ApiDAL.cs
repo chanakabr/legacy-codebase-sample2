@@ -1673,7 +1673,7 @@ namespace DAL
         {
             // Perform stored procedure
 
-            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_User_ParentalRules");
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_User_ParentalRules_Base_ALT");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
             storedProcedure.AddParameter("@GroupID", groupId);
             storedProcedure.AddParameter("@SiteGuid", siteGuid);
