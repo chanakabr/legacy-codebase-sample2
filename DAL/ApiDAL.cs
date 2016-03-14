@@ -1673,7 +1673,7 @@ namespace DAL
         {
             // Perform stored procedure
 
-            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_User_ParentalRules_Base_ALT");
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_User_ParentalRules");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
             storedProcedure.AddParameter("@GroupID", groupId);
             storedProcedure.AddParameter("@SiteGuid", siteGuid);
@@ -1896,7 +1896,7 @@ namespace DAL
 
         public static List<ParentalRule> Get_ParentalMediaRules(int groupId, string siteGuid, long mediaId, long domainId)
         {
-            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_ParentalMediaRules_ALT");
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_ParentalMediaRules");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
             storedProcedure.AddParameter("@GroupID", groupId);
             storedProcedure.AddParameter("@SiteGuid", siteGuid);
