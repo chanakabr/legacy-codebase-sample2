@@ -12,13 +12,13 @@ namespace ApiObjects
 
         public string ViewLifeCycle { get; set; }
 
-        public string MaxViews { get; set; }
+        public int MaxViews { get; set; }
 
         public string PriceCode { get; set; }
 
         public bool IsRenewable { get; set; }
 
-        public string RecurringPeriods { get; set; }
+        public int RecurringPeriods { get; set; }
 
         public bool IsActive { get; set; }
     }
