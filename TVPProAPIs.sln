@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TVPApiModule", "Libs\TVPApi
 EndProject
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "WS_TVPApi", "WS_TVPApi\", "{A23A04F3-7BDF-4AE4-9911-42BFA1232F54}"
 	ProjectSection(WebsiteProperties) = preProject
-		TargetFrameworkMoniker = ".NETFramework,Version%3Dv3.5"
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.5"
 		ProjectReferences = "{5D400DB4-C756-4B5C-8359-FE55084043F4}|iucon.web.Controls.PartialUpdatePanel.dll;{B7DDD3F9-1844-41B1-AE65-68CFE6F95915}|Tvinci.Configuration.dll;{B76F07E3-91C2-44A7-B80B-EB60BFB07825}|Tvinci.Helpers.dll;{C14818ED-F1A0-4CDB-85DF-4F8018F60C31}|Tvinci.Data.DataLoader.dll;{209EE212-3A89-4966-951E-0173DCC76BB0}|Tvinci.Data.Loaders.dll;{3C8A6707-CEFB-40E2-9E8F-9D94BDF6A10C}|TVPPro.Configuration.dll;{BEAD66E3-143B-4C83-9352-50AFB0AA62FA}|Tvinci.Data.TVMDataLoader.dll;{D9C9D8FA-3215-4E73-8765-D573DA24D6BE}|Tvinci.Performance.dll;{53D79E6C-FE76-40FD-8C8E-6256D9DE79A3}|Tvinci.Helpers.Link.dll;{E53BAE81-A07C-4112-A42D-4E899D6A52FC}|Tvinci.Localization.dll;{9C98DB15-9EFB-47A4-8BE1-9BB873518E8C}|Tvinci.MultiClient.dll;{9D2ABB52-E0A0-4DFA-9E24-7E0B98D3557D}|TVinci.TimePeriod.dll;{6409DA6B-D48D-43A2-9217-02B25D4ED5E3}|Tvinci.Web.Controls.dll;{2da122e7-8c17-49bc-8f28-108a4ed741e4}|TVPApiModule.dll;{1df66db2-d5d1-4b31-a7a0-5beb650da85f}|TVPPro.SiteManager.dll;{E4F95CCC-2127-4A5C-90BB-D60A446BEC3B}|QueueWrapper.dll;{48cb3b25-623b-4500-8e88-2e77a7074238}|ODBCWrapper.dll;"
 		Debug.AspNetCompiler.VirtualPath = "/WS_TVPApi"
 		Debug.AspNetCompiler.PhysicalPath = "WS_TVPApi\"
