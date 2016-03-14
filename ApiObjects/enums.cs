@@ -216,7 +216,7 @@ namespace ApiObjects
         SOCIAL,
         CONDITIONALACCESS,
         CATALOG,
-        NOTIFICATION,
+        NOTIFICATIONS,
         REMOTETASK
     }
 
@@ -393,6 +393,9 @@ namespace ApiObjects
     public enum eHouseholdPaymentGatewaySelectedBy
     {
         [EnumMember]
+        None,
+
+        [EnumMember]
         Account,
 
         [EnumMember]
@@ -432,7 +435,8 @@ namespace ApiObjects
     [Serializable]
     public enum eSetupTask
     {
-        BuildIPToCountry
+        BuildIPToCountry,
+        InitializeFreeItemUpdateQueue
     }
 
 
@@ -503,5 +507,42 @@ namespace ApiObjects
     {
         Delete,
         Add
+    }
+
+    public enum eAnnouncementRecipientsType
+    {
+        All = 0,
+        LoggedIn = 1,
+        Guests = 2,
+        Other = 3
+    }
+
+    public enum eMessageType
+    {
+        Push = 0,
+        Mail = 1,
+        Inbox = 2
+    }
+
+    public enum eUserMessageAction
+    {
+        Login = 0,
+        Logout = 1,
+        AnonymousPushRegistration = 2,
+        IdentifyPushRegistration = 3,
+        DeleteUser = 4,
+        ChangeUsers = 5
+    }
+
+    public enum eAnnouncementStatus
+    {
+        [EnumMember]
+        NotSent = 0,
+        [EnumMember]
+        Sending = 1,
+        [EnumMember]
+        Sent = 2,
+        [EnumMember]
+        Aborted = 3
     }
 }

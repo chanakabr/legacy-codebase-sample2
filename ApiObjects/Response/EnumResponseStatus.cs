@@ -101,6 +101,7 @@ namespace ApiObjects.Response
         FileToMediaMismatch = 3028,
         ReconciliationFrequencyLimitation = 3029,
         InvalidCustomDataIdentifier = 3030,
+        InvalidFileType = 3031,
 
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,
@@ -196,9 +197,31 @@ namespace ApiObjects.Response
         PaymentGatewayAdapterFailReasonUnknown = 6045,
         NoPartnerConfigurationToUpdate = 6046,
         NoConfigurationValueToUpdate = 6047,
+        PaymentMethodNotSetForHousehold = 6048,
+        PaymentMethodNotExist = 6049,
+        PaymentMethodIdRequired = 6050,
+        PaymentMethodExternalIdRequired = 6051,
+        ErrorSavingPaymentGatewayHouseholdPaymentMethod = 6052,        
+        PaymentMethodAlreadySetToHouseholdPaymentGateway = 6054,
+        PaymentMethodNameRequired = 6055,
+        PaymentGatewayNotSupportPaymentMethod = 6056,        
 
         // social 7000 - 7999
         Conflict = 7000,
-        MinFriendsLimitation = 7001
+        MinFriendsLimitation = 7001,
+
+        // notification 8000-899
+        NoNotificationSettingsSent = 8000,
+        PushNotificationFalse = 8001, //"push notification false can't comabin with push system announcements true";
+        NoNotificationPartnerSettings = 8002,
+        NoNotificationSettings = 8003,        
+        AnnouncementMessageIsEmpty = 8004,
+        AnnouncementInvalidStartTime = 8005,
+        AnnouncementNotFound = 8006,
+        AnnouncementUpdateNotAllowed = 8007,
+        AnnouncementInvalidTimezone = 8008,
+        FeatureDisabled = 8009,
+        AnnouncementMessageTooLong = 8010,
+        FailCreateAnnouncement = 8011
     }
 }

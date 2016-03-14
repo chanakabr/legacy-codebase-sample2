@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ApiObjects</RootNamespace>
     <AssemblyName>ApiObjects</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -31,6 +31,7 @@
     <IsWebBootstrapper>true</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -41,6 +42,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -50,9 +52,11 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Basic|AnyCPU'">
     <OutputPath>bin\Basic\</OutputPath>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Local|AnyCPU'">
     <OutputPath>bin\Local\</OutputPath>
@@ -62,10 +66,12 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\External\net35\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\tvincicommon\External\Couchbase-2.2.5\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -89,7 +95,21 @@
     <Compile Include="AdminAccountObj.cs" />
     <Compile Include="AdminAccountUserObj.cs" />
     <Compile Include="AdminAccountUserResponse.cs" />
+    <Compile Include="Billing\HouseholdPaymentMethod.cs" />
+    <Compile Include="Billing\PaymentGatewayHouseholdPaymentMethod.cs" />
+    <Compile Include="Billing\PaymentGatewayListResponse.cs" />
+    <Compile Include="Billing\PaymentGatewayAssociate.cs" />
+    <Compile Include="Billing\PaymentMethod.cs" />
     <Compile Include="DevicePinResponse.cs" />
+    <Compile Include="Notification\Announcement.cs" />
+    <Compile Include="Notification\AnnouncementSubscription.cs" />
+    <Compile Include="Notification\DeviceNotificationData.cs" />
+    <Compile Include="Notification\NotificationPartnerSettings.cs" />
+    <Compile Include="Notification\NotificationPartnerSettingsResponse.cs" />
+    <Compile Include="Notification\NotificationSettings.cs" />
+    <Compile Include="Notification\NotificationSettingsResponse.cs" />
+    <Compile Include="Notification\UserDevice.cs" />
+    <Compile Include="Notification\UserNotification.cs" />
     <Compile Include="PersonalEnrichments\AssetFiles.cs" />
     <Compile Include="Billing\HouseholdPaymentGatewayResponse.cs" />
     <Compile Include="Billing\HouseholdPaymentGateway.cs" />
@@ -122,10 +142,16 @@
     <Compile Include="MessageQueue.cs" />
     <Compile Include="ExternalChannel\ExternalChannelResponse.cs" />
     <Compile Include="ExternalChannel\ExternalChannelResponseList.cs" />
+    <Compile Include="PersonalEnrichments\UserBundlesResponse.cs" />
+    <Compile Include="PersonalEnrichments\UserPurhcasedAssetsResponse.cs" />
+    <Compile Include="QueueObjects\FreeItemUpdateData.cs" />
     <Compile Include="OSSAdapter\OSSAdapterEntitlementsResponse.cs" />
+    <Compile Include="PlayCycle\UserPlayCycle.cs" />
     <Compile Include="PurchaseSessionIdResponse.cs" />
     <Compile Include="QueueObjects\ImageUploadData.cs" />
     <Compile Include="QueueObjects\ExportTaskData.cs" />
+    <Compile Include="QueueObjects\MessageAnnouncementData.cs" />
+    <Compile Include="QueueObjects\UserNotificationData.cs" />
     <Compile Include="RecommendationEngine\RecommendationEngineResponse.cs" />
     <Compile Include="RecommendationEngine\RecommendationEngineResponseList.cs" />
     <Compile Include="RecommendationEngine\RecommendationEngineSettinsResponse.cs" />
@@ -262,6 +288,8 @@
     <Compile Include="RequestObj.cs" />
     <Compile Include="Response\EnumResponseStatus.cs" />
     <Compile Include="Rules\PurchaseSettingsResponse.cs" />
+    <Compile Include="Rules\RegistryResponse.cs" />
+    <Compile Include="Rules\RegistrySettings.cs" />
     <Compile Include="Scheduling.cs" />
     <Compile Include="SearchDefinitionObject.cs" />
     <Compile Include="SearchObjects\BaseSearchObject.cs" />
@@ -271,6 +299,7 @@
     <Compile Include="SearchObjects\ChannelContainObj.cs" />
     <Compile Include="SearchObjects\ChannelContainSearchObj.cs" />
     <Compile Include="SearchObjects\ChannelObj.cs" />
+    <Compile Include="SearchObjects\EntitlementSearchDefinitions.cs" />
     <Compile Include="SearchObjects\EpgParams.cs" />
     <Compile Include="SearchObjects\EpgResultsObj.cs" />
     <Compile Include="SearchObjects\EpgSearchObj.cs" />

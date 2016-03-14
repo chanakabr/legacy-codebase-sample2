@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>AdapterControllers</RootNamespace>
     <AssemblyName>AdapterControllers</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,15 +30,15 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Jil">
+      <HintPath>..\..\tvincicommon\External\Jil.dll</HintPath>
+    </Reference>
     <Reference Include="KLogMonitor, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\tvincicommon\External\3.5\KLogMonitor.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\External\net35\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\tvincicommon\External\4.5\KLogMonitor.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -88,7 +89,20 @@
     <None Include="Service References\RecommendationEngineAdapter\AdapterControllers.RecommendationEngineAdapter.RecommendationsResult.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
+    <None Include="Service References\RecommendationEngineAdapter\Service.wsdl" />
+    <None Include="Service References\RecommendationEngineAdapter\Service.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\RecommendationEngineAdapter\Service1.wsdl" />
+    <None Include="Service References\RecommendationEngineAdapter\Service1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\RecommendationEngineAdapter\Service2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\RecommendationEngineAdapter\Service3.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\RecommendationEngineAdapter\Service4.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -102,6 +116,9 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\RecommendationEngineAdapter\Service44.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\RecommendationEngineAdapter\Service5.xsd">
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
@@ -122,6 +139,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\RecommendationEngineAdapter\Service1.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\RecommendationEngineAdapter\Service.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

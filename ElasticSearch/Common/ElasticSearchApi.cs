@@ -552,7 +552,7 @@ namespace ElasticSearch.Common
                         {
                             lResult = jToken.Select(item =>
                             {
-                                return (string)item.SelectToken(".");
+                                return (string)item.ToString();
                             }
                             ).ToList();
                         }
@@ -968,6 +968,12 @@ namespace ElasticSearch.Common
                 set;
             }
             public int media_type_id
+            {
+                get;
+                set;
+            }
+
+            public string epg_identifier
             {
                 get;
                 set;

@@ -14,9 +14,6 @@ namespace Catalog.Response
     [DataContract]
     public class UnifiedSearchExternalResponse : UnifiedSearchResponse
     {
-        [DataMember]
-        public string requestId;
-
         public UnifiedSearchExternalResponse()
             : base()
         {           

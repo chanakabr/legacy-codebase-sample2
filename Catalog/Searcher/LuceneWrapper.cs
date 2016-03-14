@@ -9,6 +9,7 @@ using ApiObjects;
 using Catalog.Response;
 using KLogMonitor;
 using System.Reflection;
+using GroupsCacheManager;
 
 namespace Catalog
 {
@@ -285,7 +286,7 @@ namespace Catalog
 
         #region ISearcher Methods
 
-        public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearch, ref int totalItems)
+        public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearch, ref int totalItems, ref int to)
         {
             throw new NotImplementedException();
         }
@@ -304,6 +305,11 @@ namespace Catalog
         {
             throw new NotImplementedException();
         } 
+
+        public List<int> GetEntitledEpgLinearChannels(Group group, UnifiedSearchDefinitions definitions)
+        {
+            throw new NotImplementedException();
+        }
 
         #endregion
     }

@@ -2,9 +2,11 @@
 using ApiObjects.BulkExport;
 using ApiObjects.MediaMarks;
 using ApiObjects.Roles;
+using ApiObjects.Rules;
 using CouchbaseManager;
 using KLogMonitor;
 using Newtonsoft.Json;
+using ODBCWrapper;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -541,10 +543,10 @@ namespace DAL
             ret.nMediaID = nMediaID;
             ret.sSiteGUID = sSiteGUID;
 
-            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);//CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
             string docKey = UtilsDal.getUserMediaMarkDocKey(nUserID, nMediaID);
 
-            var data = m_oClient.Get<string>(docKey);
+            var data = cbManager.Get<string>(docKey);
             bool bContunueWithCB = (!string.IsNullOrEmpty(data)) ? true : false;
 
             if (bContunueWithCB)
@@ -971,11 +973,13 @@ namespace DAL
             int nSiteGuid = 0;
             int.TryParse(sSiteGuid, out nSiteGuid);
 
-            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
 
-            var res = m_oClient.GetView<MediaMarkLog>(CB_MEDIA_MARK_DESGIN, "users_watch_history", true)
-                                            .StartKey(new object[] { nSiteGuid, 0 })
-                                            .EndKey(new object[] { nSiteGuid, string.Empty });
+            var res = cbManager.View<MediaMarkLog>(new ViewManager(CB_MEDIA_MARK_DESGIN, "users_watch_history")
+            {
+                startKey = new object[] { nSiteGuid, 0 },
+                endKey = new object[] { nSiteGuid, string.Empty }
+            });
 
             List<MediaMarkLog> sortedMediaMarksList = res.ToList().OrderByDescending(x => x.LastMark.CreatedAt).ToList();
 
@@ -1027,15 +1031,21 @@ namespace DAL
                 int nSiteGuid = 0;
                 int.TryParse(siteGuid, out nSiteGuid);
 
-                var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+                var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
 
                 if (lMediaIDs.Count == 0)
                 {
-                    var res = m_oClient.GetView<MediaMarkLog>(CB_MEDIA_MARK_DESGIN, "users_watch_history", true)
-                                            .StartKey(new object[] { nSiteGuid, 0 })
-                                            .EndKey(new object[] { nSiteGuid, string.Empty });
+                    var view = new ViewManager(CB_MEDIA_MARK_DESGIN, "users_watch_history")
+                    {
+                        startKey = new object[] { nSiteGuid, 0 },
+                        endKey = new object[] { nSiteGuid, string.Empty },
+                        shouldLookupById = true
+                    };
+                    
+                    var res = cbManager.View<string>(view);
 
-                    List<MediaMarkLog> sortedMediaMarksList = res.ToList();
+                    // deserialize string to MediaMarkLog
+                    List<MediaMarkLog> sortedMediaMarksList = res.Select(current => JsonConvert.DeserializeObject<MediaMarkLog>(current)).ToList();
 
                     if (sortedMediaMarksList != null && sortedMediaMarksList.Count > 0)
                     {
@@ -1047,7 +1057,9 @@ namespace DAL
                 foreach (int nMediaID in lMediaIDs)
                 {
                     string sDcoKey = UtilsDal.getUserMediaMarkDocKey(nSiteGuid, nMediaID);
-                    retVal = m_oClient.Remove(sDcoKey);
+
+                    // Irena - make sure doc type is right
+                    retVal = cbManager.Remove(sDcoKey);
                     Thread.Sleep(r.Next(50));
                     if (!retVal)
                     {
@@ -1661,7 +1673,7 @@ namespace DAL
         {
             // Perform stored procedure
 
-            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_User_ParentalRules");
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_User_ParentalRules_Base_ALT");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
             storedProcedure.AddParameter("@GroupID", groupId);
             storedProcedure.AddParameter("@SiteGuid", siteGuid);
@@ -1884,7 +1896,7 @@ namespace DAL
 
         public static List<ParentalRule> Get_ParentalMediaRules(int groupId, string siteGuid, long mediaId, long domainId)
         {
-            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_ParentalMediaRules");
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_ParentalMediaRules_ALT");
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
             storedProcedure.AddParameter("@GroupID", groupId);
             storedProcedure.AddParameter("@SiteGuid", siteGuid);
@@ -2774,18 +2786,19 @@ namespace DAL
         {
             List<MessageQueue> messageQueues = new List<MessageQueue>();
 
-            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.SCHEDULED_TASKS);
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.SCHEDULED_TASKS);
 
             foreach (string messageDataType in messageDataTypes)
             {
                 try
                 {
                     // get views
-                    messageQueues.AddRange(m_oClient.GetView<MessageQueue>(CB_MESSAGE_QUEUE_DESGIN, "queue_messages", true)
-                                                  .StartKey(new object[] { messageDataType.ToLower(), baseDateSec })
-                                                  .EndKey(new object[] { messageDataType.ToLower(), DateTimeToUnixTimestamp(DateTime.MaxValue) })
-                                                  .Stale(Couchbase.StaleMode.False).ToList());
-
+                    messageQueues.AddRange(cbManager.View<MessageQueue>(new ViewManager(CB_MESSAGE_QUEUE_DESGIN, "queue_messages")
+                    {
+                        startKey = new object[] { messageDataType.ToLower(), baseDateSec },
+                        endKey = new object[] { messageDataType.ToLower(), DateTimeToUnixTimestamp(DateTime.MaxValue) },
+                        staleState =  ViewStaleState.False
+                    }));
                 }
                 catch (Exception ex)
                 {
@@ -3234,6 +3247,82 @@ namespace DAL
             }
 
             return result;
+        }
+
+        public static List<RegistrySettings> GetAllRegistry(int groupID)
+        {
+            List<RegistrySettings> result = null;
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Get_AllRegistry");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows!= null && ds.Tables[0].Rows.Count > 0)
+                {
+                    result = new List<RegistrySettings>();
+                    RegistrySettings registrySetting;
+                    foreach (DataRow dr in ds.Tables[0].Rows)
+                    {
+                        registrySetting = new RegistrySettings();
+                        registrySetting.key = ODBCWrapper.Utils.GetSafeStr(dr, "key");
+                        registrySetting.value = ODBCWrapper.Utils.GetSafeStr(dr, "value");
+                        result.Add(registrySetting);
+                    }
+                   
+                    return result;
+                }
+                return new  List<RegistrySettings>();
+            }
+            catch (Exception ex)
+            {
+                return new List<RegistrySettings>();
+            }
+        }
+
+        public static List<KeyValuePair<int, DateTime>> GetFreeItemsToInitialize(int groupId, ref int mediaFileIDMin)
+        {
+            List<KeyValuePair<int, DateTime>> itemsToInitialize = null;
+            ODBCWrapper.StoredProcedure spGetMediasByPPVModuleID = new ODBCWrapper.StoredProcedure("Get_FreeItemsToInitialize");
+            spGetMediasByPPVModuleID.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spGetMediasByPPVModuleID.AddParameter("@GroupID", groupId);
+            spGetMediasByPPVModuleID.AddParameter("@MediaFileIDMin", mediaFileIDMin);
+
+            DataTable dt = spGetMediasByPPVModuleID.Execute();
+
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                itemsToInitialize = new List<KeyValuePair<int, DateTime>>();
+                foreach (DataRow dr in dt.Rows)
+                {
+                    int mediaID = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_id");
+                    mediaFileIDMin = ODBCWrapper.Utils.GetIntSafeVal(dr, "id");
+                    if (mediaID > 0)
+                    {
+                        DateTime? mediaFileStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "media_file_start_date");
+                        DateTime? mediaFileEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "media_file_end_date");
+                        DateTime? ppvModuleMediaFileStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "ppv_module_media_file_start_date");
+                        DateTime? ppvModuleMediaFileEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "ppv_module_media_file_end_date");
+                        if (mediaFileStartDate.HasValue && mediaFileStartDate.Value > DateTime.UtcNow && mediaFileStartDate.Value <= DateTime.UtcNow.AddYears(2))
+                        {
+                            itemsToInitialize.Add(new KeyValuePair<int,DateTime>(mediaID, mediaFileStartDate.Value));
+                        }
+                        if (mediaFileEndDate.HasValue && mediaFileEndDate.Value > DateTime.UtcNow && mediaFileEndDate.Value <= DateTime.UtcNow.AddYears(2))
+                        {
+                            itemsToInitialize.Add(new KeyValuePair<int,DateTime>(mediaID, mediaFileEndDate.Value));
+                        }
+                        if (ppvModuleMediaFileStartDate.HasValue && ppvModuleMediaFileStartDate.Value > DateTime.UtcNow && ppvModuleMediaFileStartDate.Value <= DateTime.UtcNow.AddYears(2))
+                        {
+                            itemsToInitialize.Add(new KeyValuePair<int,DateTime>(mediaID, ppvModuleMediaFileStartDate.Value));
+                        }
+                        if (ppvModuleMediaFileEndDate.HasValue && ppvModuleMediaFileEndDate.Value > DateTime.UtcNow && ppvModuleMediaFileEndDate.Value <= DateTime.UtcNow.AddYears(2))
+                        {
+                            itemsToInitialize.Add(new KeyValuePair<int,DateTime>(mediaID, ppvModuleMediaFileEndDate.Value));
+                        }
+                    }
+                }                
+            }
+            return itemsToInitialize;
         }
     }
 }

@@ -429,15 +429,14 @@ namespace ODBCWrapper
             }
         }
 
-
-        static public DateTime GetDateSafeVal(object o)
+        static public DateTime GetDateSafeVal(object o, string format = "M/dd/yyyy h:mm:ss tt")
         {
             try
             {
                 if (o != null && o != DBNull.Value)
                 {
                     DateTime dt = new DateTime();
-                    string format = "M/dd/yyyy h:mm:ss tt";
+                    //string format = "M/dd/yyyy h:mm:ss tt";
                     //string format = "dd/MM/yyyy HH:mm:ss";
 
                     if (DateTime.TryParseExact(o.ToString(), format, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out dt))
@@ -720,6 +719,37 @@ namespace ODBCWrapper
             return (long)(dateTime - new DateTime(1970, 1, 1).ToUniversalTime()).TotalMilliseconds;
         }
 
+        public static DateTime UnixTimestampToDateTime(long timestamp)
+        {
+            DateTime origin = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            return origin.AddSeconds(timestamp);
+        }
+
+        public static long DateTimeToUnixTimestampUtc(DateTime dateTime)
+        {
+            return (long)(dateTime - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+        }
+
+        public static DateTime ConvertToUtc(DateTime time, string timezone)
+        {
+            DateTime unspecifiedKindTime = new DateTime(time.Year, time.Month, time.Day, time.Hour,
+                                             time.Minute, time.Second, DateTimeKind.Unspecified);
+
+            TimeZoneInfo tst = TimeZoneInfo.FindSystemTimeZoneById(timezone);
+
+            return TimeZoneInfo.ConvertTimeToUtc(unspecifiedKindTime, tst);
+        }
+
+        public static DateTime ConvertFromUtc(DateTime time, string timezone)
+        {
+            DateTime unspecifiedKindTime = new DateTime(time.Year, time.Month, time.Day, time.Hour,
+                                             time.Minute, time.Second, DateTimeKind.Utc);
+
+            TimeZoneInfo tst = TimeZoneInfo.FindSystemTimeZoneById(timezone);
+
+            return TimeZoneInfo.ConvertTimeFromUtc(unspecifiedKindTime, tst);
+        }
+
         public static SqlQueryInfo GetSqlDataMonitor(SqlCommand command)
         {
             SqlQueryInfo sqlInfo = new SqlQueryInfo();
@@ -815,6 +845,42 @@ namespace ODBCWrapper
 
             selectQuery.Finish();
             selectQuery = null;
+
+            return result;
+        }
+
+        public static DataRow GetTableSingleRowColumnsByParamValue(string tableName, string paramName, string paramID, List<string> columnsToFetch, string connectionKey = "", int timeInCache = -1)
+        {
+            DataRow result = null;
+            if (columnsToFetch != null && columnsToFetch.Count > 0)
+            {                
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+
+                if (timeInCache != -1)
+                {
+                    selectQuery.SetCachedSec(timeInCache);
+                }
+
+                if (!string.IsNullOrEmpty(connectionKey))
+                {
+                    selectQuery.SetConnectionKey(connectionKey);
+                }
+                selectQuery += string.Format("SELECT {0} FROM " + tableName + " WHERE ", string.Join(",", columnsToFetch));                
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM(paramName, "=", paramID);
+
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    var table = selectQuery.Table("query");
+
+                    if (table != null && table.DefaultView.Count > 0 && table.Rows != null && table.Rows.Count > 0)
+                    {
+                        result = table.Rows[0];
+                    }
+                }
+
+                selectQuery.Finish();
+                selectQuery = null;
+            }
 
             return result;
         }

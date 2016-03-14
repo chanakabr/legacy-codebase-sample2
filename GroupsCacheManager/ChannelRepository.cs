@@ -46,6 +46,10 @@ namespace GroupsCacheManager
                 GetGroupServices(ref newGroup);
 
                 SetGroupDefaults(newGroup);
+
+                newGroup.GetMediaTypes();
+
+                SetMediaFileTypes(newGroup);
             }
 
             //get all PermittedWatchRules by groupID
@@ -229,6 +233,27 @@ namespace GroupsCacheManager
         }
 
         /// <summary>
+        /// Initializes the mapping of the table groups_media_type
+        /// </summary>
+        /// <param name="group"></param>
+        private static void SetMediaFileTypes(Group group)
+        {
+            if (group.groupMediaFileTypeToFileType == null)
+            {
+                group.groupMediaFileTypeToFileType = new Dictionary<int, int>();
+            }
+
+            DataTable table = Tvinci.Core.DAL.CatalogDAL.GetGroupsMediaType(group.GetSubTreeGroupIds());
+
+            foreach (DataRow groupMediaFile in table.Rows)
+            {
+                group.groupMediaFileTypeToFileType.Add(
+                    ODBCWrapper.Utils.ExtractInteger(groupMediaFile, "ID"),
+                    ODBCWrapper.Utils.ExtractInteger(groupMediaFile, "MEDIA_TYPE_ID"));
+            }
+        }
+
+        /// <summary>
         /// Selects the channel by channel ID and its parent group ID
         /// </summary>
         /// <param name="nChannelId"></param>
@@ -379,6 +404,8 @@ namespace GroupsCacheManager
                 int orderDirection = ODBCWrapper.Utils.GetIntSafeVal(rowData["order_by_dir"]) - 1;
                 channel.m_OrderObject.m_eOrderDir =
                     (ApiObjects.SearchObjects.OrderDir)ApiObjects.SearchObjects.OrderDir.ToObject(typeof(ApiObjects.SearchObjects.OrderDir), orderDirection);
+                channel.m_OrderObject.m_bIsSlidingWindowField = ODBCWrapper.Utils.GetIntSafeVal(rowData["IsSlidingWindow"]) == 1;
+                channel.m_OrderObject.lu_min_period_id = ODBCWrapper.Utils.GetIntSafeVal(rowData["SlidingWindowPeriod"]);
 
                 #endregion
 

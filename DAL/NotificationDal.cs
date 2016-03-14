@@ -4,6 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Data;
 using Tvinci.Core.DAL;
+using ApiObjects.Notification;
+using CouchbaseManager;
+using Newtonsoft.Json;
+using KLogMonitor;
+using System.Reflection;
+using ApiObjects;
 
 
 namespace DAL
@@ -13,18 +19,27 @@ namespace DAL
     /// </summary>
     public class NotificationDal : BaseDal
     {
-        #region Consts
         private const string SP_INSERT_NOTIFICATION_REQUEST = "InsertNotifictaionRequest";
         private const string SP_GET_NOTIFICATION_REQUESTS = "GetNotifictaionRequests";
         private const string SP_UPDATE_NOTIFICATION_REQUEST_STATUS = "UpdateNotificationRequestStatus";
-        private const string SP_GET_NOTIFICATION_BY_GROUP_AND_TRIGGER_TYPE = "GetNotifictaionByGroupAndTriggerType";    
+        private const string SP_GET_NOTIFICATION_BY_GROUP_AND_TRIGGER_TYPE = "GetNotifictaionByGroupAndTriggerType";
         private const string SP_IS_NOTIFICATION_EXIST = "IsNotifictaionExist";
-        private const string SP_GET_DEVICE_NOTIFICATION= "GetDeviceNotification";
+        private const string SP_GET_DEVICE_NOTIFICATION = "GetDeviceNotification";
         private const string SP_UPDATE_NOTIFICATION_MESSAGE_VIEW_STATUS = "UpdateNotificationMessageViewStatus";
-        #endregion
 
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.STATISTICS);
 
-        #region public Methods
+        private static string GetDeviceDataKey(int groupId, string udid)
+        {
+            return string.Format("device_data_{0}_{1}", groupId, udid);
+        }
+
+        private static string GetUserNotificationKey(int groupId, int userId)
+        {
+            return string.Format("user_notification_{0}_{1}", groupId, userId);
+        }
+
         /// <summary>
         /// Insert one notification request to notifications_requests table
         /// by calling InsertNotifictaionRequest stored procedure.
@@ -39,12 +54,12 @@ namespace DAL
             ODBCWrapper.StoredProcedure spInsertNotificationRequest = new ODBCWrapper.StoredProcedure(SP_INSERT_NOTIFICATION_REQUEST);
             spInsertNotificationRequest.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
 
-            spInsertNotificationRequest.AddParameter("@notification_request_type" , requestType); 
-            spInsertNotificationRequest.AddParameter("@group_id" , groupID); 
+            spInsertNotificationRequest.AddParameter("@notification_request_type", requestType);
+            spInsertNotificationRequest.AddParameter("@group_id", groupID);
             spInsertNotificationRequest.AddParameter("@user_id", userID);
-            spInsertNotificationRequest.AddParameter("@notification_id" , notificationID);
+            spInsertNotificationRequest.AddParameter("@notification_id", notificationID);
             spInsertNotificationRequest.AddParameter("@triggerType", triggerType);
-            spInsertNotificationRequest.AddParameter("@status", status);    
+            spInsertNotificationRequest.AddParameter("@status", status);
 
             DataTable dt = spInsertNotificationRequest.Execute();
         }
@@ -60,7 +75,7 @@ namespace DAL
         /// <param name="userID"></param>
         /// <param name="notificationID"></param>
         /// <param name="status"></param>
-        public static DataSet GetNotificationRequests(int? topRowsNumber,long groupID, long? notificationIRequestID, byte? status)
+        public static DataSet GetNotificationRequests(int? topRowsNumber, long groupID, long? notificationIRequestID, byte? status)
         {
             ODBCWrapper.StoredProcedure spGetNotificationRequests = new ODBCWrapper.StoredProcedure(SP_GET_NOTIFICATION_REQUESTS);
             spGetNotificationRequests.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -69,9 +84,9 @@ namespace DAL
             spGetNotificationRequests.AddParameter("@groupID", groupID);
             spGetNotificationRequests.AddNullableParameter<long?>("@notificationRequestID", notificationIRequestID);
             spGetNotificationRequests.AddNullableParameter<byte?>("@status", status);
-                       
+
             DataSet ds = spGetNotificationRequests.ExecuteDataSet();
-            return ds;  
+            return ds;
         }
 
         /// <summary>
@@ -81,14 +96,14 @@ namespace DAL
         /// <param name="requestsIDsList"></param>
         /// <param name="status"></param>
         public static void UpdateNotificationRequestStatus(List<long> requestsIDsList, byte status)
-        {            
+        {
             ODBCWrapper.StoredProcedure spUpdateNotificationRequestStatus = new ODBCWrapper.StoredProcedure(SP_UPDATE_NOTIFICATION_REQUEST_STATUS);
             spUpdateNotificationRequestStatus.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             spUpdateNotificationRequestStatus.AddIDListParameter<long>("@requestsIDs", requestsIDsList, "id");
-            spUpdateNotificationRequestStatus.AddParameter("@status",status);
+            spUpdateNotificationRequestStatus.AddParameter("@status", status);
             DataTable dt = spUpdateNotificationRequestStatus.Execute();
         }
-               
+
         /// <summary>
         /// Calls IsNotifictaionExist stored procedure to check if a notification
         /// exists in notifications table according to group id and trigger type.
@@ -96,7 +111,7 @@ namespace DAL
         /// <param name="groupID"></param>
         /// <param name="triggerType"></param>
         /// <returns></returns>
-        public static bool IsNotificationExist(long groupID, int triggerType) 
+        public static bool IsNotificationExist(long groupID, int triggerType)
         {
             ODBCWrapper.StoredProcedure spIsNotificationExist = new ODBCWrapper.StoredProcedure(SP_IS_NOTIFICATION_EXIST);
             spIsNotificationExist.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -126,13 +141,13 @@ namespace DAL
             }
             return null;
         }
-  
+
         public static DataTable GetDeviceNotification(long groupID, long userID, long deviceID, byte? view_status, int? topRowNumber, int? notificationType)
         {
             ODBCWrapper.StoredProcedure spGetDeviceNotification = new ODBCWrapper.StoredProcedure(SP_GET_DEVICE_NOTIFICATION);
             spGetDeviceNotification.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             spGetDeviceNotification.AddParameter("@groupID", groupID);
-            spGetDeviceNotification.AddParameter("@userID", userID);  
+            spGetDeviceNotification.AddParameter("@userID", userID);
             spGetDeviceNotification.AddParameter("@deviceID", deviceID);
             spGetDeviceNotification.AddNullableParameter<byte?>("@viewStatus", view_status);
             spGetDeviceNotification.AddNullableParameter<int?>("@topRowNumber", topRowNumber);
@@ -158,28 +173,27 @@ namespace DAL
             bool result = spUpdateNotificationMessageStatus.ExecuteReturnValue<bool>();
             return result;
         }
-              
+
         public static bool InsertUserNotification(long userID, Dictionary<int, List<int>> tagIDs, int groupID)
         {
             ODBCWrapper.StoredProcedure spInsertUserNotification = new ODBCWrapper.StoredProcedure("InsertUserNotification");
             spInsertUserNotification.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             spInsertUserNotification.AddParameter("@user_id", userID);
-            spInsertUserNotification.AddKeyValueListParameter<int, int>("@TagValuesIDs", tagIDs, "key", "value");           
+            spInsertUserNotification.AddKeyValueListParameter<int, int>("@TagValuesIDs", tagIDs, "key", "value");
             spInsertUserNotification.AddParameter("@group_id", groupID);
-          
+
 
             bool result = spInsertUserNotification.ExecuteReturnValue<bool>();
 
             return result;
         }
-       
 
         public static bool UpdateUserNotification(long userID, Dictionary<int, List<int>> tagIDs, int groupID, int status)
         {
             ODBCWrapper.StoredProcedure spInsertUserNotification = new ODBCWrapper.StoredProcedure("UpdateUserNotification");
             spInsertUserNotification.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             spInsertUserNotification.AddParameter("@user_id", userID);
-            spInsertUserNotification.AddKeyValueListParameter<int, int>("@TagValuesIDs", tagIDs, "key", "value"); 
+            spInsertUserNotification.AddKeyValueListParameter<int, int>("@TagValuesIDs", tagIDs, "key", "value");
             spInsertUserNotification.AddParameter("@group_id", groupID);
             spInsertUserNotification.AddParameter("@status", status);
 
@@ -187,9 +201,9 @@ namespace DAL
 
             return result;
         }
-              
+
         //Insert notification tag request with List of users    
-        public static void InsertNotificationTagRequest(int requestType, long groupID, long notificationID, int status, List<long> usersID, string sExtraParams, int triggerType, int mediaID)        
+        public static void InsertNotificationTagRequest(int requestType, long groupID, long notificationID, int status, List<long> usersID, string sExtraParams, int triggerType, int mediaID)
         {
             ODBCWrapper.StoredProcedure spTagNotification = new ODBCWrapper.StoredProcedure("InsertNotificationTagRequest");
             spTagNotification.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -201,7 +215,7 @@ namespace DAL
             spTagNotification.AddIDListParameter<long>("@users", usersID, "id");
             spTagNotification.AddParameter("@triggerType", triggerType);
             spTagNotification.AddParameter("@mediaID", mediaID);
-            
+
             bool result = spTagNotification.ExecuteReturnValue<bool>();
         }
 
@@ -216,11 +230,11 @@ namespace DAL
             spInsertMessage.AddParameter("@publishDate", publishDate);
             spInsertMessage.AddParameter("@messageVia", notificationMessageType);
             spInsertMessage.AddParameter("@message", message);
-            spInsertMessage.AddIDListParameter<long>("@deviceIds", deviceIds,"Id");
+            spInsertMessage.AddIDListParameter<long>("@deviceIds", deviceIds, "Id");
 
             bool resault = spInsertMessage.ExecuteReturnValue<bool>();
         }
-        
+
         ///Get All Tags + Tags Values related to mediaID 
         ///
         public static DataTable GetTagsNotificationByMedia(int mediaID, int? useCreateDate)
@@ -244,10 +258,10 @@ namespace DAL
         {
             ODBCWrapper.StoredProcedure spGetNotifications = new ODBCWrapper.StoredProcedure("GetNotifictaionsByTags");
             spGetNotifications.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
-            spGetNotifications.AddKeyValueListParameter<int,int>("@TagValuesIDs", tagDict, "key", "value");
+            spGetNotifications.AddKeyValueListParameter<int, int>("@TagValuesIDs", tagDict, "key", "value");
             spGetNotifications.AddParameter("@GroupID", nGroupID);
             spGetNotifications.AddParameter("@triggerType", TriggerType);
-            
+
 
             DataSet ds = spGetNotifications.ExecuteDataSet();
             if (ds != null)
@@ -256,7 +270,7 @@ namespace DAL
             }
             return null;
         }
-        
+
         public static DataTable GetTagsIDsByName(int groupID, Dictionary<string, List<string>> tags)
         {
             ODBCWrapper.StoredProcedure spGetTagsNameByValues = new ODBCWrapper.StoredProcedure("GetTagsIDsByName");
@@ -286,6 +300,7 @@ namespace DAL
             }
             return null;
         }
+
         public static DataTable GetTagsNameByIDs(int groupID, Dictionary<string, List<int>> tags)
         {
             ODBCWrapper.StoredProcedure sGetTagsNameByIDs = new ODBCWrapper.StoredProcedure("GetTagsNameByIDs");
@@ -319,12 +334,12 @@ namespace DAL
         public static DataTable GetUserNotification(int? userID, List<long> notificationIds, int? byUserID, List<long> lUsers)
         {
             ODBCWrapper.StoredProcedure spGetUsers = new ODBCWrapper.StoredProcedure("GetUserNotificationXML");
-            spGetUsers.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");           
+            spGetUsers.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             spGetUsers.AddXMLParameter<long>("@notificationIDs", notificationIds, "Id");
             spGetUsers.AddParameter("@user_id", userID);
             if (byUserID == null)
                 byUserID = 0;
-            spGetUsers.AddParameter("@ByUserID", byUserID);            
+            spGetUsers.AddParameter("@ByUserID", byUserID);
             spGetUsers.AddXMLParameter<long>("@listUsers", lUsers, "Id");
 
             DataSet ds = spGetUsers.ExecuteDataSet();
@@ -335,9 +350,9 @@ namespace DAL
             return null;
 
         }
-        
+
         //return if there is a notification with those values 
-        public static bool IsTagNotificationExists(int groupID ,int triggerType ,string sKey, string sValue)
+        public static bool IsTagNotificationExists(int groupID, int triggerType, string sKey, string sValue)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("IsTagNotificationExists");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -345,12 +360,12 @@ namespace DAL
             sp.AddParameter("@sValue", sValue);
             sp.AddParameter("@groupID", groupID);
             sp.AddParameter("@triggerType", triggerType);
-            
+
             bool result = sp.ExecuteReturnValue<bool>();
             return result;
         }
 
-        public static DataTable GetAllNotificationUserSignIn(List<long> lUserIds, int notificationTriggerType , int groupID)
+        public static DataTable GetAllNotificationUserSignIn(List<long> lUserIds, int notificationTriggerType, int groupID)
         {
             ODBCWrapper.StoredProcedure spGetUsersTags = new ODBCWrapper.StoredProcedure("GetAllNotificationUserSignIn");
             spGetUsersTags.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -365,7 +380,7 @@ namespace DAL
             }
             return null;
         }
-        
+
         public static DataTable GetAllNotification(int nGroupID, int notificationTriggerType)
         {
             ODBCWrapper.StoredProcedure spGetNotifications = new ODBCWrapper.StoredProcedure("GetAllNotifications");
@@ -384,7 +399,7 @@ namespace DAL
         public static DataTable GetRegularChildGroupsStr(int groupID)
         {
             ODBCWrapper.StoredProcedure spGetUsersTags = new ODBCWrapper.StoredProcedure("GetRegularChildGroupsStr");
-            spGetUsersTags.SetConnectionKey("MAIN_CONNECTION_STRING");           
+            spGetUsersTags.SetConnectionKey("MAIN_CONNECTION_STRING");
             spGetUsersTags.AddParameter("@GroupID", groupID);
 
             DataSet ds = spGetUsersTags.ExecuteDataSet();
@@ -393,14 +408,9 @@ namespace DAL
                 return ds.Tables[0];
             }
             return null;
-        }      
+        }
 
-        #endregion
-
-
-
-
-        #region Email Tag Notification 
+        #region Email Tag Notification
 
         public static bool IsMediaNeedToBeNotify(int mediaID)
         {
@@ -421,7 +431,7 @@ namespace DAL
             DataSet ds = spPicProtocol.ExecuteDataSet();
             return ds;
         }
-                
+
         #endregion
 
         public static DataTable Get_MetasByGroup(int group_id)
@@ -449,7 +459,7 @@ namespace DAL
                 return ds.Tables[0];
             return null;
         }
-                
+
         public static DataTable GetFactory(long groupId)
         {
             ODBCWrapper.StoredProcedure spGetUserPhoneNumber = new ODBCWrapper.StoredProcedure("GetFactory");
@@ -461,7 +471,6 @@ namespace DAL
                 return ds.Tables[0];
             return null;
         }
-
 
         public static bool UserSettings(string userID, int is_device, int is_email, int is_sms, int nGroupID, int is_active, int status)
         {
@@ -476,9 +485,9 @@ namespace DAL
             sp.AddParameter("@status", status);
 
             bool result = sp.ExecuteReturnValue<bool>();
-            return result;           
+            return result;
         }
-                
+
         public static DataTable GetNotificationDeviceToSend(List<long> notificationsID)
         {
             ODBCWrapper.StoredProcedure spGetUsersTags = new ODBCWrapper.StoredProcedure("GetNotificationDeviceToSend");
@@ -537,8 +546,6 @@ namespace DAL
             return null;
         }
 
-
-      
         /// <summary>
         /// Update status of several notification requests at notifications_requests table
         /// by calling UpdateNotificationRequestStatus stored procedure. 
@@ -605,7 +612,371 @@ namespace DAL
             sp.AddParameter("@ViewStatus", bytViewStatus);
             return sp.ExecuteReturnValue<int>();
         }
-    
-    
+
+        public static bool UpdateNotificationPartnerSettings(int groupID, bool? push_notification_enabled, bool? push_system_announcements_enabled)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_NotificationPartnerSettings");
+            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            sp.AddParameter("@groupID", groupID);
+            if (push_notification_enabled != null)
+            {
+                sp.AddParameter("@push_notification_enabled", push_notification_enabled);
+            }
+            if (push_system_announcements_enabled != null)
+            {
+                sp.AddParameter("@push_system_announcements_enabled", push_system_announcements_enabled);
+            }
+            sp.AddParameter("@date", DateTime.UtcNow);
+            return sp.ExecuteReturnValue<bool>();
+        }
+
+        public static DataRow GetNotificationPartnerSettings(int groupID)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_NotificationPartnerSettings");
+            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            sp.AddParameter("@groupID", groupID);
+            DataTable dt = sp.Execute();
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                return dt.Rows[0];
+            else
+                return null;
+        }
+
+        public static bool UpdateNotificationSettings(int groupID, string userId, bool? push_notification_enabled)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_NotificationSettings");
+            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            sp.AddParameter("@groupID", groupID);
+            sp.AddParameter("@userId", userId);
+            if (push_notification_enabled != null)
+            {
+                sp.AddParameter("@push_notification_enabled", push_notification_enabled);
+            }
+            sp.AddParameter("@date", DateTime.UtcNow);
+            sp.AddParameter("@updater_id", userId);
+
+            return sp.ExecuteReturnValue<bool>();
+        }
+
+        public static DataRow GetNotificationSettings(int groupID, int userID)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_NotificationSettings");
+            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            sp.AddParameter("@groupID", groupID);
+            sp.AddParameter("@userID", userID);
+            DataTable dt = sp.Execute();
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                return dt.Rows[0];
+            else
+                return null;
+        }
+
+        public static DataRow Get_MessageAnnouncementWithActiveStatus(int messageAnnouncementId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncementWithActiveStatus");
+            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            sp.AddParameter("@ID", messageAnnouncementId);
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    return dt.Rows[0];
+                }
+            }
+
+            return null;
+        }
+
+        public static DataRow Get_MessageAnnouncement(int messageAnnouncementId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncement");
+            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            sp.AddParameter("@ID", messageAnnouncementId);
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    return dt.Rows[0];
+                }
+            }
+
+            return null;
+        }
+
+        public static List<DataRow> Get_MessageAllAnnouncements(int groupId, int pageSize, int pageIndex)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncement");
+            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@top", pageSize * (pageIndex + 1));
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    int num = pageSize;
+                    if (dt.Rows.Count <= pageSize)
+                        num = dt.Rows.Count;
+
+                    List<DataRow> ret = new List<DataRow>();
+
+                    for (int i = 0; i < num; i++)
+                    {
+                        int curr = i + pageSize * pageIndex;
+                        if (curr < dt.Rows.Count)
+                            ret.Add(dt.Rows[curr]);
+                    }
+
+                    return ret;
+                }
+            }
+
+            return null;
+        }
+
+        public static int Get_MessageAllAnnouncementsCount(int groupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncement");
+            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    return dt.Rows.Count;
+                }
+            }
+
+            return 0;
+        }
+
+        public static int Insert_MessageAnnouncement(int groupId, int recipients, string name, string message, bool enabled, DateTime startTime, string timezone, int updaterId, string resultMsgId = null)
+        {
+            ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("InsertMessageAnnouncement");
+            spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            spInsert.AddParameter("@recipients", recipients);
+            spInsert.AddParameter("@name", name);
+            spInsert.AddParameter("@message", message);
+            spInsert.AddParameter("@start_time", startTime);
+            spInsert.AddParameter("@timezone", timezone);
+            spInsert.AddParameter("@group_id", groupId);
+            spInsert.AddParameter("@updater_id", updaterId);
+            spInsert.AddParameter("@is_active", enabled ? 1 : 0);
+            spInsert.AddParameter("@result_message_id", resultMsgId);
+            spInsert.AddParameter("@update_date", DateTime.UtcNow);
+            int newTransactionID = spInsert.ExecuteReturnValue<int>();
+            return newTransactionID;
+        }
+
+        public static void Update_MessageAnnouncement(int id, int groupId, int recipients, string name, string message, bool enabled, DateTime startTime, string timezone, int updaterId, string resultMsgId = null)
+        {
+            ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("UpdateMessageAnnouncement");
+            spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            spInsert.AddParameter("@ID", id);
+            spInsert.AddParameter("@recipients", recipients);
+            spInsert.AddParameter("@name", name);
+            spInsert.AddParameter("@message", message);
+            spInsert.AddParameter("@is_active", enabled ? 1 : 0);
+            spInsert.AddParameter("@start_time", startTime);
+            spInsert.AddParameter("@timezone", timezone);
+            spInsert.AddParameter("@updater_id", updaterId);
+            spInsert.AddParameter("@result_message_id", resultMsgId);
+            spInsert.ExecuteDataSet();
+        }
+
+        public static void Update_MessageAnnouncementStatus(int id, int groupId, bool enabled)
+        {
+            ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("UpdateMessageAnnouncement");
+            spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            spInsert.AddParameter("@ID", id);
+            spInsert.AddParameter("@is_active", enabled ? 1 : 0);
+            spInsert.ExecuteDataSet();
+        }
+
+        public static void Update_MessageAnnouncementSent(int id, int groupId, int sent)
+        {
+            ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("UpdateMessageAnnouncement");
+            spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            spInsert.AddParameter("@ID", id);
+            spInsert.AddParameter("@sent", sent);
+            spInsert.AddParameter("@response_date", DateTime.UtcNow);
+            spInsert.ExecuteDataSet();
+        }
+
+        public static void Update_MessageAnnouncementResultMessageId(int id, int groupId, string resultMsgId)
+        {
+            ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("UpdateMessageAnnouncement");
+            spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            spInsert.AddParameter("@ID", id);
+            spInsert.AddParameter("@result_message_id", resultMsgId);
+            spInsert.AddParameter("@response_date", DateTime.UtcNow);
+            spInsert.ExecuteDataSet();
+        }
+
+        public static void Delete_MessageAnnouncement(int id, int groupId)
+        {
+            ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("UpdateMessageAnnouncement");
+            spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            spInsert.AddParameter("@ID", id);
+            spInsert.AddParameter("@status", 2);
+            spInsert.ExecuteDataSet();
+        }
+
+        public static void Update_MessageAnnouncementActiveStatus(int groupId, int messageAnnouncementId, int status)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateMessageAnnouncementActiveStatus");
+            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            sp.AddParameter("@ID", messageAnnouncementId);
+            sp.AddParameter("@ActiveStatus", status);
+            DataSet ds = sp.ExecuteDataSet();
+        }
+
+        public static DeviceNotificationData GetDeviceNotificationData(int groupId, string udid)
+        {
+            DeviceNotificationData deviceData = null;
+            try
+            {
+                deviceData = cbManager.Get<DeviceNotificationData>(GetDeviceDataKey(groupId, udid));
+                if (deviceData == null)
+                    log.DebugFormat("Device data wasn't found. GID: {0}, UDID: {1}", groupId, udid);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to get device notification. gid: {0}, udid: {1}, ex: {2}", groupId, udid, ex);
+            }
+
+            return deviceData;
+        }
+
+        public static bool SetDeviceNotificationData(int groupId, string udid, DeviceNotificationData newDeviceNotificationData)
+        {
+            bool result = false;
+            try
+            {
+                result = cbManager.Set(GetDeviceDataKey(groupId, udid), newDeviceNotificationData);
+                if (!result)
+                {
+                    log.ErrorFormat("Error while trying to set device notification. gid: {0}, udid: {1}, data: {2}",
+                        groupId,
+                        udid,
+                        JsonConvert.SerializeObject(newDeviceNotificationData));
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to set device notification. gid: {0}, udid: {1}, ex: {2}", groupId, udid, ex);
+            }
+            return result;
+        }
+
+        public static UserNotification GetUserNotificationData(int groupId, int userId)
+        {
+            UserNotification userNotification = null;
+            try
+            {
+                userNotification = cbManager.Get<UserNotification>(GetUserNotificationKey(groupId, userId));
+                if (userNotification == null)
+                    log.DebugFormat("User notification data wasn't found. GID: {0}, UID: {1}", groupId, userId);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to get user notification. GID: {0}, user ID: {1}, ex: {2}", groupId, userId, ex);
+            }
+
+            return userNotification;
+        }
+
+        public static bool SetUserNotificationData(int groupId, int userId, UserNotification userNotification)
+        {
+            bool result = false;
+            try
+            {
+                result = cbManager.Set(GetUserNotificationKey(groupId, userId), userNotification);
+                if (!result)
+                {
+                    log.ErrorFormat("Error while set user notification data. GID: {0}, user ID: {1}. data: {2}",
+                        groupId,
+                        userId,
+                        JsonConvert.SerializeObject(userNotification));
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while set user notification data. gid: {0}, user ID: {1}, ex: {2}", groupId, userId, ex);
+            }
+
+            return result;
+        }
+
+        public static string Get_AnnouncementExternalIdByRecipients(int groupId, int recipients)
+        {
+            string ret = string.Empty;
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAnnouncementExternalIdByRecipients");
+            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@recipients", recipients);
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    return ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "external_id");
+                }
+            }
+
+            return ret;
+        }
+
+        public static int Insert_Announcement(int groupId, string announcementName, string externalAnnouncementId, int messageType, int announcementRecipientsType)
+        {
+            ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("Insert_Announcement");
+            spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            spInsert.AddParameter("@group_id", groupId);
+            spInsert.AddParameter("@name", announcementName);
+            spInsert.AddParameter("@external_id", externalAnnouncementId);
+            spInsert.AddParameter("@message_type", messageType);
+            spInsert.AddParameter("@recipient_type", announcementRecipientsType);
+            spInsert.AddParameter("@status", 1);
+            spInsert.AddParameter("@created_at", DateTime.UtcNow);
+
+            int newTransactionID = spInsert.ExecuteReturnValue<int>();
+            return newTransactionID;
+        }
+
+        public static DataRowCollection Get_Announcement(int groupId, List<eAnnouncementRecipientsType> recipientsTypes, List<long> announcementIds, bool isAnd = false)
+        {
+            DataRowCollection rowCollection = null;
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAnnouncements");
+            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+
+            sp.AddParameter("@group_id", groupId);
+            sp.AddParameter("@and", Convert.ToInt16(isAnd));
+
+            if (announcementIds != null && announcementIds.Count > 0)
+                sp.AddIDListParameter<long>("@ids", announcementIds, "Id");
+
+            if (recipientsTypes != null && recipientsTypes.Count > 0)
+                sp.AddIDListParameter<int>("@recipient_types", recipientsTypes.Cast<int>().ToList(), "Id");
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                    rowCollection = dt.Rows;
+            }
+
+            return rowCollection;
+        }
     }
 }

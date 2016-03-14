@@ -83,7 +83,7 @@ namespace AdapterControllers
         #region Public Methods
         
         public List<RecommendationResult> GetChannelRecommendations(ExternalChannel externalChannel, 
-            Dictionary<string, string> enrichments, string free, out string requestId)
+            Dictionary<string, string> enrichments, string free, out string requestId, int pageIndex, int pageSize)
         {
             List<RecommendationResult> searchResults = new List<RecommendationResult>();
 
@@ -137,7 +137,9 @@ namespace AdapterControllers
                         free,
                         unixTimestamp,
                         System.Convert.ToBase64String(
-                            EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
+                            EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))),
+                        pageIndex,
+                        pageSize);
                 }
 
                 requestId = adapterResponse.RequestId;
@@ -169,7 +171,9 @@ namespace AdapterControllers
                             free,
                             unixTimestamp,
                             System.Convert.ToBase64String(
-                                EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))));
+                                EncryptUtils.AesEncrypt(engine.SharedSecret, EncryptUtils.HashSHA1(signature))),
+                            pageIndex,
+                            pageSize);
                     }
 
                     requestId = adapterResponse.RequestId;

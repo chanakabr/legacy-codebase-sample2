@@ -46,5 +46,25 @@ namespace DAL
                 return ds.Tables[0];
             return null;
         }
+
+        public static DataTable GetMediasByPPVModuleID (int groupID, int ppvModuleID, int mediaIDMin)
+        {
+            DataTable dt = null;
+            ODBCWrapper.StoredProcedure spGetMediasByPPVModuleID = new ODBCWrapper.StoredProcedure("Get_MediasByPPVModuleID");
+            spGetMediasByPPVModuleID.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spGetMediasByPPVModuleID.AddParameter("@GroupID", groupID);
+            spGetMediasByPPVModuleID.AddParameter("@PpvModuleID", ppvModuleID);
+            spGetMediasByPPVModuleID.AddParameter("@MediaIDMin", mediaIDMin);
+
+            DataSet ds = spGetMediasByPPVModuleID.ExecuteDataSet();
+
+            if (ds != null)
+            {
+                dt = ds.Tables[0];
+            }            
+            
+            return dt;
+        }
+           
     }
 }

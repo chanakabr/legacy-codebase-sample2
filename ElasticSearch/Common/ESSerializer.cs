@@ -167,6 +167,43 @@ namespace ElasticSearch.Common
 
             #endregion
 
+            #region Add Is Free + Free file types
+
+            // Add this field only if there are free file types on the media object
+            if (media.freeFileTypes != null && media.freeFileTypes.Count > 0)
+            {
+                recordBuilder.Append(", \"free_file_types\": [");
+
+                foreach (int fileTypeId in media.freeFileTypes)
+                {
+                    recordBuilder.Append(fileTypeId);
+                    recordBuilder.Append(',');
+                }
+
+                // Remove last ','
+                recordBuilder.Remove(recordBuilder.Length - 1, 1);
+
+                recordBuilder.Append("]");
+            }
+
+            recordBuilder.Append(", \"is_free\": ");
+            recordBuilder.Append(Convert.ToInt32(media.isFree));
+
+            #endregion
+
+            #region EPG Identifier
+
+            // Add this field only if it has a value
+            if (!string.IsNullOrEmpty(media.epgIdentifier))
+            {
+                recordBuilder.Append(", \"epg_identifier\": \"");
+
+                recordBuilder.Append(media.epgIdentifier);
+
+                recordBuilder.Append("\"");
+            }
+            #endregion
+
             recordBuilder.Append(" }");
 
             return recordBuilder.ToString();

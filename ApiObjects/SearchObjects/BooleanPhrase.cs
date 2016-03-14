@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -10,6 +11,8 @@ namespace ApiObjects.SearchObjects
     /// Represents a boolean phrase with child nodes - each of them can be either another boolean phrase or a leaf
     /// </summary>
     [DataContract]
+    [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class BooleanPhrase : BooleanPhraseNode
     {
         #region Data Members
@@ -18,18 +21,22 @@ namespace ApiObjects.SearchObjects
         /// List of child nodes
         /// </summary>
         [DataMember]
+        [JsonProperty(TypeNameHandling = TypeNameHandling.Auto, ItemTypeNameHandling = TypeNameHandling.Auto,
+            ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
         public List<BooleanPhraseNode> nodes;
 
         /// <summary>
         /// Boolean operation to perform between nodes: And/Or
         /// </summary>
         [DataMember]
+        [JsonProperty()]
         public eCutType operand;
 
         #endregion
 
         #region Properties
 
+        [JsonIgnore()]
         public override BooleanNodeType type
         {
             get
@@ -47,6 +54,7 @@ namespace ApiObjects.SearchObjects
         /// </summary>
         /// <param name="nodes"></param>
         /// <param name="operand"></param>
+        [JsonConstructor]
         public BooleanPhrase(List<BooleanPhraseNode> nodes = null, eCutType operand = eCutType.Or)
         {
             if (nodes == null)
