@@ -18,6 +18,7 @@ namespace WebAPI.Models.Pricing
         entitled_to_preview_module, 
         first_device_limitation, 
         collection_purchased,
-        user_suspended 
+        user_suspended,
+        not_for_purchase
     }
 }

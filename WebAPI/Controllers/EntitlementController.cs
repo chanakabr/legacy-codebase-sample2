@@ -233,8 +233,8 @@ namespace WebAPI.Controllers
             return new KalturaEntitlementListResponse() { Entitlements = response, TotalCount = response.Count };
         }
 
-        /// <summary>
-        /// Grant entitlements for a household for specific product or subscription. If a subscription is provided – the grant will apply only till the end of the first renewal period.
+        /// <summary>        
+        /// Grant household for an entitlement for a PPV or Subscription.
         /// </summary>
         /// <param name="content_id">Identifier for the content. Relevant only if Product type = PPV</param>
         /// <param name="product_id">Identifier for the product package from which this content is offered  </param>
