@@ -7,7 +7,7 @@ namespace WebAPI.ObjectsConvertor.Mapping.Utils
 {
     public enum AssetType
     {
-        media,
-        epg,
+        media = 1,
+        epg = 0,
     }
 }
