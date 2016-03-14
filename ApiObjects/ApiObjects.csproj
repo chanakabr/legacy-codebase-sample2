@@ -101,6 +101,12 @@
     <Compile Include="Billing\PaymentGatewayAssociate.cs" />
     <Compile Include="Billing\PaymentMethod.cs" />
     <Compile Include="DevicePinResponse.cs" />
+    <Compile Include="IngestBusinessModules\BusinessModuleResponse.cs" />
+    <Compile Include="IngestBusinessModules\IngestModule.cs" />
+    <Compile Include="IngestBusinessModules\IngestMultiPricePlan.cs" />
+    <Compile Include="IngestBusinessModules\IngestPPV.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Notification\Announcement.cs" />
     <Compile Include="Notification\AnnouncementSubscription.cs" />
     <Compile Include="Notification\DeviceNotificationData.cs" />
@@ -144,6 +150,7 @@
     <Compile Include="ExternalChannel\ExternalChannelResponseList.cs" />
     <Compile Include="PersonalEnrichments\UserBundlesResponse.cs" />
     <Compile Include="PersonalEnrichments\UserPurhcasedAssetsResponse.cs" />
+    <Compile Include="IngestBusinessModules\IngestPricePlan.cs" />
     <Compile Include="QueueObjects\FreeItemUpdateData.cs" />
     <Compile Include="OSSAdapter\OSSAdapterEntitlementsResponse.cs" />
     <Compile Include="PlayCycle\UserPlayCycle.cs" />

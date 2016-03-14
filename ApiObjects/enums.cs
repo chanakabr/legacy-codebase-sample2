@@ -545,4 +545,13 @@ namespace ApiObjects
         [EnumMember]
         Aborted = 3
     }
+
+    public enum eIngestAction
+    {
+        Insert = 0,
+        Update = 1,
+        Delete = 2
+    }
+
+   
 }
