@@ -843,7 +843,7 @@ namespace DAL
         {
             try
             {
-                StoredProcedure sp = new StoredProcedure("Inser_NewPPVModule");
+                StoredProcedure sp = new StoredProcedure("Insert_NewPPVModule");
                 sp.SetConnectionKey("pricing_connection");
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@ppvName", ppvName);
@@ -1089,11 +1089,11 @@ namespace DAL
             return sp.ExecuteDataSet();
         }
 
-        public static int InsertPricePlane(int groupID, ApiObjects.IngestPricePlan pricePlan, int pricCodeID, int fullLifeCycleID, int viewLifeCycleID)
+        public static int InsertPricePlan(int groupID, ApiObjects.IngestPricePlan pricePlan, int pricCodeID, int fullLifeCycleID, int viewLifeCycleID)
         {
             try
             {
-                StoredProcedure sp = new StoredProcedure("Insert_PricePlane");
+                StoredProcedure sp = new StoredProcedure("Insert_PricePlan");
                 sp.SetConnectionKey("pricing_connection");
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@Name", pricePlan.Code);
@@ -1114,11 +1114,11 @@ namespace DAL
             return 0;
         }
 
-        public static int UpdatePricePlane(int groupID, ApiObjects.IngestPricePlan pricePlan, int pricCodeID, int fullLifeCycleID, int viewLifeCycleID)
+        public static int UpdatePricePlan(int groupID, ApiObjects.IngestPricePlan pricePlan, int pricCodeID, int fullLifeCycleID, int viewLifeCycleID)
         {
             try
             {
-                StoredProcedure sp = new StoredProcedure("Update_PricePlane");
+                StoredProcedure sp = new StoredProcedure("Update_PricePlan");
                 sp.SetConnectionKey("pricing_connection");
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@Name", pricePlan.Code);
