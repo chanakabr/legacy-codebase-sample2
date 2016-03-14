@@ -4,7 +4,6 @@ using System.Data.Linq;
 using System.Text;
 using System.Threading;
 using System.Configuration;
-using KLogMonitor;
 using System.Reflection;
 using Couchbase;
 using Couchbase.Configuration;
@@ -40,7 +39,6 @@ namespace CouchbaseManager
 
         #region Static Members
 
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static object syncObj = new object();
         private static ReaderWriterLockSlim m_oSyncLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
@@ -182,11 +180,11 @@ namespace CouchbaseManager
                     // 1 - not found
                     if (statusCode.Value == 1)
                     {
-                        log.DebugFormat("Could not find key on couchbase: {0}", key);
+                        Logger.Logger.Log("Couchbase",string.Format("Could not find key on couchbase: {0}", key), "CouchbaseManager");
                     }
                     else
                     {
-                        log.ErrorFormat("Error while executing action on CB. Status code = {0}", statusCode.Value);
+                        Logger.Logger.Log("Couchbase",string.Format("Error while executing action on CB. Status code = {0}", statusCode.Value), "CouchbaseManager");
                     }
                 }
 
@@ -221,11 +219,12 @@ namespace CouchbaseManager
                 // 1 - not found
                 if (status == Couchbase.IO.ResponseStatus.KeyNotFound)
                 {
-                    log.DebugFormat("Could not find key on couchbase: {0}", key);
+                    Logger.Logger.Log("Couchbase", string.Format("Could not find key on couchbase: {0}", key), "CouchbaseManager");
                 }
                 else
                 {
-                    log.ErrorFormat("Error while executing action on CB. Status code = {0}; Status = {1}", (int)status, status.ToString());
+                    Logger.Logger.Log("Couchbase", 
+                        string.Format("Error while executing action on CB. Status code = {0}; Status = {1}", (int)status, status.ToString()), "CouchbaseManager");
                 }
             }
 
@@ -344,7 +343,7 @@ namespace CouchbaseManager
                     {
                         IOperationResult insertResult = null;
                         
-                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                        
                         {
                             insertResult = bucket.Insert(key, value, expiration);
                         }
@@ -364,7 +363,7 @@ namespace CouchbaseManager
                             {
                                 HandleStatusCode(insertResult.Status);
                                 
-                                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                                
                                 {
                                     insertResult = bucket.Insert(key, value, expiration);
                                 }
@@ -375,12 +374,13 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Add with key = {0}, error = {1}, ST = {2}", key, ex.Message, ex.StackTrace), ex);
+                
+                Logger.Logger.Log("Couchbase","CouchBaseCache - " + string.Format("Failed Add with key = {0}, error = {1}, ST = {2}", key, ex.Message, ex.StackTrace), "CouchbaseManager");
 
                 if (ex.InnerException != null)
                 {
-                    log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Add with key = {0}, inner exception = {1}, ST = {2}", key,
-                        ex.InnerException.Message, ex.InnerException.StackTrace), ex.InnerException);
+                    Logger.Logger.Log("Couchbase","CouchBaseCache - " + string.Format("Failed Add with key = {0}, inner exception = {1}, ST = {2}", key,
+                        ex.InnerException.Message, ex.InnerException.StackTrace), "CouchbaseManager");
                 }
             }
 
@@ -406,7 +406,7 @@ namespace CouchbaseManager
                     {
                         IOperationResult insertResult = null;
 
-                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                        
                         {
                             insertResult = bucket.Insert<T>(key, value, expiration);
                         }
@@ -426,7 +426,7 @@ namespace CouchbaseManager
                             {
                                 HandleStatusCode(insertResult.Status);
 
-                                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                                
                                 {
                                     insertResult = bucket.Insert<T>(key, value, expiration);
                                 }
@@ -437,12 +437,12 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Add with key = {0}, error = {1}, ST = {2}", key, ex.Message, ex.StackTrace), ex);
+                Logger.Logger.Log("Couchbase","CouchBaseCache - " + string.Format("Failed Add with key = {0}, error = {1}, ST = {2}", key, ex.Message, ex.StackTrace),"CouchbaseManager");
 
                 if (ex.InnerException != null)
                 {
-                    log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Add with key = {0}, inner exception = {1}, ST = {2}", key,
-                        ex.InnerException.Message, ex.InnerException.StackTrace), ex.InnerException);
+                    Logger.Logger.Log("Couchbase","CouchBaseCache - " + string.Format("Failed Add with key = {0}, inner exception = {1}, ST = {2}", key,
+                        ex.InnerException.Message, ex.InnerException.StackTrace), "CouchbaseManager");
                 }
             }
 
@@ -468,7 +468,7 @@ namespace CouchbaseManager
                     {
                         IOperationResult insertResult = null;
 
-                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                        
                         {
                             insertResult = bucket.Upsert(key, value, expiration);
                         }
@@ -488,7 +488,7 @@ namespace CouchbaseManager
                             {
                                 HandleStatusCode(insertResult.Status);
                                 
-                                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                                
                                 {
                                     insertResult = bucket.Upsert(key, value, expiration);
                                 }
@@ -499,12 +499,12 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Set with key = {0}, error = {1}, ST = {2}", key, ex.Message, ex.StackTrace), ex);
+                Logger.Logger.Log("Couchbase","CouchBaseCache - " + string.Format("Failed Set with key = {0}, error = {1}, ST = {2}", key, ex.Message, ex.StackTrace),"CouchbaseManager");
 
                 if (ex.InnerException != null)
                 {
-                    log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Set with key = {0}, inner exception = {1}, ST = {2}", key,
-                        ex.InnerException.Message, ex.InnerException.StackTrace), ex.InnerException);
+                    Logger.Logger.Log("Couchbase","CouchBaseCache - " + string.Format("Failed Set with key = {0}, inner exception = {1}, ST = {2}", key,
+                        ex.InnerException.Message, ex.InnerException.StackTrace), "CouchbaseManager");
                 }
             }
             return result;
@@ -530,7 +530,7 @@ namespace CouchbaseManager
                     {
                         IOperationResult insertResult = null;
 
-                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                        
                         {
                             insertResult = bucket.Upsert<T>(key, value, expiration);
                         }
@@ -550,7 +550,7 @@ namespace CouchbaseManager
                             {
                                 HandleStatusCode(insertResult.Status);
 
-                                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                                
                                 {
                                     insertResult = bucket.Upsert<T>(key, value, expiration);
                                 }
@@ -561,12 +561,12 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Set<T> with key = {0}, error = {1}, ST = {2}", key, ex.Message, ex.StackTrace), ex);
+                Logger.Logger.Log("Couchbase","CouchBaseCache - " + string.Format("Failed Set<T> with key = {0}, error = {1}, ST = {2}", key, ex.Message, ex.StackTrace),"CouchbaseManager");
 
                 if (ex.InnerException != null)
                 {
-                    log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Set<T> with key = {0}, inner exception = {1}, ST = {2}", key,
-                        ex.InnerException.Message, ex.InnerException.StackTrace), ex.InnerException);
+                    Logger.Logger.Log("Couchbase","CouchBaseCache - " + string.Format("Failed Set<T> with key = {0}, inner exception = {1}, ST = {2}", key,
+                        ex.InnerException.Message, ex.InnerException.StackTrace), "CouchbaseManager");
                 }
             }
             return result;
@@ -584,7 +584,7 @@ namespace CouchbaseManager
                     {
                         IOperationResult<T> getResult;
 
-                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                        
                         {
                             getResult = bucket.Get<T>(key);
                         }
@@ -603,7 +603,7 @@ namespace CouchbaseManager
                             else
                             {
                                 HandleStatusCode(getResult.Status);
-                                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                                
                                 {
                                     result = bucket.Get<T>(key).Value;
                                 }
@@ -614,12 +614,12 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Get with key = {0}, error = {1}, ST = {2}", key, ex.Message, ex.StackTrace), ex);
+                Logger.Logger.Log("Couchbase","CouchBaseCache - " + string.Format("Failed Get with key = {0}, error = {1}, ST = {2}", key, ex.Message, ex.StackTrace),"CouchbaseManager");
 
                 if (ex.InnerException != null)
                 {
-                    log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Get with key = {0}, inner exception = {1}, ST = {2}", key,
-                        ex.InnerException.Message, ex.InnerException.StackTrace), ex.InnerException);
+                    Logger.Logger.Log("Couchbase","CouchBaseCache - " + string.Format("Failed Get with key = {0}, inner exception = {1}, ST = {2}", key,
+                        ex.InnerException.Message, ex.InnerException.StackTrace), "CouchbaseManager");
                 }
             }
 
@@ -638,7 +638,7 @@ namespace CouchbaseManager
                     {
                         bool exists;
 
-                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                        
                         {
                             exists = bucket.Exists(key);
                         }
@@ -653,7 +653,7 @@ namespace CouchbaseManager
                             // Otherwise, try to really remove the key
                             IOperationResult removeResult;
                             
-                            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                            
                             {
                                 removeResult = bucket.Remove(key);
                             }
@@ -673,12 +673,12 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed remove with key = {0}, error = {1}, ST = {2}", key, ex.Message, ex.StackTrace), ex);
+                Logger.Logger.Log("Couchbase","CouchBaseCache - " + string.Format("Failed remove with key = {0}, error = {1}, ST = {2}", key, ex.Message, ex.StackTrace),"CouchbaseManager");
 
                 if (ex.InnerException != null)
                 {
-                    log.ErrorFormat("CouchBaseCache - " + string.Format("Failed remove with key = {0}, inner exception = {1}, ST = {2}", key,
-                        ex.InnerException.Message, ex.InnerException.StackTrace), ex.InnerException);
+                    Logger.Logger.Log("Couchbase","CouchBaseCache - " + string.Format("Failed remove with key = {0}, inner exception = {1}, ST = {2}", key,
+                        ex.InnerException.Message, ex.InnerException.StackTrace), "CouchbaseManager");
                 }
             }
 
@@ -698,7 +698,7 @@ namespace CouchbaseManager
                     {
                         IOperationResult<T> getResult;
 
-                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                        
                         {
                             getResult = bucket.Get<T>(key);
                         }
@@ -719,7 +719,7 @@ namespace CouchbaseManager
                             {
                                 HandleStatusCode(getResult.Status);
 
-                                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                                
                                 {
                                     result = bucket.Get<T>(key).Value;
                                 }
@@ -732,12 +732,12 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Get with key = {0}, error = {1}, ST = {2}", key, ex.Message, ex.StackTrace), ex);
+                Logger.Logger.Log("Couchbase","CouchBaseCache - " + string.Format("Failed Get with key = {0}, error = {1}, ST = {2}", key, ex.Message, ex.StackTrace),"CouchbaseManager");
 
                 if (ex.InnerException != null)
                 {
-                    log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Get with key = {0}, inner exception = {1}, ST = {2}", key,
-                        ex.InnerException.Message, ex.InnerException.StackTrace), ex.InnerException);
+                    Logger.Logger.Log("Couchbase","CouchBaseCache - " + string.Format("Failed Get with key = {0}, inner exception = {1}, ST = {2}", key,
+                        ex.InnerException.Message, ex.InnerException.StackTrace), "CouchbaseManager");
                 }
             }
 
@@ -763,7 +763,7 @@ namespace CouchbaseManager
                 {
                     IOperationResult setResult;
  
-                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                    
                     {
                         setResult = bucket.Upsert(key, value, version, expiration);
                     }
@@ -783,7 +783,7 @@ namespace CouchbaseManager
                         {
                             HandleStatusCode(setResult.Status);
 
-                            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                            
                             {
                                 setResult = bucket.Upsert(key, value, version, expiration);
                             }
@@ -806,7 +806,7 @@ namespace CouchbaseManager
                 {
                     IOperationResult setResult;
  
-                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                    
                     {
                         setResult = bucket.Upsert(key, value, version, expiration);
                     }
@@ -826,7 +826,7 @@ namespace CouchbaseManager
                         {
                             HandleStatusCode(setResult.Status);
 
-                            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                            
                             {
                                 setResult = bucket.Upsert(key, value, version, expiration);
                             }
@@ -859,7 +859,7 @@ namespace CouchbaseManager
                 {
                     IOperationResult setResult;
 
-                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                    
                     {
                         setResult = bucket.Upsert<T>(key, value, version, expiration);
                     }
@@ -879,7 +879,7 @@ namespace CouchbaseManager
                         {
                             HandleStatusCode(setResult.Status);
 
-                            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                            
                             {
                                 setResult = bucket.Upsert<T>(key, value, version, expiration);
                             }
@@ -902,7 +902,7 @@ namespace CouchbaseManager
                 {
                     IOperationResult setResult;
 
-                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                    
                     {
                         setResult = bucket.Upsert<T>(key, value, version, expiration);
                     }
@@ -923,7 +923,7 @@ namespace CouchbaseManager
                         {
                             HandleStatusCode(setResult.Status);
                             
-                            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                            
                             {
                                 setResult = bucket.Upsert<T>(key, value, version, expiration);
                             }
@@ -985,7 +985,7 @@ namespace CouchbaseManager
                     {
                         IDictionary<string, IOperationResult<T>> getResult;
 
-                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                        
                         {
                             getResult = bucket.Get<T>(keys);
                         }
@@ -1042,10 +1042,10 @@ namespace CouchbaseManager
                     foreach (var item in keys)
                         sb.Append(item + " ");
 
-                    log.ErrorFormat("Error while getting the following keys from CB: {0}. Exception: {1}", sb.ToString(), ex);
+                    Logger.Logger.Log("Couchbase", string.Format("Error while getting the following keys from CB: {0}. Exception: {1}", sb.ToString(), ex.ToString()), "CouchbaseManager");
                 }
                 else
-                    log.Error("Error while getting keys from CB", ex);
+                    Logger.Logger.Log("Couchbase", "Error while getting keys from CB", "CouchbaseManager");
             }
 
             return result;
@@ -1131,7 +1131,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Getting view. error = {0}, ST = {1}", ex.Message, ex.StackTrace), ex);
+                Logger.Logger.Log("Couchbase","CouchBaseCache - " + string.Format("Failed Getting view. error = {0}, ST = {1}", ex.Message, ex.StackTrace),"CouchbaseManager");
             }
 
             return result;
@@ -1158,7 +1158,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Getting view. error = {0}, ST = {1}", ex.Message, ex.StackTrace), ex);
+                Logger.Logger.Log("Couchbase","CouchBaseCache - " + string.Format("Failed Getting view. error = {0}, ST = {1}", ex.Message, ex.StackTrace),"CouchbaseManager");
             }
 
             return result;
@@ -1185,7 +1185,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Getting view. error = {0}, ST = {1}", ex.Message, ex.StackTrace), ex);
+                Logger.Logger.Log("Couchbase","CouchBaseCache - " + string.Format("Failed Getting view. error = {0}, ST = {1}", ex.Message, ex.StackTrace),"CouchbaseManager");
             }
 
             return result;
@@ -1213,7 +1213,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Getting view. error = {0}, ST = {1}", ex.Message, ex.StackTrace), ex);
+                Logger.Logger.Log("Couchbase","CouchBaseCache - " + string.Format("Failed Getting view. error = {0}, ST = {1}", ex.Message, ex.StackTrace),"CouchbaseManager");
             }
 
             return result;
@@ -1231,7 +1231,7 @@ namespace CouchbaseManager
                 {
                     IOperationResult<ulong> incrementResult = null;
                     
-                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                    
                     {
                         incrementResult = bucket.Increment(key, delta);
                     }

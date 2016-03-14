@@ -1,7 +1,6 @@
 ﻿using Couchbase;
 using Couchbase.Core;
 using Couchbase.Views;
-using KLogMonitor;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,8 +13,6 @@ namespace CouchbaseManager
 {
     public class ViewManager
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
         #region Data Members
 
         /// <summary>
@@ -204,7 +201,7 @@ namespace CouchbaseManager
             {
                 IViewResult<object> queryResult = null;
 
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                
                 {
                     queryResult = bucket.Query<object>(query);
                 }
@@ -212,8 +209,8 @@ namespace CouchbaseManager
                 // If something went wrong - log it and throw exception (if there is one)
                 if (!queryResult.Success)
                 {
-                    log.ErrorFormat("Something went wrong when performing Couchbase query. bucket = {0}, view = {1}, message = {2}, error = {3}",
-                        bucket.Name, viewName, queryResult.Message, queryResult.Error, queryResult.Exception);
+                    Logger.Logger.Log("Couchbase", string.Format("Something went wrong when performing Couchbase query. bucket = {0}, view = {1}, message = {2}, error = {3}",
+                        bucket.Name, viewName, queryResult.Message, queryResult.Error, queryResult.Exception), "CouchbaseManager");
 
                     if (queryResult.Exception != null)
                     {
@@ -228,7 +225,7 @@ namespace CouchbaseManager
                     var ids = queryResult.Rows.Select(row => row.Id).ToList();
                     IDictionary<string, IOperationResult<T>> getResults = null;
 
-                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                    
                     {
                         getResults = bucket.Get<T>(ids);
                     }
@@ -239,7 +236,9 @@ namespace CouchbaseManager
                         // If something went wrong - log it and throw exception (if there is one)
                         if (!getResult.Value.Success)
                         {
-                            log.ErrorFormat("Error while getting value from view. Status code = {0}; Status = {1}", (int)getResult.Value.Status, getResult.Value.Status.ToString());
+                            Logger.Logger.Log("Couchbase",
+                                string.Format("Error while getting value from view. Status code = {0}; Status = {1}", (int)getResult.Value.Status, getResult.Value.Status.ToString()),
+                                "CouchbaseManager");
 
                             if (getResult.Value.Exception != null)
                             {
@@ -258,7 +257,7 @@ namespace CouchbaseManager
             {
                 IViewResult<T> queryResult = null;
 
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                
                 {
                     queryResult = bucket.Query<T>(query);
                 }
@@ -266,8 +265,8 @@ namespace CouchbaseManager
                 // If something went wrong - log it and throw exception (if there is one)
                 if (!queryResult.Success)
                 {
-                    log.ErrorFormat("Something went wrong when performing Couchbase query. bucket = {0}, view = {1}, message = {2}, error = {3}",
-                        bucket.Name, viewName, queryResult.Message, queryResult.Error, queryResult.Exception);
+                    Logger.Logger.Log("Couchbase", string.Format("Something went wrong when performing Couchbase query. bucket = {0}, view = {1}, message = {2}, error = {3}",
+                        bucket.Name, viewName, queryResult.Message, queryResult.Error, queryResult.Exception), "CouchbaseManager");
 
                     if (queryResult.Exception != null)
                     {
@@ -293,7 +292,7 @@ namespace CouchbaseManager
             IViewQuery query = InitializeQuery(bucket);
             IViewResult<T1> queryResult = null;
             
-            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+            
             {
                 queryResult = bucket.Query<T1>(query);
             }
@@ -301,8 +300,8 @@ namespace CouchbaseManager
             // If something went wrong - log it and throw exception (if there is one)
             if (!queryResult.Success)
             {
-                log.ErrorFormat("Something went wrong when performing Couchbase query. bucket = {0}, view = {1}, message = {2}, error = {3}",
-                    bucket.Name, viewName, queryResult.Message, queryResult.Error, queryResult.Exception);
+                Logger.Logger.Log("Couchbase", string.Format("Something went wrong when performing Couchbase query. bucket = {0}, view = {1}, message = {2}, error = {3}",
+                    bucket.Name, viewName, queryResult.Message, queryResult.Error, queryResult.Exception), "CouchbaseManager");
 
                 if (queryResult.Exception != null)
                 {
@@ -327,7 +326,7 @@ namespace CouchbaseManager
             IViewQuery query = InitializeQuery(bucket);
             IViewResult<object> queryResult = null;
 
-            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+            
             {
                 queryResult = bucket.Query<object>(query);
             }
@@ -335,8 +334,8 @@ namespace CouchbaseManager
             // If something went wrong - log it and throw exception (if there is one)
             if (!queryResult.Success)
             {
-                log.ErrorFormat("Something went wrong when performing Couchbase query. bucket = {0}, view = {1}, message = {2}, error = {3}",
-                    bucket.Name, viewName, queryResult.Message, queryResult.Error, queryResult.Exception);
+                Logger.Logger.Log("Couchbase", string.Format("Something went wrong when performing Couchbase query. bucket = {0}, view = {1}, message = {2}, error = {3}",
+                    bucket.Name, viewName, queryResult.Message, queryResult.Error, queryResult.Exception), "CouchbaseManager");
 
                 if (queryResult.Exception != null)
                 {
@@ -364,7 +363,7 @@ namespace CouchbaseManager
             {
                 IViewResult<object> queryResult = null;
 
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                
                 {
                     queryResult = bucket.Query<object>(query);
                 }
@@ -372,8 +371,8 @@ namespace CouchbaseManager
                 // If something went wrong - log it and throw exception (if there is one)
                 if (!queryResult.Success)
                 {
-                    log.ErrorFormat("Something went wrong when performing Couchbase query. bucket = {0}, view = {1}, message = {2}, error = {3}",
-                        bucket.Name, viewName, queryResult.Message, queryResult.Error, queryResult.Exception);
+                    Logger.Logger.Log("Couchbase", string.Format("Something went wrong when performing Couchbase query. bucket = {0}, view = {1}, message = {2}, error = {3}",
+                        bucket.Name, viewName, queryResult.Message, queryResult.Error, queryResult.Exception), "CouchbaseManager");
 
                     if (queryResult.Exception != null)
                     {
@@ -394,7 +393,7 @@ namespace CouchbaseManager
 
                     IDictionary<string, IOperationResult<T>> getResults = null;
 
-                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                    
                     {
                         getResults = bucket.Get<T>(idsAndKeys.Keys.ToList());
                     }
@@ -405,7 +404,9 @@ namespace CouchbaseManager
                         // If something went wrong - log it and throw exception (if there is one)
                         if (!getResult.Value.Success)
                         {
-                            log.ErrorFormat("Error while getting value from view. Status code = {0}; Status = {1}", (int)getResult.Value.Status, getResult.Value.Status.ToString());
+                            Logger.Logger.Log("Couchbase", 
+                                string.Format("Error while getting value from view. Status code = {0}; Status = {1}", (int)getResult.Value.Status, getResult.Value.Status.ToString()),
+                                "CouchbaseManager");
 
                             if (getResult.Value.Exception != null)
                             {
@@ -430,7 +431,7 @@ namespace CouchbaseManager
             {
                 IViewResult<T> queryResult = null;
 
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                
                 {
                     queryResult = bucket.Query<T>(query);
                 }
@@ -438,8 +439,8 @@ namespace CouchbaseManager
                 // If something went wrong - log it and throw exception (if there is one)
                 if (!queryResult.Success)
                 {
-                    log.ErrorFormat("Something went wrong when performing Couchbase query. bucket = {0}, view = {1}, message = {2}, error = {3}",
-                        bucket.Name, viewName, queryResult.Message, queryResult.Error, queryResult.Exception);
+                    Logger.Logger.Log("Couchbase", string.Format("Something went wrong when performing Couchbase query. bucket = {0}, view = {1}, message = {2}, error = {3}",
+                        bucket.Name, viewName, queryResult.Message, queryResult.Error, queryResult.Exception), "CouchbaseManager");
 
                     if (queryResult.Exception != null)
                     {
