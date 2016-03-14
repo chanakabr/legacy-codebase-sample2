@@ -1,9 +1,11 @@
 ﻿using Ingest.Clients.ClientManager;
 using Ingest.Importers;
 using Ingest.Models;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.ServiceModel.Web;
@@ -13,6 +15,8 @@ namespace Ingest
 {
     public class Service : IService
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public BusinessModuleIngestResponse IngestBusinessModules(string username, string password, string xml)
         {
             BusinessModuleIngestResponse response = new BusinessModuleIngestResponse()
@@ -28,7 +32,10 @@ namespace Ingest
                 // import
                 response = BusinessModulesImporter.Ingest(groupId, xml);
             }
-
+            else
+            {
+                log.ErrorFormat("IngestBusinessModules: Failed to get group id for username: {0}, password: {1}", username, password);
+            }
             return response;
         }
     }

@@ -84,10 +84,10 @@ namespace Ingest.Importers
             return response;
         }
 
-        private static void ProccessMultiPricePlans(int groupId, XmlDocument xmlDoc, string reportFilename)
+        private static void ProccessMultiPricePlans(int groupId, XmlDocument xmlDoc, string reportId)
         {
             // parse multi price plans xml 
-            List<IngestMultiPricePlan> multiPricePlans = ParseMultiPricePlansXml(xmlDoc, reportFilename);
+            List<IngestMultiPricePlan> multiPricePlans = ParseMultiPricePlansXml(xmlDoc, reportId);
 
             if (multiPricePlans != null && multiPricePlans.Count > 0)
             {
@@ -99,15 +99,15 @@ namespace Ingest.Importers
                 {
                     int index = i;
                     tasks[i] = Task.Factory.StartNew(() =>
-                        InsertModule<IngestMultiPricePlan>(groupId, multiPricePlans[index], CallPricingMultiPricePlanIngest<IngestMultiPricePlan>, reportFilename));
+                        InsertModule<IngestMultiPricePlan>(groupId, multiPricePlans[index], CallPricingMultiPricePlanIngest<IngestMultiPricePlan>, reportId));
                 }
                 Task.WaitAll(tasks);
             }
         }
 
-        private static void ProccessPricePlans(int groupId, XmlDocument xmlDoc, string reportFilename)
+        private static void ProccessPricePlans(int groupId, XmlDocument xmlDoc, string reportId)
         {
-            List<IngestPricePlan> pricePlans = ParsePricePlansXml(xmlDoc, reportFilename);
+            List<IngestPricePlan> pricePlans = ParsePricePlansXml(xmlDoc, reportId);
 
             // insert price plans if found
             if (pricePlans != null && pricePlans.Count > 0)
@@ -120,15 +120,15 @@ namespace Ingest.Importers
                 {
                     int index = i;
                     tasks[i] = Task.Factory.StartNew(() =>
-                        InsertModule<IngestPricePlan>(groupId, pricePlans[index], CallPricingPricePlanIngest<IngestPricePlan>, reportFilename));
+                        InsertModule<IngestPricePlan>(groupId, pricePlans[index], CallPricingPricePlanIngest<IngestPricePlan>, reportId));
                 }
                 Task.WaitAll(tasks);
             }
         }
 
-        private static void ProccessPPVs(int groupId, XmlDocument xmlDoc, string reportFilename)
+        private static void ProccessPPVs(int groupId, XmlDocument xmlDoc, string reportId)
         {
-            List<IngestPPV> ppvs = ParsePPVsXml(xmlDoc, reportFilename);
+            List<IngestPPV> ppvs = ParsePPVsXml(xmlDoc, reportId);
 
             // insert ppvs if found
             if (ppvs != null && ppvs.Count > 0)
@@ -141,7 +141,7 @@ namespace Ingest.Importers
                 {
                     int index = i;
                     tasks[i] = Task.Factory.StartNew(() =>
-                        InsertModule<IngestPPV>(groupId, ppvs[index], CallPricingPPVIngest<IngestPPV>, reportFilename));
+                        InsertModule<IngestPPV>(groupId, ppvs[index], CallPricingPPVIngest<IngestPPV>, reportId));
                 }
                 Task.WaitAll(tasks);
             }
@@ -283,7 +283,7 @@ namespace Ingest.Importers
             return response;
         }
 
-        private static List<IngestPricePlan> ParsePricePlansXml(XmlDocument doc, string reportFilename)
+        private static List<IngestPricePlan> ParsePricePlansXml(XmlDocument doc, string reportId)
         {
             List<IngestPricePlan> pricePlans = null;
 
@@ -376,11 +376,11 @@ namespace Ingest.Importers
                 }
             }
 
-            WriteReportLogToFile(reportBuilder.ToString(), reportFilename);
+            WriteReportLogToFile(reportBuilder.ToString(), reportId);
             return pricePlans;
         }
 
-        private static List<IngestMultiPricePlan> ParseMultiPricePlansXml(XmlDocument doc, string reportFilename)
+        private static List<IngestMultiPricePlan> ParseMultiPricePlansXml(XmlDocument doc, string reportId)
         {
             List<IngestMultiPricePlan> multiPricePlans = null;
 
@@ -523,12 +523,12 @@ namespace Ingest.Importers
                 }
             }
 
-            WriteReportLogToFile(reportBuilder.ToString(), reportFilename);
+            WriteReportLogToFile(reportBuilder.ToString(), reportId);
 
             return multiPricePlans;
         }
 
-        private static List<IngestPPV> ParsePPVsXml(XmlDocument doc, string reportFilename)
+        private static List<IngestPPV> ParsePPVsXml(XmlDocument doc, string reportId)
         {
             List<IngestPPV> ppvs = null;
 
@@ -638,7 +638,7 @@ namespace Ingest.Importers
                 }
             }
 
-            WriteReportLogToFile(reportBuilder.ToString(), reportFilename);
+            WriteReportLogToFile(reportBuilder.ToString(), reportId);
 
             return ppvs;
         }
