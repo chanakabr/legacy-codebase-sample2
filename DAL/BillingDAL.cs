@@ -2384,5 +2384,32 @@ namespace DAL
 
             return paymentGatewayHouseholdPaymentMethods;
         }
+
+        public static bool UpdatePaymentGatewayTransaction(int groupId, int paymentGatewayId, string externalTransactionId, string paymentDetails, string paymentMethod, int paymentMethodId)
+        {
+            int rowCount = 0;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_PaymentGatewayTransaction");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@paymentGatewayId", paymentGatewayId);
+                sp.AddParameter("@externalTransactionId", externalTransactionId);
+                sp.AddParameter("@paymentDetails", paymentDetails);
+                sp.AddParameter("@paymentMethod", paymentMethod);
+                sp.AddParameter("@paymentMethodId", paymentMethodId);
+
+                rowCount = sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at Update_PaymentGatewayTransaction. groupId: {0}, paymentGatewayId: {1}, paymentMethodId: {2}",
+                    groupId, paymentGatewayId, paymentMethodId, ex);
+            }
+
+            return rowCount > 0;
+
+        }
     }
 }

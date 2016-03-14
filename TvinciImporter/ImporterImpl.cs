@@ -3109,11 +3109,12 @@ namespace TvinciImporter
             return nRet;
         }
 
-        static protected void InsertFilePPVModule(int ppvModule, int fileID, int ppvModuleGroupID, DateTime? startDate, DateTime? endDate, bool clear)
+        static protected bool InsertFilePPVModule(int ppvModule, int fileID, int ppvModuleGroupID, DateTime? startDate, DateTime? endDate, bool clear)
         {
+            bool res = false;
             if (ppvModule == 0)
             {
-                return;
+                return res;
             }
 
             //First initialize all previous entries.
@@ -3168,7 +3169,7 @@ namespace TvinciImporter
                     insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", endDate);
                 }
 
-                insertQuery.Execute();
+                res = insertQuery.Execute();
                 insertQuery.Finish();
                 insertQuery = null;
             }
@@ -3193,10 +3194,12 @@ namespace TvinciImporter
 
                 updateOldQuery += "where";
                 updateOldQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", ppvFileID);
-                updateOldQuery.Execute();
+                res = updateOldQuery.Execute();
                 updateOldQuery.Finish();
                 updateOldQuery = null;
             }
+
+            return res;
         }
 
         static protected void EnterClipMediaFile(string sPicType,
@@ -3228,7 +3231,9 @@ namespace TvinciImporter
 
 
             Int32 nBillingCodeID = GetBillingCodeIDByName(sBillingType);
-            Int32 nMediaFileID = IngestionUtils.GetPicMediaFileID(nPicType, nMediaID, nGroupID, nQualityID, true, sLanguage);
+            DateTime? prevStartDate = null;
+            DateTime? prevEndDate = null;
+            Int32 nMediaFileID = IngestionUtils.GetPicMediaFileIDWithDates(nPicType, nMediaID, nGroupID, nQualityID, true, ref prevStartDate, ref prevEndDate, sLanguage);
             Int32 nPreAdCompany = GetAdCompID(sPreRule, nGroupID);
             Int32 nPostAdCompany = GetAdCompID(sPostRule, nGroupID);
             Int32 nBreakAdCompany = GetAdCompID(sBreakRule, nGroupID);
@@ -3262,11 +3267,27 @@ namespace TvinciImporter
                 if (fileStartDate.HasValue)
                 {
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", fileStartDate.Value);
+                    // check if changes in the start date require future index update call, incase fileStartDate is in more than 2 years we don't update the index (per Ira's request)
+                    if (RabbitHelper.IsFutureIndexUpdate(prevStartDate, fileStartDate))
+                    {
+                        if (!RabbitHelper.InsertFreeItemsIndexUpdate(nGroupID, ApiObjects.eObjectType.Media, new List<int>() { nMediaID }, fileStartDate.Value))
+                        {
+                            log.Error(string.Format("Failed inserting free items index update as part of Ingest for fileStartDate: {0}, mediaID: {1}, groupID: {2}", fileStartDate.Value, nMediaID, nGroupID));
+                        }
+                    }
                 }
 
                 if (fileEndDate.HasValue)
                 {
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", fileEndDate.Value);
+                    // check if changes in the end date require future index update call, incase fileEndDate is in more than 2 years we don't update the index (per Ira's request)
+                    if (RabbitHelper.IsFutureIndexUpdate(prevEndDate, fileEndDate))
+                    {
+                        if (!RabbitHelper.InsertFreeItemsIndexUpdate(nGroupID, ApiObjects.eObjectType.Media, new List<int>() { nMediaID }, fileEndDate.Value))
+                        {
+                            log.Error(string.Format("Failed inserting free items index update as part of Ingest for fileEndDate: {0}, mediaID: {1}, groupID: {2}", fileEndDate.Value, nMediaID, nGroupID));
+                        }
+                    }
                 }
 
                 if (bAdsEnabled == true)
@@ -3314,23 +3335,57 @@ namespace TvinciImporter
                 {
                     int nCommerceGroupID = 0;
 
-                    if (ppvModuleName.EndsWith(";"))
+                    if (ppvModuleName.Contains(";"))
                     {
                         string ParsedPPVModuleName = string.Empty;
                         DateTime? ppvStartDate = null;
                         DateTime? ppvEndDate = null;
-
-                        ppvModuleName = ppvModuleName.Substring(0, ppvModuleName.Length - 1);
+                        
+                        //ppvModuleName = ppvModuleName.Substring(0, ppvModuleName.Length - 1);
                         string[] parameters = ppvModuleName.Split(';');
 
                         for (int i = 0; i < parameters.Length; i += 3)
                         {
                             int ppvID = GetPPVModuleID(parameters[i], nGroupID, ref nCommerceGroupID);
 
+                            if (ppvID <= 0)
+                            {
+                                continue;
+                            }
+
                             ppvStartDate = ExtractDate(parameters[i + 1], "dd/MM/yyyy HH:mm:ss");
                             ppvEndDate = ExtractDate(parameters[i + 2], "dd/MM/yyyy HH:mm:ss");
 
-                            InsertFilePPVModule(ppvID, nMediaFileID, nCommerceGroupID, ppvStartDate, ppvEndDate, (i == 0));
+                            DateTime? prevPPVFileStartDate = null;
+                            DateTime? prevPPVFileEndDate = null;
+
+                            if (ppvStartDate.HasValue && ppvStartDate.HasValue)
+                            {
+                                DataRow updatedppvModuleMediaFileDetails = ODBCWrapper.Utils.GetTableSingleRowColumnsByParamValue("ppv_modules_media_files", "media_file_id", nMediaFileID.ToString(), new List<string>() { "start_date", "end_date" }, "pricing_connection");
+                                prevPPVFileStartDate = ODBCWrapper.Utils.GetNullableDateSafeVal(updatedppvModuleMediaFileDetails, "start_date");
+                                prevPPVFileEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(updatedppvModuleMediaFileDetails, "end_date");
+                            }
+
+                            if (InsertFilePPVModule(ppvID, nMediaFileID, nCommerceGroupID, ppvStartDate, ppvEndDate, (i == 0)))
+                            {
+                                // check if changes in the start date require future index update call, incase ppvStartDate is in more than 2 years we don't update the index (per Ira's request)
+                                if (RabbitHelper.IsFutureIndexUpdate(prevPPVFileStartDate, ppvStartDate))
+                                {
+                                    if (!RabbitHelper.InsertFreeItemsIndexUpdate(nGroupID, ApiObjects.eObjectType.Media, new List<int>() { nMediaID }, ppvStartDate.Value))
+                                    {
+                                        log.Error(string.Format("Failed inserting free items index update for startDate: {0}, mediaID: {1}, groupID: {2}", ppvStartDate.Value, nMediaID, nGroupID));
+                                    }
+                                }
+
+                                // check if changes in the end date require future index update call, incase ppvEndDate is in more than 2 years we don't update the index (per Ira's request)
+                                if (RabbitHelper.IsFutureIndexUpdate(prevPPVFileEndDate, ppvStartDate))
+                                {
+                                    if (!RabbitHelper.InsertFreeItemsIndexUpdate(nGroupID, ApiObjects.eObjectType.Media, new List<int>() { nMediaID }, ppvEndDate.Value))
+                                    {
+                                        log.Error(string.Format("Failed inserting free items index update for endDate: {0}, mediaID: {1}, groupID: {2}", ppvEndDate.Value, nMediaID, nGroupID));
+                                    }
+                                }
+                            }
                         }
                     }
                     else

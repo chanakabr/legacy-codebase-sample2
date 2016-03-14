@@ -2934,6 +2934,7 @@ namespace Catalog
 
                 if (Int32.TryParse(rates[i].term, out assetId) && assetId > 0 && assetIDsToStatsMapping.ContainsKey(assetId))
                 {
+                    assetIDsToStatsMapping[assetId].m_nVotes = rates[i].count;
                     assetIDsToStatsMapping[assetId].m_dRate = rates[i].mean;
                 }
 
@@ -4659,7 +4660,8 @@ namespace Catalog
 
             // Adapter will respond with a collection of media assets ID with Kaltura terminology
             List<RecommendationResult> recommendations =
-                RecommendationAdapterController.GetInstance().GetChannelRecommendations(externalChannel, enrichments, request.free, out requestId);
+                RecommendationAdapterController.GetInstance().GetChannelRecommendations(externalChannel, enrichments, request.free, out requestId,
+                request.m_nPageIndex, request.m_nPageSize);
 
             if (recommendations == null)
             {

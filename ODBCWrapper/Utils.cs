@@ -861,11 +861,11 @@ namespace ODBCWrapper
                     selectQuery.SetCachedSec(timeInCache);
                 }
 
-                if (connectionKey != "")
+                if (!string.IsNullOrEmpty(connectionKey))
                 {
                     selectQuery.SetConnectionKey(connectionKey);
-                }            
-                selectQuery += string.Format("SELECT {0} FROM " + tableName + " WHERE ", string.Join(",", columnsToFetch));
+                }
+                selectQuery += string.Format("SELECT {0} FROM " + tableName + " WHERE ", string.Join(",", columnsToFetch));                
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM(paramName, "=", paramID);
 
                 if (selectQuery.Execute("query", true) != null)

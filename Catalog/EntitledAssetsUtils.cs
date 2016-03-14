@@ -5,19 +5,28 @@ using Catalog.Cache;
 using Catalog.Request;
 using Catalog.Response;
 using GroupsCacheManager;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace Catalog
 {
     public class EntitledAssetsUtils
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public static List<BaseSearchObject> GetUserSubscriptionSearchObjects(BaseRequest request, int groupId, string siteGuid, int domainId, int[] fileTypeIds,
             OrderObj order, string[] mediaTypes = null, int[] deviceRuleIds = null)
         {
             List<BaseSearchObject> result = new List<BaseSearchObject>();
+
+            if (fileTypeIds == null)
+            {
+                fileTypeIds = new int[0];
+            }
 
             // Get group from cache
             GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
@@ -96,6 +105,11 @@ namespace Catalog
             Dictionary<eAssetTypes, List<string>> result = new Dictionary<eAssetTypes, List<string>>();
             epgChannelIds = new List<int>();
 
+            if (fileTypes == null)
+            {
+                fileTypes = new int[0];
+            }
+
             string userName = string.Empty;
             string password = string.Empty;
 
@@ -123,6 +137,9 @@ namespace Catalog
                 string url = Utils.GetWSURL("ws_cas");
                 cas.Url = url;
 
+                log.DebugFormat("username {0} pass {1} domain {2} filetypes {3}",
+                    userName, password, domainId, string.Join(",", fileTypes));
+
                 var purchasedAssets = cas.GetUserPurchasedAssets(userName, password, domainId, fileTypes);
 
                 if (purchasedAssets == null || purchasedAssets.status == null)
@@ -133,6 +150,22 @@ namespace Catalog
                 if (purchasedAssets.status.Code != (int)eResponseStatus.OK)
                 {
                     throw new KalturaException(purchasedAssets.status.Message, purchasedAssets.status.Code);
+                }
+
+                // Process result from CAS - create dictionary based on key/value pairs
+                foreach (var currentAsset in purchasedAssets.assets)
+                {
+                    eAssetTypes currentType = eAssetTypes.UNKNOWN;
+
+                    if (Enum.TryParse<eAssetTypes>(currentAsset.key, out currentType))
+                    {
+                        if (!result.ContainsKey(currentType))
+                        {
+                            result.Add(currentType, new List<string>());
+                        }
+
+                        result[currentType].Add(currentAsset.value);
+                    }
                 }
             }
 

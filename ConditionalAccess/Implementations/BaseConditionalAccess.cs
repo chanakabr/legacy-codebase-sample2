@@ -13471,10 +13471,10 @@ namespace ConditionalAccess
 
                                             DateTime nextRenewalDate = endDate.Value.AddMinutes(-5); // default                                           
 
-                                            if (paymentGatewayResponse != null)
+                                            if (paymentGatewayResponse == null)
                                             {
                                                 // error getting PG
-                                                log.Error("Error getting the PG - no renewal taks sent");
+                                                log.Error("Error getting the PG - GetPaymentGatewayByBillingGuid");
                                             }
                                             else
                                             {
@@ -15259,9 +15259,8 @@ namespace ConditionalAccess
                 return false;
 
             }
-
-            recurringNumber = Utils.CalcPaymentNumber(numOfPayments, recurringNumber, false);
-            if (numOfPayments > 0 && recurringNumber > numOfPayments)
+            
+            if (numOfPayments > 0 && recurringNumber >= numOfPayments)
             {
                 // Subscription ended
                 log.ErrorFormat("Subscription ended. numOfPayments={0}, paymentNumber={1}, numOfPayments={2}", numOfPayments, recurringNumber, numOfPayments);
@@ -16156,7 +16155,7 @@ namespace ConditionalAccess
         {
             UserPurhcasedAssetsResponse response = new UserPurhcasedAssetsResponse()
             {
-                assets = new List<KeyValuePair<eAssetTypes, List<string>>>(),
+                assets = new List<ApiObjects.KeyValuePair>(),
                 status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
             };
 
@@ -16170,9 +16169,25 @@ namespace ConditionalAccess
 
             try
             {
-                // Get all PPV Entitlements            
-                Dictionary<string, int> entitlements = ConditionalAccessDAL.Get_AllUsersEntitlements(domainID, new List<int>()).Values.ToDictionary(x => x.ppvCode.ToString(), x => x.purchasedAsMediaFileID);
-                if (entitlements != null && entitlements.Count > 0)
+                // Get all PPV Entitlements
+                Dictionary<string, EntitlementObject> getAllUserEntitlements = ConditionalAccessDAL.Get_AllUsersEntitlements(domainID, new List<int>());
+
+                // Map entitlements in an accessible dictionary
+                Dictionary<string, List<int>> ppvToMediaFileIDsDictionary = new Dictionary<string, List<int>>();
+
+                foreach (var currentEntitlement in getAllUserEntitlements.Values)
+                {
+                    string ppvCode = currentEntitlement.ppvCode.ToString();
+
+                    if (!ppvToMediaFileIDsDictionary.ContainsKey(ppvCode))
+                    {
+                        ppvToMediaFileIDsDictionary.Add(ppvCode, new List<int>());
+                    }
+
+                    ppvToMediaFileIDsDictionary[ppvCode].Add(currentEntitlement.purchasedAsMediaFileID);
+                }
+
+                if (ppvToMediaFileIDsDictionary != null && ppvToMediaFileIDsDictionary.Count > 0)
                 {
                     string sPricingUsername = string.Empty;
                     string sPricingPassword = string.Empty;
@@ -16183,7 +16198,7 @@ namespace ConditionalAccess
                     {
                         pricingModule.Url = pricingWSURL;
                         // Get PPV Modules data
-                        TvinciPricing.PPVModuleResponse ppvModulesResponse = pricingModule.GetPPVModulesData(sPricingUsername, sPricingPassword, entitlements.Keys.Cast<string>().ToArray(), String.Empty, String.Empty, String.Empty);
+                        TvinciPricing.PPVModuleResponse ppvModulesResponse = pricingModule.GetPPVModulesData(sPricingUsername, sPricingPassword, ppvToMediaFileIDsDictionary.Keys.Cast<string>().ToArray(), String.Empty, String.Empty, String.Empty);
                         if (ppvModulesResponse != null && ppvModulesResponse.Status.Code == (int)eResponseStatus.OK && ppvModulesResponse.PPVModules.Length > 0)
                         {
                             List<int> mediaFilesToMap = new List<int>();
@@ -16194,9 +16209,12 @@ namespace ConditionalAccess
                                     // PPV does not have specific file types defined --> supports all file types, add PPV purchased mediaFile to list
                                     if (ppvModule.m_relatedFileTypes == null)
                                     {
-                                        if (!mediaFilesToMap.Contains(entitlements[ppvModule.m_sObjectCode]))
+                                        foreach (var entitlement in ppvToMediaFileIDsDictionary[ppvModule.m_sObjectCode])
                                         {
-                                            mediaFilesToMap.Add(entitlements[ppvModule.m_sObjectCode]);
+                                            if (!mediaFilesToMap.Contains(entitlement))
+                                            {
+                                                mediaFilesToMap.Add(entitlement);
+                                            }
                                         }
                                     }
 
@@ -16206,9 +16224,12 @@ namespace ConditionalAccess
                                         int[] relevantFileTypes = ppvModule.m_relatedFileTypes.Intersect(fileTypeIDs).ToArray();
                                         if (relevantFileTypes != null && relevantFileTypes.Length > 0)
                                         {
-                                            if (!mediaFilesToMap.Contains(entitlements[ppvModule.m_sObjectCode]))
+                                            foreach (var entitlement in ppvToMediaFileIDsDictionary[ppvModule.m_sObjectCode])
                                             {
-                                                mediaFilesToMap.Add(entitlements[ppvModule.m_sObjectCode]);
+                                                if (!mediaFilesToMap.Contains(entitlement))
+                                                {
+                                                    mediaFilesToMap.Add(entitlement);
+                                                }
                                             }
                                         }
                                     }
@@ -16216,9 +16237,12 @@ namespace ConditionalAccess
                                 //Incase we want to ignore filetypeIDs (sent as null or empty)
                                 else
                                 {
-                                    if (!mediaFilesToMap.Contains(entitlements[ppvModule.m_sObjectCode]))
+                                    foreach (var entitlement in ppvToMediaFileIDsDictionary[ppvModule.m_sObjectCode])
                                     {
-                                        mediaFilesToMap.Add(entitlements[ppvModule.m_sObjectCode]);
+                                        if (!mediaFilesToMap.Contains(entitlement))
+                                        {
+                                            mediaFilesToMap.Add(entitlement);
+                                        }
                                     }
                                 }
                             }
@@ -16234,10 +16258,11 @@ namespace ConditionalAccess
                                 // Add mediaIDs to response
                                 if (mapper != null && mapper.Length > 0)
                                 {
-                                    response.assets.Add(new KeyValuePair<eAssetTypes, List<string>>(eAssetTypes.MEDIA, mapper.Select(x => x.m_nMediaID.ToString()).ToList()));
+                                    response.assets.AddRange(
+                                        mapper.Select(x => new ApiObjects.KeyValuePair(eAssetTypes.MEDIA.ToString(),
+                                            x.m_nMediaID.ToString())));
                                 }
                             }
-
                         }
                     }
                 }
@@ -16755,6 +16780,39 @@ namespace ConditionalAccess
                 }
             }
             return response;
+        }
+
+        public ApiObjects.Response.Status UpdateRecordedTransaction(long householdId, string paymentGatewayReferenceID, string paymentDetails, string paymentMethod, int paymentGatewayId, 
+            string paymentMethodExternalId)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+
+            string logData = string.Format("paymentGatewayReferenceID: {0}, paymentDetails: {1}, paymentMethod: {2}, paymentGatewayId: {3}, paymentMethodExternalId: {4}",
+               paymentGatewayReferenceID, paymentDetails, paymentMethod, paymentGatewayId, paymentMethodExternalId);
+            try
+            {
+                string userName = string.Empty;
+                string password = string.Empty;
+                TvinciBilling.module wsBillingService = null;
+                InitializeBillingModule(ref wsBillingService, ref userName, ref password);
+
+                // call new billing method for charge adapter
+                var response = wsBillingService.UpdateRecordedTransaction(userName, password, (int)householdId, paymentGatewayReferenceID, paymentDetails, paymentMethod, paymentGatewayId, 
+                    paymentMethodExternalId);
+
+                if (response != null)
+                {
+                    status = new ApiObjects.Response.Status() { Code = response.Code, Message = response.Message };
+                }
+            }
+            catch (Exception ex)
+            {
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error);
+                log.Error("Exception occurred. data: " + logData, ex);
+            }
+
+            return status;
+            
         }
     }
 }
