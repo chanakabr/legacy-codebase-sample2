@@ -45,12 +45,18 @@
     <Reference Include="KLogMonitor">
       <HintPath>..\..\tvincicommon\External\4.5\KLogMonitor.dll</HintPath>
     </Reference>
+    <Reference Include="KlogMonitorHelper">
+      <HintPath>..\..\tvmcore\External\KlogMonitorHelper.dll</HintPath>
+    </Reference>
     <Reference Include="log4net">
       <HintPath>..\..\tvincicommon\External\log4net.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\tvincicommon\External\Couchbase-2.2.5\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="ServiceExtensions">
+      <HintPath>..\..\tvincicommon\External\ServiceExtensions.dll</HintPath>
     </Reference>
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
