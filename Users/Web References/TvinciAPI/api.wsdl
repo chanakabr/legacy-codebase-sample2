@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://api.tvinci.com/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:s1="http://api.tvinci.com/AbstractTypes" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://api.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://api.tvinci.com/" xmlns:s1="http://api.tvinci.com/AbstractTypes" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://api.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://api.tvinci.com/">
       <s:element name="TVAPI_GetTvinciGUID">
@@ -415,142 +415,6 @@
           <s:element minOccurs="0" maxOccurs="1" name="MEDIA_ID" type="s:string" />
         </s:sequence>
       </s:complexType>
-      <s:element name="GetEPGChannelProgramme">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="channelID" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sPicSize" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="oUnit" type="tns:EPGUnit" />
-            <s:element minOccurs="1" maxOccurs="1" name="nFromOffsetDay" type="s:int" />
-            <s:element minOccurs="1" maxOccurs="1" name="nToOffsetDay" type="s:int" />
-            <s:element minOccurs="1" maxOccurs="1" name="nUTCOffset" type="s:int" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:simpleType name="EPGUnit">
-        <s:restriction base="s:string">
-          <s:enumeration value="Days" />
-          <s:enumeration value="Hours" />
-          <s:enumeration value="Current" />
-        </s:restriction>
-      </s:simpleType>
-      <s:element name="GetEPGChannelProgrammeResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetEPGChannelProgrammeResult" type="tns:ArrayOfEPGChannelProgrammeObject" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:complexType name="ArrayOfEPGChannelProgrammeObject">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="EPGChannelProgrammeObject" nillable="true" type="tns:EPGChannelProgrammeObject" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="EPGChannelProgrammeObject">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="EPG_CHANNEL_ID" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="EPG_IDENTIFIER" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="NAME" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="DESCRIPTION" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="START_DATE" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="END_DATE" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="PIC_URL" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="STATUS" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="IS_ACTIVE" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="GROUP_ID" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="UPDATER_ID" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="UPDATE_DATE" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="PUBLISH_DATE" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="CREATE_DATE" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="LIKE_COUNTER" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="EPG_TAGS" type="tns:ArrayOfEPGDictionary" />
-          <s:element minOccurs="0" maxOccurs="1" name="EPG_Meta" type="tns:ArrayOfEPGDictionary" />
-          <s:element minOccurs="0" maxOccurs="1" name="media_id" type="s:string" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="ArrayOfEPGDictionary">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="EPGDictionary" type="tns:EPGDictionary" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="EPGDictionary">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="Key" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="Value" type="s:string" />
-        </s:sequence>
-      </s:complexType>
-      <s:element name="GetEPGChannelProgrammeByDates">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="channelID" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sPicSize" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="fromDay" type="s:dateTime" />
-            <s:element minOccurs="1" maxOccurs="1" name="toDay" type="s:dateTime" />
-            <s:element minOccurs="1" maxOccurs="1" name="nUTCOffset" type="s:int" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="GetEPGChannelProgrammeByDatesResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetEPGChannelProgrammeByDatesResult" type="tns:ArrayOfEPGChannelProgrammeObject" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="GetEPGMultiChannelProgramme">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="channelID" type="tns:ArrayOfString" />
-            <s:element minOccurs="0" maxOccurs="1" name="sPicSize" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="oUnit" type="tns:EPGUnit" />
-            <s:element minOccurs="1" maxOccurs="1" name="nFromOffsetDay" type="s:int" />
-            <s:element minOccurs="1" maxOccurs="1" name="nToOffsetDay" type="s:int" />
-            <s:element minOccurs="1" maxOccurs="1" name="nUTCOffset" type="s:int" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="GetEPGMultiChannelProgrammeResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetEPGMultiChannelProgrammeResult" type="tns:ArrayOfEPGMultiChannelProgrammeObject" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:complexType name="ArrayOfEPGMultiChannelProgrammeObject">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="EPGMultiChannelProgrammeObject" nillable="true" type="tns:EPGMultiChannelProgrammeObject" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="EPGMultiChannelProgrammeObject">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="EPG_CHANNEL_ID" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="EPGChannelProgrammeObject" type="tns:ArrayOfEPGChannelProgrammeObject" />
-        </s:sequence>
-      </s:complexType>
-      <s:element name="SearchEPGContent">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sSearchValue" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="nPageIndex" type="s:int" />
-            <s:element minOccurs="1" maxOccurs="1" name="nPageSize" type="s:int" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="SearchEPGContentResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="SearchEPGContentResult" type="tns:ArrayOfEPGChannelProgrammeObject" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
       <s:element name="TVAPI_GetMediaInfo">
         <s:complexType>
           <s:sequence>
@@ -1031,6 +895,22 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="GetMediaFileTypeDescription">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nMediaFileID" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetMediaFileTypeDescriptionResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetMediaFileTypeDescriptionResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="GetAdminTokenValues">
         <s:complexType>
           <s:sequence>
@@ -1083,6 +963,27 @@
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="GetChannelsMediaIDsResult" type="tns:ArrayOfInt" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetChannelsAssetsIDs">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="nChannels" type="tns:ArrayOfInt" />
+            <s:element minOccurs="0" maxOccurs="1" name="nFileTypeIDs" type="tns:ArrayOfInt" />
+            <s:element minOccurs="1" maxOccurs="1" name="bWithCache" type="s:boolean" />
+            <s:element minOccurs="0" maxOccurs="1" name="sDevice" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="activeAssets" type="s:boolean" />
+            <s:element minOccurs="1" maxOccurs="1" name="useStartDate" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetChannelsAssetsIDsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetChannelsAssetsIDsResult" type="tns:ArrayOfInt" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -1411,13 +1312,83 @@
           <s:enumeration value="Notification" />
           <s:enumeration value="AddUserToDomain" />
           <s:enumeration value="ChangePassword" />
+          <s:enumeration value="PreviewModuleCancelOrRefund" />
+          <s:enumeration value="PurchaseWithPreviewModule" />
+          <s:enumeration value="AddDeviceToDomain" />
         </s:restriction>
       </s:simpleType>
-      <s:complexType name="ChangePasswordMailRequest">
+      <s:complexType name="ChangedPinMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sSiteGuid" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sRuleName" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="SendPasswordMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPassword" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="WelcomeMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPassword" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="AddUserMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewFirstName" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ForgotPasswordMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="CinepolisRenewalFailMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="CinepolisPurchaseMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPrice" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -1437,6 +1408,47 @@
               <s:element minOccurs="0" maxOccurs="1" name="m_sInvoiceNum" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sExternalTransationNum" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sAddress" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sUserEmail" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="PurchaseFailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:PurchaseMailRequest" />
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="PurchaseWithPreviewModuleRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:PurchaseMailRequest">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPreviewModuleEndDate" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="PreviewModuleCancelOrRefundRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:PurchaseMailRequest" />
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="AddDeviceMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewDeviceUdid" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewDeviceName" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ChangePasswordMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -1448,14 +1460,14 @@
               <s:element minOccurs="0" maxOccurs="1" name="m_sTagToFollow" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sMediaName" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_mediaPicURL" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_firstName" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_mediaType" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_content" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_mediaId" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_tagList" type="tns:ArrayOfTagPair" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_startDate" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_runTime" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_userFollowTags" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_catalogStartDate" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_startDate" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -1470,77 +1482,6 @@
           <s:element minOccurs="0" maxOccurs="1" name="key" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
         </s:sequence>
-      </s:complexType>
-      <s:complexType name="AddUserMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewFirstName" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="ChangedPinMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sSiteGuid" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sRuleName" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="SendPasswordMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPassword" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="ForgotPasswordMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="WelcomeMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPassword" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="PurchaseFailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPrice" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sTransactionNumber" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPaymentMethod" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sTaxVal" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sTaxSubtotal" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sTaxAmount" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sInvoiceNum" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sExternalTransationNum" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sAddress" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
       </s:complexType>
       <s:complexType name="SendAdminTokenRequest">
         <s:complexContent mixed="false">
@@ -1591,6 +1532,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="IsActive" type="s:boolean" />
           <s:element minOccurs="1" maxOccurs="1" name="BlockType" type="tns:eBlockType" />
           <s:element minOccurs="1" maxOccurs="1" name="GroupRuleType" type="tns:eGroupRuleType" />
+          <s:element minOccurs="1" maxOccurs="1" name="BlockAnonymous" type="s:boolean" />
         </s:sequence>
       </s:complexType>
       <s:simpleType name="eBlockType">
@@ -1600,6 +1542,8 @@
           <s:enumeration value="AgeBlock" />
           <s:enumeration value="Geo" />
           <s:enumeration value="Device" />
+          <s:enumeration value="UserType" />
+          <s:enumeration value="AnonymousAccessBlock" />
         </s:restriction>
       </s:simpleType>
       <s:simpleType name="eGroupRuleType">
@@ -1726,21 +1670,36 @@
       <s:complexType name="GroupOperator">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="UIData" type="tns:UIData" />
+          <s:element minOccurs="0" maxOccurs="1" name="Groups_operators_menus" type="tns:ArrayOfKeyValuePair" />
           <s:element minOccurs="1" maxOccurs="1" name="ID" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="Type" type="tns:eOperatorType" />
+          <s:element minOccurs="0" maxOccurs="1" name="CoGuid" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="LoginUrl" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="SubGroupID" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="Scopes" type="tns:ArrayOfScope" />
           <s:element minOccurs="0" maxOccurs="1" name="GroupUserName" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="GroupPassword" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="LogoutURL" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="AboutUs" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="ContactUs" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="UIData">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="ColorCode" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="picID" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="picURL" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfKeyValuePair">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="KeyValuePair" nillable="true" type="tns:KeyValuePair" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="KeyValuePair">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="key" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:simpleType name="eOperatorType">
@@ -1748,6 +1707,7 @@
           <s:enumeration value="OAuth" />
           <s:enumeration value="API" />
           <s:enumeration value="TVinci" />
+          <s:enumeration value="SAML" />
         </s:restriction>
       </s:simpleType>
       <s:complexType name="ArrayOfScope">
@@ -1853,6 +1813,24 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="CheckDomainParentalPIN">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nDomainID" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="nRuleID" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="sParentalPIN" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CheckDomainParentalPINResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="CheckDomainParentalPINResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="SetDefaultRules">
         <s:complexType>
           <s:sequence>
@@ -1919,32 +1897,6 @@
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="1" maxOccurs="1" name="CleanUserHistoryResult" type="s:boolean" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="GetEPGProgramsByScids">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="scids" type="tns:ArrayOfString" />
-            <s:element minOccurs="1" maxOccurs="1" name="eLang" type="tns:Language" />
-            <s:element minOccurs="1" maxOccurs="1" name="duration" type="s:int" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:simpleType name="Language">
-        <s:restriction base="s:string">
-          <s:enumeration value="English" />
-          <s:enumeration value="Hebrew" />
-          <s:enumeration value="Russian" />
-          <s:enumeration value="Arabic" />
-        </s:restriction>
-      </s:simpleType>
-      <s:element name="GetEPGProgramsByScidsResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetEPGProgramsByScidsResult" type="tns:ArrayOfEPGChannelProgrammeObject" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -2022,6 +1974,25 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="DoesMediaBelongToCollection">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nCollectionCode" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="nFileTypeIDs" type="tns:ArrayOfInt" />
+            <s:element minOccurs="1" maxOccurs="1" name="nMediaID" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="sDevice" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DoesMediaBelongToCollectionResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="DoesMediaBelongToCollectionResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="GetGroupMediaRules">
         <s:complexType>
           <s:sequence>
@@ -2061,10 +2032,712 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="GetNpvrRules">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="recordedProgram" type="tns:RecordedEPGChannelProgrammeObject" />
+            <s:element minOccurs="1" maxOccurs="1" name="siteGuid" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="sIP" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="deviceUdid" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="RecordedEPGChannelProgrammeObject">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:EPGChannelProgrammeObject">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="RecordingID" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="IsAssetProtected" type="s:boolean" />
+              <s:element minOccurs="0" maxOccurs="1" name="ChannelName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="RecordSource" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="EPGChannelProgrammeObject">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="EPG_ID" type="s:long" />
+          <s:element minOccurs="0" maxOccurs="1" name="EPG_CHANNEL_ID" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="EPG_IDENTIFIER" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="NAME" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="DESCRIPTION" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="START_DATE" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="END_DATE" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="PIC_URL" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="STATUS" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="IS_ACTIVE" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="GROUP_ID" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="UPDATER_ID" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="UPDATE_DATE" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="PUBLISH_DATE" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="CREATE_DATE" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="LIKE_COUNTER" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="EPG_TAGS" type="tns:ArrayOfEPGDictionary" />
+          <s:element minOccurs="0" maxOccurs="1" name="EPG_Meta" type="tns:ArrayOfEPGDictionary" />
+          <s:element minOccurs="0" maxOccurs="1" name="EPG_PICTURES" type="tns:ArrayOfEpgPicture" />
+          <s:element minOccurs="0" maxOccurs="1" name="media_id" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfEPGDictionary">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="EPGDictionary" type="tns:EPGDictionary" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="EPGDictionary">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Key" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Value" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfEpgPicture">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="EpgPicture" nillable="true" type="tns:EpgPicture" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="EpgPicture">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="PicWidth" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="PicHeight" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Ratio" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="PicID" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Url" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetNpvrRulesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetNpvrRulesResult" type="tns:ArrayOfGroupRule" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ChannelsContainingMedia">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="lChannels" type="tns:ArrayOfInt" />
+            <s:element minOccurs="1" maxOccurs="1" name="nMediaID" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="nMediaFileID" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ChannelsContainingMediaResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ChannelsContainingMediaResult" type="tns:ArrayOfInt" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetSubscriptionMediaIds">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nSubscriptionCode" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="nFileTypeIDs" type="tns:ArrayOfInt" />
+            <s:element minOccurs="0" maxOccurs="1" name="sDevice" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetSubscriptionMediaIdsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetSubscriptionMediaIdsResult" type="tns:ArrayOfInt" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetCollectionMediaIds">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nCollectionCode" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="nFileTypeIDs" type="tns:ArrayOfInt" />
+            <s:element minOccurs="0" maxOccurs="1" name="sDevice" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetCollectionMediaIdsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetCollectionMediaIdsResult" type="tns:ArrayOfInt" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetMediaChannels">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nMediaId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetMediaChannelsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetMediaChannelsResult" type="tns:ArrayOfInt" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetProgramDetails">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPass" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nProgramId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetProgramDetailsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetProgramDetailsResult" type="tns:EPGChannelProgrammeObject" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetMediaConcurrencyRules">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nMediaID" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="sIP" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="bmID" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="eType" type="tns:eBusinessModule" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:simpleType name="eBusinessModule">
+        <s:restriction base="s:string">
+          <s:enumeration value="PPV" />
+          <s:enumeration value="Subscription" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="GetMediaConcurrencyRulesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetMediaConcurrencyRulesResult" type="tns:ArrayOfMediaConcurrencyRule" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfMediaConcurrencyRule">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="MediaConcurrencyRule" nillable="true" type="tns:MediaConcurrencyRule" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="MediaConcurrencyRule">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="RuleID" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="TagTypeID" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="TagType" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="AllTagValues" type="tns:ArrayOfString" />
+          <s:element minOccurs="1" maxOccurs="1" name="bmId" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsActive" type="s:boolean" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetRegions">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="externalRegionList" type="tns:ArrayOfString" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetRegionsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetRegionsResult" type="tns:RegionsResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="RegionsResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Regions" type="tns:ArrayOfRegion" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfRegion">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="Region" nillable="true" type="tns:Region" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Region">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="id" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="externalId" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="isDefault" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="linearChannels" type="tns:ArrayOfKeyValuePair" />
+          <s:element minOccurs="1" maxOccurs="1" name="groupId" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Status">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Code" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetGroupLanguages">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetGroupLanguagesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetGroupLanguagesResult" type="tns:ArrayOfLanguageObj" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfLanguageObj">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="LanguageObj" nillable="true" type="tns:LanguageObj" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="LanguageObj">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="ID" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Code" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Direction" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsDefault" type="s:boolean" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetParentalRules">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetParentalRulesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetParentalRulesResult" type="tns:ParentalRulesResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ParentalRulesResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="rules" type="tns:ArrayOfParentalRule" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfParentalRule">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="ParentalRule" nillable="true" type="tns:ParentalRule" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ParentalRule">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="id" type="s:long" />
+          <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="description" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="order" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="mediaTagTypeId" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="epgTagTypeId" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="blockAnonymousAccess" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="ruleType" type="tns:eParentalRuleType" />
+          <s:element minOccurs="0" maxOccurs="1" name="mediaTagValues" type="tns:ArrayOfString" />
+          <s:element minOccurs="0" maxOccurs="1" name="epgTagValues" type="tns:ArrayOfString" />
+          <s:element minOccurs="1" maxOccurs="1" name="isDefault" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="level" type="tns:eRuleLevel" />
+        </s:sequence>
+      </s:complexType>
+      <s:simpleType name="eParentalRuleType">
+        <s:restriction base="s:string">
+          <s:enumeration value="All" />
+          <s:enumeration value="Movies" />
+          <s:enumeration value="TVSeries" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="eRuleLevel">
+        <s:restriction base="s:string">
+          <s:enumeration value="User" />
+          <s:enumeration value="Domain" />
+          <s:enumeration value="Group" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="GetDomainParentalRules">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetDomainParentalRulesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetDomainParentalRulesResult" type="tns:ParentalRulesResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserParentalRules">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserParentalRulesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetUserParentalRulesResult" type="tns:ParentalRulesResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetUserParentalRules">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="webServicePassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="ruleId" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="isActive" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetUserParentalRulesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SetUserParentalRulesResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetDomainParentalRules">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="webServicePassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="ruleId" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="isActive" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetDomainParentalRulesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SetDomainParentalRulesResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetParentalPIN">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetParentalPINResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetParentalPINResult" type="tns:PinResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="PinResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="pin" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="level" nillable="true" type="tns:eRuleLevel" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="SetParentalPIN">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pin" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetParentalPINResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SetParentalPINResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPurchaseSettings">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPurchaseSettingsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetPurchaseSettingsResult" type="tns:PurchaseSettingsResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="PurchaseSettingsResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="status" type="tns:Status" />
+          <s:element minOccurs="1" maxOccurs="1" name="type" nillable="true" type="tns:ePurchaeSettingsType" />
+          <s:element minOccurs="0" maxOccurs="1" name="pin" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="level" nillable="true" type="tns:eRuleLevel" />
+        </s:sequence>
+      </s:complexType>
+      <s:simpleType name="ePurchaeSettingsType">
+        <s:restriction base="s:string">
+          <s:enumeration value="Block" />
+          <s:enumeration value="Ask" />
+          <s:enumeration value="Allow" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="SetPurchaseSettings">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="setting" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetPurchaseSettingsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SetPurchaseSettingsResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPurchasePIN">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPurchasePINResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetPurchasePINResult" type="tns:PurchaseSettingsResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetPurchasePIN">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pin" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetPurchasePINResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SetPurchasePINResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ValidateParentalPIN">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pin" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ValidateParentalPINResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ValidateParentalPINResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ValidatePurchasePIN">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pin" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ValidatePurchasePINResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ValidatePurchasePINResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetParentalMediaRules">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="mediaId" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:long" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetParentalMediaRulesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetParentalMediaRulesResult" type="tns:ParentalRulesResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetParentalEPGRules">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="epgId" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:long" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetParentalEPGRulesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetParentalEPGRulesResult" type="tns:ParentalRulesResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DisableUserDefaultParentalRule">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="webServicePassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DisableUserDefaultParentalRuleResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DisableUserDefaultParentalRuleResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DisableDomainDefaultParentalRule">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="webServicePassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DisableDomainDefaultParentalRuleResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DisableDomainDefaultParentalRuleResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetMediaRules">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="webServicePassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="mediaId" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:long" />
+            <s:element minOccurs="0" maxOccurs="1" name="ip" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="udid" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetMediaRulesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetMediaRulesResult" type="tns:GenericRuleResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GenericRuleResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="Rules" type="tns:ArrayOfGenericRule" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfGenericRule">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="GenericRule" nillable="true" type="tns:GenericRule" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="GenericRule">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Id" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="RuleType" type="tns:RuleType" />
+          <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Description" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:simpleType name="RuleType">
+        <s:restriction base="s:string">
+          <s:enumeration value="Parental" />
+          <s:enumeration value="Geo" />
+          <s:enumeration value="UserType" />
+          <s:enumeration value="Device" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="GetEpgRules">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="webServicePassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="epgId" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="channelMediaId" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:long" />
+            <s:element minOccurs="0" maxOccurs="1" name="ip" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetEpgRulesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetEpgRulesResult" type="tns:GenericRuleResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="int" type="s:int" />
       <s:element name="ArrayOfEPGChannelObject" nillable="true" type="tns:ArrayOfEPGChannelObject" />
-      <s:element name="ArrayOfEPGChannelProgrammeObject" nillable="true" type="tns:ArrayOfEPGChannelProgrammeObject" />
-      <s:element name="ArrayOfEPGMultiChannelProgrammeObject" nillable="true" type="tns:ArrayOfEPGMultiChannelProgrammeObject" />
       <s:element name="AdminAccountUserResponse" nillable="true" type="tns:AdminAccountUserResponse" />
       <s:element name="string" nillable="true" type="s:string" />
       <s:element name="boolean" type="s:boolean" />
@@ -2079,6 +2752,14 @@
       <s:element name="ArrayOfGroupOperator" nillable="true" type="tns:ArrayOfGroupOperator" />
       <s:element name="DeviceAvailabiltyRule" nillable="true" type="tns:DeviceAvailabiltyRule" />
       <s:element name="Scheduling" nillable="true" type="tns:Scheduling" />
+      <s:element name="EPGChannelProgrammeObject" nillable="true" type="tns:EPGChannelProgrammeObject" />
+      <s:element name="ArrayOfMediaConcurrencyRule" nillable="true" type="tns:ArrayOfMediaConcurrencyRule" />
+      <s:element name="ArrayOfLanguageObj" nillable="true" type="tns:ArrayOfLanguageObj" />
+      <s:element name="ParentalRulesResponse" nillable="true" type="tns:ParentalRulesResponse" />
+      <s:element name="Status" nillable="true" type="tns:Status" />
+      <s:element name="PinResponse" nillable="true" type="tns:PinResponse" />
+      <s:element name="PurchaseSettingsResponse" nillable="true" type="tns:PurchaseSettingsResponse" />
+      <s:element name="GenericRuleResponse" nillable="true" type="tns:GenericRuleResponse" />
     </s:schema>
     <s:schema targetNamespace="http://api.tvinci.com/AbstractTypes">
       <s:import namespace="http://schemas.xmlsoap.org/soap/encoding/" />
@@ -2122,30 +2803,6 @@
   </wsdl:message>
   <wsdl:message name="GetEPGChannelSoapOut">
     <wsdl:part name="parameters" element="tns:GetEPGChannelResponse" />
-  </wsdl:message>
-  <wsdl:message name="GetEPGChannelProgrammeSoapIn">
-    <wsdl:part name="parameters" element="tns:GetEPGChannelProgramme" />
-  </wsdl:message>
-  <wsdl:message name="GetEPGChannelProgrammeSoapOut">
-    <wsdl:part name="parameters" element="tns:GetEPGChannelProgrammeResponse" />
-  </wsdl:message>
-  <wsdl:message name="GetEPGChannelProgrammeByDatesSoapIn">
-    <wsdl:part name="parameters" element="tns:GetEPGChannelProgrammeByDates" />
-  </wsdl:message>
-  <wsdl:message name="GetEPGChannelProgrammeByDatesSoapOut">
-    <wsdl:part name="parameters" element="tns:GetEPGChannelProgrammeByDatesResponse" />
-  </wsdl:message>
-  <wsdl:message name="GetEPGMultiChannelProgrammeSoapIn">
-    <wsdl:part name="parameters" element="tns:GetEPGMultiChannelProgramme" />
-  </wsdl:message>
-  <wsdl:message name="GetEPGMultiChannelProgrammeSoapOut">
-    <wsdl:part name="parameters" element="tns:GetEPGMultiChannelProgrammeResponse" />
-  </wsdl:message>
-  <wsdl:message name="SearchEPGContentSoapIn">
-    <wsdl:part name="parameters" element="tns:SearchEPGContent" />
-  </wsdl:message>
-  <wsdl:message name="SearchEPGContentSoapOut">
-    <wsdl:part name="parameters" element="tns:SearchEPGContentResponse" />
   </wsdl:message>
   <wsdl:message name="TVAPI_GetMediaInfoSoapIn">
     <wsdl:part name="parameters" element="tns:TVAPI_GetMediaInfo" />
@@ -2255,6 +2912,12 @@
   <wsdl:message name="GetMediaFileTypeIDSoapOut">
     <wsdl:part name="parameters" element="tns:GetMediaFileTypeIDResponse" />
   </wsdl:message>
+  <wsdl:message name="GetMediaFileTypeDescriptionSoapIn">
+    <wsdl:part name="parameters" element="tns:GetMediaFileTypeDescription" />
+  </wsdl:message>
+  <wsdl:message name="GetMediaFileTypeDescriptionSoapOut">
+    <wsdl:part name="parameters" element="tns:GetMediaFileTypeDescriptionResponse" />
+  </wsdl:message>
   <wsdl:message name="GetAdminTokenValuesSoapIn">
     <wsdl:part name="parameters" element="tns:GetAdminTokenValues" />
   </wsdl:message>
@@ -2266,6 +2929,12 @@
   </wsdl:message>
   <wsdl:message name="GetChannelsMediaIDsSoapOut">
     <wsdl:part name="parameters" element="tns:GetChannelsMediaIDsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetChannelsAssetsIDsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetChannelsAssetsIDs" />
+  </wsdl:message>
+  <wsdl:message name="GetChannelsAssetsIDsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetChannelsAssetsIDsResponse" />
   </wsdl:message>
   <wsdl:message name="GetAvailableFileTypesSoapIn">
     <wsdl:part name="parameters" element="tns:GetAvailableFileTypes" />
@@ -2417,6 +3086,12 @@
   <wsdl:message name="CheckParentalPINSoapOut">
     <wsdl:part name="parameters" element="tns:CheckParentalPINResponse" />
   </wsdl:message>
+  <wsdl:message name="CheckDomainParentalPINSoapIn">
+    <wsdl:part name="parameters" element="tns:CheckDomainParentalPIN" />
+  </wsdl:message>
+  <wsdl:message name="CheckDomainParentalPINSoapOut">
+    <wsdl:part name="parameters" element="tns:CheckDomainParentalPINResponse" />
+  </wsdl:message>
   <wsdl:message name="SetDefaultRulesSoapIn">
     <wsdl:part name="parameters" element="tns:SetDefaultRules" />
   </wsdl:message>
@@ -2434,12 +3109,6 @@
   </wsdl:message>
   <wsdl:message name="CleanUserHistorySoapOut">
     <wsdl:part name="parameters" element="tns:CleanUserHistoryResponse" />
-  </wsdl:message>
-  <wsdl:message name="GetEPGProgramsByScidsSoapIn">
-    <wsdl:part name="parameters" element="tns:GetEPGProgramsByScids" />
-  </wsdl:message>
-  <wsdl:message name="GetEPGProgramsByScidsSoapOut">
-    <wsdl:part name="parameters" element="tns:GetEPGProgramsByScidsResponse" />
   </wsdl:message>
   <wsdl:message name="GetProgramScheduleSoapIn">
     <wsdl:part name="parameters" element="tns:GetProgramSchedule" />
@@ -2465,6 +3134,12 @@
   <wsdl:message name="DoesMediaBelongToSubscriptionSoapOut">
     <wsdl:part name="parameters" element="tns:DoesMediaBelongToSubscriptionResponse" />
   </wsdl:message>
+  <wsdl:message name="DoesMediaBelongToCollectionSoapIn">
+    <wsdl:part name="parameters" element="tns:DoesMediaBelongToCollection" />
+  </wsdl:message>
+  <wsdl:message name="DoesMediaBelongToCollectionSoapOut">
+    <wsdl:part name="parameters" element="tns:DoesMediaBelongToCollectionResponse" />
+  </wsdl:message>
   <wsdl:message name="GetGroupMediaRulesSoapIn">
     <wsdl:part name="parameters" element="tns:GetGroupMediaRules" />
   </wsdl:message>
@@ -2476,6 +3151,174 @@
   </wsdl:message>
   <wsdl:message name="GetEPGProgramRulesSoapOut">
     <wsdl:part name="parameters" element="tns:GetEPGProgramRulesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetNpvrRulesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetNpvrRules" />
+  </wsdl:message>
+  <wsdl:message name="GetNpvrRulesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetNpvrRulesResponse" />
+  </wsdl:message>
+  <wsdl:message name="ChannelsContainingMediaSoapIn">
+    <wsdl:part name="parameters" element="tns:ChannelsContainingMedia" />
+  </wsdl:message>
+  <wsdl:message name="ChannelsContainingMediaSoapOut">
+    <wsdl:part name="parameters" element="tns:ChannelsContainingMediaResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionMediaIdsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetSubscriptionMediaIds" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionMediaIdsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetSubscriptionMediaIdsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetCollectionMediaIdsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetCollectionMediaIds" />
+  </wsdl:message>
+  <wsdl:message name="GetCollectionMediaIdsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetCollectionMediaIdsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetMediaChannelsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetMediaChannels" />
+  </wsdl:message>
+  <wsdl:message name="GetMediaChannelsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetMediaChannelsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetProgramDetailsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetProgramDetails" />
+  </wsdl:message>
+  <wsdl:message name="GetProgramDetailsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetProgramDetailsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetMediaConcurrencyRulesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetMediaConcurrencyRules" />
+  </wsdl:message>
+  <wsdl:message name="GetMediaConcurrencyRulesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetMediaConcurrencyRulesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetRegionsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetRegions" />
+  </wsdl:message>
+  <wsdl:message name="GetRegionsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetRegionsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupLanguagesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetGroupLanguages" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupLanguagesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetGroupLanguagesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetParentalRulesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetParentalRules" />
+  </wsdl:message>
+  <wsdl:message name="GetParentalRulesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetParentalRulesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainParentalRulesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetDomainParentalRules" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainParentalRulesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetDomainParentalRulesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserParentalRulesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetUserParentalRules" />
+  </wsdl:message>
+  <wsdl:message name="GetUserParentalRulesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetUserParentalRulesResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetUserParentalRulesSoapIn">
+    <wsdl:part name="parameters" element="tns:SetUserParentalRules" />
+  </wsdl:message>
+  <wsdl:message name="SetUserParentalRulesSoapOut">
+    <wsdl:part name="parameters" element="tns:SetUserParentalRulesResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetDomainParentalRulesSoapIn">
+    <wsdl:part name="parameters" element="tns:SetDomainParentalRules" />
+  </wsdl:message>
+  <wsdl:message name="SetDomainParentalRulesSoapOut">
+    <wsdl:part name="parameters" element="tns:SetDomainParentalRulesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetParentalPINSoapIn">
+    <wsdl:part name="parameters" element="tns:GetParentalPIN" />
+  </wsdl:message>
+  <wsdl:message name="GetParentalPINSoapOut">
+    <wsdl:part name="parameters" element="tns:GetParentalPINResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetParentalPINSoapIn">
+    <wsdl:part name="parameters" element="tns:SetParentalPIN" />
+  </wsdl:message>
+  <wsdl:message name="SetParentalPINSoapOut">
+    <wsdl:part name="parameters" element="tns:SetParentalPINResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetPurchaseSettingsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetPurchaseSettings" />
+  </wsdl:message>
+  <wsdl:message name="GetPurchaseSettingsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetPurchaseSettingsResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetPurchaseSettingsSoapIn">
+    <wsdl:part name="parameters" element="tns:SetPurchaseSettings" />
+  </wsdl:message>
+  <wsdl:message name="SetPurchaseSettingsSoapOut">
+    <wsdl:part name="parameters" element="tns:SetPurchaseSettingsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetPurchasePINSoapIn">
+    <wsdl:part name="parameters" element="tns:GetPurchasePIN" />
+  </wsdl:message>
+  <wsdl:message name="GetPurchasePINSoapOut">
+    <wsdl:part name="parameters" element="tns:GetPurchasePINResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetPurchasePINSoapIn">
+    <wsdl:part name="parameters" element="tns:SetPurchasePIN" />
+  </wsdl:message>
+  <wsdl:message name="SetPurchasePINSoapOut">
+    <wsdl:part name="parameters" element="tns:SetPurchasePINResponse" />
+  </wsdl:message>
+  <wsdl:message name="ValidateParentalPINSoapIn">
+    <wsdl:part name="parameters" element="tns:ValidateParentalPIN" />
+  </wsdl:message>
+  <wsdl:message name="ValidateParentalPINSoapOut">
+    <wsdl:part name="parameters" element="tns:ValidateParentalPINResponse" />
+  </wsdl:message>
+  <wsdl:message name="ValidatePurchasePINSoapIn">
+    <wsdl:part name="parameters" element="tns:ValidatePurchasePIN" />
+  </wsdl:message>
+  <wsdl:message name="ValidatePurchasePINSoapOut">
+    <wsdl:part name="parameters" element="tns:ValidatePurchasePINResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetParentalMediaRulesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetParentalMediaRules" />
+  </wsdl:message>
+  <wsdl:message name="GetParentalMediaRulesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetParentalMediaRulesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetParentalEPGRulesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetParentalEPGRules" />
+  </wsdl:message>
+  <wsdl:message name="GetParentalEPGRulesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetParentalEPGRulesResponse" />
+  </wsdl:message>
+  <wsdl:message name="DisableUserDefaultParentalRuleSoapIn">
+    <wsdl:part name="parameters" element="tns:DisableUserDefaultParentalRule" />
+  </wsdl:message>
+  <wsdl:message name="DisableUserDefaultParentalRuleSoapOut">
+    <wsdl:part name="parameters" element="tns:DisableUserDefaultParentalRuleResponse" />
+  </wsdl:message>
+  <wsdl:message name="DisableDomainDefaultParentalRuleSoapIn">
+    <wsdl:part name="parameters" element="tns:DisableDomainDefaultParentalRule" />
+  </wsdl:message>
+  <wsdl:message name="DisableDomainDefaultParentalRuleSoapOut">
+    <wsdl:part name="parameters" element="tns:DisableDomainDefaultParentalRuleResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetMediaRulesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetMediaRules" />
+  </wsdl:message>
+  <wsdl:message name="GetMediaRulesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetMediaRulesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetEpgRulesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetEpgRules" />
+  </wsdl:message>
+  <wsdl:message name="GetEpgRulesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetEpgRulesResponse" />
   </wsdl:message>
   <wsdl:message name="InsertEPGScheduleHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -2494,54 +3337,6 @@
   </wsdl:message>
   <wsdl:message name="GetEPGChannelHttpPostOut">
     <wsdl:part name="Body" element="tns:ArrayOfEPGChannelObject" />
-  </wsdl:message>
-  <wsdl:message name="GetEPGChannelProgrammeHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="channelID" type="s:string" />
-    <wsdl:part name="sPicSize" type="s:string" />
-    <wsdl:part name="oUnit" type="s:string" />
-    <wsdl:part name="nFromOffsetDay" type="s:string" />
-    <wsdl:part name="nToOffsetDay" type="s:string" />
-    <wsdl:part name="nUTCOffset" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetEPGChannelProgrammeHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfEPGChannelProgrammeObject" />
-  </wsdl:message>
-  <wsdl:message name="GetEPGChannelProgrammeByDatesHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="channelID" type="s:string" />
-    <wsdl:part name="sPicSize" type="s:string" />
-    <wsdl:part name="fromDay" type="s:string" />
-    <wsdl:part name="toDay" type="s:string" />
-    <wsdl:part name="nUTCOffset" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetEPGChannelProgrammeByDatesHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfEPGChannelProgrammeObject" />
-  </wsdl:message>
-  <wsdl:message name="GetEPGMultiChannelProgrammeHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="channelID" type="s1:StringArray" />
-    <wsdl:part name="sPicSize" type="s:string" />
-    <wsdl:part name="oUnit" type="s:string" />
-    <wsdl:part name="nFromOffsetDay" type="s:string" />
-    <wsdl:part name="nToOffsetDay" type="s:string" />
-    <wsdl:part name="nUTCOffset" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetEPGMultiChannelProgrammeHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfEPGMultiChannelProgrammeObject" />
-  </wsdl:message>
-  <wsdl:message name="SearchEPGContentHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="sSearchValue" type="s:string" />
-    <wsdl:part name="nPageIndex" type="s:string" />
-    <wsdl:part name="nPageSize" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="SearchEPGContentHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfEPGChannelProgrammeObject" />
   </wsdl:message>
   <wsdl:message name="AdminSignInHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -2578,6 +3373,14 @@
   <wsdl:message name="GetMediaFileTypeIDHttpPostOut">
     <wsdl:part name="Body" element="tns:int" />
   </wsdl:message>
+  <wsdl:message name="GetMediaFileTypeDescriptionHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nMediaFileID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetMediaFileTypeDescriptionHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
   <wsdl:message name="GetChannelsMediaIDsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -2587,6 +3390,19 @@
     <wsdl:part name="sDevice" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetChannelsMediaIDsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfInt" />
+  </wsdl:message>
+  <wsdl:message name="GetChannelsAssetsIDsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nChannels" type="s1:StringArray" />
+    <wsdl:part name="nFileTypeIDs" type="s1:StringArray" />
+    <wsdl:part name="bWithCache" type="s:string" />
+    <wsdl:part name="sDevice" type="s:string" />
+    <wsdl:part name="activeAssets" type="s:string" />
+    <wsdl:part name="useStartDate" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetChannelsAssetsIDsHttpPostOut">
     <wsdl:part name="Body" element="tns:ArrayOfInt" />
   </wsdl:message>
   <wsdl:message name="GetAvailableFileTypesHttpPostIn">
@@ -2793,6 +3609,16 @@
   <wsdl:message name="CheckParentalPINHttpPostOut">
     <wsdl:part name="Body" element="tns:boolean" />
   </wsdl:message>
+  <wsdl:message name="CheckDomainParentalPINHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDomainID" type="s:string" />
+    <wsdl:part name="nRuleID" type="s:string" />
+    <wsdl:part name="sParentalPIN" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="CheckDomainParentalPINHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
   <wsdl:message name="SetDefaultRulesHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -2808,16 +3634,6 @@
   </wsdl:message>
   <wsdl:message name="GetAvailableDevicesHttpPostOut">
     <wsdl:part name="Body" element="tns:DeviceAvailabiltyRule" />
-  </wsdl:message>
-  <wsdl:message name="GetEPGProgramsByScidsHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="scids" type="s1:StringArray" />
-    <wsdl:part name="eLang" type="s:string" />
-    <wsdl:part name="duration" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetEPGProgramsByScidsHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfEPGChannelProgrammeObject" />
   </wsdl:message>
   <wsdl:message name="GetProgramScheduleHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -2855,6 +3671,17 @@
   <wsdl:message name="DoesMediaBelongToSubscriptionHttpPostOut">
     <wsdl:part name="Body" element="tns:boolean" />
   </wsdl:message>
+  <wsdl:message name="DoesMediaBelongToCollectionHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nCollectionCode" type="s:string" />
+    <wsdl:part name="nFileTypeIDs" type="s1:StringArray" />
+    <wsdl:part name="nMediaID" type="s:string" />
+    <wsdl:part name="sDevice" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="DoesMediaBelongToCollectionHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
   <wsdl:message name="GetGroupMediaRulesHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -2878,6 +3705,243 @@
   <wsdl:message name="GetEPGProgramRulesHttpPostOut">
     <wsdl:part name="Body" element="tns:ArrayOfGroupRule" />
   </wsdl:message>
+  <wsdl:message name="GetSubscriptionMediaIdsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nSubscriptionCode" type="s:string" />
+    <wsdl:part name="nFileTypeIDs" type="s1:StringArray" />
+    <wsdl:part name="sDevice" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionMediaIdsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfInt" />
+  </wsdl:message>
+  <wsdl:message name="GetCollectionMediaIdsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nCollectionCode" type="s:string" />
+    <wsdl:part name="nFileTypeIDs" type="s1:StringArray" />
+    <wsdl:part name="sDevice" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetCollectionMediaIdsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfInt" />
+  </wsdl:message>
+  <wsdl:message name="GetMediaChannelsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nMediaId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetMediaChannelsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfInt" />
+  </wsdl:message>
+  <wsdl:message name="GetProgramDetailsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPass" type="s:string" />
+    <wsdl:part name="nProgramId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetProgramDetailsHttpPostOut">
+    <wsdl:part name="Body" element="tns:EPGChannelProgrammeObject" />
+  </wsdl:message>
+  <wsdl:message name="GetMediaConcurrencyRulesHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nMediaID" type="s:string" />
+    <wsdl:part name="sIP" type="s:string" />
+    <wsdl:part name="bmID" type="s:string" />
+    <wsdl:part name="eType" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetMediaConcurrencyRulesHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfMediaConcurrencyRule" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupLanguagesHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupLanguagesHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfLanguageObj" />
+  </wsdl:message>
+  <wsdl:message name="GetParentalRulesHttpPostIn">
+    <wsdl:part name="userName" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetParentalRulesHttpPostOut">
+    <wsdl:part name="Body" element="tns:ParentalRulesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainParentalRulesHttpPostIn">
+    <wsdl:part name="userName" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainParentalRulesHttpPostOut">
+    <wsdl:part name="Body" element="tns:ParentalRulesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserParentalRulesHttpPostIn">
+    <wsdl:part name="userName" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserParentalRulesHttpPostOut">
+    <wsdl:part name="Body" element="tns:ParentalRulesResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetUserParentalRulesHttpPostIn">
+    <wsdl:part name="userName" type="s:string" />
+    <wsdl:part name="webServicePassword" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+    <wsdl:part name="ruleId" type="s:string" />
+    <wsdl:part name="isActive" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SetUserParentalRulesHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="SetDomainParentalRulesHttpPostIn">
+    <wsdl:part name="userName" type="s:string" />
+    <wsdl:part name="webServicePassword" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+    <wsdl:part name="ruleId" type="s:string" />
+    <wsdl:part name="isActive" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SetDomainParentalRulesHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="GetParentalPINHttpPostIn">
+    <wsdl:part name="userName" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetParentalPINHttpPostOut">
+    <wsdl:part name="Body" element="tns:PinResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetParentalPINHttpPostIn">
+    <wsdl:part name="userName" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+    <wsdl:part name="pin" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SetParentalPINHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="GetPurchaseSettingsHttpPostIn">
+    <wsdl:part name="userName" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetPurchaseSettingsHttpPostOut">
+    <wsdl:part name="Body" element="tns:PurchaseSettingsResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetPurchaseSettingsHttpPostIn">
+    <wsdl:part name="userName" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+    <wsdl:part name="setting" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SetPurchaseSettingsHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="GetPurchasePINHttpPostIn">
+    <wsdl:part name="userName" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetPurchasePINHttpPostOut">
+    <wsdl:part name="Body" element="tns:PurchaseSettingsResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetPurchasePINHttpPostIn">
+    <wsdl:part name="userName" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+    <wsdl:part name="pin" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SetPurchasePINHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="ValidateParentalPINHttpPostIn">
+    <wsdl:part name="userName" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+    <wsdl:part name="pin" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ValidateParentalPINHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="ValidatePurchasePINHttpPostIn">
+    <wsdl:part name="userName" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+    <wsdl:part name="pin" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ValidatePurchasePINHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="GetParentalMediaRulesHttpPostIn">
+    <wsdl:part name="userName" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+    <wsdl:part name="mediaId" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetParentalMediaRulesHttpPostOut">
+    <wsdl:part name="Body" element="tns:ParentalRulesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetParentalEPGRulesHttpPostIn">
+    <wsdl:part name="userName" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+    <wsdl:part name="epgId" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetParentalEPGRulesHttpPostOut">
+    <wsdl:part name="Body" element="tns:ParentalRulesResponse" />
+  </wsdl:message>
+  <wsdl:message name="DisableUserDefaultParentalRuleHttpPostIn">
+    <wsdl:part name="userName" type="s:string" />
+    <wsdl:part name="webServicePassword" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="DisableUserDefaultParentalRuleHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="DisableDomainDefaultParentalRuleHttpPostIn">
+    <wsdl:part name="userName" type="s:string" />
+    <wsdl:part name="webServicePassword" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="DisableDomainDefaultParentalRuleHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="GetMediaRulesHttpPostIn">
+    <wsdl:part name="userName" type="s:string" />
+    <wsdl:part name="webServicePassword" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+    <wsdl:part name="mediaId" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+    <wsdl:part name="ip" type="s:string" />
+    <wsdl:part name="udid" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetMediaRulesHttpPostOut">
+    <wsdl:part name="Body" element="tns:GenericRuleResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetEpgRulesHttpPostIn">
+    <wsdl:part name="userName" type="s:string" />
+    <wsdl:part name="webServicePassword" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+    <wsdl:part name="epgId" type="s:string" />
+    <wsdl:part name="channelMediaId" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+    <wsdl:part name="ip" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetEpgRulesHttpPostOut">
+    <wsdl:part name="Body" element="tns:GenericRuleResponse" />
+  </wsdl:message>
   <wsdl:portType name="APISoap">
     <wsdl:operation name="TVAPI_GetTvinciGUID">
       <wsdl:input message="tns:TVAPI_GetTvinciGUIDSoapIn" />
@@ -2898,22 +3962,6 @@
     <wsdl:operation name="GetEPGChannel">
       <wsdl:input message="tns:GetEPGChannelSoapIn" />
       <wsdl:output message="tns:GetEPGChannelSoapOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetEPGChannelProgramme">
-      <wsdl:input message="tns:GetEPGChannelProgrammeSoapIn" />
-      <wsdl:output message="tns:GetEPGChannelProgrammeSoapOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetEPGChannelProgrammeByDates">
-      <wsdl:input message="tns:GetEPGChannelProgrammeByDatesSoapIn" />
-      <wsdl:output message="tns:GetEPGChannelProgrammeByDatesSoapOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetEPGMultiChannelProgramme">
-      <wsdl:input message="tns:GetEPGMultiChannelProgrammeSoapIn" />
-      <wsdl:output message="tns:GetEPGMultiChannelProgrammeSoapOut" />
-    </wsdl:operation>
-    <wsdl:operation name="SearchEPGContent">
-      <wsdl:input message="tns:SearchEPGContentSoapIn" />
-      <wsdl:output message="tns:SearchEPGContentSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="TVAPI_GetMediaInfo">
       <wsdl:input message="tns:TVAPI_GetMediaInfoSoapIn" />
@@ -2987,6 +4035,10 @@
       <wsdl:input message="tns:GetMediaFileTypeIDSoapIn" />
       <wsdl:output message="tns:GetMediaFileTypeIDSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetMediaFileTypeDescription">
+      <wsdl:input message="tns:GetMediaFileTypeDescriptionSoapIn" />
+      <wsdl:output message="tns:GetMediaFileTypeDescriptionSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetAdminTokenValues">
       <wsdl:input message="tns:GetAdminTokenValuesSoapIn" />
       <wsdl:output message="tns:GetAdminTokenValuesSoapOut" />
@@ -2994,6 +4046,10 @@
     <wsdl:operation name="GetChannelsMediaIDs">
       <wsdl:input message="tns:GetChannelsMediaIDsSoapIn" />
       <wsdl:output message="tns:GetChannelsMediaIDsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetChannelsAssetsIDs">
+      <wsdl:input message="tns:GetChannelsAssetsIDsSoapIn" />
+      <wsdl:output message="tns:GetChannelsAssetsIDsSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="GetAvailableFileTypes">
       <wsdl:input message="tns:GetAvailableFileTypesSoapIn" />
@@ -3095,6 +4151,10 @@
       <wsdl:input message="tns:CheckParentalPINSoapIn" />
       <wsdl:output message="tns:CheckParentalPINSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="CheckDomainParentalPIN">
+      <wsdl:input message="tns:CheckDomainParentalPINSoapIn" />
+      <wsdl:output message="tns:CheckDomainParentalPINSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="SetDefaultRules">
       <wsdl:input message="tns:SetDefaultRulesSoapIn" />
       <wsdl:output message="tns:SetDefaultRulesSoapOut" />
@@ -3106,10 +4166,6 @@
     <wsdl:operation name="CleanUserHistory">
       <wsdl:input message="tns:CleanUserHistorySoapIn" />
       <wsdl:output message="tns:CleanUserHistorySoapOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetEPGProgramsByScids">
-      <wsdl:input message="tns:GetEPGProgramsByScidsSoapIn" />
-      <wsdl:output message="tns:GetEPGProgramsByScidsSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="GetProgramSchedule">
       <wsdl:input message="tns:GetProgramScheduleSoapIn" />
@@ -3127,6 +4183,10 @@
       <wsdl:input message="tns:DoesMediaBelongToSubscriptionSoapIn" />
       <wsdl:output message="tns:DoesMediaBelongToSubscriptionSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="DoesMediaBelongToCollection">
+      <wsdl:input message="tns:DoesMediaBelongToCollectionSoapIn" />
+      <wsdl:output message="tns:DoesMediaBelongToCollectionSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetGroupMediaRules">
       <wsdl:input message="tns:GetGroupMediaRulesSoapIn" />
       <wsdl:output message="tns:GetGroupMediaRulesSoapOut" />
@@ -3134,6 +4194,118 @@
     <wsdl:operation name="GetEPGProgramRules">
       <wsdl:input message="tns:GetEPGProgramRulesSoapIn" />
       <wsdl:output message="tns:GetEPGProgramRulesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetNpvrRules">
+      <wsdl:input message="tns:GetNpvrRulesSoapIn" />
+      <wsdl:output message="tns:GetNpvrRulesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ChannelsContainingMedia">
+      <wsdl:input message="tns:ChannelsContainingMediaSoapIn" />
+      <wsdl:output message="tns:ChannelsContainingMediaSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionMediaIds">
+      <wsdl:input message="tns:GetSubscriptionMediaIdsSoapIn" />
+      <wsdl:output message="tns:GetSubscriptionMediaIdsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCollectionMediaIds">
+      <wsdl:input message="tns:GetCollectionMediaIdsSoapIn" />
+      <wsdl:output message="tns:GetCollectionMediaIdsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetMediaChannels">
+      <wsdl:input message="tns:GetMediaChannelsSoapIn" />
+      <wsdl:output message="tns:GetMediaChannelsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetProgramDetails">
+      <wsdl:input message="tns:GetProgramDetailsSoapIn" />
+      <wsdl:output message="tns:GetProgramDetailsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetMediaConcurrencyRules">
+      <wsdl:input message="tns:GetMediaConcurrencyRulesSoapIn" />
+      <wsdl:output message="tns:GetMediaConcurrencyRulesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetRegions">
+      <wsdl:input message="tns:GetRegionsSoapIn" />
+      <wsdl:output message="tns:GetRegionsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupLanguages">
+      <wsdl:input message="tns:GetGroupLanguagesSoapIn" />
+      <wsdl:output message="tns:GetGroupLanguagesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetParentalRules">
+      <wsdl:input message="tns:GetParentalRulesSoapIn" />
+      <wsdl:output message="tns:GetParentalRulesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainParentalRules">
+      <wsdl:input message="tns:GetDomainParentalRulesSoapIn" />
+      <wsdl:output message="tns:GetDomainParentalRulesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserParentalRules">
+      <wsdl:input message="tns:GetUserParentalRulesSoapIn" />
+      <wsdl:output message="tns:GetUserParentalRulesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetUserParentalRules">
+      <wsdl:input message="tns:SetUserParentalRulesSoapIn" />
+      <wsdl:output message="tns:SetUserParentalRulesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetDomainParentalRules">
+      <wsdl:input message="tns:SetDomainParentalRulesSoapIn" />
+      <wsdl:output message="tns:SetDomainParentalRulesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetParentalPIN">
+      <wsdl:input message="tns:GetParentalPINSoapIn" />
+      <wsdl:output message="tns:GetParentalPINSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetParentalPIN">
+      <wsdl:input message="tns:SetParentalPINSoapIn" />
+      <wsdl:output message="tns:SetParentalPINSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPurchaseSettings">
+      <wsdl:input message="tns:GetPurchaseSettingsSoapIn" />
+      <wsdl:output message="tns:GetPurchaseSettingsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetPurchaseSettings">
+      <wsdl:input message="tns:SetPurchaseSettingsSoapIn" />
+      <wsdl:output message="tns:SetPurchaseSettingsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPurchasePIN">
+      <wsdl:input message="tns:GetPurchasePINSoapIn" />
+      <wsdl:output message="tns:GetPurchasePINSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetPurchasePIN">
+      <wsdl:input message="tns:SetPurchasePINSoapIn" />
+      <wsdl:output message="tns:SetPurchasePINSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ValidateParentalPIN">
+      <wsdl:input message="tns:ValidateParentalPINSoapIn" />
+      <wsdl:output message="tns:ValidateParentalPINSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ValidatePurchasePIN">
+      <wsdl:input message="tns:ValidatePurchasePINSoapIn" />
+      <wsdl:output message="tns:ValidatePurchasePINSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetParentalMediaRules">
+      <wsdl:input message="tns:GetParentalMediaRulesSoapIn" />
+      <wsdl:output message="tns:GetParentalMediaRulesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetParentalEPGRules">
+      <wsdl:input message="tns:GetParentalEPGRulesSoapIn" />
+      <wsdl:output message="tns:GetParentalEPGRulesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DisableUserDefaultParentalRule">
+      <wsdl:input message="tns:DisableUserDefaultParentalRuleSoapIn" />
+      <wsdl:output message="tns:DisableUserDefaultParentalRuleSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DisableDomainDefaultParentalRule">
+      <wsdl:input message="tns:DisableDomainDefaultParentalRuleSoapIn" />
+      <wsdl:output message="tns:DisableDomainDefaultParentalRuleSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetMediaRules">
+      <wsdl:input message="tns:GetMediaRulesSoapIn" />
+      <wsdl:output message="tns:GetMediaRulesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetEpgRules">
+      <wsdl:input message="tns:GetEpgRulesSoapIn" />
+      <wsdl:output message="tns:GetEpgRulesSoapOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="APIHttpPost">
@@ -3144,22 +4316,6 @@
     <wsdl:operation name="GetEPGChannel">
       <wsdl:input message="tns:GetEPGChannelHttpPostIn" />
       <wsdl:output message="tns:GetEPGChannelHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetEPGChannelProgramme">
-      <wsdl:input message="tns:GetEPGChannelProgrammeHttpPostIn" />
-      <wsdl:output message="tns:GetEPGChannelProgrammeHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetEPGChannelProgrammeByDates">
-      <wsdl:input message="tns:GetEPGChannelProgrammeByDatesHttpPostIn" />
-      <wsdl:output message="tns:GetEPGChannelProgrammeByDatesHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetEPGMultiChannelProgramme">
-      <wsdl:input message="tns:GetEPGMultiChannelProgrammeHttpPostIn" />
-      <wsdl:output message="tns:GetEPGMultiChannelProgrammeHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="SearchEPGContent">
-      <wsdl:input message="tns:SearchEPGContentHttpPostIn" />
-      <wsdl:output message="tns:SearchEPGContentHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="AdminSignIn">
       <wsdl:input message="tns:AdminSignInHttpPostIn" />
@@ -3177,9 +4333,17 @@
       <wsdl:input message="tns:GetMediaFileTypeIDHttpPostIn" />
       <wsdl:output message="tns:GetMediaFileTypeIDHttpPostOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetMediaFileTypeDescription">
+      <wsdl:input message="tns:GetMediaFileTypeDescriptionHttpPostIn" />
+      <wsdl:output message="tns:GetMediaFileTypeDescriptionHttpPostOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetChannelsMediaIDs">
       <wsdl:input message="tns:GetChannelsMediaIDsHttpPostIn" />
       <wsdl:output message="tns:GetChannelsMediaIDsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetChannelsAssetsIDs">
+      <wsdl:input message="tns:GetChannelsAssetsIDsHttpPostIn" />
+      <wsdl:output message="tns:GetChannelsAssetsIDsHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="GetAvailableFileTypes">
       <wsdl:input message="tns:GetAvailableFileTypesHttpPostIn" />
@@ -3269,6 +4433,10 @@
       <wsdl:input message="tns:CheckParentalPINHttpPostIn" />
       <wsdl:output message="tns:CheckParentalPINHttpPostOut" />
     </wsdl:operation>
+    <wsdl:operation name="CheckDomainParentalPIN">
+      <wsdl:input message="tns:CheckDomainParentalPINHttpPostIn" />
+      <wsdl:output message="tns:CheckDomainParentalPINHttpPostOut" />
+    </wsdl:operation>
     <wsdl:operation name="SetDefaultRules">
       <wsdl:input message="tns:SetDefaultRulesHttpPostIn" />
       <wsdl:output message="tns:SetDefaultRulesHttpPostOut" />
@@ -3276,10 +4444,6 @@
     <wsdl:operation name="GetAvailableDevices">
       <wsdl:input message="tns:GetAvailableDevicesHttpPostIn" />
       <wsdl:output message="tns:GetAvailableDevicesHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetEPGProgramsByScids">
-      <wsdl:input message="tns:GetEPGProgramsByScidsHttpPostIn" />
-      <wsdl:output message="tns:GetEPGProgramsByScidsHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="GetProgramSchedule">
       <wsdl:input message="tns:GetProgramScheduleHttpPostIn" />
@@ -3297,6 +4461,10 @@
       <wsdl:input message="tns:DoesMediaBelongToSubscriptionHttpPostIn" />
       <wsdl:output message="tns:DoesMediaBelongToSubscriptionHttpPostOut" />
     </wsdl:operation>
+    <wsdl:operation name="DoesMediaBelongToCollection">
+      <wsdl:input message="tns:DoesMediaBelongToCollectionHttpPostIn" />
+      <wsdl:output message="tns:DoesMediaBelongToCollectionHttpPostOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetGroupMediaRules">
       <wsdl:input message="tns:GetGroupMediaRulesHttpPostIn" />
       <wsdl:output message="tns:GetGroupMediaRulesHttpPostOut" />
@@ -3304,6 +4472,106 @@
     <wsdl:operation name="GetEPGProgramRules">
       <wsdl:input message="tns:GetEPGProgramRulesHttpPostIn" />
       <wsdl:output message="tns:GetEPGProgramRulesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionMediaIds">
+      <wsdl:input message="tns:GetSubscriptionMediaIdsHttpPostIn" />
+      <wsdl:output message="tns:GetSubscriptionMediaIdsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCollectionMediaIds">
+      <wsdl:input message="tns:GetCollectionMediaIdsHttpPostIn" />
+      <wsdl:output message="tns:GetCollectionMediaIdsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetMediaChannels">
+      <wsdl:input message="tns:GetMediaChannelsHttpPostIn" />
+      <wsdl:output message="tns:GetMediaChannelsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetProgramDetails">
+      <wsdl:input message="tns:GetProgramDetailsHttpPostIn" />
+      <wsdl:output message="tns:GetProgramDetailsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetMediaConcurrencyRules">
+      <wsdl:input message="tns:GetMediaConcurrencyRulesHttpPostIn" />
+      <wsdl:output message="tns:GetMediaConcurrencyRulesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupLanguages">
+      <wsdl:input message="tns:GetGroupLanguagesHttpPostIn" />
+      <wsdl:output message="tns:GetGroupLanguagesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetParentalRules">
+      <wsdl:input message="tns:GetParentalRulesHttpPostIn" />
+      <wsdl:output message="tns:GetParentalRulesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainParentalRules">
+      <wsdl:input message="tns:GetDomainParentalRulesHttpPostIn" />
+      <wsdl:output message="tns:GetDomainParentalRulesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserParentalRules">
+      <wsdl:input message="tns:GetUserParentalRulesHttpPostIn" />
+      <wsdl:output message="tns:GetUserParentalRulesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetUserParentalRules">
+      <wsdl:input message="tns:SetUserParentalRulesHttpPostIn" />
+      <wsdl:output message="tns:SetUserParentalRulesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetDomainParentalRules">
+      <wsdl:input message="tns:SetDomainParentalRulesHttpPostIn" />
+      <wsdl:output message="tns:SetDomainParentalRulesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetParentalPIN">
+      <wsdl:input message="tns:GetParentalPINHttpPostIn" />
+      <wsdl:output message="tns:GetParentalPINHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetParentalPIN">
+      <wsdl:input message="tns:SetParentalPINHttpPostIn" />
+      <wsdl:output message="tns:SetParentalPINHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPurchaseSettings">
+      <wsdl:input message="tns:GetPurchaseSettingsHttpPostIn" />
+      <wsdl:output message="tns:GetPurchaseSettingsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetPurchaseSettings">
+      <wsdl:input message="tns:SetPurchaseSettingsHttpPostIn" />
+      <wsdl:output message="tns:SetPurchaseSettingsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPurchasePIN">
+      <wsdl:input message="tns:GetPurchasePINHttpPostIn" />
+      <wsdl:output message="tns:GetPurchasePINHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetPurchasePIN">
+      <wsdl:input message="tns:SetPurchasePINHttpPostIn" />
+      <wsdl:output message="tns:SetPurchasePINHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ValidateParentalPIN">
+      <wsdl:input message="tns:ValidateParentalPINHttpPostIn" />
+      <wsdl:output message="tns:ValidateParentalPINHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ValidatePurchasePIN">
+      <wsdl:input message="tns:ValidatePurchasePINHttpPostIn" />
+      <wsdl:output message="tns:ValidatePurchasePINHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetParentalMediaRules">
+      <wsdl:input message="tns:GetParentalMediaRulesHttpPostIn" />
+      <wsdl:output message="tns:GetParentalMediaRulesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetParentalEPGRules">
+      <wsdl:input message="tns:GetParentalEPGRulesHttpPostIn" />
+      <wsdl:output message="tns:GetParentalEPGRulesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DisableUserDefaultParentalRule">
+      <wsdl:input message="tns:DisableUserDefaultParentalRuleHttpPostIn" />
+      <wsdl:output message="tns:DisableUserDefaultParentalRuleHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DisableDomainDefaultParentalRule">
+      <wsdl:input message="tns:DisableDomainDefaultParentalRuleHttpPostIn" />
+      <wsdl:output message="tns:DisableDomainDefaultParentalRuleHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetMediaRules">
+      <wsdl:input message="tns:GetMediaRulesHttpPostIn" />
+      <wsdl:output message="tns:GetMediaRulesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetEpgRules">
+      <wsdl:input message="tns:GetEpgRulesHttpPostIn" />
+      <wsdl:output message="tns:GetEpgRulesHttpPostOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="APISoap" type="tns:APISoap">
@@ -3346,42 +4614,6 @@
     </wsdl:operation>
     <wsdl:operation name="GetEPGChannel">
       <soap:operation soapAction="http://api.tvinci.com/GetEPGChannel" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetEPGChannelProgramme">
-      <soap:operation soapAction="http://api.tvinci.com/GetEPGChannelProgramme" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetEPGChannelProgrammeByDates">
-      <soap:operation soapAction="http://api.tvinci.com/GetEPGChannelProgrammeByDates" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetEPGMultiChannelProgramme">
-      <soap:operation soapAction="http://api.tvinci.com/GetEPGMultiChannelProgramme" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="SearchEPGContent">
-      <soap:operation soapAction="http://api.tvinci.com/SearchEPGContent" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -3551,6 +4783,15 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetMediaFileTypeDescription">
+      <soap:operation soapAction="http://api.tvinci.com/GetMediaFileTypeDescription" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetAdminTokenValues">
       <soap:operation soapAction="http://api.tvinci.com/GetAdminTokenValues" style="document" />
       <wsdl:input>
@@ -3562,6 +4803,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetChannelsMediaIDs">
       <soap:operation soapAction="http://api.tvinci.com/GetChannelsMediaIDs" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetChannelsAssetsIDs">
+      <soap:operation soapAction="http://api.tvinci.com/GetChannelsAssetsIDs" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -3794,6 +5044,15 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="CheckDomainParentalPIN">
+      <soap:operation soapAction="http://api.tvinci.com/CheckDomainParentalPIN" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="SetDefaultRules">
       <soap:operation soapAction="http://api.tvinci.com/SetDefaultRules" style="document" />
       <wsdl:input>
@@ -3814,15 +5073,6 @@
     </wsdl:operation>
     <wsdl:operation name="CleanUserHistory">
       <soap:operation soapAction="http://api.tvinci.com/CleanUserHistory" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetEPGProgramsByScids">
-      <soap:operation soapAction="http://api.tvinci.com/GetEPGProgramsByScids" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -3866,6 +5116,15 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="DoesMediaBelongToCollection">
+      <soap:operation soapAction="http://api.tvinci.com/DoesMediaBelongToCollection" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetGroupMediaRules">
       <soap:operation soapAction="http://api.tvinci.com/GetGroupMediaRules" style="document" />
       <wsdl:input>
@@ -3877,6 +5136,258 @@
     </wsdl:operation>
     <wsdl:operation name="GetEPGProgramRules">
       <soap:operation soapAction="http://api.tvinci.com/GetEPGProgramRules" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetNpvrRules">
+      <soap:operation soapAction="http://api.tvinci.com/GetNpvrRules" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ChannelsContainingMedia">
+      <soap:operation soapAction="http://api.tvinci.com/ChannelsContainingMedia" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionMediaIds">
+      <soap:operation soapAction="http://api.tvinci.com/GetSubscriptionMediaIds" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCollectionMediaIds">
+      <soap:operation soapAction="http://api.tvinci.com/GetCollectionMediaIds" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMediaChannels">
+      <soap:operation soapAction="http://api.tvinci.com/GetMediaChannels" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetProgramDetails">
+      <soap:operation soapAction="http://api.tvinci.com/GetProgramDetails" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMediaConcurrencyRules">
+      <soap:operation soapAction="http://api.tvinci.com/GetMediaConcurrencyRules" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRegions">
+      <soap:operation soapAction="http://api.tvinci.com/GetRegions" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupLanguages">
+      <soap:operation soapAction="http://api.tvinci.com/GetGroupLanguages" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetParentalRules">
+      <soap:operation soapAction="http://api.tvinci.com/GetParentalRules" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainParentalRules">
+      <soap:operation soapAction="http://api.tvinci.com/GetDomainParentalRules" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserParentalRules">
+      <soap:operation soapAction="http://api.tvinci.com/GetUserParentalRules" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetUserParentalRules">
+      <soap:operation soapAction="http://api.tvinci.com/SetUserParentalRules" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetDomainParentalRules">
+      <soap:operation soapAction="http://api.tvinci.com/SetDomainParentalRules" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetParentalPIN">
+      <soap:operation soapAction="http://api.tvinci.com/GetParentalPIN" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetParentalPIN">
+      <soap:operation soapAction="http://api.tvinci.com/SetParentalPIN" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPurchaseSettings">
+      <soap:operation soapAction="http://api.tvinci.com/GetPurchaseSettings" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetPurchaseSettings">
+      <soap:operation soapAction="http://api.tvinci.com/SetPurchaseSettings" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPurchasePIN">
+      <soap:operation soapAction="http://api.tvinci.com/GetPurchasePIN" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetPurchasePIN">
+      <soap:operation soapAction="http://api.tvinci.com/SetPurchasePIN" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ValidateParentalPIN">
+      <soap:operation soapAction="http://api.tvinci.com/ValidateParentalPIN" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ValidatePurchasePIN">
+      <soap:operation soapAction="http://api.tvinci.com/ValidatePurchasePIN" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetParentalMediaRules">
+      <soap:operation soapAction="http://api.tvinci.com/GetParentalMediaRules" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetParentalEPGRules">
+      <soap:operation soapAction="http://api.tvinci.com/GetParentalEPGRules" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DisableUserDefaultParentalRule">
+      <soap:operation soapAction="http://api.tvinci.com/DisableUserDefaultParentalRule" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DisableDomainDefaultParentalRule">
+      <soap:operation soapAction="http://api.tvinci.com/DisableDomainDefaultParentalRule" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMediaRules">
+      <soap:operation soapAction="http://api.tvinci.com/GetMediaRules" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetEpgRules">
+      <soap:operation soapAction="http://api.tvinci.com/GetEpgRules" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -3925,42 +5436,6 @@
     </wsdl:operation>
     <wsdl:operation name="GetEPGChannel">
       <soap12:operation soapAction="http://api.tvinci.com/GetEPGChannel" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetEPGChannelProgramme">
-      <soap12:operation soapAction="http://api.tvinci.com/GetEPGChannelProgramme" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetEPGChannelProgrammeByDates">
-      <soap12:operation soapAction="http://api.tvinci.com/GetEPGChannelProgrammeByDates" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetEPGMultiChannelProgramme">
-      <soap12:operation soapAction="http://api.tvinci.com/GetEPGMultiChannelProgramme" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="SearchEPGContent">
-      <soap12:operation soapAction="http://api.tvinci.com/SearchEPGContent" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -4130,6 +5605,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetMediaFileTypeDescription">
+      <soap12:operation soapAction="http://api.tvinci.com/GetMediaFileTypeDescription" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetAdminTokenValues">
       <soap12:operation soapAction="http://api.tvinci.com/GetAdminTokenValues" style="document" />
       <wsdl:input>
@@ -4141,6 +5625,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetChannelsMediaIDs">
       <soap12:operation soapAction="http://api.tvinci.com/GetChannelsMediaIDs" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetChannelsAssetsIDs">
+      <soap12:operation soapAction="http://api.tvinci.com/GetChannelsAssetsIDs" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -4373,6 +5866,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="CheckDomainParentalPIN">
+      <soap12:operation soapAction="http://api.tvinci.com/CheckDomainParentalPIN" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="SetDefaultRules">
       <soap12:operation soapAction="http://api.tvinci.com/SetDefaultRules" style="document" />
       <wsdl:input>
@@ -4393,15 +5895,6 @@
     </wsdl:operation>
     <wsdl:operation name="CleanUserHistory">
       <soap12:operation soapAction="http://api.tvinci.com/CleanUserHistory" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetEPGProgramsByScids">
-      <soap12:operation soapAction="http://api.tvinci.com/GetEPGProgramsByScids" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -4445,6 +5938,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="DoesMediaBelongToCollection">
+      <soap12:operation soapAction="http://api.tvinci.com/DoesMediaBelongToCollection" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetGroupMediaRules">
       <soap12:operation soapAction="http://api.tvinci.com/GetGroupMediaRules" style="document" />
       <wsdl:input>
@@ -4456,6 +5958,258 @@
     </wsdl:operation>
     <wsdl:operation name="GetEPGProgramRules">
       <soap12:operation soapAction="http://api.tvinci.com/GetEPGProgramRules" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetNpvrRules">
+      <soap12:operation soapAction="http://api.tvinci.com/GetNpvrRules" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ChannelsContainingMedia">
+      <soap12:operation soapAction="http://api.tvinci.com/ChannelsContainingMedia" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionMediaIds">
+      <soap12:operation soapAction="http://api.tvinci.com/GetSubscriptionMediaIds" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCollectionMediaIds">
+      <soap12:operation soapAction="http://api.tvinci.com/GetCollectionMediaIds" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMediaChannels">
+      <soap12:operation soapAction="http://api.tvinci.com/GetMediaChannels" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetProgramDetails">
+      <soap12:operation soapAction="http://api.tvinci.com/GetProgramDetails" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMediaConcurrencyRules">
+      <soap12:operation soapAction="http://api.tvinci.com/GetMediaConcurrencyRules" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRegions">
+      <soap12:operation soapAction="http://api.tvinci.com/GetRegions" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupLanguages">
+      <soap12:operation soapAction="http://api.tvinci.com/GetGroupLanguages" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetParentalRules">
+      <soap12:operation soapAction="http://api.tvinci.com/GetParentalRules" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainParentalRules">
+      <soap12:operation soapAction="http://api.tvinci.com/GetDomainParentalRules" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserParentalRules">
+      <soap12:operation soapAction="http://api.tvinci.com/GetUserParentalRules" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetUserParentalRules">
+      <soap12:operation soapAction="http://api.tvinci.com/SetUserParentalRules" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetDomainParentalRules">
+      <soap12:operation soapAction="http://api.tvinci.com/SetDomainParentalRules" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetParentalPIN">
+      <soap12:operation soapAction="http://api.tvinci.com/GetParentalPIN" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetParentalPIN">
+      <soap12:operation soapAction="http://api.tvinci.com/SetParentalPIN" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPurchaseSettings">
+      <soap12:operation soapAction="http://api.tvinci.com/GetPurchaseSettings" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetPurchaseSettings">
+      <soap12:operation soapAction="http://api.tvinci.com/SetPurchaseSettings" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPurchasePIN">
+      <soap12:operation soapAction="http://api.tvinci.com/GetPurchasePIN" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetPurchasePIN">
+      <soap12:operation soapAction="http://api.tvinci.com/SetPurchasePIN" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ValidateParentalPIN">
+      <soap12:operation soapAction="http://api.tvinci.com/ValidateParentalPIN" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ValidatePurchasePIN">
+      <soap12:operation soapAction="http://api.tvinci.com/ValidatePurchasePIN" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetParentalMediaRules">
+      <soap12:operation soapAction="http://api.tvinci.com/GetParentalMediaRules" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetParentalEPGRules">
+      <soap12:operation soapAction="http://api.tvinci.com/GetParentalEPGRules" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DisableUserDefaultParentalRule">
+      <soap12:operation soapAction="http://api.tvinci.com/DisableUserDefaultParentalRule" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DisableDomainDefaultParentalRule">
+      <soap12:operation soapAction="http://api.tvinci.com/DisableDomainDefaultParentalRule" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMediaRules">
+      <soap12:operation soapAction="http://api.tvinci.com/GetMediaRules" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetEpgRules">
+      <soap12:operation soapAction="http://api.tvinci.com/GetEpgRules" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -4477,42 +6231,6 @@
     </wsdl:operation>
     <wsdl:operation name="GetEPGChannel">
       <http:operation location="/GetEPGChannel" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetEPGChannelProgramme">
-      <http:operation location="/GetEPGChannelProgramme" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetEPGChannelProgrammeByDates">
-      <http:operation location="/GetEPGChannelProgrammeByDates" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetEPGMultiChannelProgramme">
-      <http:operation location="/GetEPGMultiChannelProgramme" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="SearchEPGContent">
-      <http:operation location="/SearchEPGContent" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
@@ -4556,8 +6274,26 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetMediaFileTypeDescription">
+      <http:operation location="/GetMediaFileTypeDescription" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetChannelsMediaIDs">
       <http:operation location="/GetChannelsMediaIDs" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetChannelsAssetsIDs">
+      <http:operation location="/GetChannelsAssetsIDs" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
@@ -4763,6 +6499,15 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="CheckDomainParentalPIN">
+      <http:operation location="/CheckDomainParentalPIN" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="SetDefaultRules">
       <http:operation location="/SetDefaultRules" />
       <wsdl:input>
@@ -4774,15 +6519,6 @@
     </wsdl:operation>
     <wsdl:operation name="GetAvailableDevices">
       <http:operation location="/GetAvailableDevices" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetEPGProgramsByScids">
-      <http:operation location="/GetEPGProgramsByScids" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
@@ -4826,6 +6562,15 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="DoesMediaBelongToCollection">
+      <http:operation location="/DoesMediaBelongToCollection" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetGroupMediaRules">
       <http:operation location="/GetGroupMediaRules" />
       <wsdl:input>
@@ -4844,16 +6589,241 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetSubscriptionMediaIds">
+      <http:operation location="/GetSubscriptionMediaIds" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCollectionMediaIds">
+      <http:operation location="/GetCollectionMediaIds" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMediaChannels">
+      <http:operation location="/GetMediaChannels" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetProgramDetails">
+      <http:operation location="/GetProgramDetails" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMediaConcurrencyRules">
+      <http:operation location="/GetMediaConcurrencyRules" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupLanguages">
+      <http:operation location="/GetGroupLanguages" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetParentalRules">
+      <http:operation location="/GetParentalRules" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainParentalRules">
+      <http:operation location="/GetDomainParentalRules" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserParentalRules">
+      <http:operation location="/GetUserParentalRules" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetUserParentalRules">
+      <http:operation location="/SetUserParentalRules" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetDomainParentalRules">
+      <http:operation location="/SetDomainParentalRules" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetParentalPIN">
+      <http:operation location="/GetParentalPIN" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetParentalPIN">
+      <http:operation location="/SetParentalPIN" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPurchaseSettings">
+      <http:operation location="/GetPurchaseSettings" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetPurchaseSettings">
+      <http:operation location="/SetPurchaseSettings" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPurchasePIN">
+      <http:operation location="/GetPurchasePIN" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetPurchasePIN">
+      <http:operation location="/SetPurchasePIN" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ValidateParentalPIN">
+      <http:operation location="/ValidateParentalPIN" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ValidatePurchasePIN">
+      <http:operation location="/ValidatePurchasePIN" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetParentalMediaRules">
+      <http:operation location="/GetParentalMediaRules" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetParentalEPGRules">
+      <http:operation location="/GetParentalEPGRules" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DisableUserDefaultParentalRule">
+      <http:operation location="/DisableUserDefaultParentalRule" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DisableDomainDefaultParentalRule">
+      <http:operation location="/DisableDomainDefaultParentalRule" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMediaRules">
+      <http:operation location="/GetMediaRules" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetEpgRules">
+      <http:operation location="/GetEpgRules" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="API">
     <wsdl:port name="APISoap" binding="tns:APISoap">
-      <soap:address location="http://localhost/ws_api_m/api.asmx" />
+      <soap:address location="http://54.72.1.39:8030/api_v3_4/api.asmx" />
     </wsdl:port>
     <wsdl:port name="APISoap12" binding="tns:APISoap12">
-      <soap12:address location="http://localhost/ws_api_m/api.asmx" />
+      <soap12:address location="http://54.72.1.39:8030/api_v3_4/api.asmx" />
     </wsdl:port>
     <wsdl:port name="APIHttpPost" binding="tns:APIHttpPost">
-      <http:address location="http://localhost/ws_api_m/api.asmx" />
+      <http:address location="http://54.72.1.39:8030/api_v3_4/api.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
