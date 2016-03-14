@@ -1,29 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using ApiObjects;
+using CouchbaseManager;
+using KLogMonitor;
+using Newtonsoft.Json;
+using System;
+using System.Data;
+using System.Threading;
 
 namespace QueueWrapper
 {
     public abstract class BaseQueue : IQueueable
     {
-        #region Private Members
-
+        private static readonly KLogger log = new KLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private const int RETRY_LIMIT = 5;
+        private const int RECOVERY_TTL_MONTH = 2;
         private IQueueImpl m_QueueImpl;
-
-        #endregion
-
-        #region CTOR
+        public bool storeForRecovery = false;
 
         public BaseQueue()
         { }
 
-        #endregion
-
-        #region IQueuable
-
-        //public abstract bool Enqueue(ApiObjects.MediaIndexingObjects.QueueObject record, int nGroupId);
-        public virtual bool Enqueue(ApiObjects.MediaIndexingObjects.QueueObject record, string sRouteKey)
+        public virtual bool Enqueue(ApiObjects.QueueObject record, string routingKey)
         {
             bool bIsEnqueueSucceeded = false;
             string sMessage = string.Empty;
@@ -33,14 +29,88 @@ namespace QueueWrapper
                 sMessage = record.ToString();
                 if (this.Implementation != null)
                 {
-                    bIsEnqueueSucceeded = this.Implementation.Enqueue(sMessage, sRouteKey);
+                    bIsEnqueueSucceeded = this.Implementation.Enqueue(sMessage, routingKey);
+                }
+
+                if (bIsEnqueueSucceeded && storeForRecovery)
+                {
+                    var celeryData = record as ApiObjects.BaseCeleryData;
+
+                    if (celeryData != null && celeryData.ETA.HasValue)
+                    {
+                        InsertQueueMessage(celeryData.GroupId, celeryData.RecoveryMessageId, sMessage, routingKey, celeryData.ETA.Value, this.GetType().ToString());
+                    }
                 }
             }
 
             return bIsEnqueueSucceeded;
         }
 
-        //public abstract T Dequeue<T>(string sQueueName, out string sAckId);
+        public virtual bool RecoverMessages(int groupId, string record, string routingKey, string type)
+        {
+            string logString = string.Format("Parameters: groupId {0}, record {1}, routingKey {2}, type {3}",
+                        groupId,                                        // {0}
+                        record != null ? record : string.Empty,         // {1}
+                        routingKey != null ? routingKey : string.Empty, // {2}
+                        type != null ? type : string.Empty);            // {3}
+
+            bool bIsEnqueueSucceeded = false;
+
+            if (!string.IsNullOrEmpty(record))
+            {
+                if (this.Implementation != null)
+                    bIsEnqueueSucceeded = this.Implementation.Enqueue(record, routingKey);
+
+                if (!bIsEnqueueSucceeded)
+                    log.Error("Error while trying to insert message to queue. " + logString);
+                else
+                    log.Debug("Message inserted to queue. " + logString);
+            }
+
+            return bIsEnqueueSucceeded;
+        }
+
+        protected void InsertQueueMessage(int groupId, string messageId, string messageData, string routingKey, DateTime excutionDate, string type)
+        {
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.SCHEDULED_TASKS);
+            int limitRetries = RETRY_LIMIT;
+            Random r = new Random();
+
+            while (limitRetries >= 0)
+            {
+                string docKey = GetGroupQueueMessageDocKey(groupId, messageId);
+
+                MessageQueue mq = new MessageQueue()
+                {
+                    ExecutionDate = DateTimeToUnixTimestamp(excutionDate),
+                    Id = docKey,
+                    MessageData = messageData,
+                    RoutingKey = routingKey,
+                    Type = type
+                };
+
+                var res = cbManager.Set(docKey, mq, (uint)(excutionDate.AddMonths(RECOVERY_TTL_MONTH) - DateTime.UtcNow).Seconds);
+
+                if (!res)
+                {
+                    Thread.Sleep(r.Next(50));
+                    limitRetries--;
+                }
+                else
+                    break;
+            }
+        }
+
+        private string GetGroupQueueMessageDocKey(int groupId, string id)
+        {
+            return string.Format("MessageRecovery_Group_{0}_Id_{1}", groupId, id);
+        }
+
+        private long DateTimeToUnixTimestamp(DateTime dateTime)
+        {
+            return (long)(dateTime - new DateTime(1970, 1, 1).ToUniversalTime()).TotalSeconds;
+        }
+
         public virtual T Dequeue<T>(string sQueueName, out string sAckId)
         {
             sAckId = string.Empty;
@@ -54,17 +124,10 @@ namespace QueueWrapper
             return objectReturned;
         }
 
-        #endregion
-
-        #region Getters
-
         internal IQueueImpl Implementation
         {
             get { return this.m_QueueImpl; }
             set { this.m_QueueImpl = value; }
         }
-
-        #endregion
-
     }
 }
