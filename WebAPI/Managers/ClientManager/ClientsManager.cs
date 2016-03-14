@@ -37,7 +37,7 @@ namespace WebAPI.ClientManagers.Client
         class Nested
         {
             // Explicit static constructor to tell C# compiler
-            // not to mark type as beforefieldinit
+            // not to mark type as before field init
             static Nested()
             {
             }

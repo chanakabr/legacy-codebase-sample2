@@ -85,6 +85,9 @@ namespace WebAPI.Utils
 
             if ((missingMediaIds != null && missingMediaIds.Count > 0) || (missingEpgIds != null && missingEpgIds.Count > 0))
             {
+                // get group configuration 
+                Group group = GroupsManager.GetGroup(request.m_nGroupID);
+
                 // Build AssetInfoRequest with the missing ids
                 AssetInfoRequest assetsRequest = new AssetInfoRequest()
                 {
@@ -97,7 +100,8 @@ namespace WebAPI.Utils
                     {
                         m_nLanguage = request.m_oFilter.m_nLanguage,
                         m_sDeviceId = request.m_oFilter.m_sDeviceId,
-                        m_bUseStartDate = true
+                        m_bUseStartDate = group.UseStartDate,
+                        m_bOnlyActiveMedia = group.GetOnlyActiveAssets
                     },
                     m_sSignature = request.m_sSignature,
                     m_sSignString = request.m_sSignString,

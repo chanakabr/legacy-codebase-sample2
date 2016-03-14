@@ -16,6 +16,7 @@ using WebAPI.Models.General;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Users;
 using KLogMonitor;
+using WebAPI.ClientManagers;
 
 namespace WebAPI.Clients
 {
@@ -78,6 +79,9 @@ namespace WebAPI.Clients
                 order = CatalogConvertor.ConvertOrderToOrderObj(orderBy.Value);
             }
 
+            // get group configuration 
+            Group group = GroupsManager.GetGroup(groupId);
+
             // build request
             UnifiedSearchRequest request = new UnifiedSearchRequest()
             {
@@ -87,7 +91,8 @@ namespace WebAPI.Clients
                 {
                     m_sDeviceId = udid,
                     m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
-                    m_bUseStartDate = true
+                    m_bUseStartDate = group.UseStartDate,
+                    m_bOnlyActiveMedia = group.GetOnlyActiveAssets
                 },
                 m_sUserIP = Utils.Utils.GetClientIP(),
                 m_nGroupID = groupId,
@@ -162,6 +167,9 @@ namespace WebAPI.Clients
                 order = CatalogConvertor.ConvertOrderToOrderObj(orderBy.Value);
             }
 
+            // get group configuration 
+            Group group = GroupsManager.GetGroup(groupId);
+
             // build request
             UnifiedSearchRequest request = new UnifiedSearchRequest()
             {
@@ -171,7 +179,8 @@ namespace WebAPI.Clients
                 {
                     m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
                     m_sDeviceId = udid,
-                    m_bUseStartDate = true
+                    m_bUseStartDate = group.UseStartDate,
+                    m_bOnlyActiveMedia = group.GetOnlyActiveAssets
                 },
                 m_sUserIP = Utils.Utils.GetClientIP(),
                 m_nGroupID = groupId,
@@ -226,6 +235,9 @@ namespace WebAPI.Clients
         {
             KalturaWatchHistoryAssetWrapper finalResults = new KalturaWatchHistoryAssetWrapper();
 
+            // get group configuration 
+            Group group = GroupsManager.GetGroup(groupId);
+
             // build request
             WatchHistoryRequest request = new WatchHistoryRequest()
             {
@@ -236,7 +248,8 @@ namespace WebAPI.Clients
                 {
                     m_sDeviceId = udid,
                     m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
-                    m_bUseStartDate = true
+                    m_bUseStartDate = group.UseStartDate,
+                    m_bOnlyActiveMedia = group.GetOnlyActiveAssets
                 },
                 m_sUserIP = Utils.Utils.GetClientIP(),
                 m_nGroupID = groupId,
@@ -329,6 +342,9 @@ namespace WebAPI.Clients
         {
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
+            // get group configuration 
+            Group group = GroupsManager.GetGroup(groupId);
+
             // build request
             MediaRelatedRequest request = new MediaRelatedRequest()
             {
@@ -338,7 +354,8 @@ namespace WebAPI.Clients
                 {
                     m_sDeviceId = udid,
                     m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
-                    m_bUseStartDate = true
+                    m_bUseStartDate = group.UseStartDate,
+                    m_bOnlyActiveMedia = group.GetOnlyActiveAssets
                 },
                 m_sUserIP = Utils.Utils.GetClientIP(),
                 m_nGroupID = groupId,
@@ -366,6 +383,9 @@ namespace WebAPI.Clients
         {
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
+            // get group configuration 
+            Group group = GroupsManager.GetGroup(groupId);
+
             // build request
             MediaRelatedExternalRequest request = new MediaRelatedExternalRequest()
             {
@@ -375,7 +395,8 @@ namespace WebAPI.Clients
                 {
                     m_sDeviceId = udid,
                     m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
-                    m_bUseStartDate = true
+                    m_bUseStartDate = group.UseStartDate,
+                    m_bOnlyActiveMedia = group.GetOnlyActiveAssets
                 },
                 m_sLanguage = language,
                 m_sUserIP = Utils.Utils.GetClientIP(),
@@ -404,6 +425,9 @@ namespace WebAPI.Clients
         {
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
+            // get group configuration 
+            Group group = GroupsManager.GetGroup(groupId);
+
             // build request
             MediaSearchExternalRequest request = new MediaSearchExternalRequest()
             {
@@ -413,7 +437,8 @@ namespace WebAPI.Clients
                 {
                     m_sDeviceId = udid,
                     m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
-                    m_bUseStartDate = true
+                    m_bUseStartDate = group.UseStartDate,
+                    m_bOnlyActiveMedia = group.GetOnlyActiveAssets
                 },
                 m_sLanguage = language,
                 m_sUserIP = Utils.Utils.GetClientIP(),
@@ -454,6 +479,9 @@ namespace WebAPI.Clients
                 order = CatalogConvertor.ConvertOrderToOrderObj(orderBy.Value);
             }
 
+            // get group configuration 
+            Group group = GroupsManager.GetGroup(groupId);
+
             // build request
             ChannelRequestMultiFiltering request = new ChannelRequestMultiFiltering()
             {
@@ -463,7 +491,8 @@ namespace WebAPI.Clients
                 {
                     m_sDeviceId = udid,
                     m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
-                    m_bUseStartDate = true,
+                    m_bUseStartDate = group.UseStartDate,
+                    m_bOnlyActiveMedia = group.GetOnlyActiveAssets,
                 },
                 m_lFilterTags = filterTags,
                 m_eFilterCutWith = CatalogConvertor.ConvertCutWith(cutWith),
@@ -517,6 +546,9 @@ namespace WebAPI.Clients
                 order = CatalogConvertor.ConvertOrderToOrderObj(orderBy.Value);
             }
 
+            // get group configuration 
+            Group group = GroupsManager.GetGroup(groupId);
+
             // build request
             InternalChannelRequest request = new InternalChannelRequest()
             {
@@ -526,7 +558,8 @@ namespace WebAPI.Clients
                 {
                     m_sDeviceId = udid,
                     m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
-                    m_bUseStartDate = true,
+                    m_bUseStartDate = group.UseStartDate,
+                    m_bOnlyActiveMedia = group.GetOnlyActiveAssets
                 },
                 m_sUserIP = Utils.Utils.GetClientIP(),
                 m_nGroupID = groupId,
@@ -583,6 +616,9 @@ namespace WebAPI.Clients
         {
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
+            // get group configuration 
+            Group group = GroupsManager.GetGroup(groupId);
+
             // build request
             MediaUpdateDateRequest request = new MediaUpdateDateRequest()
             {
@@ -592,7 +628,8 @@ namespace WebAPI.Clients
                 {
                     m_sDeviceId = udid,
                     m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
-                    m_bUseStartDate = true
+                    m_bUseStartDate = group.UseStartDate,
+                    m_bOnlyActiveMedia = group.GetOnlyActiveAssets
                 },
                 m_sUserIP = Utils.Utils.GetClientIP(),
                 m_nGroupID = groupId,
@@ -623,6 +660,9 @@ namespace WebAPI.Clients
         {
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
+            // get group configuration 
+            Group group = GroupsManager.GetGroup(groupId);
+
             // build request
             EpgProgramDetailsRequest request = new EpgProgramDetailsRequest()
             {
@@ -632,7 +672,8 @@ namespace WebAPI.Clients
                 {
                     m_sDeviceId = udid,
                     m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
-                    m_bUseStartDate = true
+                    m_bUseStartDate = group.UseStartDate,
+                    m_bOnlyActiveMedia = group.GetOnlyActiveAssets
                 },
                 m_sUserIP = Utils.Utils.GetClientIP(),
                 m_nGroupID = groupId,
@@ -668,6 +709,9 @@ namespace WebAPI.Clients
         public KalturaAssetInfoListResponse GetEPGByExternalIds(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, List<string> epgIds, List<KalturaCatalogWith> with)
         {
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
+
+            // get group configuration 
+            Group group = GroupsManager.GetGroup(groupId);
 
             // build request
             EPGProgramsByProgramsIdentefierRequest request = new EPGProgramsByProgramsIdentefierRequest()
@@ -716,6 +760,9 @@ namespace WebAPI.Clients
         {
             List<KalturaEPGChannelAssets> result = new List<KalturaEPGChannelAssets>();
 
+            // get group configuration 
+            Group group = GroupsManager.GetGroup(groupId);
+
             // build request
             EpgRequest request = new EpgRequest()
             {
@@ -725,7 +772,8 @@ namespace WebAPI.Clients
                 {
                     m_sDeviceId = udid,
                     m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
-                    m_bUseStartDate = true
+                    m_bUseStartDate = group.UseStartDate,
+                    m_bOnlyActiveMedia = group.GetOnlyActiveAssets
                 },
                 m_sUserIP = Utils.Utils.GetClientIP(),
                 m_nGroupID = groupId,
@@ -905,6 +953,9 @@ namespace WebAPI.Clients
                 order = CatalogConvertor.ConvertOrderToOrderObj(orderBy.Value);
             }
 
+            // get group configuration 
+            Group group = GroupsManager.GetGroup(groupId);
+
             // build request
             ExternalChannelRequest request = new ExternalChannelRequest()
             {
@@ -921,7 +972,8 @@ namespace WebAPI.Clients
                 {
                     m_sDeviceId = udid,
                     m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
-                    m_bUseStartDate = true
+                    m_bUseStartDate = group.UseStartDate,
+                    m_bOnlyActiveMedia = group.GetOnlyActiveAssets
                 },
                 m_sSiteGuid = siteGuid,
                 m_sUserIP = Utils.Utils.GetClientIP(),

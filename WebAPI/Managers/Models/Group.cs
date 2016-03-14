@@ -51,6 +51,9 @@ namespace WebAPI.Managers.Models
         [JsonProperty(PropertyName = "use_start_date")]
         public bool UseStartDate { get; set; }
 
+        [JsonProperty(PropertyName = "get_only_active_assets")]
+        public bool GetOnlyActiveAssets { get; set; }
+
         [JsonProperty(PropertyName = "should_support_single_login")]
         public bool ShouldSupportSingleLogin { get; set; }
 
