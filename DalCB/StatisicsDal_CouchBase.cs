@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using ApiObjects.Statistics;
-using Couchbase;
-using Couchbase.Extensions;
 using CouchbaseManager;
 using Logger;
 using Newtonsoft.Json;
