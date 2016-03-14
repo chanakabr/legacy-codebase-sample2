@@ -61,7 +61,7 @@ namespace Ingest.Importers
             {
                 log.ErrorFormat("failed to load price plans xml.", ex);
                 report = string.Format("failed to load price plans xml with error {0}", ex.Message);
-                WriteReportLogToFile(report, response.ReportId);
+                WriteReportLogToFile(report, response.ReportId, groupId);
                 return response;
             }
 
@@ -87,7 +87,7 @@ namespace Ingest.Importers
         private static void ProccessMultiPricePlans(int groupId, XmlDocument xmlDoc, string reportId)
         {
             // parse multi price plans xml 
-            List<IngestMultiPricePlan> multiPricePlans = ParseMultiPricePlansXml(xmlDoc, reportId);
+            List<IngestMultiPricePlan> multiPricePlans = ParseMultiPricePlansXml(xmlDoc, reportId, groupId);
 
             if (multiPricePlans != null && multiPricePlans.Count > 0)
             {
@@ -107,7 +107,7 @@ namespace Ingest.Importers
 
         private static void ProccessPricePlans(int groupId, XmlDocument xmlDoc, string reportId)
         {
-            List<IngestPricePlan> pricePlans = ParsePricePlansXml(xmlDoc, reportId);
+            List<IngestPricePlan> pricePlans = ParsePricePlansXml(xmlDoc, reportId, groupId);
 
             // insert price plans if found
             if (pricePlans != null && pricePlans.Count > 0)
@@ -128,7 +128,7 @@ namespace Ingest.Importers
 
         private static void ProccessPPVs(int groupId, XmlDocument xmlDoc, string reportId)
         {
-            List<IngestPPV> ppvs = ParsePPVsXml(xmlDoc, reportId);
+            List<IngestPPV> ppvs = ParsePPVsXml(xmlDoc, reportId, groupId);
 
             // insert ppvs if found
             if (ppvs != null && ppvs.Count > 0)
@@ -147,18 +147,20 @@ namespace Ingest.Importers
             }
         }
 
-        private static void WriteReportLogToFile(string report, string reportFilename)
+        private static void WriteReportLogToFile(string report, string reportFilename, int groupId)
         {
             if (string.IsNullOrEmpty(report))
                 return;
+            
+            var reportFullPath = string.Format("{0}/{1}/{2}", reportLogPath, groupId, reportFilename);
 
             try
             {
-                File.AppendAllText(string.Format("{0}/{1}", reportLogPath, reportFilename), report);
+                File.AppendAllText(reportFullPath, report);
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("failed to write report to file with path {0}", reportLogPath, ex);
+                log.ErrorFormat("failed to write report to file with path {0}", reportFullPath, ex);
             }
         }
 
@@ -202,17 +204,19 @@ namespace Ingest.Importers
             // write report to file
             if (!string.IsNullOrEmpty(report))
             {
-                try
+                lock (lockObject)
                 {
-                    lock (lockObject)
+                    var reportFullPath = string.Format("{0}/{1}/{2}", reportLogPath, groupId, reportFilename);
+
+                    try
                     {
-                        File.AppendAllText(string.Format("{0}/{1}", reportLogPath, reportFilename), report);
+                        File.AppendAllText(reportFullPath, report);
                     }
-                }
-                catch (Exception ex)
-                {
-                    log.ErrorFormat(INGEST_ERROR_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code,
-                        string.Format("failed to write report to file with path {0}", reportLogPath), ex);
+                    catch (Exception ex)
+                    {
+                        log.ErrorFormat(INGEST_ERROR_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code,
+                            string.Format("failed to write report to file with path {0}", reportFullPath), ex);
+                    }
                 }
             }
         }
@@ -283,7 +287,7 @@ namespace Ingest.Importers
             return response;
         }
 
-        private static List<IngestPricePlan> ParsePricePlansXml(XmlDocument doc, string reportId)
+        private static List<IngestPricePlan> ParsePricePlansXml(XmlDocument doc, string reportId, int groupId)
         {
             List<IngestPricePlan> pricePlans = null;
 
@@ -296,10 +300,10 @@ namespace Ingest.Importers
             {
                 pricePlans = new List<IngestPricePlan>();
                 IngestPricePlan pricePlan = null;
-                XmlNodeList nodeList;
                 string strVal;
                 eIngestAction actionVal;
                 bool boolVal;
+                int intVal;
 
                 foreach (XmlNode node in nodes)
                 {
@@ -339,30 +343,35 @@ namespace Ingest.Importers
                         else
                             continue;
 
-                        // full life cycle 
-                        nodeList = node.SelectNodes("full_life_cycle");
-                        if (nodeList != null && nodeList.Count > 0)
-                            pricePlan.FullLifeCycle = nodeList[0].InnerText;
+                        // full life cycle - mandatory
+                        if (GetMandatoryNodeStrValue(node, "full_life_cycle", PRICE_PLAN, pricePlan.Code, ref reportBuilder, out strVal))
+                            pricePlan.FullLifeCycle = strVal;
+                        else
+                            continue;
 
-                        // view life cycle
-                        nodeList = node.SelectNodes("view_life_cycle");
-                        if (nodeList != null && nodeList.Count > 0)
-                            pricePlan.ViewLifeCycle = nodeList[0].InnerText;
+                        // view life cycle - mandatory
+                        if (GetMandatoryNodeStrValue(node, "view_life_cycle", PRICE_PLAN, pricePlan.Code, ref reportBuilder, out strVal))
+                            pricePlan.ViewLifeCycle = strVal;
+                        else
+                            continue;
+                        
+                        // max views - mandatory
+                        if (GetMandatoryNodeIntValue(node, "max_views", PRICE_PLAN, pricePlan.Code, ref reportBuilder, out intVal))
+                            pricePlan.MaxViews = intVal;
+                        else
+                            continue;
 
-                        // max views
-                        nodeList = node.SelectNodes("max_views");
-                        if (nodeList != null && nodeList.Count > 0)
-                            pricePlan.MaxViews = nodeList[0].InnerText;
+                        // price code - mandatory
+                        if (GetMandatoryNodeStrValue(node, "price_code", PRICE_PLAN, pricePlan.Code, ref reportBuilder, out strVal))
+                            pricePlan.PriceCode = strVal;
+                        else
+                            continue;
 
-                        // price code
-                        nodeList = node.SelectNodes("price_code");
-                        if (nodeList != null && nodeList.Count > 0)
-                            pricePlan.PriceCode = nodeList[0].InnerText;
-
-                        // recurring periods
-                        nodeList = node.SelectNodes("recurring_periods");
-                        if (nodeList != null && nodeList.Count > 0)
-                            pricePlan.RecurringPeriods = nodeList[0].InnerText.ToLower();
+                        // recurring periods - mandatory
+                        if (GetMandatoryNodeIntValue(node, "recurring_periods", PRICE_PLAN, pricePlan.Code, ref reportBuilder, out intVal))
+                            pricePlan.RecurringPeriods = intVal;
+                        else
+                            continue;
 
                         // add price plan to response list
                         pricePlans.Add(pricePlan);
@@ -376,11 +385,11 @@ namespace Ingest.Importers
                 }
             }
 
-            WriteReportLogToFile(reportBuilder.ToString(), reportId);
+            WriteReportLogToFile(reportBuilder.ToString(), reportId, groupId);
             return pricePlans;
         }
 
-        private static List<IngestMultiPricePlan> ParseMultiPricePlansXml(XmlDocument doc, string reportId)
+        private static List<IngestMultiPricePlan> ParseMultiPricePlansXml(XmlDocument doc, string reportId, int groupId)
         {
             List<IngestMultiPricePlan> multiPricePlans = null;
 
@@ -523,12 +532,12 @@ namespace Ingest.Importers
                 }
             }
 
-            WriteReportLogToFile(reportBuilder.ToString(), reportId);
+            WriteReportLogToFile(reportBuilder.ToString(), reportId, groupId);
 
             return multiPricePlans;
         }
 
-        private static List<IngestPPV> ParsePPVsXml(XmlDocument doc, string reportId)
+        private static List<IngestPPV> ParsePPVsXml(XmlDocument doc, string reportId, int groupId)
         {
             List<IngestPPV> ppvs = null;
 
@@ -626,7 +635,7 @@ namespace Ingest.Importers
                         // file types
                         ppv.FileTypes = GetNodeStringArray(node, "file_types/file_type");
 
-                        // add multi price plan to response list
+                        // add ppv to response list
                         ppvs.Add(ppv);
                     }
                     catch (Exception ex)
@@ -638,7 +647,7 @@ namespace Ingest.Importers
                 }
             }
 
-            WriteReportLogToFile(reportBuilder.ToString(), reportId);
+            WriteReportLogToFile(reportBuilder.ToString(), reportId, groupId);
 
             return ppvs;
         }
@@ -831,6 +840,33 @@ namespace Ingest.Importers
                     report.AppendFormat(FORMAT_ERROR_FORMAT, moduleName, moduleCode, nodeName);
                     return false;
                 }
+            }
+
+            return true;
+        }
+
+        private static bool GetMandatoryNodeIntValue(XmlNode node, string nodeName, string moduleName, string moduleCode, ref StringBuilder report, out int value)
+        {
+            value = 0;
+
+            var nodeList = node.SelectNodes(nodeName);
+            if (nodeList != null && nodeList.Count > 0 && !string.IsNullOrEmpty(nodeList[0].InnerText))
+            {
+                int minutes;
+                if (int.TryParse(nodeList[0].InnerText, out minutes))
+                    value = minutes;
+                else
+                {
+                    log.ErrorFormat(FORMAT_ERROR_FORMAT, moduleName, moduleCode, nodeName);
+                    report.AppendFormat(FORMAT_ERROR_FORMAT, moduleName, moduleCode, nodeName);
+                    return false;
+                }
+            }
+            else
+            {
+                log.ErrorFormat(REQUIRED_ERROR_FORMAT, moduleName, moduleCode, nodeName);
+                report.AppendFormat(REQUIRED_ERROR_FORMAT, moduleName, moduleCode, nodeName);
+                return false;
             }
 
             return true;

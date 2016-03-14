@@ -13,7 +13,7 @@ namespace Ingest.Utils
                 return "multi price plan";
             if (module is Ingest.Pricing.IngestPricePlan)
                 return "price plan";
-            if (module is Ingest.Pricing.IngestPricePlan)
+            if (module is Ingest.Pricing.IngestPPV)
                 return "ppv";
 
             return string.Empty;

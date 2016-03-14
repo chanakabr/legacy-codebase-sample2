@@ -109,6 +109,7 @@
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Service References\Catalog\Service.wsdl" />
+    <None Include="Properties\PublishProfiles\ingest.pubxml" />
     <None Include="Service References\Catalog\Service.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -209,13 +210,13 @@
     <Content Include="Web References\Pricing\PriceCode.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\Pricing\PPVModuleResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\Pricing\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
-    <Content Include="Web References\Pricing\Status.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
     <Content Include="Web References\Pricing\Subscription.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>

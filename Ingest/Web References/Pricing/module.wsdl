@@ -1290,87 +1290,31 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="InsertPriceCode">
+      <s:element name="GetPPVModulesData">
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="code" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="price" type="tns:Price" />
+            <s:element minOccurs="0" maxOccurs="1" name="sPPVCode" type="tns:ArrayOfString" />
+            <s:element minOccurs="0" maxOccurs="1" name="sCountryCd2" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sLanguageCode3" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sDeviceName" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="InsertPriceCodeResponse">
+      <s:element name="GetPPVModulesDataResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="InsertPriceCodeResult" type="tns:Status" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetPPVModulesDataResult" type="tns:PPVModuleResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="InsertDiscountCode">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="discount" type="tns:DiscountModule" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="InsertDiscountCodeResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="InsertDiscountCodeResult" type="tns:Status" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="InsertCouponGroup">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="coupon" type="tns:CouponsGroup" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="InsertCouponGroupResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="InsertCouponGroupResult" type="tns:Status" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="InsertUsageModule">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="usageModule" type="tns:UsageModule" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="InsertUsageModuleResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="InsertUsageModuleResult" type="tns:Status" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="InsertPreviewModule">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="previewModule" type="tns:PreviewModule" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="InsertPreviewModuleResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="InsertPreviewModuleResult" type="tns:Status" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
+      <s:complexType name="PPVModuleResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="PPVModules" type="tns:ArrayOfPPVModule" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="InsertPPV">
         <s:complexType>
           <s:sequence>
@@ -1547,10 +1491,10 @@
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="FullLifeCycle" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="ViewLifeCycle" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="MaxViews" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="MaxViews" type="s:int" />
               <s:element minOccurs="0" maxOccurs="1" name="PriceCode" type="s:string" />
               <s:element minOccurs="1" maxOccurs="1" name="IsRenewable" type="s:boolean" />
-              <s:element minOccurs="0" maxOccurs="1" name="RecurringPeriods" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="RecurringPeriods" type="s:int" />
               <s:element minOccurs="1" maxOccurs="1" name="IsActive" type="s:boolean" />
             </s:sequence>
           </s:extension>
@@ -1623,6 +1567,7 @@
       <s:element name="ArrayOfPreviewModule" nillable="true" type="tns:ArrayOfPreviewModule" />
       <s:element name="SubscriptionsResponse" nillable="true" type="tns:SubscriptionsResponse" />
       <s:element name="ArrayOfCollection" nillable="true" type="tns:ArrayOfCollection" />
+      <s:element name="PPVModuleResponse" nillable="true" type="tns:PPVModuleResponse" />
       <s:element name="BusinessModuleResponse" nillable="true" type="tns:BusinessModuleResponse" />
     </s:schema>
     <s:schema targetNamespace="http://pricing.tvinci.com/AbstractTypes">
@@ -1932,35 +1877,11 @@
   <wsdl:message name="GetPPVModulesByProductCodesSoapOut">
     <wsdl:part name="parameters" element="tns:GetPPVModulesByProductCodesResponse" />
   </wsdl:message>
-  <wsdl:message name="InsertPriceCodeSoapIn">
-    <wsdl:part name="parameters" element="tns:InsertPriceCode" />
+  <wsdl:message name="GetPPVModulesDataSoapIn">
+    <wsdl:part name="parameters" element="tns:GetPPVModulesData" />
   </wsdl:message>
-  <wsdl:message name="InsertPriceCodeSoapOut">
-    <wsdl:part name="parameters" element="tns:InsertPriceCodeResponse" />
-  </wsdl:message>
-  <wsdl:message name="InsertDiscountCodeSoapIn">
-    <wsdl:part name="parameters" element="tns:InsertDiscountCode" />
-  </wsdl:message>
-  <wsdl:message name="InsertDiscountCodeSoapOut">
-    <wsdl:part name="parameters" element="tns:InsertDiscountCodeResponse" />
-  </wsdl:message>
-  <wsdl:message name="InsertCouponGroupSoapIn">
-    <wsdl:part name="parameters" element="tns:InsertCouponGroup" />
-  </wsdl:message>
-  <wsdl:message name="InsertCouponGroupSoapOut">
-    <wsdl:part name="parameters" element="tns:InsertCouponGroupResponse" />
-  </wsdl:message>
-  <wsdl:message name="InsertUsageModuleSoapIn">
-    <wsdl:part name="parameters" element="tns:InsertUsageModule" />
-  </wsdl:message>
-  <wsdl:message name="InsertUsageModuleSoapOut">
-    <wsdl:part name="parameters" element="tns:InsertUsageModuleResponse" />
-  </wsdl:message>
-  <wsdl:message name="InsertPreviewModuleSoapIn">
-    <wsdl:part name="parameters" element="tns:InsertPreviewModule" />
-  </wsdl:message>
-  <wsdl:message name="InsertPreviewModuleSoapOut">
-    <wsdl:part name="parameters" element="tns:InsertPreviewModuleResponse" />
+  <wsdl:message name="GetPPVModulesDataSoapOut">
+    <wsdl:part name="parameters" element="tns:GetPPVModulesDataResponse" />
   </wsdl:message>
   <wsdl:message name="InsertPPVSoapIn">
     <wsdl:part name="parameters" element="tns:InsertPPV" />
@@ -2492,6 +2413,17 @@
   <wsdl:message name="GetPPVModulesByProductCodesHttpPostOut">
     <wsdl:part name="Body" element="tns:ArrayOfPPVModule" />
   </wsdl:message>
+  <wsdl:message name="GetPPVModulesDataHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sPPVCode" type="s1:StringArray" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetPPVModulesDataHttpPostOut">
+    <wsdl:part name="Body" element="tns:PPVModuleResponse" />
+  </wsdl:message>
   <wsdl:message name="DeletePPVHttpPostIn">
     <wsdl:part name="groupID" type="s:string" />
     <wsdl:part name="ppv" type="s:string" />
@@ -2710,25 +2642,9 @@
       <wsdl:input message="tns:GetPPVModulesByProductCodesSoapIn" />
       <wsdl:output message="tns:GetPPVModulesByProductCodesSoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="InsertPriceCode">
-      <wsdl:input message="tns:InsertPriceCodeSoapIn" />
-      <wsdl:output message="tns:InsertPriceCodeSoapOut" />
-    </wsdl:operation>
-    <wsdl:operation name="InsertDiscountCode">
-      <wsdl:input message="tns:InsertDiscountCodeSoapIn" />
-      <wsdl:output message="tns:InsertDiscountCodeSoapOut" />
-    </wsdl:operation>
-    <wsdl:operation name="InsertCouponGroup">
-      <wsdl:input message="tns:InsertCouponGroupSoapIn" />
-      <wsdl:output message="tns:InsertCouponGroupSoapOut" />
-    </wsdl:operation>
-    <wsdl:operation name="InsertUsageModule">
-      <wsdl:input message="tns:InsertUsageModuleSoapIn" />
-      <wsdl:output message="tns:InsertUsageModuleSoapOut" />
-    </wsdl:operation>
-    <wsdl:operation name="InsertPreviewModule">
-      <wsdl:input message="tns:InsertPreviewModuleSoapIn" />
-      <wsdl:output message="tns:InsertPreviewModuleSoapOut" />
+    <wsdl:operation name="GetPPVModulesData">
+      <wsdl:input message="tns:GetPPVModulesDataSoapIn" />
+      <wsdl:output message="tns:GetPPVModulesDataSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="InsertPPV">
       <wsdl:input message="tns:InsertPPVSoapIn" />
@@ -2963,6 +2879,10 @@
     <wsdl:operation name="GetPPVModulesByProductCodes">
       <wsdl:input message="tns:GetPPVModulesByProductCodesHttpPostIn" />
       <wsdl:output message="tns:GetPPVModulesByProductCodesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPPVModulesData">
+      <wsdl:input message="tns:GetPPVModulesDataHttpPostIn" />
+      <wsdl:output message="tns:GetPPVModulesDataHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="DeletePPV">
       <wsdl:input message="tns:DeletePPVHttpPostIn" />
@@ -3420,44 +3340,8 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="InsertPriceCode">
-      <soap:operation soapAction="http://pricing.tvinci.com/InsertPriceCode" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="InsertDiscountCode">
-      <soap:operation soapAction="http://pricing.tvinci.com/InsertDiscountCode" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="InsertCouponGroup">
-      <soap:operation soapAction="http://pricing.tvinci.com/InsertCouponGroup" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="InsertUsageModule">
-      <soap:operation soapAction="http://pricing.tvinci.com/InsertUsageModule" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="InsertPreviewModule">
-      <soap:operation soapAction="http://pricing.tvinci.com/InsertPreviewModule" style="document" />
+    <wsdl:operation name="GetPPVModulesData">
+      <soap:operation soapAction="http://pricing.tvinci.com/GetPPVModulesData" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -3990,44 +3874,8 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="InsertPriceCode">
-      <soap12:operation soapAction="http://pricing.tvinci.com/InsertPriceCode" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="InsertDiscountCode">
-      <soap12:operation soapAction="http://pricing.tvinci.com/InsertDiscountCode" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="InsertCouponGroup">
-      <soap12:operation soapAction="http://pricing.tvinci.com/InsertCouponGroup" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="InsertUsageModule">
-      <soap12:operation soapAction="http://pricing.tvinci.com/InsertUsageModule" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="InsertPreviewModule">
-      <soap12:operation soapAction="http://pricing.tvinci.com/InsertPreviewModule" style="document" />
+    <wsdl:operation name="GetPPVModulesData">
+      <soap12:operation soapAction="http://pricing.tvinci.com/GetPPVModulesData" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -4553,6 +4401,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetPPVModulesByProductCodes">
       <http:operation location="/GetPPVModulesByProductCodes" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPPVModulesData">
+      <http:operation location="/GetPPVModulesData" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
