@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace ApiObjects
 {
+   
     public abstract class IngestModule
     {
         public string Code { get; set; }

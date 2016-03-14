@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ApiObjects
-{
+{ 
     public class IngestPPV : IngestModule
     {
         public string PriceCode { get; set; }
@@ -27,5 +27,6 @@ namespace ApiObjects
         public List<string> FileTypes { get; set; }
 
         public bool IsActive { get; set; }
+        
     }
 }

@@ -226,19 +226,19 @@ namespace ApiObjects.Response
 
 
         //Pricing 9000-9999
-        MppIsNull = 9000,
-        CodeIsMandatory = 9001,
-        MissingDiscountCode = 9002,
-        MissingPricePlan = 9003,
+        InvalidPriceCode = 9000,
+        InvalidValue = 9001,
+        InvalidDiscountCode = 9002,
+        InvalidPricePlan = 9003,
         CodeMustBeUnique = 9004,
         CodeNotExist = 9005,
-        DiscountCodeNotExist = 9006,
-        MissingPricePlans = 9007,
-        MissingChannels = 9008,
-        MissingFileTypes = 9009,       
-        PreviewModuleNotExist = 9010
-
-
-
+        InvalidCodeNotExist = 9006,
+        InvalidChannels = 9008,
+        InvalidFileTypes = 9009,       
+        InvalidPreviewModule = 9010,
+        MandatoryField = 9011,
+        UniqueFiled = 9012,
+        InvalidUsageModule = 9013,
+        InvalidCouponGroup = 9014
     }
 }
