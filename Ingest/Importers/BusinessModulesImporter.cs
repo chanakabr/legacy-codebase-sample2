@@ -57,15 +57,6 @@ namespace Ingest.Importers
 
             XmlDocument xmlDoc = new XmlDocument();
 
-
-            // get filename
-            string filename = DateTime.UtcNow.ToString("yyyyMMdd_HH-mm-ss-fff");
-            var attribute = xmlDoc.FirstChild.Attributes["id"];
-            if (attribute != null && !string.IsNullOrEmpty(attribute.InnerText))
-                filename = string.Format("{0}_{1}", attribute.InnerText, filename);
-
-            response.ReportId = filename;
-
             // try to load xml
             try
             {
@@ -74,10 +65,16 @@ namespace Ingest.Importers
             catch (Exception ex)
             {
                 log.ErrorFormat("ingest report ID '{0}': failed to load price plans xml.", response.ReportId, ex);
-                report = string.Format("failed to load price plans xml with error {0}", ex.Message);
-                WriteReportLogToFile(report, response.ReportId, groupId);
                 return response;
             }
+
+            // get filename
+            string filename = DateTime.UtcNow.ToString("yyyyMMdd_HH-mm-ss-fff");
+            var attribute = xmlDoc.FirstChild.Attributes["id"];
+            if (attribute != null && !string.IsNullOrEmpty(attribute.InnerText))
+                filename = string.Format("{0}_{1}", attribute.InnerText, filename);
+
+            response.ReportId = filename;
 
             ProccessPricePlans(groupId, xmlDoc, response.ReportId);
 
@@ -181,6 +178,12 @@ namespace Ingest.Importers
 
             try
             {
+                string directoryName = Path.GetDirectoryName(reportFullPath);
+                if (!Directory.Exists(directoryName))
+                {
+                    Directory.CreateDirectory(directoryName);
+                }
+
                 File.AppendAllText(reportFullPath, report);
             }
             catch (Exception ex)
@@ -236,6 +239,12 @@ namespace Ingest.Importers
 
                     try
                     {
+                        string directoryName = Path.GetDirectoryName(reportFullPath);
+                        if (!Directory.Exists(directoryName))
+                        {
+                            Directory.CreateDirectory(directoryName);
+                        }
+
                         File.AppendAllText(reportFullPath, report);
                     }
                     catch (Exception ex)
