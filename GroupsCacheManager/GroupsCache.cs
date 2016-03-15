@@ -223,7 +223,7 @@ namespace GroupsCacheManager
                         }
                         catch (Exception ex)
                         {
-                            Logger.Logger.Log("GetGroup", string.Format("Couldn't get group {0}, ex = {1}", nGroupID, ex.Message), "GroupsCacheManager");
+                            Logger.Logger.Log("GetGroup", string.Format("Couldn't get group {0}, ex = {1}, stack trace = {2}", nGroupID, ex.Message, ex.StackTrace), "GroupsCacheManager");
                         }
                         finally
                         {
@@ -236,7 +236,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
-                Logger.Logger.Log("GetGroup", string.Format("Couldn't get group {0}, ex = {1}", nGroupID, ex.Message), "GroupsCacheManager");
+                Logger.Logger.Log("GetGroup", string.Format("Couldn't get group {0}, ex = {1}, stack trace = {2}", nGroupID, ex.Message, ex.StackTrace), "GroupsCacheManager");
                 return null;
             }
         }
