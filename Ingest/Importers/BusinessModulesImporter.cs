@@ -533,8 +533,15 @@ namespace Ingest.Importers
                         // price plans
                         multiPricePlan.PricePlansCodes = GetNodeStringArray(node, "price_plan_codes/price_plan_code");
 
-                        // channels
+                        // channels - mandatory
                         multiPricePlan.Channels = GetNodeStringArray(node, "channels/channel");
+
+                        if (multiPricePlan.Channels == null || multiPricePlan.Channels.Length == 0)
+                        {
+                            log.ErrorFormat(LOG_FORMAT_ERROR_FORMAT, MULTI_PRICE_PLAN, multiPricePlan.Code, "channels", reportId);
+                            reportBuilder.AppendFormat(FORMAT_ERROR_FORMAT, MULTI_PRICE_PLAN, multiPricePlan.Code, "channels");
+                            continue;
+                        }
 
                         // file types
                         multiPricePlan.FileTypes= GetNodeStringArray(node, "file_types/file_type");
