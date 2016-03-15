@@ -1157,7 +1157,7 @@ namespace DAL
             return 0;
         }
 
-        public static DataSet ValidatePPV(int groupID, string code, string priceCode, string pricePlan, string discount, string groupCoupon, List<string> fileTypes,
+        public static DataSet ValidatePPV(int groupID, string code, string priceCode, string usageModule, string discount, string groupCoupon, List<string> fileTypes,
             ApiObjects.eIngestAction action)
         {
             StoredProcedure sp = new StoredProcedure("ValidatePPV");
@@ -1165,7 +1165,7 @@ namespace DAL
             sp.AddParameter("@GroupID", groupID);
             sp.AddParameter("@Name", code);
             sp.AddParameter("@priceCode", priceCode);
-            sp.AddParameter("@pricePlan", pricePlan);
+            sp.AddParameter("@usageModule", usageModule);
             sp.AddParameter("@discount", discount);
             sp.AddParameter("@groupCoupon", groupCoupon);
             sp.AddParameter("@Action", (int)action);
@@ -1175,14 +1175,14 @@ namespace DAL
         }
 
 
-        public static int InsertPPV(int groupID, ApiObjects.IngestPPV ppv, int priceCodeID, int pricePlanID, int discountID, int groupCouponID, List<int> fileTypes)
+        public static int InsertPPV(int groupID, ApiObjects.IngestPPV ppv, int priceCodeID, int usageModuleID, int discountID, int groupCouponID, List<int> fileTypes)
         {
             StoredProcedure sp = new StoredProcedure("Insert_PPVModule");
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@GroupID", groupID);
             sp.AddParameter("@Name", ppv.Code);
             sp.AddParameter("@priceCode", priceCodeID);
-            sp.AddParameter("@pricePlan", pricePlanID);
+            sp.AddParameter("@usageModule", usageModuleID);
             sp.AddParameter("@discount", discountID);
             sp.AddParameter("@groupCoupon", groupCouponID);
             sp.AddParameter("@subscriptionOnly", ppv.SubscriptionOnly);
@@ -1199,14 +1199,14 @@ namespace DAL
             return sp.ExecuteReturnValue<int>();
         }
 
-        public static int UpdatePPV(int groupID, ApiObjects.IngestPPV ppv, int priceCodeID, int pricePlanID, int discountID, int groupCouponID, List<int> fileTypes)
+        public static int UpdatePPV(int groupID, ApiObjects.IngestPPV ppv, int priceCodeID, int usageModuleID, int discountID, int groupCouponID, List<int> fileTypes)
         {
             StoredProcedure sp = new StoredProcedure("Update_PPVModule");
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@GroupID", groupID);
             sp.AddParameter("@Name", ppv.Code);
             sp.AddParameter("@priceCode", priceCodeID);
-            sp.AddParameter("@pricePlan", pricePlanID);
+            sp.AddParameter("@usageModule", usageModuleID);
             sp.AddParameter("@discount", discountID);
             sp.AddParameter("@groupCoupon", groupCouponID);
             sp.AddParameter("@subscriptionOnly", ppv.SubscriptionOnly);
