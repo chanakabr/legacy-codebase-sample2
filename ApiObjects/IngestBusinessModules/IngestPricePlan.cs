@@ -21,5 +21,7 @@ namespace ApiObjects
         public int RecurringPeriods { get; set; }
 
         public bool IsActive { get; set; }
+
+        public string Discount { get; set; } 
     }
 }

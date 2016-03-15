@@ -1074,7 +1074,7 @@ namespace DAL
             return sp.ExecuteReturnValue<int>(); ;
         }
 
-        public static DataSet ValidatePricePlan(int groupID, string code, string fullLifeCycle, string viewLifeCycle, string priceCode,
+        public static DataSet ValidatePricePlan(int groupID, string code, string fullLifeCycle, string viewLifeCycle, string priceCode, string discount,
             ApiObjects.eIngestAction action)
         {
             StoredProcedure sp = new StoredProcedure("ValidatePricePlan");
@@ -1084,12 +1084,13 @@ namespace DAL
             sp.AddParameter("@FullLifeCycle", fullLifeCycle);
             sp.AddParameter("@ViewLifeCycle", viewLifeCycle);
             sp.AddParameter("@PriceCode", priceCode);
+            sp.AddParameter("@Discount", discount);
             sp.AddParameter("@Action", (int)action);
 
             return sp.ExecuteDataSet();
         }
 
-        public static int InsertPricePlan(int groupID, ApiObjects.IngestPricePlan pricePlan, int pricCodeID, int fullLifeCycleID, int viewLifeCycleID)
+        public static int InsertPricePlan(int groupID, ApiObjects.IngestPricePlan pricePlan, int pricCodeID, int fullLifeCycleID, int viewLifeCycleID, int discountID)
         {
             try
             {
@@ -1104,6 +1105,7 @@ namespace DAL
                 sp.AddParameter("@PricCodeID", pricCodeID);
                 sp.AddParameter("@FullLifeCycleID", fullLifeCycleID);
                 sp.AddParameter("@ViewLifeCycleID", viewLifeCycleID);
+                sp.AddParameter("@DiscountID", discountID);
                 sp.AddParameter("@Date", DateTime.UtcNow);
                 return sp.ExecuteReturnValue<int>();
             }
@@ -1114,7 +1116,7 @@ namespace DAL
             return 0;
         }
 
-        public static int UpdatePricePlan(int groupID, ApiObjects.IngestPricePlan pricePlan, int pricCodeID, int fullLifeCycleID, int viewLifeCycleID)
+        public static int UpdatePricePlan(int groupID, ApiObjects.IngestPricePlan pricePlan, int pricCodeID, int fullLifeCycleID, int viewLifeCycleID, int discountID)
         {
             try
             {
@@ -1129,6 +1131,7 @@ namespace DAL
                 sp.AddParameter("@PricCodeID", pricCodeID);
                 sp.AddParameter("@FullLifeCycleID", fullLifeCycleID);
                 sp.AddParameter("@ViewLifeCycleID", viewLifeCycleID);
+                sp.AddParameter("@DiscountID", discountID);
                 sp.AddParameter("@Date", DateTime.UtcNow);
                 return sp.ExecuteReturnValue<int>();
             }
