@@ -36,7 +36,7 @@ namespace ConditionalAccess.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/WS_Pricing/module.asmx")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://54.72.1.39:8030/pricing_v3_5/module.asmx")]
         public string ConditionalAccess_TvinciPricing_mdoule {
             get {
                 return ((string)(this["ConditionalAccess_TvinciPricing_mdoule"]));
@@ -46,7 +46,7 @@ namespace ConditionalAccess.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/WS_Users/module.asmx")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://54.72.1.39:8030/users_v3_5/module.asmx")]
         public string ConditionalAccess_TvinciUsers_UsersService {
             get {
                 return ((string)(this["ConditionalAccess_TvinciUsers_UsersService"]));
@@ -66,7 +66,7 @@ namespace ConditionalAccess.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/ws_domains/module.asmx")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://54.72.1.39:8030/domains_v3_5/module.asmx")]
         public string ConditionalAccess_TvinciDomains_module {
             get {
                 return ((string)(this["ConditionalAccess_TvinciDomains_module"]));
@@ -76,7 +76,7 @@ namespace ConditionalAccess.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/WS_Notification/NotificationService.svc")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://54.72.1.39:8030/notification_v3_5/NotificationService.svc")]
         public string ConditionalAccess_NotificationService_NotificationService {
             get {
                 return ((string)(this["ConditionalAccess_NotificationService_NotificationService"]));
@@ -86,7 +86,7 @@ namespace ConditionalAccess.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/ws_api/api.asmx")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://54.72.1.39:8030/api_v3_5/api.asmx")]
         public string ConditionalAccess_TvinciAPI_API {
             get {
                 return ((string)(this["ConditionalAccess_TvinciAPI_API"]));

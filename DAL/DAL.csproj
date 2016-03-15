@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>DAL</RootNamespace>
     <AssemblyName>DAL</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -22,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,6 +31,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Local|AnyCPU'">
     <OutputPath>bin\Local\</OutputPath>
@@ -39,20 +41,22 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Couchbase">
-      <HintPath>..\External\Couchbase-Net-Client-1.3.10\net35\Couchbase.dll</HintPath>
-    </Reference>
     <Reference Include="Enyim.Caching">
-      <HintPath>..\External\Couchbase-Net-Client-1.3.10\net35\Enyim.Caching.dll</HintPath>
+      <HintPath>..\..\tvincicommon\External\Couchbase-2.2.5\Enyim.Caching.dll</HintPath>
+    </Reference>
+    <Reference Include="Jil">
+      <HintPath>..\..\..\Maverick\tvincicommon\External\Jil.dll</HintPath>
     </Reference>
     <Reference Include="KLogMonitor, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\TVinciCommon\External\3.5\KLogMonitor.dll</HintPath>
+      <HintPath>..\..\..\Maverick\tvincicommon\External\4.5\KLogMonitor.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\External\Couchbase-Net-Client\net35\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Maverick\tvincicommon\External\Couchbase-2.2.5\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -98,10 +102,6 @@
     <ProjectReference Include="..\CouchbaseManager\CouchbaseManager.csproj">
       <Project>{b44dc37d-5658-4b85-8cc4-0ec72838cafc}</Project>
       <Name>CouchbaseManager</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\CouchbaseWrapper\CouchbaseWrapper.csproj">
-      <Project>{77bcf2fc-c5e0-43b0-a7d6-4bae928035aa}</Project>
-      <Name>CouchbaseWrapper</Name>
     </ProjectReference>
     <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj">
       <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>

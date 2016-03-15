@@ -145,6 +145,8 @@ namespace ConditionalAccess.TvinciUsers {
         
         private System.Threading.SendOrPostCallback GetItemFromListOperationCompleted;
         
+        private System.Threading.SendOrPostCallback GetItemsFromUsersListsOperationCompleted;
+        
         private System.Threading.SendOrPostCallback IsItemExistsInListOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetGroupUserTypesOperationCompleted;
@@ -176,6 +178,8 @@ namespace ConditionalAccess.TvinciUsers {
         private System.Threading.SendOrPostCallback GetUsersOperationCompleted;
         
         private System.Threading.SendOrPostCallback SetUserOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback FilterFavoriteMediaIdsOperationCompleted;
         
         private bool useDefaultCredentialsSetExplicitly;
         
@@ -390,6 +394,9 @@ namespace ConditionalAccess.TvinciUsers {
         public event GetItemFromListCompletedEventHandler GetItemFromListCompleted;
         
         /// <remarks/>
+        public event GetItemsFromUsersListsCompletedEventHandler GetItemsFromUsersListsCompleted;
+        
+        /// <remarks/>
         public event IsItemExistsInListCompletedEventHandler IsItemExistsInListCompleted;
         
         /// <remarks/>
@@ -436,6 +443,9 @@ namespace ConditionalAccess.TvinciUsers {
         
         /// <remarks/>
         public event SetUserCompletedEventHandler SetUserCompleted;
+        
+        /// <remarks/>
+        public event FilterFavoriteMediaIdsCompletedEventHandler FilterFavoriteMediaIdsCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/CheckUserPassword", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -810,7 +820,7 @@ namespace ConditionalAccess.TvinciUsers {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/AddUserFavorit", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public bool AddUserFavorit(string sWSUserName, string sWSPassword, string sUserGUID, int domainID, string sDeviceUDID, string sItemType, string sItemCode, string sExtraData) {
+        public Status AddUserFavorit(string sWSUserName, string sWSPassword, string sUserGUID, int domainID, string sDeviceUDID, string sItemType, string sItemCode, string sExtraData) {
             object[] results = this.Invoke("AddUserFavorit", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -820,7 +830,7 @@ namespace ConditionalAccess.TvinciUsers {
                         sItemType,
                         sItemCode,
                         sExtraData});
-            return ((bool)(results[0]));
+            return ((Status)(results[0]));
         }
         
         /// <remarks/>
@@ -1005,12 +1015,13 @@ namespace ConditionalAccess.TvinciUsers {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/RemoveUserFavorit", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public void RemoveUserFavorit(string sWSUserName, string sWSPassword, string sUserGUID, int[] nMediaIDs) {
-            this.Invoke("RemoveUserFavorit", new object[] {
+        public Status RemoveUserFavorit(string sWSUserName, string sWSPassword, string sUserGUID, int[] nMediaIDs) {
+            object[] results = this.Invoke("RemoveUserFavorit", new object[] {
                         sWSUserName,
                         sWSPassword,
                         sUserGUID,
                         nMediaIDs});
+            return ((Status)(results[0]));
         }
         
         /// <remarks/>
@@ -1033,7 +1044,7 @@ namespace ConditionalAccess.TvinciUsers {
         private void OnRemoveUserFavoritOperationCompleted(object arg) {
             if ((this.RemoveUserFavoritCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.RemoveUserFavoritCompleted(this, new System.ComponentModel.AsyncCompletedEventArgs(invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+                this.RemoveUserFavoritCompleted(this, new RemoveUserFavoritCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -1073,7 +1084,7 @@ namespace ConditionalAccess.TvinciUsers {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/GetUserFavorites", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public FavoritObject[] GetUserFavorites(string sWSUserName, string sWSPassword, string sUserGUID, int domainID, string sDeviceUDID, string sItemType) {
+        public FavoriteResponse GetUserFavorites(string sWSUserName, string sWSPassword, string sUserGUID, int domainID, string sDeviceUDID, string sItemType) {
             object[] results = this.Invoke("GetUserFavorites", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -1081,7 +1092,7 @@ namespace ConditionalAccess.TvinciUsers {
                         domainID,
                         sDeviceUDID,
                         sItemType});
-            return ((FavoritObject[])(results[0]));
+            return ((FavoriteResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -2502,12 +2513,12 @@ namespace ConditionalAccess.TvinciUsers {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/GetItemFromList", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public UserItemList[] GetItemFromList(string sWSUserName, string sWSPassword, UserItemList userItemList) {
+        public UserItemListsResponse GetItemFromList(string sWSUserName, string sWSPassword, UserItemList userItemList) {
             object[] results = this.Invoke("GetItemFromList", new object[] {
                         sWSUserName,
                         sWSPassword,
                         userItemList});
-            return ((UserItemList[])(results[0]));
+            return ((UserItemListsResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -2530,6 +2541,43 @@ namespace ConditionalAccess.TvinciUsers {
             if ((this.GetItemFromListCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.GetItemFromListCompleted(this, new GetItemFromListCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/GetItemsFromUsersLists", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public UsersItemsListsResponse GetItemsFromUsersLists(string sWSUserName, string sWSPassword, string[] userIds, ListType listType, ItemType itemType) {
+            object[] results = this.Invoke("GetItemsFromUsersLists", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        userIds,
+                        listType,
+                        itemType});
+            return ((UsersItemsListsResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetItemsFromUsersListsAsync(string sWSUserName, string sWSPassword, string[] userIds, ListType listType, ItemType itemType) {
+            this.GetItemsFromUsersListsAsync(sWSUserName, sWSPassword, userIds, listType, itemType, null);
+        }
+        
+        /// <remarks/>
+        public void GetItemsFromUsersListsAsync(string sWSUserName, string sWSPassword, string[] userIds, ListType listType, ItemType itemType, object userState) {
+            if ((this.GetItemsFromUsersListsOperationCompleted == null)) {
+                this.GetItemsFromUsersListsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetItemsFromUsersListsOperationCompleted);
+            }
+            this.InvokeAsync("GetItemsFromUsersLists", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        userIds,
+                        listType,
+                        itemType}, this.GetItemsFromUsersListsOperationCompleted, userState);
+        }
+        
+        private void OnGetItemsFromUsersListsOperationCompleted(object arg) {
+            if ((this.GetItemsFromUsersListsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetItemsFromUsersListsCompleted(this, new GetItemsFromUsersListsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -2748,14 +2796,14 @@ namespace ConditionalAccess.TvinciUsers {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/SetLoginPIN", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status SetLoginPIN(string sWSUserName, string sWSPassword, string siteGuid, string PIN, string secret) {
+        public PinCodeResponse SetLoginPIN(string sWSUserName, string sWSPassword, string siteGuid, string PIN, string secret) {
             object[] results = this.Invoke("SetLoginPIN", new object[] {
                         sWSUserName,
                         sWSPassword,
                         siteGuid,
                         PIN,
                         secret});
-            return ((Status)(results[0]));
+            return ((PinCodeResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -2785,28 +2833,30 @@ namespace ConditionalAccess.TvinciUsers {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/ClearLoginPIN", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status ClearLoginPIN(string sWSUserName, string sWSPassword, string siteGuid) {
+        public Status ClearLoginPIN(string sWSUserName, string sWSPassword, string siteGuid, string pin) {
             object[] results = this.Invoke("ClearLoginPIN", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        siteGuid});
+                        siteGuid,
+                        pin});
             return ((Status)(results[0]));
         }
         
         /// <remarks/>
-        public void ClearLoginPINAsync(string sWSUserName, string sWSPassword, string siteGuid) {
-            this.ClearLoginPINAsync(sWSUserName, sWSPassword, siteGuid, null);
+        public void ClearLoginPINAsync(string sWSUserName, string sWSPassword, string siteGuid, string pin) {
+            this.ClearLoginPINAsync(sWSUserName, sWSPassword, siteGuid, pin, null);
         }
         
         /// <remarks/>
-        public void ClearLoginPINAsync(string sWSUserName, string sWSPassword, string siteGuid, object userState) {
+        public void ClearLoginPINAsync(string sWSUserName, string sWSPassword, string siteGuid, string pin, object userState) {
             if ((this.ClearLoginPINOperationCompleted == null)) {
                 this.ClearLoginPINOperationCompleted = new System.Threading.SendOrPostCallback(this.OnClearLoginPINOperationCompleted);
             }
             this.InvokeAsync("ClearLoginPIN", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        siteGuid}, this.ClearLoginPINOperationCompleted, userState);
+                        siteGuid,
+                        pin}, this.ClearLoginPINOperationCompleted, userState);
         }
         
         private void OnClearLoginPINOperationCompleted(object arg) {
@@ -3111,6 +3161,45 @@ namespace ConditionalAccess.TvinciUsers {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/FilterFavoriteMediaIds", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public FavoriteResponse FilterFavoriteMediaIds(string sWSUserName, string sWSPassword, string userId, int[] mediaIds, string udid, string mediaType) {
+            object[] results = this.Invoke("FilterFavoriteMediaIds", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        userId,
+                        mediaIds,
+                        udid,
+                        mediaType});
+            return ((FavoriteResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void FilterFavoriteMediaIdsAsync(string sWSUserName, string sWSPassword, string userId, int[] mediaIds, string udid, string mediaType) {
+            this.FilterFavoriteMediaIdsAsync(sWSUserName, sWSPassword, userId, mediaIds, udid, mediaType, null);
+        }
+        
+        /// <remarks/>
+        public void FilterFavoriteMediaIdsAsync(string sWSUserName, string sWSPassword, string userId, int[] mediaIds, string udid, string mediaType, object userState) {
+            if ((this.FilterFavoriteMediaIdsOperationCompleted == null)) {
+                this.FilterFavoriteMediaIdsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnFilterFavoriteMediaIdsOperationCompleted);
+            }
+            this.InvokeAsync("FilterFavoriteMediaIds", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        userId,
+                        mediaIds,
+                        udid,
+                        mediaType}, this.FilterFavoriteMediaIdsOperationCompleted, userState);
+        }
+        
+        private void OnFilterFavoriteMediaIdsOperationCompleted(object arg) {
+            if ((this.FilterFavoriteMediaIdsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.FilterFavoriteMediaIdsCompleted(this, new FilterFavoriteMediaIdsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -3130,7 +3219,7 @@ namespace ConditionalAccess.TvinciUsers {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3175,7 +3264,7 @@ namespace ConditionalAccess.TvinciUsers {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
     public enum ResponseStatus {
@@ -3257,7 +3346,7 @@ namespace ConditionalAccess.TvinciUsers {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3362,7 +3451,7 @@ namespace ConditionalAccess.TvinciUsers {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3611,7 +3700,7 @@ namespace ConditionalAccess.TvinciUsers {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3668,7 +3757,7 @@ namespace ConditionalAccess.TvinciUsers {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3713,7 +3802,7 @@ namespace ConditionalAccess.TvinciUsers {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3746,7 +3835,7 @@ namespace ConditionalAccess.TvinciUsers {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3779,7 +3868,7 @@ namespace ConditionalAccess.TvinciUsers {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3812,7 +3901,7 @@ namespace ConditionalAccess.TvinciUsers {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3869,41 +3958,196 @@ namespace ConditionalAccess.TvinciUsers {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
-    public partial class ItemObj {
+    public partial class Item {
         
-        private int itemField;
+        private ItemType itemTypeField;
         
-        private System.Nullable<int> orderNumField;
+        private int itemIdField;
+        
+        private System.Nullable<int> orderIndexField;
+        
+        private string userIdField;
         
         /// <remarks/>
-        public int item {
+        public ItemType ItemType {
             get {
-                return this.itemField;
+                return this.itemTypeField;
             }
             set {
-                this.itemField = value;
+                this.itemTypeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int ItemId {
+            get {
+                return this.itemIdField;
+            }
+            set {
+                this.itemIdField = value;
             }
         }
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
-        public System.Nullable<int> orderNum {
+        public System.Nullable<int> OrderIndex {
             get {
-                return this.orderNumField;
+                return this.orderIndexField;
             }
             set {
-                this.orderNumField = value;
+                this.orderIndexField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string UserId {
+            get {
+                return this.userIdField;
+            }
+            set {
+                this.userIdField = value;
             }
         }
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
+    public enum ItemType {
+        
+        /// <remarks/>
+        All,
+        
+        /// <remarks/>
+        Media,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
+    public partial class UserItemsList {
+        
+        private Item[] itemsListField;
+        
+        private ListType listTypeField;
+        
+        /// <remarks/>
+        public Item[] ItemsList {
+            get {
+                return this.itemsListField;
+            }
+            set {
+                this.itemsListField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public ListType ListType {
+            get {
+                return this.listTypeField;
+            }
+            set {
+                this.listTypeField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
+    public enum ListType {
+        
+        /// <remarks/>
+        All,
+        
+        /// <remarks/>
+        Watch,
+        
+        /// <remarks/>
+        Purchase,
+        
+        /// <remarks/>
+        Library,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
+    public partial class UsersItemsListsResponse {
+        
+        private UserItemsList[] usersItemsListsField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        public UserItemsList[] UsersItemsLists {
+            get {
+                return this.usersItemsListsField;
+            }
+            set {
+                this.usersItemsListsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
+    public partial class UserItemListsResponse {
+        
+        private UserItemList[] userItemListsField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        public UserItemList[] UserItemLists {
+            get {
+                return this.userItemListsField;
+            }
+            set {
+                this.userItemListsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3960,39 +4204,41 @@ namespace ConditionalAccess.TvinciUsers {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
-    public enum ListType {
+    public partial class ItemObj {
+        
+        private int itemField;
+        
+        private System.Nullable<int> orderNumField;
         
         /// <remarks/>
-        All,
+        public int item {
+            get {
+                return this.itemField;
+            }
+            set {
+                this.itemField = value;
+            }
+        }
         
         /// <remarks/>
-        Watch,
-        
-        /// <remarks/>
-        Purchase,
-        
-        /// <remarks/>
-        Library,
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<int> orderNum {
+            get {
+                return this.orderNumField;
+            }
+            set {
+                this.orderNumField = value;
+            }
+        }
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
-    public enum ItemType {
-        
-        /// <remarks/>
-        All,
-        
-        /// <remarks/>
-        Media,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -4049,7 +4295,7 @@ namespace ConditionalAccess.TvinciUsers {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
     public enum UserGroupRuleResponseStatus {
@@ -4068,7 +4314,7 @@ namespace ConditionalAccess.TvinciUsers {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -4137,7 +4383,7 @@ namespace ConditionalAccess.TvinciUsers {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -4266,7 +4512,40 @@ namespace ConditionalAccess.TvinciUsers {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
+    public partial class FavoriteResponse {
+        
+        private Status statusField;
+        
+        private FavoritObject[] favoritesField;
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public FavoritObject[] Favorites {
+            get {
+                return this.favoritesField;
+            }
+            set {
+                this.favoritesField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -4299,7 +4578,7 @@ namespace ConditionalAccess.TvinciUsers {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -4332,7 +4611,7 @@ namespace ConditionalAccess.TvinciUsers {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -4353,7 +4632,7 @@ namespace ConditionalAccess.TvinciUsers {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -4399,7 +4678,7 @@ namespace ConditionalAccess.TvinciUsers {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
     public enum UserState {
@@ -4421,7 +4700,7 @@ namespace ConditionalAccess.TvinciUsers {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
     public enum DomainSuspentionStatus {
@@ -4685,10 +4964,10 @@ namespace ConditionalAccess.TvinciUsers {
         }
         
         /// <remarks/>
-        public bool Result {
+        public Status Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((bool)(this.results[0]));
+                return ((Status)(this.results[0]));
             }
         }
     }
@@ -4799,7 +5078,29 @@ namespace ConditionalAccess.TvinciUsers {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void RemoveUserFavoritCompletedEventHandler(object sender, System.ComponentModel.AsyncCompletedEventArgs e);
+    public delegate void RemoveUserFavoritCompletedEventHandler(object sender, RemoveUserFavoritCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class RemoveUserFavoritCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal RemoveUserFavoritCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
@@ -4823,10 +5124,10 @@ namespace ConditionalAccess.TvinciUsers {
         }
         
         /// <remarks/>
-        public FavoritObject[] Result {
+        public FavoriteResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((FavoritObject[])(this.results[0]));
+                return ((FavoriteResponse)(this.results[0]));
             }
         }
     }
@@ -5845,10 +6146,36 @@ namespace ConditionalAccess.TvinciUsers {
         }
         
         /// <remarks/>
-        public UserItemList[] Result {
+        public UserItemListsResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((UserItemList[])(this.results[0]));
+                return ((UserItemListsResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetItemsFromUsersListsCompletedEventHandler(object sender, GetItemsFromUsersListsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetItemsFromUsersListsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetItemsFromUsersListsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public UsersItemsListsResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((UsersItemsListsResponse)(this.results[0]));
             }
         }
     }
@@ -6027,10 +6354,10 @@ namespace ConditionalAccess.TvinciUsers {
         }
         
         /// <remarks/>
-        public Status Result {
+        public PinCodeResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((Status)(this.results[0]));
+                return ((PinCodeResponse)(this.results[0]));
             }
         }
     }
@@ -6265,6 +6592,32 @@ namespace ConditionalAccess.TvinciUsers {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((UserResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void FilterFavoriteMediaIdsCompletedEventHandler(object sender, FilterFavoriteMediaIdsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class FilterFavoriteMediaIdsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal FilterFavoriteMediaIdsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public FavoriteResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((FavoriteResponse)(this.results[0]));
             }
         }
     }

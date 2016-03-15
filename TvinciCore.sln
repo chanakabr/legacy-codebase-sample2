@@ -67,8 +67,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StaticticsBL", "StaticticsB
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceExtensions", "ServiceExtensions\ServiceExtensions.csproj", "{2E48DC40-A9AB-485D-A847-8E3662C69696}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CouchbaseWrapper", "CouchbaseWrapper\CouchbaseWrapper.csproj", "{77BCF2FC-C5E0-43B0-A7D6-4BAE928035AA}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CachingProvider", "CachingProvider\CachingProvider.csproj", "{4191D9E7-8502-4B00-A488-771240E2CF40}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnumProject", "EnumProject\EnumProject.csproj", "{B085A841-F0F0-4EA7-8AF3-B8C5440836DB}"
@@ -402,15 +400,6 @@ Global
 		{2E48DC40-A9AB-485D-A847-8E3662C69696}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2E48DC40-A9AB-485D-A847-8E3662C69696}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2E48DC40-A9AB-485D-A847-8E3662C69696}.Release|x86.ActiveCfg = Release|Any CPU
-		{77BCF2FC-C5E0-43B0-A7D6-4BAE928035AA}.Basic|Any CPU.ActiveCfg = Release|Any CPU
-		{77BCF2FC-C5E0-43B0-A7D6-4BAE928035AA}.Basic|Any CPU.Build.0 = Release|Any CPU
-		{77BCF2FC-C5E0-43B0-A7D6-4BAE928035AA}.Basic|x86.ActiveCfg = Release|Any CPU
-		{77BCF2FC-C5E0-43B0-A7D6-4BAE928035AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{77BCF2FC-C5E0-43B0-A7D6-4BAE928035AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{77BCF2FC-C5E0-43B0-A7D6-4BAE928035AA}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{77BCF2FC-C5E0-43B0-A7D6-4BAE928035AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{77BCF2FC-C5E0-43B0-A7D6-4BAE928035AA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{77BCF2FC-C5E0-43B0-A7D6-4BAE928035AA}.Release|x86.ActiveCfg = Release|Any CPU
 		{4191D9E7-8502-4B00-A488-771240E2CF40}.Basic|Any CPU.ActiveCfg = Release|Any CPU
 		{4191D9E7-8502-4B00-A488-771240E2CF40}.Basic|Any CPU.Build.0 = Release|Any CPU
 		{4191D9E7-8502-4B00-A488-771240E2CF40}.Basic|x86.ActiveCfg = Release|Any CPU

@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using ApiObjects.Statistics;
-using Couchbase;
-using Couchbase.Extensions;
 using CouchbaseManager;
 using Logger;
 using Newtonsoft.Json;
@@ -14,15 +12,15 @@ namespace DalCB
     public class StatisicsDal_CouchBase
     {        
         private static readonly string CB_STATISTICS_DESGIN = Utils.GetValFromConfig("cb_statistics_design");
-        
-        CouchbaseClient m_oClient;
-        
+
+        CouchbaseManager.CouchbaseManager cbManager;
+
         private int m_nGroupID;
 
         public StatisicsDal_CouchBase(int nGroupID)
         {
             m_nGroupID = nGroupID;
-            m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.STATISTICS);
+            cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.STATISTICS);
         }
 
         public Dictionary<string, BuzzWeightedAverScore> GetBuzzAverScore(List<string> lKey)
@@ -32,7 +30,7 @@ namespace DalCB
             {
                 if (lKey != null && lKey.Count > 0)
                 {
-                    IDictionary<string, object> dItems = m_oClient.Get(lKey);
+                    IDictionary<string, object> dItems = cbManager.GetValues<object>(lKey, true);
 
                     if (dItems != null && dItems.Count > 0)
                     {
@@ -66,7 +64,7 @@ namespace DalCB
             BuzzWeightedAverScore oRes = null;
             try
             {
-                oRes = m_oClient.GetJson<BuzzWeightedAverScore>(sKey);
+                oRes = cbManager.GetJsonAsT<BuzzWeightedAverScore>(sKey);
             }
             catch (Exception ex)
             {

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://users.tvinci.com/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:s1="http://users.tvinci.com/AbstractTypes" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://users.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://users.tvinci.com/" xmlns:s1="http://users.tvinci.com/AbstractTypes" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://users.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://users.tvinci.com/">
       <s:element name="CheckUserPassword">
@@ -336,10 +336,16 @@
       <s:element name="AddUserFavoritResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="1" maxOccurs="1" name="AddUserFavoritResult" type="s:boolean" />
+            <s:element minOccurs="0" maxOccurs="1" name="AddUserFavoritResult" type="tns:Status" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:complexType name="Status">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Code" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="AddChannelMediaToFavorites">
         <s:complexType>
           <s:sequence>
@@ -430,7 +436,11 @@
         </s:sequence>
       </s:complexType>
       <s:element name="RemoveUserFavoritResponse">
-        <s:complexType />
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="RemoveUserFavoritResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
       </s:element>
       <s:element name="RemoveChannelMediaUserFavorit">
         <s:complexType>
@@ -460,10 +470,16 @@
       <s:element name="GetUserFavoritesResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetUserFavoritesResult" type="tns:ArrayOfFavoritObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetUserFavoritesResult" type="tns:FavoriteResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:complexType name="FavoriteResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="Favorites" type="tns:ArrayOfFavoritObject" />
+        </s:sequence>
+      </s:complexType>
       <s:complexType name="ArrayOfFavoritObject">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="unbounded" name="FavoritObject" nillable="true" type="tns:FavoritObject" />
@@ -1256,13 +1272,67 @@
       <s:element name="GetItemFromListResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetItemFromListResult" type="tns:ArrayOfUserItemList" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetItemFromListResult" type="tns:UserItemListsResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:complexType name="UserItemListsResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="UserItemLists" type="tns:ArrayOfUserItemList" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
       <s:complexType name="ArrayOfUserItemList">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="unbounded" name="UserItemList" nillable="true" type="tns:UserItemList" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetItemsFromUsersLists">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userIds" type="tns:ArrayOfString" />
+            <s:element minOccurs="1" maxOccurs="1" name="listType" type="tns:ListType" />
+            <s:element minOccurs="1" maxOccurs="1" name="itemType" type="tns:ItemType" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetItemsFromUsersListsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetItemsFromUsersListsResult" type="tns:UsersItemsListsResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UsersItemsListsResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="UsersItemsLists" type="tns:ArrayOfUserItemsList" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfUserItemsList">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="UserItemsList" nillable="true" type="tns:UserItemsList" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="UserItemsList">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ItemsList" type="tns:ArrayOfItem" />
+          <s:element minOccurs="1" maxOccurs="1" name="ListType" type="tns:ListType" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfItem">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="Item" nillable="true" type="tns:Item" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Item">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="ItemType" type="tns:ItemType" />
+          <s:element minOccurs="1" maxOccurs="1" name="ItemId" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="OrderIndex" nillable="true" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="UserId" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:element name="IsItemExistsInList">
@@ -1359,12 +1429,6 @@
           <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
         </s:sequence>
       </s:complexType>
-      <s:complexType name="Status">
-        <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="Code" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
-        </s:sequence>
-      </s:complexType>
       <s:element name="LoginWithPIN">
         <s:complexType>
           <s:sequence>
@@ -1407,7 +1471,7 @@
       <s:element name="SetLoginPINResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="SetLoginPINResult" type="tns:Status" />
+            <s:element minOccurs="0" maxOccurs="1" name="SetLoginPINResult" type="tns:PinCodeResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -1417,6 +1481,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pin" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -1576,10 +1641,30 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="FilterFavoriteMediaIds">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="mediaIds" type="tns:ArrayOfInt" />
+            <s:element minOccurs="0" maxOccurs="1" name="udid" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="mediaType" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="FilterFavoriteMediaIdsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="FilterFavoriteMediaIdsResult" type="tns:FavoriteResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="UserResponseObject" nillable="true" type="tns:UserResponseObject" />
+      <s:element name="Status" nillable="true" type="tns:Status" />
       <s:element name="boolean" type="s:boolean" />
       <s:element name="UserState" type="tns:UserState" />
-      <s:element name="ArrayOfFavoritObject" nillable="true" type="tns:ArrayOfFavoritObject" />
+      <s:element name="FavoriteResponse" nillable="true" type="tns:FavoriteResponse" />
       <s:element name="ArrayOfUserResponseObject" nillable="true" type="tns:ArrayOfUserResponseObject" />
       <s:element name="ArrayOfUserBasicData" nillable="true" type="tns:ArrayOfUserBasicData" />
       <s:element name="ResponseStatus" type="tns:ResponseStatus" />
@@ -1593,7 +1678,6 @@
       <s:element name="ArrayOfUserType" nillable="true" type="tns:ArrayOfUserType" />
       <s:element name="int" type="s:int" />
       <s:element name="PinCodeResponse" nillable="true" type="tns:PinCodeResponse" />
-      <s:element name="Status" nillable="true" type="tns:Status" />
       <s:element name="UserResponse" nillable="true" type="tns:UserResponse" />
       <s:element name="UsersResponse" nillable="true" type="tns:UsersResponse" />
     </s:schema>
@@ -1958,6 +2042,12 @@
   <wsdl:message name="GetItemFromListSoapOut">
     <wsdl:part name="parameters" element="tns:GetItemFromListResponse" />
   </wsdl:message>
+  <wsdl:message name="GetItemsFromUsersListsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetItemsFromUsersLists" />
+  </wsdl:message>
+  <wsdl:message name="GetItemsFromUsersListsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetItemsFromUsersListsResponse" />
+  </wsdl:message>
   <wsdl:message name="IsItemExistsInListSoapIn">
     <wsdl:part name="parameters" element="tns:IsItemExistsInList" />
   </wsdl:message>
@@ -2054,6 +2144,12 @@
   <wsdl:message name="SetUserSoapOut">
     <wsdl:part name="parameters" element="tns:SetUserResponse" />
   </wsdl:message>
+  <wsdl:message name="FilterFavoriteMediaIdsSoapIn">
+    <wsdl:part name="parameters" element="tns:FilterFavoriteMediaIds" />
+  </wsdl:message>
+  <wsdl:message name="FilterFavoriteMediaIdsSoapOut">
+    <wsdl:part name="parameters" element="tns:FilterFavoriteMediaIdsResponse" />
+  </wsdl:message>
   <wsdl:message name="CheckUserPasswordHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -2147,7 +2243,7 @@
     <wsdl:part name="sExtraData" type="s:string" />
   </wsdl:message>
   <wsdl:message name="AddUserFavoritHttpPostOut">
-    <wsdl:part name="Body" element="tns:boolean" />
+    <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
   <wsdl:message name="AddChannelMediaToFavoritesHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -2197,7 +2293,9 @@
     <wsdl:part name="sUserGUID" type="s:string" />
     <wsdl:part name="nMediaIDs" type="s1:StringArray" />
   </wsdl:message>
-  <wsdl:message name="RemoveUserFavoritHttpPostOut" />
+  <wsdl:message name="RemoveUserFavoritHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
   <wsdl:message name="RemoveChannelMediaUserFavoritHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -2214,7 +2312,7 @@
     <wsdl:part name="sItemType" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetUserFavoritesHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfFavoritObject" />
+    <wsdl:part name="Body" element="tns:FavoriteResponse" />
   </wsdl:message>
   <wsdl:message name="GetUserByFacebookIDHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -2552,12 +2650,13 @@
     <wsdl:part name="secret" type="s:string" />
   </wsdl:message>
   <wsdl:message name="SetLoginPINHttpPostOut">
-    <wsdl:part name="Body" element="tns:Status" />
+    <wsdl:part name="Body" element="tns:PinCodeResponse" />
   </wsdl:message>
   <wsdl:message name="ClearLoginPINHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="siteGuid" type="s:string" />
+    <wsdl:part name="pin" type="s:string" />
   </wsdl:message>
   <wsdl:message name="ClearLoginPINHttpPostOut">
     <wsdl:part name="Body" element="tns:Status" />
@@ -2839,6 +2938,10 @@
       <wsdl:input message="tns:GetItemFromListSoapIn" />
       <wsdl:output message="tns:GetItemFromListSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetItemsFromUsersLists">
+      <wsdl:input message="tns:GetItemsFromUsersListsSoapIn" />
+      <wsdl:output message="tns:GetItemsFromUsersListsSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="IsItemExistsInList">
       <wsdl:input message="tns:IsItemExistsInListSoapIn" />
       <wsdl:output message="tns:IsItemExistsInListSoapOut" />
@@ -2902,6 +3005,10 @@
     <wsdl:operation name="SetUser">
       <wsdl:input message="tns:SetUserSoapIn" />
       <wsdl:output message="tns:SetUserSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="FilterFavoriteMediaIds">
+      <wsdl:input message="tns:FilterFavoriteMediaIdsSoapIn" />
+      <wsdl:output message="tns:FilterFavoriteMediaIdsSoapOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="UsersServiceHttpPost">
@@ -3670,6 +3777,15 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetItemsFromUsersLists">
+      <soap:operation soapAction="http://users.tvinci.com/GetItemsFromUsersLists" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="IsItemExistsInList">
       <soap:operation soapAction="http://users.tvinci.com/IsItemExistsInList" style="document" />
       <wsdl:input>
@@ -3807,6 +3923,15 @@
     </wsdl:operation>
     <wsdl:operation name="SetUser">
       <soap:operation soapAction="http://users.tvinci.com/SetUser" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FilterFavoriteMediaIds">
+      <soap:operation soapAction="http://users.tvinci.com/FilterFavoriteMediaIds" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -4339,6 +4464,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetItemsFromUsersLists">
+      <soap12:operation soapAction="http://users.tvinci.com/GetItemsFromUsersLists" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="IsItemExistsInList">
       <soap12:operation soapAction="http://users.tvinci.com/IsItemExistsInList" style="document" />
       <wsdl:input>
@@ -4483,6 +4617,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="FilterFavoriteMediaIds">
+      <soap12:operation soapAction="http://users.tvinci.com/FilterFavoriteMediaIds" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="UsersServiceHttpPost" type="tns:UsersServiceHttpPost">
     <http:binding verb="POST" />
@@ -4599,7 +4742,9 @@
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
-      <wsdl:output />
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="RemoveChannelMediaUserFavorit">
       <http:operation location="/RemoveChannelMediaUserFavorit" />
@@ -5021,13 +5166,13 @@
   </wsdl:binding>
   <wsdl:service name="UsersService">
     <wsdl:port name="UsersServiceSoap" binding="tns:UsersServiceSoap">
-      <soap:address location="http://localhost/WS_Users/module.asmx" />
+      <soap:address location="http://54.72.1.39:8030/users_v3_5/module.asmx" />
     </wsdl:port>
     <wsdl:port name="UsersServiceSoap12" binding="tns:UsersServiceSoap12">
-      <soap12:address location="http://localhost/WS_Users/module.asmx" />
+      <soap12:address location="http://54.72.1.39:8030/users_v3_5/module.asmx" />
     </wsdl:port>
     <wsdl:port name="UsersServiceHttpPost" binding="tns:UsersServiceHttpPost">
-      <http:address location="http://localhost/WS_Users/module.asmx" />
+      <http:address location="http://54.72.1.39:8030/users_v3_5/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

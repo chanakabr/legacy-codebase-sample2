@@ -143,7 +143,7 @@ namespace DAL
 
         public List<MediaMarkLog> GetAllFriendsWatchedMedia(List<int> lFriendsList, int nMediaID = 0)
         {
-            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
 
             List<MediaMarkLog> lRes = new List<MediaMarkLog>();
 
@@ -153,7 +153,10 @@ namespace DAL
                 List<UserMediaMark> mediaMarksList = CatalogDAL.GetMediaMarksLastDateByUsers(lFriendsList);
                 foreach (UserMediaMark mediaMark in mediaMarksList)
                 {
-                    lRes.Add(new MediaMarkLog() { LastMark = mediaMark });
+                    lRes.Add(new MediaMarkLog()
+                    {
+                        LastMark = mediaMark
+                    });
                 }
             }
             else
@@ -165,7 +168,7 @@ namespace DAL
                     docKeysList.Add(UtilsDal.getUserMediaMarkDocKey(nUserID, nMediaID));
                 }
 
-                IDictionary<string, object> res = m_oClient.Get(docKeysList);
+                IDictionary<string, object> res = cbManager.GetValues<object>(docKeysList, true);
 
                 foreach (string sKey in res.Keys)
                 {
@@ -177,7 +180,7 @@ namespace DAL
 
         public List<MediaMarkLog> GetFriendsWhoWatchedMedia(int nMediaID, List<int> lFriendsGuidList)
         {
-            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.MEDIAMARK);
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
             List<string> docKeysList = new List<string>();
             List<MediaMarkLog> lRes = new List<MediaMarkLog>();
 
@@ -186,7 +189,7 @@ namespace DAL
                 docKeysList.Add(DAL.UtilsDal.getUserMediaMarkDocKey(userID, nMediaID));
             }
 
-            IDictionary<string, object> res = m_oClient.Get(docKeysList);
+            IDictionary<string, object> res = cbManager.GetValues<object>(docKeysList, true);
 
             foreach (string sKey in res.Keys)
             {
