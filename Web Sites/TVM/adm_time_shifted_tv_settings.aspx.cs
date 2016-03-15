@@ -18,8 +18,22 @@ public partial class adm_time_shifted_tv_settings : System.Web.UI.Page
 
     protected void Page_Load(object sender, EventArgs e)
     {
-
-
+        if (LoginManager.CheckLogin() == false)
+            Response.Redirect("login.html");
+        else if (LoginManager.IsPagePermitted("adm_time_shifted_tv_settings.aspx") == false)
+            LoginManager.LogoutFromSite("login.html");
+        if (AMS.Web.RemoteScripting.InvokeMethod(this))
+            return;
+        Int32 nMenuID = 0;
+        if (!IsPostBack)
+        {
+            m_sMenu = TVinciShared.Menu.GetMainMenu(7, true, ref nMenuID);
+            m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, true);
+            if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
+            {
+                DBManipulator.DoTheWork("MAIN_CONNECTION_STRING");
+            }
+        }
     }
 
     protected void GetMainMenu()
@@ -61,16 +75,16 @@ public partial class adm_time_shifted_tv_settings : System.Web.UI.Page
         }
 
         string sBack = "adm_time_shifted_tv_settings.aspx?search_save=1";
-        DBRecordWebEditor theRecord = new DBRecordWebEditor("groups_parameters", "adm_table_pager", sBack, "", "ID", fieldIndexValue, sBack, "");
-        theRecord.SetConnectionKey("users_connection_string");
+        DBRecordWebEditor theRecord = new DBRecordWebEditor("time_shifted_tv_settings", "adm_table_pager", sBack, "", "ID", fieldIndexValue, sBack, "");
+        theRecord.SetConnectionKey("MAIN_CONNECTION_STRING");
 
         DataRecordCheckBoxField dr_catchUp = new DataRecordCheckBoxField(true);
         dr_catchUp.Initialize("Enable Catch-up", "adm_table_header_nbg", "FormInput", "allow_catchup", false);
         theRecord.AddRecord(dr_catchUp);
 
         DataRecordCheckBoxField dr_cdvr = new DataRecordCheckBoxField(true);
-        dr_catchUp.Initialize("Enable C-DVR", "adm_table_header_nbg", "FormInput", "allow_cdvr", false);
-        theRecord.AddRecord(dr_catchUp);
+        dr_cdvr.Initialize("Enable C-DVR", "adm_table_header_nbg", "FormInput", "allow_cdvr", false);
+        theRecord.AddRecord(dr_cdvr);
 
 
         sTable = theRecord.GetTableHTML("adm_time_shifted_tv_settings.aspx?submited=1");
