@@ -222,7 +222,7 @@ namespace Ingest.Importers
             }
             else
             {
-                log.ErrorFormat(LOG_INGEST_SUCCESS_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, ingestResponse.status.Message, reportId);
+                log.DebugFormat(LOG_INGEST_SUCCESS_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, ingestResponse.status.Message, reportId);
                 report = string.Format(INGEST_SUCCESS_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, ingestResponse.Id);
             }
 
