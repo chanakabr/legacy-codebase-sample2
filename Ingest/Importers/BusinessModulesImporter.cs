@@ -94,12 +94,18 @@ namespace Ingest.Importers
                 // create tasks for calling ws 
                 Task[] tasks = new Task[multiPricePlans.Count];
 
+                // create context for logs
+                KlogMonitorHelper.ContextData ctx = new KlogMonitorHelper.ContextData();
+
                 // start tasks            
                 for (int i = 0; i < multiPricePlans.Count; i++)
                 {
                     int index = i;
                     tasks[i] = Task.Factory.StartNew(() =>
-                        InsertModule<IngestMultiPricePlan>(groupId, multiPricePlans[index], CallPricingMultiPricePlanIngest<IngestMultiPricePlan>, reportId));
+                        {
+                            ctx.Load();
+                            InsertModule<IngestMultiPricePlan>(groupId, multiPricePlans[index], CallPricingMultiPricePlanIngest<IngestMultiPricePlan>, reportId);
+                        });
                 }
                 Task.WaitAll(tasks);
             }
@@ -115,12 +121,18 @@ namespace Ingest.Importers
                 // create tasks for calling ws 
                 Task[] tasks = new Task[pricePlans.Count];
 
+                // create context for logs
+                KlogMonitorHelper.ContextData ctx = new KlogMonitorHelper.ContextData();
+
                 // start tasks
                 for (int i = 0; i < pricePlans.Count; i++)
                 {
                     int index = i;
                     tasks[i] = Task.Factory.StartNew(() =>
-                        InsertModule<IngestPricePlan>(groupId, pricePlans[index], CallPricingPricePlanIngest<IngestPricePlan>, reportId));
+                        {
+                            ctx.Load();
+                            InsertModule<IngestPricePlan>(groupId, pricePlans[index], CallPricingPricePlanIngest<IngestPricePlan>, reportId);
+                        });
                 }
                 Task.WaitAll(tasks);
             }
@@ -136,12 +148,19 @@ namespace Ingest.Importers
                 // create tasks for calling ws 
                 Task[] tasks = new Task[ppvs.Count];
 
+                // create context for logs
+                KlogMonitorHelper.ContextData ctx = new KlogMonitorHelper.ContextData();
+
                 // start tasks
                 for (int i = 0; i < ppvs.Count; i++)
                 {
                     int index = i;
                     tasks[i] = Task.Factory.StartNew(() =>
-                        InsertModule<IngestPPV>(groupId, ppvs[index], CallPricingPPVIngest<IngestPPV>, reportId));
+                    {
+                        ctx.Load();
+                        InsertModule<IngestPPV>(groupId, ppvs[index], CallPricingPPVIngest<IngestPPV>, reportId);
+                    });
+                    
                 }
                 Task.WaitAll(tasks);
             }
@@ -874,9 +893,9 @@ namespace Ingest.Importers
 
         private static string[] GetNodeStringArray(XmlNode node, string nodeName)
         {
-            string[] response = null; 
+            string[] response = null;
 
-            var nodeList = node.SelectNodes("price_plan_codes/price_plan_code");
+            var nodeList = node.SelectNodes(nodeName);
             if (nodeList != null)
             {
                 response = new string[nodeList.Count];

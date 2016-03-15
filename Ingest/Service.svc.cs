@@ -19,6 +19,9 @@ namespace Ingest
 
         public BusinessModuleIngestResponse IngestBusinessModules(string username, string password, string xml)
         {
+            // add the log topic
+            OperationContext.Current.IncomingMessageProperties[Constants.TOPIC] = "Business module ingest";
+
             BusinessModuleIngestResponse response = new BusinessModuleIngestResponse()
             {
                 Status = new Status((int)StatusCodes.Error, StatusCodes.Error.ToString())
