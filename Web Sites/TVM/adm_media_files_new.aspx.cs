@@ -66,8 +66,7 @@ public partial class adm_media_files_new : System.Web.UI.Page
                         }
 
                         // check if changes in the start date require future index update call, incase updatedStartDate is in more than 2 years we don't update the index (per Ira's request)
-                        if (updatedStartDate.HasValue && (updatedStartDate.Value > DateTime.UtcNow && updatedStartDate.Value <= DateTime.UtcNow.AddYears(2)) 
-                            && (!prevStartDate.HasValue || updatedStartDate.Value != prevStartDate.Value))
+                        if (RabbitHelper.IsFutureIndexUpdate(prevStartDate, updatedStartDate))
                         {
                             if (!RabbitHelper.InsertFreeItemsIndexUpdate(nLoginGroupId, ApiObjects.eObjectType.Media, new List<int>() { nMediaID }, updatedStartDate.Value))
                             {
@@ -76,8 +75,7 @@ public partial class adm_media_files_new : System.Web.UI.Page
                         }
 
                         // check if changes in the end date require future index update call, incase updatedEndDate is in more than 2 years we don't update the index (per Ira's request)
-                        if (updatedEndDate.HasValue && (updatedEndDate > DateTime.UtcNow && updatedEndDate.Value <= DateTime.UtcNow.AddYears(2)) 
-                            && (!prevEndDate.HasValue || updatedEndDate.Value != prevEndDate.Value))
+                        if (RabbitHelper.IsFutureIndexUpdate(prevEndDate, updatedEndDate))
                         {
                             if (!RabbitHelper.InsertFreeItemsIndexUpdate(nLoginGroupId, ApiObjects.eObjectType.Media, new List<int>() { nMediaID }, updatedEndDate.Value))
                             {
