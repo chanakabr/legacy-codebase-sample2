@@ -38,14 +38,14 @@ namespace KlogMonitorHelper
             {
                 case KLogEnums.AppType.WCF:
 
-                    if (OperationContext.Current != null && this.wcfContext != null)
+                    if (this.wcfContext != null)
                         OperationContext.Current = this.wcfContext;
                     break;
 
                 case KLogEnums.AppType.WS:
                 default:
 
-                    if (HttpContext.Current != null && this.wsContext != null)
+                    if (this.wsContext != null)
                         HttpContext.Current = this.wsContext;
                     break;
             }
