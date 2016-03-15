@@ -50,8 +50,6 @@ namespace Ingest.Importers
                 Status = new Ingest.Models.Status((int)StatusCodes.Error, StatusCodes.Error.ToString())
             };
 
-            string report;
-
             if (string.IsNullOrEmpty(xml))
                 return response;
 
@@ -926,7 +924,11 @@ namespace Ingest.Importers
                     if (!string.IsNullOrEmpty(nodeList[i].InnerText))
                         response[i] = nodeList[i].InnerText;
                 }
+
+                response = response.Where(r => r != null).ToArray();
             }
+
+
 
             return response;
         }
