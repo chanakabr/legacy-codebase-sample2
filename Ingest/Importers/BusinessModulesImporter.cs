@@ -774,24 +774,27 @@ namespace Ingest.Importers
             var nodeList = node.SelectNodes(nodeName);
             if (nodeList != null && nodeList.Count > 0)
             {
-                value = new KeyValuePair[nodeList.Count];
+                Dictionary<string, string> results = new Dictionary<string, string>();
+
                 for (int i = 0; i < nodeList.Count; i++)
                 {
                     if (string.IsNullOrEmpty(nodeList[i].InnerText))
-                        return false;
+                        continue;
 
                     if (nodeList[i].Attributes != null && (attribute = nodeList[i].Attributes["lang"]) != null && !string.IsNullOrEmpty(attribute.InnerText))
                     {
-
-                        value[i] = new KeyValuePair() { key = attribute.InnerText, value = nodeList[i].InnerText };
+                        if (!results.ContainsKey(attribute.InnerText))
+                            results.Add(attribute.InnerText, nodeList[i].InnerText);
                     }
                     else
                     {
-                        log.ErrorFormat(LOG_MISSING_ATTRIBUTE_ERROR_FORMAT, moduleName, moduleCode, "lang", moduleName, reportId);
-                        report.AppendFormat(MISSING_ATTRIBUTE_ERROR_FORMAT, moduleName, moduleCode, "lang", moduleName);
+                        log.ErrorFormat(LOG_MISSING_ATTRIBUTE_ERROR_FORMAT, moduleName, moduleCode, "lang", nodeName, reportId);
+                        report.AppendFormat(MISSING_ATTRIBUTE_ERROR_FORMAT, moduleName, moduleCode, "lang", nodeName);
                         return false;
                     }
                 }
+
+                value = results.Select(r => new KeyValuePair() { key = r.Key, value = r.Value }).ToArray();
             }
 
             return true;
