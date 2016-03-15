@@ -538,8 +538,8 @@ namespace Ingest.Importers
 
                         if (multiPricePlan.Channels == null || multiPricePlan.Channels.Length == 0)
                         {
-                            log.ErrorFormat(LOG_FORMAT_ERROR_FORMAT, MULTI_PRICE_PLAN, multiPricePlan.Code, "channels", reportId);
-                            reportBuilder.AppendFormat(FORMAT_ERROR_FORMAT, MULTI_PRICE_PLAN, multiPricePlan.Code, "channels");
+                            log.ErrorFormat(LOG_REQUIRED_ERROR_FORMAT, MULTI_PRICE_PLAN, multiPricePlan.Code, "channels", reportId);
+                            reportBuilder.AppendFormat(REQUIRED_ERROR_FORMAT, MULTI_PRICE_PLAN, multiPricePlan.Code, "channels");
                             continue;
                         }
 
