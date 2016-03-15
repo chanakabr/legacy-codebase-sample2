@@ -1093,7 +1093,6 @@ namespace DAL
 
         #endregion
 
-
         public static DataTable GetAllRegistry(int groupID)
         {
             try
@@ -1111,6 +1110,32 @@ namespace DAL
             {
                 return null;
             }
+        }
+
+        public static int GetTimeShiftedTVSettingsID(int groupID)
+        {
+            int idFromTable = 0;
+            DataTable dt = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure spGetTimeShiftedTVSettingsID = new ODBCWrapper.StoredProcedure("GetTimeShiftedTvSettingsID");
+                spGetTimeShiftedTVSettingsID.SetConnectionKey("MAIN_CONNECTION_STRING");
+                spGetTimeShiftedTVSettingsID.AddParameter("@GroupID", groupID);
+
+                dt = spGetTimeShiftedTVSettingsID.Execute();
+
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    idFromTable = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "id");
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error("Failed getting id from table on GetTimeShiftedTVSettingsID", ex);
+            }
+
+            return idFromTable;
         }
     }
     
