@@ -2715,6 +2715,8 @@ namespace Ingest.Pricing {
         
         private bool isActiveField;
         
+        private string discountField;
+        
         /// <remarks/>
         public string FullLifeCycle {
             get {
@@ -2782,6 +2784,16 @@ namespace Ingest.Pricing {
             }
             set {
                 this.isActiveField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Discount {
+            get {
+                return this.discountField;
+            }
+            set {
+                this.discountField = value;
             }
         }
     }

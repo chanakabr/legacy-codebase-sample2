@@ -24,6 +24,11 @@ namespace Ingest.Importers
         private const string MISSING_ATTRIBUTE_ERROR_FORMAT = "{0} with code '{1}': missing attribute '{2}' for '{3}'.\n";
         private const string INGEST_ERROR_FORMAT = "{0} with code '{1}': ingest failed - {2}.\n";
         private const string INGEST_SUCCESS_FORMAT = "{0} with code '{1}': ingest succeeded, ID = {2}.\n";
+        private const string LOG_REQUIRED_ERROR_FORMAT = "ingest report ID '{3}': {0} with code '{1}': '{2}' is required.\n";
+        private const string LOG_FORMAT_ERROR_FORMAT = "ingest report ID '{3}': {0} with code '{1}': wrong format of '{2}'.\n";
+        private const string LOG_MISSING_ATTRIBUTE_ERROR_FORMAT = "ingest report ID '{4}': {0} with code '{1}': missing attribute '{2}' for '{3}'.\n";
+        private const string LOG_INGEST_ERROR_FORMAT = "ingest report ID '{3}': {0} with code '{1}': ingest failed - {2}.\n";
+        private const string LOG_INGEST_SUCCESS_FORMAT = "ingest report ID '{3}': {0} with code '{1}': ingest succeeded, ID = {2}.\n";
         
         private const string MULTI_PRICE_PLAN = "multi price plan";
         private const string PRICE_PLAN = "price plan";
@@ -49,21 +54,9 @@ namespace Ingest.Importers
 
             if (string.IsNullOrEmpty(xml))
                 return response;
-            
+
             XmlDocument xmlDoc = new XmlDocument();
 
-            // try to load xml
-            try
-            {
-                xmlDoc.LoadXml(xml);
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("failed to load price plans xml.", ex);
-                report = string.Format("failed to load price plans xml with error {0}", ex.Message);
-                WriteReportLogToFile(report, response.ReportId, groupId);
-                return response;
-            }
 
             // get filename
             string filename = DateTime.UtcNow.ToString("yyyyMMdd_HH-mm-ss-fff");
@@ -72,6 +65,19 @@ namespace Ingest.Importers
                 filename = string.Format("{0}_{1}", attribute.InnerText, filename);
 
             response.ReportId = filename;
+
+            // try to load xml
+            try
+            {
+                xmlDoc.LoadXml(xml);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("ingest report ID '{0}': failed to load price plans xml.", response.ReportId, ex);
+                report = string.Format("failed to load price plans xml with error {0}", ex.Message);
+                WriteReportLogToFile(report, response.ReportId, groupId);
+                return response;
+            }
 
             ProccessPricePlans(groupId, xmlDoc, response.ReportId);
 
@@ -166,12 +172,12 @@ namespace Ingest.Importers
             }
         }
 
-        private static void WriteReportLogToFile(string report, string reportFilename, int groupId)
+        private static void WriteReportLogToFile(string report, string reportId, int groupId)
         {
             if (string.IsNullOrEmpty(report))
                 return;
             
-            var reportFullPath = string.Format("{0}/{1}/{2}", reportLogPath, groupId, reportFilename);
+            var reportFullPath = string.Format("{0}/{1}/{2}", reportLogPath, groupId, reportId);
 
             try
             {
@@ -179,11 +185,11 @@ namespace Ingest.Importers
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("failed to write report to file with path {0}", reportFullPath, ex);
+                log.ErrorFormat("ingest report ID '{1}': failed to write report to file with path {0}", reportFullPath, reportId, ex);
             }
         }
 
-        private static void InsertModule<T>(int groupId, T module, CallPricingIngest<T> callPricingIngest, string reportFilename) where T : IngestModule
+        private static void InsertModule<T>(int groupId, T module, CallPricingIngest<T> callPricingIngest, string reportId) where T : IngestModule
         {
             string report = string.Empty;
 
@@ -195,7 +201,7 @@ namespace Ingest.Importers
             }
             catch (Exception ex)
             {
-                log.ErrorFormat(INGEST_ERROR_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, "error while calling ws pricing", ex);
+                log.ErrorFormat(LOG_INGEST_ERROR_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, "error while calling ws pricing", reportId, ex);
                 report = string.Format(INGEST_ERROR_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, "error while calling ws pricing");
                 return;
             }
@@ -204,18 +210,19 @@ namespace Ingest.Importers
 
             if (ingestResponse == null && ingestResponse.status == null)
             {
-                log.ErrorFormat(INGEST_ERROR_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, "failed to receive ws pricing response");
+                log.ErrorFormat(LOG_INGEST_ERROR_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, "failed to receive ws pricing response", reportId);
                 report = string.Format(INGEST_ERROR_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, "failed to receive ws pricing response");
                 return;
             }
 
             if (ingestResponse.status.Code != (int)StatusCodes.OK)
             {
-                log.ErrorFormat(INGEST_ERROR_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, ingestResponse.status.Message);
+                log.ErrorFormat(LOG_INGEST_ERROR_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, ingestResponse.status.Message, reportId);
                 report = string.Format(INGEST_ERROR_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, ingestResponse.status.Message);
             }
             else
             {
+                log.ErrorFormat(LOG_INGEST_SUCCESS_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, ingestResponse.status.Message, reportId);
                 report = string.Format(INGEST_SUCCESS_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, ingestResponse.Id);
             }
 
@@ -225,7 +232,7 @@ namespace Ingest.Importers
             {
                 lock (lockObject)
                 {
-                    var reportFullPath = string.Format("{0}/{1}/{2}", reportLogPath, groupId, reportFilename);
+                    var reportFullPath = string.Format("{0}/{1}/{2}", reportLogPath, groupId, reportId);
 
                     try
                     {
@@ -233,8 +240,8 @@ namespace Ingest.Importers
                     }
                     catch (Exception ex)
                     {
-                        log.ErrorFormat(INGEST_ERROR_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code,
-                            string.Format("failed to write report to file with path {0}", reportFullPath), ex);
+                        log.ErrorFormat(LOG_INGEST_ERROR_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code,
+                            string.Format("failed to write report to file with path {0}", reportFullPath), reportId, ex);
                     }
                 }
             }
@@ -319,6 +326,7 @@ namespace Ingest.Importers
             {
                 pricePlans = new List<IngestPricePlan>();
                 IngestPricePlan pricePlan = null;
+                XmlNodeList nodeList;
                 string strVal;
                 eIngestAction actionVal;
                 bool boolVal;
@@ -332,13 +340,13 @@ namespace Ingest.Importers
                         pricePlan = new IngestPricePlan();
 
                         //code - mandatory
-                        if (GetMandatoryAttributeStrValue(node, "code", PRICE_PLAN, string.Empty, ref reportBuilder, out strVal))
+                        if (GetMandatoryAttributeStrValue(node, "code", PRICE_PLAN, string.Empty, ref reportBuilder, reportId, out strVal))
                             pricePlan.Code = strVal;
                         else
                             continue;
 
                         // action - mandatory
-                        if (GetMandatoryAttributeEnumValue<eIngestAction>(node, "action", PRICE_PLAN, pricePlan.Code, ref reportBuilder, out actionVal))
+                        if (GetMandatoryAttributeEnumValue<eIngestAction>(node, "action", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, out actionVal))
                             pricePlan.Action = actionVal;
                         else
                             continue;
@@ -351,53 +359,58 @@ namespace Ingest.Importers
                         }
 
                         // is active - mandatory
-                        if (GetMandatoryAttributeBoolValue(node, "is_active", PRICE_PLAN, pricePlan.Code, ref reportBuilder, out boolVal))
+                        if (GetMandatoryAttributeBoolValue(node, "is_active", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, out boolVal))
                             pricePlan.IsActive = boolVal;
                         else
                             continue;
 
                         // is renewable
-                        if (GetNodeBoolValue(node, "is_renewable", PRICE_PLAN, pricePlan.Code, ref reportBuilder, out boolVal))
+                        if (GetNodeBoolValue(node, "is_renewable", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, out boolVal))
                             pricePlan.IsRenewable = boolVal;
                         else
                             continue;
 
                         // full life cycle - mandatory
-                        if (GetMandatoryNodeStrValue(node, "full_life_cycle", PRICE_PLAN, pricePlan.Code, ref reportBuilder, out strVal))
+                        if (GetMandatoryNodeStrValue(node, "full_life_cycle", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, out strVal))
                             pricePlan.FullLifeCycle = strVal;
                         else
                             continue;
 
                         // view life cycle - mandatory
-                        if (GetMandatoryNodeStrValue(node, "view_life_cycle", PRICE_PLAN, pricePlan.Code, ref reportBuilder, out strVal))
+                        if (GetMandatoryNodeStrValue(node, "view_life_cycle", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, out strVal))
                             pricePlan.ViewLifeCycle = strVal;
                         else
                             continue;
                         
                         // max views - mandatory
-                        if (GetMandatoryNodeIntValue(node, "max_views", PRICE_PLAN, pricePlan.Code, ref reportBuilder, out intVal))
+                        if (GetMandatoryNodeIntValue(node, "max_views", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, out intVal))
                             pricePlan.MaxViews = intVal;
                         else
                             continue;
 
                         // price code - mandatory
-                        if (GetMandatoryNodeStrValue(node, "price_code", PRICE_PLAN, pricePlan.Code, ref reportBuilder, out strVal))
+                        if (GetMandatoryNodeStrValue(node, "price_code", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, out strVal))
                             pricePlan.PriceCode = strVal;
                         else
                             continue;
 
                         // recurring periods - mandatory
-                        if (GetMandatoryNodeIntValue(node, "recurring_periods", PRICE_PLAN, pricePlan.Code, ref reportBuilder, out intVal))
+                        if (GetMandatoryNodeIntValue(node, "recurring_periods", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, out intVal))
                             pricePlan.RecurringPeriods = intVal;
                         else
                             continue;
+
+                        // discount 
+                        nodeList = node.SelectNodes("discount");
+                        if (nodeList != null && nodeList.Count > 0)
+                            pricePlan.Discount = nodeList[0].InnerText;
 
                         // add price plan to response list
                         pricePlans.Add(pricePlan);
                     }
                     catch (Exception ex)
                     {
-                        log.ErrorFormat("error while parsing price plan xml: code = {0}", pricePlan.Code, ex);
+                        log.ErrorFormat("ingest report ID '{1}': error while parsing price plan xml: code = {0}", pricePlan.Code, reportId, ex);
                         reportBuilder.AppendFormat("error while parsing price plan xml: code = {0}, error = {1}",
                             !string.IsNullOrEmpty(pricePlan.Code) ? pricePlan.Code : string.Empty, ex.Message);
                     }
@@ -437,13 +450,13 @@ namespace Ingest.Importers
                         multiPricePlan = new IngestMultiPricePlan();
 
                         //code - mandatory
-                        if (GetMandatoryAttributeStrValue(node, "code", MULTI_PRICE_PLAN, string.Empty, ref reportBuilder, out strVal))
+                        if (GetMandatoryAttributeStrValue(node, "code", MULTI_PRICE_PLAN, string.Empty, ref reportBuilder, reportId, out strVal))
                             multiPricePlan.Code = strVal;
                         else
                             continue;
 
                         // action - mandatory
-                        if (GetMandatoryAttributeEnumValue<eIngestAction>(node, "action", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, out actionVal))
+                        if (GetMandatoryAttributeEnumValue<eIngestAction>(node, "action", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, reportId, out actionVal))
                             multiPricePlan.Action = actionVal;
                         else
                             continue;
@@ -456,56 +469,56 @@ namespace Ingest.Importers
                         }
 
                         // is active - mandatory
-                        if (GetMandatoryAttributeBoolValue(node, "is_active", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, out boolVal))
+                        if (GetMandatoryAttributeBoolValue(node, "is_active", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, reportId, out boolVal))
                             multiPricePlan.IsActive = boolVal;
                         else
                             continue;
 
                         // title
-                        if (GetNodeKeyValuePairsArrayValue(node, "titles/title", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, out keyValArr))
+                        if (GetNodeKeyValuePairsArrayValue(node, "titles/title", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, reportId, out keyValArr))
                             multiPricePlan.Titles = keyValArr;
                         else
                             continue;
 
                         // description
-                        if (GetNodeKeyValuePairsArrayValue(node, "descriptions/description", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, out keyValArr))
+                        if (GetNodeKeyValuePairsArrayValue(node, "descriptions/description", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, reportId, out keyValArr))
                             multiPricePlan.Descriptions = keyValArr;
                         else
                             continue;
 
 
                         // start date
-                        if (GetNodeDateTimeValue(node, "start_date", MULTI_PRICE_PLAN, multiPricePlan.Code, DateTime.UtcNow, ref reportBuilder, out dateVal))
+                        if (GetNodeDateTimeValue(node, "start_date", MULTI_PRICE_PLAN, multiPricePlan.Code, DateTime.UtcNow, ref reportBuilder, reportId, out dateVal))
                             multiPricePlan.StartDate = dateVal;
                         else
                             continue;
 
                         // end date
-                        if (GetNodeDateTimeValue(node, "end_date", MULTI_PRICE_PLAN, multiPricePlan.Code, DEFAULT_END_DATE, ref reportBuilder, out dateVal))
+                        if (GetNodeDateTimeValue(node, "end_date", MULTI_PRICE_PLAN, multiPricePlan.Code, DEFAULT_END_DATE, ref reportBuilder, reportId, out dateVal))
                             multiPricePlan.EndDate = dateVal;
                         else
                             continue;
 
                         // internal discount - mandatory
-                        if (GetMandatoryNodeStrValue(node, "internal_discount", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, out strVal))
+                        if (GetMandatoryNodeStrValue(node, "internal_discount", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, reportId, out strVal))
                             multiPricePlan.InternalDiscount = strVal;
                         else
                             continue;
 
                         // is renewable
-                        if (GetNodeBoolValue(node, "is_renewable", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, out boolVal))
+                        if (GetNodeBoolValue(node, "is_renewable", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, reportId, out boolVal))
                             multiPricePlan.IsRenewable = boolVal;
                         else
                             continue;
 
                         // grace period minutes 
-                        if (GetNodeIntValue(node, "grace_period_minutes", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, out intVal))
+                        if (GetNodeIntValue(node, "grace_period_minutes", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, reportId, out intVal))
                             multiPricePlan.GracePeriodMinutes = intVal;
                         else
                             continue;
 
                         // order number 
-                        if (GetNodeIntValue(node, "order_number", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, out intVal))
+                        if (GetNodeIntValue(node, "order_number", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, reportId, out intVal))
                             multiPricePlan.OrderNumber = intVal;
                         else
                             continue;
@@ -544,7 +557,7 @@ namespace Ingest.Importers
                     }
                     catch (Exception ex)
                     {
-                        log.ErrorFormat("error while parsing multi price plan xml: code = {0}", multiPricePlan.Code, ex);
+                        log.ErrorFormat("ingest report ID '{1}': error while parsing multi price plan xml: code = {0}", multiPricePlan.Code, reportId, ex);
                         reportBuilder.AppendFormat("error while parsing multi price plan xml: code = {0}, error = {1}",
                             !string.IsNullOrEmpty(multiPricePlan.Code) ? multiPricePlan.Code : string.Empty, ex.Message);
                     }
@@ -583,13 +596,13 @@ namespace Ingest.Importers
                         ppv = new IngestPPV();
 
                         //code - mandatory
-                        if (GetMandatoryAttributeStrValue(node, "code", PPV, string.Empty, ref reportBuilder, out strVal))
+                        if (GetMandatoryAttributeStrValue(node, "code", PPV, string.Empty, ref reportBuilder, reportId, out strVal))
                             ppv.Code = strVal;
                         else
                             continue;
 
                         // action - mandatory
-                        if (GetMandatoryAttributeEnumValue<eIngestAction>(node, "action", PPV, ppv.Code, ref reportBuilder, out actionVal))
+                        if (GetMandatoryAttributeEnumValue<eIngestAction>(node, "action", PPV, ppv.Code, ref reportBuilder, reportId, out actionVal))
                             ppv.Action = actionVal;
                         else
                             continue;
@@ -602,31 +615,31 @@ namespace Ingest.Importers
                         }
 
                         // is active - mandatory
-                        if (GetMandatoryAttributeBoolValue(node, "is_active", PPV, ppv.Code, ref reportBuilder, out boolVal))
+                        if (GetMandatoryAttributeBoolValue(node, "is_active", PPV, ppv.Code, ref reportBuilder, reportId, out boolVal))
                             ppv.IsActive = boolVal;
                         else
                             continue;
 
                         // usage module - mandatory
-                        if (GetMandatoryNodeStrValue(node, "usage_module", PPV, ppv.Code, ref reportBuilder, out strVal))
+                        if (GetMandatoryNodeStrValue(node, "usage_module", PPV, ppv.Code, ref reportBuilder, reportId, out strVal))
                             ppv.UsageModule = strVal;
                         else
                             continue;
 
                         // title
-                        if (GetNodeKeyValuePairsArrayValue(node, "descriptions/description", PPV, ppv.Code, ref reportBuilder, out keyValArr))
+                        if (GetNodeKeyValuePairsArrayValue(node, "descriptions/description", PPV, ppv.Code, ref reportBuilder, reportId, out keyValArr))
                             ppv.Descriptions = keyValArr;
                         else
                             continue;
 
                         // is renewable
-                        if (GetNodeBoolValue(node, "subscription_only", PPV, ppv.Code, ref reportBuilder, out boolVal))
+                        if (GetNodeBoolValue(node, "subscription_only", PPV, ppv.Code, ref reportBuilder, reportId, out boolVal))
                             ppv.SubscriptionOnly = boolVal;
                         else
                             continue;
 
                         // is renewable
-                        if (GetNodeBoolValue(node, "first_device_limitation", PPV, ppv.Code, ref reportBuilder, out boolVal))
+                        if (GetNodeBoolValue(node, "first_device_limitation", PPV, ppv.Code, ref reportBuilder, reportId, out boolVal))
                             ppv.FirstDeviceLimitation = boolVal;
                         else
                             continue;
@@ -659,7 +672,7 @@ namespace Ingest.Importers
                     }
                     catch (Exception ex)
                     {
-                        log.ErrorFormat("error while parsing ppv xml: code = {0}", ppv.Code, ex);
+                        log.ErrorFormat("ingest report ID '{1}': error while parsing ppv xml: code = {0}", ppv.Code, reportId, ex);
                         reportBuilder.AppendFormat("error while parsing ppv xml: code = {0}, error = {1}",
                             !string.IsNullOrEmpty(ppv.Code) ? ppv.Code : string.Empty, ex.Message);
                     }
@@ -671,7 +684,7 @@ namespace Ingest.Importers
             return ppvs;
         }
 
-        private static bool GetMandatoryAttributeStrValue(XmlNode node, string attributeName, string moduleName, string moduleCode, ref StringBuilder report, out string value)
+        private static bool GetMandatoryAttributeStrValue(XmlNode node, string attributeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, out string value)
         {
             value = string.Empty;
             var attribute = node.Attributes[attributeName];
@@ -679,7 +692,7 @@ namespace Ingest.Importers
                 value = attribute.InnerText;
             else
             {
-                log.ErrorFormat(REQUIRED_ERROR_FORMAT, moduleName, moduleCode, attributeName);
+                log.ErrorFormat(LOG_REQUIRED_ERROR_FORMAT, moduleName, moduleCode, attributeName, reportId);
                 report.AppendFormat(REQUIRED_ERROR_FORMAT, moduleName, moduleCode, attributeName);
                 return false;
             }
@@ -687,7 +700,7 @@ namespace Ingest.Importers
             return true;
         }
 
-        private static bool GetMandatoryAttributeEnumValue<T>(XmlNode node, string attributeName, string moduleName, string moduleCode, ref StringBuilder report, out T value) 
+        private static bool GetMandatoryAttributeEnumValue<T>(XmlNode node, string attributeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, out T value) 
             where T : struct, IConvertible
         {
             value = default(T);
@@ -700,14 +713,14 @@ namespace Ingest.Importers
                     value = enumVal;
                 else
                 {
-                    log.ErrorFormat(FORMAT_ERROR_FORMAT, moduleName, moduleCode, attributeName);
+                    log.ErrorFormat(LOG_FORMAT_ERROR_FORMAT, moduleName, moduleCode, attributeName, reportId);
                     report.AppendFormat(FORMAT_ERROR_FORMAT, moduleName, moduleCode, attributeName);
                     return false;
                 }
             }
             else
             {
-                log.ErrorFormat(MISSING_ATTRIBUTE_ERROR_FORMAT, moduleName, moduleCode, attributeName);
+                log.ErrorFormat(LOG_MISSING_ATTRIBUTE_ERROR_FORMAT, moduleName, moduleCode, attributeName, reportId);
                 report.AppendFormat(MISSING_ATTRIBUTE_ERROR_FORMAT, moduleName, moduleCode, attributeName);
                 return false;
             }
@@ -715,7 +728,7 @@ namespace Ingest.Importers
             return true;
         }
 
-        private static bool GetMandatoryAttributeBoolValue(XmlNode node, string attributeName, string moduleName, string moduleCode, ref StringBuilder report, out bool value)
+        private static bool GetMandatoryAttributeBoolValue(XmlNode node, string attributeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, out bool value)
         {
             value = false;
 
@@ -729,7 +742,7 @@ namespace Ingest.Importers
                     value = false;
                 else
                 {
-                    log.ErrorFormat(FORMAT_ERROR_FORMAT, moduleName, moduleCode, attributeName);
+                    log.ErrorFormat(LOG_FORMAT_ERROR_FORMAT, moduleName, moduleCode, attributeName, reportId);
                     report.AppendFormat(FORMAT_ERROR_FORMAT, moduleName, moduleCode, attributeName);
                     return false;
                 }
@@ -738,7 +751,7 @@ namespace Ingest.Importers
             return true;
         }
 
-        private static bool GetNodeKeyValuePairsArrayValue(XmlNode node, string nodeName, string moduleName, string moduleCode, ref StringBuilder report, out KeyValuePair[] value)
+        private static bool GetNodeKeyValuePairsArrayValue(XmlNode node, string nodeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, out KeyValuePair[] value)
         {
             value = null;
 
@@ -760,7 +773,7 @@ namespace Ingest.Importers
                     }
                     else
                     {
-                        log.ErrorFormat(MISSING_ATTRIBUTE_ERROR_FORMAT, moduleName, moduleCode, "lang", moduleName);
+                        log.ErrorFormat(LOG_MISSING_ATTRIBUTE_ERROR_FORMAT, moduleName, moduleCode, "lang", moduleName, reportId);
                         report.AppendFormat(MISSING_ATTRIBUTE_ERROR_FORMAT, moduleName, moduleCode, "lang", moduleName);
                         return false;
                     }
@@ -770,7 +783,7 @@ namespace Ingest.Importers
             return true;
         }
 
-        private static bool GetNodeDateTimeValue(XmlNode node, string nodeName, string moduleName, string moduleCode, DateTime defaultValue, ref StringBuilder report, out DateTime value)
+        private static bool GetNodeDateTimeValue(XmlNode node, string nodeName, string moduleName, string moduleCode, DateTime defaultValue, ref StringBuilder report, string reportId, out DateTime value)
         {
             value = defaultValue;
 
@@ -788,7 +801,7 @@ namespace Ingest.Importers
                     }
                     else
                     {
-                        log.ErrorFormat(FORMAT_ERROR_FORMAT, moduleName, moduleCode, nodeName);
+                        log.ErrorFormat(LOG_FORMAT_ERROR_FORMAT, moduleName, moduleCode, nodeName, reportId);
                         report.AppendFormat(FORMAT_ERROR_FORMAT, moduleName, moduleCode, nodeName);
                         return false;
                     }
@@ -803,7 +816,7 @@ namespace Ingest.Importers
             return true;
         }
 
-        private static bool GetMandatoryNodeStrValue(XmlNode node, string nodeName, string moduleName, string moduleCode, ref StringBuilder report, out string value)
+        private static bool GetMandatoryNodeStrValue(XmlNode node, string nodeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, out string value)
         {
             value = string.Empty;
 
@@ -813,7 +826,7 @@ namespace Ingest.Importers
 
             if (string.IsNullOrEmpty(value))
             {
-                log.ErrorFormat(REQUIRED_ERROR_FORMAT, moduleName, moduleCode, nodeName);
+                log.ErrorFormat(LOG_REQUIRED_ERROR_FORMAT, moduleName, moduleCode, nodeName);
                 report.AppendFormat(REQUIRED_ERROR_FORMAT, moduleName, moduleCode, nodeName);
                 return false;
             }
@@ -821,7 +834,7 @@ namespace Ingest.Importers
             return true;
         }
 
-        private static bool GetNodeBoolValue(XmlNode node, string nodeName, string moduleName, string moduleCode, ref StringBuilder report, out bool value)
+        private static bool GetNodeBoolValue(XmlNode node, string nodeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, out bool value)
         {
             value = false;
 
@@ -835,7 +848,7 @@ namespace Ingest.Importers
                     value = false;
                 else
                 {
-                    log.ErrorFormat(FORMAT_ERROR_FORMAT, moduleName, moduleCode, nodeName);
+                    log.ErrorFormat(LOG_FORMAT_ERROR_FORMAT, moduleName, moduleCode, nodeName, reportId);
                     report.AppendFormat(FORMAT_ERROR_FORMAT, moduleName, moduleCode, nodeName);
                     return false;
                 }
@@ -843,7 +856,7 @@ namespace Ingest.Importers
             return true;
         }
 
-        private static bool GetNodeIntValue(XmlNode node, string nodeName, string moduleName, string moduleCode, ref StringBuilder report, out int value)
+        private static bool GetNodeIntValue(XmlNode node, string nodeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, out int value)
         {
             value = 0;
 
@@ -855,7 +868,7 @@ namespace Ingest.Importers
                     value = minutes;
                 else
                 {
-                    log.ErrorFormat(FORMAT_ERROR_FORMAT, moduleName, moduleCode, nodeName);
+                    log.ErrorFormat(LOG_FORMAT_ERROR_FORMAT, moduleName, moduleCode, nodeName, reportId);
                     report.AppendFormat(FORMAT_ERROR_FORMAT, moduleName, moduleCode, nodeName);
                     return false;
                 }
@@ -864,7 +877,7 @@ namespace Ingest.Importers
             return true;
         }
 
-        private static bool GetMandatoryNodeIntValue(XmlNode node, string nodeName, string moduleName, string moduleCode, ref StringBuilder report, out int value)
+        private static bool GetMandatoryNodeIntValue(XmlNode node, string nodeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, out int value)
         {
             value = 0;
 
@@ -876,14 +889,14 @@ namespace Ingest.Importers
                     value = minutes;
                 else
                 {
-                    log.ErrorFormat(FORMAT_ERROR_FORMAT, moduleName, moduleCode, nodeName);
+                    log.ErrorFormat(LOG_FORMAT_ERROR_FORMAT, moduleName, moduleCode, nodeName, reportId);
                     report.AppendFormat(FORMAT_ERROR_FORMAT, moduleName, moduleCode, nodeName);
                     return false;
                 }
             }
             else
             {
-                log.ErrorFormat(REQUIRED_ERROR_FORMAT, moduleName, moduleCode, nodeName);
+                log.ErrorFormat(LOG_REQUIRED_ERROR_FORMAT, moduleName, moduleCode, nodeName, reportId);
                 report.AppendFormat(REQUIRED_ERROR_FORMAT, moduleName, moduleCode, nodeName);
                 return false;
             }
