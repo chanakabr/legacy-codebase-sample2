@@ -966,7 +966,7 @@ namespace DAL
             return false;
         }
 
-        public static DataSet ValidateMPP(int groupID, string code, string internalDiscount, List<string> pricePlansCodes, List<string> channels, List<string> fileTypes,
+        public static DataTable ValidateMPP(int groupID, string code, string internalDiscount, List<string> pricePlansCodes, List<string> channels, List<string> fileTypes,
             string previewModule, ApiObjects.eIngestAction action)
         {
             StoredProcedure sp = new StoredProcedure("ValidateMPP");
@@ -980,7 +980,7 @@ namespace DAL
             sp.AddIDListParameter<string>("@FileTypes", fileTypes, "STR");
             sp.AddParameter("@Action", (int)action);
 
-            return sp.ExecuteDataSet();
+            return sp.Execute();
         }
 
         public static int InsertMPP(int groupID, ApiObjects.IngestMultiPricePlan mpp, List<KeyValuePair<int, int>> pricePlansCodes, List<int> channels, List<int> fileTypes,
@@ -1074,7 +1074,7 @@ namespace DAL
             return sp.ExecuteReturnValue<int>(); ;
         }
 
-        public static DataSet ValidatePricePlan(int groupID, string code, string fullLifeCycle, string viewLifeCycle, string priceCode, string discount,
+        public static DataTable ValidatePricePlan(int groupID, string code, string fullLifeCycle, string viewLifeCycle, string priceCode, string discount,
             ApiObjects.eIngestAction action)
         {
             StoredProcedure sp = new StoredProcedure("ValidatePricePlan");
@@ -1087,7 +1087,7 @@ namespace DAL
             sp.AddParameter("@Discount", discount);
             sp.AddParameter("@Action", (int)action);
 
-            return sp.ExecuteDataSet();
+            return sp.Execute();
         }
 
         public static int InsertPricePlan(int groupID, ApiObjects.IngestPricePlan pricePlan, int pricCodeID, int fullLifeCycleID, int viewLifeCycleID, int discountID)
@@ -1160,7 +1160,7 @@ namespace DAL
             return 0;
         }
 
-        public static DataSet ValidatePPV(int groupID, string code, string priceCode, string usageModule, string discount, string groupCoupon, List<string> fileTypes,
+        public static DataTable ValidatePPV(int groupID, string code, string priceCode, string usageModule, string discount, string groupCoupon, List<string> fileTypes,
             ApiObjects.eIngestAction action)
         {
             StoredProcedure sp = new StoredProcedure("ValidatePPV");
@@ -1174,7 +1174,7 @@ namespace DAL
             sp.AddParameter("@Action", (int)action);
             sp.AddIDListParameter<string>("@FileTypes", fileTypes, "STR");
 
-            return sp.ExecuteDataSet();
+            return sp.Execute();
         }
 
 
