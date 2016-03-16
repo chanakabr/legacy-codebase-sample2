@@ -1107,7 +1107,7 @@ namespace DAL
                 sp.AddParameter("@ViewLifeCycleID", viewLifeCycleID);
                 sp.AddParameter("@DiscountID", discountID);
                 sp.AddParameter("@Date", DateTime.UtcNow);
-                sp.AddParameter("@IsActive", pricePlan.IsActive);
+                
                 return sp.ExecuteReturnValue<int>();
             }
             catch (Exception ex)
@@ -1134,7 +1134,7 @@ namespace DAL
                 sp.AddParameter("@ViewLifeCycleID", viewLifeCycleID);
                 sp.AddParameter("@DiscountID", discountID);
                 sp.AddParameter("@Date", DateTime.UtcNow);
-                sp.AddParameter("@IsActive", pricePlan.IsActive);
+                
                 return sp.ExecuteReturnValue<int>();
             }
             catch (Exception ex)
