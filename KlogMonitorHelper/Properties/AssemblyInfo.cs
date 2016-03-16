@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("KlogMonitorHelper")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("2016-03-16 07:40:46 | Hostname:IL-SUNNYS-RND | Published by:Sunny Simantov")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("KlogMonitorHelper")]
@@ -31,6 +31,6 @@ using System.Runtime.InteropServices;
 //
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
-// [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+// [assembly: AssemblyVersion("3.4.583.*")]
+[assembly: AssemblyVersion("3.4.583.*")]
+[assembly: AssemblyInformationalVersion("3.4-583-gced9dd8")]
