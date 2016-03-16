@@ -222,6 +222,23 @@ namespace ApiObjects.Response
         AnnouncementInvalidTimezone = 8008,
         FeatureDisabled = 8009,
         AnnouncementMessageTooLong = 8010,
-        FailCreateAnnouncement = 8011
+        FailCreateAnnouncement = 8011,
+
+
+        //Pricing 9000-9999
+        InvalidPriceCode = 9000,
+        InvalidValue = 9001,
+        InvalidDiscountCode = 9002,
+        InvalidPricePlan = 9003,
+        CodeMustBeUnique = 9004,
+        CodeNotExist = 9005,
+        InvalidCodeNotExist = 9006,
+        InvalidChannels = 9008,
+        InvalidFileTypes = 9009,       
+        InvalidPreviewModule = 9010,
+        MandatoryField = 9011,
+        UniqueFiled = 9012,
+        InvalidUsageModule = 9013,
+        InvalidCouponGroup = 9014
     }
 }

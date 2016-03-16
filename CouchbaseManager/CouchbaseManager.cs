@@ -138,7 +138,7 @@ namespace CouchbaseManager
             serializer.DeserializationSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto;
             serializer.SerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto;
 
-            return serializer;   
+            return serializer;
         }
 
         private string GetBucketName(string configurationSection)
@@ -147,7 +147,7 @@ namespace CouchbaseManager
 
             var section = (CouchbaseClientSection)ConfigurationManager.GetSection(configurationSection);
             this.clientConfiguration = new ClientConfiguration(section);
-            
+
             // Should be only one!
             foreach (var currentBucket in this.clientConfiguration.BucketConfigs)
             {
@@ -203,13 +203,13 @@ namespace CouchbaseManager
                     case 147:
                     // OperationTimeout
                     case 148:
-                    {
-                        //m_Client = CouchbaseManager.CouchbaseManager.RefreshInstance(bucket);
+                        {
+                            //m_Client = CouchbaseManager.CouchbaseManager.RefreshInstance(bucket);
 
-                        break;
-                    }
+                            break;
+                        }
                     default:
-                    break;
+                        break;
                 }
             }
         }
@@ -233,55 +233,55 @@ namespace CouchbaseManager
             switch (status)
             {
                 case Couchbase.IO.ResponseStatus.AuthenticationContinue:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.AuthenticationError:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.Busy:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.ClientFailure:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.DocumentMutationLost:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.IncrDecrOnNonNumericValue:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.InternalError:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.InvalidArguments:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.InvalidRange:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.ItemNotStored:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.KeyExists:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.KeyNotFound:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.NoReplicasFound:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.NodeUnavailable:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.None:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.NotSupported:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.OperationTimeout:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.OutOfMemory:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.Success:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.TemporaryFailure:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.TransportFailure:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.UnknownCommand:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.VBucketBelongsToAnotherServer:
-                break;
+                    break;
                 case Couchbase.IO.ResponseStatus.ValueTooLarge:
-                break;
+                    break;
                 default:
-                break;
+                    break;
             }
             //switch (statusCode)
             //{
@@ -324,7 +324,7 @@ namespace CouchbaseManager
         #endregion
 
         #region Public Methods
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -343,7 +343,7 @@ namespace CouchbaseManager
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
                         IOperationResult insertResult = null;
-                        
+
                         using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
                         {
                             insertResult = bucket.Insert(key, value, expiration);
@@ -487,7 +487,7 @@ namespace CouchbaseManager
                             else
                             {
                                 HandleStatusCode(insertResult.Status, key);
-                                
+
                                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
                                 {
                                     insertResult = bucket.Upsert(key, value, expiration);
@@ -652,7 +652,7 @@ namespace CouchbaseManager
                         {
                             // Otherwise, try to really remove the key
                             IOperationResult removeResult;
-                            
+
                             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
                             {
                                 removeResult = bucket.Remove(key);
@@ -762,7 +762,7 @@ namespace CouchbaseManager
                 using (var bucket = cluster.OpenBucket(bucketName))
                 {
                     IOperationResult setResult;
- 
+
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
                     {
                         setResult = bucket.Upsert(key, value, version, expiration);
@@ -805,7 +805,7 @@ namespace CouchbaseManager
                 using (var bucket = cluster.OpenBucket(bucketName))
                 {
                     IOperationResult setResult;
- 
+
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
                     {
                         setResult = bucket.Upsert(key, value, version, expiration);
@@ -922,7 +922,7 @@ namespace CouchbaseManager
                         else
                         {
                             HandleStatusCode(setResult.Status, key);
-                            
+
                             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
                             {
                                 setResult = bucket.Upsert<T>(key, value, version, expiration);
@@ -1001,7 +1001,7 @@ namespace CouchbaseManager
                                 throw item.Value.Exception;
                             }
 
-                            // If any of the rows wasn't successfull, maybe we need to break - depending if we allow partials or not
+                            // If any of the rows wasn't successful, maybe we need to break - depending if we allow partials or not
                             if (item.Value.Status != Couchbase.IO.ResponseStatus.Success)
                             {
                                 status = item.Value.Status;
@@ -1015,7 +1015,7 @@ namespace CouchbaseManager
 
                         if (shouldAllowPartialQuery || status == Couchbase.IO.ResponseStatus.Success)
                         {
-                            // if successfull - build dictionary based on execution result
+                            // if successful - build dictionary based on execution result
                             result = new Dictionary<string, T>();
 
                             foreach (var item in getResult)
@@ -1090,11 +1090,15 @@ namespace CouchbaseManager
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
-                        Dictionary<string, int> keysToIndexes = new Dictionary<string,int>();
+                        Dictionary<string, int> keysToIndexes = new Dictionary<string, int>();
                         List<string> missingKeys = new List<string>();
                         T defaultValue = default(T);
 
-                        var rows = definitions.QueryRows<T>(bucket);
+                        List<ViewRow<T>> rows = null;
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                        {
+                            rows = definitions.QueryRows<T>(bucket);
+                        }
 
                         foreach (var viewRow in rows)
                         {
@@ -1152,7 +1156,10 @@ namespace CouchbaseManager
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
-                        result = definitions.QueryKeyValuePairs<T1>(bucket);
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                        {
+                            result = definitions.QueryKeyValuePairs<T1>(bucket);
+                        }
                     }
                 }
             }
@@ -1179,7 +1186,10 @@ namespace CouchbaseManager
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
-                        result = definitions.QueryIds(bucket);
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                        {
+                            result = definitions.QueryIds(bucket);
+                        }
                     }
                 }
             }
@@ -1207,7 +1217,10 @@ namespace CouchbaseManager
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
-                        result = definitions.QueryRows<T>(bucket);
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                        {
+                            result = definitions.QueryRows<T>(bucket);
+                        }
                     }
                 }
             }
@@ -1230,7 +1243,7 @@ namespace CouchbaseManager
                 using (var bucket = cluster.OpenBucket(bucketName))
                 {
                     IOperationResult<ulong> incrementResult = null;
-                    
+
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
                     {
                         incrementResult = bucket.Increment(key, delta);

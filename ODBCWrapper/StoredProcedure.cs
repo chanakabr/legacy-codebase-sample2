@@ -90,9 +90,31 @@ namespace ODBCWrapper
             m_Parameters.Add(sKey, CreateDataTable<T1, T2>(oListKeyValue, colNameKey, colNameValue));
         }
 
+        public void AddKeyValueListParameter<T1, T2>(string sKey, List<KeyValuePair<T1, T2>> oListKeyValue, string colNameKey, string colNameValue)
+        {
+            m_Parameters.Add(sKey, CreateDataTable<T1, T2>(oListKeyValue, colNameKey, colNameValue));
+        }
+
         public void AddDataTableParameter<T1, T2>(string sKey, DataTable oDictValue, string colNameKey, string colNameValue)
         {
             m_Parameters.Add(sKey, CreateDataTable<T1, T2>(oDictValue, colNameKey, colNameValue));
+        }
+
+        private object CreateDataTable<T1, T2>(List<KeyValuePair<T1, T2>> oListValue, string colNameKey, string colNameValue)
+        {
+            DataTable table = new DataTable();            
+            table.Columns.Add(colNameKey, typeof(T1));
+            table.Columns.Add(colNameValue, typeof(T2));
+
+            
+            foreach (KeyValuePair<T1, T2> obj in oListValue)
+            {
+                DataRow dr = table.NewRow();
+                dr[colNameKey] = obj.Key;
+                dr[colNameValue] = obj.Value;
+                table.Rows.Add(dr);
+            }
+            return table;
         }
 
         private object CreateDataTable(IEnumerable<int> ids, string colName)

@@ -133,6 +133,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AdProvider.cs" />
+    <Compile Include="Attributes\LogTopicAttribute.cs" />
     <Compile Include="BaseObject.cs" />
     <Compile Include="EntitledAssetsUtils.cs" />
     <Compile Include="PicData.cs" />
