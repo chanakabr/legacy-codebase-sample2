@@ -31,7 +31,7 @@ namespace KLogMonitor
         public string IPAddress { get; set; }
         public string MethodName { get; set; }
         public int Line { get; set; }
-
+        public string Topic { get; set; }
 
         private List<LogEvent> logs;
 
@@ -115,6 +115,9 @@ namespace KLogMonitor
 
                         if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.USER_ID, out temp))
                             this.UserID = temp.ToString();
+
+                        if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.TOPIC, out temp))
+                            this.Topic = temp.ToString();
                     }
                     break;
 
@@ -145,6 +148,9 @@ namespace KLogMonitor
 
                         if (HttpContext.Current.Items[Constants.USER_ID] != null)
                             this.UserID = HttpContext.Current.Items[Constants.USER_ID].ToString();
+
+                        if (HttpContext.Current.Items[Constants.TOPIC] != null)
+                            this.Topic = HttpContext.Current.Items[Constants.TOPIC].ToString();
                     }
                     break;
             }
@@ -182,7 +188,7 @@ namespace KLogMonitor
 
         private string formatMessage(string msg, DateTime creationDate)
         {
-            return string.Format("class: {0} line: {1} method: {2} server:{3} ip:{4} reqid:{5} partner:{6} action:{7} uid:{8} msg:{9}",
+            return string.Format("class: {0} line: {1} topic: {10} method: {2} server:{3} ip:{4} reqid:{5} partner:{6} action:{7} uid:{8} msg:{9}",
                 ClassName != null ? ClassName : string.Empty,  // 0
                 Line,                                          // 1
                 MethodName != null ? MethodName : string.Empty,// 2
@@ -192,7 +198,8 @@ namespace KLogMonitor
                 PartnerID != null ? PartnerID : string.Empty,  // 6
                 Action != null ? Action : string.Empty,        // 7
                 UserID != null ? UserID : "0",                 // 8
-                msg != null ? msg : string.Empty);             // 9
+                msg != null ? msg : string.Empty,              // 9
+                Topic != null ? Topic : string.Empty);         // 10 
         }
 
         private void sendLog(LogEvent logEvent)
