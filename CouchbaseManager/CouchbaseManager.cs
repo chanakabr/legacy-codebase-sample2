@@ -362,7 +362,7 @@ namespace CouchbaseManager
                             }
                             else
                             {
-                                HandleStatusCode(insertResult.Status);
+                                HandleStatusCode(insertResult.Status, key);
                                 
                                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
                                 {
@@ -424,7 +424,7 @@ namespace CouchbaseManager
                             }
                             else
                             {
-                                HandleStatusCode(insertResult.Status);
+                                HandleStatusCode(insertResult.Status, key);
 
                                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
                                 {
@@ -486,7 +486,7 @@ namespace CouchbaseManager
                             }
                             else
                             {
-                                HandleStatusCode(insertResult.Status);
+                                HandleStatusCode(insertResult.Status, key);
                                 
                                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
                                 {
@@ -548,7 +548,7 @@ namespace CouchbaseManager
                             }
                             else
                             {
-                                HandleStatusCode(insertResult.Status);
+                                HandleStatusCode(insertResult.Status, key);
 
                                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
                                 {
@@ -602,7 +602,7 @@ namespace CouchbaseManager
                             }
                             else
                             {
-                                HandleStatusCode(getResult.Status);
+                                HandleStatusCode(getResult.Status, key);
                                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
                                 {
                                     result = bucket.Get<T>(key).Value;
@@ -717,7 +717,7 @@ namespace CouchbaseManager
                             }
                             else
                             {
-                                HandleStatusCode(getResult.Status);
+                                HandleStatusCode(getResult.Status, key);
 
                                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
                                 {
@@ -781,7 +781,7 @@ namespace CouchbaseManager
                         }
                         else
                         {
-                            HandleStatusCode(setResult.Status);
+                            HandleStatusCode(setResult.Status, key);
 
                             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
                             {
@@ -824,7 +824,7 @@ namespace CouchbaseManager
                         }
                         else
                         {
-                            HandleStatusCode(setResult.Status);
+                            HandleStatusCode(setResult.Status, key);
 
                             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
                             {
@@ -877,7 +877,7 @@ namespace CouchbaseManager
                         }
                         else
                         {
-                            HandleStatusCode(setResult.Status);
+                            HandleStatusCode(setResult.Status, key);
 
                             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
                             {
@@ -921,7 +921,7 @@ namespace CouchbaseManager
                         }
                         else
                         {
-                            HandleStatusCode(setResult.Status);
+                            HandleStatusCode(setResult.Status, key);
                             
                             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
                             {
@@ -1249,7 +1249,7 @@ namespace CouchbaseManager
                         }
                         else
                         {
-                            HandleStatusCode(incrementResult.Status);
+                            HandleStatusCode(incrementResult.Status, key);
                         }
                     }
                 }
