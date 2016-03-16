@@ -1107,6 +1107,7 @@ namespace DAL
                 sp.AddParameter("@ViewLifeCycleID", viewLifeCycleID);
                 sp.AddParameter("@DiscountID", discountID);
                 sp.AddParameter("@Date", DateTime.UtcNow);
+                sp.AddParameter("@IsActive", pricePlan.IsActive);
                 return sp.ExecuteReturnValue<int>();
             }
             catch (Exception ex)
@@ -1133,6 +1134,7 @@ namespace DAL
                 sp.AddParameter("@ViewLifeCycleID", viewLifeCycleID);
                 sp.AddParameter("@DiscountID", discountID);
                 sp.AddParameter("@Date", DateTime.UtcNow);
+                sp.AddParameter("@IsActive", pricePlan.IsActive);
                 return sp.ExecuteReturnValue<int>();
             }
             catch (Exception ex)
@@ -1171,7 +1173,7 @@ namespace DAL
             sp.AddParameter("@usageModule", usageModule);
             sp.AddParameter("@discount", discount);
             sp.AddParameter("@couponGroup", couponGroup);
-            sp.AddParameter("@Action", (int)action);
+            sp.AddParameter("@Action", (int)action);            
             sp.AddIDListParameter<string>("@FileTypes", fileTypes, "STR");
 
             return sp.Execute();
@@ -1192,6 +1194,7 @@ namespace DAL
             sp.AddParameter("@firstDeviceLimitation", ppv.FirstDeviceLimitation);
             sp.AddParameter("@productCode", ppv.ProductCode);
             sp.AddIDListParameter<int>("@FileTypes", fileTypes, "Id");
+            sp.AddParameter("@IsActive", ppv.IsActive);
             sp.AddParameter("@Date", DateTime.UtcNow);
 
             if (ppv.Descriptions != null)
@@ -1215,6 +1218,7 @@ namespace DAL
             sp.AddParameter("@subscriptionOnly", ppv.SubscriptionOnly);
             sp.AddParameter("@firstDeviceLimitation", ppv.FirstDeviceLimitation);
             sp.AddParameter("@productCode", ppv.ProductCode);
+            sp.AddParameter("@IsActive", ppv.IsActive);
             sp.AddIDListParameter<int>("@FileTypes", fileTypes, "Id");
             sp.AddParameter("@Date", DateTime.UtcNow);
             if (ppv.Descriptions != null)
