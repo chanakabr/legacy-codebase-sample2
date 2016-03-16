@@ -74,7 +74,7 @@ namespace QueueWrapper
 
         protected void InsertQueueMessage(int groupId, string messageId, string messageData, string routingKey, DateTime excutionDate, string type)
         {
-            var m_oClient = CouchbaseManager.CouchbaseManager.GetInstance(eCouchbaseBucket.SCHEDULED_TASKS);
+            var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.SCHEDULED_TASKS);
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
 
@@ -91,9 +91,9 @@ namespace QueueWrapper
                     Type = type
                 };
 
-                var res = m_oClient.ExecuteStore(Enyim.Caching.Memcached.StoreMode.Set, docKey, JsonConvert.SerializeObject(mq, Formatting.None), excutionDate.AddMonths(RECOVERY_TTL_MONTH));
+                var res = cbManager.Set(docKey, mq, (uint)(excutionDate.AddMonths(RECOVERY_TTL_MONTH) - DateTime.UtcNow).Seconds);
 
-                if (!res.Success)
+                if (!res)
                 {
                     Thread.Sleep(r.Next(50));
                     limitRetries--;

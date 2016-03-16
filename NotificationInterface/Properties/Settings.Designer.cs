@@ -26,20 +26,20 @@ namespace NotificationInterface.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://webservices-us.tvinci.com/users_v1_7/module.asmx")]
-        public string NotificationInterface_WS_Users_UsersService {
+        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/ws_api/api.asmx")]
+        public string NotificationInterface_WS_Api_API {
             get {
-                return ((string)(this["NotificationInterface_WS_Users_UsersService"]));
+                return ((string)(this["NotificationInterface_WS_Api_API"]));
             }
         }
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/ws_api/api.asmx")]
-        public string NotificationInterface_WS_Api_API {
+        [global::System.Configuration.DefaultSettingValueAttribute("http://webservices-us.tvinci.com/users_v1_7/module.asmx")]
+        public string NotificationInterface_WS_Users_UsersService {
             get {
-                return ((string)(this["NotificationInterface_WS_Api_API"]));
+                return ((string)(this["NotificationInterface_WS_Users_UsersService"]));
             }
         }
     }

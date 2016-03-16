@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TvinciImporter</RootNamespace>
     <AssemblyName>TvinciImporter</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SccProjectName>
     </SccProjectName>
@@ -50,6 +50,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -59,6 +60,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Local|AnyCPU'">
     <OutputPath>bin\Local\</OutputPath>
@@ -68,15 +70,19 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Jil">
+      <HintPath>..\..\tvincicommon\External\Jil.dll</HintPath>
+    </Reference>
     <Reference Include="KLogMonitor, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\TVinciCommon\External\3.5\KLogMonitor.dll</HintPath>
+      <HintPath>..\..\tvincicommon\External\4.5\KLogMonitor.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\External\net35\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\tvincicommon\External\Couchbase-2.2.5\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -232,9 +238,7 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <None Include="Service References\Notification_WCF\NotificationService1.wsdl" />
-    <None Include="Service References\Notification_WCF\NotificationService4.xsd">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="Service References\Notification_WCF\NotificationService11.wsdl" />
     <None Include="Service References\Notification_WCF\NotificationService41.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -247,11 +251,73 @@
     <None Include="Service References\Notification_WCF\NotificationService44.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\Notification_WCF\NotificationService5.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notification_WCF\NotificationService51.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notification_WCF\NotificationService52.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notification_WCF\NotificationService53.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notification_WCF\NotificationService54.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\Notification_WCF\TvinciImporter.Notification_WCF.NotificationMessage.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
     <None Include="Service References\WSCatalog\Service2.wsdl" />
     <None Include="Service References\WSCatalog\Service21.wsdl" />
+    <None Include="Service References\WSCatalog\Service22.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service23.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service24.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service25.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service26.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service27.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service28.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service29.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service30.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service31.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service32.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service33.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service34.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service35.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service36.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCatalog\Service5.wsdl" />
+    <None Include="Service References\WSCatalog\Service6.wsdl" />
     <None Include="Service References\WSCatalog\Service6.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -285,6 +351,9 @@
     <None Include="Web References\Lucene_WCF\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\Lucene_WCF\SearchResultsObj3.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\Lucene_WCF\Service.wsdl" />
     <None Include="Web References\Lucene_WCF\Service.xsd">
@@ -355,6 +424,8 @@
     <Content Include="obj\Release\TvinciImporter.csproj.FileListAbsolute.txt" />
     <Content Include="obj\Release\TvinciImporter.dll" />
     <Content Include="obj\Release\TvinciImporter.pdb" />
+    <None Include="Service References\Notification_WCF\NotificationService11.disco" />
+    <None Include="Service References\WSCatalog\Service3.disco" />
     <None Include="Service References\Notification_WCF\NotificationService1.disco" />
     <None Include="Service References\WSCatalog\Service1.disco" />
     <None Include="Service References\WSCatalog\Reference.svcmap">
