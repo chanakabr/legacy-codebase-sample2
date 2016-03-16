@@ -3324,5 +3324,51 @@ namespace DAL
             }
             return itemsToInitialize;
         }
+
+        public static DataRow GetTimeShiftedTvPartnerSettings(int groupID)
+        {
+            DataRow dr = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure spGetTimeShiftedTvPartnerSettings = new ODBCWrapper.StoredProcedure("GetTimeShiftedTvPartnerSettings");
+                spGetTimeShiftedTvPartnerSettings.SetConnectionKey("MAIN_CONNECTION_STRING");
+                spGetTimeShiftedTvPartnerSettings.AddParameter("@GroupID", groupID);
+
+                DataTable dt = spGetTimeShiftedTvPartnerSettings.Execute();
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    dr = dt.Rows[0];
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error("Failed getting TimeShiftedTvPartnerSettings when running the stored procedure: GetTimeShiftedTvPartnerSettings", ex);
+            }
+
+            return dr;
+        }
+
+        public static bool UpdateTimeShiftedTvPartnerSettings(int groupID, bool? isCatchupAllowed, bool? isCdvrEnabled)
+        {
+            bool isUpdated = false;
+            try
+            {
+                ODBCWrapper.StoredProcedure spUpdateTimeShiftedTvPartnerSettings = new ODBCWrapper.StoredProcedure("UpdateTimeShiftedTvPartnerSettings");
+                spUpdateTimeShiftedTvPartnerSettings.SetConnectionKey("MAIN_CONNECTION_STRING");
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@GroupID", groupID);
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@IsCatchUpAllowed", isCatchupAllowed);
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@IsCdvrAllowed", isCdvrEnabled);
+
+                isUpdated = spUpdateTimeShiftedTvPartnerSettings.ExecuteReturnValue<bool>();
+            }
+
+            catch (Exception ex)
+            {
+                log.Error("Failed getting TimeShiftedTvPartnerSettings when running the stored procedure: GetTimeShiftedTvPartnerSettings", ex);                
+            }
+
+            return isUpdated;
+        }
     }
 }

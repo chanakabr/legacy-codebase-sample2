@@ -152,6 +152,8 @@ namespace ApiObjects.Response
         AliasMustBeUnique = 5019, 
         AliasRequired = 5020,
         UserParentalRuleNotExists = 5021,
+        TimeShiftedTvPartnerSettingsNotFound = 5022,
+        TimeShiftedTvPartnerSettingsNotSent = 5023,
 
         // Billing 6000 - 6999
         IncorrectPrice = 6000,

@@ -332,6 +332,8 @@
     <Compile Include="TagRequestObject.cs" />
     <Compile Include="TagResponseObject.cs" />
     <Compile Include="HouseholdBillingRequest.cs" />
+    <Compile Include="TimeShiftedTv\TimeShiftedTvPartnerSettings.cs" />
+    <Compile Include="TimeShiftedTv\TimeShiftedTvPartnerSettingsResponse.cs" />
     <Compile Include="UserComment.cs" />
     <Compile Include="UserIMRequestObject.cs" />
     <Compile Include="Credentials.cs" />
