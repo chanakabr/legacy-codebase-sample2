@@ -200,9 +200,9 @@ namespace TVPApi
             ChannelsMedia result = new ChannelsMedia();
 
             channel newChannel = new channel();
-            newChannel.id = int.Parse(ChannelID.ToString());
-            newChannel.number_of_items = PageSize;
-            newChannel.start_index = PageSize * PageIndex;
+            newChannel.id = ChannelID.ToString();
+            //newChannel.number_of_items = PageSize;
+            //newChannel.start_index = PageSize * PageIndex;
 
             //switch ((TVPApi.OrderBy)Enum.Parse(typeof(TVPApi.OrderBy), OrderBy.ToString()))
             //{
