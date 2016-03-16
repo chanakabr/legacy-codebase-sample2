@@ -363,7 +363,7 @@ namespace CouchbaseManager
                             else
                             {
                                 HandleStatusCode(insertResult.Status, key);
-
+                                
                                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
                                 {
                                     insertResult = bucket.Insert(key, value, expiration);
@@ -487,7 +487,7 @@ namespace CouchbaseManager
                             else
                             {
                                 HandleStatusCode(insertResult.Status, key);
-
+                                
                                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
                                 {
                                     insertResult = bucket.Upsert(key, value, expiration);
