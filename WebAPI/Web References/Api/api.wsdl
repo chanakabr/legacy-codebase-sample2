@@ -485,6 +485,79 @@
           <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
         </s:sequence>
       </s:complexType>
+      <s:element name="GetGroupIdByUsernamePassword">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetGroupIdByUsernamePasswordResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="GetGroupIdByUsernamePasswordResult" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="InitializeFreeItemsUpdate">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="InitializeFreeItemsUpdateResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="InitializeFreeItemsUpdateResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetTimeShiftedTvPartnerSettings">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetTimeShiftedTvPartnerSettingsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetTimeShiftedTvPartnerSettingsResult" type="tns:TimeShiftedTvPartnerSettingsResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="TimeShiftedTvPartnerSettingsResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="Settings" type="tns:TimeShiftedTvPartnerSettings" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="TimeShiftedTvPartnerSettings">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="IsCatchUpEnabled" nillable="true" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsCdvrEnabled" nillable="true" type="s:boolean" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateTimeShiftedTvPartnerSettings">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="settings" type="tns:TimeShiftedTvPartnerSettings" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateTimeShiftedTvPartnerSettingsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpdateTimeShiftedTvPartnerSettingsResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="TVAPI_GetTvinciGUID">
         <s:complexType>
           <s:sequence>
@@ -1854,6 +1927,17 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
+      <s:complexType name="ChangedPinMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sSiteGuid" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sRuleName" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
       <s:complexType name="WelcomeMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
@@ -1996,17 +2080,6 @@
               <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sNewDeviceUdid" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sNewDeviceName" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="ChangedPinMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sSiteGuid" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sRuleName" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -4082,6 +4155,7 @@
       <s:element name="OSSAdapterEntitlementsResponse" nillable="true" type="tns:OSSAdapterEntitlementsResponse" />
       <s:element name="RegistryResponse" nillable="true" type="tns:RegistryResponse" />
       <s:element name="int" type="s:int" />
+      <s:element name="TimeShiftedTvPartnerSettingsResponse" nillable="true" type="tns:TimeShiftedTvPartnerSettingsResponse" />
       <s:element name="ArrayOfEPGChannelObject" nillable="true" type="tns:ArrayOfEPGChannelObject" />
       <s:element name="AdminAccountUserResponse" nillable="true" type="tns:AdminAccountUserResponse" />
       <s:element name="string" nillable="true" type="s:string" />
@@ -4217,6 +4291,30 @@
   </wsdl:message>
   <wsdl:message name="GetAllRegistrySoapOut">
     <wsdl:part name="parameters" element="tns:GetAllRegistryResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupIdByUsernamePasswordSoapIn">
+    <wsdl:part name="parameters" element="tns:GetGroupIdByUsernamePassword" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupIdByUsernamePasswordSoapOut">
+    <wsdl:part name="parameters" element="tns:GetGroupIdByUsernamePasswordResponse" />
+  </wsdl:message>
+  <wsdl:message name="InitializeFreeItemsUpdateSoapIn">
+    <wsdl:part name="parameters" element="tns:InitializeFreeItemsUpdate" />
+  </wsdl:message>
+  <wsdl:message name="InitializeFreeItemsUpdateSoapOut">
+    <wsdl:part name="parameters" element="tns:InitializeFreeItemsUpdateResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetTimeShiftedTvPartnerSettingsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetTimeShiftedTvPartnerSettings" />
+  </wsdl:message>
+  <wsdl:message name="GetTimeShiftedTvPartnerSettingsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetTimeShiftedTvPartnerSettingsResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateTimeShiftedTvPartnerSettingsSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateTimeShiftedTvPartnerSettings" />
+  </wsdl:message>
+  <wsdl:message name="UpdateTimeShiftedTvPartnerSettingsSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateTimeShiftedTvPartnerSettingsResponse" />
   </wsdl:message>
   <wsdl:message name="TVAPI_GetTvinciGUIDSoapIn">
     <wsdl:part name="parameters" element="tns:TVAPI_GetTvinciGUID" />
@@ -5064,6 +5162,27 @@
   </wsdl:message>
   <wsdl:message name="GetAllRegistryHttpPostOut">
     <wsdl:part name="Body" element="tns:RegistryResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupIdByUsernamePasswordHttpPostIn">
+    <wsdl:part name="username" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupIdByUsernamePasswordHttpPostOut">
+    <wsdl:part name="Body" element="tns:int" />
+  </wsdl:message>
+  <wsdl:message name="InitializeFreeItemsUpdateHttpPostIn">
+    <wsdl:part name="userName" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="InitializeFreeItemsUpdateHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="GetTimeShiftedTvPartnerSettingsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetTimeShiftedTvPartnerSettingsHttpPostOut">
+    <wsdl:part name="Body" element="tns:TimeShiftedTvPartnerSettingsResponse" />
   </wsdl:message>
   <wsdl:message name="InsertEPGScheduleHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -5920,6 +6039,22 @@
       <wsdl:input message="tns:GetAllRegistrySoapIn" />
       <wsdl:output message="tns:GetAllRegistrySoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetGroupIdByUsernamePassword">
+      <wsdl:input message="tns:GetGroupIdByUsernamePasswordSoapIn" />
+      <wsdl:output message="tns:GetGroupIdByUsernamePasswordSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="InitializeFreeItemsUpdate">
+      <wsdl:input message="tns:InitializeFreeItemsUpdateSoapIn" />
+      <wsdl:output message="tns:InitializeFreeItemsUpdateSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTimeShiftedTvPartnerSettings">
+      <wsdl:input message="tns:GetTimeShiftedTvPartnerSettingsSoapIn" />
+      <wsdl:output message="tns:GetTimeShiftedTvPartnerSettingsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateTimeShiftedTvPartnerSettings">
+      <wsdl:input message="tns:UpdateTimeShiftedTvPartnerSettingsSoapIn" />
+      <wsdl:output message="tns:UpdateTimeShiftedTvPartnerSettingsSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="TVAPI_GetTvinciGUID">
       <wsdl:input message="tns:TVAPI_GetTvinciGUIDSoapIn" />
       <wsdl:output message="tns:TVAPI_GetTvinciGUIDSoapOut" />
@@ -6470,6 +6605,18 @@
       <wsdl:input message="tns:GetAllRegistryHttpPostIn" />
       <wsdl:output message="tns:GetAllRegistryHttpPostOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetGroupIdByUsernamePassword">
+      <wsdl:input message="tns:GetGroupIdByUsernamePasswordHttpPostIn" />
+      <wsdl:output message="tns:GetGroupIdByUsernamePasswordHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="InitializeFreeItemsUpdate">
+      <wsdl:input message="tns:InitializeFreeItemsUpdateHttpPostIn" />
+      <wsdl:output message="tns:InitializeFreeItemsUpdateHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTimeShiftedTvPartnerSettings">
+      <wsdl:input message="tns:GetTimeShiftedTvPartnerSettingsHttpPostIn" />
+      <wsdl:output message="tns:GetTimeShiftedTvPartnerSettingsHttpPostOut" />
+    </wsdl:operation>
     <wsdl:operation name="InsertEPGSchedule">
       <wsdl:input message="tns:InsertEPGScheduleHttpPostIn" />
       <wsdl:output message="tns:InsertEPGScheduleHttpPostOut" />
@@ -6953,6 +7100,42 @@
     </wsdl:operation>
     <wsdl:operation name="GetAllRegistry">
       <soap:operation soapAction="http://api.tvinci.com/GetAllRegistry" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupIdByUsernamePassword">
+      <soap:operation soapAction="http://api.tvinci.com/GetGroupIdByUsernamePassword" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InitializeFreeItemsUpdate">
+      <soap:operation soapAction="http://api.tvinci.com/InitializeFreeItemsUpdate" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTimeShiftedTvPartnerSettings">
+      <soap:operation soapAction="http://api.tvinci.com/GetTimeShiftedTvPartnerSettings" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateTimeShiftedTvPartnerSettings">
+      <soap:operation soapAction="http://api.tvinci.com/UpdateTimeShiftedTvPartnerSettings" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -8250,6 +8433,42 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetGroupIdByUsernamePassword">
+      <soap12:operation soapAction="http://api.tvinci.com/GetGroupIdByUsernamePassword" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InitializeFreeItemsUpdate">
+      <soap12:operation soapAction="http://api.tvinci.com/InitializeFreeItemsUpdate" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTimeShiftedTvPartnerSettings">
+      <soap12:operation soapAction="http://api.tvinci.com/GetTimeShiftedTvPartnerSettings" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateTimeShiftedTvPartnerSettings">
+      <soap12:operation soapAction="http://api.tvinci.com/UpdateTimeShiftedTvPartnerSettings" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="TVAPI_GetTvinciGUID">
       <soap12:operation soapAction="http://api.tvinci.com/TVAPI_GetTvinciGUID" style="document" />
       <wsdl:input>
@@ -9479,6 +9698,33 @@
     </wsdl:operation>
     <wsdl:operation name="GetAllRegistry">
       <http:operation location="/GetAllRegistry" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupIdByUsernamePassword">
+      <http:operation location="/GetGroupIdByUsernamePassword" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InitializeFreeItemsUpdate">
+      <http:operation location="/InitializeFreeItemsUpdate" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTimeShiftedTvPartnerSettings">
+      <http:operation location="/GetTimeShiftedTvPartnerSettings" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
