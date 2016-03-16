@@ -618,6 +618,9 @@
     <Content Include="Web References\Api\RegistryResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\Api\TimeShiftedTvPartnerSettingsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\Billing\module.disco" />
     <Content Include="Web References\ConditionalAccess\BillingResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -974,6 +977,7 @@
     <Compile Include="Controllers\NotificationsSettingsController.cs" />
     <Compile Include="Controllers\PaymentMethodProfileController.cs" />
     <Compile Include="Controllers\RegistrySettingsController.cs" />
+    <Compile Include="Controllers\TimeShiftedTvPartnerSettingsController.cs" />
     <Compile Include="Controllers\VersionController.cs" />
     <Compile Include="Controllers\HouseholdLimitationsController.cs" />
     <Compile Include="Controllers\HouseholdPremiumServiceController.cs" />
@@ -1163,6 +1167,9 @@
     <Compile Include="Models\Social\KalturaSocialResponse.cs" />
     <Compile Include="Models\Social\KalturaSocialUser.cs" />
     <Compile Include="Models\Social\KalturaSocialNetwork.cs" />
+    <Compile Include="Models\API\KalturaTimeShiftedTvPartnerSettings.cs">
+      <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
+    </Compile>
     <Compile Include="Models\Users\KalturaFavoriteFilter.cs" />
     <Compile Include="Models\Users\KalturaLoginResponse.cs" />
     <Compile Include="Models\Users\KalturaOTTUserFilter.cs" />
@@ -1348,6 +1355,7 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Models\API\KSQLChannel\" />
+    <Folder Include="Models\TimeShiftedTv\" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
