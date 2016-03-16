@@ -19,16 +19,16 @@ namespace Ingest.Importers
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private const string DATES_FORMAT = "dd/MM/yyyy hh:mm:ss";
-        private const string REQUIRED_ERROR_FORMAT = "{0} with code '{1}': '{2}' is required.\n";
+        private const string MANDATORY_ERROR_FORMAT = "{0} with code '{1}': '{2}' is mandatory.\n";
         private const string FORMAT_ERROR_FORMAT = "{0} with code '{1}': wrong format of '{2}'.\n";
         private const string MISSING_ATTRIBUTE_ERROR_FORMAT = "{0} with code '{1}': missing attribute '{2}' for '{3}'.\n";
-        private const string INGEST_ERROR_FORMAT = "{0} with code '{1}': ingest failed - {2}.\n";
-        private const string INGEST_SUCCESS_FORMAT = "{0} with code '{1}': ingest succeeded, ID = {2}.\n";
-        private const string LOG_REQUIRED_ERROR_FORMAT = "ingest report ID '{3}': {0} with code '{1}': '{2}' is required.\n";
+        private const string INGEST_ERROR_FORMAT = "{0} with code '{1}': {3} failed - {2}.\n";
+        private const string INGEST_SUCCESS_FORMAT = "{0} with code '{1}': {3} succeeded, ID = {2}.\n";
+        private const string LOG_MANDATORY_ERROR_FORMAT = "ingest report ID '{3}': {0} with code '{1}': '{2}' is mandatory.\n";
         private const string LOG_FORMAT_ERROR_FORMAT = "ingest report ID '{3}': {0} with code '{1}': wrong format of '{2}'.\n";
         private const string LOG_MISSING_ATTRIBUTE_ERROR_FORMAT = "ingest report ID '{4}': {0} with code '{1}': missing attribute '{2}' for '{3}'.\n";
-        private const string LOG_INGEST_ERROR_FORMAT = "ingest report ID '{3}': {0} with code '{1}': ingest failed - {2}.\n";
-        private const string LOG_INGEST_SUCCESS_FORMAT = "ingest report ID '{3}': {0} with code '{1}': ingest succeeded, ID = {2}.\n";
+        private const string LOG_INGEST_ERROR_FORMAT = "ingest report ID '{3}': {0} with code '{1}': {4} failed - {2}.\n";
+        private const string LOG_INGEST_SUCCESS_FORMAT = "ingest report ID '{3}': {0} with code '{1}': {4} succeeded, ID = {2}.\n";
         
         private const string MULTI_PRICE_PLAN = "multi price plan";
         private const string PRICE_PLAN = "price plan";
@@ -202,8 +202,8 @@ namespace Ingest.Importers
             }
             catch (Exception ex)
             {
-                log.ErrorFormat(LOG_INGEST_ERROR_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, "error while calling ws pricing", reportId, ex);
-                report = string.Format(INGEST_ERROR_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, "error while calling ws pricing");
+                log.ErrorFormat(LOG_INGEST_ERROR_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, "error while calling ws pricing", reportId, module.Action.ToString().ToLower(), ex);
+                report = string.Format(INGEST_ERROR_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, "error while calling ws pricing", module.Action.ToString().ToLower());
                 return;
             }
 
@@ -211,20 +211,20 @@ namespace Ingest.Importers
 
             if (ingestResponse == null && ingestResponse.status == null)
             {
-                log.ErrorFormat(LOG_INGEST_ERROR_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, "failed to receive ws pricing response", reportId);
-                report = string.Format(INGEST_ERROR_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, "failed to receive ws pricing response");
+                log.ErrorFormat(LOG_INGEST_ERROR_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, "failed to receive ws pricing response", reportId, module.Action.ToString().ToLower());
+                report = string.Format(INGEST_ERROR_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, "failed to receive ws pricing response", module.Action.ToString().ToLower());
                 return;
             }
 
             if (ingestResponse.status.Code != (int)StatusCodes.OK)
             {
-                log.ErrorFormat(LOG_INGEST_ERROR_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, ingestResponse.status.Message, reportId);
-                report = string.Format(INGEST_ERROR_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, ingestResponse.status.Message);
+                log.ErrorFormat(LOG_INGEST_ERROR_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, ingestResponse.status.Message, reportId, module.Action.ToString().ToLower());
+                report = string.Format(INGEST_ERROR_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, ingestResponse.status.Message, module.Action.ToString().ToLower());
             }
             else
             {
-                log.DebugFormat(LOG_INGEST_SUCCESS_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, ingestResponse.status.Message, reportId);
-                report = string.Format(INGEST_SUCCESS_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, ingestResponse.Id);
+                log.DebugFormat(LOG_INGEST_SUCCESS_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, ingestResponse.status.Message, reportId, module.Action.ToString().ToLower());
+                report = string.Format(INGEST_SUCCESS_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, ingestResponse.Id, module.Action.ToString().ToLower());
             }
 
 
@@ -538,8 +538,8 @@ namespace Ingest.Importers
 
                         if (multiPricePlan.Channels == null || multiPricePlan.Channels.Length == 0)
                         {
-                            log.ErrorFormat(LOG_REQUIRED_ERROR_FORMAT, MULTI_PRICE_PLAN, multiPricePlan.Code, "channels", reportId);
-                            reportBuilder.AppendFormat(REQUIRED_ERROR_FORMAT, MULTI_PRICE_PLAN, multiPricePlan.Code, "channels");
+                            log.ErrorFormat(LOG_MANDATORY_ERROR_FORMAT, MULTI_PRICE_PLAN, multiPricePlan.Code, "channels", reportId);
+                            reportBuilder.AppendFormat(MANDATORY_ERROR_FORMAT, MULTI_PRICE_PLAN, multiPricePlan.Code, "channels");
                             continue;
                         }
 
@@ -702,12 +702,12 @@ namespace Ingest.Importers
         {
             value = string.Empty;
             var attribute = node.Attributes[attributeName];
-            if (attribute != null)
+            if (attribute != null && !string.IsNullOrEmpty(attribute.InnerText))
                 value = attribute.InnerText;
             else
             {
-                log.ErrorFormat(LOG_REQUIRED_ERROR_FORMAT, moduleName, moduleCode, attributeName, reportId);
-                report.AppendFormat(REQUIRED_ERROR_FORMAT, moduleName, moduleCode, attributeName);
+                log.ErrorFormat(LOG_MANDATORY_ERROR_FORMAT, moduleName, moduleCode, attributeName, reportId);
+                report.AppendFormat(MANDATORY_ERROR_FORMAT, moduleName, moduleCode, attributeName);
                 return false;
             }
 
@@ -843,8 +843,8 @@ namespace Ingest.Importers
 
             if (string.IsNullOrEmpty(value))
             {
-                log.ErrorFormat(LOG_REQUIRED_ERROR_FORMAT, moduleName, moduleCode, nodeName);
-                report.AppendFormat(REQUIRED_ERROR_FORMAT, moduleName, moduleCode, nodeName);
+                log.ErrorFormat(LOG_MANDATORY_ERROR_FORMAT, moduleName, moduleCode, nodeName);
+                report.AppendFormat(MANDATORY_ERROR_FORMAT, moduleName, moduleCode, nodeName);
                 return false;
             }
 
@@ -913,8 +913,8 @@ namespace Ingest.Importers
             }
             else
             {
-                log.ErrorFormat(LOG_REQUIRED_ERROR_FORMAT, moduleName, moduleCode, nodeName, reportId);
-                report.AppendFormat(REQUIRED_ERROR_FORMAT, moduleName, moduleCode, nodeName);
+                log.ErrorFormat(LOG_MANDATORY_ERROR_FORMAT, moduleName, moduleCode, nodeName, reportId);
+                report.AppendFormat(MANDATORY_ERROR_FORMAT, moduleName, moduleCode, nodeName);
                 return false;
             }
 
