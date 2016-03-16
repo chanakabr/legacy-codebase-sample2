@@ -2339,13 +2339,13 @@
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://localhost/WS_Social/module.asmx" />
+      <soap:address location="http://54.72.1.39:8030/social_v3_5/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://localhost/WS_Social/module.asmx" />
+      <soap12:address location="http://54.72.1.39:8030/social_v3_5/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://localhost/WS_Social/module.asmx" />
+      <http:address location="http://54.72.1.39:8030/social_v3_5/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

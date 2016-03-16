@@ -1287,6 +1287,54 @@
           <s:element minOccurs="0" maxOccurs="unbounded" name="UserItemList" nillable="true" type="tns:UserItemList" />
         </s:sequence>
       </s:complexType>
+      <s:element name="GetItemsFromUsersLists">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userIds" type="tns:ArrayOfString" />
+            <s:element minOccurs="1" maxOccurs="1" name="listType" type="tns:ListType" />
+            <s:element minOccurs="1" maxOccurs="1" name="itemType" type="tns:ItemType" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetItemsFromUsersListsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetItemsFromUsersListsResult" type="tns:UsersItemsListsResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UsersItemsListsResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="UsersItemsLists" type="tns:ArrayOfUserItemsList" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfUserItemsList">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="UserItemsList" nillable="true" type="tns:UserItemsList" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="UserItemsList">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ItemsList" type="tns:ArrayOfItem" />
+          <s:element minOccurs="1" maxOccurs="1" name="ListType" type="tns:ListType" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfItem">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="Item" nillable="true" type="tns:Item" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Item">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="ItemType" type="tns:ItemType" />
+          <s:element minOccurs="1" maxOccurs="1" name="ItemId" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="OrderIndex" nillable="true" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="UserId" type="s:string" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="IsItemExistsInList">
         <s:complexType>
           <s:sequence>
@@ -1590,6 +1638,25 @@
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="SetUserResult" type="tns:UserResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="FilterFavoriteMediaIds">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="mediaIds" type="tns:ArrayOfInt" />
+            <s:element minOccurs="0" maxOccurs="1" name="udid" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="mediaType" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="FilterFavoriteMediaIdsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="FilterFavoriteMediaIdsResult" type="tns:FavoriteResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -1975,6 +2042,12 @@
   <wsdl:message name="GetItemFromListSoapOut">
     <wsdl:part name="parameters" element="tns:GetItemFromListResponse" />
   </wsdl:message>
+  <wsdl:message name="GetItemsFromUsersListsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetItemsFromUsersLists" />
+  </wsdl:message>
+  <wsdl:message name="GetItemsFromUsersListsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetItemsFromUsersListsResponse" />
+  </wsdl:message>
   <wsdl:message name="IsItemExistsInListSoapIn">
     <wsdl:part name="parameters" element="tns:IsItemExistsInList" />
   </wsdl:message>
@@ -2070,6 +2143,12 @@
   </wsdl:message>
   <wsdl:message name="SetUserSoapOut">
     <wsdl:part name="parameters" element="tns:SetUserResponse" />
+  </wsdl:message>
+  <wsdl:message name="FilterFavoriteMediaIdsSoapIn">
+    <wsdl:part name="parameters" element="tns:FilterFavoriteMediaIds" />
+  </wsdl:message>
+  <wsdl:message name="FilterFavoriteMediaIdsSoapOut">
+    <wsdl:part name="parameters" element="tns:FilterFavoriteMediaIdsResponse" />
   </wsdl:message>
   <wsdl:message name="CheckUserPasswordHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -2859,6 +2938,10 @@
       <wsdl:input message="tns:GetItemFromListSoapIn" />
       <wsdl:output message="tns:GetItemFromListSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetItemsFromUsersLists">
+      <wsdl:input message="tns:GetItemsFromUsersListsSoapIn" />
+      <wsdl:output message="tns:GetItemsFromUsersListsSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="IsItemExistsInList">
       <wsdl:input message="tns:IsItemExistsInListSoapIn" />
       <wsdl:output message="tns:IsItemExistsInListSoapOut" />
@@ -2922,6 +3005,10 @@
     <wsdl:operation name="SetUser">
       <wsdl:input message="tns:SetUserSoapIn" />
       <wsdl:output message="tns:SetUserSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="FilterFavoriteMediaIds">
+      <wsdl:input message="tns:FilterFavoriteMediaIdsSoapIn" />
+      <wsdl:output message="tns:FilterFavoriteMediaIdsSoapOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="UsersServiceHttpPost">
@@ -3690,6 +3777,15 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetItemsFromUsersLists">
+      <soap:operation soapAction="http://users.tvinci.com/GetItemsFromUsersLists" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="IsItemExistsInList">
       <soap:operation soapAction="http://users.tvinci.com/IsItemExistsInList" style="document" />
       <wsdl:input>
@@ -3827,6 +3923,15 @@
     </wsdl:operation>
     <wsdl:operation name="SetUser">
       <soap:operation soapAction="http://users.tvinci.com/SetUser" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FilterFavoriteMediaIds">
+      <soap:operation soapAction="http://users.tvinci.com/FilterFavoriteMediaIds" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -4359,6 +4464,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetItemsFromUsersLists">
+      <soap12:operation soapAction="http://users.tvinci.com/GetItemsFromUsersLists" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="IsItemExistsInList">
       <soap12:operation soapAction="http://users.tvinci.com/IsItemExistsInList" style="document" />
       <wsdl:input>
@@ -4496,6 +4610,15 @@
     </wsdl:operation>
     <wsdl:operation name="SetUser">
       <soap12:operation soapAction="http://users.tvinci.com/SetUser" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="FilterFavoriteMediaIds">
+      <soap12:operation soapAction="http://users.tvinci.com/FilterFavoriteMediaIds" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -5043,13 +5166,13 @@
   </wsdl:binding>
   <wsdl:service name="UsersService">
     <wsdl:port name="UsersServiceSoap" binding="tns:UsersServiceSoap">
-      <soap:address location="http://localhost/ws_users/module.asmx" />
+      <soap:address location="http://54.72.1.39:8030/users_v3_5/module.asmx" />
     </wsdl:port>
     <wsdl:port name="UsersServiceSoap12" binding="tns:UsersServiceSoap12">
-      <soap12:address location="http://localhost/ws_users/module.asmx" />
+      <soap12:address location="http://54.72.1.39:8030/users_v3_5/module.asmx" />
     </wsdl:port>
     <wsdl:port name="UsersServiceHttpPost" binding="tns:UsersServiceHttpPost">
-      <http:address location="http://localhost/ws_users/module.asmx" />
+      <http:address location="http://54.72.1.39:8030/users_v3_5/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

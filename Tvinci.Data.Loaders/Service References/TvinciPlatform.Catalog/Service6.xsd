@@ -1,582 +1,629 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/Catalog.Response" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/Catalog.Response" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd3" namespace="http://schemas.datacontract.org/2004/07/Catalog" />
-  <xs:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd4" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
-  <xs:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd9" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Statistics" />
-  <xs:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd5" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" />
-  <xs:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd10" namespace="http://schemas.datacontract.org/2004/07/GroupsCacheManager" />
-  <xs:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd6" namespace="http://schemas.datacontract.org/2004/07/ApiObjects" />
-  <xs:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd11" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Base" />
-  <xs:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd14" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Response" />
-  <xs:complexType name="MediaLastPositionResponse">
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/Catalog.Request" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/Catalog.Request" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://54.72.1.39:8030/catalog_v3_5/Service.svc?xsd=xsd6" namespace="http://schemas.datacontract.org/2004/07/ApiObjects" />
+  <xs:import schemaLocation="http://54.72.1.39:8030/catalog_v3_5/Service.svc?xsd=xsd4" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+  <xs:import schemaLocation="http://54.72.1.39:8030/catalog_v3_5/Service.svc?xsd=xsd3" namespace="http://schemas.datacontract.org/2004/07/Catalog" />
+  <xs:import schemaLocation="http://54.72.1.39:8030/catalog_v3_5/Service.svc?xsd=xsd5" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" />
+  <xs:complexType name="NPVRRetrieveRequest">
     <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseResponse">
+      <xs:extension base="tns:BaseRequest">
         <xs:sequence>
-          <xs:element minOccurs="0" name="Location" type="xs:int" />
-          <xs:element minOccurs="0" name="m_sDescription" nillable="true" type="xs:string" />
-          <xs:element minOccurs="0" name="m_sStatus" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="m_dtStartDate" type="xs:dateTime" />
+          <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="m_eNPVRSearchBy" type="q1:NPVRSearchBy" />
+          <xs:element xmlns:q2="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_lProgramIDs" nillable="true" type="q2:ArrayOfint" />
+          <xs:element xmlns:q3="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_lRecordingIDs" nillable="true" type="q3:ArrayOfstring" />
+          <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="m_lRecordingStatuses" nillable="true" type="q4:ArrayOfRecordingStatus" />
+          <xs:element xmlns:q5="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_lSeriesIDs" nillable="true" type="q5:ArrayOfstring" />
+          <xs:element minOccurs="0" name="m_nEPGChannelID" type="xs:int" />
+          <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="m_oOrderObj" nillable="true" type="q6:RecordedEPGOrderObj" />
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:element name="MediaLastPositionResponse" nillable="true" type="tns:MediaLastPositionResponse" />
-  <xs:complexType name="BaseResponse">
+  <xs:element name="NPVRRetrieveRequest" nillable="true" type="tns:NPVRRetrieveRequest" />
+  <xs:complexType name="BaseRequest">
     <xs:sequence>
-      <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/Catalog" minOccurs="0" name="m_lObj" nillable="true" type="q1:ArrayOfBaseObject" />
-      <xs:element minOccurs="0" name="m_nTotalItems" type="xs:int" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="BaseResponse" nillable="true" type="tns:BaseResponse" />
-  <xs:complexType name="PicObj">
-    <xs:complexContent mixed="false">
-      <xs:extension xmlns:q2="http://schemas.datacontract.org/2004/07/Catalog" base="q2:BaseObject">
-        <xs:sequence>
-          <xs:element minOccurs="0" name="m_Picture" nillable="true" type="q2:ArrayOfPicture" />
-        </xs:sequence>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="PicObj" nillable="true" type="tns:PicObj" />
-  <xs:complexType name="MediaFileObj">
-    <xs:complexContent mixed="false">
-      <xs:extension xmlns:q3="http://schemas.datacontract.org/2004/07/Catalog" base="q3:BaseObject">
-        <xs:sequence>
-          <xs:element minOccurs="0" name="m_oFile" nillable="true" type="q3:FileMedia" />
-        </xs:sequence>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="MediaFileObj" nillable="true" type="tns:MediaFileObj" />
-  <xs:complexType name="MediaObj">
-    <xs:complexContent mixed="false">
-      <xs:extension xmlns:q4="http://schemas.datacontract.org/2004/07/Catalog" base="q4:BaseObject">
-        <xs:sequence>
-          <xs:element minOccurs="0" name="EntryId" nillable="true" type="xs:string" />
-          <xs:element minOccurs="0" name="m_ExternalIDs" nillable="true" type="xs:string" />
-          <xs:element minOccurs="0" name="m_dCatalogStartDate" type="xs:dateTime" />
-          <xs:element minOccurs="0" name="m_dCreationDate" type="xs:dateTime" />
-          <xs:element minOccurs="0" name="m_dEndDate" type="xs:dateTime" />
-          <xs:element minOccurs="0" name="m_dFinalDate" type="xs:dateTime" />
-          <xs:element minOccurs="0" name="m_dLastWatchedDate" nillable="true" type="xs:dateTime" />
-          <xs:element minOccurs="0" name="m_dPublishDate" type="xs:dateTime" />
-          <xs:element minOccurs="0" name="m_dStartDate" type="xs:dateTime" />
-          <xs:element minOccurs="0" name="m_lBranding" nillable="true" type="q4:ArrayOfBranding" />
-          <xs:element minOccurs="0" name="m_lFiles" nillable="true" type="q4:ArrayOfFileMedia" />
-          <xs:element minOccurs="0" name="m_lMetas" nillable="true" type="q4:ArrayOfMetas" />
-          <xs:element minOccurs="0" name="m_lPicture" nillable="true" type="q4:ArrayOfPicture" />
-          <xs:element minOccurs="0" name="m_lTags" nillable="true" type="q4:ArrayOfTags" />
-          <xs:element minOccurs="0" name="m_nLikeCounter" type="xs:int" />
-          <xs:element minOccurs="0" name="m_oMediaType" nillable="true" type="q4:MediaType" />
-          <xs:element minOccurs="0" name="m_oRatingMedia" nillable="true" type="tns:RatingMedia" />
-          <xs:element minOccurs="0" name="m_sDescription" nillable="true" type="xs:string" />
-          <xs:element minOccurs="0" name="m_sLastWatchedDevice" nillable="true" type="xs:string" />
-          <xs:element minOccurs="0" name="m_sName" nillable="true" type="xs:string" />
-          <xs:element minOccurs="0" name="m_sSiteUserGuid" nillable="true" type="xs:string" />
-        </xs:sequence>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="MediaObj" nillable="true" type="tns:MediaObj" />
-  <xs:complexType name="RatingMedia">
-    <xs:sequence>
-      <xs:element minOccurs="0" name="m_nRatingAvg" type="xs:double" />
-      <xs:element minOccurs="0" name="m_nRatingCount" type="xs:int" />
-      <xs:element minOccurs="0" name="m_nRatingSum" type="xs:int" />
-      <xs:element minOccurs="0" name="m_nViwes" type="xs:int" />
-      <xs:element minOccurs="0" name="m_nVote1Count" type="xs:int" />
-      <xs:element minOccurs="0" name="m_nVote2Count" type="xs:int" />
-      <xs:element minOccurs="0" name="m_nVote3Count" type="xs:int" />
-      <xs:element minOccurs="0" name="m_nVote4Count" type="xs:int" />
-      <xs:element minOccurs="0" name="m_nVote5Count" type="xs:int" />
-      <xs:element minOccurs="0" name="m_nVotesLoCnt" type="xs:int" />
-      <xs:element minOccurs="0" name="m_nVotesUpCnt" type="xs:int" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="RatingMedia" nillable="true" type="tns:RatingMedia" />
-  <xs:complexType name="MediaAutoCompleteResponse">
-    <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseResponse">
-        <xs:sequence>
-          <xs:element xmlns:q5="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="lResults" nillable="true" type="q5:ArrayOfstring" />
-        </xs:sequence>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="MediaAutoCompleteResponse" nillable="true" type="tns:MediaAutoCompleteResponse" />
-  <xs:complexType name="AssetStatsResponse">
-    <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseResponse">
-        <xs:sequence>
-          <xs:element minOccurs="0" name="m_lAssetStat" nillable="true" type="tns:ArrayOfAssetStatsResult" />
-        </xs:sequence>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="AssetStatsResponse" nillable="true" type="tns:AssetStatsResponse" />
-  <xs:complexType name="ArrayOfAssetStatsResult">
-    <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="AssetStatsResult" nillable="true" type="tns:AssetStatsResult" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="ArrayOfAssetStatsResult" nillable="true" type="tns:ArrayOfAssetStatsResult" />
-  <xs:complexType name="AssetStatsResult">
-    <xs:sequence>
-      <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/ApiObjects.Statistics" minOccurs="0" name="m_buzzAverScore" nillable="true" type="q6:BuzzWeightedAverScore" />
-      <xs:element minOccurs="0" name="m_dRate" type="xs:double" />
-      <xs:element minOccurs="0" name="m_nAssetID" type="xs:int" />
-      <xs:element minOccurs="0" name="m_nLikes" type="xs:int" />
-      <xs:element minOccurs="0" name="m_nViews" type="xs:int" />
-      <xs:element minOccurs="0" name="m_nVotes" type="xs:int" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="AssetStatsResult" nillable="true" type="tns:AssetStatsResult" />
-  <xs:complexType name="ChannelViewsResponse">
-    <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseResponse">
-        <xs:sequence>
-          <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/Catalog" minOccurs="0" name="ChannelViews" nillable="true" type="q7:ArrayOfChannelViewsResult" />
-        </xs:sequence>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="ChannelViewsResponse" nillable="true" type="tns:ChannelViewsResponse" />
-  <xs:complexType name="ChannelResponse">
-    <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseResponse">
-        <xs:sequence>
-          <xs:element minOccurs="0" name="Id" type="xs:int" />
-          <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="m_nMedias" nillable="true" type="q8:ArrayOfSearchResult" />
-          <xs:element minOccurs="0" name="m_sDescription" nillable="true" type="xs:string" />
-          <xs:element minOccurs="0" name="m_sEnableRssFeed" type="xs:int" />
-          <xs:element minOccurs="0" name="m_sImageUrl" nillable="true" type="xs:string" />
-          <xs:element minOccurs="0" name="m_sName" nillable="true" type="xs:string" />
-        </xs:sequence>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="ChannelResponse" nillable="true" type="tns:ChannelResponse" />
-  <xs:complexType name="MediaIdsResponse">
-    <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseResponse">
-        <xs:sequence>
-          <xs:element xmlns:q9="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="m_nMediaIds" nillable="true" type="q9:ArrayOfSearchResult" />
-        </xs:sequence>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="MediaIdsResponse" nillable="true" type="tns:MediaIdsResponse" />
-  <xs:complexType name="MediaResponse">
-    <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseResponse">
-        <xs:sequence />
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="MediaResponse" nillable="true" type="tns:MediaResponse" />
-  <xs:complexType name="ChannelDetailsResponse">
-    <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseResponse">
-        <xs:sequence>
-          <xs:element minOccurs="0" name="m_lchannelList" nillable="true" type="tns:ArrayOfchannelObj" />
-        </xs:sequence>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="ChannelDetailsResponse" nillable="true" type="tns:ChannelDetailsResponse" />
-  <xs:complexType name="ArrayOfchannelObj">
-    <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="channelObj" nillable="true" type="tns:channelObj" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="ArrayOfchannelObj" nillable="true" type="tns:ArrayOfchannelObj" />
-  <xs:complexType name="channelObj">
-    <xs:sequence>
-      <xs:element minOccurs="0" name="m_dLinearStartTime" type="xs:dateTime" />
-      <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/Catalog" minOccurs="0" name="m_lPic" nillable="true" type="q10:ArrayOfPicture" />
-      <xs:element minOccurs="0" name="m_nChannelID" type="xs:int" />
+      <xs:element minOccurs="0" name="domainId" type="xs:int" />
       <xs:element minOccurs="0" name="m_nGroupID" type="xs:int" />
-      <xs:element minOccurs="0" name="m_sDescription" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="m_sEditorRemarks" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="m_sTitle" nillable="true" type="xs:string" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="channelObj" nillable="true" type="tns:channelObj" />
-  <xs:complexType name="PersonalLastDeviceResponse">
-    <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseResponse">
-        <xs:sequence>
-          <xs:element minOccurs="0" name="m_lPersonalLastWatched" nillable="true" type="tns:ArrayOfPersonalLastDevice" />
-        </xs:sequence>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="PersonalLastDeviceResponse" nillable="true" type="tns:PersonalLastDeviceResponse" />
-  <xs:complexType name="ArrayOfPersonalLastDevice">
-    <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="PersonalLastDevice" nillable="true" type="tns:PersonalLastDevice" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="ArrayOfPersonalLastDevice" nillable="true" type="tns:ArrayOfPersonalLastDevice" />
-  <xs:complexType name="PersonalLastDevice">
-    <xs:sequence>
-      <xs:element minOccurs="0" name="m_dLastWatchedDate" nillable="true" type="xs:dateTime" />
-      <xs:element minOccurs="0" name="m_nID" type="xs:int" />
-      <xs:element minOccurs="0" name="m_sLastWatchedDevice" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="m_sSiteUserGuid" nillable="true" type="xs:string" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="PersonalLastDevice" nillable="true" type="tns:PersonalLastDevice" />
-  <xs:complexType name="CommentsListResponse">
-    <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseResponse">
-        <xs:sequence>
-          <xs:element minOccurs="0" name="m_lComments" nillable="true" type="tns:ArrayOfComments" />
-        </xs:sequence>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="CommentsListResponse" nillable="true" type="tns:CommentsListResponse" />
-  <xs:complexType name="ArrayOfComments">
-    <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="Comments" nillable="true" type="tns:Comments" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="ArrayOfComments" nillable="true" type="tns:ArrayOfComments" />
-  <xs:complexType name="Comments">
-    <xs:sequence>
-      <xs:element minOccurs="0" name="Id" type="xs:int" />
-      <xs:element minOccurs="0" name="m_dCreateDate" type="xs:dateTime" />
-      <xs:element minOccurs="0" name="m_nAssetID" type="xs:int" />
-      <xs:element minOccurs="0" name="m_nLang" type="xs:int" />
-      <xs:element minOccurs="0" name="m_sContentText" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="m_sHeader" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="m_sLangName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_nPageIndex" type="xs:int" />
+      <xs:element minOccurs="0" name="m_nPageSize" type="xs:int" />
+      <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/Catalog" minOccurs="0" name="m_oFilter" nillable="true" type="q7:Filter" />
+      <xs:element minOccurs="0" name="m_sSignString" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sSignature" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="m_sSiteGuid" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="m_sSubHeader" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="m_sUserPicURL" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="m_sWriter" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sUserIP" nillable="true" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
-  <xs:element name="Comments" nillable="true" type="tns:Comments" />
-  <xs:complexType name="PicResponse">
+  <xs:element name="BaseRequest" nillable="true" type="tns:BaseRequest" />
+  <xs:complexType name="ChannelsContainingMediaRequest">
     <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseResponse">
+      <xs:extension base="tns:BaseRequest">
+        <xs:sequence>
+          <xs:element xmlns:q8="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_lChannles" nillable="true" type="q8:ArrayOfint" />
+          <xs:element minOccurs="0" name="m_nMediaID" type="xs:int" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="ChannelsContainingMediaRequest" nillable="true" type="tns:ChannelsContainingMediaRequest" />
+  <xs:complexType name="PicRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseRequest">
+        <xs:sequence>
+          <xs:element xmlns:q9="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_nPicIds" nillable="true" type="q9:ArrayOfint" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="PicRequest" nillable="true" type="tns:PicRequest" />
+  <xs:complexType name="MediaMarkRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="m_oMediaPlayRequestData" nillable="true" type="tns:MediaPlayRequestData" />
+          <xs:element minOccurs="0" name="m_sErrorCode" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="m_sErrorMessage" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="m_sMediaCDN" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="MediaMarkRequest" nillable="true" type="tns:MediaMarkRequest" />
+  <xs:complexType name="MediaPlayRequestData">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="m_nAvgBitRate" type="xs:int" />
+      <xs:element minOccurs="0" name="m_nCurrentBitRate" type="xs:int" />
+      <xs:element minOccurs="0" name="m_nLoc" type="xs:int" />
+      <xs:element minOccurs="0" name="m_nMediaFileID" type="xs:int" />
+      <xs:element minOccurs="0" name="m_nMediaID" type="xs:int" />
+      <xs:element minOccurs="0" name="m_nTotalBitRate" type="xs:int" />
+      <xs:element minOccurs="0" name="m_sAction" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sMediaDuration" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sMediaTypeId" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sNpvrID" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sSiteGuid" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sUDID" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="MediaPlayRequestData" nillable="true" type="tns:MediaPlayRequestData" />
+  <xs:complexType name="MediaHitRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="m_oMediaPlayRequestData" nillable="true" type="tns:MediaPlayRequestData" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="MediaHitRequest" nillable="true" type="tns:MediaHitRequest" />
+  <xs:complexType name="ChannelRequestMultiFiltering">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:ChannelRequest">
+        <xs:sequence>
+          <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="m_eFilterCutWith" type="q10:CutWith" />
+          <xs:element xmlns:q11="http://schemas.datacontract.org/2004/07/Catalog" minOccurs="0" name="m_lFilterTags" nillable="true" type="q11:ArrayOfKeyValue" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="ChannelRequestMultiFiltering" nillable="true" type="tns:ChannelRequestMultiFiltering" />
+  <xs:complexType name="ChannelRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="m_nChannelID" type="xs:int" />
+          <xs:element xmlns:q12="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="m_oOrderObj" nillable="true" type="q12:OrderObj" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="ChannelRequest" nillable="true" type="tns:ChannelRequest" />
+  <xs:complexType name="EpgCommentsListRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="m_nEpgProgramID" type="xs:int" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="EpgCommentsListRequest" nillable="true" type="tns:EpgCommentsListRequest" />
+  <xs:complexType name="EpgSearchRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseRequest">
+        <xs:sequence>
+          <xs:element xmlns:q13="http://schemas.datacontract.org/2004/07/Catalog" minOccurs="0" name="m_AndList" nillable="true" type="q13:ArrayOfKeyValue" />
+          <xs:element xmlns:q14="http://schemas.datacontract.org/2004/07/Catalog" minOccurs="0" name="m_OrList" nillable="true" type="q14:ArrayOfKeyValue" />
+          <xs:element minOccurs="0" name="m_bExact" type="xs:boolean" />
+          <xs:element minOccurs="0" name="m_dEndDate" type="xs:dateTime" />
+          <xs:element minOccurs="0" name="m_dStartDate" type="xs:dateTime" />
+          <xs:element xmlns:q15="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_oEPGChannelIDs" nillable="true" type="q15:ArrayOflong" />
+          <xs:element minOccurs="0" name="m_sSearch" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="EpgSearchRequest" nillable="true" type="tns:EpgSearchRequest" />
+  <xs:complexType name="EpgAutoCompleteRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="m_dEndDate" type="xs:dateTime" />
+          <xs:element minOccurs="0" name="m_dStartDate" type="xs:dateTime" />
+          <xs:element minOccurs="0" name="m_nProgramID" type="xs:int" />
+          <xs:element xmlns:q16="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_oEPGChannelIDs" nillable="true" type="q16:ArrayOflong" />
+          <xs:element minOccurs="0" name="m_sSearch" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="EpgAutoCompleteRequest" nillable="true" type="tns:EpgAutoCompleteRequest" />
+  <xs:complexType name="MediaCommentRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:CommentRequest">
         <xs:sequence />
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:element name="PicResponse" nillable="true" type="tns:PicResponse" />
-  <xs:complexType name="MediaMarkResponse">
+  <xs:element name="MediaCommentRequest" nillable="true" type="tns:MediaCommentRequest" />
+  <xs:complexType name="CommentRequest">
     <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseResponse">
+      <xs:extension base="tns:BaseRequest">
         <xs:sequence>
+          <xs:element minOccurs="0" name="m_bAutoActive" type="xs:boolean" />
+          <xs:element minOccurs="0" name="m_nAssetID" type="xs:int" />
+          <xs:element minOccurs="0" name="m_sContentText" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="m_sCountry" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="m_sHeader" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="m_sSubHeader" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="m_sUDID" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="m_sWriter" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CommentRequest" nillable="true" type="tns:CommentRequest" />
+  <xs:complexType name="IsMediaExistsInSubscriptionRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="m_nMediaID" type="xs:int" />
+          <xs:element minOccurs="0" name="m_nSubscriptionID" type="xs:int" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="IsMediaExistsInSubscriptionRequest" nillable="true" type="tns:IsMediaExistsInSubscriptionRequest" />
+  <xs:complexType name="BundleContainingMediaRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseRequest">
+        <xs:sequence>
+          <xs:element xmlns:q17="http://schemas.datacontract.org/2004/07/Catalog" minOccurs="0" name="m_eBundleType" type="q17:eBundleType" />
+          <xs:element minOccurs="0" name="m_nBundleID" type="xs:int" />
+          <xs:element minOccurs="0" name="m_nMediaID" type="xs:int" />
+          <xs:element minOccurs="0" name="m_sMediaType" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="BundleContainingMediaRequest" nillable="true" type="tns:BundleContainingMediaRequest" />
+  <xs:complexType name="MediaChannelsRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="m_nMediaID" type="xs:int" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="MediaChannelsRequest" nillable="true" type="tns:MediaChannelsRequest" />
+  <xs:complexType name="MediaAutoCompleteRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseRequest">
+        <xs:sequence>
+          <xs:element xmlns:q18="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_MediaTypes" nillable="true" type="q18:ArrayOfint" />
+          <xs:element xmlns:q19="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_lMetas" nillable="true" type="q19:ArrayOfstring" />
+          <xs:element xmlns:q20="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_lTags" nillable="true" type="q20:ArrayOfstring" />
+          <xs:element minOccurs="0" name="m_sPrefix" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="MediaAutoCompleteRequest" nillable="true" type="tns:MediaAutoCompleteRequest" />
+  <xs:complexType name="EpgRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="m_dEndDate" type="xs:dateTime" />
+          <xs:element minOccurs="0" name="m_dStartDate" type="xs:dateTime" />
+          <xs:element xmlns:q21="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="m_eSearchType" type="q21:EpgSearchType" />
+          <xs:element xmlns:q22="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_nChannelIDs" nillable="true" type="q22:ArrayOfint" />
+          <xs:element minOccurs="0" name="m_nNextTop" type="xs:int" />
+          <xs:element minOccurs="0" name="m_nPrevTop" type="xs:int" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="EpgRequest" nillable="true" type="tns:EpgRequest" />
+  <xs:complexType name="BundleMediaRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseRequest">
+        <xs:sequence>
+          <xs:element xmlns:q23="http://schemas.datacontract.org/2004/07/Catalog" minOccurs="0" name="m_eBundleType" type="q23:eBundleType" />
+          <xs:element minOccurs="0" name="m_nBundleID" type="xs:int" />
+          <xs:element xmlns:q24="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="m_oOrderObj" nillable="true" type="q24:OrderObj" />
+          <xs:element minOccurs="0" name="m_sMediaType" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="BundleMediaRequest" nillable="true" type="tns:BundleMediaRequest" />
+  <xs:complexType name="EPGProgramsByScidsRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q25="http://schemas.datacontract.org/2004/07/Catalog" base="q25:BaseEpg">
+        <xs:sequence>
+          <xs:element xmlns:q26="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="scids" nillable="true" type="q26:ArrayOfstring" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="EPGProgramsByScidsRequest" nillable="true" type="tns:EPGProgramsByScidsRequest" />
+  <xs:complexType name="EPGProgramsByProgramsIdentefierRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q27="http://schemas.datacontract.org/2004/07/Catalog" base="q27:BaseEpg">
+        <xs:sequence>
+          <xs:element xmlns:q28="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="pids" nillable="true" type="q28:ArrayOfstring" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="EPGProgramsByProgramsIdentefierRequest" nillable="true" type="tns:EPGProgramsByProgramsIdentefierRequest" />
+  <xs:complexType name="UserSocialMediasRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="m_nSocialAction" type="xs:int" />
+          <xs:element minOccurs="0" name="m_nSocialPlatform" type="xs:int" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="UserSocialMediasRequest" nillable="true" type="tns:UserSocialMediasRequest" />
+  <xs:complexType name="ChannelViewsRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseRequest">
+        <xs:sequence />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="ChannelViewsRequest" nillable="true" type="tns:ChannelViewsRequest" />
+  <xs:complexType name="BuzzMeterRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="m_sKey" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="BuzzMeterRequest" nillable="true" type="tns:BuzzMeterRequest" />
+  <xs:complexType name="MediaLastPositionRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="data" nillable="true" type="tns:MediaLastPositionRequestData" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="MediaLastPositionRequest" nillable="true" type="tns:MediaLastPositionRequest" />
+  <xs:complexType name="MediaLastPositionRequestData">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="m_nMediaID" type="xs:int" />
+      <xs:element minOccurs="0" name="m_sNpvrID" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sSiteGuid" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sUDID" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="MediaLastPositionRequestData" nillable="true" type="tns:MediaLastPositionRequestData" />
+  <xs:complexType name="CategoryRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="m_nCategoryID" type="xs:int" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CategoryRequest" nillable="true" type="tns:CategoryRequest" />
+  <xs:complexType name="AssetStatsRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="m_dEndDate" type="xs:dateTime" />
+          <xs:element minOccurs="0" name="m_dStartDate" type="xs:dateTime" />
+          <xs:element xmlns:q29="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_nAssetIDs" nillable="true" type="q29:ArrayOfint" />
+          <xs:element xmlns:q30="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="m_type" type="q30:StatsType" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="AssetStatsRequest" nillable="true" type="tns:AssetStatsRequest" />
+  <xs:complexType name="EPGSearchContentRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseRequest">
+        <xs:sequence>
+          <xs:element xmlns:q31="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_oEPGChannelIDs" nillable="true" type="q31:ArrayOflong" />
+          <xs:element minOccurs="0" name="m_sSearch" nillable="true" type="xs:string" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="EPGSearchContentRequest" nillable="true" type="tns:EPGSearchContentRequest" />
+  <xs:complexType name="MediaSearchRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseMediaSearchRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="m_bAnd" type="xs:boolean" />
+          <xs:element xmlns:q32="http://schemas.datacontract.org/2004/07/Catalog" minOccurs="0" name="m_lMetas" nillable="true" type="q32:ArrayOfKeyValue" />
+          <xs:element xmlns:q33="http://schemas.datacontract.org/2004/07/Catalog" minOccurs="0" name="m_lTags" nillable="true" type="q33:ArrayOfKeyValue" />
           <xs:element minOccurs="0" name="m_sDescription" nillable="true" type="xs:string" />
-          <xs:element minOccurs="0" name="m_sStatus" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="m_sName" nillable="true" type="xs:string" />
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:element name="MediaMarkResponse" nillable="true" type="tns:MediaMarkResponse" />
-  <xs:complexType name="MediaHitResponse">
+  <xs:element name="MediaSearchRequest" nillable="true" type="tns:MediaSearchRequest" />
+  <xs:complexType name="BaseMediaSearchRequest">
     <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseResponse">
+      <xs:extension base="tns:BaseRequest">
         <xs:sequence>
-          <xs:element minOccurs="0" name="m_sDescription" nillable="true" type="xs:string" />
-          <xs:element minOccurs="0" name="m_sStatus" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="m_bExact" type="xs:boolean" />
+          <xs:element minOccurs="0" name="m_nMediaID" type="xs:int" />
+          <xs:element xmlns:q34="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_nMediaTypes" nillable="true" type="q34:ArrayOfint" />
+          <xs:element xmlns:q35="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="m_oOrderObj" nillable="true" type="q35:OrderObj" />
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:element name="MediaHitResponse" nillable="true" type="tns:MediaHitResponse" />
-  <xs:complexType name="CommentResponse">
+  <xs:element name="BaseMediaSearchRequest" nillable="true" type="tns:BaseMediaSearchRequest" />
+  <xs:complexType name="MediaRelatedRequest">
     <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseResponse">
+      <xs:extension base="tns:BaseRequest">
         <xs:sequence>
-          <xs:element xmlns:q11="http://schemas.datacontract.org/2004/07/Catalog" minOccurs="0" name="eStatusComment" type="q11:StatusComment" />
+          <xs:element minOccurs="0" name="m_nMediaID" type="xs:int" />
+          <xs:element xmlns:q36="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_nMediaTypes" nillable="true" type="q36:ArrayOfint" />
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:element name="CommentResponse" nillable="true" type="tns:CommentResponse" />
-  <xs:complexType name="EpgSearchResponse">
+  <xs:element name="MediaRelatedRequest" nillable="true" type="tns:MediaRelatedRequest" />
+  <xs:complexType name="MediaUpdateDateRequest">
     <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseResponse">
+      <xs:extension base="tns:BaseRequest">
         <xs:sequence>
-          <xs:element xmlns:q12="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="m_nEpgIds" nillable="true" type="q12:ArrayOfSearchResult" />
+          <xs:element xmlns:q37="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_lMediaIds" nillable="true" type="q37:ArrayOfint" />
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:element name="EpgSearchResponse" nillable="true" type="tns:EpgSearchResponse" />
-  <xs:complexType name="EpgAutoCompleteResponse">
+  <xs:element name="MediaUpdateDateRequest" nillable="true" type="tns:MediaUpdateDateRequest" />
+  <xs:complexType name="PWWAWProtocolRequest">
     <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseResponse">
+      <xs:extension base="tns:BaseProtocolRequest">
         <xs:sequence>
-          <xs:element xmlns:q13="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_sList" nillable="true" type="q13:ArrayOfstring" />
+          <xs:element minOccurs="0" name="m_nCountryID" type="xs:int" />
+          <xs:element minOccurs="0" name="m_nMediaID" type="xs:int" />
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:element name="EpgAutoCompleteResponse" nillable="true" type="tns:EpgAutoCompleteResponse" />
-  <xs:complexType name="EpgProgramResponse">
+  <xs:element name="PWWAWProtocolRequest" nillable="true" type="tns:PWWAWProtocolRequest" />
+  <xs:complexType name="BaseProtocolRequest">
     <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseResponse">
+      <xs:extension base="tns:BaseRequest">
         <xs:sequence />
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:element name="EpgProgramResponse" nillable="true" type="tns:EpgProgramResponse" />
-  <xs:complexType name="ChannelObjResponse">
+  <xs:element name="BaseProtocolRequest" nillable="true" type="tns:BaseProtocolRequest" />
+  <xs:complexType name="ChannelsListRequest">
     <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseResponse">
+      <xs:extension base="tns:BaseRequest">
         <xs:sequence>
-          <xs:element xmlns:q14="http://schemas.datacontract.org/2004/07/GroupsCacheManager" minOccurs="0" name="ChannelObj" nillable="true" type="q14:Channel" />
+          <xs:element minOccurs="0" name="m_nCategoryID" type="xs:int" />
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:element name="ChannelObjResponse" nillable="true" type="tns:ChannelObjResponse" />
-  <xs:complexType name="IsMediaExistsInSubscriptionResponse">
+  <xs:element name="ChannelsListRequest" nillable="true" type="tns:ChannelsListRequest" />
+  <xs:complexType name="PersonalLastWatchedRequest">
     <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseResponse">
-        <xs:sequence>
-          <xs:element minOccurs="0" name="m_bExists" type="xs:boolean" />
-        </xs:sequence>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="IsMediaExistsInSubscriptionResponse" nillable="true" type="tns:IsMediaExistsInSubscriptionResponse" />
-  <xs:complexType name="MediaChannelsResponse">
-    <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseResponse">
-        <xs:sequence>
-          <xs:element xmlns:q15="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_nChannelIDs" nillable="true" type="q15:ArrayOfint" />
-        </xs:sequence>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="MediaChannelsResponse" nillable="true" type="tns:MediaChannelsResponse" />
-  <xs:complexType name="ContainingMediaResponse">
-    <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseResponse">
-        <xs:sequence>
-          <xs:element minOccurs="0" name="m_bContainsMedia" type="xs:boolean" />
-        </xs:sequence>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="ContainingMediaResponse" nillable="true" type="tns:ContainingMediaResponse" />
-  <xs:complexType name="EpgResponse">
-    <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseResponse">
-        <xs:sequence>
-          <xs:element xmlns:q16="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="programsPerChannel" nillable="true" type="q16:ArrayOfEpgResultsObj" />
-        </xs:sequence>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="EpgResponse" nillable="true" type="tns:EpgResponse" />
-  <xs:complexType name="EpgProgramsResponse">
-    <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseResponse">
-        <xs:sequence>
-          <xs:element xmlns:q17="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="lEpgList" nillable="true" type="q17:ArrayOfEPGChannelProgrammeObject" />
-        </xs:sequence>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="EpgProgramsResponse" nillable="true" type="tns:EpgProgramsResponse" />
-  <xs:complexType name="BuzzMeterResponse">
-    <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseResponse">
-        <xs:sequence>
-          <xs:element xmlns:q18="http://schemas.datacontract.org/2004/07/ApiObjects.Statistics" minOccurs="0" name="m_buzzAverScore" nillable="true" type="q18:BuzzWeightedAverScore" />
-        </xs:sequence>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="BuzzMeterResponse" nillable="true" type="tns:BuzzMeterResponse" />
-  <xs:complexType name="ChannelsContainingMediaResponse">
-    <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseResponse">
-        <xs:sequence>
-          <xs:element xmlns:q19="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_lChannellList" nillable="true" type="q19:ArrayOfint" />
-        </xs:sequence>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="ChannelsContainingMediaResponse" nillable="true" type="tns:ChannelsContainingMediaResponse" />
-  <xs:complexType name="CrowdsourceResponse">
-    <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseResponse">
-        <xs:sequence>
-          <xs:element xmlns:q20="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Base" minOccurs="0" name="CrowdsourceItems" nillable="true" type="q20:ArrayOfBaseCrowdsourceItem" />
-        </xs:sequence>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="CrowdsourceResponse" nillable="true" type="tns:CrowdsourceResponse" />
-  <xs:complexType name="BundlesContainingMediaResponse">
-    <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseResponse">
-        <xs:sequence>
-          <xs:element xmlns:q21="http://schemas.datacontract.org/2004/07/Catalog" minOccurs="0" name="m_oBundles" nillable="true" type="q21:ArrayOfBundleTriple" />
-        </xs:sequence>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="BundlesContainingMediaResponse" nillable="true" type="tns:BundlesContainingMediaResponse" />
-  <xs:complexType name="DomainLastPositionResponse">
-    <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseResponse">
-        <xs:sequence>
-          <xs:element minOccurs="0" name="m_lPositions" nillable="true" type="tns:ArrayOfLastPosition" />
-          <xs:element minOccurs="0" name="m_sDescription" nillable="true" type="xs:string" />
-          <xs:element minOccurs="0" name="m_sStatus" nillable="true" type="xs:string" />
-        </xs:sequence>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="DomainLastPositionResponse" nillable="true" type="tns:DomainLastPositionResponse" />
-  <xs:complexType name="ArrayOfLastPosition">
-    <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="LastPosition" nillable="true" type="tns:LastPosition" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="ArrayOfLastPosition" nillable="true" type="tns:ArrayOfLastPosition" />
-  <xs:complexType name="LastPosition">
-    <xs:sequence>
-      <xs:element xmlns:q22="http://schemas.datacontract.org/2004/07/Catalog" minOccurs="0" name="m_eUserType" type="q22:eUserType" />
-      <xs:element minOccurs="0" name="m_nLocation" type="xs:int" />
-      <xs:element minOccurs="0" name="m_nUserID" type="xs:int" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="LastPosition" nillable="true" type="tns:LastPosition" />
-  <xs:complexType name="UnifiedSearchResponse">
-    <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseResponse">
-        <xs:sequence>
-          <xs:element minOccurs="0" name="searchResults" nillable="true" type="tns:ArrayOfUnifiedSearchResult" />
-          <xs:element xmlns:q23="http://schemas.datacontract.org/2004/07/ApiObjects.Response" minOccurs="0" name="status" nillable="true" type="q23:Status" />
-        </xs:sequence>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="UnifiedSearchResponse" nillable="true" type="tns:UnifiedSearchResponse" />
-  <xs:complexType name="ArrayOfUnifiedSearchResult">
-    <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="UnifiedSearchResult" nillable="true" type="tns:UnifiedSearchResult" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="ArrayOfUnifiedSearchResult" nillable="true" type="tns:ArrayOfUnifiedSearchResult" />
-  <xs:complexType name="UnifiedSearchResult">
-    <xs:complexContent mixed="false">
-      <xs:extension xmlns:q24="http://schemas.datacontract.org/2004/07/Catalog" base="q24:BaseObject">
+      <xs:extension base="tns:BaseRequest">
         <xs:sequence />
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:element name="UnifiedSearchResult" nillable="true" type="tns:UnifiedSearchResult" />
-  <xs:complexType name="AssetInfoResponse">
+  <xs:element name="PersonalLastWatchedRequest" nillable="true" type="tns:PersonalLastWatchedRequest" />
+  <xs:complexType name="PersonalLasDeviceRequest">
     <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseResponse">
+      <xs:extension base="tns:BaseRequest">
         <xs:sequence>
-          <xs:element xmlns:q25="http://schemas.datacontract.org/2004/07/Catalog" minOccurs="0" name="epgList" nillable="true" type="q25:ArrayOfProgramObj" />
-          <xs:element minOccurs="0" name="mediaList" nillable="true" type="tns:ArrayOfMediaObj" />
+          <xs:element xmlns:q38="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_nMediaIDs" nillable="true" type="q38:ArrayOfint" />
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:element name="AssetInfoResponse" nillable="true" type="tns:AssetInfoResponse" />
-  <xs:complexType name="ArrayOfMediaObj">
-    <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="MediaObj" nillable="true" type="tns:MediaObj" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="ArrayOfMediaObj" nillable="true" type="tns:ArrayOfMediaObj" />
-  <xs:complexType name="MediaFilesResponse">
+  <xs:element name="PersonalLasDeviceRequest" nillable="true" type="tns:PersonalLasDeviceRequest" />
+  <xs:complexType name="PersonalRecommendedRequest">
     <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseResponse">
+      <xs:extension base="tns:BaseProtocolRequest">
         <xs:sequence />
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:element name="MediaFilesResponse" nillable="true" type="tns:MediaFilesResponse" />
-  <xs:complexType name="CategoryResponse">
+  <xs:element name="PersonalRecommendedRequest" nillable="true" type="tns:PersonalRecommendedRequest" />
+  <xs:complexType name="CommentsListRequest">
     <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseResponse">
+      <xs:extension base="tns:BaseRequest">
         <xs:sequence>
-          <xs:element minOccurs="0" name="ID" type="xs:int" />
-          <xs:element xmlns:q26="http://schemas.datacontract.org/2004/07/Catalog" minOccurs="0" name="m_lPics" nillable="true" type="q26:ArrayOfPicture" />
-          <xs:element minOccurs="0" name="m_nParentCategoryID" type="xs:int" />
-          <xs:element minOccurs="0" name="m_oChannels" nillable="true" type="tns:ArrayOfchannelObj" />
-          <xs:element minOccurs="0" name="m_oChildCategories" nillable="true" type="tns:ArrayOfCategoryResponse" />
-          <xs:element minOccurs="0" name="m_sCoGuid" nillable="true" type="xs:string" />
-          <xs:element minOccurs="0" name="m_sTitle" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="m_nMediaID" type="xs:int" />
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:element name="CategoryResponse" nillable="true" type="tns:CategoryResponse" />
-  <xs:complexType name="ArrayOfCategoryResponse">
-    <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="CategoryResponse" nillable="true" type="tns:CategoryResponse" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="ArrayOfCategoryResponse" nillable="true" type="tns:ArrayOfCategoryResponse" />
-  <xs:complexType name="NPVRRetrieveResponse">
+  <xs:element name="CommentsListRequest" nillable="true" type="tns:CommentsListRequest" />
+  <xs:complexType name="PWLALProtocolRequest">
     <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseResponse">
+      <xs:extension base="tns:BaseProtocolRequest">
         <xs:sequence>
-          <xs:element xmlns:q27="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="recordedProgrammes" nillable="true" type="q27:ArrayOfRecordedEPGChannelProgrammeObject" />
+          <xs:element minOccurs="0" name="m_nCountryID" type="xs:int" />
+          <xs:element minOccurs="0" name="m_nMediaFileID" type="xs:int" />
+          <xs:element minOccurs="0" name="m_nMediaID" type="xs:int" />
+          <xs:element minOccurs="0" name="m_nSocialAction" type="xs:int" />
+          <xs:element minOccurs="0" name="m_nSocialPlatform" type="xs:int" />
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:element name="NPVRRetrieveResponse" nillable="true" type="tns:NPVRRetrieveResponse" />
-  <xs:complexType name="NPVRSeriesResponse">
+  <xs:element name="PWLALProtocolRequest" nillable="true" type="tns:PWLALProtocolRequest" />
+  <xs:complexType name="MediaSearchFullRequest">
     <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseResponse">
+      <xs:extension base="tns:BaseMediaSearchRequest">
         <xs:sequence>
-          <xs:element minOccurs="0" name="entityID" nillable="true" type="xs:string" />
-          <xs:element minOccurs="0" name="msg" nillable="true" type="xs:string" />
-          <xs:element xmlns:q28="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="recordedSeries" nillable="true" type="q28:ArrayOfRecordedSeriesObject" />
-          <xs:element minOccurs="0" name="totalItems" type="xs:int" />
+          <xs:element xmlns:q39="http://schemas.datacontract.org/2004/07/Catalog" minOccurs="0" name="m_AndList" nillable="true" type="q39:ArrayOfKeyValue" />
+          <xs:element xmlns:q40="http://schemas.datacontract.org/2004/07/Catalog" minOccurs="0" name="m_OrList" nillable="true" type="q40:ArrayOfKeyValue" />
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:element name="NPVRSeriesResponse" nillable="true" type="tns:NPVRSeriesResponse" />
-  <xs:complexType name="WatchHistoryResponse">
+  <xs:element name="MediaSearchFullRequest" nillable="true" type="tns:MediaSearchFullRequest" />
+  <xs:complexType name="EpgCommentRequest">
     <xs:complexContent mixed="false">
-      <xs:extension base="tns:BaseResponse">
+      <xs:extension base="tns:CommentRequest">
+        <xs:sequence />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="EpgCommentRequest" nillable="true" type="tns:EpgCommentRequest" />
+  <xs:complexType name="EpgProgramDetailsRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseRequest">
         <xs:sequence>
-          <xs:element minOccurs="0" name="result" nillable="true" type="tns:ArrayOfUserWatchHistory" />
-          <xs:element xmlns:q29="http://schemas.datacontract.org/2004/07/ApiObjects.Response" minOccurs="0" name="status" nillable="true" type="q29:Status" />
+          <xs:element xmlns:q41="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_lProgramsIds" nillable="true" type="q41:ArrayOfint" />
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:element name="WatchHistoryResponse" nillable="true" type="tns:WatchHistoryResponse" />
-  <xs:complexType name="ArrayOfUserWatchHistory">
-    <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="UserWatchHistory" nillable="true" type="tns:UserWatchHistory" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="ArrayOfUserWatchHistory" nillable="true" type="tns:ArrayOfUserWatchHistory" />
-  <xs:complexType name="UserWatchHistory">
+  <xs:element name="EpgProgramDetailsRequest" nillable="true" type="tns:EpgProgramDetailsRequest" />
+  <xs:complexType name="ChannelObjRequest">
     <xs:complexContent mixed="false">
-      <xs:extension xmlns:q30="http://schemas.datacontract.org/2004/07/Catalog" base="q30:BaseObject">
+      <xs:extension base="tns:BaseRequest">
         <xs:sequence>
-          <xs:element minOccurs="0" name="AssetTypeId" type="xs:int" />
-          <xs:element minOccurs="0" name="Duration" type="xs:int" />
-          <xs:element minOccurs="0" name="IsFinishedWatching" type="xs:boolean" />
-          <xs:element minOccurs="0" name="LastWatch" type="xs:long" />
-          <xs:element minOccurs="0" name="Location" type="xs:int" />
-          <xs:element minOccurs="0" name="UserID" type="xs:int" />
+          <xs:element minOccurs="0" name="ChannelId" type="xs:int" />
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:element name="UserWatchHistory" nillable="true" type="tns:UserWatchHistory" />
+  <xs:element name="ChannelObjRequest" nillable="true" type="tns:ChannelObjRequest" />
+  <xs:complexType name="CrowdsourceRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="LastDate" type="xs:long" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="CrowdsourceRequest" nillable="true" type="tns:CrowdsourceRequest" />
+  <xs:complexType name="BundlesContainingMediaRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="m_nMediaID" type="xs:int" />
+          <xs:element xmlns:q42="http://schemas.datacontract.org/2004/07/Catalog" minOccurs="0" name="m_oBundles" nillable="true" type="q42:ArrayOfBundleKeyValue" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="BundlesContainingMediaRequest" nillable="true" type="tns:BundlesContainingMediaRequest" />
+  <xs:complexType name="MediaFilesRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseRequest">
+        <xs:sequence>
+          <xs:element xmlns:q43="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_lCoGuids" nillable="true" type="q43:ArrayOfstring" />
+          <xs:element xmlns:q44="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_lMediaFileIDs" nillable="true" type="q44:ArrayOfint" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="MediaFilesRequest" nillable="true" type="tns:MediaFilesRequest" />
+  <xs:complexType name="DomainLastPositionRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="data" nillable="true" type="tns:MediaLastPositionRequestData" />
+          <xs:element minOccurs="0" name="m_nDomainID" type="xs:int" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="DomainLastPositionRequest" nillable="true" type="tns:DomainLastPositionRequest" />
+  <xs:complexType name="NPVRSeriesRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseRequest">
+        <xs:sequence>
+          <xs:element xmlns:q45="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="m_oOrderObj" nillable="true" type="q45:RecordedEPGOrderObj" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="NPVRSeriesRequest" nillable="true" type="tns:NPVRSeriesRequest" />
+  <xs:complexType name="UnifiedSearchRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseRequest">
+        <xs:sequence>
+          <xs:element xmlns:q46="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="assetTypes" nillable="true" type="q46:ArrayOfint" />
+          <xs:element minOccurs="0" name="filterQuery" nillable="true" type="xs:string" />
+          <xs:element minOccurs="0" name="nameAndDescription" nillable="true" type="xs:string" />
+          <xs:element xmlns:q47="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="order" nillable="true" type="q47:OrderObj" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="UnifiedSearchRequest" nillable="true" type="tns:UnifiedSearchRequest" />
+  <xs:complexType name="AssetInfoRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseRequest">
+        <xs:sequence>
+          <xs:element xmlns:q48="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="epgIds" nillable="true" type="q48:ArrayOflong" />
+          <xs:element xmlns:q49="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="mediaIds" nillable="true" type="q49:ArrayOflong" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="AssetInfoRequest" nillable="true" type="tns:AssetInfoRequest" />
+  <xs:complexType name="WatchHistoryRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseRequest">
+        <xs:sequence>
+          <xs:element xmlns:q50="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="AssetTypes" nillable="true" type="q50:ArrayOfint" />
+          <xs:element xmlns:q51="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="FilterStatus" type="q51:eWatchStatus" />
+          <xs:element minOccurs="0" name="NumOfDays" type="xs:int" />
+          <xs:element xmlns:q52="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="OrderDir" type="q52:OrderDir" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="WatchHistoryRequest" nillable="true" type="tns:WatchHistoryRequest" />
+  <xs:complexType name="MediasProtocolRequest">
+    <xs:complexContent mixed="false">
+      <xs:extension base="tns:BaseRequest">
+        <xs:sequence>
+          <xs:element xmlns:q53="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_lMediasIds" nillable="true" type="q53:ArrayOfint" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="MediasProtocolRequest" nillable="true" type="tns:MediasProtocolRequest" />
 </xs:schema>
