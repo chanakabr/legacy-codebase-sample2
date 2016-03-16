@@ -2416,5 +2416,78 @@ namespace WebAPI.Clients
                 return registrySettings;
             }
         }
+
+        internal KalturaTimeShiftedTvPartnerSettings GetTimeShiftedTvPartnerSettings(int groupID)
+        {
+            Group group = GroupsManager.GetGroup(groupID);
+            TimeShiftedTvPartnerSettingsResponse response = null;
+            KalturaTimeShiftedTvPartnerSettings settings = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.GetTimeShiftedTvPartnerSettings(group.ApiCredentials.Username, group.ApiCredentials.Password);
+                }                
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+            else if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+            else
+            {
+                settings = AutoMapper.Mapper.Map<KalturaTimeShiftedTvPartnerSettings>(response.Settings);
+
+                return settings;
+            }
+        }
+
+        internal bool Update(int groupID, KalturaTimeShiftedTvPartnerSettings settings)
+        {
+            bool isSuccess = false;
+            Status response = null;
+            Group group = GroupsManager.GetGroup(groupID);
+            try
+            {
+
+                TimeShiftedTvPartnerSettings tstvSettings = null;
+                tstvSettings = AutoMapper.Mapper.Map<TimeShiftedTvPartnerSettings>(settings);
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.UpdateTimeShiftedTvPartnerSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, tstvSettings);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+            else if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+            else
+            {
+                isSuccess = true;
+            }
+
+            return isSuccess;
+        }
     }
 }

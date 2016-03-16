@@ -249,6 +249,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<RegistrySettings, KalturaRegistrySettings>()
               .ForMember(dest => dest.Key, opt => opt.MapFrom(src => src.key))
               .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.value));
+
+            //TimeShiftedTvPartnerSettings to KalturaTimeShiftedTvPartnerSettings
+            Mapper.CreateMap<TimeShiftedTvPartnerSettings, WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings>()
+                .ForMember(dest => dest.CatchUpEnabled, opt => opt.MapFrom(src => src.IsCatchUpEnabled))
+                .ForMember(dest => dest.CdvrEnabled, opt => opt.MapFrom(src => src.IsCdvrEnabled));
+
+            //KalturaTimeShiftedTvPartnerSettings to TimeShiftedTvPartnerSettings
+            Mapper.CreateMap<WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings, TimeShiftedTvPartnerSettings>()
+                .ForMember(dest => dest.IsCatchUpEnabled, opt => opt.MapFrom(src => src.CatchUpEnabled))
+                .ForMember(dest => dest.IsCdvrEnabled, opt => opt.MapFrom(src => src.CdvrEnabled));
         }
 
         
