@@ -3357,8 +3357,8 @@ namespace DAL
                 ODBCWrapper.StoredProcedure spUpdateTimeShiftedTvPartnerSettings = new ODBCWrapper.StoredProcedure("UpdateTimeShiftedTvPartnerSettings");
                 spUpdateTimeShiftedTvPartnerSettings.SetConnectionKey("MAIN_CONNECTION_STRING");
                 spUpdateTimeShiftedTvPartnerSettings.AddParameter("@GroupID", groupID);
-                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@IsCatchUpAllowed", isCatchupAllowed);
-                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@IsCdvrAllowed", isCdvrEnabled);
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@AllowCatchUp", isCatchupAllowed);
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@AllowCdvr", isCdvrEnabled);
 
                 isUpdated = spUpdateTimeShiftedTvPartnerSettings.ExecuteReturnValue<bool>();
             }
