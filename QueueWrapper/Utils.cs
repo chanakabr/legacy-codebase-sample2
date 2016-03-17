@@ -2,15 +2,19 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Reflection;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Text;
 using System.Web.Script.Serialization;
+using KLogMonitor;
 
 namespace QueueWrapper
 {
     public static class Utils
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public static string GetConfigValue(string sKey)
         {
             return GetTcmConfigValue(sKey);
@@ -26,6 +30,7 @@ namespace QueueWrapper
             }
             catch (Exception ex)
             {
+                log.Error("", ex);
                 result = string.Empty;        
             }
             return result;
@@ -44,9 +49,11 @@ namespace QueueWrapper
 
         internal static T JsonToObject<T>(string json)
         {
-            JavaScriptSerializer js = new JavaScriptSerializer();
-            T obj = js.Deserialize<T>(json);
-            return (T)obj;  
+            if (!string.IsNullOrEmpty(json))
+                return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json);
+            else
+                return default(T);
+            
         }
     }
 }

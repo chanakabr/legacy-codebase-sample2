@@ -1,5 +1,4 @@
-﻿using ApiObjects;
-using ApiObjects.MediaIndexingObjects;
+﻿using QueueWrapper.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,21 +6,23 @@ using System.Text;
 
 namespace QueueWrapper
 {
-    public class CatalogQueue : BaseQueue
+    public class RenewTransactionsQueue : BaseQueue
     {
-        public CatalogQueue()
+        
+        public RenewTransactionsQueue()
+            : base()
         {
-            this.Implementation = new RabbitQueue(Enums.ConfigType.IndexingDataConfig, true);
+            this.Implementation = new RabbitQueue(ConfigType.DefaultConfig, true);
+            storeForRecovery = true;
         }
 
-        public override bool Enqueue(QueueObject record, string sRouteKey)
+        public override bool Enqueue(ApiObjects.QueueObject record, string sRouteKey)
         {
             return base.Enqueue(record, sRouteKey);
         }
 
         public override T Dequeue<T>(string sQueueName, out string sAckId)
         {
-            sAckId = string.Empty;
             return base.Dequeue<T>(sQueueName, out sAckId);
         }
     }
