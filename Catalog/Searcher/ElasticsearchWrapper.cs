@@ -2066,17 +2066,19 @@ namespace Catalog
                         return valid;
                     });
 
+                finalList = validAssets.ToList();
+
                 bool illegalRequest = false;
                 var pagedList = TVinciShared.ListUtils.Page(validAssets, pageSize, pageIndex, out illegalRequest);
 
-                if (!illegalRequest)
-                {
-                    finalList = pagedList.ToList();
-                }
-                else
-                {
-                    finalList = null;
-                }
+                //if (!illegalRequest)
+                //{
+                //    finalList = pagedList.ToList();
+                //}
+                //else
+                //{
+                //    finalList = null;
+                //}
 
                 #endregion
             }
