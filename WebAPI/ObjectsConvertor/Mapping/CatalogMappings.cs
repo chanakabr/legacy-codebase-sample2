@@ -40,7 +40,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.m_nMediaID))
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nFileId))
                  .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.m_sFileFormat))
-                 .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.m_sUrl));
+                 .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.m_sUrl))
+                 .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.m_nDuration))
+                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.m_sCoGUID));
 
             //BuzzScore
             Mapper.CreateMap<BuzzWeightedAverScore, KalturaBuzzScore>()
