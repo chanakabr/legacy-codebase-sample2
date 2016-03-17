@@ -121,10 +121,12 @@ namespace AdapterControllers
             {
                 string enrichmentsString = string.Join(";", enrichmentsList.Select(item => string.Concat("Key: ", item.Key, ", Value: ", item.Value)));
 
-                log.DebugFormat("Sending request to recommendation engine adapter. Channel ID = {0}, engine = {1}, enrichments = {2}",
+                log.DebugFormat("Sending request to recommendation engine adapter. Channel ID = {0}, engine = {1}, enrichments = {2}, pageIndex = {3}, pageSize = {4}",
                     externalChannel.ID,
                     engine.ID,
-                    enrichmentsString);
+                    enrichmentsString,
+                    pageIndex,
+                    pageSize);
 
                 var adapterResponse = new RecommendationEngineAdapter.RecommendationsResult();
 

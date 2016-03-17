@@ -651,10 +651,7 @@ namespace DAL
             if (push_notification_enabled != null)
             {
                 sp.AddParameter("@push_notification_enabled", push_notification_enabled);
-            }
-            sp.AddParameter("@date", DateTime.UtcNow);
-            sp.AddParameter("@updater_id", userId);
-
+            }            
             return sp.ExecuteReturnValue<bool>();
         }
 
