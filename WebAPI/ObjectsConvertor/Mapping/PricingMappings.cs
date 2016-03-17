@@ -130,7 +130,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
 
             // KalturaPricePlan
             Mapper.CreateMap<WebAPI.Pricing.UsageModule, Models.Pricing.KalturaPricePlan>()
-               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_pricing_id))
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nObjectID))
                .ForMember(dest => dest.CouponId, opt => opt.MapFrom(src => src.m_coupon_id))
                .ForMember(dest => dest.FullLifeCycle, opt => opt.MapFrom(src => src.m_tsMaxUsageModuleLifeCycle))
                .ForMember(dest => dest.IsOfflinePlayback, opt => opt.MapFrom(src => src.m_bIsOfflinePlayBack))
