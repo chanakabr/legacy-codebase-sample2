@@ -658,6 +658,12 @@ namespace Ingest.Importers
                         else
                             continue;
 
+                        // price code - mandatory
+                        if (GetMandatoryNodeStrValue(node, "price_code", PPV, ppv.Code, ref reportBuilder, reportId, ppv.Action.ToString().ToLower(), out strVal))
+                            ppv.PriceCode = strVal;
+                        else
+                            continue;
+
                         // coupon group - not supported
                         nodeList = node.SelectNodes("coupon_group");
                         if (nodeList != null && nodeList.Count > 0)
@@ -672,11 +678,6 @@ namespace Ingest.Importers
                         nodeList = node.SelectNodes("discount");
                         if (nodeList != null && nodeList.Count > 0)
                             ppv.Discount = nodeList[0].InnerText;
-
-                        // price code
-                        nodeList = node.SelectNodes("price_code");
-                        if (nodeList != null && nodeList.Count > 0)
-                            ppv.PriceCode = nodeList[0].InnerText;
 
                         // file types
                         ppv.FileTypes = GetNodeStringArray(node, "file_types/file_type");
@@ -938,8 +939,6 @@ namespace Ingest.Importers
 
                 response = response.Where(r => r != null).ToArray();
             }
-
-
 
             return response;
         }
