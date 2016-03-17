@@ -19,14 +19,14 @@ namespace Ingest.Importers
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private const string DATES_FORMAT = "dd/MM/yyyy hh:mm:ss";
-        private const string MANDATORY_ERROR_FORMAT = "{0} with code '{1}': '{2}' is mandatory.\n";
-        private const string FORMAT_ERROR_FORMAT = "{0} with code '{1}': wrong format of '{2}'.\n";
-        private const string MISSING_ATTRIBUTE_ERROR_FORMAT = "{0} with code '{1}': missing attribute '{2}' for '{3}'.\n";
+        private const string MANDATORY_ERROR_FORMAT = "{0} with code '{1}': {3} failed - '{2}' is mandatory.\n";
+        private const string FORMAT_ERROR_FORMAT = "{0} with code '{1}': {3} failed - wrong format of '{2}'.\n";
+        private const string MISSING_ATTRIBUTE_ERROR_FORMAT = "{0} with code '{1}': {4} failed - missing attribute '{2}' for '{3}'.\n";
         private const string INGEST_ERROR_FORMAT = "{0} with code '{1}': {3} failed - {2}.\n";
         private const string INGEST_SUCCESS_FORMAT = "{0} with code '{1}': {3} succeeded, ID = {2}.\n";
-        private const string LOG_MANDATORY_ERROR_FORMAT = "ingest report ID '{3}': {0} with code '{1}': '{2}' is mandatory.\n";
-        private const string LOG_FORMAT_ERROR_FORMAT = "ingest report ID '{3}': {0} with code '{1}': wrong format of '{2}'.\n";
-        private const string LOG_MISSING_ATTRIBUTE_ERROR_FORMAT = "ingest report ID '{4}': {0} with code '{1}': missing attribute '{2}' for '{3}'.\n";
+        private const string LOG_MANDATORY_ERROR_FORMAT = "ingest report ID '{3}': {0} with code '{1}': {4} failed - '{2}' is mandatory.\n";
+        private const string LOG_FORMAT_ERROR_FORMAT = "ingest report ID '{3}': {0} with code '{1}': {4} failed - wrong format of '{2}'.\n";
+        private const string LOG_MISSING_ATTRIBUTE_ERROR_FORMAT = "ingest report ID '{4}': {0} with code '{1}': {5} failed - missing attribute '{2}' for '{3}'.\n";
         private const string LOG_INGEST_ERROR_FORMAT = "ingest report ID '{3}': {0} with code '{1}': {4} failed - {2}.\n";
         private const string LOG_INGEST_SUCCESS_FORMAT = "ingest report ID '{3}': {0} with code '{1}': {4} succeeded, ID = {2}.\n";
         
@@ -347,13 +347,13 @@ namespace Ingest.Importers
                         pricePlan = new IngestPricePlan();
 
                         //code - mandatory
-                        if (GetMandatoryAttributeStrValue(node, "code", PRICE_PLAN, string.Empty, ref reportBuilder, reportId, out strVal))
+                        if (GetMandatoryAttributeStrValue(node, "code", PRICE_PLAN, string.Empty, ref reportBuilder, reportId, "ingest", out strVal))
                             pricePlan.Code = strVal;
                         else
                             continue;
 
                         // action - mandatory
-                        if (GetMandatoryAttributeEnumValue<eIngestAction>(node, "action", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, out actionVal))
+                        if (GetMandatoryAttributeEnumValue<eIngestAction>(node, "action", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, "ingest", out actionVal))
                             pricePlan.Action = actionVal;
                         else
                             continue;
@@ -366,43 +366,43 @@ namespace Ingest.Importers
                         }
 
                         // is active - mandatory
-                        if (GetMandatoryAttributeBoolValue(node, "is_active", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, out boolVal))
+                        if (GetMandatoryAttributeBoolValue(node, "is_active", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, pricePlan.Action.ToString().ToLower(), out boolVal))
                             pricePlan.IsActive = boolVal;
                         else
                             continue;
 
                         // is renewable
-                        if (GetNodeBoolValue(node, "is_renewable", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, out boolVal))
+                        if (GetNodeBoolValue(node, "is_renewable", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, pricePlan.Action.ToString().ToLower(), out boolVal))
                             pricePlan.IsRenewable = boolVal;
                         else
                             continue;
 
                         // full life cycle - mandatory
-                        if (GetMandatoryNodeStrValue(node, "full_life_cycle", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, out strVal))
+                        if (GetMandatoryNodeStrValue(node, "full_life_cycle", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, pricePlan.Action.ToString().ToLower(), out strVal))
                             pricePlan.FullLifeCycle = strVal;
                         else
                             continue;
 
                         // view life cycle - mandatory
-                        if (GetMandatoryNodeStrValue(node, "view_life_cycle", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, out strVal))
+                        if (GetMandatoryNodeStrValue(node, "view_life_cycle", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, pricePlan.Action.ToString().ToLower(), out strVal))
                             pricePlan.ViewLifeCycle = strVal;
                         else
                             continue;
                         
                         // max views - mandatory
-                        if (GetMandatoryNodeIntValue(node, "max_views", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, out intVal))
+                        if (GetMandatoryNodeIntValue(node, "max_views", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, pricePlan.Action.ToString().ToLower(), out intVal))
                             pricePlan.MaxViews = intVal;
                         else
                             continue;
 
                         // price code - mandatory
-                        if (GetMandatoryNodeStrValue(node, "price_code", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, out strVal))
+                        if (GetMandatoryNodeStrValue(node, "price_code", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, pricePlan.Action.ToString().ToLower(), out strVal))
                             pricePlan.PriceCode = strVal;
                         else
                             continue;
 
                         // recurring periods - mandatory
-                        if (GetMandatoryNodeIntValue(node, "recurring_periods", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, out intVal))
+                        if (GetMandatoryNodeIntValue(node, "recurring_periods", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, pricePlan.Action.ToString().ToLower(), out intVal))
                             pricePlan.RecurringPeriods = intVal;
                         else
                             continue;
@@ -457,13 +457,13 @@ namespace Ingest.Importers
                         multiPricePlan = new IngestMultiPricePlan();
 
                         //code - mandatory
-                        if (GetMandatoryAttributeStrValue(node, "code", MULTI_PRICE_PLAN, string.Empty, ref reportBuilder, reportId, out strVal))
+                        if (GetMandatoryAttributeStrValue(node, "code", MULTI_PRICE_PLAN, string.Empty, ref reportBuilder, reportId, "ingest", out strVal))
                             multiPricePlan.Code = strVal;
                         else
                             continue;
 
                         // action - mandatory
-                        if (GetMandatoryAttributeEnumValue<eIngestAction>(node, "action", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, reportId, out actionVal))
+                        if (GetMandatoryAttributeEnumValue<eIngestAction>(node, "action", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, reportId, "ingest", out actionVal))
                             multiPricePlan.Action = actionVal;
                         else
                             continue;
@@ -476,56 +476,56 @@ namespace Ingest.Importers
                         }
 
                         // is active - mandatory
-                        if (GetMandatoryAttributeBoolValue(node, "is_active", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, reportId, out boolVal))
+                        if (GetMandatoryAttributeBoolValue(node, "is_active", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, reportId, multiPricePlan.Action.ToString().ToLower(), out boolVal))
                             multiPricePlan.IsActive = boolVal;
                         else
                             continue;
 
                         // title
-                        if (GetNodeKeyValuePairsArrayValue(node, "titles/title", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, reportId, out keyValArr))
+                        if (GetNodeKeyValuePairsArrayValue(node, "titles/title", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, reportId, multiPricePlan.Action.ToString().ToLower(), out keyValArr))
                             multiPricePlan.Titles = keyValArr;
                         else
                             continue;
 
                         // description
-                        if (GetNodeKeyValuePairsArrayValue(node, "descriptions/description", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, reportId, out keyValArr))
+                        if (GetNodeKeyValuePairsArrayValue(node, "descriptions/description", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, reportId, multiPricePlan.Action.ToString().ToLower(), out keyValArr))
                             multiPricePlan.Descriptions = keyValArr;
                         else
                             continue;
 
 
                         // start date
-                        if (GetNodeDateTimeValue(node, "start_date", MULTI_PRICE_PLAN, multiPricePlan.Code, DateTime.UtcNow, ref reportBuilder, reportId, out dateVal))
+                        if (GetNodeDateTimeValue(node, "start_date", MULTI_PRICE_PLAN, multiPricePlan.Code, DateTime.UtcNow, ref reportBuilder, reportId, multiPricePlan.Action.ToString().ToLower(), out dateVal))
                             multiPricePlan.StartDate = dateVal;
                         else
                             continue;
 
                         // end date
-                        if (GetNodeDateTimeValue(node, "end_date", MULTI_PRICE_PLAN, multiPricePlan.Code, DEFAULT_END_DATE, ref reportBuilder, reportId, out dateVal))
+                        if (GetNodeDateTimeValue(node, "end_date", MULTI_PRICE_PLAN, multiPricePlan.Code, DEFAULT_END_DATE, ref reportBuilder, reportId, multiPricePlan.Action.ToString().ToLower(), out dateVal))
                             multiPricePlan.EndDate = dateVal;
                         else
                             continue;
 
                         // internal discount - mandatory
-                        if (GetMandatoryNodeStrValue(node, "internal_discount", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, reportId, out strVal))
+                        if (GetMandatoryNodeStrValue(node, "internal_discount", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, reportId, multiPricePlan.Action.ToString().ToLower(), out strVal))
                             multiPricePlan.InternalDiscount = strVal;
                         else
                             continue;
 
                         // is renewable
-                        if (GetNodeBoolValue(node, "is_renewable", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, reportId, out boolVal))
+                        if (GetNodeBoolValue(node, "is_renewable", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, reportId, multiPricePlan.Action.ToString().ToLower(), out boolVal))
                             multiPricePlan.IsRenewable = boolVal;
                         else
                             continue;
 
                         // grace period minutes 
-                        if (GetNodeIntValue(node, "grace_period_minutes", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, reportId, out intVal))
+                        if (GetNodeIntValue(node, "grace_period_minutes", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, reportId, multiPricePlan.Action.ToString().ToLower(), out intVal))
                             multiPricePlan.GracePeriodMinutes = intVal;
                         else
                             continue;
 
                         // order number 
-                        if (GetNodeIntValue(node, "order_number", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, reportId, out intVal))
+                        if (GetNodeIntValue(node, "order_number", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, reportId, multiPricePlan.Action.ToString().ToLower(), out intVal))
                             multiPricePlan.OrderNumber = intVal;
                         else
                             continue;
@@ -538,8 +538,8 @@ namespace Ingest.Importers
 
                         if (multiPricePlan.Channels == null || multiPricePlan.Channels.Length == 0)
                         {
-                            log.ErrorFormat(LOG_MANDATORY_ERROR_FORMAT, MULTI_PRICE_PLAN, multiPricePlan.Code, "channels", reportId);
-                            reportBuilder.AppendFormat(MANDATORY_ERROR_FORMAT, MULTI_PRICE_PLAN, multiPricePlan.Code, "channels");
+                            log.ErrorFormat(LOG_MANDATORY_ERROR_FORMAT, MULTI_PRICE_PLAN, multiPricePlan.Code, "channels", reportId, multiPricePlan.Action.ToString().ToLower());
+                            reportBuilder.AppendFormat(MANDATORY_ERROR_FORMAT, MULTI_PRICE_PLAN, multiPricePlan.Code, "channels", multiPricePlan.Action.ToString().ToLower());
                             continue;
                         }
 
@@ -610,13 +610,13 @@ namespace Ingest.Importers
                         ppv = new IngestPPV();
 
                         //code - mandatory
-                        if (GetMandatoryAttributeStrValue(node, "code", PPV, string.Empty, ref reportBuilder, reportId, out strVal))
+                        if (GetMandatoryAttributeStrValue(node, "code", PPV, string.Empty, ref reportBuilder, reportId, "ingest", out strVal))
                             ppv.Code = strVal;
                         else
                             continue;
 
                         // action - mandatory
-                        if (GetMandatoryAttributeEnumValue<eIngestAction>(node, "action", PPV, ppv.Code, ref reportBuilder, reportId, out actionVal))
+                        if (GetMandatoryAttributeEnumValue<eIngestAction>(node, "action", PPV, ppv.Code, ref reportBuilder, reportId, ppv.Action.ToString().ToLower(), out actionVal))
                             ppv.Action = actionVal;
                         else
                             continue;
@@ -629,31 +629,31 @@ namespace Ingest.Importers
                         }
 
                         // is active - mandatory
-                        if (GetMandatoryAttributeBoolValue(node, "is_active", PPV, ppv.Code, ref reportBuilder, reportId, out boolVal))
+                        if (GetMandatoryAttributeBoolValue(node, "is_active", PPV, ppv.Code, ref reportBuilder, reportId, ppv.Action.ToString().ToLower(), out boolVal))
                             ppv.IsActive = boolVal;
                         else
                             continue;
 
                         // usage module - mandatory
-                        if (GetMandatoryNodeStrValue(node, "usage_module", PPV, ppv.Code, ref reportBuilder, reportId, out strVal))
+                        if (GetMandatoryNodeStrValue(node, "usage_module", PPV, ppv.Code, ref reportBuilder, reportId, ppv.Action.ToString().ToLower(), out strVal))
                             ppv.UsageModule = strVal;
                         else
                             continue;
 
                         // title
-                        if (GetNodeKeyValuePairsArrayValue(node, "descriptions/description", PPV, ppv.Code, ref reportBuilder, reportId, out keyValArr))
+                        if (GetNodeKeyValuePairsArrayValue(node, "descriptions/description", PPV, ppv.Code, ref reportBuilder, reportId, ppv.Action.ToString().ToLower(), out keyValArr))
                             ppv.Descriptions = keyValArr;
                         else
                             continue;
 
                         // is renewable
-                        if (GetNodeBoolValue(node, "subscription_only", PPV, ppv.Code, ref reportBuilder, reportId, out boolVal))
+                        if (GetNodeBoolValue(node, "subscription_only", PPV, ppv.Code, ref reportBuilder, reportId, ppv.Action.ToString().ToLower(), out boolVal))
                             ppv.SubscriptionOnly = boolVal;
                         else
                             continue;
 
                         // is renewable
-                        if (GetNodeBoolValue(node, "first_device_limitation", PPV, ppv.Code, ref reportBuilder, reportId, out boolVal))
+                        if (GetNodeBoolValue(node, "first_device_limitation", PPV, ppv.Code, ref reportBuilder, reportId, ppv.Action.ToString().ToLower(), out boolVal))
                             ppv.FirstDeviceLimitation = boolVal;
                         else
                             continue;
@@ -698,7 +698,7 @@ namespace Ingest.Importers
             return ppvs;
         }
 
-        private static bool GetMandatoryAttributeStrValue(XmlNode node, string attributeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, out string value)
+        private static bool GetMandatoryAttributeStrValue(XmlNode node, string attributeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, string action, out string value)
         {
             value = string.Empty;
             var attribute = node.Attributes[attributeName];
@@ -706,15 +706,15 @@ namespace Ingest.Importers
                 value = attribute.InnerText;
             else
             {
-                log.ErrorFormat(LOG_MANDATORY_ERROR_FORMAT, moduleName, moduleCode, attributeName, reportId);
-                report.AppendFormat(MANDATORY_ERROR_FORMAT, moduleName, moduleCode, attributeName);
+                log.ErrorFormat(LOG_MANDATORY_ERROR_FORMAT, moduleName, moduleCode, attributeName, reportId, action);
+                report.AppendFormat(MANDATORY_ERROR_FORMAT, moduleName, moduleCode, attributeName, action);
                 return false;
             }
 
             return true;
         }
 
-        private static bool GetMandatoryAttributeEnumValue<T>(XmlNode node, string attributeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, out T value) 
+        private static bool GetMandatoryAttributeEnumValue<T>(XmlNode node, string attributeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, string action, out T value) 
             where T : struct, IConvertible
         {
             value = default(T);
@@ -727,22 +727,22 @@ namespace Ingest.Importers
                     value = enumVal;
                 else
                 {
-                    log.ErrorFormat(LOG_FORMAT_ERROR_FORMAT, moduleName, moduleCode, attributeName, reportId);
-                    report.AppendFormat(FORMAT_ERROR_FORMAT, moduleName, moduleCode, attributeName);
+                    log.ErrorFormat(LOG_FORMAT_ERROR_FORMAT, moduleName, moduleCode, attributeName, reportId, action);
+                    report.AppendFormat(FORMAT_ERROR_FORMAT, moduleName, moduleCode, attributeName, action);
                     return false;
                 }
             }
             else
             {
-                log.ErrorFormat(LOG_MISSING_ATTRIBUTE_ERROR_FORMAT, moduleName, moduleCode, attributeName, reportId);
-                report.AppendFormat(MISSING_ATTRIBUTE_ERROR_FORMAT, moduleName, moduleCode, attributeName);
+                log.ErrorFormat(LOG_MISSING_ATTRIBUTE_ERROR_FORMAT, moduleName, moduleCode, attributeName, reportId, action);
+                report.AppendFormat(MISSING_ATTRIBUTE_ERROR_FORMAT, moduleName, moduleCode, attributeName, action);
                 return false;
             }
 
             return true;
         }
 
-        private static bool GetMandatoryAttributeBoolValue(XmlNode node, string attributeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, out bool value)
+        private static bool GetMandatoryAttributeBoolValue(XmlNode node, string attributeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, string action, out bool value)
         {
             value = false;
 
@@ -756,8 +756,8 @@ namespace Ingest.Importers
                     value = false;
                 else
                 {
-                    log.ErrorFormat(LOG_FORMAT_ERROR_FORMAT, moduleName, moduleCode, attributeName, reportId);
-                    report.AppendFormat(FORMAT_ERROR_FORMAT, moduleName, moduleCode, attributeName);
+                    log.ErrorFormat(LOG_FORMAT_ERROR_FORMAT, moduleName, moduleCode, attributeName, reportId, action);
+                    report.AppendFormat(FORMAT_ERROR_FORMAT, moduleName, moduleCode, attributeName, action);
                     return false;
                 }
             }
@@ -765,7 +765,7 @@ namespace Ingest.Importers
             return true;
         }
 
-        private static bool GetNodeKeyValuePairsArrayValue(XmlNode node, string nodeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, out KeyValuePair[] value)
+        private static bool GetNodeKeyValuePairsArrayValue(XmlNode node, string nodeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, string action, out KeyValuePair[] value)
         {
             value = null;
 
@@ -788,8 +788,8 @@ namespace Ingest.Importers
                     }
                     else
                     {
-                        log.ErrorFormat(LOG_MISSING_ATTRIBUTE_ERROR_FORMAT, moduleName, moduleCode, "lang", nodeName, reportId);
-                        report.AppendFormat(MISSING_ATTRIBUTE_ERROR_FORMAT, moduleName, moduleCode, "lang", nodeName);
+                        log.ErrorFormat(LOG_MISSING_ATTRIBUTE_ERROR_FORMAT, moduleName, moduleCode, "lang", nodeName, reportId, action);
+                        report.AppendFormat(MISSING_ATTRIBUTE_ERROR_FORMAT, moduleName, moduleCode, "lang", nodeName, action);
                         return false;
                     }
                 }
@@ -800,7 +800,8 @@ namespace Ingest.Importers
             return true;
         }
 
-        private static bool GetNodeDateTimeValue(XmlNode node, string nodeName, string moduleName, string moduleCode, DateTime defaultValue, ref StringBuilder report, string reportId, out DateTime value)
+        private static bool GetNodeDateTimeValue(XmlNode node, string nodeName, string moduleName, string moduleCode, DateTime defaultValue, ref StringBuilder report, string reportId, string action, 
+            out DateTime value)
         {
             value = defaultValue;
 
@@ -818,8 +819,8 @@ namespace Ingest.Importers
                     }
                     else
                     {
-                        log.ErrorFormat(LOG_FORMAT_ERROR_FORMAT, moduleName, moduleCode, nodeName, reportId);
-                        report.AppendFormat(FORMAT_ERROR_FORMAT, moduleName, moduleCode, nodeName);
+                        log.ErrorFormat(LOG_FORMAT_ERROR_FORMAT, moduleName, moduleCode, nodeName, reportId, action);
+                        report.AppendFormat(FORMAT_ERROR_FORMAT, moduleName, moduleCode, nodeName, action);
                         return false;
                     }
                 }
@@ -833,7 +834,7 @@ namespace Ingest.Importers
             return true;
         }
 
-        private static bool GetMandatoryNodeStrValue(XmlNode node, string nodeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, out string value)
+        private static bool GetMandatoryNodeStrValue(XmlNode node, string nodeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, string action, out string value)
         {
             value = string.Empty;
 
@@ -843,15 +844,15 @@ namespace Ingest.Importers
 
             if (string.IsNullOrEmpty(value))
             {
-                log.ErrorFormat(LOG_MANDATORY_ERROR_FORMAT, moduleName, moduleCode, nodeName);
-                report.AppendFormat(MANDATORY_ERROR_FORMAT, moduleName, moduleCode, nodeName);
+                log.ErrorFormat(LOG_MANDATORY_ERROR_FORMAT, moduleName, moduleCode, nodeName, action);
+                report.AppendFormat(MANDATORY_ERROR_FORMAT, moduleName, moduleCode, nodeName, action);
                 return false;
             }
 
             return true;
         }
 
-        private static bool GetNodeBoolValue(XmlNode node, string nodeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, out bool value)
+        private static bool GetNodeBoolValue(XmlNode node, string nodeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, string action, out bool value)
         {
             value = false;
 
@@ -865,15 +866,15 @@ namespace Ingest.Importers
                     value = false;
                 else
                 {
-                    log.ErrorFormat(LOG_FORMAT_ERROR_FORMAT, moduleName, moduleCode, nodeName, reportId);
-                    report.AppendFormat(FORMAT_ERROR_FORMAT, moduleName, moduleCode, nodeName);
+                    log.ErrorFormat(LOG_FORMAT_ERROR_FORMAT, moduleName, moduleCode, nodeName, reportId, action);
+                    report.AppendFormat(FORMAT_ERROR_FORMAT, moduleName, moduleCode, nodeName, action);
                     return false;
                 }
             }
             return true;
         }
 
-        private static bool GetNodeIntValue(XmlNode node, string nodeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, out int value)
+        private static bool GetNodeIntValue(XmlNode node, string nodeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, string action, out int value)
         {
             value = 0;
 
@@ -885,8 +886,8 @@ namespace Ingest.Importers
                     value = minutes;
                 else
                 {
-                    log.ErrorFormat(LOG_FORMAT_ERROR_FORMAT, moduleName, moduleCode, nodeName, reportId);
-                    report.AppendFormat(FORMAT_ERROR_FORMAT, moduleName, moduleCode, nodeName);
+                    log.ErrorFormat(LOG_FORMAT_ERROR_FORMAT, moduleName, moduleCode, nodeName, reportId, action);
+                    report.AppendFormat(FORMAT_ERROR_FORMAT, moduleName, moduleCode, nodeName, action);
                     return false;
                 }
             }
@@ -894,7 +895,7 @@ namespace Ingest.Importers
             return true;
         }
 
-        private static bool GetMandatoryNodeIntValue(XmlNode node, string nodeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, out int value)
+        private static bool GetMandatoryNodeIntValue(XmlNode node, string nodeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, string action, out int value)
         {
             value = 0;
 
@@ -906,15 +907,15 @@ namespace Ingest.Importers
                     value = minutes;
                 else
                 {
-                    log.ErrorFormat(LOG_FORMAT_ERROR_FORMAT, moduleName, moduleCode, nodeName, reportId);
-                    report.AppendFormat(FORMAT_ERROR_FORMAT, moduleName, moduleCode, nodeName);
+                    log.ErrorFormat(LOG_FORMAT_ERROR_FORMAT, moduleName, moduleCode, nodeName, reportId, action);
+                    report.AppendFormat(FORMAT_ERROR_FORMAT, moduleName, moduleCode, nodeName, action);
                     return false;
                 }
             }
             else
             {
-                log.ErrorFormat(LOG_MANDATORY_ERROR_FORMAT, moduleName, moduleCode, nodeName, reportId);
-                report.AppendFormat(MANDATORY_ERROR_FORMAT, moduleName, moduleCode, nodeName);
+                log.ErrorFormat(LOG_MANDATORY_ERROR_FORMAT, moduleName, moduleCode, nodeName, reportId, action);
+                report.AppendFormat(MANDATORY_ERROR_FORMAT, moduleName, moduleCode, nodeName, action);
                 return false;
             }
 
