@@ -11,8 +11,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/TimeShiftedTvSettings/action")]
-    public class TimeShiftedTvPartnerSettingsController
+    [RoutePrefix("_service/TimeShiftedTvPartnerSettings/action")]
+    public class TimeShiftedTvPartnerSettingsController : ApiController
     {
         /// <summary>
         /// Retrieve the partner's time shifted tv settings.
