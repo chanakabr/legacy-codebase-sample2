@@ -182,7 +182,7 @@ namespace CouchbaseManager
                     // 1 - not found
                     if (statusCode.Value == 1)
                     {
-                        log.DebugFormat("Could not find key on couchbase: {0}", key);
+                        //log.DebugFormat("Could not find key on couchbase: {0}", key);
                     }
                     else
                     {
@@ -221,7 +221,7 @@ namespace CouchbaseManager
                 // 1 - not found
                 if (status == Couchbase.IO.ResponseStatus.KeyNotFound)
                 {
-                    log.DebugFormat("Could not find key on couchbase: {0}", key);
+                    //log.DebugFormat("Could not find key on couchbase: {0}", key);
                 }
                 else
                 {
