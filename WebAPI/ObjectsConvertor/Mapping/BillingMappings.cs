@@ -97,17 +97,23 @@ namespace WebAPI.ObjectsConvertor.Mapping
            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
            .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
-           .ForMember(dest => dest.PaymentMethods, opt => opt.MapFrom(src => ConvertHouseholdPaymentMethod(src.PaymentMethods)));
+           .ForMember(dest => dest.PaymentMethods, opt => opt.MapFrom(src => src.PaymentMethods));
 
-            Mapper.CreateMap<HouseholdPaymentMethod, WebAPI.Models.Billing.KalturaPaymentMethod>()
+            Mapper.CreateMap<PaymentGatwayPaymentMethods, WebAPI.Models.Billing.KalturaPaymentMethod>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.PaymentMethod.ID))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.PaymentMethod.Name))
+            .ForMember(dest => dest.AllowMultiInstance, opt => opt.MapFrom(src => src.PaymentMethod.AllowMultiInstance))
+            .ForMember(dest => dest.HouseholdPaymentMethods, opt => opt.MapFrom(src => src.HouseHoldPaymentMethods));
+
+            Mapper.CreateMap<HouseholdPaymentMethod, WebAPI.Models.Billing.KalturaHouseholdPaymentMethod>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
-            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
             .ForMember(dest => dest.Details, opt => opt.MapFrom(src => src.Details))
             .ForMember(dest => dest.Selected, opt => opt.MapFrom(src => src.Selected));
 
             Mapper.CreateMap<KalturaPaymentMethod, PaymentMethod>()
            .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
-           .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+           .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+           .ForMember(dest => dest.AllowMultiInstance, opt => opt.MapFrom(src => src.AllowMultiInstance));
         }
 
 
@@ -180,24 +186,24 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static List<KalturaPaymentMethod> ConvertHouseholdPaymentMethod(HouseholdPaymentMethod[] householdPaymentMethods)
-        {
-            List<KalturaPaymentMethod> result = null;
+        //private static List<KalturaPaymentMethod> ConvertHouseholdPaymentMethod(HouseholdPaymentMethod[] householdPaymentMethods)
+        //{
+        //    List<KalturaPaymentMethod> result = null;
 
-            if (householdPaymentMethods != null && householdPaymentMethods.Length > 0)
-            {
-                result = new List<KalturaPaymentMethod>();
+        //    if (householdPaymentMethods != null && householdPaymentMethods.Length > 0)
+        //    {
+        //        result = new List<KalturaPaymentMethod>();
 
-                KalturaPaymentMethod item;
+        //        KalturaPaymentMethod item;
 
-                foreach (var householdPaymentMethod in householdPaymentMethods)
-                {
-                    item = AutoMapper.Mapper.Map<KalturaPaymentMethod>(householdPaymentMethod);
-                    result.Add(item);
-                }
-            }
+        //        foreach (var householdPaymentMethod in householdPaymentMethods)
+        //        {
+        //            item = AutoMapper.Mapper.Map<KalturaPaymentMethod>(householdPaymentMethod);
+        //            result.Add(item);
+        //        }
+        //    }
 
-            return result;
-        }
+        //    return result;
+        //}
     }
 }

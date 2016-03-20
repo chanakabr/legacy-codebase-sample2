@@ -22,5 +22,13 @@ namespace WebAPI.Models.Billing
         [JsonProperty("name")]
         [XmlElement(ElementName = "name")]
         public string Name { get; set; }
+
+        /// <summary>
+        /// Indicates whether the payment method allow multiple instances 
+        /// </summary>
+        [DataMember(Name = "allow_multi_instance")]
+        [JsonProperty("allow_multi_instance")]
+        [XmlElement(ElementName = "allow_multi_instance")]
+        public bool AllowMultiInstance { get; set; }
     }
 }

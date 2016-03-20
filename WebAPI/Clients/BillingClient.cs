@@ -622,9 +622,9 @@ namespace WebAPI.Clients
             return paymentMethods;
         }
 
-        internal KalturaPaymentMethodProfile AddPaymentMethodToPaymentGateway(int groupId, int paymentGatewayId, string name)
+        internal KalturaPaymentMethodProfile AddPaymentMethodToPaymentGateway(int groupId, int paymentGatewayId, string name, bool allowMultiInstance)
         {
-            WebAPI.Billing.PaymentMethodResponse response = null;
+            WebAPI.Billing.PaymentMethodsResponse response = null;
             KalturaPaymentMethodProfile paymentMethod = null;
 
             Group group = GroupsManager.GetGroup(groupId);
@@ -633,7 +633,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.AddPaymentMethodToPaymentGateway(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGatewayId, name);
+                    response = Billing.AddPaymentMethodToPaymentGateway(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGatewayId, name, allowMultiInstance);
                 }
             }
             catch (Exception ex)
@@ -652,12 +652,12 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.Status.Code, response.Status.Message);
             }
 
-            paymentMethod = Mapper.Map<KalturaPaymentMethodProfile>(response.PaymentMethod);
+            paymentMethod = Mapper.Map<KalturaPaymentMethodProfile>(response.PaymentMethods);
 
             return paymentMethod;
         }
 
-        internal bool UpdatePaymentGatewayPaymentMethod(int groupId, int paymentGatewayId, int paymentMethodId, string name)
+        internal bool UpdatePaymentGatewayPaymentMethod(int groupId, int paymentGatewayId, int paymentMethodId, string name, bool allowMultiInstance)
         {
             WebAPI.Billing.Status response = null;
 
@@ -667,7 +667,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.UpdatePaymentGatewayPaymentMethod(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGatewayId, paymentMethodId, name);
+                    response = Billing.UpdatePaymentGatewayPaymentMethod(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGatewayId, paymentMethodId, name, allowMultiInstance);
                 }
             }
             catch (Exception ex)

@@ -680,9 +680,6 @@
     <Content Include="Web References\Billing\PaymentGatewayListResponse1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Billing\PaymentMethodResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
     <Content Include="Web References\Billing\PaymentMethodsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -1046,6 +1043,7 @@
     <Compile Include="Models\API\KalturaRuleType.cs" />
     <Compile Include="Models\API\KalturaUserRoleFilter.cs" />
     <Compile Include="Models\API\KalturaChannelProfile.cs" />
+    <Compile Include="Models\Billing\KalturaHouseholdPaymentMethod.cs" />
     <Compile Include="Models\Billing\KalturaPaymentMethod.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGateway.cs" />
     <Compile Include="Models\Billing\KalturaHouseholdPaymentGatewaySelectedBy.cs" />
