@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Tvinci.Data.Loaders</RootNamespace>
     <AssemblyName>Tvinci.Data.Loaders</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -22,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,6 +31,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Local|AnyCPU'">
     <OutputPath>bin\Local\</OutputPath>
@@ -39,14 +41,22 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="KLogMonitor">
-      <HintPath>..\..\TVinciCommon\External\3.5\KLogMonitor.dll</HintPath>
+    <Reference Include="Jil">
+      <HintPath>..\..\tvincicommon\External\Jil.dll</HintPath>
+    </Reference>
+    <Reference Include="KLogMonitor, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\tvincicommon\External\4.5\KLogMonitor.dll</HintPath>
     </Reference>
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\tvincicommon\External\Couchbase-2.2.5\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -80,7 +90,18 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <WebReferences Include="Web References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TVPPro.Configuration\TVPPro.Configuration.csproj">
+      <Project>{3c8a6707-cefb-40e2-9e8f-9d94bdf6a10c}</Project>
+      <Name>TVPPro.Configuration</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\TvinciPlatform.Catalog\Service.wsdl" />
     <None Include="Service References\TvinciPlatform.Catalog\Service.xsd">
       <SubType>Designer</SubType>
@@ -107,29 +128,9 @@
     <None Include="Service References\TvinciPlatform.Catalog\Service15.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service16.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service17.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service18.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service19.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service2.wsdl" />
     <None Include="Service References\TvinciPlatform.Catalog\Service2.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service20.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service21.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service3.wsdl" />
     <None Include="Service References\TvinciPlatform.Catalog\Service3.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -165,15 +166,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <WebReferences Include="Web References\" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\TVPPro.Configuration\TVPPro.Configuration.csproj">
-      <Project>{3c8a6707-cefb-40e2-9e8f-9d94bdf6a10c}</Project>
-      <Name>TVPPro.Configuration</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <WCFMetadataStorage Include="Service References\TvinciPlatform.Catalog\" />
   </ItemGroup>
   <ItemGroup>
@@ -190,9 +182,6 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\TvinciPlatform.Catalog\Service1.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

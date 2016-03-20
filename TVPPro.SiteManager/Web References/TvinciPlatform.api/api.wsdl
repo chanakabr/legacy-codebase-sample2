@@ -10200,13 +10200,13 @@
   </wsdl:binding>
   <wsdl:service name="API">
     <wsdl:port name="APISoap" binding="tns:APISoap">
-      <soap:address location="http://localhost/WS_api/api.asmx" />
+      <soap:address location="http://54.72.1.39:8030/api_v3_7/api.asmx" />
     </wsdl:port>
     <wsdl:port name="APISoap12" binding="tns:APISoap12">
-      <soap12:address location="http://localhost/WS_api/api.asmx" />
+      <soap12:address location="http://54.72.1.39:8030/api_v3_7/api.asmx" />
     </wsdl:port>
     <wsdl:port name="APIHttpPost" binding="tns:APIHttpPost">
-      <http:address location="http://localhost/WS_api/api.asmx" />
+      <http:address location="http://54.72.1.39:8030/api_v3_7/api.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

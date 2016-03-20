@@ -2,29 +2,41 @@
 <wsdl:definitions xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <xsd:schema targetNamespace="/Imports">
-      <xsd:import schemaLocation="http://192.168.192.146/webservices/catalog/Service.svc?xsd=xsd0" />
-      <xsd:import schemaLocation="http://192.168.192.146/webservices/catalog/Service.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
-      <xsd:import schemaLocation="http://192.168.192.146/webservices/catalog/Service.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/Catalog" />
-      <xsd:import schemaLocation="http://192.168.192.146/webservices/catalog/Service.svc?xsd=xsd3" namespace="http://schemas.datacontract.org/2004/07/ApiObjects" />
-      <xsd:import schemaLocation="http://192.168.192.146/webservices/catalog/Service.svc?xsd=xsd4" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
-      <xsd:import schemaLocation="http://192.168.192.146/webservices/catalog/Service.svc?xsd=xsd5" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" />
-      <xsd:import schemaLocation="http://192.168.192.146/webservices/catalog/Service.svc?xsd=xsd6" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Statistics" />
-      <xsd:import schemaLocation="http://192.168.192.146/webservices/catalog/Service.svc?xsd=xsd7" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Base" />
-      <xsd:import schemaLocation="http://192.168.192.146/webservices/catalog/Service.svc?xsd=xsd8" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems" />
-      <xsd:import schemaLocation="http://192.168.192.146/webservices/catalog/Service.svc?xsd=xsd9" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Implementations" />
+      <xsd:import schemaLocation="http://54.72.1.39:8030/catalog_v3_7/Service.svc?xsd=xsd0" />
+      <xsd:import schemaLocation="http://54.72.1.39:8030/catalog_v3_7/Service.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+      <xsd:import schemaLocation="http://54.72.1.39:8030/catalog_v3_7/Service.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/Catalog.Response" />
+      <xsd:import schemaLocation="http://54.72.1.39:8030/catalog_v3_7/Service.svc?xsd=xsd3" namespace="http://schemas.datacontract.org/2004/07/Catalog" />
+      <xsd:import schemaLocation="http://54.72.1.39:8030/catalog_v3_7/Service.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/ApiObjects" />
+      <xsd:import schemaLocation="http://54.72.1.39:8030/catalog_v3_7/Service.svc?xsd=xsd5" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Epg" />
+      <xsd:import schemaLocation="http://54.72.1.39:8030/catalog_v3_7/Service.svc?xsd=xsd6" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+      <xsd:import schemaLocation="http://54.72.1.39:8030/catalog_v3_7/Service.svc?xsd=xsd7" namespace="http://schemas.datacontract.org/2004/07/Catalog.ws_users" />
+      <xsd:import schemaLocation="http://54.72.1.39:8030/catalog_v3_7/Service.svc?xsd=xsd8" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Response" />
+      <xsd:import schemaLocation="http://54.72.1.39:8030/catalog_v3_7/Service.svc?xsd=xsd9" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" />
+      <xsd:import schemaLocation="http://54.72.1.39:8030/catalog_v3_7/Service.svc?xsd=xsd10" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Statistics" />
+      <xsd:import schemaLocation="http://54.72.1.39:8030/catalog_v3_7/Service.svc?xsd=xsd11" namespace="http://schemas.datacontract.org/2004/07/GroupsCacheManager" />
+      <xsd:import schemaLocation="http://54.72.1.39:8030/catalog_v3_7/Service.svc?xsd=xsd12" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Base" />
+      <xsd:import schemaLocation="http://54.72.1.39:8030/catalog_v3_7/Service.svc?xsd=xsd13" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems" />
+      <xsd:import schemaLocation="http://54.72.1.39:8030/catalog_v3_7/Service.svc?xsd=xsd14" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Implementations" />
+      <xsd:import schemaLocation="http://54.72.1.39:8030/catalog_v3_7/Service.svc?xsd=xsd15" namespace="http://schemas.datacontract.org/2004/07/Catalog.Request" />
     </xsd:schema>
   </wsdl:types>
-  <wsdl:message name="Iservice_InjestAdiData_InputMessage">
-    <wsdl:part name="parameters" element="InjestAdiData" />
+  <wsdl:message name="Iservice_IngestAdiData_InputMessage">
+    <wsdl:part name="parameters" element="IngestAdiData" />
   </wsdl:message>
-  <wsdl:message name="Iservice_InjestAdiData_OutputMessage">
-    <wsdl:part name="parameters" element="InjestAdiDataResponse" />
+  <wsdl:message name="Iservice_IngestAdiData_OutputMessage">
+    <wsdl:part name="parameters" element="IngestAdiDataResponse" />
   </wsdl:message>
-  <wsdl:message name="Iservice_InjestTvinciData_InputMessage">
-    <wsdl:part name="parameters" element="InjestTvinciData" />
+  <wsdl:message name="Iservice_IngestTvinciData_InputMessage">
+    <wsdl:part name="parameters" element="IngestTvinciData" />
   </wsdl:message>
-  <wsdl:message name="Iservice_InjestTvinciData_OutputMessage">
-    <wsdl:part name="parameters" element="InjestTvinciDataResponse" />
+  <wsdl:message name="Iservice_IngestTvinciData_OutputMessage">
+    <wsdl:part name="parameters" element="IngestTvinciDataResponse" />
+  </wsdl:message>
+  <wsdl:message name="Iservice_IngestKalturaEpg_InputMessage">
+    <wsdl:part name="parameters" element="IngestKalturaEpg" />
+  </wsdl:message>
+  <wsdl:message name="Iservice_IngestKalturaEpg_OutputMessage">
+    <wsdl:part name="parameters" element="IngestKalturaEpgResponse" />
   </wsdl:message>
   <wsdl:message name="Iservice_GetResponse_InputMessage">
     <wsdl:part name="parameters" element="GetResponse" />
@@ -74,14 +86,36 @@
   <wsdl:message name="Iservice_UpdateEpgIndex_OutputMessage">
     <wsdl:part name="parameters" element="UpdateEpgIndexResponse" />
   </wsdl:message>
+  <wsdl:message name="Iservice_RebuildIndex_InputMessage">
+    <wsdl:part name="parameters" element="RebuildIndex" />
+  </wsdl:message>
+  <wsdl:message name="Iservice_RebuildIndex_OutputMessage">
+    <wsdl:part name="parameters" element="RebuildIndexResponse" />
+  </wsdl:message>
+  <wsdl:message name="Iservice_RebuildGroup_InputMessage">
+    <wsdl:part name="parameters" element="RebuildGroup" />
+  </wsdl:message>
+  <wsdl:message name="Iservice_RebuildGroup_OutputMessage">
+    <wsdl:part name="parameters" element="RebuildGroupResponse" />
+  </wsdl:message>
+  <wsdl:message name="Iservice_GetGroup_InputMessage">
+    <wsdl:part name="parameters" element="GetGroup" />
+  </wsdl:message>
+  <wsdl:message name="Iservice_GetGroup_OutputMessage">
+    <wsdl:part name="parameters" element="GetGroupResponse" />
+  </wsdl:message>
   <wsdl:portType name="Iservice">
-    <wsdl:operation name="InjestAdiData">
-      <wsdl:input wsaw:Action="urn:Iservice/InjestAdiData" message="Iservice_InjestAdiData_InputMessage" />
-      <wsdl:output wsaw:Action="urn:Iservice/InjestAdiDataResponse" message="Iservice_InjestAdiData_OutputMessage" />
+    <wsdl:operation name="IngestAdiData">
+      <wsdl:input wsaw:Action="urn:Iservice/IngestAdiData" message="Iservice_IngestAdiData_InputMessage" />
+      <wsdl:output wsaw:Action="urn:Iservice/IngestAdiDataResponse" message="Iservice_IngestAdiData_OutputMessage" />
     </wsdl:operation>
-    <wsdl:operation name="InjestTvinciData">
-      <wsdl:input wsaw:Action="urn:Iservice/InjestTvinciData" message="Iservice_InjestTvinciData_InputMessage" />
-      <wsdl:output wsaw:Action="urn:Iservice/InjestTvinciDataResponse" message="Iservice_InjestTvinciData_OutputMessage" />
+    <wsdl:operation name="IngestTvinciData">
+      <wsdl:input wsaw:Action="urn:Iservice/IngestTvinciData" message="Iservice_IngestTvinciData_InputMessage" />
+      <wsdl:output wsaw:Action="urn:Iservice/IngestTvinciDataResponse" message="Iservice_IngestTvinciData_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="IngestKalturaEpg">
+      <wsdl:input wsaw:Action="urn:Iservice/IngestKalturaEpg" message="Iservice_IngestKalturaEpg_InputMessage" />
+      <wsdl:output wsaw:Action="urn:Iservice/IngestKalturaEpgResponse" message="Iservice_IngestKalturaEpg_OutputMessage" />
     </wsdl:operation>
     <wsdl:operation name="GetResponse">
       <wsdl:input wsaw:Action="urn:Iservice/GetResponse" message="Iservice_GetResponse_InputMessage" />
@@ -114,6 +148,18 @@
     <wsdl:operation name="UpdateEpgIndex">
       <wsdl:input wsaw:Action="urn:Iservice/UpdateEpgIndex" message="Iservice_UpdateEpgIndex_InputMessage" />
       <wsdl:output wsaw:Action="urn:Iservice/UpdateEpgIndexResponse" message="Iservice_UpdateEpgIndex_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="RebuildIndex">
+      <wsdl:input wsaw:Action="urn:Iservice/RebuildIndex" message="Iservice_RebuildIndex_InputMessage" />
+      <wsdl:output wsaw:Action="urn:Iservice/RebuildIndexResponse" message="Iservice_RebuildIndex_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="RebuildGroup">
+      <wsdl:input wsaw:Action="urn:Iservice/RebuildGroup" message="Iservice_RebuildGroup_InputMessage" />
+      <wsdl:output wsaw:Action="urn:Iservice/RebuildGroupResponse" message="Iservice_RebuildGroup_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetGroup">
+      <wsdl:input wsaw:Action="urn:Iservice/GetGroup" message="Iservice_GetGroup_InputMessage" />
+      <wsdl:output wsaw:Action="urn:Iservice/GetGroupResponse" message="Iservice_GetGroup_OutputMessage" />
     </wsdl:operation>
   </wsdl:portType>
 </wsdl:definitions>

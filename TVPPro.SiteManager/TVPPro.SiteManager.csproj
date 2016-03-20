@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TVPPro.SiteManager</RootNamespace>
     <AssemblyName>TVPPro.SiteManager</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SignAssembly>false</SignAssembly>
     <FileUpgradeFlags>
@@ -32,6 +32,7 @@
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -42,6 +43,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -51,6 +53,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>
@@ -64,15 +67,11 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Couchbase, Version=1.3.3.0, Culture=neutral, PublicKeyToken=05e9c6b5a9ec94c2, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\External\Couchbase.dll</HintPath>
-    </Reference>
-    <Reference Include="Enyim.Caching, Version=1.3.3.0, Culture=neutral, PublicKeyToken=05e9c6b5a9ec94c2, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\External\Enyim.Caching.dll</HintPath>
+    <Reference Include="CouchbaseManager">
+      <HintPath>..\..\tvincicommon\External\4.5\CouchbaseManager.dll</HintPath>
     </Reference>
     <Reference Include="Facebook, Version=3.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\Facebook.dll</HintPath>
@@ -80,12 +79,19 @@
     <Reference Include="Facebook.Web, Version=3.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\Facebook.Web.dll</HintPath>
     </Reference>
-    <Reference Include="KLogMonitor">
-      <HintPath>..\..\TVinciCommon\External\3.5\KLogMonitor.dll</HintPath>
+    <Reference Include="Jil">
+      <HintPath>..\..\tvincicommon\External\Jil.dll</HintPath>
+    </Reference>
+    <Reference Include="KLogMonitor, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\tvincicommon\External\4.5\KLogMonitor.dll</HintPath>
     </Reference>
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\tvincicommon\External\Couchbase-2.2.5\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -253,13 +259,6 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>dsProfiles.xsd</DependentUpon>
-    </Compile>
-    <Compile Include="DataEntities\dsSearchResult.cs">
-      <DependentUpon>dsSearchResult.xsd</DependentUpon>
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="DataEntities\dsSearchResult.Designer.cs">
-      <DependentUpon>dsSearchResult.cs</DependentUpon>
     </Compile>
     <Compile Include="DataEntities\dsSession.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -521,20 +520,20 @@
     <None Include="DataEntities\dsChannels.xss">
       <DependentUpon>dsChannels.xsd</DependentUpon>
     </None>
-    <None Include="Service References\TvinciPlatform.Notification\NotificationService1.wsdl" />
-    <None Include="Service References\TvinciPlatform.Notification\NotificationService5.xsd">
+    <None Include="Service References\TvinciPlatform.Notification\NotificationService.wsdl" />
+    <None Include="Service References\TvinciPlatform.Notification\NotificationService.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Notification\NotificationService51.xsd">
+    <None Include="Service References\TvinciPlatform.Notification\NotificationService1.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Notification\NotificationService52.xsd">
+    <None Include="Service References\TvinciPlatform.Notification\NotificationService2.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Notification\NotificationService53.xsd">
+    <None Include="Service References\TvinciPlatform.Notification\NotificationService3.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Notification\NotificationService54.xsd">
+    <None Include="Service References\TvinciPlatform.Notification\NotificationService4.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\TvinciPlatform.Notification\TVPPro.SiteManager.TvinciPlatform.Notification.NotificationMessage.datasource">
@@ -760,10 +759,10 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://localhost/WS_ConditionalAccess/module.asmx">
+    <WebReferenceUrl Include="http://54.72.1.39:8030/cas_v3_7/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.ConditionalAccess\</RelPath>
-      <UpdateFromURL>http://localhost/WS_ConditionalAccess/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://54.72.1.39:8030/cas_v3_7/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -771,10 +770,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>TVPPro_SiteManager_TvinciPlatform_ConditionalAccess_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://192.168.192.146/webservices/api/api.asmx">
+    <WebReferenceUrl Include="http://54.72.1.39:8030/api_v3_7/api.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.api\</RelPath>
-      <UpdateFromURL>http://192.168.192.146/webservices/api/api.asmx</UpdateFromURL>
+      <UpdateFromURL>http://54.72.1.39:8030/api_v3_7/api.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -782,10 +781,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>TVPPro_SiteManager_TvinciPlatform_api_API</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/WS_Social/module.asmx">
+    <WebReferenceUrl Include="http://54.72.1.39:8030/social_v3_7/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.Social\</RelPath>
-      <UpdateFromURL>http://localhost/WS_Social/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://54.72.1.39:8030/social_v3_7/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -793,10 +792,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>TVPPro_SiteManager_TvinciPlatform_Social_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/WS_Billing/module.asmx">
+    <WebReferenceUrl Include="http://54.72.1.39:8030/billing_v3_7/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.Billing\</RelPath>
-      <UpdateFromURL>http://localhost/WS_Billing/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://54.72.1.39:8030/billing_v3_7/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -804,10 +803,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>TVPPro_SiteManager_TvinciPlatform_Billing_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/ws_domains/module.asmx">
+    <WebReferenceUrl Include="http://54.72.1.39:8030/domains_v3_7/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.Domains\</RelPath>
-      <UpdateFromURL>http://localhost/ws_domains/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://54.72.1.39:8030/domains_v3_7/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -815,10 +814,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>TVPPro_SiteManager_TvinciPlatform_Domains_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/WS_pricing/module.asmx">
+    <WebReferenceUrl Include="http://54.72.1.39:8030/pricing_v3_7/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.Pricing\</RelPath>
-      <UpdateFromURL>http://localhost/WS_pricing/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://54.72.1.39:8030/pricing_v3_7/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -826,10 +825,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>TVPPro_SiteManager_TvinciPlatform_Pricing_mdoule</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/ws_users/module.asmx">
+    <WebReferenceUrl Include="http://54.72.1.39:8030/users_v3_7/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.Users\</RelPath>
-      <UpdateFromURL>http://localhost/ws_users/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://54.72.1.39:8030/users_v3_7/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -1050,17 +1049,6 @@
     </None>
     <None Include="DataEntities\dsPageData.xss">
       <DependentUpon>dsPageData.xsd</DependentUpon>
-    </None>
-    <None Include="DataEntities\dsSearchResult.xsc">
-      <DependentUpon>dsSearchResult.xsd</DependentUpon>
-    </None>
-    <None Include="DataEntities\dsSearchResult.xsd">
-      <Generator>MSDataSetGenerator</Generator>
-      <LastGenOutput>dsSearchResult2.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="DataEntities\dsSearchResult.xss">
-      <DependentUpon>dsSearchResult.xsd</DependentUpon>
     </None>
     <None Include="DataEntities\dsSession.xsc">
       <DependentUpon>dsSession.xsd</DependentUpon>
@@ -1296,7 +1284,7 @@
     <None Include="Web References\TvinciPlatform.Users\module.disco" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\TvinciPlatform.Notification\NotificationService1.disco" />
+    <None Include="Service References\TvinciPlatform.Notification\NotificationService.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

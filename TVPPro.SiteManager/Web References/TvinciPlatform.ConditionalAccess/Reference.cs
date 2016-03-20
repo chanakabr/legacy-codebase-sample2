@@ -30,18 +30,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PPVModule))]
     public partial class module : System.Web.Services.Protocols.SoapHttpClientProtocol {
         
-        private System.Threading.SendOrPostCallback CheckPendingTransactionOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback GetUserEntitlementsOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback GetDomainEntitlementsOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback RenewOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback GetAssetPricesOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback ReconcileEntitlementsOperationCompleted;
-        
         private System.Threading.SendOrPostCallback GetUserPermittedItemsOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetDomainPermittedItemsOperationCompleted;
@@ -214,6 +202,18 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         private System.Threading.SendOrPostCallback UpdatePendingTransactionOperationCompleted;
         
+        private System.Threading.SendOrPostCallback CheckPendingTransactionOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetUserEntitlementsOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetDomainEntitlementsOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback RenewOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetAssetPricesOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback ReconcileEntitlementsOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -251,24 +251,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
                 this.useDefaultCredentialsSetExplicitly = true;
             }
         }
-        
-        /// <remarks/>
-        public event CheckPendingTransactionCompletedEventHandler CheckPendingTransactionCompleted;
-        
-        /// <remarks/>
-        public event GetUserEntitlementsCompletedEventHandler GetUserEntitlementsCompleted;
-        
-        /// <remarks/>
-        public event GetDomainEntitlementsCompletedEventHandler GetDomainEntitlementsCompleted;
-        
-        /// <remarks/>
-        public event RenewCompletedEventHandler RenewCompleted;
-        
-        /// <remarks/>
-        public event GetAssetPricesCompletedEventHandler GetAssetPricesCompleted;
-        
-        /// <remarks/>
-        public event ReconcileEntitlementsCompletedEventHandler ReconcileEntitlementsCompleted;
         
         /// <remarks/>
         public event GetUserPermittedItemsCompletedEventHandler GetUserPermittedItemsCompleted;
@@ -529,248 +511,22 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         public event UpdatePendingTransactionCompletedEventHandler UpdatePendingTransactionCompleted;
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/CheckPendingTransaction", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status CheckPendingTransaction(string wsUserName, string wsPassword, long paymentGatewayPendingId, int numberOfRetries, string billingGuid, long paymentGatewayTransactionId, string siteGuid, int productId, int productType) {
-            object[] results = this.Invoke("CheckPendingTransaction", new object[] {
-                        wsUserName,
-                        wsPassword,
-                        paymentGatewayPendingId,
-                        numberOfRetries,
-                        billingGuid,
-                        paymentGatewayTransactionId,
-                        siteGuid,
-                        productId,
-                        productType});
-            return ((Status)(results[0]));
-        }
+        public event CheckPendingTransactionCompletedEventHandler CheckPendingTransactionCompleted;
         
         /// <remarks/>
-        public void CheckPendingTransactionAsync(string wsUserName, string wsPassword, long paymentGatewayPendingId, int numberOfRetries, string billingGuid, long paymentGatewayTransactionId, string siteGuid, int productId, int productType) {
-            this.CheckPendingTransactionAsync(wsUserName, wsPassword, paymentGatewayPendingId, numberOfRetries, billingGuid, paymentGatewayTransactionId, siteGuid, productId, productType, null);
-        }
+        public event GetUserEntitlementsCompletedEventHandler GetUserEntitlementsCompleted;
         
         /// <remarks/>
-        public void CheckPendingTransactionAsync(string wsUserName, string wsPassword, long paymentGatewayPendingId, int numberOfRetries, string billingGuid, long paymentGatewayTransactionId, string siteGuid, int productId, int productType, object userState) {
-            if ((this.CheckPendingTransactionOperationCompleted == null)) {
-                this.CheckPendingTransactionOperationCompleted = new System.Threading.SendOrPostCallback(this.OnCheckPendingTransactionOperationCompleted);
-            }
-            this.InvokeAsync("CheckPendingTransaction", new object[] {
-                        wsUserName,
-                        wsPassword,
-                        paymentGatewayPendingId,
-                        numberOfRetries,
-                        billingGuid,
-                        paymentGatewayTransactionId,
-                        siteGuid,
-                        productId,
-                        productType}, this.CheckPendingTransactionOperationCompleted, userState);
-        }
-        
-        private void OnCheckPendingTransactionOperationCompleted(object arg) {
-            if ((this.CheckPendingTransactionCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.CheckPendingTransactionCompleted(this, new CheckPendingTransactionCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
+        public event GetDomainEntitlementsCompletedEventHandler GetDomainEntitlementsCompleted;
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetUserEntitlements", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Entitlements GetUserEntitlements(string sWSUserName, string sWSPassword, string sSiteGUID, eTransactionType type, bool isExpired, int pageSize, int pageIndex) {
-            object[] results = this.Invoke("GetUserEntitlements", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        sSiteGUID,
-                        type,
-                        isExpired,
-                        pageSize,
-                        pageIndex});
-            return ((Entitlements)(results[0]));
-        }
+        public event RenewCompletedEventHandler RenewCompleted;
         
         /// <remarks/>
-        public void GetUserEntitlementsAsync(string sWSUserName, string sWSPassword, string sSiteGUID, eTransactionType type, bool isExpired, int pageSize, int pageIndex) {
-            this.GetUserEntitlementsAsync(sWSUserName, sWSPassword, sSiteGUID, type, isExpired, pageSize, pageIndex, null);
-        }
+        public event GetAssetPricesCompletedEventHandler GetAssetPricesCompleted;
         
         /// <remarks/>
-        public void GetUserEntitlementsAsync(string sWSUserName, string sWSPassword, string sSiteGUID, eTransactionType type, bool isExpired, int pageSize, int pageIndex, object userState) {
-            if ((this.GetUserEntitlementsOperationCompleted == null)) {
-                this.GetUserEntitlementsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetUserEntitlementsOperationCompleted);
-            }
-            this.InvokeAsync("GetUserEntitlements", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        sSiteGUID,
-                        type,
-                        isExpired,
-                        pageSize,
-                        pageIndex}, this.GetUserEntitlementsOperationCompleted, userState);
-        }
-        
-        private void OnGetUserEntitlementsOperationCompleted(object arg) {
-            if ((this.GetUserEntitlementsCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.GetUserEntitlementsCompleted(this, new GetUserEntitlementsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetDomainEntitlements", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Entitlements GetDomainEntitlements(string sWSUserName, string sWSPassword, int domainId, eTransactionType type, bool isExpired, int pageSize, int pageIndex) {
-            object[] results = this.Invoke("GetDomainEntitlements", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        domainId,
-                        type,
-                        isExpired,
-                        pageSize,
-                        pageIndex});
-            return ((Entitlements)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void GetDomainEntitlementsAsync(string sWSUserName, string sWSPassword, int domainId, eTransactionType type, bool isExpired, int pageSize, int pageIndex) {
-            this.GetDomainEntitlementsAsync(sWSUserName, sWSPassword, domainId, type, isExpired, pageSize, pageIndex, null);
-        }
-        
-        /// <remarks/>
-        public void GetDomainEntitlementsAsync(string sWSUserName, string sWSPassword, int domainId, eTransactionType type, bool isExpired, int pageSize, int pageIndex, object userState) {
-            if ((this.GetDomainEntitlementsOperationCompleted == null)) {
-                this.GetDomainEntitlementsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetDomainEntitlementsOperationCompleted);
-            }
-            this.InvokeAsync("GetDomainEntitlements", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        domainId,
-                        type,
-                        isExpired,
-                        pageSize,
-                        pageIndex}, this.GetDomainEntitlementsOperationCompleted, userState);
-        }
-        
-        private void OnGetDomainEntitlementsOperationCompleted(object arg) {
-            if ((this.GetDomainEntitlementsCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.GetDomainEntitlementsCompleted(this, new GetDomainEntitlementsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/Renew", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public bool Renew(string sWSUserName, string sWSPassword, string siteguid, long purchaseId, string billingGuid, long endDate) {
-            object[] results = this.Invoke("Renew", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        siteguid,
-                        purchaseId,
-                        billingGuid,
-                        endDate});
-            return ((bool)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void RenewAsync(string sWSUserName, string sWSPassword, string siteguid, long purchaseId, string billingGuid, long endDate) {
-            this.RenewAsync(sWSUserName, sWSPassword, siteguid, purchaseId, billingGuid, endDate, null);
-        }
-        
-        /// <remarks/>
-        public void RenewAsync(string sWSUserName, string sWSPassword, string siteguid, long purchaseId, string billingGuid, long endDate, object userState) {
-            if ((this.RenewOperationCompleted == null)) {
-                this.RenewOperationCompleted = new System.Threading.SendOrPostCallback(this.OnRenewOperationCompleted);
-            }
-            this.InvokeAsync("Renew", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        siteguid,
-                        purchaseId,
-                        billingGuid,
-                        endDate}, this.RenewOperationCompleted, userState);
-        }
-        
-        private void OnRenewOperationCompleted(object arg) {
-            if ((this.RenewCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.RenewCompleted(this, new RenewCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetAssetPrices", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public AssetItemPriceResponse GetAssetPrices(string username, string password, string siteGuid, string couponCode, string countryCd2, string languageCode3, string deviceName, string clientIP, AssetFiles[] assetFiles) {
-            object[] results = this.Invoke("GetAssetPrices", new object[] {
-                        username,
-                        password,
-                        siteGuid,
-                        couponCode,
-                        countryCd2,
-                        languageCode3,
-                        deviceName,
-                        clientIP,
-                        assetFiles});
-            return ((AssetItemPriceResponse)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void GetAssetPricesAsync(string username, string password, string siteGuid, string couponCode, string countryCd2, string languageCode3, string deviceName, string clientIP, AssetFiles[] assetFiles) {
-            this.GetAssetPricesAsync(username, password, siteGuid, couponCode, countryCd2, languageCode3, deviceName, clientIP, assetFiles, null);
-        }
-        
-        /// <remarks/>
-        public void GetAssetPricesAsync(string username, string password, string siteGuid, string couponCode, string countryCd2, string languageCode3, string deviceName, string clientIP, AssetFiles[] assetFiles, object userState) {
-            if ((this.GetAssetPricesOperationCompleted == null)) {
-                this.GetAssetPricesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetAssetPricesOperationCompleted);
-            }
-            this.InvokeAsync("GetAssetPrices", new object[] {
-                        username,
-                        password,
-                        siteGuid,
-                        couponCode,
-                        countryCd2,
-                        languageCode3,
-                        deviceName,
-                        clientIP,
-                        assetFiles}, this.GetAssetPricesOperationCompleted, userState);
-        }
-        
-        private void OnGetAssetPricesOperationCompleted(object arg) {
-            if ((this.GetAssetPricesCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.GetAssetPricesCompleted(this, new GetAssetPricesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/ReconcileEntitlements", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status ReconcileEntitlements(string sWSUserName, string sWSPassword, string userId) {
-            object[] results = this.Invoke("ReconcileEntitlements", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        userId});
-            return ((Status)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void ReconcileEntitlementsAsync(string sWSUserName, string sWSPassword, string userId) {
-            this.ReconcileEntitlementsAsync(sWSUserName, sWSPassword, userId, null);
-        }
-        
-        /// <remarks/>
-        public void ReconcileEntitlementsAsync(string sWSUserName, string sWSPassword, string userId, object userState) {
-            if ((this.ReconcileEntitlementsOperationCompleted == null)) {
-                this.ReconcileEntitlementsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnReconcileEntitlementsOperationCompleted);
-            }
-            this.InvokeAsync("ReconcileEntitlements", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        userId}, this.ReconcileEntitlementsOperationCompleted, userState);
-        }
-        
-        private void OnReconcileEntitlementsOperationCompleted(object arg) {
-            if ((this.ReconcileEntitlementsCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.ReconcileEntitlementsCompleted(this, new ReconcileEntitlementsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
+        public event ReconcileEntitlementsCompletedEventHandler ReconcileEntitlementsCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetUserPermittedItems", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -4590,6 +4346,250 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/CheckPendingTransaction", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status CheckPendingTransaction(string wsUserName, string wsPassword, long paymentGatewayPendingId, int numberOfRetries, string billingGuid, long paymentGatewayTransactionId, string siteGuid, int productId, int productType) {
+            object[] results = this.Invoke("CheckPendingTransaction", new object[] {
+                        wsUserName,
+                        wsPassword,
+                        paymentGatewayPendingId,
+                        numberOfRetries,
+                        billingGuid,
+                        paymentGatewayTransactionId,
+                        siteGuid,
+                        productId,
+                        productType});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void CheckPendingTransactionAsync(string wsUserName, string wsPassword, long paymentGatewayPendingId, int numberOfRetries, string billingGuid, long paymentGatewayTransactionId, string siteGuid, int productId, int productType) {
+            this.CheckPendingTransactionAsync(wsUserName, wsPassword, paymentGatewayPendingId, numberOfRetries, billingGuid, paymentGatewayTransactionId, siteGuid, productId, productType, null);
+        }
+        
+        /// <remarks/>
+        public void CheckPendingTransactionAsync(string wsUserName, string wsPassword, long paymentGatewayPendingId, int numberOfRetries, string billingGuid, long paymentGatewayTransactionId, string siteGuid, int productId, int productType, object userState) {
+            if ((this.CheckPendingTransactionOperationCompleted == null)) {
+                this.CheckPendingTransactionOperationCompleted = new System.Threading.SendOrPostCallback(this.OnCheckPendingTransactionOperationCompleted);
+            }
+            this.InvokeAsync("CheckPendingTransaction", new object[] {
+                        wsUserName,
+                        wsPassword,
+                        paymentGatewayPendingId,
+                        numberOfRetries,
+                        billingGuid,
+                        paymentGatewayTransactionId,
+                        siteGuid,
+                        productId,
+                        productType}, this.CheckPendingTransactionOperationCompleted, userState);
+        }
+        
+        private void OnCheckPendingTransactionOperationCompleted(object arg) {
+            if ((this.CheckPendingTransactionCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.CheckPendingTransactionCompleted(this, new CheckPendingTransactionCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetUserEntitlements", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Entitlements GetUserEntitlements(string sWSUserName, string sWSPassword, string sSiteGUID, eTransactionType type, bool isExpired, int pageSize, int pageIndex) {
+            object[] results = this.Invoke("GetUserEntitlements", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        sSiteGUID,
+                        type,
+                        isExpired,
+                        pageSize,
+                        pageIndex});
+            return ((Entitlements)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetUserEntitlementsAsync(string sWSUserName, string sWSPassword, string sSiteGUID, eTransactionType type, bool isExpired, int pageSize, int pageIndex) {
+            this.GetUserEntitlementsAsync(sWSUserName, sWSPassword, sSiteGUID, type, isExpired, pageSize, pageIndex, null);
+        }
+        
+        /// <remarks/>
+        public void GetUserEntitlementsAsync(string sWSUserName, string sWSPassword, string sSiteGUID, eTransactionType type, bool isExpired, int pageSize, int pageIndex, object userState) {
+            if ((this.GetUserEntitlementsOperationCompleted == null)) {
+                this.GetUserEntitlementsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetUserEntitlementsOperationCompleted);
+            }
+            this.InvokeAsync("GetUserEntitlements", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        sSiteGUID,
+                        type,
+                        isExpired,
+                        pageSize,
+                        pageIndex}, this.GetUserEntitlementsOperationCompleted, userState);
+        }
+        
+        private void OnGetUserEntitlementsOperationCompleted(object arg) {
+            if ((this.GetUserEntitlementsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetUserEntitlementsCompleted(this, new GetUserEntitlementsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetDomainEntitlements", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Entitlements GetDomainEntitlements(string sWSUserName, string sWSPassword, int domainId, eTransactionType type, bool isExpired, int pageSize, int pageIndex) {
+            object[] results = this.Invoke("GetDomainEntitlements", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        domainId,
+                        type,
+                        isExpired,
+                        pageSize,
+                        pageIndex});
+            return ((Entitlements)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetDomainEntitlementsAsync(string sWSUserName, string sWSPassword, int domainId, eTransactionType type, bool isExpired, int pageSize, int pageIndex) {
+            this.GetDomainEntitlementsAsync(sWSUserName, sWSPassword, domainId, type, isExpired, pageSize, pageIndex, null);
+        }
+        
+        /// <remarks/>
+        public void GetDomainEntitlementsAsync(string sWSUserName, string sWSPassword, int domainId, eTransactionType type, bool isExpired, int pageSize, int pageIndex, object userState) {
+            if ((this.GetDomainEntitlementsOperationCompleted == null)) {
+                this.GetDomainEntitlementsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetDomainEntitlementsOperationCompleted);
+            }
+            this.InvokeAsync("GetDomainEntitlements", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        domainId,
+                        type,
+                        isExpired,
+                        pageSize,
+                        pageIndex}, this.GetDomainEntitlementsOperationCompleted, userState);
+        }
+        
+        private void OnGetDomainEntitlementsOperationCompleted(object arg) {
+            if ((this.GetDomainEntitlementsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetDomainEntitlementsCompleted(this, new GetDomainEntitlementsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/Renew", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public bool Renew(string sWSUserName, string sWSPassword, string siteguid, long purchaseId, string billingGuid, long endDate) {
+            object[] results = this.Invoke("Renew", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteguid,
+                        purchaseId,
+                        billingGuid,
+                        endDate});
+            return ((bool)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void RenewAsync(string sWSUserName, string sWSPassword, string siteguid, long purchaseId, string billingGuid, long endDate) {
+            this.RenewAsync(sWSUserName, sWSPassword, siteguid, purchaseId, billingGuid, endDate, null);
+        }
+        
+        /// <remarks/>
+        public void RenewAsync(string sWSUserName, string sWSPassword, string siteguid, long purchaseId, string billingGuid, long endDate, object userState) {
+            if ((this.RenewOperationCompleted == null)) {
+                this.RenewOperationCompleted = new System.Threading.SendOrPostCallback(this.OnRenewOperationCompleted);
+            }
+            this.InvokeAsync("Renew", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteguid,
+                        purchaseId,
+                        billingGuid,
+                        endDate}, this.RenewOperationCompleted, userState);
+        }
+        
+        private void OnRenewOperationCompleted(object arg) {
+            if ((this.RenewCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.RenewCompleted(this, new RenewCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetAssetPrices", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public AssetItemPriceResponse GetAssetPrices(string username, string password, string siteGuid, string couponCode, string countryCd2, string languageCode3, string deviceName, string clientIP, AssetFiles[] assetFiles) {
+            object[] results = this.Invoke("GetAssetPrices", new object[] {
+                        username,
+                        password,
+                        siteGuid,
+                        couponCode,
+                        countryCd2,
+                        languageCode3,
+                        deviceName,
+                        clientIP,
+                        assetFiles});
+            return ((AssetItemPriceResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetAssetPricesAsync(string username, string password, string siteGuid, string couponCode, string countryCd2, string languageCode3, string deviceName, string clientIP, AssetFiles[] assetFiles) {
+            this.GetAssetPricesAsync(username, password, siteGuid, couponCode, countryCd2, languageCode3, deviceName, clientIP, assetFiles, null);
+        }
+        
+        /// <remarks/>
+        public void GetAssetPricesAsync(string username, string password, string siteGuid, string couponCode, string countryCd2, string languageCode3, string deviceName, string clientIP, AssetFiles[] assetFiles, object userState) {
+            if ((this.GetAssetPricesOperationCompleted == null)) {
+                this.GetAssetPricesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetAssetPricesOperationCompleted);
+            }
+            this.InvokeAsync("GetAssetPrices", new object[] {
+                        username,
+                        password,
+                        siteGuid,
+                        couponCode,
+                        countryCd2,
+                        languageCode3,
+                        deviceName,
+                        clientIP,
+                        assetFiles}, this.GetAssetPricesOperationCompleted, userState);
+        }
+        
+        private void OnGetAssetPricesOperationCompleted(object arg) {
+            if ((this.GetAssetPricesCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetAssetPricesCompleted(this, new GetAssetPricesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/ReconcileEntitlements", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status ReconcileEntitlements(string sWSUserName, string sWSPassword, string userId) {
+            object[] results = this.Invoke("ReconcileEntitlements", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        userId});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void ReconcileEntitlementsAsync(string sWSUserName, string sWSPassword, string userId) {
+            this.ReconcileEntitlementsAsync(sWSUserName, sWSPassword, userId, null);
+        }
+        
+        /// <remarks/>
+        public void ReconcileEntitlementsAsync(string sWSUserName, string sWSPassword, string userId, object userState) {
+            if ((this.ReconcileEntitlementsOperationCompleted == null)) {
+                this.ReconcileEntitlementsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnReconcileEntitlementsOperationCompleted);
+            }
+            this.InvokeAsync("ReconcileEntitlements", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        userId}, this.ReconcileEntitlementsOperationCompleted, userState);
+        }
+        
+        private void OnReconcileEntitlementsOperationCompleted(object arg) {
+            if ((this.ReconcileEntitlementsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.ReconcileEntitlementsCompleted(this, new ReconcileEntitlementsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -4609,986 +4609,78 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class Status {
+    public partial class PermittedMediaContainer {
         
-        private int codeField;
+        private int m_nMediaIDField;
         
-        private string messageField;
+        private int m_nMediaFileIDField;
         
-        /// <remarks/>
-        public int Code {
-            get {
-                return this.codeField;
-            }
-            set {
-                this.codeField = value;
-            }
-        }
+        private int m_nMaxUsesField;
         
-        /// <remarks/>
-        public string Message {
-            get {
-                return this.messageField;
-            }
-            set {
-                this.messageField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class TransactionResponse {
-        
-        private Status statusField;
-        
-        private string transactionIDField;
-        
-        private string pGReferenceIDField;
-        
-        private string pGResponseCodeField;
-        
-        private string stateField;
-        
-        private int failReasonCodeField;
-        
-        private long createdAtField;
-        
-        private long startDateSecondsField;
-        
-        private long endDateSecondsField;
-        
-        private bool autoRenewingField;
-        
-        /// <remarks/>
-        public Status Status {
-            get {
-                return this.statusField;
-            }
-            set {
-                this.statusField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string TransactionID {
-            get {
-                return this.transactionIDField;
-            }
-            set {
-                this.transactionIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string PGReferenceID {
-            get {
-                return this.pGReferenceIDField;
-            }
-            set {
-                this.pGReferenceIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string PGResponseCode {
-            get {
-                return this.pGResponseCodeField;
-            }
-            set {
-                this.pGResponseCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string State {
-            get {
-                return this.stateField;
-            }
-            set {
-                this.stateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int FailReasonCode {
-            get {
-                return this.failReasonCodeField;
-            }
-            set {
-                this.failReasonCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public long CreatedAt {
-            get {
-                return this.createdAtField;
-            }
-            set {
-                this.createdAtField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public long StartDateSeconds {
-            get {
-                return this.startDateSecondsField;
-            }
-            set {
-                this.startDateSecondsField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public long EndDateSeconds {
-            get {
-                return this.endDateSecondsField;
-            }
-            set {
-                this.endDateSecondsField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool AutoRenewing {
-            get {
-                return this.autoRenewingField;
-            }
-            set {
-                this.autoRenewingField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class DomainServicesResponse {
-        
-        private Status statusField;
-        
-        private ServiceObject[] servicesField;
-        
-        /// <remarks/>
-        public Status Status {
-            get {
-                return this.statusField;
-            }
-            set {
-                this.statusField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public ServiceObject[] Services {
-            get {
-                return this.servicesField;
-            }
-            set {
-                this.servicesField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
-    public partial class ServiceObject {
-        
-        private long idField;
-        
-        private string nameField;
-        
-        /// <remarks/>
-        public long ID {
-            get {
-                return this.idField;
-            }
-            set {
-                this.idField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Name {
-            get {
-                return this.nameField;
-            }
-            set {
-                this.nameField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordResponse))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(LicensedLinkNPVRResponse))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelDeleteResponse))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(QuotaResponse))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class NPVRResponse {
-        
-        private string statusField;
-        
-        private string msgField;
-        
-        /// <remarks/>
-        public string status {
-            get {
-                return this.statusField;
-            }
-            set {
-                this.statusField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string msg {
-            get {
-                return this.msgField;
-            }
-            set {
-                this.msgField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class RecordResponse : NPVRResponse {
-        
-        private string recordingIDField;
-        
-        /// <remarks/>
-        public string recordingID {
-            get {
-                return this.recordingIDField;
-            }
-            set {
-                this.recordingIDField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class LicensedLinkNPVRResponse : NPVRResponse {
-        
-        private string mainUrlField;
-        
-        /// <remarks/>
-        public string mainUrl {
-            get {
-                return this.mainUrlField;
-            }
-            set {
-                this.mainUrlField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class CancelDeleteResponse : NPVRResponse {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class QuotaResponse : NPVRResponse {
-        
-        private long totalQuotaField;
-        
-        private long occupiedQuotaField;
-        
-        /// <remarks/>
-        public long totalQuota {
-            get {
-                return this.totalQuotaField;
-            }
-            set {
-                this.totalQuotaField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public long occupiedQuota {
-            get {
-                return this.occupiedQuotaField;
-            }
-            set {
-                this.occupiedQuotaField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelNPVRCommand))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordNPVRCommand))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RetrieveQuotaNPVRCommand))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(DeleteNPVRCommand))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelSeriesNPVRCommand))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordSeriesByProgramIdNPVRCommand))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordSeriesByNameNPVRCommand))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(DeleteSeriesNPVRCommand))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ProtectNPVRCommand))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(LicensedLinkNPVRCommand))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public abstract partial class BaseNPVRCommand {
-        
-        private string wsUsernameField;
-        
-        private string wsPasswordField;
-        
-        private string siteGuidField;
-        
-        private long domainIDField;
-        
-        private string udidField;
-        
-        private string assetIDField;
-        
-        /// <remarks/>
-        public string wsUsername {
-            get {
-                return this.wsUsernameField;
-            }
-            set {
-                this.wsUsernameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string wsPassword {
-            get {
-                return this.wsPasswordField;
-            }
-            set {
-                this.wsPasswordField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string siteGuid {
-            get {
-                return this.siteGuidField;
-            }
-            set {
-                this.siteGuidField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public long domainID {
-            get {
-                return this.domainIDField;
-            }
-            set {
-                this.domainIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string udid {
-            get {
-                return this.udidField;
-            }
-            set {
-                this.udidField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string assetID {
-            get {
-                return this.assetIDField;
-            }
-            set {
-                this.assetIDField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class CancelNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class RecordNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class RetrieveQuotaNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class DeleteNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class CancelSeriesNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class RecordSeriesByProgramIdNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class RecordSeriesByNameNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class DeleteSeriesNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class ProtectNPVRCommand : BaseNPVRCommand {
-        
-        private bool isProtectField;
-        
-        /// <remarks/>
-        public bool isProtect {
-            get {
-                return this.isProtectField;
-            }
-            set {
-                this.isProtectField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class LicensedLinkNPVRCommand : BaseNPVRCommand {
-        
-        private System.DateTime startTimeField;
-        
-        private int formatField;
-        
-        private int mediaFileIDField;
-        
-        private string basicLinkField;
-        
-        private string userIPField;
-        
-        private string referrerField;
-        
-        private string countryCdField;
-        
-        private string langCdField;
-        
-        private string couponCodeField;
-        
-        /// <remarks/>
-        public System.DateTime startTime {
-            get {
-                return this.startTimeField;
-            }
-            set {
-                this.startTimeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int format {
-            get {
-                return this.formatField;
-            }
-            set {
-                this.formatField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int mediaFileID {
-            get {
-                return this.mediaFileIDField;
-            }
-            set {
-                this.mediaFileIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string basicLink {
-            get {
-                return this.basicLinkField;
-            }
-            set {
-                this.basicLinkField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string userIP {
-            get {
-                return this.userIPField;
-            }
-            set {
-                this.userIPField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string referrer {
-            get {
-                return this.referrerField;
-            }
-            set {
-                this.referrerField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string countryCd {
-            get {
-                return this.countryCdField;
-            }
-            set {
-                this.countryCdField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string langCd {
-            get {
-                return this.langCdField;
-            }
-            set {
-                this.langCdField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string couponCode {
-            get {
-                return this.couponCodeField;
-            }
-            set {
-                this.couponCodeField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class EntitlementResponse {
-        
-        private string fullLifeCycleField;
-        
-        private string viewLifeCycleField;
-        
-        private bool isOfflinePlayBackField;
-        
-        /// <remarks/>
-        public string FullLifeCycle {
-            get {
-                return this.fullLifeCycleField;
-            }
-            set {
-                this.fullLifeCycleField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string ViewLifeCycle {
-            get {
-                return this.viewLifeCycleField;
-            }
-            set {
-                this.viewLifeCycleField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool IsOfflinePlayBack {
-            get {
-                return this.isOfflinePlayBackField;
-            }
-            set {
-                this.isOfflinePlayBackField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class PrePaidHistoryContainer {
-        
-        private string m_sPurchasedItemNameField;
-        
-        private string m_sPurchasedItemCodeField;
-        
-        private BillingItemsType m_eItemTypeField;
-        
-        private Price m_oPriceField;
-        
-        private Price m_oCreditField;
-        
-        private System.DateTime m_dtActionDateField;
-        
-        /// <remarks/>
-        public string m_sPurchasedItemName {
-            get {
-                return this.m_sPurchasedItemNameField;
-            }
-            set {
-                this.m_sPurchasedItemNameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sPurchasedItemCode {
-            get {
-                return this.m_sPurchasedItemCodeField;
-            }
-            set {
-                this.m_sPurchasedItemCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public BillingItemsType m_eItemType {
-            get {
-                return this.m_eItemTypeField;
-            }
-            set {
-                this.m_eItemTypeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public Price m_oPrice {
-            get {
-                return this.m_oPriceField;
-            }
-            set {
-                this.m_oPriceField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public Price m_oCredit {
-            get {
-                return this.m_oCreditField;
-            }
-            set {
-                this.m_oCreditField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime m_dtActionDate {
-            get {
-                return this.m_dtActionDateField;
-            }
-            set {
-                this.m_dtActionDateField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public enum BillingItemsType {
-        
-        /// <remarks/>
-        Unknown,
-        
-        /// <remarks/>
-        PPV,
-        
-        /// <remarks/>
-        Subscription,
-        
-        /// <remarks/>
-        PrePaid,
-        
-        /// <remarks/>
-        PrePaidExpired,
-        
-        /// <remarks/>
-        Collection,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
-    public partial class Price {
-        
-        private double m_dPriceField;
-        
-        private Currency m_oCurrencyField;
-        
-        /// <remarks/>
-        public double m_dPrice {
-            get {
-                return this.m_dPriceField;
-            }
-            set {
-                this.m_dPriceField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public Currency m_oCurrency {
-            get {
-                return this.m_oCurrencyField;
-            }
-            set {
-                this.m_oCurrencyField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
-    public partial class Currency {
-        
-        private string m_sCurrencyCD3Field;
-        
-        private string m_sCurrencyCD2Field;
-        
-        private string m_sCurrencySignField;
-        
-        private int m_nCurrencyIDField;
-        
-        /// <remarks/>
-        public string m_sCurrencyCD3 {
-            get {
-                return this.m_sCurrencyCD3Field;
-            }
-            set {
-                this.m_sCurrencyCD3Field = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sCurrencyCD2 {
-            get {
-                return this.m_sCurrencyCD2Field;
-            }
-            set {
-                this.m_sCurrencyCD2Field = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sCurrencySign {
-            get {
-                return this.m_sCurrencySignField;
-            }
-            set {
-                this.m_sCurrencySignField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_nCurrencyID {
-            get {
-                return this.m_nCurrencyIDField;
-            }
-            set {
-                this.m_nCurrencyIDField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class PrePaidHistoryResponse {
-        
-        private PrePaidHistoryContainer[] m_TransactionsField;
-        
-        private int m_nTransactionsCountField;
-        
-        /// <remarks/>
-        public PrePaidHistoryContainer[] m_Transactions {
-            get {
-                return this.m_TransactionsField;
-            }
-            set {
-                this.m_TransactionsField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_nTransactionsCount {
-            get {
-                return this.m_nTransactionsCountField;
-            }
-            set {
-                this.m_nTransactionsCountField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class UserPrePaidObject {
-        
-        private double m_nTotalAmountField;
-        
-        private double m_nAmountUsedField;
-        
-        private int m_nPPPurchaseIDField;
-        
-        private int m_nPPModuleIDField;
+        private int m_nCurrentUsesField;
         
         private System.DateTime m_dEndDateField;
         
-        private System.DateTime m_dStartDateField;
+        private System.DateTime m_dCurrentDateField;
+        
+        private System.DateTime m_dPurchaseDateField;
+        
+        private System.DateTime m_dLastViewDateField;
+        
+        private PaymentMethod m_purchaseMethodField;
+        
+        private string m_sDeviceUDIDField;
+        
+        private string m_sDeviceNameField;
+        
+        private bool m_bCancelWindowField;
+        
+        private long purchaseIDField;
+        
+        private string pPVCodeField;
         
         /// <remarks/>
-        public double m_nTotalAmount {
+        public int m_nMediaID {
             get {
-                return this.m_nTotalAmountField;
+                return this.m_nMediaIDField;
             }
             set {
-                this.m_nTotalAmountField = value;
+                this.m_nMediaIDField = value;
             }
         }
         
         /// <remarks/>
-        public double m_nAmountUsed {
+        public int m_nMediaFileID {
             get {
-                return this.m_nAmountUsedField;
+                return this.m_nMediaFileIDField;
             }
             set {
-                this.m_nAmountUsedField = value;
+                this.m_nMediaFileIDField = value;
             }
         }
         
         /// <remarks/>
-        public int m_nPPPurchaseID {
+        public int m_nMaxUses {
             get {
-                return this.m_nPPPurchaseIDField;
+                return this.m_nMaxUsesField;
             }
             set {
-                this.m_nPPPurchaseIDField = value;
+                this.m_nMaxUsesField = value;
             }
         }
         
         /// <remarks/>
-        public int m_nPPModuleID {
+        public int m_nCurrentUses {
             get {
-                return this.m_nPPModuleIDField;
+                return this.m_nCurrentUsesField;
             }
             set {
-                this.m_nPPModuleIDField = value;
+                this.m_nCurrentUsesField = value;
             }
         }
         
@@ -5603,534 +4695,211 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         }
         
         /// <remarks/>
-        public System.DateTime m_dStartDate {
+        public System.DateTime m_dCurrentDate {
             get {
-                return this.m_dStartDateField;
+                return this.m_dCurrentDateField;
             }
             set {
-                this.m_dStartDateField = value;
+                this.m_dCurrentDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime m_dPurchaseDate {
+            get {
+                return this.m_dPurchaseDateField;
+            }
+            set {
+                this.m_dPurchaseDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime m_dLastViewDate {
+            get {
+                return this.m_dLastViewDateField;
+            }
+            set {
+                this.m_dLastViewDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public PaymentMethod m_purchaseMethod {
+            get {
+                return this.m_purchaseMethodField;
+            }
+            set {
+                this.m_purchaseMethodField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sDeviceUDID {
+            get {
+                return this.m_sDeviceUDIDField;
+            }
+            set {
+                this.m_sDeviceUDIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sDeviceName {
+            get {
+                return this.m_sDeviceNameField;
+            }
+            set {
+                this.m_sDeviceNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool m_bCancelWindow {
+            get {
+                return this.m_bCancelWindowField;
+            }
+            set {
+                this.m_bCancelWindowField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long PurchaseID {
+            get {
+                return this.purchaseIDField;
+            }
+            set {
+                this.purchaseIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string PPVCode {
+            get {
+                return this.pPVCodeField;
+            }
+            set {
+                this.pPVCodeField = value;
             }
         }
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public enum PaymentMethod {
+        
+        /// <remarks/>
+        Unknown,
+        
+        /// <remarks/>
+        CreditCard,
+        
+        /// <remarks/>
+        SMS,
+        
+        /// <remarks/>
+        PayPal,
+        
+        /// <remarks/>
+        DebitCard,
+        
+        /// <remarks/>
+        Ideal,
+        
+        /// <remarks/>
+        Incaso,
+        
+        /// <remarks/>
+        Gift,
+        
+        /// <remarks/>
+        Visa,
+        
+        /// <remarks/>
+        MasterCard,
+        
+        /// <remarks/>
+        InApp,
+        
+        /// <remarks/>
+        M1,
+        
+        /// <remarks/>
+        ChangeSubscription,
+        
+        /// <remarks/>
+        Offline,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class UserPrePaidContainer {
+    public partial class AssetItemPrices {
         
-        private double m_nTotalAmountField;
+        private string assetIdField;
         
-        private double m_nAmountUsedField;
+        private eAssetTypes assetTypeField;
         
-        private string m_sUserSiteGuidField;
-        
-        private string m_sCurrencyCodeField;
-        
-        private UserPrePaidObject[] m_oUserPPsField;
+        private MediaFileItemPricesContainer[] priceContainersField;
         
         /// <remarks/>
-        public double m_nTotalAmount {
+        public string AssetId {
             get {
-                return this.m_nTotalAmountField;
+                return this.assetIdField;
             }
             set {
-                this.m_nTotalAmountField = value;
+                this.assetIdField = value;
             }
         }
         
         /// <remarks/>
-        public double m_nAmountUsed {
+        public eAssetTypes AssetType {
             get {
-                return this.m_nAmountUsedField;
+                return this.assetTypeField;
             }
             set {
-                this.m_nAmountUsedField = value;
+                this.assetTypeField = value;
             }
         }
         
         /// <remarks/>
-        public string m_sUserSiteGuid {
+        public MediaFileItemPricesContainer[] PriceContainers {
             get {
-                return this.m_sUserSiteGuidField;
+                return this.priceContainersField;
             }
             set {
-                this.m_sUserSiteGuidField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sCurrencyCode {
-            get {
-                return this.m_sCurrencyCodeField;
-            }
-            set {
-                this.m_sCurrencyCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public UserPrePaidObject[] m_oUserPPs {
-            get {
-                return this.m_oUserPPsField;
-            }
-            set {
-                this.m_oUserPPsField = value;
+                this.priceContainersField = value;
             }
         }
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class PrePaidResponse {
-        
-        private PrePaidResponseStatus m_oStatusField;
-        
-        private string m_sStatusDescriptionField;
-        
-        /// <remarks/>
-        public PrePaidResponseStatus m_oStatus {
-            get {
-                return this.m_oStatusField;
-            }
-            set {
-                this.m_oStatusField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sStatusDescription {
-            get {
-                return this.m_sStatusDescriptionField;
-            }
-            set {
-                this.m_sStatusDescriptionField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public enum PrePaidResponseStatus {
+    public enum eAssetTypes {
         
         /// <remarks/>
-        Success,
+        UNKNOWN,
         
         /// <remarks/>
-        Fail,
+        EPG,
         
         /// <remarks/>
-        UnKnown,
+        NPVR,
         
         /// <remarks/>
-        PriceNotCorrect,
-        
-        /// <remarks/>
-        UnKnownUser,
-        
-        /// <remarks/>
-        UnKnownPPVModule,
-        
-        /// <remarks/>
-        UnKnownPPModule,
-        
-        /// <remarks/>
-        NoCredit,
-        
-        /// <remarks/>
-        UserSuspended,
+        MEDIA,
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class BillingStatusResponse {
-        
-        private BillingResponse billingResponseField;
-        
-        private Status statusField;
-        
-        /// <remarks/>
-        public BillingResponse BillingResponse {
-            get {
-                return this.billingResponseField;
-            }
-            set {
-                this.billingResponseField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public Status Status {
-            get {
-                return this.statusField;
-            }
-            set {
-                this.statusField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class BillingResponse {
-        
-        private BillingResponseStatus m_oStatusField;
-        
-        private string m_sRecieptCodeField;
-        
-        private string m_sStatusDescriptionField;
-        
-        private string m_sExternalReceiptCodeField;
-        
-        /// <remarks/>
-        public BillingResponseStatus m_oStatus {
-            get {
-                return this.m_oStatusField;
-            }
-            set {
-                this.m_oStatusField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sRecieptCode {
-            get {
-                return this.m_sRecieptCodeField;
-            }
-            set {
-                this.m_sRecieptCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sStatusDescription {
-            get {
-                return this.m_sStatusDescriptionField;
-            }
-            set {
-                this.m_sStatusDescriptionField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sExternalReceiptCode {
-            get {
-                return this.m_sExternalReceiptCodeField;
-            }
-            set {
-                this.m_sExternalReceiptCodeField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
-    public enum BillingResponseStatus {
-        
-        /// <remarks/>
-        Success,
-        
-        /// <remarks/>
-        Fail,
-        
-        /// <remarks/>
-        UnKnown,
-        
-        /// <remarks/>
-        PriceNotCorrect,
-        
-        /// <remarks/>
-        UnKnownUser,
-        
-        /// <remarks/>
-        UnKnownPPVModule,
-        
-        /// <remarks/>
-        ExpiredCard,
-        
-        /// <remarks/>
-        ExternalError,
-        
-        /// <remarks/>
-        CellularPermissionsError,
-        
-        /// <remarks/>
-        UnKnownBillingProvider,
-        
-        /// <remarks/>
-        UserSuspended,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class SubscriptionsPricesResponse {
-        
-        private SubscriptionsPricesContainer[] subscriptionsPricesField;
-        
-        private Status statusField;
-        
-        /// <remarks/>
-        public SubscriptionsPricesContainer[] SubscriptionsPrices {
-            get {
-                return this.subscriptionsPricesField;
-            }
-            set {
-                this.subscriptionsPricesField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public Status Status {
-            get {
-                return this.statusField;
-            }
-            set {
-                this.statusField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class SubscriptionsPricesContainer {
-        
-        private string m_sSubscriptionCodeField;
-        
-        private Price m_oPriceField;
-        
-        private PriceReason m_PriceReasonField;
-        
-        /// <remarks/>
-        public string m_sSubscriptionCode {
-            get {
-                return this.m_sSubscriptionCodeField;
-            }
-            set {
-                this.m_sSubscriptionCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public Price m_oPrice {
-            get {
-                return this.m_oPriceField;
-            }
-            set {
-                this.m_oPriceField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public PriceReason m_PriceReason {
-            get {
-                return this.m_PriceReasonField;
-            }
-            set {
-                this.m_PriceReasonField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public enum PriceReason {
-        
-        /// <remarks/>
-        PPVPurchased,
-        
-        /// <remarks/>
-        Free,
-        
-        /// <remarks/>
-        ForPurchaseSubscriptionOnly,
-        
-        /// <remarks/>
-        SubscriptionPurchased,
-        
-        /// <remarks/>
-        ForPurchase,
-        
-        /// <remarks/>
-        UnKnown,
-        
-        /// <remarks/>
-        SubscriptionPurchasedWrongCurrency,
-        
-        /// <remarks/>
-        PrePaidPurchased,
-        
-        /// <remarks/>
-        GeoCommerceBlocked,
-        
-        /// <remarks/>
-        EntitledToPreviewModule,
-        
-        /// <remarks/>
-        FirstDeviceLimitation,
-        
-        /// <remarks/>
-        CollectionPurchased,
-        
-        /// <remarks/>
-        UserSuspended,
-        
-        /// <remarks/>
-        NotForPurchase,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class PrePaidPricesContainer {
-        
-        private string m_sPrePaidCodeField;
-        
-        private Price m_oPriceField;
-        
-        private PriceReason m_PriceReasonField;
-        
-        /// <remarks/>
-        public string m_sPrePaidCode {
-            get {
-                return this.m_sPrePaidCodeField;
-            }
-            set {
-                this.m_sPrePaidCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public Price m_oPrice {
-            get {
-                return this.m_oPriceField;
-            }
-            set {
-                this.m_oPriceField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public PriceReason m_PriceReason {
-            get {
-                return this.m_PriceReasonField;
-            }
-            set {
-                this.m_PriceReasonField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class CollectionsPricesContainer {
-        
-        private string m_sCollectionCodeField;
-        
-        private Price m_oPriceField;
-        
-        private PriceReason m_PriceReasonField;
-        
-        /// <remarks/>
-        public string m_sCollectionCode {
-            get {
-                return this.m_sCollectionCodeField;
-            }
-            set {
-                this.m_sCollectionCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public Price m_oPrice {
-            get {
-                return this.m_oPriceField;
-            }
-            set {
-                this.m_oPriceField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public PriceReason m_PriceReason {
-            get {
-                return this.m_PriceReasonField;
-            }
-            set {
-                this.m_PriceReasonField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class MediaFileItemPricesContainerResponse {
-        
-        private MediaFileItemPricesContainer[] itemsPricesField;
-        
-        private Status statusField;
-        
-        /// <remarks/>
-        public MediaFileItemPricesContainer[] ItemsPrices {
-            get {
-                return this.itemsPricesField;
-            }
-            set {
-                this.itemsPricesField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public Status Status {
-            get {
-                return this.statusField;
-            }
-            set {
-                this.statusField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -6175,7 +4944,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -6415,7 +5184,146 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    public partial class Price {
+        
+        private double m_dPriceField;
+        
+        private Currency m_oCurrencyField;
+        
+        /// <remarks/>
+        public double m_dPrice {
+            get {
+                return this.m_dPriceField;
+            }
+            set {
+                this.m_dPriceField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Currency m_oCurrency {
+            get {
+                return this.m_oCurrencyField;
+            }
+            set {
+                this.m_oCurrencyField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    public partial class Currency {
+        
+        private string m_sCurrencyCD3Field;
+        
+        private string m_sCurrencyCD2Field;
+        
+        private string m_sCurrencySignField;
+        
+        private int m_nCurrencyIDField;
+        
+        /// <remarks/>
+        public string m_sCurrencyCD3 {
+            get {
+                return this.m_sCurrencyCD3Field;
+            }
+            set {
+                this.m_sCurrencyCD3Field = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sCurrencyCD2 {
+            get {
+                return this.m_sCurrencyCD2Field;
+            }
+            set {
+                this.m_sCurrencyCD2Field = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sCurrencySign {
+            get {
+                return this.m_sCurrencySignField;
+            }
+            set {
+                this.m_sCurrencySignField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nCurrencyID {
+            get {
+                return this.m_nCurrencyIDField;
+            }
+            set {
+                this.m_nCurrencyIDField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public enum PriceReason {
+        
+        /// <remarks/>
+        PPVPurchased,
+        
+        /// <remarks/>
+        Free,
+        
+        /// <remarks/>
+        ForPurchaseSubscriptionOnly,
+        
+        /// <remarks/>
+        SubscriptionPurchased,
+        
+        /// <remarks/>
+        ForPurchase,
+        
+        /// <remarks/>
+        UnKnown,
+        
+        /// <remarks/>
+        SubscriptionPurchasedWrongCurrency,
+        
+        /// <remarks/>
+        PrePaidPurchased,
+        
+        /// <remarks/>
+        GeoCommerceBlocked,
+        
+        /// <remarks/>
+        EntitledToPreviewModule,
+        
+        /// <remarks/>
+        FirstDeviceLimitation,
+        
+        /// <remarks/>
+        CollectionPurchased,
+        
+        /// <remarks/>
+        UserSuspended,
+        
+        /// <remarks/>
+        NotForPurchase,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -6689,7 +5597,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -6723,7 +5631,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(DiscountModule))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -6780,7 +5688,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -6813,7 +5721,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -6882,7 +5790,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
     public enum RelationTypes {
@@ -6895,7 +5803,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -6928,7 +5836,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
     public enum WhenAlgoType {
@@ -6941,7 +5849,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -7154,7 +6062,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -7200,7 +6108,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -7257,9 +6165,42 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    public partial class ServiceObject {
+        
+        private long idField;
+        
+        private string nameField;
+        
+        /// <remarks/>
+        public long ID {
+            get {
+                return this.idField;
+            }
+            set {
+                this.idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Name {
+            get {
+                return this.nameField;
+            }
+            set {
+                this.nameField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(Collection))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(Subscription))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -7400,7 +6341,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -7529,7 +6470,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -7670,7 +6611,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -7787,7 +6728,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
     public enum CouponsStatus {
@@ -7812,1369 +6753,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class WSInt32 {
-        
-        private int m_nInt32Field;
-        
-        /// <remarks/>
-        public int m_nInt32 {
-            get {
-                return this.m_nInt32Field;
-            }
-            set {
-                this.m_nInt32Field = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class BillingTransactions {
-        
-        private Status respField;
-        
-        private BillingTransactionsResponse transactionsField;
-        
-        /// <remarks/>
-        public Status resp {
-            get {
-                return this.respField;
-            }
-            set {
-                this.respField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public BillingTransactionsResponse transactions {
-            get {
-                return this.transactionsField;
-            }
-            set {
-                this.transactionsField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class BillingTransactionsResponse {
-        
-        private BillingTransactionContainer[] m_TransactionsField;
-        
-        private int m_nTransactionsCountField;
-        
-        /// <remarks/>
-        public BillingTransactionContainer[] m_Transactions {
-            get {
-                return this.m_TransactionsField;
-            }
-            set {
-                this.m_TransactionsField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_nTransactionsCount {
-            get {
-                return this.m_nTransactionsCountField;
-            }
-            set {
-                this.m_nTransactionsCountField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(TransactionHistoryContainer))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class BillingTransactionContainer {
-        
-        private string m_sRecieptCodeField;
-        
-        private string m_sPurchasedItemNameField;
-        
-        private string m_sPurchasedItemCodeField;
-        
-        private BillingItemsType m_eItemTypeField;
-        
-        private BillingAction m_eBillingActionField;
-        
-        private Price m_PriceField;
-        
-        private System.DateTime m_dtActionDateField;
-        
-        private System.DateTime m_dtStartDateField;
-        
-        private System.DateTime m_dtEndDateField;
-        
-        private PaymentMethod m_ePaymentMethodField;
-        
-        private string m_sPaymentMethodExtraDetailsField;
-        
-        private bool m_bIsRecurringField;
-        
-        private int m_nBillingProviderRefField;
-        
-        private int m_nPurchaseIDField;
-        
-        private string m_sRemarksField;
-        
-        /// <remarks/>
-        public string m_sRecieptCode {
-            get {
-                return this.m_sRecieptCodeField;
-            }
-            set {
-                this.m_sRecieptCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sPurchasedItemName {
-            get {
-                return this.m_sPurchasedItemNameField;
-            }
-            set {
-                this.m_sPurchasedItemNameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sPurchasedItemCode {
-            get {
-                return this.m_sPurchasedItemCodeField;
-            }
-            set {
-                this.m_sPurchasedItemCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public BillingItemsType m_eItemType {
-            get {
-                return this.m_eItemTypeField;
-            }
-            set {
-                this.m_eItemTypeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public BillingAction m_eBillingAction {
-            get {
-                return this.m_eBillingActionField;
-            }
-            set {
-                this.m_eBillingActionField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public Price m_Price {
-            get {
-                return this.m_PriceField;
-            }
-            set {
-                this.m_PriceField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime m_dtActionDate {
-            get {
-                return this.m_dtActionDateField;
-            }
-            set {
-                this.m_dtActionDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime m_dtStartDate {
-            get {
-                return this.m_dtStartDateField;
-            }
-            set {
-                this.m_dtStartDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime m_dtEndDate {
-            get {
-                return this.m_dtEndDateField;
-            }
-            set {
-                this.m_dtEndDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public PaymentMethod m_ePaymentMethod {
-            get {
-                return this.m_ePaymentMethodField;
-            }
-            set {
-                this.m_ePaymentMethodField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sPaymentMethodExtraDetails {
-            get {
-                return this.m_sPaymentMethodExtraDetailsField;
-            }
-            set {
-                this.m_sPaymentMethodExtraDetailsField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool m_bIsRecurring {
-            get {
-                return this.m_bIsRecurringField;
-            }
-            set {
-                this.m_bIsRecurringField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_nBillingProviderRef {
-            get {
-                return this.m_nBillingProviderRefField;
-            }
-            set {
-                this.m_nBillingProviderRefField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_nPurchaseID {
-            get {
-                return this.m_nPurchaseIDField;
-            }
-            set {
-                this.m_nPurchaseIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sRemarks {
-            get {
-                return this.m_sRemarksField;
-            }
-            set {
-                this.m_sRemarksField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public enum BillingAction {
-        
-        /// <remarks/>
-        Unknown,
-        
-        /// <remarks/>
-        Purchase,
-        
-        /// <remarks/>
-        RenewPayment,
-        
-        /// <remarks/>
-        RenewCancledSubscription,
-        
-        /// <remarks/>
-        CancelSubscriptionOrder,
-        
-        /// <remarks/>
-        SubscriptionDateChanged,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public enum PaymentMethod {
-        
-        /// <remarks/>
-        Unknown,
-        
-        /// <remarks/>
-        CreditCard,
-        
-        /// <remarks/>
-        SMS,
-        
-        /// <remarks/>
-        PayPal,
-        
-        /// <remarks/>
-        DebitCard,
-        
-        /// <remarks/>
-        Ideal,
-        
-        /// <remarks/>
-        Incaso,
-        
-        /// <remarks/>
-        Gift,
-        
-        /// <remarks/>
-        Visa,
-        
-        /// <remarks/>
-        MasterCard,
-        
-        /// <remarks/>
-        InApp,
-        
-        /// <remarks/>
-        M1,
-        
-        /// <remarks/>
-        ChangeSubscription,
-        
-        /// <remarks/>
-        Offline,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class TransactionHistoryContainer : BillingTransactionContainer {
-        
-        private string siteGuidField;
-        
-        private string userFullNameField;
-        
-        /// <remarks/>
-        public string SiteGuid {
-            get {
-                return this.siteGuidField;
-            }
-            set {
-                this.siteGuidField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string UserFullName {
-            get {
-                return this.userFullNameField;
-            }
-            set {
-                this.userFullNameField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class DomainBillingTransactionsResponse {
-        
-        private int m_nDomainIDField;
-        
-        private UserBillingTransactionsResponse[] m_BillingTransactionResponsesField;
-        
-        /// <remarks/>
-        public int m_nDomainID {
-            get {
-                return this.m_nDomainIDField;
-            }
-            set {
-                this.m_nDomainIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public UserBillingTransactionsResponse[] m_BillingTransactionResponses {
-            get {
-                return this.m_BillingTransactionResponsesField;
-            }
-            set {
-                this.m_BillingTransactionResponsesField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class UserBillingTransactionsResponse {
-        
-        private string m_sSiteGUIDField;
-        
-        private BillingTransactionsResponse m_BillingTransactionResponseField;
-        
-        /// <remarks/>
-        public string m_sSiteGUID {
-            get {
-                return this.m_sSiteGUIDField;
-            }
-            set {
-                this.m_sSiteGUIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public BillingTransactionsResponse m_BillingTransactionResponse {
-            get {
-                return this.m_BillingTransactionResponseField;
-            }
-            set {
-                this.m_BillingTransactionResponseField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class DomainsBillingTransactionsResponse {
-        
-        private Status statusField;
-        
-        private DomainBillingTransactionsResponse[] billingTransactionsField;
-        
-        /// <remarks/>
-        public Status status {
-            get {
-                return this.statusField;
-            }
-            set {
-                this.statusField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public DomainBillingTransactionsResponse[] billingTransactions {
-            get {
-                return this.billingTransactionsField;
-            }
-            set {
-                this.billingTransactionsField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class DomainTransactionsHistoryResponse {
-        
-        private Status statusField;
-        
-        private int transactionsCountField;
-        
-        private TransactionHistoryContainer[] transactionsHistoryField;
-        
-        /// <remarks/>
-        public Status Status {
-            get {
-                return this.statusField;
-            }
-            set {
-                this.statusField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int TransactionsCount {
-            get {
-                return this.transactionsCountField;
-            }
-            set {
-                this.transactionsCountField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public TransactionHistoryContainer[] TransactionsHistory {
-            get {
-                return this.transactionsHistoryField;
-            }
-            set {
-                this.transactionsHistoryField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class PermittedCollectionContainer {
-        
-        private string m_sCollectionCodeField;
-        
-        private System.DateTime m_dEndDateField;
-        
-        private System.DateTime m_dCurrentDateField;
-        
-        private System.DateTime m_dLastViewDateField;
-        
-        private System.DateTime m_dPurchaseDateField;
-        
-        private int m_nCollectionPurchaseIDField;
-        
-        private PaymentMethod m_paymentMethodField;
-        
-        private string m_sDeviceUDIDField;
-        
-        private string m_sDeviceNameField;
-        
-        private bool m_bCancelWindowField;
-        
-        /// <remarks/>
-        public string m_sCollectionCode {
-            get {
-                return this.m_sCollectionCodeField;
-            }
-            set {
-                this.m_sCollectionCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime m_dEndDate {
-            get {
-                return this.m_dEndDateField;
-            }
-            set {
-                this.m_dEndDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime m_dCurrentDate {
-            get {
-                return this.m_dCurrentDateField;
-            }
-            set {
-                this.m_dCurrentDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime m_dLastViewDate {
-            get {
-                return this.m_dLastViewDateField;
-            }
-            set {
-                this.m_dLastViewDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime m_dPurchaseDate {
-            get {
-                return this.m_dPurchaseDateField;
-            }
-            set {
-                this.m_dPurchaseDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_nCollectionPurchaseID {
-            get {
-                return this.m_nCollectionPurchaseIDField;
-            }
-            set {
-                this.m_nCollectionPurchaseIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public PaymentMethod m_paymentMethod {
-            get {
-                return this.m_paymentMethodField;
-            }
-            set {
-                this.m_paymentMethodField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sDeviceUDID {
-            get {
-                return this.m_sDeviceUDIDField;
-            }
-            set {
-                this.m_sDeviceUDIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sDeviceName {
-            get {
-                return this.m_sDeviceNameField;
-            }
-            set {
-                this.m_sDeviceNameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool m_bCancelWindow {
-            get {
-                return this.m_bCancelWindowField;
-            }
-            set {
-                this.m_bCancelWindowField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class PermittedSubscriptionContainer {
-        
-        private string m_sSubscriptionCodeField;
-        
-        private int m_nMaxUsesField;
-        
-        private int m_nCurrentUsesField;
-        
-        private System.DateTime m_dEndDateField;
-        
-        private System.DateTime m_dCurrentDateField;
-        
-        private System.DateTime m_dLastViewDateField;
-        
-        private System.DateTime m_dPurchaseDateField;
-        
-        private System.DateTime m_dNextRenewalDateField;
-        
-        private bool m_bRecurringStatusField;
-        
-        private bool m_bIsSubRenewableField;
-        
-        private int m_nSubscriptionPurchaseIDField;
-        
-        private PaymentMethod m_paymentMethodField;
-        
-        private string m_sDeviceUDIDField;
-        
-        private string m_sDeviceNameField;
-        
-        private bool m_bCancelWindowField;
-        
-        private bool m_bIsInGracePeriodField;
-        
-        /// <remarks/>
-        public string m_sSubscriptionCode {
-            get {
-                return this.m_sSubscriptionCodeField;
-            }
-            set {
-                this.m_sSubscriptionCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_nMaxUses {
-            get {
-                return this.m_nMaxUsesField;
-            }
-            set {
-                this.m_nMaxUsesField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_nCurrentUses {
-            get {
-                return this.m_nCurrentUsesField;
-            }
-            set {
-                this.m_nCurrentUsesField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime m_dEndDate {
-            get {
-                return this.m_dEndDateField;
-            }
-            set {
-                this.m_dEndDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime m_dCurrentDate {
-            get {
-                return this.m_dCurrentDateField;
-            }
-            set {
-                this.m_dCurrentDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime m_dLastViewDate {
-            get {
-                return this.m_dLastViewDateField;
-            }
-            set {
-                this.m_dLastViewDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime m_dPurchaseDate {
-            get {
-                return this.m_dPurchaseDateField;
-            }
-            set {
-                this.m_dPurchaseDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime m_dNextRenewalDate {
-            get {
-                return this.m_dNextRenewalDateField;
-            }
-            set {
-                this.m_dNextRenewalDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool m_bRecurringStatus {
-            get {
-                return this.m_bRecurringStatusField;
-            }
-            set {
-                this.m_bRecurringStatusField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool m_bIsSubRenewable {
-            get {
-                return this.m_bIsSubRenewableField;
-            }
-            set {
-                this.m_bIsSubRenewableField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_nSubscriptionPurchaseID {
-            get {
-                return this.m_nSubscriptionPurchaseIDField;
-            }
-            set {
-                this.m_nSubscriptionPurchaseIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public PaymentMethod m_paymentMethod {
-            get {
-                return this.m_paymentMethodField;
-            }
-            set {
-                this.m_paymentMethodField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sDeviceUDID {
-            get {
-                return this.m_sDeviceUDIDField;
-            }
-            set {
-                this.m_sDeviceUDIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sDeviceName {
-            get {
-                return this.m_sDeviceNameField;
-            }
-            set {
-                this.m_sDeviceNameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool m_bCancelWindow {
-            get {
-                return this.m_bCancelWindowField;
-            }
-            set {
-                this.m_bCancelWindowField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool m_bIsInGracePeriod {
-            get {
-                return this.m_bIsInGracePeriodField;
-            }
-            set {
-                this.m_bIsInGracePeriodField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class SocialInviteInfo {
-        
-        private string m_hashCodeField;
-        
-        /// <remarks/>
-        public string m_hashCode {
-            get {
-                return this.m_hashCodeField;
-            }
-            set {
-                this.m_hashCodeField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class VoucherReceipentInfo {
-        
-        private string m_emailAddField;
-        
-        private string m_receipentNameField;
-        
-        /// <remarks/>
-        public string m_emailAdd {
-            get {
-                return this.m_emailAddField;
-            }
-            set {
-                this.m_emailAddField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_receipentName {
-            get {
-                return this.m_receipentNameField;
-            }
-            set {
-                this.m_receipentNameField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class CampaignActionInfo {
-        
-        private VoucherReceipentInfo[] m_voucherReceipentsField;
-        
-        private SocialInviteInfo m_socialInviteInfoField;
-        
-        private int m_mediaIDField;
-        
-        private int m_siteGuidField;
-        
-        private string m_mediaLinkField;
-        
-        private string m_senderNameField;
-        
-        private string m_senderEmailField;
-        
-        private CampaignActionResult m_statusField;
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable=false)]
-        public VoucherReceipentInfo[] m_voucherReceipents {
-            get {
-                return this.m_voucherReceipentsField;
-            }
-            set {
-                this.m_voucherReceipentsField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public SocialInviteInfo m_socialInviteInfo {
-            get {
-                return this.m_socialInviteInfoField;
-            }
-            set {
-                this.m_socialInviteInfoField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_mediaID {
-            get {
-                return this.m_mediaIDField;
-            }
-            set {
-                this.m_mediaIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_siteGuid {
-            get {
-                return this.m_siteGuidField;
-            }
-            set {
-                this.m_siteGuidField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_mediaLink {
-            get {
-                return this.m_mediaLinkField;
-            }
-            set {
-                this.m_mediaLinkField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_senderName {
-            get {
-                return this.m_senderNameField;
-            }
-            set {
-                this.m_senderNameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_senderEmail {
-            get {
-                return this.m_senderEmailField;
-            }
-            set {
-                this.m_senderEmailField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public CampaignActionResult m_status {
-            get {
-                return this.m_statusField;
-            }
-            set {
-                this.m_statusField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public enum CampaignActionResult {
-        
-        /// <remarks/>
-        OK,
-        
-        /// <remarks/>
-        ERROR,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class LicensedLinkResponse {
-        
-        private string mainUrlField;
-        
-        private string altUrlField;
-        
-        private string statusField;
-        
-        private Status statusField1;
-        
-        /// <remarks/>
-        public string mainUrl {
-            get {
-                return this.mainUrlField;
-            }
-            set {
-                this.mainUrlField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string altUrl {
-            get {
-                return this.altUrlField;
-            }
-            set {
-                this.altUrlField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string status {
-            get {
-                return this.statusField;
-            }
-            set {
-                this.statusField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public Status Status {
-            get {
-                return this.statusField1;
-            }
-            set {
-                this.statusField1 = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class PermittedMediaContainerResponse {
-        
-        private PermittedMediaContainer[] permittedMediaContainerField;
-        
-        private Status statusField;
-        
-        /// <remarks/>
-        public PermittedMediaContainer[] PermittedMediaContainer {
-            get {
-                return this.permittedMediaContainerField;
-            }
-            set {
-                this.permittedMediaContainerField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public Status Status {
-            get {
-                return this.statusField;
-            }
-            set {
-                this.statusField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class PermittedMediaContainer {
-        
-        private int m_nMediaIDField;
-        
-        private int m_nMediaFileIDField;
-        
-        private int m_nMaxUsesField;
-        
-        private int m_nCurrentUsesField;
-        
-        private System.DateTime m_dEndDateField;
-        
-        private System.DateTime m_dCurrentDateField;
-        
-        private System.DateTime m_dPurchaseDateField;
-        
-        private System.DateTime m_dLastViewDateField;
-        
-        private PaymentMethod m_purchaseMethodField;
-        
-        private string m_sDeviceUDIDField;
-        
-        private string m_sDeviceNameField;
-        
-        private bool m_bCancelWindowField;
-        
-        private long purchaseIDField;
-        
-        private string pPVCodeField;
-        
-        /// <remarks/>
-        public int m_nMediaID {
-            get {
-                return this.m_nMediaIDField;
-            }
-            set {
-                this.m_nMediaIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_nMediaFileID {
-            get {
-                return this.m_nMediaFileIDField;
-            }
-            set {
-                this.m_nMediaFileIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_nMaxUses {
-            get {
-                return this.m_nMaxUsesField;
-            }
-            set {
-                this.m_nMaxUsesField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int m_nCurrentUses {
-            get {
-                return this.m_nCurrentUsesField;
-            }
-            set {
-                this.m_nCurrentUsesField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime m_dEndDate {
-            get {
-                return this.m_dEndDateField;
-            }
-            set {
-                this.m_dEndDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime m_dCurrentDate {
-            get {
-                return this.m_dCurrentDateField;
-            }
-            set {
-                this.m_dCurrentDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime m_dPurchaseDate {
-            get {
-                return this.m_dPurchaseDateField;
-            }
-            set {
-                this.m_dPurchaseDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime m_dLastViewDate {
-            get {
-                return this.m_dLastViewDateField;
-            }
-            set {
-                this.m_dLastViewDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public PaymentMethod m_purchaseMethod {
-            get {
-                return this.m_purchaseMethodField;
-            }
-            set {
-                this.m_purchaseMethodField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sDeviceUDID {
-            get {
-                return this.m_sDeviceUDIDField;
-            }
-            set {
-                this.m_sDeviceUDIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sDeviceName {
-            get {
-                return this.m_sDeviceNameField;
-            }
-            set {
-                this.m_sDeviceNameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool m_bCancelWindow {
-            get {
-                return this.m_bCancelWindowField;
-            }
-            set {
-                this.m_bCancelWindowField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public long PurchaseID {
-            get {
-                return this.purchaseIDField;
-            }
-            set {
-                this.purchaseIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string PPVCode {
-            get {
-                return this.pPVCodeField;
-            }
-            set {
-                this.pPVCodeField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class AssetItemPrices {
-        
-        private string assetIdField;
-        
-        private eAssetTypes assetTypeField;
-        
-        private MediaFileItemPricesContainer[] priceContainersField;
-        
-        /// <remarks/>
-        public string AssetId {
-            get {
-                return this.assetIdField;
-            }
-            set {
-                this.assetIdField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public eAssetTypes AssetType {
-            get {
-                return this.assetTypeField;
-            }
-            set {
-                this.assetTypeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public MediaFileItemPricesContainer[] PriceContainers {
-            get {
-                return this.priceContainersField;
-            }
-            set {
-                this.priceContainersField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public enum eAssetTypes {
-        
-        /// <remarks/>
-        UNKNOWN,
-        
-        /// <remarks/>
-        EPG,
-        
-        /// <remarks/>
-        NPVR,
-        
-        /// <remarks/>
-        MEDIA,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -9207,7 +6786,40 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class Status {
+        
+        private int codeField;
+        
+        private string messageField;
+        
+        /// <remarks/>
+        public int Code {
+            get {
+                return this.codeField;
+            }
+            set {
+                this.codeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Message {
+            get {
+                return this.messageField;
+            }
+            set {
+                this.messageField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -9252,7 +6864,136 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class TransactionResponse {
+        
+        private Status statusField;
+        
+        private string transactionIDField;
+        
+        private string pGReferenceIDField;
+        
+        private string pGResponseCodeField;
+        
+        private string stateField;
+        
+        private int failReasonCodeField;
+        
+        private long createdAtField;
+        
+        private long startDateSecondsField;
+        
+        private long endDateSecondsField;
+        
+        private bool autoRenewingField;
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string TransactionID {
+            get {
+                return this.transactionIDField;
+            }
+            set {
+                this.transactionIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string PGReferenceID {
+            get {
+                return this.pGReferenceIDField;
+            }
+            set {
+                this.pGReferenceIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string PGResponseCode {
+            get {
+                return this.pGResponseCodeField;
+            }
+            set {
+                this.pGResponseCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string State {
+            get {
+                return this.stateField;
+            }
+            set {
+                this.stateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int FailReasonCode {
+            get {
+                return this.failReasonCodeField;
+            }
+            set {
+                this.failReasonCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long CreatedAt {
+            get {
+                return this.createdAtField;
+            }
+            set {
+                this.createdAtField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long StartDateSeconds {
+            get {
+                return this.startDateSecondsField;
+            }
+            set {
+                this.startDateSecondsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long EndDateSeconds {
+            get {
+                return this.endDateSecondsField;
+            }
+            set {
+                this.endDateSecondsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool AutoRenewing {
+            get {
+                return this.autoRenewingField;
+            }
+            set {
+                this.autoRenewingField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -9489,7 +7230,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum eTransactionType {
@@ -9505,7 +7246,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -9538,7 +7279,2266 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class DomainServicesResponse {
+        
+        private Status statusField;
+        
+        private ServiceObject[] servicesField;
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public ServiceObject[] Services {
+            get {
+                return this.servicesField;
+            }
+            set {
+                this.servicesField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordResponse))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(LicensedLinkNPVRResponse))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelDeleteResponse))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(QuotaResponse))]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class NPVRResponse {
+        
+        private string statusField;
+        
+        private string msgField;
+        
+        /// <remarks/>
+        public string status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string msg {
+            get {
+                return this.msgField;
+            }
+            set {
+                this.msgField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class RecordResponse : NPVRResponse {
+        
+        private string recordingIDField;
+        
+        /// <remarks/>
+        public string recordingID {
+            get {
+                return this.recordingIDField;
+            }
+            set {
+                this.recordingIDField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class LicensedLinkNPVRResponse : NPVRResponse {
+        
+        private string mainUrlField;
+        
+        /// <remarks/>
+        public string mainUrl {
+            get {
+                return this.mainUrlField;
+            }
+            set {
+                this.mainUrlField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class CancelDeleteResponse : NPVRResponse {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class QuotaResponse : NPVRResponse {
+        
+        private long totalQuotaField;
+        
+        private long occupiedQuotaField;
+        
+        /// <remarks/>
+        public long totalQuota {
+            get {
+                return this.totalQuotaField;
+            }
+            set {
+                this.totalQuotaField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long occupiedQuota {
+            get {
+                return this.occupiedQuotaField;
+            }
+            set {
+                this.occupiedQuotaField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelNPVRCommand))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordNPVRCommand))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RetrieveQuotaNPVRCommand))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(DeleteNPVRCommand))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelSeriesNPVRCommand))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordSeriesByProgramIdNPVRCommand))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordSeriesByNameNPVRCommand))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(DeleteSeriesNPVRCommand))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ProtectNPVRCommand))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(LicensedLinkNPVRCommand))]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public abstract partial class BaseNPVRCommand {
+        
+        private string wsUsernameField;
+        
+        private string wsPasswordField;
+        
+        private string siteGuidField;
+        
+        private long domainIDField;
+        
+        private string udidField;
+        
+        private string assetIDField;
+        
+        /// <remarks/>
+        public string wsUsername {
+            get {
+                return this.wsUsernameField;
+            }
+            set {
+                this.wsUsernameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string wsPassword {
+            get {
+                return this.wsPasswordField;
+            }
+            set {
+                this.wsPasswordField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string siteGuid {
+            get {
+                return this.siteGuidField;
+            }
+            set {
+                this.siteGuidField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long domainID {
+            get {
+                return this.domainIDField;
+            }
+            set {
+                this.domainIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string udid {
+            get {
+                return this.udidField;
+            }
+            set {
+                this.udidField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string assetID {
+            get {
+                return this.assetIDField;
+            }
+            set {
+                this.assetIDField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class CancelNPVRCommand : BaseNPVRCommand {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class RecordNPVRCommand : BaseNPVRCommand {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class RetrieveQuotaNPVRCommand : BaseNPVRCommand {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class DeleteNPVRCommand : BaseNPVRCommand {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class CancelSeriesNPVRCommand : BaseNPVRCommand {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class RecordSeriesByProgramIdNPVRCommand : BaseNPVRCommand {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class RecordSeriesByNameNPVRCommand : BaseNPVRCommand {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class DeleteSeriesNPVRCommand : BaseNPVRCommand {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class ProtectNPVRCommand : BaseNPVRCommand {
+        
+        private bool isProtectField;
+        
+        /// <remarks/>
+        public bool isProtect {
+            get {
+                return this.isProtectField;
+            }
+            set {
+                this.isProtectField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class LicensedLinkNPVRCommand : BaseNPVRCommand {
+        
+        private System.DateTime startTimeField;
+        
+        private int formatField;
+        
+        private int mediaFileIDField;
+        
+        private string basicLinkField;
+        
+        private string userIPField;
+        
+        private string referrerField;
+        
+        private string countryCdField;
+        
+        private string langCdField;
+        
+        private string couponCodeField;
+        
+        /// <remarks/>
+        public System.DateTime startTime {
+            get {
+                return this.startTimeField;
+            }
+            set {
+                this.startTimeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int format {
+            get {
+                return this.formatField;
+            }
+            set {
+                this.formatField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int mediaFileID {
+            get {
+                return this.mediaFileIDField;
+            }
+            set {
+                this.mediaFileIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string basicLink {
+            get {
+                return this.basicLinkField;
+            }
+            set {
+                this.basicLinkField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string userIP {
+            get {
+                return this.userIPField;
+            }
+            set {
+                this.userIPField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string referrer {
+            get {
+                return this.referrerField;
+            }
+            set {
+                this.referrerField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string countryCd {
+            get {
+                return this.countryCdField;
+            }
+            set {
+                this.countryCdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string langCd {
+            get {
+                return this.langCdField;
+            }
+            set {
+                this.langCdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string couponCode {
+            get {
+                return this.couponCodeField;
+            }
+            set {
+                this.couponCodeField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class EntitlementResponse {
+        
+        private string fullLifeCycleField;
+        
+        private string viewLifeCycleField;
+        
+        private bool isOfflinePlayBackField;
+        
+        /// <remarks/>
+        public string FullLifeCycle {
+            get {
+                return this.fullLifeCycleField;
+            }
+            set {
+                this.fullLifeCycleField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string ViewLifeCycle {
+            get {
+                return this.viewLifeCycleField;
+            }
+            set {
+                this.viewLifeCycleField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool IsOfflinePlayBack {
+            get {
+                return this.isOfflinePlayBackField;
+            }
+            set {
+                this.isOfflinePlayBackField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class PrePaidHistoryContainer {
+        
+        private string m_sPurchasedItemNameField;
+        
+        private string m_sPurchasedItemCodeField;
+        
+        private BillingItemsType m_eItemTypeField;
+        
+        private Price m_oPriceField;
+        
+        private Price m_oCreditField;
+        
+        private System.DateTime m_dtActionDateField;
+        
+        /// <remarks/>
+        public string m_sPurchasedItemName {
+            get {
+                return this.m_sPurchasedItemNameField;
+            }
+            set {
+                this.m_sPurchasedItemNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sPurchasedItemCode {
+            get {
+                return this.m_sPurchasedItemCodeField;
+            }
+            set {
+                this.m_sPurchasedItemCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public BillingItemsType m_eItemType {
+            get {
+                return this.m_eItemTypeField;
+            }
+            set {
+                this.m_eItemTypeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Price m_oPrice {
+            get {
+                return this.m_oPriceField;
+            }
+            set {
+                this.m_oPriceField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Price m_oCredit {
+            get {
+                return this.m_oCreditField;
+            }
+            set {
+                this.m_oCreditField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime m_dtActionDate {
+            get {
+                return this.m_dtActionDateField;
+            }
+            set {
+                this.m_dtActionDateField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public enum BillingItemsType {
+        
+        /// <remarks/>
+        Unknown,
+        
+        /// <remarks/>
+        PPV,
+        
+        /// <remarks/>
+        Subscription,
+        
+        /// <remarks/>
+        PrePaid,
+        
+        /// <remarks/>
+        PrePaidExpired,
+        
+        /// <remarks/>
+        Collection,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class PrePaidHistoryResponse {
+        
+        private PrePaidHistoryContainer[] m_TransactionsField;
+        
+        private int m_nTransactionsCountField;
+        
+        /// <remarks/>
+        public PrePaidHistoryContainer[] m_Transactions {
+            get {
+                return this.m_TransactionsField;
+            }
+            set {
+                this.m_TransactionsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nTransactionsCount {
+            get {
+                return this.m_nTransactionsCountField;
+            }
+            set {
+                this.m_nTransactionsCountField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class UserPrePaidObject {
+        
+        private double m_nTotalAmountField;
+        
+        private double m_nAmountUsedField;
+        
+        private int m_nPPPurchaseIDField;
+        
+        private int m_nPPModuleIDField;
+        
+        private System.DateTime m_dEndDateField;
+        
+        private System.DateTime m_dStartDateField;
+        
+        /// <remarks/>
+        public double m_nTotalAmount {
+            get {
+                return this.m_nTotalAmountField;
+            }
+            set {
+                this.m_nTotalAmountField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public double m_nAmountUsed {
+            get {
+                return this.m_nAmountUsedField;
+            }
+            set {
+                this.m_nAmountUsedField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nPPPurchaseID {
+            get {
+                return this.m_nPPPurchaseIDField;
+            }
+            set {
+                this.m_nPPPurchaseIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nPPModuleID {
+            get {
+                return this.m_nPPModuleIDField;
+            }
+            set {
+                this.m_nPPModuleIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime m_dEndDate {
+            get {
+                return this.m_dEndDateField;
+            }
+            set {
+                this.m_dEndDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime m_dStartDate {
+            get {
+                return this.m_dStartDateField;
+            }
+            set {
+                this.m_dStartDateField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class UserPrePaidContainer {
+        
+        private double m_nTotalAmountField;
+        
+        private double m_nAmountUsedField;
+        
+        private string m_sUserSiteGuidField;
+        
+        private string m_sCurrencyCodeField;
+        
+        private UserPrePaidObject[] m_oUserPPsField;
+        
+        /// <remarks/>
+        public double m_nTotalAmount {
+            get {
+                return this.m_nTotalAmountField;
+            }
+            set {
+                this.m_nTotalAmountField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public double m_nAmountUsed {
+            get {
+                return this.m_nAmountUsedField;
+            }
+            set {
+                this.m_nAmountUsedField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sUserSiteGuid {
+            get {
+                return this.m_sUserSiteGuidField;
+            }
+            set {
+                this.m_sUserSiteGuidField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sCurrencyCode {
+            get {
+                return this.m_sCurrencyCodeField;
+            }
+            set {
+                this.m_sCurrencyCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public UserPrePaidObject[] m_oUserPPs {
+            get {
+                return this.m_oUserPPsField;
+            }
+            set {
+                this.m_oUserPPsField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class PrePaidResponse {
+        
+        private PrePaidResponseStatus m_oStatusField;
+        
+        private string m_sStatusDescriptionField;
+        
+        /// <remarks/>
+        public PrePaidResponseStatus m_oStatus {
+            get {
+                return this.m_oStatusField;
+            }
+            set {
+                this.m_oStatusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sStatusDescription {
+            get {
+                return this.m_sStatusDescriptionField;
+            }
+            set {
+                this.m_sStatusDescriptionField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public enum PrePaidResponseStatus {
+        
+        /// <remarks/>
+        Success,
+        
+        /// <remarks/>
+        Fail,
+        
+        /// <remarks/>
+        UnKnown,
+        
+        /// <remarks/>
+        PriceNotCorrect,
+        
+        /// <remarks/>
+        UnKnownUser,
+        
+        /// <remarks/>
+        UnKnownPPVModule,
+        
+        /// <remarks/>
+        UnKnownPPModule,
+        
+        /// <remarks/>
+        NoCredit,
+        
+        /// <remarks/>
+        UserSuspended,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class BillingStatusResponse {
+        
+        private BillingResponse billingResponseField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        public BillingResponse BillingResponse {
+            get {
+                return this.billingResponseField;
+            }
+            set {
+                this.billingResponseField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class BillingResponse {
+        
+        private BillingResponseStatus m_oStatusField;
+        
+        private string m_sRecieptCodeField;
+        
+        private string m_sStatusDescriptionField;
+        
+        private string m_sExternalReceiptCodeField;
+        
+        /// <remarks/>
+        public BillingResponseStatus m_oStatus {
+            get {
+                return this.m_oStatusField;
+            }
+            set {
+                this.m_oStatusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sRecieptCode {
+            get {
+                return this.m_sRecieptCodeField;
+            }
+            set {
+                this.m_sRecieptCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sStatusDescription {
+            get {
+                return this.m_sStatusDescriptionField;
+            }
+            set {
+                this.m_sStatusDescriptionField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sExternalReceiptCode {
+            get {
+                return this.m_sExternalReceiptCodeField;
+            }
+            set {
+                this.m_sExternalReceiptCodeField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
+    public enum BillingResponseStatus {
+        
+        /// <remarks/>
+        Success,
+        
+        /// <remarks/>
+        Fail,
+        
+        /// <remarks/>
+        UnKnown,
+        
+        /// <remarks/>
+        PriceNotCorrect,
+        
+        /// <remarks/>
+        UnKnownUser,
+        
+        /// <remarks/>
+        UnKnownPPVModule,
+        
+        /// <remarks/>
+        ExpiredCard,
+        
+        /// <remarks/>
+        ExternalError,
+        
+        /// <remarks/>
+        CellularPermissionsError,
+        
+        /// <remarks/>
+        UnKnownBillingProvider,
+        
+        /// <remarks/>
+        UserSuspended,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class SubscriptionsPricesResponse {
+        
+        private SubscriptionsPricesContainer[] subscriptionsPricesField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        public SubscriptionsPricesContainer[] SubscriptionsPrices {
+            get {
+                return this.subscriptionsPricesField;
+            }
+            set {
+                this.subscriptionsPricesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class SubscriptionsPricesContainer {
+        
+        private string m_sSubscriptionCodeField;
+        
+        private Price m_oPriceField;
+        
+        private PriceReason m_PriceReasonField;
+        
+        /// <remarks/>
+        public string m_sSubscriptionCode {
+            get {
+                return this.m_sSubscriptionCodeField;
+            }
+            set {
+                this.m_sSubscriptionCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Price m_oPrice {
+            get {
+                return this.m_oPriceField;
+            }
+            set {
+                this.m_oPriceField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public PriceReason m_PriceReason {
+            get {
+                return this.m_PriceReasonField;
+            }
+            set {
+                this.m_PriceReasonField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class PrePaidPricesContainer {
+        
+        private string m_sPrePaidCodeField;
+        
+        private Price m_oPriceField;
+        
+        private PriceReason m_PriceReasonField;
+        
+        /// <remarks/>
+        public string m_sPrePaidCode {
+            get {
+                return this.m_sPrePaidCodeField;
+            }
+            set {
+                this.m_sPrePaidCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Price m_oPrice {
+            get {
+                return this.m_oPriceField;
+            }
+            set {
+                this.m_oPriceField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public PriceReason m_PriceReason {
+            get {
+                return this.m_PriceReasonField;
+            }
+            set {
+                this.m_PriceReasonField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class CollectionsPricesContainer {
+        
+        private string m_sCollectionCodeField;
+        
+        private Price m_oPriceField;
+        
+        private PriceReason m_PriceReasonField;
+        
+        /// <remarks/>
+        public string m_sCollectionCode {
+            get {
+                return this.m_sCollectionCodeField;
+            }
+            set {
+                this.m_sCollectionCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Price m_oPrice {
+            get {
+                return this.m_oPriceField;
+            }
+            set {
+                this.m_oPriceField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public PriceReason m_PriceReason {
+            get {
+                return this.m_PriceReasonField;
+            }
+            set {
+                this.m_PriceReasonField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class MediaFileItemPricesContainerResponse {
+        
+        private MediaFileItemPricesContainer[] itemsPricesField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        public MediaFileItemPricesContainer[] ItemsPrices {
+            get {
+                return this.itemsPricesField;
+            }
+            set {
+                this.itemsPricesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class WSInt32 {
+        
+        private int m_nInt32Field;
+        
+        /// <remarks/>
+        public int m_nInt32 {
+            get {
+                return this.m_nInt32Field;
+            }
+            set {
+                this.m_nInt32Field = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class BillingTransactions {
+        
+        private Status respField;
+        
+        private BillingTransactionsResponse transactionsField;
+        
+        /// <remarks/>
+        public Status resp {
+            get {
+                return this.respField;
+            }
+            set {
+                this.respField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public BillingTransactionsResponse transactions {
+            get {
+                return this.transactionsField;
+            }
+            set {
+                this.transactionsField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class BillingTransactionsResponse {
+        
+        private BillingTransactionContainer[] m_TransactionsField;
+        
+        private int m_nTransactionsCountField;
+        
+        /// <remarks/>
+        public BillingTransactionContainer[] m_Transactions {
+            get {
+                return this.m_TransactionsField;
+            }
+            set {
+                this.m_TransactionsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nTransactionsCount {
+            get {
+                return this.m_nTransactionsCountField;
+            }
+            set {
+                this.m_nTransactionsCountField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(TransactionHistoryContainer))]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class BillingTransactionContainer {
+        
+        private string m_sRecieptCodeField;
+        
+        private string m_sPurchasedItemNameField;
+        
+        private string m_sPurchasedItemCodeField;
+        
+        private BillingItemsType m_eItemTypeField;
+        
+        private BillingAction m_eBillingActionField;
+        
+        private Price m_PriceField;
+        
+        private System.DateTime m_dtActionDateField;
+        
+        private System.DateTime m_dtStartDateField;
+        
+        private System.DateTime m_dtEndDateField;
+        
+        private PaymentMethod m_ePaymentMethodField;
+        
+        private string m_sPaymentMethodExtraDetailsField;
+        
+        private bool m_bIsRecurringField;
+        
+        private int m_nBillingProviderRefField;
+        
+        private int m_nPurchaseIDField;
+        
+        private string m_sRemarksField;
+        
+        /// <remarks/>
+        public string m_sRecieptCode {
+            get {
+                return this.m_sRecieptCodeField;
+            }
+            set {
+                this.m_sRecieptCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sPurchasedItemName {
+            get {
+                return this.m_sPurchasedItemNameField;
+            }
+            set {
+                this.m_sPurchasedItemNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sPurchasedItemCode {
+            get {
+                return this.m_sPurchasedItemCodeField;
+            }
+            set {
+                this.m_sPurchasedItemCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public BillingItemsType m_eItemType {
+            get {
+                return this.m_eItemTypeField;
+            }
+            set {
+                this.m_eItemTypeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public BillingAction m_eBillingAction {
+            get {
+                return this.m_eBillingActionField;
+            }
+            set {
+                this.m_eBillingActionField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Price m_Price {
+            get {
+                return this.m_PriceField;
+            }
+            set {
+                this.m_PriceField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime m_dtActionDate {
+            get {
+                return this.m_dtActionDateField;
+            }
+            set {
+                this.m_dtActionDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime m_dtStartDate {
+            get {
+                return this.m_dtStartDateField;
+            }
+            set {
+                this.m_dtStartDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime m_dtEndDate {
+            get {
+                return this.m_dtEndDateField;
+            }
+            set {
+                this.m_dtEndDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public PaymentMethod m_ePaymentMethod {
+            get {
+                return this.m_ePaymentMethodField;
+            }
+            set {
+                this.m_ePaymentMethodField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sPaymentMethodExtraDetails {
+            get {
+                return this.m_sPaymentMethodExtraDetailsField;
+            }
+            set {
+                this.m_sPaymentMethodExtraDetailsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool m_bIsRecurring {
+            get {
+                return this.m_bIsRecurringField;
+            }
+            set {
+                this.m_bIsRecurringField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nBillingProviderRef {
+            get {
+                return this.m_nBillingProviderRefField;
+            }
+            set {
+                this.m_nBillingProviderRefField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nPurchaseID {
+            get {
+                return this.m_nPurchaseIDField;
+            }
+            set {
+                this.m_nPurchaseIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sRemarks {
+            get {
+                return this.m_sRemarksField;
+            }
+            set {
+                this.m_sRemarksField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public enum BillingAction {
+        
+        /// <remarks/>
+        Unknown,
+        
+        /// <remarks/>
+        Purchase,
+        
+        /// <remarks/>
+        RenewPayment,
+        
+        /// <remarks/>
+        RenewCancledSubscription,
+        
+        /// <remarks/>
+        CancelSubscriptionOrder,
+        
+        /// <remarks/>
+        SubscriptionDateChanged,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class TransactionHistoryContainer : BillingTransactionContainer {
+        
+        private string siteGuidField;
+        
+        private string userFullNameField;
+        
+        /// <remarks/>
+        public string SiteGuid {
+            get {
+                return this.siteGuidField;
+            }
+            set {
+                this.siteGuidField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string UserFullName {
+            get {
+                return this.userFullNameField;
+            }
+            set {
+                this.userFullNameField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class DomainBillingTransactionsResponse {
+        
+        private int m_nDomainIDField;
+        
+        private UserBillingTransactionsResponse[] m_BillingTransactionResponsesField;
+        
+        /// <remarks/>
+        public int m_nDomainID {
+            get {
+                return this.m_nDomainIDField;
+            }
+            set {
+                this.m_nDomainIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public UserBillingTransactionsResponse[] m_BillingTransactionResponses {
+            get {
+                return this.m_BillingTransactionResponsesField;
+            }
+            set {
+                this.m_BillingTransactionResponsesField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class UserBillingTransactionsResponse {
+        
+        private string m_sSiteGUIDField;
+        
+        private BillingTransactionsResponse m_BillingTransactionResponseField;
+        
+        /// <remarks/>
+        public string m_sSiteGUID {
+            get {
+                return this.m_sSiteGUIDField;
+            }
+            set {
+                this.m_sSiteGUIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public BillingTransactionsResponse m_BillingTransactionResponse {
+            get {
+                return this.m_BillingTransactionResponseField;
+            }
+            set {
+                this.m_BillingTransactionResponseField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class DomainsBillingTransactionsResponse {
+        
+        private Status statusField;
+        
+        private DomainBillingTransactionsResponse[] billingTransactionsField;
+        
+        /// <remarks/>
+        public Status status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public DomainBillingTransactionsResponse[] billingTransactions {
+            get {
+                return this.billingTransactionsField;
+            }
+            set {
+                this.billingTransactionsField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class DomainTransactionsHistoryResponse {
+        
+        private Status statusField;
+        
+        private int transactionsCountField;
+        
+        private TransactionHistoryContainer[] transactionsHistoryField;
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int TransactionsCount {
+            get {
+                return this.transactionsCountField;
+            }
+            set {
+                this.transactionsCountField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public TransactionHistoryContainer[] TransactionsHistory {
+            get {
+                return this.transactionsHistoryField;
+            }
+            set {
+                this.transactionsHistoryField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class PermittedCollectionContainer {
+        
+        private string m_sCollectionCodeField;
+        
+        private System.DateTime m_dEndDateField;
+        
+        private System.DateTime m_dCurrentDateField;
+        
+        private System.DateTime m_dLastViewDateField;
+        
+        private System.DateTime m_dPurchaseDateField;
+        
+        private int m_nCollectionPurchaseIDField;
+        
+        private PaymentMethod m_paymentMethodField;
+        
+        private string m_sDeviceUDIDField;
+        
+        private string m_sDeviceNameField;
+        
+        private bool m_bCancelWindowField;
+        
+        /// <remarks/>
+        public string m_sCollectionCode {
+            get {
+                return this.m_sCollectionCodeField;
+            }
+            set {
+                this.m_sCollectionCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime m_dEndDate {
+            get {
+                return this.m_dEndDateField;
+            }
+            set {
+                this.m_dEndDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime m_dCurrentDate {
+            get {
+                return this.m_dCurrentDateField;
+            }
+            set {
+                this.m_dCurrentDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime m_dLastViewDate {
+            get {
+                return this.m_dLastViewDateField;
+            }
+            set {
+                this.m_dLastViewDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime m_dPurchaseDate {
+            get {
+                return this.m_dPurchaseDateField;
+            }
+            set {
+                this.m_dPurchaseDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nCollectionPurchaseID {
+            get {
+                return this.m_nCollectionPurchaseIDField;
+            }
+            set {
+                this.m_nCollectionPurchaseIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public PaymentMethod m_paymentMethod {
+            get {
+                return this.m_paymentMethodField;
+            }
+            set {
+                this.m_paymentMethodField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sDeviceUDID {
+            get {
+                return this.m_sDeviceUDIDField;
+            }
+            set {
+                this.m_sDeviceUDIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sDeviceName {
+            get {
+                return this.m_sDeviceNameField;
+            }
+            set {
+                this.m_sDeviceNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool m_bCancelWindow {
+            get {
+                return this.m_bCancelWindowField;
+            }
+            set {
+                this.m_bCancelWindowField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class PermittedSubscriptionContainer {
+        
+        private string m_sSubscriptionCodeField;
+        
+        private int m_nMaxUsesField;
+        
+        private int m_nCurrentUsesField;
+        
+        private System.DateTime m_dEndDateField;
+        
+        private System.DateTime m_dCurrentDateField;
+        
+        private System.DateTime m_dLastViewDateField;
+        
+        private System.DateTime m_dPurchaseDateField;
+        
+        private System.DateTime m_dNextRenewalDateField;
+        
+        private bool m_bRecurringStatusField;
+        
+        private bool m_bIsSubRenewableField;
+        
+        private int m_nSubscriptionPurchaseIDField;
+        
+        private PaymentMethod m_paymentMethodField;
+        
+        private string m_sDeviceUDIDField;
+        
+        private string m_sDeviceNameField;
+        
+        private bool m_bCancelWindowField;
+        
+        private bool m_bIsInGracePeriodField;
+        
+        /// <remarks/>
+        public string m_sSubscriptionCode {
+            get {
+                return this.m_sSubscriptionCodeField;
+            }
+            set {
+                this.m_sSubscriptionCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nMaxUses {
+            get {
+                return this.m_nMaxUsesField;
+            }
+            set {
+                this.m_nMaxUsesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nCurrentUses {
+            get {
+                return this.m_nCurrentUsesField;
+            }
+            set {
+                this.m_nCurrentUsesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime m_dEndDate {
+            get {
+                return this.m_dEndDateField;
+            }
+            set {
+                this.m_dEndDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime m_dCurrentDate {
+            get {
+                return this.m_dCurrentDateField;
+            }
+            set {
+                this.m_dCurrentDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime m_dLastViewDate {
+            get {
+                return this.m_dLastViewDateField;
+            }
+            set {
+                this.m_dLastViewDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime m_dPurchaseDate {
+            get {
+                return this.m_dPurchaseDateField;
+            }
+            set {
+                this.m_dPurchaseDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime m_dNextRenewalDate {
+            get {
+                return this.m_dNextRenewalDateField;
+            }
+            set {
+                this.m_dNextRenewalDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool m_bRecurringStatus {
+            get {
+                return this.m_bRecurringStatusField;
+            }
+            set {
+                this.m_bRecurringStatusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool m_bIsSubRenewable {
+            get {
+                return this.m_bIsSubRenewableField;
+            }
+            set {
+                this.m_bIsSubRenewableField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nSubscriptionPurchaseID {
+            get {
+                return this.m_nSubscriptionPurchaseIDField;
+            }
+            set {
+                this.m_nSubscriptionPurchaseIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public PaymentMethod m_paymentMethod {
+            get {
+                return this.m_paymentMethodField;
+            }
+            set {
+                this.m_paymentMethodField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sDeviceUDID {
+            get {
+                return this.m_sDeviceUDIDField;
+            }
+            set {
+                this.m_sDeviceUDIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sDeviceName {
+            get {
+                return this.m_sDeviceNameField;
+            }
+            set {
+                this.m_sDeviceNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool m_bCancelWindow {
+            get {
+                return this.m_bCancelWindowField;
+            }
+            set {
+                this.m_bCancelWindowField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool m_bIsInGracePeriod {
+            get {
+                return this.m_bIsInGracePeriodField;
+            }
+            set {
+                this.m_bIsInGracePeriodField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class SocialInviteInfo {
+        
+        private string m_hashCodeField;
+        
+        /// <remarks/>
+        public string m_hashCode {
+            get {
+                return this.m_hashCodeField;
+            }
+            set {
+                this.m_hashCodeField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class VoucherReceipentInfo {
+        
+        private string m_emailAddField;
+        
+        private string m_receipentNameField;
+        
+        /// <remarks/>
+        public string m_emailAdd {
+            get {
+                return this.m_emailAddField;
+            }
+            set {
+                this.m_emailAddField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_receipentName {
+            get {
+                return this.m_receipentNameField;
+            }
+            set {
+                this.m_receipentNameField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class CampaignActionInfo {
+        
+        private VoucherReceipentInfo[] m_voucherReceipentsField;
+        
+        private SocialInviteInfo m_socialInviteInfoField;
+        
+        private int m_mediaIDField;
+        
+        private int m_siteGuidField;
+        
+        private string m_mediaLinkField;
+        
+        private string m_senderNameField;
+        
+        private string m_senderEmailField;
+        
+        private CampaignActionResult m_statusField;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable=false)]
+        public VoucherReceipentInfo[] m_voucherReceipents {
+            get {
+                return this.m_voucherReceipentsField;
+            }
+            set {
+                this.m_voucherReceipentsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public SocialInviteInfo m_socialInviteInfo {
+            get {
+                return this.m_socialInviteInfoField;
+            }
+            set {
+                this.m_socialInviteInfoField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_mediaID {
+            get {
+                return this.m_mediaIDField;
+            }
+            set {
+                this.m_mediaIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_siteGuid {
+            get {
+                return this.m_siteGuidField;
+            }
+            set {
+                this.m_siteGuidField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_mediaLink {
+            get {
+                return this.m_mediaLinkField;
+            }
+            set {
+                this.m_mediaLinkField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_senderName {
+            get {
+                return this.m_senderNameField;
+            }
+            set {
+                this.m_senderNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_senderEmail {
+            get {
+                return this.m_senderEmailField;
+            }
+            set {
+                this.m_senderEmailField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public CampaignActionResult m_status {
+            get {
+                return this.m_statusField;
+            }
+            set {
+                this.m_statusField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public enum CampaignActionResult {
+        
+        /// <remarks/>
+        OK,
+        
+        /// <remarks/>
+        ERROR,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class LicensedLinkResponse {
+        
+        private string mainUrlField;
+        
+        private string altUrlField;
+        
+        private string statusField;
+        
+        private Status statusField1;
+        
+        /// <remarks/>
+        public string mainUrl {
+            get {
+                return this.mainUrlField;
+            }
+            set {
+                this.mainUrlField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string altUrl {
+            get {
+                return this.altUrlField;
+            }
+            set {
+                this.altUrlField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField1;
+            }
+            set {
+                this.statusField1 = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class PermittedMediaContainerResponse {
+        
+        private PermittedMediaContainer[] permittedMediaContainerField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        public PermittedMediaContainer[] PermittedMediaContainer {
+            get {
+                return this.permittedMediaContainerField;
+            }
+            set {
+                this.permittedMediaContainerField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum UserCAStatus {
@@ -9563,7 +9563,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public enum ChangeSubscriptionStatus {
@@ -9594,162 +9594,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         
         /// <remarks/>
         UserSuspended,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void CheckPendingTransactionCompletedEventHandler(object sender, CheckPendingTransactionCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class CheckPendingTransactionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal CheckPendingTransactionCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public Status Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((Status)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void GetUserEntitlementsCompletedEventHandler(object sender, GetUserEntitlementsCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class GetUserEntitlementsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal GetUserEntitlementsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public Entitlements Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((Entitlements)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void GetDomainEntitlementsCompletedEventHandler(object sender, GetDomainEntitlementsCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class GetDomainEntitlementsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal GetDomainEntitlementsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public Entitlements Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((Entitlements)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void RenewCompletedEventHandler(object sender, RenewCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class RenewCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal RenewCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public bool Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((bool)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void GetAssetPricesCompletedEventHandler(object sender, GetAssetPricesCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class GetAssetPricesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal GetAssetPricesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public AssetItemPriceResponse Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((AssetItemPriceResponse)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void ReconcileEntitlementsCompletedEventHandler(object sender, ReconcileEntitlementsCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class ReconcileEntitlementsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal ReconcileEntitlementsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public Status Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((Status)(this.results[0]));
-            }
-        }
     }
     
     /// <remarks/>
@@ -11983,6 +11827,162 @@ namespace TVPPro.SiteManager.TvinciPlatform.ConditionalAccess {
         private object[] results;
         
         internal UpdatePendingTransactionCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void CheckPendingTransactionCompletedEventHandler(object sender, CheckPendingTransactionCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class CheckPendingTransactionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal CheckPendingTransactionCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetUserEntitlementsCompletedEventHandler(object sender, GetUserEntitlementsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetUserEntitlementsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetUserEntitlementsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Entitlements Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Entitlements)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetDomainEntitlementsCompletedEventHandler(object sender, GetDomainEntitlementsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetDomainEntitlementsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetDomainEntitlementsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Entitlements Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Entitlements)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void RenewCompletedEventHandler(object sender, RenewCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class RenewCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal RenewCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public bool Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((bool)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetAssetPricesCompletedEventHandler(object sender, GetAssetPricesCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetAssetPricesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetAssetPricesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public AssetItemPriceResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((AssetItemPriceResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void ReconcileEntitlementsCompletedEventHandler(object sender, ReconcileEntitlementsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class ReconcileEntitlementsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal ReconcileEntitlementsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }
