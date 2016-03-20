@@ -1061,57 +1061,23 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
         if (sWSURL != "")
             m.Url = sWSURL;
 
-        DataRecordDropDownField dr_disc = new DataRecordDropDownField("discount_codes", "code", "id", "", null, 60, true);
-        dr_disc.SetFieldType("string");
-        dr_disc.SetNoSelectStr("---");
-        System.Data.DataTable discCodesDT = GetBaseDT();
-        sWSUserName = "";
-        sWSPass = "";
-
-        TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "GetDiscountsModuleListForAdmin", "pricing", sIP, ref sWSUserName, ref sWSPass);
-        TvinciPricing.DiscountModule[] oDiscCodes = m.GetDiscountsModuleListForAdmin(sWSUserName, sWSPass);
-        if (oDiscCodes != null)
-        {
-            for (int i = 0; i < oDiscCodes.Length; i++)
-            {
-                System.Data.DataRow tmpRow = null;
-                tmpRow = discCodesDT.NewRow();
-                tmpRow["ID"] = oDiscCodes[i].m_nObjectID;
-                tmpRow["txt"] = oDiscCodes[i].m_sCode;
-                discCodesDT.Rows.InsertAt(tmpRow, 0);
-                discCodesDT.AcceptChanges();
-            }
-        }
-        dr_disc.SetSelectsDT(discCodesDT);
+        // discount
+        DataRecordDropDownField dr_disc = new DataRecordDropDownField("coupons_groups", "code", "id", "", null, 60, true);
+        string sQuery = "select code as txt,id as id from pricing..discount_codes where status=1 and is_active=1 and group_id=" + LoginManager.GetLoginGroupID();
+        dr_disc.SetSelectsQuery(sQuery);
         dr_disc.Initialize("Discounts (Internal Item)", "adm_table_header_nbg", "FormInput", "DISCOUNT_MODULE_CODE", false);
-        dr_disc.SetDefault(0);
+        string deafultVal = "---";
+        dr_disc.SetDefaultVal(deafultVal);
         theRecord.AddRecord(dr_disc);
 
-        DataRecordDropDownField dr_coupons_group = new DataRecordDropDownField("discount_codes", "code", "id", "", null, 60, true);
-        dr_coupons_group.SetFieldType("string");
-        dr_coupons_group.SetNoSelectStr("---");
-        System.Data.DataTable CouponsGroupDT = GetBaseDT();
-        sWSUserName = "";
-        sWSPass = "";
-
-        TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "GetCouponGroupListForAdmin", "pricing", sIP, ref sWSUserName, ref sWSPass);
-        TvinciPricing.CouponsGroup[] oCouponsGroup = m.GetCouponGroupListForAdmin(sWSUserName, sWSPass);
-        if (oCouponsGroup != null)
-        {
-            for (int i = 0; i < oCouponsGroup.Length; i++)
-            {
-                System.Data.DataRow tmpRow = null;
-                tmpRow = CouponsGroupDT.NewRow();
-                tmpRow["ID"] = int.Parse(oCouponsGroup[i].m_sGroupCode);
-                tmpRow["txt"] = oCouponsGroup[i].m_sGroupName;
-                CouponsGroupDT.Rows.InsertAt(tmpRow, 0);
-                CouponsGroupDT.AcceptChanges();
-            }
-        }
-        dr_coupons_group.SetSelectsDT(CouponsGroupDT);
+        // coupons
+        DataRecordDropDownField dr_coupons_group = new DataRecordDropDownField("coupons_groups", "code", "id", "", null, 60, true);
+        sQuery = "select code as txt,id as id from pricing..coupons_groups where status=1 and is_active=1 and group_id=" + LoginManager.GetLoginGroupID();
+        dr_coupons_group.SetSelectsQuery(sQuery);
         dr_coupons_group.Initialize("Coupon Group", "adm_table_header_nbg", "FormInput", "COUPON_GROUP_CODE", false);
-        dr_coupons_group.SetDefault(0);
+        dr_coupons_group.SetDefaultVal(deafultVal);
         theRecord.AddRecord(dr_coupons_group);
+
 
         DataRecordShortTextField dr_Product_Code = new DataRecordShortTextField("ltr", true, 60, 128);
         dr_Product_Code.Initialize("Product Code", "adm_table_header_nbg", "FormInput", "Product_Code", false);
@@ -1127,32 +1093,13 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
         dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
         theRecord.AddRecord(dr_groups);
 
-
-
-        //TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "GetPreviewModulesArrayForAdmin", "pricing", sIP, ref sWSUserName, ref sWSPass);
-
-        TvinciPricing.PreviewModule[] pm = m.GetPreviewModulesArrayByGroupIDForAdmin(sWSUserName, sWSPass);
-        DataTable PreviewModulesDT = GetBaseDT();
-        if (pm != null)
-        {
-            for (int i = 0; i < pm.Length; i++)
-            {
-                System.Data.DataRow tmpRow = null;
-                tmpRow = PreviewModulesDT.NewRow();
-                tmpRow["ID"] = pm[i].m_nID;
-                tmpRow["txt"] = pm[i].m_sName;
-                PreviewModulesDT.Rows.InsertAt(tmpRow, 0);
-                PreviewModulesDT.AcceptChanges();
-            }
-        }
-
-        DataRecordDropDownField dr_preview_module = new DataRecordDropDownField("preview_modules", "Name", "id", string.Empty, null, 60, true);
-        dr_preview_module.SetSelectsDT(PreviewModulesDT);
+        DataRecordDropDownField dr_preview_module = new DataRecordDropDownField("preview_modules", "Name", "id", "", null, 60, true);
+        sQuery = "select name as txt,id as id from pricing..preview_modules where status=1 and is_active=1 and group_id=" + LoginManager.GetLoginGroupID();
+        dr_preview_module.SetSelectsQuery(sQuery);
         dr_preview_module.Initialize("Preview Module", "adm_table_header_nbg", "FormInput", "PREVIEW_MODULE_ID", false);
-        dr_preview_module.SetFieldType("string");
-        dr_preview_module.SetDefaultVal("No Preview Module");
-        dr_preview_module.SetNoSelectStr("No Preview Module");
-
+        deafultVal = "No Preview Module";
+        dr_preview_module.SetDefaultVal(deafultVal);
+        dr_preview_module.SetNoSelectStr(deafultVal);
         theRecord.AddRecord(dr_preview_module);
 
         DataTable DomainLimitationModulesDT = GetDomainLimitationModulesDT();
@@ -1233,4 +1180,7 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
             Session[OLD_MPP_NAME_SESSION_KEY] = string.Empty;
 
     }
+
+
+    
 }
