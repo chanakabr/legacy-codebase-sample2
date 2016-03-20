@@ -95,7 +95,6 @@
     <Compile Include="AdminAccountObj.cs" />
     <Compile Include="AdminAccountUserObj.cs" />
     <Compile Include="AdminAccountUserResponse.cs" />
-    <Compile Include="Billing\HouseholdPaymentMethod.cs" />
     <Compile Include="Billing\PaymentGatewayHouseholdPaymentMethod.cs" />
     <Compile Include="Billing\PaymentGatewayListResponse.cs" />
     <Compile Include="Billing\PaymentGatewayAssociate.cs" />
