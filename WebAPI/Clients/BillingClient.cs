@@ -3,6 +3,7 @@ using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using WebAPI.Billing;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -521,17 +522,18 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaPaymentGatewayConfiguration GetPaymentGatewayConfiguration(int groupId, string alias, string intent)
+        internal KalturaPaymentGatewayConfiguration GetPaymentGatewayConfiguration(int groupId, string alias, string intent, List<KalturaKeyValue> extraParams)
         {
             Models.Billing.KalturaPaymentGatewayConfiguration configuration = null;
             WebAPI.Billing.PaymentGatewayConfigurationResponse response = null;
             Group group = GroupsManager.GetGroup(groupId);
-
+            List<KeyValuePair> keyValuePairs = Mapper.Map<List<KeyValuePair>>(extraParams);
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.GetPaymentGatewayConfiguration(group.BillingCredentials.Username, group.BillingCredentials.Password, alias, intent);
+                    response = Billing.GetPaymentGatewayConfiguration(group.BillingCredentials.Username, group.BillingCredentials.Password, alias, intent, keyValuePairs.ToArray());
                 }
             }
             catch (Exception ex)

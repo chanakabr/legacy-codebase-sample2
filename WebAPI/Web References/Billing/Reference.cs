@@ -1892,22 +1892,23 @@ namespace WebAPI.Billing {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://billing.tvinci.com/GetPaymentGatewayConfiguration", RequestNamespace="http://billing.tvinci.com/", ResponseNamespace="http://billing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public PaymentGatewayConfigurationResponse GetPaymentGatewayConfiguration(string sWSUserName, string sWSPassword, string paymentGWExternalId, string intent) {
+        public PaymentGatewayConfigurationResponse GetPaymentGatewayConfiguration(string sWSUserName, string sWSPassword, string paymentGWExternalId, string intent, KeyValuePair[] extraParams) {
             object[] results = this.Invoke("GetPaymentGatewayConfiguration", new object[] {
                         sWSUserName,
                         sWSPassword,
                         paymentGWExternalId,
-                        intent});
+                        intent,
+                        extraParams});
             return ((PaymentGatewayConfigurationResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void GetPaymentGatewayConfigurationAsync(string sWSUserName, string sWSPassword, string paymentGWExternalId, string intent) {
-            this.GetPaymentGatewayConfigurationAsync(sWSUserName, sWSPassword, paymentGWExternalId, intent, null);
+        public void GetPaymentGatewayConfigurationAsync(string sWSUserName, string sWSPassword, string paymentGWExternalId, string intent, KeyValuePair[] extraParams) {
+            this.GetPaymentGatewayConfigurationAsync(sWSUserName, sWSPassword, paymentGWExternalId, intent, extraParams, null);
         }
         
         /// <remarks/>
-        public void GetPaymentGatewayConfigurationAsync(string sWSUserName, string sWSPassword, string paymentGWExternalId, string intent, object userState) {
+        public void GetPaymentGatewayConfigurationAsync(string sWSUserName, string sWSPassword, string paymentGWExternalId, string intent, KeyValuePair[] extraParams, object userState) {
             if ((this.GetPaymentGatewayConfigurationOperationCompleted == null)) {
                 this.GetPaymentGatewayConfigurationOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetPaymentGatewayConfigurationOperationCompleted);
             }
@@ -1915,7 +1916,8 @@ namespace WebAPI.Billing {
                         sWSUserName,
                         sWSPassword,
                         paymentGWExternalId,
-                        intent}, this.GetPaymentGatewayConfigurationOperationCompleted, userState);
+                        intent,
+                        extraParams}, this.GetPaymentGatewayConfigurationOperationCompleted, userState);
         }
         
         private void OnGetPaymentGatewayConfigurationOperationCompleted(object arg) {
@@ -3416,39 +3418,6 @@ namespace WebAPI.Billing {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
-    public partial class KeyValuePair {
-        
-        private string keyField;
-        
-        private string valueField;
-        
-        /// <remarks/>
-        public string key {
-            get {
-                return this.keyField;
-            }
-            set {
-                this.keyField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string value {
-            get {
-                return this.valueField;
-            }
-            set {
-                this.valueField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
     public partial class PaymentGatewayConfigurationResponse {
         
         private Status statusField;
@@ -3472,6 +3441,39 @@ namespace WebAPI.Billing {
             }
             set {
                 this.configurationField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://billing.tvinci.com/")]
+    public partial class KeyValuePair {
+        
+        private string keyField;
+        
+        private string valueField;
+        
+        /// <remarks/>
+        public string key {
+            get {
+                return this.keyField;
+            }
+            set {
+                this.keyField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string value {
+            get {
+                return this.valueField;
+            }
+            set {
+                this.valueField = value;
             }
         }
     }

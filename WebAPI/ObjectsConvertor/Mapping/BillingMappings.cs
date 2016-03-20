@@ -65,6 +65,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<PaymentGatewayConfigurationResponse, WebAPI.Models.Billing.KalturaPaymentGatewayConfiguration>()
                 .ForMember(dest => dest.Configuration, opt => opt.MapFrom(src => src.Configuration.Select(x => new KalturaKeyValue() { key = x.key, value = x.value }).ToList()));
 
+            //from local object to WS object            
+            Mapper.CreateMap<KalturaKeyValue, KeyValuePair>()
+                .ForMember(dest => dest.key, opt => opt.MapFrom(src => src.key))
+                .ForMember(dest => dest.value, opt => opt.MapFrom(src => src.value));
+
             //PaymentGatewayItemResponse to KalturaPaymentGatewayProfile
             Mapper.CreateMap<PaymentGatewayItemResponse, WebAPI.Models.Billing.KalturaPaymentGatewayProfile>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.PaymentGateway.ID))
