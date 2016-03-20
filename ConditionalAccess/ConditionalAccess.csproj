@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ConditionalAccess</RootNamespace>
     <AssemblyName>ConditionalAccess</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -42,6 +42,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -51,6 +52,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Local|AnyCPU'">
     <OutputPath>bin\Local\</OutputPath>
@@ -60,15 +62,20 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Jil, Version=2.10.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\tvincicommon\External\Jil.dll</HintPath>
+    </Reference>
     <Reference Include="KLogMonitor, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\TVinciCommon\External\3.5\KLogMonitor.dll</HintPath>
+      <HintPath>..\..\tvincicommon\External\4.5\KLogMonitor.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\External\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\tvincicommon\External\Couchbase-2.2.5\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -94,6 +101,11 @@
     <Compile Include="BaseCampaignActionImpl.cs" />
     <Compile Include="PersonalEnrichments\AssetItemPriceResponse.cs" />
     <Compile Include="PersonalEnrichments\AssetItemPrices.cs" />
+    <Compile Include="Service References\WS_Catalog\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
     <Compile Include="UserEntitlementsObject.cs" />
     <Compile Include="Implementations\BaseConditionalAccess.cs" />
     <Compile Include="Commands\BaseNPVRCommand.cs" />
@@ -154,11 +166,6 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="Service References\WS_Catalog\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Compile>
     <Compile Include="SocialInviteCampaignImpl.cs" />
     <Compile Include="Implementations\TvinciConditionalAccess.cs" />
     <Compile Include="UserPrePaidContainer.cs" />
@@ -215,68 +222,56 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <None Include="Service References\WS_Catalog\ConditionalAccess.WS_Catalog.BaseResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
+    <None Include="Service References\WS_Catalog\Service.wsdl" />
+    <None Include="Service References\WS_Catalog\Service.xsd">
+      <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\ConditionalAccess.WS_Catalog.EpgProgramResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
+    <None Include="Service References\WS_Catalog\Service1.wsdl" />
+    <None Include="Service References\WS_Catalog\Service1.xsd">
+      <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\ConditionalAccess.WS_Catalog.MediaResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
+    <None Include="Service References\WS_Catalog\Service10.xsd">
+      <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\ConditionalAccess.WS_Catalog.Response.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
+    <None Include="Service References\WS_Catalog\Service11.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WS_Catalog\Service12.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WS_Catalog\Service13.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WS_Catalog\Service14.xsd">
+      <SubType>Designer</SubType>
     </None>
     <None Include="Service References\WS_Catalog\Service15.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service151.xsd">
+    <None Include="Service References\WS_Catalog\Service2.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service1510.xsd">
+    <None Include="Service References\WS_Catalog\Service3.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service1511.xsd">
+    <None Include="Service References\WS_Catalog\Service4.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service1512.xsd">
+    <None Include="Service References\WS_Catalog\Service5.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service1513.xsd">
+    <None Include="Service References\WS_Catalog\Service6.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service1514.xsd">
+    <None Include="Service References\WS_Catalog\Service7.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service1515.xsd">
+    <None Include="Service References\WS_Catalog\Service8.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service152.xsd">
+    <None Include="Service References\WS_Catalog\Service9.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service153.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WS_Catalog\Service154.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WS_Catalog\Service155.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WS_Catalog\Service156.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WS_Catalog\Service157.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WS_Catalog\Service158.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WS_Catalog\Service159.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WS_Catalog\Service2.wsdl" />
-    <None Include="Service References\WS_Catalog\Service21.wsdl" />
     <None Include="Web References\NotificationService\ArrayOfKeyValueOfstringArrayOfstringty7Ep6D1KeyValueOfstringArrayOfstringty7Ep6D1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -294,6 +289,9 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Web References\NotificationService\NotificationService2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Web References\NotificationService\NotificationService3.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Web References\NotificationService\Reference.map">
@@ -546,10 +544,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://192.168.192.146/webservices/api/api.asmx">
+    <WebReferenceUrl Include="http://54.72.1.39:8030/api_v3_7/api.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciAPI\</RelPath>
-      <UpdateFromURL>http://192.168.192.146/webservices/api/api.asmx</UpdateFromURL>
+      <UpdateFromURL>http://54.72.1.39:8030/api_v3_7/api.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -557,10 +555,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>ConditionalAccess_TvinciAPI_API</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/ws_notification/NotificationService.svc">
+    <WebReferenceUrl Include="http://54.72.1.39:8030/notification_v3_7/notificationservice.svc">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\NotificationService\</RelPath>
-      <UpdateFromURL>http://localhost/ws_notification/NotificationService.svc</UpdateFromURL>
+      <UpdateFromURL>http://54.72.1.39:8030/notification_v3_7/notificationservice.svc</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -568,10 +566,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>ConditionalAccess_NotificationService_NotificationService</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/ws_domains/module.asmx">
+    <WebReferenceUrl Include="http://54.72.1.39:8030/domains_v3_7/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciDomains\</RelPath>
-      <UpdateFromURL>http://localhost/ws_domains/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://54.72.1.39:8030/domains_v3_7/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -579,10 +577,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>ConditionalAccess_TvinciDomains_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost:82/WS_Billing/module.asmx">
+    <WebReferenceUrl Include="http://54.72.1.39:8030/billing_v3_7/module.asmx">
       <UrlBehavior>Static</UrlBehavior>
       <RelPath>Web References\TvinciBilling\</RelPath>
-      <UpdateFromURL>http://localhost:82/WS_Billing/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://54.72.1.39:8030/billing_v3_7/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -595,10 +593,10 @@
       <RelPath>Web References\TvinciPricing\</RelPath>
       <UpdateFromURL>http://localhost/ws_Pricing/module.asmx</UpdateFromURL>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/WS_Pricing/module.asmx">
+    <WebReferenceUrl Include="http://54.72.1.39:8030/pricing_v3_7/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPricing\</RelPath>
-      <UpdateFromURL>http://localhost/WS_Pricing/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://54.72.1.39:8030/pricing_v3_7/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -606,10 +604,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>ConditionalAccess_TvinciPricing_mdoule</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/WS_Users/module.asmx">
+    <WebReferenceUrl Include="http://54.72.1.39:8030/users_v3_7/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciUsers\</RelPath>
-      <UpdateFromURL>http://localhost/WS_Users/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://54.72.1.39:8030/users_v3_7/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -860,6 +858,9 @@
     <WCFMetadataStorage Include="Service References\WS_Catalog\" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Service References\WS_Catalog\Service.disco" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="Service References\WS_Catalog\configuration91.svcinfo" />
   </ItemGroup>
   <ItemGroup>
@@ -870,9 +871,6 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\WS_Catalog\Service1.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

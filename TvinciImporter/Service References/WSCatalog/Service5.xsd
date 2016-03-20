@@ -1,98 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/ApiObjects" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/ApiObjects" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
-  <xs:simpleType name="EpgSearchType">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="ByDate" />
-      <xs:enumeration value="Current" />
-    </xs:restriction>
-  </xs:simpleType>
-  <xs:element name="EpgSearchType" nillable="true" type="tns:EpgSearchType" />
-  <xs:simpleType name="StatsType">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="MEDIA" />
-      <xs:enumeration value="EPG" />
-    </xs:restriction>
-  </xs:simpleType>
-  <xs:element name="StatsType" nillable="true" type="tns:StatsType" />
-  <xs:simpleType name="Language">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="English" />
-      <xs:enumeration value="Hebrew" />
-      <xs:enumeration value="Russian" />
-      <xs:enumeration value="Arabic" />
-    </xs:restriction>
-  </xs:simpleType>
-  <xs:element name="Language" nillable="true" type="tns:Language" />
-  <xs:complexType name="EPGChannelProgrammeObject">
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/GroupsCacheManager" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/GroupsCacheManager" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://54.72.1.39:8030/catalog_v3_7/Service.svc?xsd=xsd9" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" />
+  <xs:import schemaLocation="http://54.72.1.39:8030/catalog_v3_7/Service.svc?xsd=xsd6" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+  <xs:complexType name="Channel">
     <xs:sequence>
-      <xs:element minOccurs="0" name="CREATE_DATE" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="DESCRIPTION" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="END_DATE" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="EPG_CHANNEL_ID" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="EPG_ID" type="xs:long" />
-      <xs:element minOccurs="0" name="EPG_IDENTIFIER" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="EPG_Meta" nillable="true" type="tns:ArrayOfEPGDictionary" />
-      <xs:element minOccurs="0" name="EPG_TAGS" nillable="true" type="tns:ArrayOfEPGDictionary" />
-      <xs:element minOccurs="0" name="GROUP_ID" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="IS_ACTIVE" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="LIKE_COUNTER" type="xs:int" />
-      <xs:element minOccurs="0" name="NAME" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="PIC_URL" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="PUBLISH_DATE" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="START_DATE" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="STATUS" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="UPDATER_ID" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="UPDATE_DATE" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="media_id" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="filterQuery" nillable="true" type="xs:string" />
+      <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="filterTree" nillable="true" type="q1:BooleanPhraseNode" />
+      <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="m_OrderObject" nillable="true" type="q2:OrderObj" />
+      <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="m_eCutWith" type="q3:CutWith" />
+      <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="m_eOrderBy" type="q4:OrderBy" />
+      <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="m_eOrderDir" type="q5:OrderDir" />
+      <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="m_lChannelTags" nillable="true" type="q6:ArrayOfSearchValue" />
+      <xs:element minOccurs="0" name="m_lManualMedias" nillable="true" type="tns:ArrayOfManualMedia" />
+      <xs:element minOccurs="0" name="m_nChannelID" type="xs:int" />
+      <xs:element minOccurs="0" name="m_nChannelTypeID" type="xs:int" />
+      <xs:element minOccurs="0" name="m_nGroupID" type="xs:int" />
+      <xs:element minOccurs="0" name="m_nIsActive" type="xs:int" />
+      <xs:element xmlns:q7="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_nMediaType" nillable="true" type="q7:ArrayOfint" />
+      <xs:element minOccurs="0" name="m_nParentGroupID" type="xs:int" />
+      <xs:element minOccurs="0" name="m_nStatus" type="xs:int" />
+      <xs:element xmlns:q8="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_oMedias" nillable="true" type="q8:ArrayOfint" />
+      <xs:element minOccurs="0" name="m_sDescription" nillable="true" type="xs:string" />
+      <xs:element xmlns:q9="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_sMedias" nillable="true" type="q9:ArrayOfstring" />
+      <xs:element minOccurs="0" name="m_sName" nillable="true" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
-  <xs:element name="EPGChannelProgrammeObject" nillable="true" type="tns:EPGChannelProgrammeObject" />
-  <xs:complexType name="ArrayOfEPGDictionary">
+  <xs:element name="Channel" nillable="true" type="tns:Channel" />
+  <xs:complexType name="ArrayOfManualMedia">
     <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="EPGDictionary" type="tns:EPGDictionary" />
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="ManualMedia" nillable="true" type="tns:ManualMedia" />
     </xs:sequence>
   </xs:complexType>
-  <xs:element name="ArrayOfEPGDictionary" nillable="true" type="tns:ArrayOfEPGDictionary" />
-  <xs:complexType name="EPGDictionary">
-    <xs:annotation>
-      <xs:appinfo>
-        <IsValueType xmlns="http://schemas.microsoft.com/2003/10/Serialization/">true</IsValueType>
-      </xs:appinfo>
-    </xs:annotation>
+  <xs:element name="ArrayOfManualMedia" nillable="true" type="tns:ArrayOfManualMedia" />
+  <xs:complexType name="ManualMedia">
     <xs:sequence>
-      <xs:element minOccurs="0" name="Key" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="Value" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_nOrderNum" type="xs:int" />
+      <xs:element minOccurs="0" name="m_sMediaId" nillable="true" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
-  <xs:element name="EPGDictionary" nillable="true" type="tns:EPGDictionary" />
-  <xs:complexType name="ArrayOfEPGChannelProgrammeObject">
-    <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="EPGChannelProgrammeObject" nillable="true" type="tns:EPGChannelProgrammeObject" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="ArrayOfEPGChannelProgrammeObject" nillable="true" type="tns:ArrayOfEPGChannelProgrammeObject" />
-  <xs:simpleType name="eAction">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="Off" />
-      <xs:enumeration value="On" />
-      <xs:enumeration value="Update" />
-      <xs:enumeration value="Delete" />
-    </xs:restriction>
-  </xs:simpleType>
-  <xs:element name="eAction" nillable="true" type="tns:eAction" />
-  <xs:simpleType name="eOperatorEvent">
-    <xs:annotation>
-      <xs:appinfo>
-        <ActualType Name="unsignedByte" Namespace="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/2003/10/Serialization/" />
-      </xs:appinfo>
-    </xs:annotation>
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="ChannelAddedToSubscription" />
-      <xs:enumeration value="ChannelRemovedFromSubscription" />
-      <xs:enumeration value="SubscriptionAddedToOperator" />
-      <xs:enumeration value="SubscriptionRemovedFromOperator" />
-    </xs:restriction>
-  </xs:simpleType>
-  <xs:element name="eOperatorEvent" nillable="true" type="tns:eOperatorEvent" />
+  <xs:element name="ManualMedia" nillable="true" type="tns:ManualMedia" />
 </xs:schema>

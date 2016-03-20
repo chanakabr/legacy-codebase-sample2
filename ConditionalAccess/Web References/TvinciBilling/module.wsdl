@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://billing.tvinci.com/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://billing.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://billing.tvinci.com/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://billing.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://billing.tvinci.com/">
       <s:element name="GetBillingCutomData">
@@ -969,6 +969,40 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="GetPaymentGatewayConfiguration">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="paymentGWExternalId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="intent" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPaymentGatewayConfigurationResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetPaymentGatewayConfigurationResult" type="tns:PaymentGatewayConfigurationResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="PaymentGatewayConfigurationResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="Configuration" type="tns:ArrayOfKeyValuePair" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfKeyValuePair">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="KeyValuePair" nillable="true" type="tns:KeyValuePair" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="KeyValuePair">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="key" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="UpdatePendingTransaction">
         <s:complexType>
           <s:sequence>
@@ -1090,6 +1124,57 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="GeneratePaymentGatewaySharedSecret">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="paymentGatewayId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GeneratePaymentGatewaySharedSecretResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GeneratePaymentGatewaySharedSecretResult" type="tns:PaymentGatewayItemResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="PaymentGatewayItemResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="PaymentGateway" type="tns:PaymentGateway" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="SetPartnerConfiguration">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="partnerConfig" type="tns:PartnerConfiguration" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="PartnerConfiguration">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Value" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="Type" type="tns:PartnerConfigurationType" />
+        </s:sequence>
+      </s:complexType>
+      <s:simpleType name="PartnerConfigurationType">
+        <s:restriction base="s:string">
+          <s:enumeration value="DefaultPaymentGateway" />
+          <s:enumeration value="EnablePaymentGatewaySelection" />
+          <s:enumeration value="OSSAdapter" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="SetPartnerConfigurationResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SetPartnerConfigurationResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="string" nillable="true" type="s:string" />
       <s:element name="AdyenBillingDetail" nillable="true" type="tns:AdyenBillingDetail" />
       <s:element name="BillingResponse" nillable="true" type="tns:BillingResponse" />
@@ -1101,8 +1186,10 @@
       <s:element name="HouseholdPaymentGatewayResponse" nillable="true" type="tns:HouseholdPaymentGatewayResponse" />
       <s:element name="PaymentGatewayChargeIDResponse" nillable="true" type="tns:PaymentGatewayChargeIDResponse" />
       <s:element name="TransactResult" nillable="true" type="tns:TransactResult" />
+      <s:element name="PaymentGatewayConfigurationResponse" nillable="true" type="tns:PaymentGatewayConfigurationResponse" />
       <s:element name="UpdatePendingResponse" nillable="true" type="tns:UpdatePendingResponse" />
       <s:element name="PaymentGateway" nillable="true" type="tns:PaymentGateway" />
+      <s:element name="PaymentGatewayItemResponse" nillable="true" type="tns:PaymentGatewayItemResponse" />
     </s:schema>
   </wsdl:types>
   <wsdl:message name="GetBillingCutomDataSoapIn">
@@ -1351,6 +1438,12 @@
   <wsdl:message name="SetPaymentGatewayConfigurationSoapOut">
     <wsdl:part name="parameters" element="tns:SetPaymentGatewayConfigurationResponse" />
   </wsdl:message>
+  <wsdl:message name="GetPaymentGatewayConfigurationSoapIn">
+    <wsdl:part name="parameters" element="tns:GetPaymentGatewayConfiguration" />
+  </wsdl:message>
+  <wsdl:message name="GetPaymentGatewayConfigurationSoapOut">
+    <wsdl:part name="parameters" element="tns:GetPaymentGatewayConfigurationResponse" />
+  </wsdl:message>
   <wsdl:message name="UpdatePendingTransactionSoapIn">
     <wsdl:part name="parameters" element="tns:UpdatePendingTransaction" />
   </wsdl:message>
@@ -1380,6 +1473,18 @@
   </wsdl:message>
   <wsdl:message name="GetPaymentGatewayByBillingGuidSoapOut">
     <wsdl:part name="parameters" element="tns:GetPaymentGatewayByBillingGuidResponse" />
+  </wsdl:message>
+  <wsdl:message name="GeneratePaymentGatewaySharedSecretSoapIn">
+    <wsdl:part name="parameters" element="tns:GeneratePaymentGatewaySharedSecret" />
+  </wsdl:message>
+  <wsdl:message name="GeneratePaymentGatewaySharedSecretSoapOut">
+    <wsdl:part name="parameters" element="tns:GeneratePaymentGatewaySharedSecretResponse" />
+  </wsdl:message>
+  <wsdl:message name="SetPartnerConfigurationSoapIn">
+    <wsdl:part name="parameters" element="tns:SetPartnerConfiguration" />
+  </wsdl:message>
+  <wsdl:message name="SetPartnerConfigurationSoapOut">
+    <wsdl:part name="parameters" element="tns:SetPartnerConfigurationResponse" />
   </wsdl:message>
   <wsdl:message name="GetBillingCutomDataHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -1720,6 +1825,15 @@
   <wsdl:message name="SetPaymentGatewayConfigurationHttpPostOut">
     <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
+  <wsdl:message name="GetPaymentGatewayConfigurationHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="paymentGWExternalId" type="s:string" />
+    <wsdl:part name="intent" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetPaymentGatewayConfigurationHttpPostOut">
+    <wsdl:part name="Body" element="tns:PaymentGatewayConfigurationResponse" />
+  </wsdl:message>
   <wsdl:message name="UpdatePendingTransactionHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -1792,6 +1906,14 @@
   </wsdl:message>
   <wsdl:message name="GetPaymentGatewayByBillingGuidHttpPostOut">
     <wsdl:part name="Body" element="tns:PaymentGateway" />
+  </wsdl:message>
+  <wsdl:message name="GeneratePaymentGatewaySharedSecretHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="paymentGatewayId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GeneratePaymentGatewaySharedSecretHttpPostOut">
+    <wsdl:part name="Body" element="tns:PaymentGatewayItemResponse" />
   </wsdl:message>
   <wsdl:portType name="moduleSoap">
     <wsdl:operation name="GetBillingCutomData">
@@ -1958,6 +2080,10 @@
       <wsdl:input message="tns:SetPaymentGatewayConfigurationSoapIn" />
       <wsdl:output message="tns:SetPaymentGatewayConfigurationSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetPaymentGatewayConfiguration">
+      <wsdl:input message="tns:GetPaymentGatewayConfigurationSoapIn" />
+      <wsdl:output message="tns:GetPaymentGatewayConfigurationSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="UpdatePendingTransaction">
       <wsdl:input message="tns:UpdatePendingTransactionSoapIn" />
       <wsdl:output message="tns:UpdatePendingTransactionSoapOut" />
@@ -1977,6 +2103,14 @@
     <wsdl:operation name="GetPaymentGatewayByBillingGuid">
       <wsdl:input message="tns:GetPaymentGatewayByBillingGuidSoapIn" />
       <wsdl:output message="tns:GetPaymentGatewayByBillingGuidSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GeneratePaymentGatewaySharedSecret">
+      <wsdl:input message="tns:GeneratePaymentGatewaySharedSecretSoapIn" />
+      <wsdl:output message="tns:GeneratePaymentGatewaySharedSecretSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetPartnerConfiguration">
+      <wsdl:input message="tns:SetPartnerConfigurationSoapIn" />
+      <wsdl:output message="tns:SetPartnerConfigurationSoapOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="moduleHttpPost">
@@ -2108,6 +2242,10 @@
       <wsdl:input message="tns:SetPaymentGatewayConfigurationHttpPostIn" />
       <wsdl:output message="tns:SetPaymentGatewayConfigurationHttpPostOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetPaymentGatewayConfiguration">
+      <wsdl:input message="tns:GetPaymentGatewayConfigurationHttpPostIn" />
+      <wsdl:output message="tns:GetPaymentGatewayConfigurationHttpPostOut" />
+    </wsdl:operation>
     <wsdl:operation name="UpdatePendingTransaction">
       <wsdl:input message="tns:UpdatePendingTransactionHttpPostIn" />
       <wsdl:output message="tns:UpdatePendingTransactionHttpPostOut" />
@@ -2127,6 +2265,10 @@
     <wsdl:operation name="GetPaymentGatewayByBillingGuid">
       <wsdl:input message="tns:GetPaymentGatewayByBillingGuidHttpPostIn" />
       <wsdl:output message="tns:GetPaymentGatewayByBillingGuidHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GeneratePaymentGatewaySharedSecret">
+      <wsdl:input message="tns:GeneratePaymentGatewaySharedSecretHttpPostIn" />
+      <wsdl:output message="tns:GeneratePaymentGatewaySharedSecretHttpPostOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="moduleSoap" type="tns:moduleSoap">
@@ -2500,6 +2642,15 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetPaymentGatewayConfiguration">
+      <soap:operation soapAction="http://billing.tvinci.com/GetPaymentGatewayConfiguration" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="UpdatePendingTransaction">
       <soap:operation soapAction="http://billing.tvinci.com/UpdatePendingTransaction" style="document" />
       <wsdl:input>
@@ -2538,6 +2689,24 @@
     </wsdl:operation>
     <wsdl:operation name="GetPaymentGatewayByBillingGuid">
       <soap:operation soapAction="http://billing.tvinci.com/GetPaymentGatewayByBillingGuid" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GeneratePaymentGatewaySharedSecret">
+      <soap:operation soapAction="http://billing.tvinci.com/GeneratePaymentGatewaySharedSecret" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetPartnerConfiguration">
+      <soap:operation soapAction="http://billing.tvinci.com/SetPartnerConfiguration" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -2917,6 +3086,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetPaymentGatewayConfiguration">
+      <soap12:operation soapAction="http://billing.tvinci.com/GetPaymentGatewayConfiguration" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="UpdatePendingTransaction">
       <soap12:operation soapAction="http://billing.tvinci.com/UpdatePendingTransaction" style="document" />
       <wsdl:input>
@@ -2955,6 +3133,24 @@
     </wsdl:operation>
     <wsdl:operation name="GetPaymentGatewayByBillingGuid">
       <soap12:operation soapAction="http://billing.tvinci.com/GetPaymentGatewayByBillingGuid" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GeneratePaymentGatewaySharedSecret">
+      <soap12:operation soapAction="http://billing.tvinci.com/GeneratePaymentGatewaySharedSecret" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetPartnerConfiguration">
+      <soap12:operation soapAction="http://billing.tvinci.com/SetPartnerConfiguration" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -3251,6 +3447,15 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetPaymentGatewayConfiguration">
+      <http:operation location="/GetPaymentGatewayConfiguration" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="UpdatePendingTransaction">
       <http:operation location="/UpdatePendingTransaction" />
       <wsdl:input>
@@ -3296,16 +3501,25 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GeneratePaymentGatewaySharedSecret">
+      <http:operation location="/GeneratePaymentGatewaySharedSecret" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://localhost/WS_Billing/module.asmx" />
+      <soap:address location="http://54.72.1.39:8030/billing_v3_7/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://localhost/WS_Billing/module.asmx" />
+      <soap12:address location="http://54.72.1.39:8030/billing_v3_7/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://localhost/WS_Billing/module.asmx" />
+      <http:address location="http://54.72.1.39:8030/billing_v3_7/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

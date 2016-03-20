@@ -1759,7 +1759,7 @@ namespace ConditionalAccess
 
             if (!IsAnonymousUser(sSiteGUID))
             {
-                TvinciPricing.mdoule m = null;
+                TvinciPricing.mdoule pricingModule = null;
                 try
                 {
                     int[] ppvGroupFileTypes = ppvModule.m_relatedFileTypes;
@@ -1843,13 +1843,13 @@ namespace ConditionalAccess
                                 {
                                     // purchased as part of pre paid
                                     theReason = PriceReason.PrePaidPurchased;
-                                    m = new ConditionalAccess.TvinciPricing.mdoule();
+                                    pricingModule = new ConditionalAccess.TvinciPricing.mdoule();
                                     string pricingUrl = GetWSURL("pricing_ws");
                                     if (!string.IsNullOrEmpty(pricingUrl))
                                     {
-                                        m.Url = pricingUrl;
+                                        pricingModule.Url = pricingUrl;
                                     }
-                                    relevantPP = m.GetPrePaidModuleData(sPricingUsername, sPricingPassword, int.Parse(sPPCode), sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                                    relevantPP = pricingModule.GetPrePaidModuleData(sPricingUsername, sPricingPassword, int.Parse(sPPCode), sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
 
                                 }
                             }
@@ -2005,9 +2005,9 @@ namespace ConditionalAccess
                 finally
                 {
                     #region Disposing
-                    if (m != null)
+                    if (pricingModule != null)
                     {
-                        m.Dispose();
+                        pricingModule.Dispose();
                     }
                     #endregion
                 }

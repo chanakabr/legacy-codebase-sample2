@@ -2117,7 +2117,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2174,7 +2174,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2207,7 +2207,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2481,7 +2481,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2515,7 +2515,7 @@ namespace ConditionalAccess.TvinciPricing {
     
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(DiscountModule))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2572,7 +2572,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2605,7 +2605,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2638,7 +2638,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2707,7 +2707,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
     public enum RelationTypes {
@@ -2720,7 +2720,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2753,7 +2753,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
     public enum WhenAlgoType {
@@ -2766,7 +2766,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -2979,7 +2979,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3025,7 +3025,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3082,7 +3082,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3117,7 +3117,7 @@ namespace ConditionalAccess.TvinciPricing {
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(Collection))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(Subscription))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3258,7 +3258,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3387,7 +3387,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3528,7 +3528,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3561,7 +3561,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3642,7 +3642,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
     public enum CouponsStatus {
@@ -3667,7 +3667,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
     public enum CouponType {
@@ -3683,7 +3683,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3716,7 +3716,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3833,7 +3833,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3866,7 +3866,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3911,7 +3911,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -3956,7 +3956,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -4015,7 +4015,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -4168,7 +4168,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
     public enum CampaignTrigger {
@@ -4184,7 +4184,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
     public enum CampaignResult {
@@ -4200,7 +4200,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
     public enum CampaignType {
@@ -4216,7 +4216,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -4249,7 +4249,7 @@ namespace ConditionalAccess.TvinciPricing {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34230")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
     public enum eTransactionType {

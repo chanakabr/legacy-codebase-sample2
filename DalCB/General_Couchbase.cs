@@ -4,9 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using ApiObjects;
-using Couchbase;
 using CouchbaseManager;
-using Enyim.Caching.Memcached.Results;
 using KLogMonitor;
 using Newtonsoft.Json;
 
@@ -27,34 +25,35 @@ namespace DalCB
                     log.ErrorFormat("Error while trying to modify CB. bucket type wasn't found: {0}", bucket);
                     return false;
                 }
-                CouchbaseClient client = CouchbaseManager.CouchbaseManager.GetInstance(bucketType);
+
+                var cbManager = new CouchbaseManager.CouchbaseManager(bucketType);
 
                 switch (action)
                 {
                     case eDbActionType.Delete:
-                        return client.Remove(key);
+                    return cbManager.Remove(key);
 
                     case eDbActionType.Add:
 
-                        IStoreOperationResult cbResult;
-                        if (ttlMinutes > 0)
-                            cbResult = client.ExecuteStore(Enyim.Caching.Memcached.StoreMode.Set, key, data, DateTime.UtcNow.AddMinutes(ttlMinutes));
-                        else
-                            cbResult = client.ExecuteStore(Enyim.Caching.Memcached.StoreMode.Set, key, data);
+                    bool result;
+                    if (ttlMinutes > 0)
+                        result = cbManager.Set(key, data, (uint)ttlMinutes * 60);
+                    else
+                        result = cbManager.Set(key, data);
 
-                        if (!cbResult.Success)
-                        {
-                            log.ErrorFormat("error while trying to add data to CB. bucket: {0), key: {1}, data: {2}", bucket, key, data);
-                            return false;
-                        }
-                        else
-                        {
-                            log.DebugFormat("successfully added data to CB. bucket: {0), key: {1}, data: {2}", bucket, key, data);
-                            return true;
-                        }
+                    if (!result)
+                    {
+                        log.ErrorFormat("error while trying to add data to CB. bucket: {0), key: {1}, data: {2}", bucket, key, data);
+                        return false;
+                    }
+                    else
+                    {
+                        log.DebugFormat("successfully added data to CB. bucket: {0), key: {1}, data: {2}", bucket, key, data);
+                        return true;
+                    }
 
                     default:
-                        break;
+                    break;
                 }
             }
             catch (Exception ex)

@@ -6,5 +6,5 @@
     cause the file to be unrecognizable by the program.
 -->
 <GenericObjectDataSource DisplayName="StandardObjectArrayResult" Version="1.0" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
-   <TypeInfo>M1BL.MobileOneBusinessFascadeService.StandardObjectArrayResult</TypeInfo>
+   <TypeInfo>M1BL.MobileOneBusinessFascadeService.StandardObjectArrayResult, Web References.MobileOneBusinessFascadeService.Reference.cs, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null</TypeInfo>
 </GenericObjectDataSource>
