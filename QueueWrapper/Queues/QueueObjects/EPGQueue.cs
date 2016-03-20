@@ -1,17 +1,19 @@
-﻿using ApiObjects;
-using ApiObjects.MediaIndexingObjects;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ApiObjects.MediaIndexingObjects;
+using QueueWrapper.Enums;
+using ApiObjects;
 
-namespace QueueWrapper
+namespace QueueWrapper.Queues.QueueObjects
 {
-    public class CatalogQueue : BaseQueue
+    public class EPGQueue : BaseQueue
     {
-        public CatalogQueue()
+
+        public EPGQueue()
         {
-            this.Implementation = new RabbitQueue(Enums.ConfigType.IndexingDataConfig, true);
+            this.Implementation = new RabbitQueue(ConfigType.EPGConfig, true);    
         }
 
         public override bool Enqueue(QueueObject record, string sRouteKey)

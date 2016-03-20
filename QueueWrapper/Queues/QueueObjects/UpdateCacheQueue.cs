@@ -1,5 +1,4 @@
 ﻿using ApiObjects;
-using ApiObjects.MediaIndexingObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,11 +6,11 @@ using System.Text;
 
 namespace QueueWrapper
 {
-    public class CatalogQueue : BaseQueue
+    public class UpdateCacheQueue : BaseQueue
     {
-        public CatalogQueue()
+        public UpdateCacheQueue()
         {
-            this.Implementation = new RabbitQueue(Enums.ConfigType.IndexingDataConfig, true);
+            this.Implementation = new RabbitQueue(Enums.ConfigType.DefaultConfig, true);
         }
 
         public override bool Enqueue(QueueObject record, string sRouteKey)
