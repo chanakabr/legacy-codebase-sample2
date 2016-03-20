@@ -16,7 +16,7 @@ namespace ApiObjects.Billing
         public List<PaymentMethod> PaymentMethods { get; set; }
     }
 
-    public class HouseHoldPaymentMethods
+    public class PaymentGatwayPaymentMethods
     {
         public PaymentMethod PaymentMethod  { get; set; }
         public List<HouseholdPaymentMethod> HouseHoldPaymentMethods { get; set; }

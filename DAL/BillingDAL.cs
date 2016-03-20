@@ -2406,5 +2406,16 @@ namespace DAL
             return rowCount > 0;
 
         }
+
+        public static DataSet GetAllPaymentGatewaysWithPaymentMethods(int groupId, long householdId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_AllPaymentGatewaysWithPaymentMethods");
+            sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+            sp.AddParameter("@groupID", groupId);
+            sp.AddParameter("@houseHoldID", householdId);
+
+            DataSet ds = sp.ExecuteDataSet();
+            return ds;
+        }
     }
 }
