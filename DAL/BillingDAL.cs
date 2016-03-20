@@ -2215,7 +2215,7 @@ namespace DAL
             return response;
         }
 
-        public static bool Update_PaymentGatewayPaymentMethod(int groupId, int paymentGatewayId, int paymentMethodId, string name)
+        public static bool Update_PaymentGatewayPaymentMethod(int groupId, int paymentGatewayId, int paymentMethodId, string name, bool allowMultiInstance)
         {
             int rowCount = 0;
             try
@@ -2226,6 +2226,7 @@ namespace DAL
                 sp.AddParameter("@payment_gateway_id", paymentGatewayId);
                 sp.AddParameter("@payment_method_id", paymentMethodId);
                 sp.AddParameter("@name", name);
+                sp.AddParameter("@allow_multi_instance", allowMultiInstance ? 1 : 0);
 
                 rowCount = sp.ExecuteReturnValue<int>();
             }
