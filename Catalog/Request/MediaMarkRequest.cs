@@ -52,7 +52,7 @@ namespace Catalog.Request
             MediaMarkResponse oMediaMarkResponse = null;
 
             try
-            {                
+            {
                 MediaMarkRequest oMediaMarkRequest = null;
 
                 CheckSignature(oBaseRequest);
@@ -118,7 +118,7 @@ namespace Catalog.Request
             int nExitFull = 0;
             int nSendToFriend = 0;
             int nLoad = 0;
-            int nFirstPlay = 0;            
+            int nFirstPlay = 0;
             int nPlatform = 0;
             int nSwhoosh = 0;
             int fileDuration = 0;
@@ -128,7 +128,7 @@ namespace Catalog.Request
             if (assetType == eAssetTypes.EPG)
             {
                 BaseEpgBL epgBL = EpgBL.Utils.GetInstance(this.m_nGroupID);
-                List<EpgCB> lEpgProg = epgBL.GetEpgs(new List<string>(){this.m_oMediaPlayRequestData.m_sAssetID});
+                List<EpgCB> lEpgProg = epgBL.GetEpgs(new List<string>() { this.m_oMediaPlayRequestData.m_sAssetID });
                 if (lEpgProg != null && lEpgProg.Count > 0)
                     fileDuration = Convert.ToInt32((lEpgProg.First().EndDate - lEpgProg.First().StartDate).TotalSeconds);
                 else
@@ -147,7 +147,7 @@ namespace Catalog.Request
 
             // check anonymous user
             if (Catalog.IsAnonymousUser(m_oMediaPlayRequestData.m_sSiteGuid))
-            {                
+            {
                 oMediaMarkResponse.status = new Status((int)eResponseStatus.UserNotAllowed, "Anonymous User Can't watch nPVR");
                 return oMediaMarkResponse;
             }
@@ -171,11 +171,11 @@ namespace Catalog.Request
 
         /* no concurrency check for NPVR play , only UpdateFollowMe */
         private void HandleNpvrEpgPlayAction(MediaPlayActions mediaMarkAction, int nCountryID, int nPlatform, ref int nActionID, ref int nPlay, ref int nStop, ref int nPause,
-            ref int nFinish, ref int nFull, ref int nExitFull, ref int nSendToFriend, ref int nLoad, ref int nFirstPlay, ref bool isConcurrent, 
+            ref int nFinish, ref int nFull, ref int nExitFull, ref int nSendToFriend, ref int nLoad, ref int nFirstPlay, ref bool isConcurrent,
             ref bool isError, ref int nSwoosh, ref int fileDuration, eAssetTypes assetType)
         {
             int nDomainID = 0;
-            ePlayType playType = assetType == eAssetTypes.EPG ? ePlayType.EPG : ePlayType.NPVR;            
+            ePlayType playType = assetType == eAssetTypes.EPG ? ePlayType.EPG : ePlayType.NPVR;
 
             switch (mediaMarkAction)
             {
@@ -198,28 +198,28 @@ namespace Catalog.Request
                 case MediaPlayActions.PLAY:
                     {
                         nPlay = 1;
-                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, 
+                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc,
                             this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), (int)assetType, nDomainID, playType);
                         break;
                     }
                 case MediaPlayActions.STOP:
                     {
                         nStop = 1;
-                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, 
+                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc,
                             this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), (int)assetType, nDomainID, playType);
                         break;
                     }
                 case MediaPlayActions.PAUSE:
                     {
                         nPause = 1;
-                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, 
+                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc,
                             this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), (int)assetType, nDomainID, playType);
                         break;
                     }
                 case MediaPlayActions.FINISH:
                     {
                         nFinish = 1;
-                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, 0, this.m_oMediaPlayRequestData.m_sUDID, 
+                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, 0, this.m_oMediaPlayRequestData.m_sUDID,
                             fileDuration, mediaMarkAction.ToString(), (int)assetType, nDomainID, playType);
                         break;
                     }
@@ -246,7 +246,7 @@ namespace Catalog.Request
                 case MediaPlayActions.FIRST_PLAY:
                     {
                         nFirstPlay = 1;
-                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, 
+                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc,
                             this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), (int)assetType, nDomainID, playType);
                         break;
                     }
@@ -260,7 +260,7 @@ namespace Catalog.Request
                 case MediaPlayActions.SWOOSH:
                     {
                         nSwoosh = 1;
-                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, 
+                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc,
                             this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), (int)assetType, nDomainID, playType);
                         break;
                     }
@@ -375,7 +375,7 @@ namespace Catalog.Request
                         // log for mediahit for statistics
                         Task.Factory.StartNew(() => WriteLiveViews(m_nGroupID, mediaId, nMediaTypeID, nPlayTime));
                 }
-                
+
                 if (nActionID != -1)
                 {
                     if (nActionID != (int)MediaPlayActions.HIT)
@@ -386,6 +386,7 @@ namespace Catalog.Request
 
                     if (IsFirstPlay(nActionID))
                     {
+                        log.Debug("about to call WriteFirstPlay");
                         Task.Factory.StartNew(() => WriteFirstPlay(mediaId, m_oMediaPlayRequestData.m_nMediaFileID,
                             m_nGroupID, nMediaTypeID, nPlayTime, m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID));
                     }
@@ -408,6 +409,7 @@ namespace Catalog.Request
         private void WriteFirstPlay(int mediaID, int mediaFileID, int groupID, int mediaTypeID, int playTime,
             string siteGuid, string udid, int platform, int countryID)
         {
+            log.Debug("running WriteFirstPlay");
             ApiDAL.Update_MediaViews(mediaID, mediaFileID);
             if (!Catalog.InsertStatisticsRequestToES(groupID, mediaID, mediaTypeID, Catalog.STAT_ACTION_FIRST_PLAY, playTime))
             {
@@ -529,7 +531,7 @@ namespace Catalog.Request
                                 if (!Catalog.IsAnonymousUser(m_oMediaPlayRequestData.m_sSiteGuid))
                                 {
                                     playCycleSession = CatalogDAL.InsertPlayCycleSession(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nMediaFileID, this.m_nGroupID, this.m_oMediaPlayRequestData.m_sUDID, nPlatform, 0, nDomainID);
-                                }                                
+                                }
                                 // We still insert to DB incase needed by other process                            
                                 if (playCycleSession != null && !string.IsNullOrEmpty(playCycleSession.PlayCycleKey))
                                 {

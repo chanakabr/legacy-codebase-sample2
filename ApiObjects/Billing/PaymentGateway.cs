@@ -21,8 +21,6 @@ namespace ApiObjects.Billing
         public int Status { get; set; }
         [XmlIgnore]
         public int Selected { get; set; }
-        [XmlIgnore]
-        public bool SupportPaymentMethod { get; set; } 
 
         public List<PaymentGatewaySettings> Settings { get; set; }
         public List<PaymentMethod> PaymentMethods { get; set; }
@@ -50,6 +48,7 @@ namespace ApiObjects.Billing
             this.Settings = paymentGateway.Settings;
             this.RenewalIntervalMinutes = paymentGateway.RenewalIntervalMinutes;
             this.RenewalStartMinutes = paymentGateway.RenewalStartMinutes;
+            this.SupportPaymentMethod = paymentGateway.SupportPaymentMethod;
         }
     }
 }

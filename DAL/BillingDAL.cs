@@ -1447,7 +1447,6 @@ namespace DAL
                 sp.AddParameter("@isActive", paymentGateway.IsActive);
                 sp.AddParameter("@renewal_interval", paymentGateway.RenewalIntervalMinutes);
                 sp.AddParameter("@renewal_start", paymentGateway.RenewalStartMinutes);
-                sp.AddParameter("@is_payment_method_support ", paymentGateway.SupportPaymentMethod);
 
                 bool isSet = sp.ExecuteReturnValue<bool>();
                 return isSet;
@@ -1479,7 +1478,6 @@ namespace DAL
                 sp.AddParameter("@isActive", pgw.IsActive);
                 sp.AddParameter("@renewal_interval", pgw.RenewalIntervalMinutes);
                 sp.AddParameter("@renewal_start", pgw.RenewalStartMinutes);
-                sp.AddParameter("@is_payment_method_support ", pgw.SupportPaymentMethod);
 
                 DataTable dt = CreateDataTable(pgw.Settings);
                 sp.AddDataTableParameter("@KeyValueList", dt);
@@ -2097,10 +2095,10 @@ namespace DAL
             return pghhpm;
         }
 
-        public static PaymentGateway GetPaymentGatewayHousehold(int groupID, string externalIdentifier, int householdId, out bool isPaymentGatewayRelatedToHousehold)
+        public static PaymentGatewayHouseholdPaymentMethod GetPaymentGatewayHouseholdPaymentMethod(int groupID, string externalIdentifier, int householdId,
+            string paymentMethodName, string paymentMethodExternalId)
         {
-            PaymentGateway paymentGateway = null;
-            isPaymentGatewayRelatedToHousehold = false;
+            PaymentGatewayHouseholdPaymentMethod pghhpm = null;
 
             try
             {
@@ -2109,34 +2107,29 @@ namespace DAL
                 sp.AddParameter("@groupId", groupID);
                 sp.AddParameter("@externalIdentifier", externalIdentifier);
                 sp.AddParameter("@householdId", householdId);
+                sp.AddParameter("@paymentMethodName", paymentMethodName);
+                sp.AddParameter("@paymentMethodExternalId", paymentMethodExternalId);
 
                 DataSet ds = sp.ExecuteDataSet();
 
-                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
-                    if (ds.Tables[0].Rows.Count > 0)
-                    {
-                        paymentGateway = new PaymentGateway();
-                        paymentGateway.ID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "payment_gateway_id");
-                        int supportPaymentMethod = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_payment_method_support");
-                        paymentGateway.SupportPaymentMethod = supportPaymentMethod == 1;
-                    }
-                    if (ds.Tables.Count == 2 && ds.Tables[1].Rows.Count > 0 )
-                    {
-                        isPaymentGatewayRelatedToHousehold = true;
-                    }
+                    pghhpm = new PaymentGatewayHouseholdPaymentMethod();
+
+                    pghhpm.PaymentGatewayId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "PAYMENT_GATEWAY_ID");
+                    pghhpm.PaymentMethodId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "PAYMENT_METHOD_ID");
+                    pghhpm.HouseholdId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "HOUSEHOLD_ID");
+                    pghhpm.PaymentMethodExternalId = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "PAYMENT_METHOD_EXTERNAL_ID");
+                    pghhpm.PaymentDetails = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "PAYMENT_METHOD_DETAILS");
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error at GetPaymentGatewayHousehold household: {0}, payment gateway: {1}, error {2}", householdId,
+                log.ErrorFormat("Error at GetPaymentGatewayHouseholdPaymentMethod household: {0}, payment gateway: {1}, error {2}", householdId,
                     !string.IsNullOrEmpty(externalIdentifier) ? externalIdentifier : string.Empty, ex);
             }
 
-            log.DebugFormat("GetPaymentGatewayHousehold household {0}, payment gateway {1}, payment gateway Id {2}", householdId,
-                !string.IsNullOrEmpty(externalIdentifier) ? externalIdentifier : string.Empty, paymentGateway);
-
-            return paymentGateway;
+            return pghhpm;
         }
 
         public static bool GetPaymentMethod(int groupID, int paymentGatewayId, int paymentMethodId)
@@ -2216,7 +2209,7 @@ namespace DAL
             }
         }
 
-        public static PaymentMethod Insert_PaymentGatewayPaymentMethod(int groupId, int paymentGatewayId, string name)
+        public static PaymentMethod Insert_PaymentGatewayPaymentMethod(int groupId, int paymentGatewayId, string name, bool allowMultiInstance)
         {
             PaymentMethod response = null;
             try
@@ -2226,6 +2219,7 @@ namespace DAL
                 sp.AddParameter("@group_id", groupId);
                 sp.AddParameter("@payment_gateway_id", paymentGatewayId);
                 sp.AddParameter("@name", name);
+                sp.AddParameter("@allow_multi_instance", allowMultiInstance ? 1 : 0);
 
                 DataSet ds = sp.ExecuteDataSet();
 
@@ -2236,7 +2230,8 @@ namespace DAL
                         response = new PaymentMethod()
                         {
                             ID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID"),
-                            Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "NAME"),
+                            Name = name,
+                            AllowMultiInstance = allowMultiInstance,
                         };
                     }
                 }
