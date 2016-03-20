@@ -25,7 +25,8 @@ namespace CouchbaseManager
         STATISTICS = 6,
         CACHE = 7,
         SCHEDULED_TASKS = 8,
-        CROWDSOURCE = 9
+        CROWDSOURCE = 9,
+        DRM = 10
     }
 
     public class CouchbaseManager
@@ -363,7 +364,7 @@ namespace CouchbaseManager
                             else
                             {
                                 HandleStatusCode(insertResult.Status, key);
-                                
+
                                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
                                 {
                                     insertResult = bucket.Insert(key, value, expiration);
@@ -487,7 +488,7 @@ namespace CouchbaseManager
                             else
                             {
                                 HandleStatusCode(insertResult.Status, key);
-                                
+
                                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
                                 {
                                     insertResult = bucket.Upsert(key, value, expiration);
