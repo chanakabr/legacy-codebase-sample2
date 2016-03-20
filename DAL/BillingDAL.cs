@@ -2284,6 +2284,7 @@ namespace DAL
                             {
                                 ID = ODBCWrapper.Utils.GetIntSafeVal(row, "ID"),
                                 Name = ODBCWrapper.Utils.GetSafeStr(row, "NAME"),
+                                AllowMultiInstance = ODBCWrapper.Utils.GetIntSafeVal(row, "ALLOW_MULTI_INSTANCE") == 1
                             };
 
                             response.Add(method);
