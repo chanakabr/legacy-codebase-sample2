@@ -49,8 +49,8 @@ namespace WebAPI.Models.Billing
         /// <summary>
         /// payment method
         /// </summary>
-        [DataMember(Name = "payment_method")]
-        [JsonProperty("payment_method")]
+        [DataMember(Name = "payment_methods")]
+        [JsonProperty("payment_methods")]
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
         public List<KalturaPaymentMethod> PaymentMethods { get; set; }
