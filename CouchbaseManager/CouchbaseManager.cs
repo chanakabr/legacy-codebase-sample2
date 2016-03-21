@@ -36,6 +36,11 @@ namespace CouchbaseManager
         public const string COUCHBASE_CONFIG = "couchbaseClients/";
         private const string TCM_KEY_FORMAT = "cb_{0}.{1}";
 
+        /// <summary>
+        /// Defines duration of a month in seconds, see http://docs.couchbase.com/developer/dev-guide-3.0/doc-expiration.html
+        /// </summary>
+        private const uint monthInSeconds = 30 * 24 * 60 * 60;
+
         #endregion
 
         #region Static Members
@@ -321,6 +326,30 @@ namespace CouchbaseManager
                 return default(T);
         }
 
+        /// <summary>
+        /// See http://docs.couchbase.com/developer/dev-guide-3.0/doc-expiration.html
+        /// </summary>
+        /// <param name="expiration"></param>
+        /// <returns></returns>
+        private static uint FixExpirationTime(uint expiration)
+        {
+            uint result = expiration;
+
+            // If document should expire in more than a month, convert it to unix time
+            if (expiration > monthInSeconds)
+            {
+                DateTime expirationDate = DateTime.UtcNow.AddSeconds(expiration);
+
+                result = DateTimeToUnixTimestamp(expirationDate);
+            }
+
+            return result;
+        }
+
+        private static uint DateTimeToUnixTimestamp(DateTime dateTime)
+        {
+            return (uint)(dateTime - new DateTime(1970, 1, 1).ToUniversalTime()).TotalSeconds;
+        }
         #endregion
 
         #region Public Methods
@@ -342,6 +371,8 @@ namespace CouchbaseManager
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
+                        expiration = FixExpirationTime(expiration);
+
                         IOperationResult insertResult = null;
 
                         string action = string.Format("Action: Insert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
@@ -406,6 +437,7 @@ namespace CouchbaseManager
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
                         IOperationResult insertResult = null;
+                        expiration = FixExpirationTime(expiration);
 
                         string action = string.Format("Action: Insert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
                         using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
@@ -469,6 +501,7 @@ namespace CouchbaseManager
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
                         IOperationResult insertResult = null;
+                        expiration = FixExpirationTime(expiration);
 
                         string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
                         using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
@@ -532,6 +565,7 @@ namespace CouchbaseManager
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
                         IOperationResult insertResult = null;
+                        expiration = FixExpirationTime(expiration);
 
                         string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
                         using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
@@ -770,6 +804,7 @@ namespace CouchbaseManager
                 using (var bucket = cluster.OpenBucket(bucketName))
                 {
                     IOperationResult setResult;
+                    expiration = FixExpirationTime(expiration);
 
                     string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
@@ -814,6 +849,7 @@ namespace CouchbaseManager
                 using (var bucket = cluster.OpenBucket(bucketName))
                 {
                     IOperationResult setResult;
+                    expiration = FixExpirationTime(expiration);
 
                     string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
@@ -868,6 +904,7 @@ namespace CouchbaseManager
                 using (var bucket = cluster.OpenBucket(bucketName))
                 {
                     IOperationResult setResult;
+                    expiration = FixExpirationTime(expiration);
 
                     string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
@@ -912,6 +949,7 @@ namespace CouchbaseManager
                 using (var bucket = cluster.OpenBucket(bucketName))
                 {
                     IOperationResult setResult;
+                    expiration = FixExpirationTime(expiration);
 
                     string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
