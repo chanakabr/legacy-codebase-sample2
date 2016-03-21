@@ -1554,50 +1554,6 @@ namespace DAL
             }
         }
 
-        public static bool SetPaymentGWPending(int groupID, int? status, PaymentGatewayPending paymentGatewayPending)
-        {
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_PaymentGWPending");
-                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
-                sp.AddParameter("@ID", paymentGatewayPending.ID);
-                sp.AddParameter("@payment_gateway_transaction_id", paymentGatewayPending.PaymentGatewayTransactionId);
-                sp.AddParameter("@next_retry_date", paymentGatewayPending.NextRetryDate);
-                sp.AddParameter("@adapter_retry_count", paymentGatewayPending.AdapterRetryCount);
-                sp.AddParameter("@billing_guid", paymentGatewayPending.BillingGuid);
-
-                if (status.HasValue)
-                    sp.AddParameter("@status", status.Value);
-                else
-                    sp.AddParameter("@status", DBNull.Value);
-
-                bool isSet = sp.ExecuteReturnValue<bool>();
-                return isSet;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
-        public static bool DeletePaymentGWPending(int groupID, int paymentGWPending)
-        {
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_PaymentGWPending");
-                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
-                sp.AddParameter("@GroupID", groupID);
-                sp.AddParameter("@ID", paymentGWPending);
-
-                bool isDelete = sp.ExecuteReturnValue<bool>();
-                return isDelete;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
         public static int InsertPaymentGatewayTransaction(int groupID, long domainId, long siteGuid, PaymentGatewayTransaction paymentGateway)
         {
             try
@@ -1628,49 +1584,6 @@ namespace DAL
             catch (Exception)
             {
                 return 0;
-            }
-        }
-
-        public static bool SetPaymentGWTransaction(int groupID, PaymentGatewayTransaction pgt)
-        {
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_PaymentGWTransactions");
-                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
-                sp.AddParameter("@ID", pgt.ID);
-                sp.AddParameter("@payment_gateway_id", pgt.PaymentGatewayID);
-                sp.AddParameter("@external_transaction_id", pgt.ExternalTransactionId);
-                sp.AddParameter("@external_status", pgt.ExternalStatus);
-                sp.AddParameter("@product_type", pgt.ProductType);
-                sp.AddParameter("@product_id", pgt.ProductId);
-                sp.AddParameter("@billing_guid", pgt.BillingGuid);
-                sp.AddParameter("@content_id", pgt.ContentId);
-
-
-                bool isSet = sp.ExecuteReturnValue<bool>();
-                return isSet;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
-        public static bool DeletePaymentGWTransaction(int groupID, int paymentGWTransaction)
-        {
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_PaymentGWTransactions");
-                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
-                sp.AddParameter("@GroupID", groupID);
-                sp.AddParameter("@ID", paymentGWTransaction);
-
-                bool isDelete = sp.ExecuteReturnValue<bool>();
-                return isDelete;
-            }
-            catch (Exception)
-            {
-                return false;
             }
         }
 
