@@ -1062,7 +1062,7 @@ namespace DAL
             }
             if (mpp.Titles != null)
             {
-                sp.AddKeyValueListParameter<string, string>("@Title", mpp.Descriptions.Select(t => new KeyValuePair<string, string>(t.key, t.value)).ToList(), "key", "value");
+                sp.AddKeyValueListParameter<string, string>("@Title", mpp.Titles.Select(t => new KeyValuePair<string, string>(t.key, t.value)).ToList(), "key", "value");
             }
 
             sp.AddKeyValueListParameter<int, int>("@PricePlansCodes", pricePlansCodes, "key", "value");
