@@ -93,6 +93,11 @@ public partial class adm_payment_gateway_payment_method_new : System.Web.UI.Page
         DataRecordShortTextField dr_name = new DataRecordShortTextField("ltr", true, 60, 128);
         dr_name.Initialize("Name", "adm_table_header_nbg", "FormInput", "NAME", false);
         theRecord.AddRecord(dr_name);
+              
+        DataRecordCheckBoxField dr_allow_multi_instance = new DataRecordCheckBoxField(true);
+        dr_allow_multi_instance.Initialize("Allow Multi Instance", "adm_table_header_nbg", "FormInput", "ALLOW_MULTI_INSTANCE", false);
+        theRecord.AddRecord(dr_allow_multi_instance);
+
 
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
