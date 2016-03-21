@@ -111,7 +111,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.HouseholdLimitationsId, opt => opt.MapFrom(src => src.m_nDomainLimitationModule))
                .ForMember(dest => dest.RenewalsNumber, opt => opt.MapFrom(src => src.m_nNumberOfRecPeriods))
                .ForMember(dest => dest.CouponsGroup, opt => opt.MapFrom(src => src.m_oCouponsGroup))
-               .ForMember(dest => dest.DiscountModule, opt => opt.MapFrom(src => src.m_oExtDisountModule))
+               .ForMember(dest => dest.DiscountModule, opt => opt.MapFrom(src => src.m_oDiscountModule))
                .ForMember(dest => dest.PreviewModule, opt => opt.MapFrom(src => src.m_oPreviewModule))
                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.m_oSubscriptionPriceCode))
                .ForMember(dest => dest.MaxViewsNumber, opt => opt.MapFrom(src => src.m_oSubscriptionUsageModule.m_nMaxNumberOfViews))
@@ -139,10 +139,11 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.IsWaiverEnabled, opt => opt.MapFrom(src => src.m_bWaiver))
                .ForMember(dest => dest.MaxViewsNumber, opt => opt.MapFrom(src => src.m_nMaxNumberOfViews))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sVirtualName))
-               .ForMember(dest => dest.price_id, opt => opt.MapFrom(src => src.m_pricing_id))
+               .ForMember(dest => dest.PriceId, opt => opt.MapFrom(src => src.m_pricing_id))
                .ForMember(dest => dest.RenewalsNumber, opt => opt.MapFrom(src => src.m_num_of_rec_periods))
                .ForMember(dest => dest.ViewLifeCycle, opt => opt.MapFrom(src => src.m_tsViewLifeCycle))
-               .ForMember(dest => dest.WaiverPeriod, opt => opt.MapFrom(src => src.m_nWaiverPeriod));
+               .ForMember(dest => dest.WaiverPeriod, opt => opt.MapFrom(src => src.m_nWaiverPeriod))
+               .ForMember(dest => dest.DiscountId, opt => opt.MapFrom(src => src.m_ext_discount_id));
 
             // ItemPriceContainer to PPVItemPriceDetails
             Mapper.CreateMap<ConditionalAccess.ItemPriceContainer, Models.Pricing.KalturaPPVItemPriceDetails>()
