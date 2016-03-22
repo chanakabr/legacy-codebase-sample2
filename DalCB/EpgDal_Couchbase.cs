@@ -225,7 +225,7 @@ namespace DalCB
             {
                 if (ids != null && ids.Count > 0)
                 {
-                    IDictionary<string, EpgCB> getResult = cbManager.GetValues<EpgCB>(ids, true);
+                    IDictionary<string, object> getResult = cbManager.GetValues<object>(ids, true);
 
                     if (getResult != null && getResult.Count > 0)
                     {
@@ -235,31 +235,35 @@ namespace DalCB
                             // Make sure the Id was returned from CB
                             if (getResult.ContainsKey(id))
                             {
-                                EpgCB currentValue = getResult[id];
+                                object currentValue = getResult[id];
 
-                                resultEpgs.Add(currentValue);
+                                //resultEpgs.Add(currentValue);
 
                                 // Old code:
-                                //// If the value that CB returned is valid
-                                //if (currentValue != null)
-                                //{
-                                //    if (currentValue is string)
-                                //    {
-                                //        string sValue = Convert.ToString(currentValue);
+                                // If the value that CB returned is valid
+                                if (currentValue != null)
+                                {
+                                    if (currentValue is string)
+                                    {
+                                        string sValue = Convert.ToString(currentValue);
 
-                                //        if (!string.IsNullOrEmpty(sValue))
-                                //        {
-                                //            // Deserialize string from CB to an EpgCB object
-                                //            EpgCB tempEpg = JsonConvert.DeserializeObject<EpgCB>(sValue);
+                                        if (!string.IsNullOrEmpty(sValue))
+                                        {
+                                            // Deserialize string from CB to an EpgCB object
+                                            EpgCB tempEpg = JsonConvert.DeserializeObject<EpgCB>(sValue);
 
-                                //            // If it was successful, add to list
-                                //            if (tempEpg != null)
-                                //            {
-                                //                resultEpgs.Add(tempEpg);
-                                //            }
-                                //        }
-                                //    }
-                                //}
+                                            // If it was successful, add to list
+                                            if (tempEpg != null)
+                                            {
+                                                resultEpgs.Add(tempEpg);
+                                            }
+                                        }
+                                    }
+                                    else if (currentValue is EpgCB)
+                                    {
+                                        resultEpgs.Add(currentValue as EpgCB);
+                                    }
+                                }
                             }
                         }
                     }
@@ -308,12 +312,8 @@ namespace DalCB
                     viewManager.skip = nStartIndex;
                     viewManager.limit = nPageSize;
                 }
-                var res = cbManager.View<EpgCB>(viewManager);
 
-                if (res != null)
-                {
-                    lRes = res.ToList();
-                }
+                PerformEPGView(lRes, viewManager);
             }
             catch (Exception ex)
             {
@@ -346,12 +346,8 @@ namespace DalCB
                     viewManager.skip = nStartIndex;
                     viewManager.limit = nPageSize;
                 }
-                var res = cbManager.View<EpgCB>(viewManager);
 
-                if (res != null)
-                {
-                    lRes = res.ToList();
-                }
+                PerformEPGView(lRes, viewManager);
             }
             catch (Exception ex)
             {
@@ -384,16 +380,8 @@ namespace DalCB
                     viewManager.skip = nStartIndex;
                     viewManager.limit = nPageSize;
                 }
-                var res = cbManager.View<EpgCB>(viewManager);
 
-                if (res != null)
-                {
-                    lRes = res.ToList();
-                }
-                else
-                {
-                    log.Debug("group_programs view result is null");
-                }
+                PerformEPGView(lRes, viewManager);
             }
             catch (Exception ex)
             {
@@ -401,6 +389,44 @@ namespace DalCB
             }
 
             return lRes;
+        }
+
+        private void PerformEPGView(List<EpgCB> lRes, ViewManager viewManager)
+        {
+            var res = cbManager.View<object>(viewManager);
+
+            if (res != null)
+            {
+                foreach (object currentValue in res)
+                {
+                    // Old code:
+                    // If the value that CB returned is valid
+                    if (currentValue != null)
+                    {
+                        if (currentValue is string || currentValue is Newtonsoft.Json.Linq.JToken ||
+                            currentValue is Newtonsoft.Json.Linq.JObject)
+                        {
+                            string sValue = Convert.ToString(currentValue);
+
+                            if (!string.IsNullOrEmpty(sValue))
+                            {
+                                // Deserialize string from CB to an EpgCB object
+                                EpgCB tempEpg = JsonConvert.DeserializeObject<EpgCB>(sValue);
+
+                                // If it was successful, add to list
+                                if (tempEpg != null)
+                                {
+                                    lRes.Add(tempEpg);
+                                }
+                            }
+                        }
+                        else if (currentValue is EpgCB)
+                        {
+                            lRes.Add(currentValue as EpgCB);
+                        }
+                    }
+                }
+            }
         }
 
         //returns all channel programs from view. (does not take start/end date into consideration) 
@@ -424,12 +450,8 @@ namespace DalCB
                     viewManager.skip = nStartIndex;
                     viewManager.limit = nPageSize;
                 }
-                var res = cbManager.View<EpgCB>(viewManager);
 
-                if (res != null)
-                {
-                    lRes = res.ToList();
-                }
+                PerformEPGView(lRes, viewManager);
             }
             catch (Exception ex)
             {
@@ -467,12 +489,7 @@ namespace DalCB
                     viewManager.endKey = startKey;
                 }
 
-                var res = cbManager.View<EpgCB>(viewManager);
-
-                if (res != null)
-                {
-                    lRes = res.ToList();
-                }
+                PerformEPGView(lRes, viewManager);
             }
             catch (Exception ex)
             {
@@ -508,12 +525,7 @@ namespace DalCB
                     viewManager.limit = nPageSize;
                 }
 
-                var res = cbManager.View<EpgCB>(viewManager);
-
-                if (res != null)
-                {
-                    lRes = res.ToList();
-                }
+                PerformEPGView(lRes, viewManager);
             }
             catch (Exception ex)
             {
@@ -533,8 +545,9 @@ namespace DalCB
             {
                 try
                 {
-                    bRes = (dtExpiresAt.HasValue) ? cbManager.SetJson(sDocID, epg, (uint)(dtExpiresAt.Value - DateTime.UtcNow).TotalSeconds) :
-                                  cbManager.SetJson(sDocID, epg);
+                    bRes = (dtExpiresAt.HasValue) ?
+                        cbManager.SetJson(sDocID, JsonConvert.SerializeObject(epg, Formatting.None), (uint)(dtExpiresAt.Value - DateTime.UtcNow).TotalSeconds) :
+                        cbManager.SetJson(sDocID, JsonConvert.SerializeObject(epg, Formatting.None));
                 }
                 catch (Exception ex)
                 {
@@ -563,8 +576,9 @@ namespace DalCB
             {
                 try
                 {
-                    bRes = (dtExpiresAt.HasValue) ? cbManager.SetWithVersion(sDocID, epg, cas, (uint)(dtExpiresAt.Value - DateTime.UtcNow).TotalSeconds) :
-                                                    cbManager.SetWithVersion(sDocID, epg, cas);
+                    bRes = (dtExpiresAt.HasValue) ?
+                        cbManager.SetWithVersion(sDocID, JsonConvert.SerializeObject(epg, Formatting.None), cas, (uint)(dtExpiresAt.Value - DateTime.UtcNow).TotalSeconds) :
+                        cbManager.SetWithVersion(sDocID, JsonConvert.SerializeObject(epg, Formatting.None), cas);
                 }
                 catch (Exception ex)
                 {
