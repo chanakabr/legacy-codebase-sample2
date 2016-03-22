@@ -193,6 +193,7 @@ namespace Ingest.Importers
         private static void InsertModule<T>(int groupId, T module, CallPricingIngest<T> callPricingIngest, string reportId) where T : IngestModule
         {
             string report = string.Empty;
+            string logMessage = string.Empty;
 
             Ingest.Pricing.BusinessModuleResponse ingestResponse = null;
 
@@ -202,7 +203,7 @@ namespace Ingest.Importers
             }
             catch (Exception ex)
             {
-                log.ErrorFormat(LOG_INGEST_ERROR_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, "error while calling ws pricing", reportId, module.Action.ToString().ToLower(), ex);
+                logMessage = string.Format(LOG_INGEST_ERROR_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, "error while calling ws pricing", reportId, module.Action.ToString().ToLower(), ex);
                 report = string.Format(INGEST_ERROR_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, "error while calling ws pricing", module.Action.ToString().ToLower());
                 return;
             }
@@ -211,19 +212,19 @@ namespace Ingest.Importers
 
             if (ingestResponse == null && ingestResponse.status == null)
             {
-                log.ErrorFormat(LOG_INGEST_ERROR_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, "failed to receive ws pricing response", reportId, module.Action.ToString().ToLower());
+                logMessage = string.Format(LOG_INGEST_ERROR_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, "failed to receive ws pricing response", reportId, module.Action.ToString().ToLower());
                 report = string.Format(INGEST_ERROR_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, "failed to receive ws pricing response", module.Action.ToString().ToLower());
                 return;
             }
 
             if (ingestResponse.status.Code != (int)StatusCodes.OK)
             {
-                log.ErrorFormat(LOG_INGEST_ERROR_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, ingestResponse.status.Message, reportId, module.Action.ToString().ToLower());
+                logMessage = string.Format(LOG_INGEST_ERROR_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, ingestResponse.status.Message, reportId, module.Action.ToString().ToLower());
                 report = string.Format(INGEST_ERROR_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, ingestResponse.status.Message, module.Action.ToString().ToLower());
             }
             else
             {
-                log.DebugFormat(LOG_INGEST_SUCCESS_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, ingestResponse.Id, reportId, module.Action.ToString().ToLower());
+                logMessage = string.Format(LOG_INGEST_SUCCESS_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, ingestResponse.Id, reportId, module.Action.ToString().ToLower());
                 report = string.Format(INGEST_SUCCESS_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, ingestResponse.Id, module.Action.ToString().ToLower());
             }
 
@@ -244,6 +245,7 @@ namespace Ingest.Importers
                         }
 
                         File.AppendAllText(reportFullPath, report);
+                        log.Error(logMessage);
                     }
                     catch (Exception ex)
                     {
@@ -845,7 +847,7 @@ namespace Ingest.Importers
 
             if (string.IsNullOrEmpty(value))
             {
-                log.ErrorFormat(LOG_MANDATORY_ERROR_FORMAT, moduleName, moduleCode, nodeName, action);
+                log.ErrorFormat(LOG_MANDATORY_ERROR_FORMAT, moduleName, moduleCode, nodeName, reportId, action);
                 report.AppendFormat(MANDATORY_ERROR_FORMAT, moduleName, moduleCode, nodeName, action);
                 return false;
             }
