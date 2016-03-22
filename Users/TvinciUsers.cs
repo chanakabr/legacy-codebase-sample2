@@ -1950,7 +1950,7 @@ namespace Users
                     {
                         if (family.DeviceInstances.Where(d => d.m_deviceUDID == udid).FirstOrDefault() != null)
                         {
-                            Utils.AddInitiateNotificationActionToQueue(groupId, eUserMessageAction.ChangeUsers, int.Parse(userIdToChange), udid);
+                            Utils.AddInitiateNotificationAction(groupId, eUserMessageAction.ChangeUsers, int.Parse(userIdToChange), udid);
                             return response;
                         }
                     }

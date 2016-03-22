@@ -15,6 +15,10 @@ using Users.Cache;
 using KLogMonitor;
 using ApiObjects.Response;
 using QueueWrapper.Queues.QueueObjects;
+using TVinciShared;
+using System.Xml;
+using System.IO;
+using System.Net;
 
 namespace Users
 {
@@ -1006,18 +1010,105 @@ namespace Users
             return isAllowed;
         }
 
-        public static bool AddInitiateNotificationActionToQueue(int groupId, eUserMessageAction userAction, int userId, string udid, string pushToken = "")
+        //public static bool AddInitiateNotificationActionToQueue(int groupId, eUserMessageAction userAction, int userId, string udid, string pushToken = "")
+        //{
+        //    InitiateNotificationActionQueue que = new InitiateNotificationActionQueue();
+        //    ApiObjects.QueueObjects.UserNotificationData messageAnnouncementData = new ApiObjects.QueueObjects.UserNotificationData(groupId, (int)userAction, userId, udid, pushToken);
+
+        //    bool res = que.Enqueue(messageAnnouncementData, ROUTING_KEY_INITIATE_NOTIFICATION_ACTION);
+
+        //    if (res)
+        //        log.DebugFormat("Successfully inserted a message to notification action queue. user id: {0}, device id: {1}, push token: {2}, group id: {3}, user action: {4}", userId, udid, pushToken, groupId, userAction);
+        //    else
+        //        log.ErrorFormat("Error while inserting to notification action queue.  user id: {0}, device id: {1}, push token: {2}, group id: {3}, user action: {4}", userId, udid, pushToken, groupId, userAction);
+
+        //    return res;
+        //}
+
+        public static bool AddInitiateNotificationAction(int groupId, eUserMessageAction userAction, int userId, string udid, string pushToken = "")
         {
-            InitiateNotificationActionQueue que = new InitiateNotificationActionQueue();
-            ApiObjects.QueueObjects.UserNotificationData messageAnnouncementData = new ApiObjects.QueueObjects.UserNotificationData(groupId, (int)userAction, userId, udid, pushToken);
+            bool res = false;
+            try
+            {
+                string Address = Utils.GetTcmConfigValue("NotificationService");
+                string ContentType = Utils.GetTcmConfigValue("Content-Type");
+                if (string.IsNullOrEmpty(Address) || string.IsNullOrEmpty(ContentType))
+                {
+                    // either address or content type retrieved from config is empty
+                    #region Logging
+                    log.DebugFormat("address or content type is empty. Address: {0} , Content type: {1}", Address, ContentType);
+                    #endregion
+                    return false;
+                }
 
-            bool res = que.Enqueue(messageAnnouncementData, ROUTING_KEY_INITIATE_NOTIFICATION_ACTION);
+                List<KeyValuePair<string, string>> lst = new List<KeyValuePair<string, string>>(3);
+                lst.Add(new KeyValuePair<string, string>("sWSUserName", string.Format("notifications_{0}", groupId)));
+                lst.Add(new KeyValuePair<string, string>("sWSPassword", "11111"));
+                lst.Add(new KeyValuePair<string, string>("userAction", userAction.ToString()));
+                lst.Add(new KeyValuePair<string, string>("userId", userId.ToString()));
+                lst.Add(new KeyValuePair<string, string>("udid", udid));
+                lst.Add(new KeyValuePair<string, string>("pushToken", pushToken.ToString()));
+                string RequestData = TVinciShared.WS_Utils.BuildDelimiterSeperatedString(lst, "&", false, false);
+                string ResponseJSON = string.Empty;
+                string ErrorMsg = string.Empty;
 
-            if (res)
-                log.DebugFormat("Successfully inserted a message to notification action queue. user id: {0}, device id: {1}, push token: {2}, group id: {3}, user action: {4}", userId, udid, pushToken, groupId, userAction);
-            else
-                log.ErrorFormat("Error while inserting to notification action queue.  user id: {0}, device id: {1}, push token: {2}, group id: {3}, user action: {4}", userId, udid, pushToken, groupId, userAction);
 
+                res = TVinciShared.WS_Utils.TrySendHttpPostRequest(Address, RequestData, ContentType, Encoding.UTF8, ref ResponseJSON,
+                ref ErrorMsg);
+
+                //string notificationUrl = WS_Utils.GetTcmConfigValue("NotificationService");
+                //string responseFromServer = string.Empty;
+
+                //XmlDocument doc = new XmlDocument();
+                //doc.Load(Path.Combine(ConfigurationManager.AppSettings["XmlDir"], "InitiateNotificationAction.xml"));
+                //XmlNode root = doc.DocumentElement;
+                //root["soap:Body"]["InitiateNotificationAction"]["sWSUserName"].InnerText = "notifications_" + groupId;
+                //root["soap:Body"]["InitiateNotificationAction"]["sWSPassword"].InnerText = "11111";
+                //root["soap:Body"]["InitiateNotificationAction"]["userAction"].InnerText = userAction.ToString();
+                //root["soap:Body"]["InitiateNotificationAction"]["userId"].InnerText = userId.ToString();
+                //root["soap:Body"]["InitiateNotificationAction"]["udid"].InnerText = udid;
+                //root["soap:Body"]["InitiateNotificationAction"]["pushToken"].InnerText = pushToken;
+
+                //Stream dataStream = null;
+                //WebResponse response = null;
+                //StreamReader reader = null;
+                //// Create a request using a URL that can receive a post.             
+                //WebRequest request = WebRequest.Create(notificationUrl);
+                //// Set the Method property of the request to POST.            
+                //request.Method = "POST";
+
+                //byte[] byteArray = Encoding.UTF8.GetBytes(doc.InnerXml);
+                //// Set the ContentType property of the WebRequest.            
+                //request.ContentType = "text/xml";
+                //// Set the ContentLength property of the WebRequest.            
+                //request.ContentLength = byteArray.Length;
+                //// Get the request stream.            
+                //dataStream = request.GetRequestStream();
+                //// Write the data to the request stream.            
+                //dataStream.Write(byteArray, 0, byteArray.Length);
+
+                //// Get the response.            
+                //response = request.GetResponse();
+                //// Display the status.
+                //// Get the stream containing content returned by the server.            
+                //dataStream = response.GetResponseStream();
+                //// Open the stream using a StreamReader for easy access.            
+                //reader = new StreamReader(dataStream);
+                //// Read the content.            
+                ////responseFromServer = reader.ReadToEnd();
+
+                //doc = new XmlDocument();
+                //doc.Load(reader);
+                //root = doc.DocumentElement;
+                //string code = root["soap:Body"]["InitiateNotificationAction"].InnerText;
+               
+               
+            }
+
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while inserting to notification.  user id: {0}, device id: {1}, push token: {2}, group id: {3}, user action: {4}", userId, udid, pushToken, groupId, userAction);
+            }
             return res;
         }
     }
