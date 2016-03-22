@@ -644,7 +644,7 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
-            if (response == null || response.Status == null)
+            if (response == null || response.Status == null || response.PaymentMethods == null || response.PaymentMethods.Length > 0)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
@@ -654,7 +654,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.Status.Code, response.Status.Message);
             }
 
-            paymentMethod = Mapper.Map<KalturaPaymentMethodProfile>(response.PaymentMethods);
+            paymentMethod = Mapper.Map<KalturaPaymentMethodProfile>(response.PaymentMethods[0]);
 
             return paymentMethod;
         }
