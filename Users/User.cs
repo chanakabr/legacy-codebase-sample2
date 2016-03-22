@@ -799,7 +799,7 @@ namespace Users
 
             if (retVal.m_RespStatus == ResponseStatus.SessionLoggedOut)
             {
-                Utils.AddInitiateNotificationActionToQueue(nGroupID, eUserMessageAction.Logout, siteGuid, sDeviceUDID);
+                Utils.AddInitiateNotificationAction(nGroupID, eUserMessageAction.Logout, siteGuid, sDeviceUDID);
             }
             else 
                 log.ErrorFormat("SignOut: error while logging user out: user: {0}, group: {1}, error: {2}", siteGuid, nGroupID, retVal.m_RespStatus);
