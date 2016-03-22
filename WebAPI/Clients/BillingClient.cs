@@ -654,7 +654,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.Status.Code, response.Status.Message);
             }
 
-            if (response.PaymentMethods == null || response.PaymentMethods.Length > 0)
+            if (response.PaymentMethods == null || response.PaymentMethods.Length == 0)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
