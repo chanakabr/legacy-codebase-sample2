@@ -51,8 +51,9 @@ namespace DalCB
             {
                 try
                 {
-                    bRes = (dtExpiresAt.HasValue) ? cbManager.Set(sDocID, epg, (uint)(dtExpiresAt.Value - DateTime.UtcNow).TotalSeconds) :
-                                                   cbManager.Set(sDocID, epg);
+                    bRes = (dtExpiresAt.HasValue) ?
+                        cbManager.Set(sDocID, JsonConvert.SerializeObject(epg, Formatting.None), (uint)(dtExpiresAt.Value - DateTime.UtcNow).TotalSeconds) :
+                        cbManager.Set(sDocID, JsonConvert.SerializeObject(epg, Formatting.None));
                 }
                 catch (Exception ex)
                 {
@@ -81,10 +82,11 @@ namespace DalCB
             {
                 try
                 {
-
+                    
                     // TODO  : add here the json serialize 
-                    bRes = (dtExpiresAt.HasValue) ? cbManager.SetWithVersion(sDocID, epg, cas, (uint)(dtExpiresAt.Value - DateTime.UtcNow).TotalSeconds) :
-                                                    cbManager.SetWithVersion(sDocID, epg, cas);
+                    bRes = (dtExpiresAt.HasValue) ? 
+                        cbManager.SetWithVersion(sDocID, JsonConvert.SerializeObject(epg, Formatting.None), cas, (uint)(dtExpiresAt.Value - DateTime.UtcNow).TotalSeconds) :
+                        cbManager.SetWithVersion(sDocID, JsonConvert.SerializeObject(epg, Formatting.None), cas);
                 }
                 catch (Exception ex)
                 {
@@ -114,8 +116,9 @@ namespace DalCB
             {
                 try
                 {
-                    bRes = (dtExpiresAt.HasValue) ? cbManager.Set(sDocID, epg, (uint)(dtExpiresAt.Value - DateTime.UtcNow).TotalSeconds) :
-                                                    cbManager.Set(sDocID, epg);
+                    bRes = (dtExpiresAt.HasValue) ? 
+                        cbManager.Set(sDocID, JsonConvert.SerializeObject(epg, Formatting.None), (uint)(dtExpiresAt.Value - DateTime.UtcNow).TotalSeconds) :
+                        cbManager.Set(sDocID, JsonConvert.SerializeObject(epg, Formatting.None));
                 }
                 catch (Exception ex)
                 {
@@ -143,8 +146,9 @@ namespace DalCB
             {
                 try
                 {
-                    bRes = (dtExpiresAt.HasValue) ? cbManager.SetWithVersion(sDocID, epg, cas, (uint)(dtExpiresAt.Value - DateTime.UtcNow).TotalSeconds) :
-                                                    cbManager.SetWithVersion(sDocID, epg, cas);
+                    bRes = (dtExpiresAt.HasValue) ? 
+                        cbManager.SetWithVersion(sDocID, JsonConvert.SerializeObject(epg, Formatting.None), cas, (uint)(dtExpiresAt.Value - DateTime.UtcNow).TotalSeconds) :
+                        cbManager.SetWithVersion(sDocID, JsonConvert.SerializeObject(epg, Formatting.None), cas);
                 }
                 catch (Exception ex)
                 {
