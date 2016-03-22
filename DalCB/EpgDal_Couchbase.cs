@@ -219,7 +219,7 @@ namespace DalCB
             {
                 if (ids != null && ids.Count > 0)
                 {
-                    IDictionary<string, EpgCB> getResult = cbManager.GetValues<EpgCB>(ids, true);
+                    IDictionary<string, object> getResult = cbManager.GetValues<object>(ids, true);
 
                     if (getResult != null && getResult.Count > 0)
                     {
@@ -229,31 +229,31 @@ namespace DalCB
                             // Make sure the Id was returned from CB
                             if (getResult.ContainsKey(id))
                             {
-                                EpgCB currentValue = getResult[id];
+                                object currentValue = getResult[id];
 
-                                resultEpgs.Add(currentValue);
+                                //resultEpgs.Add(currentValue);
 
                                 // Old code:
-                                //// If the value that CB returned is valid
-                                //if (currentValue != null)
-                                //{
-                                //    if (currentValue is string)
-                                //    {
-                                //        string sValue = Convert.ToString(currentValue);
+                                // If the value that CB returned is valid
+                                if (currentValue != null)
+                                {
+                                    if (currentValue is string)
+                                    {
+                                        string sValue = Convert.ToString(currentValue);
 
-                                //        if (!string.IsNullOrEmpty(sValue))
-                                //        {
-                                //            // Deserialize string from CB to an EpgCB object
-                                //            EpgCB tempEpg = JsonConvert.DeserializeObject<EpgCB>(sValue);
+                                        if (!string.IsNullOrEmpty(sValue))
+                                        {
+                                            // Deserialize string from CB to an EpgCB object
+                                            EpgCB tempEpg = JsonConvert.DeserializeObject<EpgCB>(sValue);
 
-                                //            // If it was successful, add to list
-                                //            if (tempEpg != null)
-                                //            {
-                                //                resultEpgs.Add(tempEpg);
-                                //            }
-                                //        }
-                                //    }
-                                //}
+                                            // If it was successful, add to list
+                                            if (tempEpg != null)
+                                            {
+                                                resultEpgs.Add(tempEpg);
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -378,11 +378,35 @@ namespace DalCB
                     viewManager.skip = nStartIndex;
                     viewManager.limit = nPageSize;
                 }
-                var res = cbManager.View<EpgCB>(viewManager);
+                var res = cbManager.View<object>(viewManager);
 
                 if (res != null)
                 {
-                    lRes = res.ToList();
+                    foreach (object currentValue in res)
+                    {
+                        // Old code:
+                        // If the value that CB returned is valid
+                        if (currentValue != null)
+                        {
+                            if (currentValue is string || currentValue is Newtonsoft.Json.Linq.JToken ||
+                                currentValue is Newtonsoft.Json.Linq.JObject)
+                            {
+                                string sValue = Convert.ToString(currentValue);
+
+                                if (!string.IsNullOrEmpty(sValue))
+                                {
+                                    // Deserialize string from CB to an EpgCB object
+                                    EpgCB tempEpg = JsonConvert.DeserializeObject<EpgCB>(sValue);
+
+                                    // If it was successful, add to list
+                                    if (tempEpg != null)
+                                    {
+                                        lRes.Add(tempEpg);
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
                 else
                 {
