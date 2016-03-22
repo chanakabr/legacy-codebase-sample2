@@ -243,7 +243,8 @@ namespace DalCB
                                 // If the value that CB returned is valid
                                 if (currentValue != null)
                                 {
-                                    if (currentValue is string)
+                                    if (currentValue is string || currentValue is Newtonsoft.Json.Linq.JToken ||
+                                        currentValue is Newtonsoft.Json.Linq.JObject)
                                     {
                                         string sValue = Convert.ToString(currentValue);
 
