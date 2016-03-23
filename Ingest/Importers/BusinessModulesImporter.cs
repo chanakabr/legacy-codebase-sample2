@@ -194,6 +194,7 @@ namespace Ingest.Importers
         {
             string report = string.Empty;
             string logMessage = string.Empty;
+            bool success = false;
 
             Ingest.Pricing.BusinessModuleResponse ingestResponse = null;
 
@@ -209,7 +210,6 @@ namespace Ingest.Importers
             }
 
             // prepare report
-
             if (ingestResponse == null && ingestResponse.status == null)
             {
                 logMessage = string.Format(LOG_INGEST_ERROR_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, "failed to receive ws pricing response", reportId, module.Action.ToString().ToLower());
@@ -224,6 +224,8 @@ namespace Ingest.Importers
             }
             else
             {
+                // success
+                success = true;
                 logMessage = string.Format(LOG_INGEST_SUCCESS_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, ingestResponse.Id, reportId, module.Action.ToString().ToLower());
                 report = string.Format(INGEST_SUCCESS_FORMAT, Utils.Utils.GetBusinessModuleName(module), module.Code, ingestResponse.Id, module.Action.ToString().ToLower());
             }
@@ -245,7 +247,11 @@ namespace Ingest.Importers
                         }
 
                         File.AppendAllText(reportFullPath, report);
-                        log.Error(logMessage);
+                        
+                        if (success)
+                            log.Debug(logMessage);
+                        else
+                            log.Error(logMessage);
                     }
                     catch (Exception ex)
                     {
