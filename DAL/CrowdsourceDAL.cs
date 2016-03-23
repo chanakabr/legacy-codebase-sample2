@@ -19,7 +19,7 @@ namespace DAL
             {
                 CrowdsourceJobDoc job = new CrowdsourceJobDoc(groupId, type, assetId);
                 {
-                    job = cbManager.Get<CrowdsourceJobDoc>(job.Id);
+                    job = cbManager.Get<CrowdsourceJobDoc>(job.Id, true);
                     if (job != null)
                     {
                         return job.LastItemId;
@@ -40,7 +40,7 @@ namespace DAL
                 {
                     LastItemId = newItemId
                 };
-                return cbManager.Set(job.Id, job);
+                return cbManager.Set(job.Id, job, 0, true);
             }
             catch (Exception)
             {
@@ -59,7 +59,7 @@ namespace DAL
                 }
 
                 ulong version;
-                CrowdsourceFeedDoc feedDoc = cbManager.GetWithVersion<CrowdsourceFeedDoc>(doc.Id, out version);
+                CrowdsourceFeedDoc feedDoc = cbManager.GetWithVersion<CrowdsourceFeedDoc>(doc.Id, out version, true);
                 if (feedDoc == null)
                 {
                     feedDoc = new CrowdsourceFeedDoc(groupId, csItem.Key);
@@ -69,7 +69,7 @@ namespace DAL
                 feedDoc.Items.Insert(0, csItem.Value);
                 feedDoc.Items = feedDoc.Items.Take(TCMClient.Settings.Instance.GetValue<int>("crowdsourcer.FEED_NUM_OF_ITEMS")).ToList();
 
-                return cbManager.SetWithVersionWithRetry<CrowdsourceFeedDoc>(feedDoc.Id, feedDoc, version, 10, 1000);
+                return cbManager.SetWithVersionWithRetry<CrowdsourceFeedDoc>(feedDoc.Id, feedDoc, version, 10, 1000, 0, true);
             }
             catch (Exception)
             {
@@ -81,7 +81,7 @@ namespace DAL
         {
             List<BaseCrowdsourceItem> retVal = null;
             CrowdsourceFeedDoc doc = new CrowdsourceFeedDoc(groupId, language);
-            CrowdsourceFeedDoc csDoc = cbManager.Get<CrowdsourceFeedDoc>(doc.Id);
+            CrowdsourceFeedDoc csDoc = cbManager.Get<CrowdsourceFeedDoc>(doc.Id, true);
             if (csDoc != null)
             {
                 if (csDoc.Items != null)
