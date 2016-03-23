@@ -178,6 +178,11 @@ namespace CouchbaseManager
         /// </summary>
         public bool shouldLookupById;
 
+        /// <summary>
+        /// Should the lookup be to get strings and to deserialize them manually or not
+        /// </summary>
+        public bool asJson;
+
         #endregion
 
         #region Ctor

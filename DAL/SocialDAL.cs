@@ -168,7 +168,7 @@ namespace DAL
                     docKeysList.Add(UtilsDal.getUserMediaMarkDocKey(nUserID, nMediaID));
                 }
 
-                IDictionary<string, object> res = cbManager.GetValues<object>(docKeysList, true);
+                IDictionary<string, object> res = cbManager.GetValues<object>(docKeysList, true, true);
 
                 foreach (string sKey in res.Keys)
                 {
@@ -189,7 +189,7 @@ namespace DAL
                 docKeysList.Add(DAL.UtilsDal.getUserMediaMarkDocKey(userID, nMediaID));
             }
 
-            IDictionary<string, object> res = cbManager.GetValues<object>(docKeysList, true);
+            IDictionary<string, object> res = cbManager.GetValues<object>(docKeysList, true, true);
 
             foreach (string sKey in res.Keys)
             {
