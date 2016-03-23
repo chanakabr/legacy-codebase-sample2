@@ -43,14 +43,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ApiObjects, Version=3.4.0.24088, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Master\tvincicommon\External\ApiObjects.dll</HintPath>
-    </Reference>
-    <Reference Include="CouchbaseManager, Version=3.4.0.16921, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Master\tvincicommon\External\4.5\CouchbaseManager.dll</HintPath>
-    </Reference>
     <Reference Include="Jil">
       <HintPath>..\..\tvincicommon\External\Jil.dll</HintPath>
     </Reference>
@@ -81,8 +73,10 @@
     <Compile Include="Enums\ConfigType.cs" />
     <Compile Include="Enums\QueueType.cs" />
     <Compile Include="Queues\Enums.cs" />
+    <Compile Include="Queues\QueueObjects\GenericCeleryQueue.cs" />
     <Compile Include="Queues\QueueObjects\ImageUploadQueue.cs" />
     <Compile Include="Queues\QueueObjects\ExportTasksQueue.cs" />
+    <Compile Include="Queues\QueueObjects\InitiateNotificationActionQueue.cs" />
     <Compile Include="Queues\QueueObjects\MessageAnnouncementQueue.cs" />
     <Compile Include="Queues\QueueObjects\SetupTasksQueue.cs" />
     <Compile Include="Queues\QueueObjects\BaseQueue.cs" />
@@ -104,6 +98,16 @@
     <Compile Include="Queues\RabbitQueue\RabbitQueueSingleConnection.cs" />
     <Compile Include="Queues\RabbitQueue\RabbitSingleConnection.cs" />
     <Compile Include="Utils.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ApiObjects\ApiObjects.csproj">
+      <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
+      <Name>ApiObjects</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CouchbaseManager\CouchbaseManager.csproj">
+      <Project>{b44dc37d-5658-4b85-8cc4-0ec72838cafc}</Project>
+      <Name>CouchbaseManager</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
