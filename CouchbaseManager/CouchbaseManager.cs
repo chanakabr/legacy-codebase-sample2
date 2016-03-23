@@ -360,7 +360,7 @@ namespace CouchbaseManager
         /// <param name="value"></param>
         /// <param name="expiration">TTL in seconds</param>
         /// <returns></returns>
-        public bool Add(string key, object value, uint expiration = 0)
+        public bool Add(string key, object value, uint expiration = 0, bool asJson = false)
         {
             bool result = false;
 
@@ -374,8 +374,15 @@ namespace CouchbaseManager
 
                         IOperationResult insertResult = null;
 
+
+                        if (!asJson)
                         {
                             insertResult = bucket.Insert(key, value, expiration);
+                        }
+                        else
+                        {
+                            string serializedValue = ObjectToJson(value);
+                            insertResult = bucket.Insert(key, serializedValue, expiration);
                         }
 
                         if (insertResult != null)
@@ -392,10 +399,16 @@ namespace CouchbaseManager
                             else
                             {
                                 HandleStatusCode(insertResult.Status);
-                                
-                                
+
+
+                                if (!asJson)
                                 {
                                     insertResult = bucket.Insert(key, value, expiration);
+                                }
+                                else
+                                {
+                                    string serializedValue = ObjectToJson(value);
+                                    insertResult = bucket.Insert(key, serializedValue, expiration);
                                 }
                             }
                         }
@@ -424,7 +437,7 @@ namespace CouchbaseManager
         /// <param name="value"></param>
         /// <param name="expiration">TTL in seconds</param>
         /// <returns></returns>
-        public bool Add<T>(string key, T value, uint expiration = 0)
+        public bool Add<T>(string key, T value, uint expiration = 0, bool asJson = false)
         {
             bool result = false;
 
@@ -437,9 +450,15 @@ namespace CouchbaseManager
                         IOperationResult insertResult = null;
                         expiration = FixExpirationTime(expiration);
 
-                        
+
+                        if (!asJson)
                         {
                             insertResult = bucket.Insert<T>(key, value, expiration);
+                        }
+                        else
+                        {
+                            string serializedValue = ObjectToJson(value);
+                            insertResult = bucket.Insert<string>(key, serializedValue, expiration);
                         }
 
                         if (insertResult != null)
@@ -457,9 +476,15 @@ namespace CouchbaseManager
                             {
                                 HandleStatusCode(insertResult.Status);
 
-                                
+
+                                if (!asJson)
                                 {
                                     insertResult = bucket.Insert<T>(key, value, expiration);
+                                }
+                                else
+                                {
+                                    string serializedValue = ObjectToJson(value);
+                                    insertResult = bucket.Insert<string>(key, serializedValue, expiration);
                                 }
                             }
                         }
@@ -487,7 +512,7 @@ namespace CouchbaseManager
         /// <param name="value"></param>
         /// <param name="expiration">TTL in seconds</param>
         /// <returns></returns>
-        public bool Set(string key, object value, uint expiration = 0)
+        public bool Set(string key, object value, uint expiration = 0, bool asJson = false)
         {
             bool result = false;
 
@@ -500,9 +525,15 @@ namespace CouchbaseManager
                         IOperationResult insertResult = null;
                         expiration = FixExpirationTime(expiration);
 
-                        
+
+                        if (!asJson)
                         {
                             insertResult = bucket.Upsert(key, value, expiration);
+                        }
+                        else
+                        {
+                            string serializedValue = ObjectToJson(value);
+                            insertResult = bucket.Upsert(key, serializedValue, expiration);
                         }
 
                         if (insertResult != null)
@@ -519,10 +550,16 @@ namespace CouchbaseManager
                             else
                             {
                                 HandleStatusCode(insertResult.Status);
-                                
-                                
+
+
+                                if (!asJson)
                                 {
                                     insertResult = bucket.Upsert(key, value, expiration);
+                                }
+                                else
+                                {
+                                    string serializedValue = ObjectToJson(value);
+                                    insertResult = bucket.Upsert(key, serializedValue, expiration);
                                 }
                             }
                         }
@@ -550,7 +587,7 @@ namespace CouchbaseManager
         /// <param name="value"></param>
         /// <param name="expiration">TTL in seconds</param>
         /// <returns></returns>
-        public bool Set<T>(string key, T value, uint expiration = 0)
+        public bool Set<T>(string key, T value, uint expiration = 0, bool asJson = false)
         {
             bool result = false;
 
@@ -563,9 +600,15 @@ namespace CouchbaseManager
                         IOperationResult insertResult = null;
                         expiration = FixExpirationTime(expiration);
 
-                        
+
+                        if (!asJson)
                         {
                             insertResult = bucket.Upsert<T>(key, value, expiration);
+                        }
+                        else
+                        {
+                            string serializedValue = ObjectToJson(value);
+                            insertResult = bucket.Upsert<string>(key, serializedValue, expiration);
                         }
 
                         if (insertResult != null)
@@ -583,9 +626,15 @@ namespace CouchbaseManager
                             {
                                 HandleStatusCode(insertResult.Status);
 
-                                
+
+                                if (!asJson)
                                 {
                                     insertResult = bucket.Upsert<T>(key, value, expiration);
+                                }
+                                else
+                                {
+                                    string serializedValue = ObjectToJson(value);
+                                    insertResult = bucket.Upsert<string>(key, serializedValue, expiration);
                                 }
                             }
                         }
@@ -605,22 +654,24 @@ namespace CouchbaseManager
             return result;
         }
 
-        public T Get<T>(string key)
+        public T Get<T>(string key, bool asJson = false)
         {
             T result = default(T);
 
+            if (asJson)
+            {
+                return this.GetJsonAsT<T>(key);
+            }
+            
             try
             {
                 using (var cluster = new Cluster(clientConfiguration))
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
-                        IOperationResult<T> getResult;
+                        IOperationResult<T> getResult = null;
 
-                        
-                        {
-                            getResult = bucket.Get<T>(key);
-                        }
+                        getResult = bucket.Get<T>(key);
 
                         if (getResult != null)
                         {
@@ -636,9 +687,15 @@ namespace CouchbaseManager
                             else
                             {
                                 HandleStatusCode(getResult.Status);
-                                
+
+
+                                if (!asJson)
                                 {
-                                    result = bucket.Get<T>(key).Value;
+                                    getResult = bucket.Get<T>(key);
+                                }
+                                else
+                                {
+                                    return this.GetJsonAsT<T>(key);
                                 }
                             }
                         }
@@ -718,10 +775,15 @@ namespace CouchbaseManager
             return result;
         }
 
-        public T GetWithVersion<T>(string key, out ulong version)
+        public T GetWithVersion<T>(string key, out ulong version, bool asJson = false)
         {
             version = 0;
             T result = default(T);
+
+            if (asJson)
+            {
+                return GetJsonAsTWithVersion<T>(key, out version);
+            }
 
             try
             {
@@ -731,10 +793,7 @@ namespace CouchbaseManager
                     {
                         IOperationResult<T> getResult;
 
-                        
-                        {
-                            getResult = bucket.Get<T>(key);
-                        }
+                        getResult = bucket.Get<T>(key);
 
                         if (getResult != null)
                         {
@@ -786,7 +845,7 @@ namespace CouchbaseManager
         /// <param name="version"></param>
         /// <param name="expiration">TTL in seconds</param>
         /// <returns></returns>
-        public bool SetWithVersion(string key, object value, ulong version, uint expiration = 0)
+        public bool SetWithVersion(string key, object value, ulong version, uint expiration = 0, bool asJson = false)
         {
             bool result = false;
 
@@ -796,10 +855,16 @@ namespace CouchbaseManager
                 {
                     IOperationResult setResult;
                     expiration = FixExpirationTime(expiration);
- 
-                    
+
+
+                    if (!asJson)
                     {
                         setResult = bucket.Upsert(key, value, version, expiration);
+                    }
+                    else
+                    {
+                        string serializedValue = ObjectToJson(value);
+                        setResult = bucket.Upsert(key, serializedValue, version, expiration);
                     }
 
                     if (setResult != null)
@@ -817,9 +882,15 @@ namespace CouchbaseManager
                         {
                             HandleStatusCode(setResult.Status);
 
-                            
+
+                            if (!asJson)
                             {
                                 setResult = bucket.Upsert(key, value, version, expiration);
+                            }
+                            else
+                            {
+                                string serializedValue = ObjectToJson(value);
+                                setResult = bucket.Upsert(key, serializedValue, version, expiration);
                             }
                         }
                     }
@@ -829,7 +900,7 @@ namespace CouchbaseManager
             return result;
         }
 
-        public bool SetWithVersion(string key, object value, ulong version, out ulong newVersion, uint expiration = 0)
+        public bool SetWithVersion(string key, object value, ulong version, out ulong newVersion, uint expiration = 0, bool asJson = false)
         {
             bool result = false;
             newVersion = 0;
@@ -840,11 +911,18 @@ namespace CouchbaseManager
                 {
                     IOperationResult setResult;
                     expiration = FixExpirationTime(expiration);
- 
-                    
+
+
+                    if (!asJson)
                     {
                         setResult = bucket.Upsert(key, value, version, expiration);
                     }
+                    else
+                    {
+                        string serializedValue = ObjectToJson(value);
+                        setResult = bucket.Upsert(key, serializedValue, version, expiration);
+                    }
+
                     if (setResult != null)
                     {
                         if (setResult.Exception != null)
@@ -861,9 +939,15 @@ namespace CouchbaseManager
                         {
                             HandleStatusCode(setResult.Status);
 
-                            
+
+                            if (!asJson)
                             {
                                 setResult = bucket.Upsert(key, value, version, expiration);
+                            }
+                            else
+                            {
+                                string serializedValue = ObjectToJson(value);
+                                setResult = bucket.Upsert(key, serializedValue, version, expiration);
                             }
 
                             newVersion = setResult.Cas;
@@ -884,7 +968,7 @@ namespace CouchbaseManager
         /// <param name="version"></param>
         /// <param name="expiration">TTL in seconds</param>
         /// <returns></returns>
-        public bool SetWithVersion<T>(string key, T value, ulong version, uint expiration = 0)
+        public bool SetWithVersion<T>(string key, T value, ulong version, uint expiration = 0, bool asJson = false)
         {
             bool result = false;
 
@@ -895,9 +979,15 @@ namespace CouchbaseManager
                     IOperationResult setResult;
                     expiration = FixExpirationTime(expiration);
 
-                    
+
+                    if (!asJson)
                     {
                         setResult = bucket.Upsert<T>(key, value, version, expiration);
+                    }
+                    else
+                    {
+                        string serializedValue = ObjectToJson(value);
+                        setResult = bucket.Upsert(key, serializedValue, version, expiration);
                     }
 
                     if (setResult != null)
@@ -915,9 +1005,15 @@ namespace CouchbaseManager
                         {
                             HandleStatusCode(setResult.Status);
 
-                            
+
+                            if (!asJson)
                             {
                                 setResult = bucket.Upsert<T>(key, value, version, expiration);
+                            }
+                            else
+                            {
+                                string serializedValue = ObjectToJson(value);
+                                setResult = bucket.Upsert(key, serializedValue, version, expiration);
                             }
                         }
                     }
@@ -927,7 +1023,7 @@ namespace CouchbaseManager
             return result;
         }
 
-        public bool SetWithVersion<T>(string key, T value, ulong version, out ulong newVersion, uint expiration = 0)
+        public bool SetWithVersion<T>(string key, T value, ulong version, out ulong newVersion, uint expiration = 0, bool asJson = false)
         {
             bool result = false;
             newVersion = 0;
@@ -939,9 +1035,15 @@ namespace CouchbaseManager
                     IOperationResult setResult;
                     expiration = FixExpirationTime(expiration);
 
-                    
+
+                    if (!asJson)
                     {
                         setResult = bucket.Upsert<T>(key, value, version, expiration);
+                    }
+                    else
+                    {
+                        string serializedValue = ObjectToJson(value);
+                        setResult = bucket.Upsert(key, serializedValue, version, expiration);
                     }
 
                     if (setResult != null)
@@ -959,10 +1061,16 @@ namespace CouchbaseManager
                         else
                         {
                             HandleStatusCode(setResult.Status);
-                            
-                            
+
+
+                            if (!asJson)
                             {
                                 setResult = bucket.Upsert<T>(key, value, version, expiration);
+                            }
+                            else
+                            {
+                                string serializedValue = ObjectToJson(value);
+                                setResult = bucket.Upsert(key, serializedValue, version, expiration);
                             }
 
                             newVersion = setResult.Cas;
@@ -985,22 +1093,22 @@ namespace CouchbaseManager
         /// <param name="retryInterval"></param>
         /// <param name="expiration">TTL in seconds</param>
         /// <returns></returns>
-        public bool SetWithVersionWithRetry<T>(string key, object value, ulong version, int numOfRetries, int retryInterval, uint expiration = 0)
+        public bool SetWithVersionWithRetry<T>(string key, object value, ulong version, int numOfRetries, int retryInterval, uint expiration = 0, bool asJson = false)
         {
             bool result = false;
 
             if (numOfRetries >= 0)
             {
-                bool operationResult = SetWithVersion(key, value, version, expiration);
+                bool operationResult = SetWithVersion(key, value, version, expiration, asJson);
                 if (!operationResult)
                 {
                     numOfRetries--;
                     Thread.Sleep(retryInterval);
 
                     ulong newVersion;
-                    var getResult = GetWithVersion<T>(key, out newVersion);
+                    var getResult = GetWithVersion<T>(key, out newVersion, asJson);
 
-                    result = SetWithVersionWithRetry<T>(key, value, newVersion, numOfRetries, retryInterval, expiration);
+                    result = SetWithVersionWithRetry<T>(key, value, newVersion, numOfRetries, retryInterval, expiration, asJson);
                 }
                 else
                 {
@@ -1011,9 +1119,30 @@ namespace CouchbaseManager
             return result;
         }
 
-        public IDictionary<string, T> GetValues<T>(List<string> keys, bool shouldAllowPartialQuery = false)
+        public IDictionary<string, T> GetValues<T>(List<string> keys, bool shouldAllowPartialQuery = false, bool asJson = false)
         {
             IDictionary<string, T> result = null;
+
+            if (asJson)
+            {
+                IDictionary<string, string> jsonValues = this.GetValues<string>(keys, shouldAllowPartialQuery);
+
+                if (jsonValues != null)
+                {
+                    result = new Dictionary<string, T>();
+                }
+
+                // Convert all strings to objects
+                foreach (var jsonValue in jsonValues)
+                {
+                    result.Add(
+                        jsonValue.Key,
+                        JsonToObject<T>(jsonValue.Value));
+                }
+
+                return result;
+            }
+            
             try
             {
                 using (var cluster = new Cluster(clientConfiguration))
@@ -1109,6 +1238,21 @@ namespace CouchbaseManager
             return result;
         }
 
+        public T GetJsonAsTWithVersion<T>(string key, out ulong version)
+        {
+            T result = default(T);
+
+            var json = GetWithVersion<string>(key, out version);
+
+            if (!string.IsNullOrEmpty(json))
+            {
+                result = JsonToObject<T>(json);
+            }
+
+            return result;
+        }
+
+
         #region View Methods
 
         /// <summary>
@@ -1131,29 +1275,55 @@ namespace CouchbaseManager
                         List<string> missingKeys = new List<string>();
                         T defaultValue = default(T);
 
-                        var rows = definitions.QueryRows<T>(bucket);
-
-                        foreach (var viewRow in rows)
+                        if (definitions.asJson)
                         {
-                            if (viewRow != null)
+                            List<ViewRow<string>> rowsJson = definitions.QueryRows<string>(bucket);
+
+                            foreach (var viewRow in rowsJson)
                             {
-                                // If we have a result - simply add it to list
-                                if (null != viewRow.Value)
+                                if (viewRow != null)
                                 {
-                                    result.Add(viewRow.Value);
-                                }
-                                else
-                                {
-                                    // If we don't - list all missing keys so that we get them later on
-                                    result.Add(defaultValue);
-                                    missingKeys.Add(viewRow.Id);
-                                    keysToIndexes.Add(viewRow.Id, result.Count - 1);
+                                    // If we have a result - simply add it to list
+                                    if (null != viewRow.Value)
+                                    {
+                                        result.Add(JsonToObject<T>(viewRow.Value));
+                                    }
+                                    else
+                                    {
+                                        // If we don't - list all missing keys so that we get them later on
+                                        result.Add(defaultValue);
+                                        missingKeys.Add(viewRow.Id);
+                                        keysToIndexes.Add(viewRow.Id, result.Count - 1);
+                                    }
                                 }
                             }
                         }
+                        else
+                        {
+                            List<ViewRow<T>> rowsAsT = definitions.QueryRows<T>(bucket);
+
+                            foreach (var viewRow in rowsAsT)
+                            {
+                                if (viewRow != null)
+                                {
+                                    // If we have a result - simply add it to list
+                                    if (null != viewRow.Value)
+                                    {
+                                        result.Add(viewRow.Value);
+                                    }
+                                    else
+                                    {
+                                        // If we don't - list all missing keys so that we get them later on
+                                        result.Add(defaultValue);
+                                        missingKeys.Add(viewRow.Id);
+                                        keysToIndexes.Add(viewRow.Id, result.Count - 1);
+                                    }
+                                }
+                            }
+                        }          
 
                         // Get all missing values from Couchbase and fill the list
-                        var missingValues = GetValues<T>(missingKeys, definitions.allowPartialQuery);
+                        var missingValues = GetValues<T>(missingKeys, definitions.allowPartialQuery, definitions.asJson);
 
                         if (missingValues != null)
                         {
@@ -1189,7 +1359,22 @@ namespace CouchbaseManager
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
-                        result = definitions.QueryKeyValuePairs<T1>(bucket);
+                        if (definitions.asJson)
+                        {
+                            var jsonResults = definitions.QueryKeyValuePairs<string>(bucket);
+
+                            foreach (var jsonResult in jsonResults)
+                            {
+                                result.Add(new KeyValuePair<object, T1>(
+                                    jsonResult.Key,
+                                    JsonToObject<T1>(jsonResult.Value)
+                                    ));
+                            }
+                        }
+                        else
+                        {
+                            result = definitions.QueryKeyValuePairs<T1>(bucket);
+                        }
                     }
                 }
             }
@@ -1244,7 +1429,24 @@ namespace CouchbaseManager
                 {
                     using (var bucket = cluster.OpenBucket(bucketName))
                     {
-                        result = definitions.QueryRows<T>(bucket);
+                        if (definitions.asJson)
+                        {
+                            var jsonResults = definitions.QueryRows<string>(bucket);
+
+                            foreach (var jsonResult in jsonResults)
+                            {
+                                result.Add(new ViewRow<T>()
+                                {
+                                    Id = jsonResult.Id,
+                                    Key = jsonResult.Key,
+                                    Value = JsonToObject<T>(jsonResult.Value)
+                                });
+                            }
+                        }
+                        else
+                        {
+                            result = definitions.QueryRows<T>(bucket);
+                        }
                     }
                 }
             }

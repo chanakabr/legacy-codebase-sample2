@@ -175,6 +175,11 @@ namespace CouchbaseManager
         /// </summary>
         public bool shouldLookupById;
 
+        /// <summary>
+        /// Should the lookup be to get strings and to deserialize them manually or not
+        /// </summary>
+        public bool asJson;
+
         #endregion
 
         #region Ctor
@@ -225,10 +230,7 @@ namespace CouchbaseManager
                     var ids = queryResult.Rows.Select(row => row.Id).ToList();
                     IDictionary<string, IOperationResult<T>> getResults = null;
 
-                    
-                    {
-                        getResults = bucket.Get<T>(ids);
-                    }
+                    getResults = bucket.Get<T>(ids);
                     
                     // Run on all Get results
                     foreach (var getResult in getResults)
