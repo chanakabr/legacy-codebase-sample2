@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -9,7 +10,7 @@ namespace QueueWrapper
 {
     public class RabbitQueueSingleConnection : RabbitQueue
     {
-        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         protected RabbitSingleConnection m_oRabbitConn;
         protected RabbitConfigurationData m_oConfiguration;
         protected string m_sQueueName;
@@ -38,13 +39,11 @@ namespace QueueWrapper
             }
             catch (Exception ex)
             {
-                logger.Error("", ex);
+                log.Error("", ex);
             }
 
             return bResult;
         }
-
-        #region overridden methods
 
         protected override RabbitConfigurationData CreateRabbitConfigurationData()
         {
@@ -71,7 +70,7 @@ namespace QueueWrapper
             }
             catch (Exception ex)
             {
-                logger.Error("", ex);
+                log.Error("", ex);
             }
 
             return bIsEnqueueSucceeded;
@@ -107,6 +106,5 @@ namespace QueueWrapper
                 this.m_oRabbitConn.Close();
             }
         }
-        #endregion
     }
 }
