@@ -24,7 +24,8 @@ namespace CouchbaseManager
         STATISTICS = 6,
         CACHE = 7,
         SCHEDULED_TASKS = 8,
-        CROWDSOURCE = 9
+        CROWDSOURCE = 9,
+        DRM = 10
     }
 
     public class CouchbaseManager
@@ -398,7 +399,7 @@ namespace CouchbaseManager
                             }
                             else
                             {
-                                HandleStatusCode(insertResult.Status);
+                                HandleStatusCode(insertResult.Status, key);
 
 
                                 if (!asJson)
@@ -474,7 +475,7 @@ namespace CouchbaseManager
                             }
                             else
                             {
-                                HandleStatusCode(insertResult.Status);
+                                HandleStatusCode(insertResult.Status, key);
 
 
                                 if (!asJson)
@@ -549,7 +550,7 @@ namespace CouchbaseManager
                             }
                             else
                             {
-                                HandleStatusCode(insertResult.Status);
+                                HandleStatusCode(insertResult.Status, key);
 
 
                                 if (!asJson)
@@ -624,7 +625,7 @@ namespace CouchbaseManager
                             }
                             else
                             {
-                                HandleStatusCode(insertResult.Status);
+                                HandleStatusCode(insertResult.Status, key);
 
 
                                 if (!asJson)
@@ -686,7 +687,7 @@ namespace CouchbaseManager
                             }
                             else
                             {
-                                HandleStatusCode(getResult.Status);
+                                HandleStatusCode(getResult.Status, key);
 
 
                                 if (!asJson)
@@ -809,7 +810,7 @@ namespace CouchbaseManager
                             }
                             else
                             {
-                                HandleStatusCode(getResult.Status);
+                                HandleStatusCode(getResult.Status, key);
 
                                 
                                 {
@@ -880,7 +881,7 @@ namespace CouchbaseManager
                         }
                         else
                         {
-                            HandleStatusCode(setResult.Status);
+                            HandleStatusCode(setResult.Status, key);
 
 
                             if (!asJson)
@@ -937,7 +938,7 @@ namespace CouchbaseManager
                         }
                         else
                         {
-                            HandleStatusCode(setResult.Status);
+                            HandleStatusCode(setResult.Status, key);
 
 
                             if (!asJson)
@@ -1003,7 +1004,7 @@ namespace CouchbaseManager
                         }
                         else
                         {
-                            HandleStatusCode(setResult.Status);
+                            HandleStatusCode(setResult.Status, key);
 
 
                             if (!asJson)
@@ -1060,7 +1061,7 @@ namespace CouchbaseManager
                         }
                         else
                         {
-                            HandleStatusCode(setResult.Status);
+                            HandleStatusCode(setResult.Status, key);
 
 
                             if (!asJson)
@@ -1488,7 +1489,7 @@ namespace CouchbaseManager
                         }
                         else
                         {
-                            HandleStatusCode(incrementResult.Status);
+                            HandleStatusCode(incrementResult.Status, key);
                         }
                     }
                 }
