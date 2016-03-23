@@ -37,7 +37,7 @@ namespace CouchbaseManager
         /// Return the documents in ascending by key order
         /// </summary>
         public bool? isAscending;
-        
+
         /// <summary>
         /// Return the documents in descending by key order
         /// </summary>
@@ -178,10 +178,15 @@ namespace CouchbaseManager
         /// </summary>
         public bool shouldLookupById;
 
+        /// <summary>
+        /// Should the lookup be to get strings and to deserialize them manually or not
+        /// </summary>
+        public bool asJson;
+
         #endregion
 
         #region Ctor
-        
+
         public ViewManager(string designDoc, string viewName)
         {
             this.designDoc = designDoc;
@@ -204,7 +209,8 @@ namespace CouchbaseManager
             {
                 IViewResult<object> queryResult = null;
 
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                string action = string.Format("Action: Query ViewName: {0} bucket: {1}", viewName, bucket.Name);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                 {
                     queryResult = bucket.Query<object>(query);
                 }
@@ -228,11 +234,12 @@ namespace CouchbaseManager
                     var ids = queryResult.Rows.Select(row => row.Id).ToList();
                     IDictionary<string, IOperationResult<T>> getResults = null;
 
-                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                    action = string.Format("Action: Get bucket: {0} keys: {1}", bucket.Name, string.Join(",", ids.ToArray()));
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                     {
                         getResults = bucket.Get<T>(ids);
                     }
-                    
+
                     // Run on all Get results
                     foreach (var getResult in getResults)
                     {
@@ -258,7 +265,8 @@ namespace CouchbaseManager
             {
                 IViewResult<T> queryResult = null;
 
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                string action = string.Format("Action: Query ViewName: {0} bucket: {1}", viewName, bucket.Name);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                 {
                     queryResult = bucket.Query<T>(query);
                 }
@@ -292,8 +300,9 @@ namespace CouchbaseManager
 
             IViewQuery query = InitializeQuery(bucket);
             IViewResult<T1> queryResult = null;
-            
-            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+
+            string action = string.Format("Action: Query ViewName: {0} bucket: {1}", viewName, bucket.Name);
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
             {
                 queryResult = bucket.Query<T1>(query);
             }
@@ -327,7 +336,8 @@ namespace CouchbaseManager
             IViewQuery query = InitializeQuery(bucket);
             IViewResult<object> queryResult = null;
 
-            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+            string action = string.Format("Action: Query ViewName: {0} bucket: {1}", viewName, bucket.Name);
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
             {
                 queryResult = bucket.Query<object>(query);
             }
@@ -364,7 +374,8 @@ namespace CouchbaseManager
             {
                 IViewResult<object> queryResult = null;
 
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                string action = string.Format("Action: Query ViewName: {0} bucket: {1}", viewName, bucket.Name);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                 {
                     queryResult = bucket.Query<object>(query);
                 }
@@ -394,7 +405,8 @@ namespace CouchbaseManager
 
                     IDictionary<string, IOperationResult<T>> getResults = null;
 
-                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                    action = string.Format("Action: Get bucket: {0} keys: {1}", bucket.Name, string.Join(",", idsAndKeys.ToArray()));
+                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                     {
                         getResults = bucket.Get<T>(idsAndKeys.Keys.ToList());
                     }
@@ -430,7 +442,8 @@ namespace CouchbaseManager
             {
                 IViewResult<T> queryResult = null;
 
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE))
+                string action = string.Format("Action: Query ViewName: {0} bucket: {1}", viewName, bucket.Name);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                 {
                     queryResult = bucket.Query<T>(query);
                 }
@@ -598,27 +611,27 @@ namespace CouchbaseManager
                 switch (this.staleState.Value)
                 {
                     case ViewStaleState.None:
-                    {
-                        queryStaleState = StaleState.None;
-                        break;
-                    }
+                        {
+                            queryStaleState = StaleState.None;
+                            break;
+                        }
                     case ViewStaleState.False:
-                    {
-                        queryStaleState = StaleState.False;
-                        break;
-                    }
+                        {
+                            queryStaleState = StaleState.False;
+                            break;
+                        }
                     case ViewStaleState.Ok:
-                    {
-                        queryStaleState = StaleState.Ok;
-                        break;
-                    }
+                        {
+                            queryStaleState = StaleState.Ok;
+                            break;
+                        }
                     case ViewStaleState.UpdateAfter:
-                    {
-                        queryStaleState = StaleState.UpdateAfter;
-                        break;
-                    }
+                        {
+                            queryStaleState = StaleState.UpdateAfter;
+                            break;
+                        }
                     default:
-                    break;
+                        break;
                 }
 
                 query = query.Stale(queryStaleState);
@@ -672,7 +685,7 @@ namespace CouchbaseManager
             get;
             set;
         }
-       
+
         /// <summary>
         /// The key emitted by the View Map function
         /// </summary>
@@ -681,7 +694,7 @@ namespace CouchbaseManager
             get;
             set;
         }
-        
+
         /// <summary>
         /// The value emitted by the View Map function or if a Reduce view, the value of the Reduce
         /// </summary>
