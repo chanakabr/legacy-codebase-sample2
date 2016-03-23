@@ -743,8 +743,8 @@ namespace Ingest.Importers
             }
             else
             {
-                log.ErrorFormat(LOG_MISSING_ATTRIBUTE_ERROR_FORMAT, moduleName, moduleCode, attributeName, reportId, action);
-                report.AppendFormat(MISSING_ATTRIBUTE_ERROR_FORMAT, moduleName, moduleCode, attributeName, action);
+                log.ErrorFormat(LOG_MISSING_ATTRIBUTE_ERROR_FORMAT, moduleName, moduleCode, attributeName, moduleName, reportId, action);
+                report.AppendFormat(MISSING_ATTRIBUTE_ERROR_FORMAT, moduleName, moduleCode, attributeName, moduleName, action);
                 return false;
             }
 
