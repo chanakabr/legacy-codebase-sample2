@@ -574,7 +574,7 @@ namespace Catalog
 
             filteredQuery.Filter.FilterSettings = filter;
 
-            ESTermsStatsFacet facet = new ESTermsStatsFacet("sliding_window", "media_id", valueField, 100000);
+            ESTermsStatsFacet facet = new ESTermsStatsFacet("sliding_window", "media_id", valueField, 0);
             facet.Query = filteredQuery;
             #endregion
 
