@@ -1531,7 +1531,8 @@ namespace Tvinci.Core.DAL
             {
                 startKey = new object[] { usersList, 0 },
                 endKey = new object[] { usersList, string.Empty },
-                staleState = CouchbaseManager.ViewStaleState.False
+                staleState = CouchbaseManager.ViewStaleState.False,
+                asJson = true
             };
 
             List<WatchHistory> lastWatchViews = cbManager.View<WatchHistory>(viewManager);
@@ -1564,7 +1565,8 @@ namespace Tvinci.Core.DAL
                 {
                     startKey = new object[] { long.Parse(siteGuid), minFilterdate },
                     endKey = new object[] { long.Parse(siteGuid), maxFilterDate },
-                    staleState = CouchbaseManager.ViewStaleState.False
+                    staleState = CouchbaseManager.ViewStaleState.False,
+                    asJson = true
                 };
 
                 List<WatchHistory> unFilteredresult = cbManager.View<WatchHistory>(viewManager);
@@ -1680,7 +1682,8 @@ namespace Tvinci.Core.DAL
             // get views
             ViewManager viewManager = new ViewManager(CB_MEDIA_MARK_DESGIN, "users_medias_lastdate")
             {
-                keys = usersList
+                keys = usersList,
+                asJson = true
             };
 
             var res = cbManager.ViewKeyValuePairs<object[]>(viewManager);
@@ -1722,7 +1725,8 @@ namespace Tvinci.Core.DAL
             ViewManager viewManager = new ViewManager(CB_MEDIA_MARK_DESGIN, "media_users_lastdate")
             {
                 keys = mediasList,
-                limit = 30
+                limit = 30,
+                asJson = true
             };
 
             var res = cbManager.ViewKeyValuePairs<object[]>(viewManager);
@@ -1747,7 +1751,8 @@ namespace Tvinci.Core.DAL
                     // get views
                     ViewManager mediaViewManager = new ViewManager(CB_MEDIA_MARK_DESGIN, "users_medias_lastdate")
                     {
-                        keys = userList
+                        keys = userList,
+                        asJson = true
                     };
 
                     var resMedia = cbManager.ViewKeyValuePairs<object[]>(mediaViewManager);

@@ -976,7 +976,8 @@ namespace DAL
             var res = cbManager.View<MediaMarkLog>(new ViewManager(CB_MEDIA_MARK_DESGIN, "users_watch_history")
             {
                 startKey = new object[] { nSiteGuid, 0 },
-                endKey = new object[] { nSiteGuid, string.Empty }
+                endKey = new object[] { nSiteGuid, string.Empty},
+                asJson = true
             });
 
             List<MediaMarkLog> sortedMediaMarksList = res.ToList().OrderByDescending(x => x.LastMark.CreatedAt).ToList();

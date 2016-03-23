@@ -46,7 +46,8 @@ namespace DalCB
                         endKey = endKey,
                         isDescending = true,
                         skip = nSkip,
-                        limit = nNumOfRecords
+                        limit = nNumOfRecords,
+                        asJson = true
                     });
                 }
                 else
@@ -55,7 +56,8 @@ namespace DalCB
                     {
                         startKey = startKey,
                         endKey = endKey,
-                        isDescending = true
+                        isDescending = true,
+                        asJson = true
                     });
                 }
 
@@ -162,7 +164,8 @@ namespace DalCB
             {
                 lRes = cbManager.View<SocialActivityDoc>(new ViewManager(CB_FEED_DESGIN, "UserSocialActions")
                 {
-                    keys = keys
+                    keys = keys,
+                    asJson = true
                 });
             }
             catch (Exception ex)
@@ -195,7 +198,8 @@ namespace DalCB
                         endKey = endKey,
                         isDescending = true,
                         skip = nSkip,
-                        limit = nNumOfRecords
+                        limit = nNumOfRecords,
+                        asJson = true
                     });
                 }
                 else
@@ -204,7 +208,8 @@ namespace DalCB
                     {
                         startKey = startKey,
                         endKey = endKey,
-                        isDescending = true
+                        isDescending = true,
+                        asJson = true
                     });
                 }
 
@@ -478,7 +483,8 @@ namespace DalCB
                 endKey = new object[] { p_nMediaID, p_nPlatform, p_nActionType },
                 isDescending = true,
                 skip = p_nSkip,
-                limit = p_nLimit
+                limit = p_nLimit,
+                asJson = true
             });
 
             if (lstRows != null)
