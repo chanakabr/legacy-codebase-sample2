@@ -322,16 +322,40 @@ namespace Catalog
                         if (!dictRes.ContainsKey(mediaID))
                             dictRes.Add(mediaID, new SearchResult());
                     }
-                    Parallel.ForEach<int>(lMediaIDs, mediaID =>
-                    {
 
-                        SearchResult res = searcher.GetDoc(nParentGroupID, mediaID);
-                        if (res != null)
+                    try
+                    {
+                        Parallel.ForEach<int>(lMediaIDs, mediaID =>
                         {
-                            dictRes[mediaID] = new SearchResult() { assetID = res.assetID, UpdateDate = res.UpdateDate };
+
+                            SearchResult res = new SearchResult()
+                            {
+                                assetID = mediaID,
+                                UpdateDate = DateTime.MinValue
+                            };
+                            try
+                            {
+                                res = searcher.GetDoc(nParentGroupID, mediaID);
+                                if (res != null)
+                                {
+                                    dictRes[mediaID] = new SearchResult()
+                                    {
+                                        assetID = res.assetID,
+                                        UpdateDate = res.UpdateDate
+                                    };
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                log.ErrorFormat("Failed getting document of media {0}. ex = {1}", mediaID, ex);
+                            }
                         }
-                    }
                         );
+                    }
+                    catch (Exception ex)
+                    {
+                        log.ErrorFormat("Failed performing parallel GetMediaUpdateDate for group {0}. ex = {1}", nParentGroupID, ex);
+                    }
 
                     //lMediaRes = dictRes.Values.ToList();
 
