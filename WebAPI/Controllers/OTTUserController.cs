@@ -487,7 +487,8 @@ namespace WebAPI.Controllers
         /// Logout the calling user.
         /// </summary>
         /// <returns></returns>
-        [Route("Logout"), HttpPost]
+        [Route("logout"), HttpPost]
+        [ApiAuthorize]
         public bool Logout()
         {
             bool response = false;
@@ -501,6 +502,55 @@ namespace WebAPI.Controllers
             try
             {
                 response = ClientsManager.UsersClient().SignOut(groupId, userId, ip, udid);
+
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Activate the account by activation token
+        /// </summary>
+        /// <param name="partnerId">The partner ID</param>
+        /// <param name="activation_token">Activation token of the user</param>
+        /// <param name="username">Username of the user to activate</param>
+        /// <returns></returns>
+        [Route("activate"), HttpPost]
+        public Models.Users.KalturaOTTUser Activate(int partnerId, string username, string activation_token)
+        {
+            Models.Users.KalturaOTTUser response = null;
+
+            try
+            {
+                response = ClientsManager.UsersClient().ActivateAccount(partnerId, username, activation_token);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Resend the activation token to a user
+        /// </summary>
+        /// <param name="partnerId">The partner ID</param>
+        /// <param name="password">Password of the user to activate</param>
+        /// <param name="username">Username of the user to activate</param>
+        /// <returns></returns>
+        [Route("resendActivationToken"), HttpPost]
+        public bool ResendActivationToken(int partnerId, string username, string password)
+        {
+            bool response = false;
+
+            try
+            {
+                response = ClientsManager.UsersClient().ResendActivationToken(partnerId, username, password);
             }
             catch (ClientException ex)
             {
