@@ -110,7 +110,7 @@ namespace KLogMonitor
                 this.ClientTag = clientTag;
 
             // In case this is a start event, we fire it first, and on dispose, we will fire the END 
-            if (eventName == Events.eEvent.EVENT_API_START)
+            if (eventName == Events.eEvent.EVENT_API_START || eventName == Events.eEvent.EVENT_CLIENT_API_START)
                 logger.Monitor(this.ToString());
         }
 
@@ -225,6 +225,12 @@ namespace KLogMonitor
                     {
                         /* We are firing the END event, so we just overriding the START */
                         this.Event = Events.GetEventString(Events.eEvent.EVENT_API_END);
+                    }
+
+                    if (this.Event == Events.GetEventString(Events.eEvent.EVENT_CLIENT_API_START))
+                    {
+                        /* We are firing the END event, so we just overriding the START */
+                        this.Event = Events.GetEventString(Events.eEvent.EVENT_CLIENT_API_END);
                     }
 
                     // check if data from context was updated
