@@ -1078,7 +1078,7 @@ namespace Users
 
         public static void GetWSCredentials(int nGroupID, eWSModules eWSModule, ref string sUN, ref string sPass)
         {
-            Credentials uc = TvinciCache.WSCredentials.GetWSCredentials(eWSModule, nGroupID, eWSModule);
+            Credentials uc = TvinciCache.WSCredentials.GetWSCredentials(eWSModules.USERS, nGroupID, eWSModule);
             sUN = uc.m_sUsername;
             sPass = uc.m_sPassword;
         }
