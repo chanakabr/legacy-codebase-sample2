@@ -25,6 +25,7 @@ namespace Catalog.Request
     public class MediaMarkRequest : BaseRequest, IRequestImp
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly bool shouldWriteMediaEohStatistics = WS_Utils.GetTcmBoolValue("WriteMediaEohStatistics");
 
         [DataMember]
         public MediaPlayRequestData m_oMediaPlayRequestData;
@@ -365,10 +366,13 @@ namespace Catalog.Request
                             playCycleKey = CatalogDAL.GetOrInsert_PlayCycleKey(m_oMediaPlayRequestData.m_sSiteGuid, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID, 0, m_nGroupID, true);
                         }
 
-                        Task.Run(() => Catalog.WriteMediaEohStatistics(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID,
-                                                                                    nMediaDuration, nCountryID, nPlayerID, nFirstPlay, nPlay, nLoad, nPause, nStop, nFinish, nFull, nExitFull, nSendToFriend,
-                                                                                    m_oMediaPlayRequestData.m_nLoc, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid,
-                                                                                    m_oMediaPlayRequestData.m_sUDID, playCycleKey, nSwhoosh));
+                        if (shouldWriteMediaEohStatistics)
+                        {
+                            Task.Run(() => Catalog.WriteMediaEohStatistics(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID,
+                                                                                        nMediaDuration, nCountryID, nPlayerID, nFirstPlay, nPlay, nLoad, nPause, nStop, nFinish, nFull, nExitFull, nSendToFriend,
+                                                                                        m_oMediaPlayRequestData.m_nLoc, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid,
+                                                                                        m_oMediaPlayRequestData.m_sUDID, playCycleKey, nSwhoosh));
+                        }
                     }
 
                     if (nActionID == (int)MediaPlayActions.HIT)
