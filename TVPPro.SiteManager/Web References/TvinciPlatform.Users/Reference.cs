@@ -189,6 +189,8 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         
         private System.Threading.SendOrPostCallback ChangeUsersOperationCompleted;
         
+        private System.Threading.SendOrPostCallback AddInitiateNotificationActionOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -466,6 +468,9 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         
         /// <remarks/>
         public event ChangeUsersCompletedEventHandler ChangeUsersCompleted;
+        
+        /// <remarks/>
+        public event AddInitiateNotificationActionCompletedEventHandler AddInitiateNotificationActionCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/CheckUserPassword", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -1812,13 +1817,13 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/ResendActivationMail", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public bool ResendActivationMail(string sWSUserName, string sWSPassword, string sUserName, string sNewPassword) {
+        public Status ResendActivationMail(string sWSUserName, string sWSPassword, string sUserName, string sNewPassword) {
             object[] results = this.Invoke("ResendActivationMail", new object[] {
                         sWSUserName,
                         sWSPassword,
                         sUserName,
                         sNewPassword});
-            return ((bool)(results[0]));
+            return ((Status)(results[0]));
         }
         
         /// <remarks/>
@@ -1847,13 +1852,13 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/ActivateAccount", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public UserResponseObject ActivateAccount(string sWSUserName, string sWSPassword, string sUserName, string sToken) {
+        public UserResponse ActivateAccount(string sWSUserName, string sWSPassword, string sUserName, string sToken) {
             object[] results = this.Invoke("ActivateAccount", new object[] {
                         sWSUserName,
                         sWSPassword,
                         sUserName,
                         sToken});
-            return ((UserResponseObject)(results[0]));
+            return ((UserResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -3360,6 +3365,44 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/AddInitiateNotificationAction", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public void AddInitiateNotificationAction(string sWSUserName, string sWSPassword, eUserMessageAction userAction, int userId, string udid, string pushToken) {
+            this.Invoke("AddInitiateNotificationAction", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        userAction,
+                        userId,
+                        udid,
+                        pushToken});
+        }
+        
+        /// <remarks/>
+        public void AddInitiateNotificationActionAsync(string sWSUserName, string sWSPassword, eUserMessageAction userAction, int userId, string udid, string pushToken) {
+            this.AddInitiateNotificationActionAsync(sWSUserName, sWSPassword, userAction, userId, udid, pushToken, null);
+        }
+        
+        /// <remarks/>
+        public void AddInitiateNotificationActionAsync(string sWSUserName, string sWSPassword, eUserMessageAction userAction, int userId, string udid, string pushToken, object userState) {
+            if ((this.AddInitiateNotificationActionOperationCompleted == null)) {
+                this.AddInitiateNotificationActionOperationCompleted = new System.Threading.SendOrPostCallback(this.OnAddInitiateNotificationActionOperationCompleted);
+            }
+            this.InvokeAsync("AddInitiateNotificationAction", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        userAction,
+                        userId,
+                        udid,
+                        pushToken}, this.AddInitiateNotificationActionOperationCompleted, userState);
+        }
+        
+        private void OnAddInitiateNotificationActionOperationCompleted(object arg) {
+            if ((this.AddInitiateNotificationActionCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.AddInitiateNotificationActionCompleted(this, new System.ComponentModel.AsyncCompletedEventArgs(invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -4069,39 +4112,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
-    public partial class UserResponse {
-        
-        private Status respField;
-        
-        private UserResponseObject userField;
-        
-        /// <remarks/>
-        public Status resp {
-            get {
-                return this.respField;
-            }
-            set {
-                this.respField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public UserResponseObject user {
-            get {
-                return this.userField;
-            }
-            set {
-                this.userField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
     public partial class PinCodeResponse {
         
         private Status respField;
@@ -4584,6 +4594,39 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
+    public partial class UserResponse {
+        
+        private Status respField;
+        
+        private UserResponseObject userField;
+        
+        /// <remarks/>
+        public Status resp {
+            get {
+                return this.respField;
+            }
+            set {
+                this.respField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public UserResponseObject user {
+            get {
+                return this.userField;
+            }
+            set {
+                this.userField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
     public partial class FavoritObject {
         
         private string m_sDeviceUDIDField;
@@ -4906,6 +4949,31 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         
         /// <remarks/>
         Suspended,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://users.tvinci.com/")]
+    public enum eUserMessageAction {
+        
+        /// <remarks/>
+        Login,
+        
+        /// <remarks/>
+        Logout,
+        
+        /// <remarks/>
+        AnonymousPushRegistration,
+        
+        /// <remarks/>
+        IdentifyPushRegistration,
+        
+        /// <remarks/>
+        DeleteUser,
+        
+        /// <remarks/>
+        ChangeUsers,
     }
     
     /// <remarks/>
@@ -5796,10 +5864,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         }
         
         /// <remarks/>
-        public bool Result {
+        public Status Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((bool)(this.results[0]));
+                return ((Status)(this.results[0]));
             }
         }
     }
@@ -5822,10 +5890,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
         }
         
         /// <remarks/>
-        public UserResponseObject Result {
+        public UserResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((UserResponseObject)(this.results[0]));
+                return ((UserResponse)(this.results[0]));
             }
         }
     }
@@ -6921,6 +6989,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.Users {
             }
         }
     }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void AddInitiateNotificationActionCompletedEventHandler(object sender, System.ComponentModel.AsyncCompletedEventArgs e);
 }
 
 #pragma warning restore 1591

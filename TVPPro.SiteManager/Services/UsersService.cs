@@ -558,7 +558,11 @@ namespace TVPPro.SiteManager.Services
             try
             {
                 //Get user object on activation
-                UserContext.UserResponse = PlatUserService.ActivateAccount(wsUserName, wsPassword, UserName, UserToken);
+                var usersResponse = PlatUserService.ActivateAccount(wsUserName, wsPassword, UserName, UserToken);
+                if (usersResponse != null)
+                {
+                    UserContext.UserResponse = usersResponse.user;
+                }
 
                 if (UserContext.UserResponse.m_RespStatus == TVPPro.SiteManager.TvinciPlatform.Users.ResponseStatus.OK)
                 {

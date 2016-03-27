@@ -846,7 +846,7 @@
       <s:element name="ResendActivationMailResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="1" maxOccurs="1" name="ResendActivationMailResult" type="s:boolean" />
+            <s:element minOccurs="0" maxOccurs="1" name="ResendActivationMailResult" type="tns:Status" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -863,10 +863,16 @@
       <s:element name="ActivateAccountResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="ActivateAccountResult" type="tns:UserResponseObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="ActivateAccountResult" type="tns:UserResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:complexType name="UserResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="resp" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="user" type="tns:UserResponseObject" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="ActivateAccountByDomainMaster">
         <s:complexType>
           <s:sequence>
@@ -1453,12 +1459,6 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:complexType name="UserResponse">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="resp" type="tns:Status" />
-          <s:element minOccurs="0" maxOccurs="1" name="user" type="tns:UserResponseObject" />
-        </s:sequence>
-      </s:complexType>
       <s:element name="SetLoginPIN">
         <s:complexType>
           <s:sequence>
@@ -1740,6 +1740,31 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="AddInitiateNotificationAction">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="userAction" type="tns:eUserMessageAction" />
+            <s:element minOccurs="1" maxOccurs="1" name="userId" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="udid" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pushToken" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:simpleType name="eUserMessageAction">
+        <s:restriction base="s:string">
+          <s:enumeration value="Login" />
+          <s:enumeration value="Logout" />
+          <s:enumeration value="AnonymousPushRegistration" />
+          <s:enumeration value="IdentifyPushRegistration" />
+          <s:enumeration value="DeleteUser" />
+          <s:enumeration value="ChangeUsers" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="AddInitiateNotificationActionResponse">
+        <s:complexType />
+      </s:element>
       <s:element name="UserResponseObject" nillable="true" type="tns:UserResponseObject" />
       <s:element name="Status" nillable="true" type="tns:Status" />
       <s:element name="boolean" type="s:boolean" />
@@ -1748,6 +1773,7 @@
       <s:element name="ArrayOfUserResponseObject" nillable="true" type="tns:ArrayOfUserResponseObject" />
       <s:element name="ArrayOfUserBasicData" nillable="true" type="tns:ArrayOfUserBasicData" />
       <s:element name="ResponseStatus" type="tns:ResponseStatus" />
+      <s:element name="UserResponse" nillable="true" type="tns:UserResponse" />
       <s:element name="string" nillable="true" type="s:string" />
       <s:element name="ArrayOfCountry" nillable="true" type="tns:ArrayOfCountry" />
       <s:element name="ArrayOfState" nillable="true" type="tns:ArrayOfState" />
@@ -1758,7 +1784,6 @@
       <s:element name="ArrayOfUserType" nillable="true" type="tns:ArrayOfUserType" />
       <s:element name="int" type="s:int" />
       <s:element name="PinCodeResponse" nillable="true" type="tns:PinCodeResponse" />
-      <s:element name="UserResponse" nillable="true" type="tns:UserResponse" />
       <s:element name="UsersResponse" nillable="true" type="tns:UsersResponse" />
       <s:element name="LongIdsResponse" nillable="true" type="tns:LongIdsResponse" />
     </s:schema>
@@ -2255,6 +2280,12 @@
   <wsdl:message name="ChangeUsersSoapOut">
     <wsdl:part name="parameters" element="tns:ChangeUsersResponse" />
   </wsdl:message>
+  <wsdl:message name="AddInitiateNotificationActionSoapIn">
+    <wsdl:part name="parameters" element="tns:AddInitiateNotificationAction" />
+  </wsdl:message>
+  <wsdl:message name="AddInitiateNotificationActionSoapOut">
+    <wsdl:part name="parameters" element="tns:AddInitiateNotificationActionResponse" />
+  </wsdl:message>
   <wsdl:message name="CheckUserPasswordHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -2549,7 +2580,7 @@
     <wsdl:part name="sNewPassword" type="s:string" />
   </wsdl:message>
   <wsdl:message name="ResendActivationMailHttpPostOut">
-    <wsdl:part name="Body" element="tns:boolean" />
+    <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
   <wsdl:message name="ActivateAccountHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -2558,7 +2589,7 @@
     <wsdl:part name="sToken" type="s:string" />
   </wsdl:message>
   <wsdl:message name="ActivateAccountHttpPostOut">
-    <wsdl:part name="Body" element="tns:UserResponseObject" />
+    <wsdl:part name="Body" element="tns:UserResponse" />
   </wsdl:message>
   <wsdl:message name="ActivateAccountByDomainMasterHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -2832,6 +2863,15 @@
   <wsdl:message name="ChangeUsersHttpPostOut">
     <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
+  <wsdl:message name="AddInitiateNotificationActionHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userAction" type="s:string" />
+    <wsdl:part name="userId" type="s:string" />
+    <wsdl:part name="udid" type="s:string" />
+    <wsdl:part name="pushToken" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="AddInitiateNotificationActionHttpPostOut" />
   <wsdl:portType name="UsersServiceSoap">
     <wsdl:operation name="CheckUserPassword">
       <wsdl:input message="tns:CheckUserPasswordSoapIn" />
@@ -3153,6 +3193,10 @@
       <wsdl:input message="tns:ChangeUsersSoapIn" />
       <wsdl:output message="tns:ChangeUsersSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="AddInitiateNotificationAction">
+      <wsdl:input message="tns:AddInitiateNotificationActionSoapIn" />
+      <wsdl:output message="tns:AddInitiateNotificationActionSoapOut" />
+    </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="UsersServiceHttpPost">
     <wsdl:operation name="CheckUserPassword">
@@ -3406,6 +3450,10 @@
     <wsdl:operation name="ChangeUsers">
       <wsdl:input message="tns:ChangeUsersHttpPostIn" />
       <wsdl:output message="tns:ChangeUsersHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AddInitiateNotificationAction">
+      <wsdl:input message="tns:AddInitiateNotificationActionHttpPostIn" />
+      <wsdl:output message="tns:AddInitiateNotificationActionHttpPostOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="UsersServiceSoap" type="tns:UsersServiceSoap">
@@ -4123,6 +4171,15 @@
     </wsdl:operation>
     <wsdl:operation name="ChangeUsers">
       <soap:operation soapAction="http://users.tvinci.com/ChangeUsers" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddInitiateNotificationAction">
+      <soap:operation soapAction="http://users.tvinci.com/AddInitiateNotificationAction" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -4853,6 +4910,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="AddInitiateNotificationAction">
+      <soap12:operation soapAction="http://users.tvinci.com/AddInitiateNotificationAction" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="UsersServiceHttpPost" type="tns:UsersServiceHttpPost">
     <http:binding verb="POST" />
@@ -5417,16 +5483,23 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="AddInitiateNotificationAction">
+      <http:operation location="/AddInitiateNotificationAction" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output />
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="UsersService">
     <wsdl:port name="UsersServiceSoap" binding="tns:UsersServiceSoap">
-      <soap:address location="http://localhost:81/ws_users/module.asmx" />
+      <soap:address location="http://localhost/ws_users/module.asmx" />
     </wsdl:port>
     <wsdl:port name="UsersServiceSoap12" binding="tns:UsersServiceSoap12">
-      <soap12:address location="http://localhost:81/ws_users/module.asmx" />
+      <soap12:address location="http://localhost/ws_users/module.asmx" />
     </wsdl:port>
     <wsdl:port name="UsersServiceHttpPost" binding="tns:UsersServiceHttpPost">
-      <http:address location="http://localhost:81/ws_users/module.asmx" />
+      <http:address location="http://localhost/ws_users/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
