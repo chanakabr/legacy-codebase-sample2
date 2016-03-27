@@ -2689,37 +2689,37 @@ namespace Tvinci.Core.DAL
             switch (assetType)
             {
                 case eAssetTypes.EPG:
-                foreach (int userID in users)
-                {
-                    userDocKey = UtilsDal.getUserEpgMarkDocKey(userID, assetID);
-                    userKeys.Add(userDocKey);
-                }
-                break;
-                case eAssetTypes.NPVR:
-                foreach (int userID in users)
-                {
-                    userDocKey = UtilsDal.getUserNpvrMarkDocKey(userID, assetID);
-                    userKeys.Add(userDocKey);
-                }
-                break;
-                case eAssetTypes.MEDIA:
-                int mediaID;
-                if (int.TryParse(assetID, out mediaID))
-                {
                     foreach (int userID in users)
                     {
-                        userDocKey = UtilsDal.getUserMediaMarkDocKey(userID, mediaID);
+                        userDocKey = UtilsDal.getUserEpgMarkDocKey(userID, assetID);
                         userKeys.Add(userDocKey);
                     }
-                }
-                break;
+                    break;
+                case eAssetTypes.NPVR:
+                    foreach (int userID in users)
+                    {
+                        userDocKey = UtilsDal.getUserNpvrMarkDocKey(userID, assetID);
+                        userKeys.Add(userDocKey);
+                    }
+                    break;
+                case eAssetTypes.MEDIA:
+                    int mediaID;
+                    if (int.TryParse(assetID, out mediaID))
+                    {
+                        foreach (int userID in users)
+                        {
+                            userDocKey = UtilsDal.getUserMediaMarkDocKey(userID, mediaID);
+                            userKeys.Add(userDocKey);
+                        }
+                    }
+                    break;
                 default:
-                break;
+                    break;
             }
 
             // get all documents from CB
             var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
-            IDictionary<string, object> usersData = cbManager.GetValues<object>(userKeys, true);
+            IDictionary<string, MediaMarkLog> usersData = cbManager.GetValues<MediaMarkLog>(userKeys, true, true);
             List<UserMediaMark> usersMediaMark = new List<UserMediaMark>();
 
             if (usersData == null)
@@ -2727,12 +2727,11 @@ namespace Tvinci.Core.DAL
 
             if (usersData != null && usersData.Count > 0)
             {
-                MediaMarkLog mediaMarkLog;
-                foreach (KeyValuePair<string, object> userData in usersData)
+                foreach (KeyValuePair<string, MediaMarkLog> userData in usersData)
                 {
-                    if (userData.Value != null && !string.IsNullOrEmpty(userData.Value as string))
+                    if (userData.Value != null)
                     {
-                        mediaMarkLog = JsonConvert.DeserializeObject<MediaMarkLog>(userData.Value.ToString());
+                        MediaMarkLog mediaMarkLog = userData.Value;
                         if (mediaMarkLog != null && mediaMarkLog.LastMark != null)
                         {
                             usersMediaMark.Add(mediaMarkLog.LastMark);
