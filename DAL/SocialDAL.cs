@@ -189,12 +189,13 @@ namespace DAL
                 docKeysList.Add(DAL.UtilsDal.getUserMediaMarkDocKey(userID, nMediaID));
             }
 
-            IDictionary<string, object> res = cbManager.GetValues<object>(docKeysList, true, true);
+            IDictionary<string, MediaMarkLog> res = cbManager.GetValues<MediaMarkLog>(docKeysList, true, true);
 
             foreach (string sKey in res.Keys)
             {
-                lRes.Add(JsonConvert.DeserializeObject<MediaMarkLog>(res[sKey].ToString()));
+                lRes.Add(res[sKey]);
             }
+
             return lRes;
         }
 

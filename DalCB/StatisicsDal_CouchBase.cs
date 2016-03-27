@@ -37,7 +37,7 @@ namespace DalCB
                         BuzzWeightedAverScore tempBM;
                         foreach (KeyValuePair<string, object> item in dItems)
                         {
-                            if (item.Value != null && !string.IsNullOrEmpty(item.Value as string))
+                            if (item.Value != null && !string.IsNullOrEmpty(Convert.ToString(item.Value)))
                             {
                                 tempBM = JsonConvert.DeserializeObject<BuzzWeightedAverScore>(item.Value.ToString());
                                 if (tempBM != null)
