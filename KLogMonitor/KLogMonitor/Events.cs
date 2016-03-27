@@ -11,6 +11,8 @@ namespace KLogMonitor
         {
             EVENT_API_START,
             EVENT_API_END,
+            EVENT_CLIENT_API_START,
+            EVENT_CLIENT_API_END,
             EVENT_DATABASE,
             EVENT_COUCHBASE,
             EVENT_ELASTIC,
@@ -29,6 +31,10 @@ namespace KLogMonitor
                     return Constants.EVENT_API_START;
                 case eEvent.EVENT_API_END:
                     return Constants.EVENT_API_END;
+                case eEvent.EVENT_CLIENT_API_START:
+                    return Constants.EVENT_CLIENT_API_START;
+                case eEvent.EVENT_CLIENT_API_END:
+                    return Constants.EVENT_CLIENT_API_END;
                 case eEvent.EVENT_DATABASE:
                     return Constants.EVENT_DATABASE;
                 case eEvent.EVENT_COUCHBASE:

@@ -18,7 +18,9 @@ namespace KLogMonitor
 
         // event names (for monitor)
         public const string EVENT_API_START = "start";
-        internal const string EVENT_API_END = "end";
+        public const string EVENT_API_END = "end";
+        public const string EVENT_CLIENT_API_START = "start_api";
+        public const string EVENT_CLIENT_API_END = "end_api";
         public const string EVENT_DATABASE = "db";
         public const string EVENT_COUCHBASE = "cb";
         public const string EVENT_ELASTIC = "elastic";
