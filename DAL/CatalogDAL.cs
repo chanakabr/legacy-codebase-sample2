@@ -2719,7 +2719,7 @@ namespace Tvinci.Core.DAL
 
             // get all documents from CB
             var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
-            IDictionary<string, object> usersData = cbManager.GetValues<object>(userKeys, true);
+            IDictionary<string, MediaMarkLog> usersData = cbManager.GetValues<MediaMarkLog>(userKeys, true, true);
             List<UserMediaMark> usersMediaMark = new List<UserMediaMark>();
 
             if (usersData == null)
@@ -2727,12 +2727,11 @@ namespace Tvinci.Core.DAL
 
             if (usersData != null && usersData.Count > 0)
             {
-                MediaMarkLog mediaMarkLog;
-                foreach (KeyValuePair<string, object> userData in usersData)
+                foreach (KeyValuePair<string, MediaMarkLog> userData in usersData)
                 {
-                    if (userData.Value != null && !string.IsNullOrEmpty(userData.Value as string))
+                    if (userData.Value != null)
                     {
-                        mediaMarkLog = JsonConvert.DeserializeObject<MediaMarkLog>(userData.Value.ToString());
+                        MediaMarkLog mediaMarkLog = userData.Value;
                         if (mediaMarkLog != null && mediaMarkLog.LastMark != null)
                         {
                             usersMediaMark.Add(mediaMarkLog.LastMark);
