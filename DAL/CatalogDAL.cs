@@ -2759,7 +2759,7 @@ namespace Tvinci.Core.DAL
                 keys.Add(docKey);
             }
             // get all documents from CB
-            IDictionary<string, object> data = cbManager.GetValues<object>(keys, true);
+            IDictionary<string, MediaMarkLog> data = cbManager.GetValues<MediaMarkLog>(keys, true, true);
 
             List<UserMediaMark> oRes = new List<UserMediaMark>();
 
@@ -2768,12 +2768,11 @@ namespace Tvinci.Core.DAL
 
             if (data != null && data.Count > 0)
             {
-                MediaMarkLog mml;
-                foreach (KeyValuePair<string, object> item in data)
+                foreach (KeyValuePair<string, MediaMarkLog> item in data)
                 {
-                    if (item.Value != null && !string.IsNullOrEmpty(item.Value as string))
+                    if (item.Value != null)
                     {
-                        mml = JsonConvert.DeserializeObject<MediaMarkLog>(item.Value.ToString());
+                        MediaMarkLog mml = item.Value;
                         if (mml != null && mml.LastMark != null)
                         {
                             oRes.Add(mml.LastMark);

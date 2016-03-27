@@ -123,7 +123,7 @@ namespace DalCB
                     SocialActivityDoc socialDoc;
                     foreach (string sKey in dRetval.Keys)
                     {
-                        retObj = dRetval[sKey] as string;
+                        retObj = Convert.ToString(dRetval[sKey]);
                         if (!string.IsNullOrEmpty(retObj))
                         {
                             try
