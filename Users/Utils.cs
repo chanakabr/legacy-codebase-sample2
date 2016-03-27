@@ -20,6 +20,7 @@ using System.Xml;
 using System.IO;
 using System.Net;
 using ApiObjects.Notification;
+using System.Threading.Tasks;
 
 namespace Users
 {
@@ -1026,86 +1027,62 @@ namespace Users
         //    return res;
         //}
 
-        public static bool AddInitiateNotificationAction(int groupId, eUserMessageAction userAction, int userId, string udid, string pushToken = "")
+        public static void AddInitiateNotificationAction(int groupId, eUserMessageAction userAction, int userId, string udid, string pushToken = "")
         {
-            bool res = false;
-            try
+            string response = string.Empty;
+            string wsUsername = string.Empty;
+            string wsPassword = string.Empty;
+            GetWSCredentials(groupId, eWSModules.NOTIFICATIONS, ref wsUsername, ref wsPassword);
+            string Address = Utils.GetTcmConfigValue("NotificationService");
+            string SoapAction = "http://tempuri.org/INotificationService/InitiateNotificationAction";
+            if (string.IsNullOrEmpty(Address) || string.IsNullOrEmpty(wsUsername) || string.IsNullOrEmpty(wsPassword))
             {
-                string Address = Utils.GetTcmConfigValue("InitiateNotificationActionRest");
-                //string ContentType = Utils.GetTcmConfigValue("Content-Type");
-                //string Address = "http://localhost/WS_Notifications/NotificationService.svc/REST/InitiateNotificationAction";
-                string ContentType = "application/json";
-                if (string.IsNullOrEmpty(Address) || string.IsNullOrEmpty(ContentType))
-                {
-                    // either address or content type retrieved from config is empty
-                    #region Logging
-                    log.DebugFormat("address or content type is empty. Address: {0} , Content type: {1}", Address, ContentType);
-                    #endregion
-                    return false;
-                }
-
-                InitiateNotificationActionRequest notificationActionRequest = new InitiateNotificationActionRequest("notifications_203", "11111", eUserMessageAction.AnonymousPushRegistration, "123123", "myUDID", "myToken");
-                string RequestData = Newtonsoft.Json.JsonConvert.SerializeObject(notificationActionRequest, Newtonsoft.Json.Formatting.None);
-                string ResponseJSON = string.Empty;
+                log.DebugFormat("address or wsUsername or wsPassword is empty. Address: {0} , wsUsername: {1}, wsPassword: {2}", Address, wsUsername, wsPassword);
+                return;
+            }
+            try 
+            {
+                string RequestData = CreateInitiazeNotificationACtionSoapRequest(wsUsername, wsPassword, userAction, userId, udid, pushToken);                
                 string ErrorMsg = string.Empty;
-
-                res = TVinciShared.WS_Utils.TrySendHttpPostRequest(Address, RequestData, ContentType, Encoding.UTF8, ref ResponseJSON,
-                ref ErrorMsg);
-
-                //string notificationUrl = WS_Utils.GetTcmConfigValue("NotificationService");
-                //string responseFromServer = string.Empty;
-
-                //XmlDocument doc = new XmlDocument();
-                //doc.Load(Path.Combine(ConfigurationManager.AppSettings["XmlDir"], "InitiateNotificationAction.xml"));
-                //XmlNode root = doc.DocumentElement;
-                //root["soap:Body"]["InitiateNotificationAction"]["sWSUserName"].InnerText = "notifications_" + groupId;
-                //root["soap:Body"]["InitiateNotificationAction"]["sWSPassword"].InnerText = "11111";
-                //root["soap:Body"]["InitiateNotificationAction"]["userAction"].InnerText = userAction.ToString();
-                //root["soap:Body"]["InitiateNotificationAction"]["userId"].InnerText = userId.ToString();
-                //root["soap:Body"]["InitiateNotificationAction"]["udid"].InnerText = udid;
-                //root["soap:Body"]["InitiateNotificationAction"]["pushToken"].InnerText = pushToken;
-
-                //Stream dataStream = null;
-                //WebResponse response = null;
-                //StreamReader reader = null;
-                //// Create a request using a URL that can receive a post.             
-                //WebRequest request = WebRequest.Create(notificationUrl);
-                //// Set the Method property of the request to POST.            
-                //request.Method = "POST";
-
-                //byte[] byteArray = Encoding.UTF8.GetBytes(doc.InnerXml);
-                //// Set the ContentType property of the WebRequest.            
-                //request.ContentType = "text/xml";
-                //// Set the ContentLength property of the WebRequest.            
-                //request.ContentLength = byteArray.Length;
-                //// Get the request stream.            
-                //dataStream = request.GetRequestStream();
-                //// Write the data to the request stream.            
-                //dataStream.Write(byteArray, 0, byteArray.Length);
-
-                //// Get the response.            
-                //response = request.GetResponse();
-                //// Display the status.
-                //// Get the stream containing content returned by the server.            
-                //dataStream = response.GetResponseStream();
-                //// Open the stream using a StreamReader for easy access.            
-                //reader = new StreamReader(dataStream);
-                //// Read the content.            
-                ////responseFromServer = reader.ReadToEnd();
-
-                //doc = new XmlDocument();
-                //doc.Load(reader);
-                //root = doc.DocumentElement;
-                //string code = root["soap:Body"]["InitiateNotificationAction"].InnerText;
-               
-               
+                Task.Factory.StartNew(() => TVinciShared.WS_Utils.SendXMLHttpReqWithHeaders(Address, RequestData, new Dictionary<string, string>() { { "SOAPAction", SoapAction } }));                
             }
 
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while inserting to notification.  user id: {0}, device id: {1}, push token: {2}, group id: {3}, user action: {4}", userId, udid, pushToken, groupId, userAction);
-            }
-            return res;
+                log.ErrorFormat("Error while inserting to notification. groupId: {0}, userAction: {1}, userId: {2}, udid: {3}, pushToken: {4}, Exception: {5}",
+                                    groupId, userAction, userId, udid, pushToken, ex.Message);
+            }            
+        }
+
+        private static string CreateInitiazeNotificationACtionSoapRequest(string wsUserName, string wsPassword, eUserMessageAction action, int userId, string udid, string pushToken)
+        {
+            string request = string.Empty;
+            //  validate request
+            //  if()
+            request = string.Format(@"<?xml version=""1.0"" encoding=""utf-8""?>
+                                        <soap:Envelope xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+                                          <soap:Body>
+                                            <InitiateNotificationAction xmlns=""http://tempuri.org/"">
+                                                <sWSUserName>{0}</sWSUserName>
+                                                <sWSPassword>{1}</sWSPassword>
+                                                <userAction>{2}</userAction>
+                                                <userId>{3}</userId>
+                                                <udid>{4}</udid>
+                                                <pushToken>{5}</pushToken>
+                                                </InitiateNotificationAction>
+                                            </soap:Body>
+                                        </soap:Envelope>", wsUserName, wsPassword, action, userId, udid, pushToken);
+
+            return request;
+        }
+
+        public static void GetWSCredentials(int nGroupID, eWSModules eWSModule, ref string sUN, ref string sPass)
+        {
+            Credentials uc = TvinciCache.WSCredentials.GetWSCredentials(eWSModule, nGroupID, eWSModule);
+            sUN = "notifications_215";
+            sPass = "11111";
+            //sUN = uc.m_sUsername;
+            //sPass = uc.m_sPassword;
         }
     }
 
