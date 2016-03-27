@@ -2128,15 +2128,13 @@ namespace DAL
             return response;
         }
 
-        public static bool Update_PaymentGatewayPaymentMethod(int groupId, int paymentGatewayId, int paymentMethodId, string name, bool allowMultiInstance)
+        public static bool Update_PaymentGatewayPaymentMethod(int paymentMethodId, string name, bool allowMultiInstance)
         {
             int rowCount = 0;
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_PaymentGatewayPaymentMethod");
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
-                sp.AddParameter("@group_id", groupId);
-                sp.AddParameter("@payment_gateway_id", paymentGatewayId);
                 sp.AddParameter("@payment_method_id", paymentMethodId);
                 sp.AddParameter("@name", name);
                 sp.AddParameter("@allow_multi_instance", allowMultiInstance ? 1 : 0);
@@ -2145,30 +2143,25 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error at Update_PaymentGatewayPaymentMethod. groupId: {0}, paymentGatewayId: {1}, paymentMethodId: {2}, name = {3}",
-                    groupId, paymentGatewayId, paymentMethodId, !string.IsNullOrEmpty(name) ? name : string.Empty, ex);
+                log.ErrorFormat("Error at Update_PaymentGatewayPaymentMethod. paymentMethodId: {0}, name = {1}", paymentMethodId, !string.IsNullOrEmpty(name) ? name : string.Empty, ex);
             }
 
             return rowCount > 0;
         }
 
-        public static bool Delete_PaymentGatewayPaymentMethod(int groupId, int paymentGatewayId, int paymentMethodId)
+        public static bool Delete_PaymentGatewayPaymentMethod(int paymentMethodId)
         {
             int rowCount = 0;
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_PaymentGatewayPaymentMethod");
-                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
-                sp.AddParameter("@group_id", groupId);
-                sp.AddParameter("@payment_gateway_id", paymentGatewayId);
                 sp.AddParameter("@payment_method_id", paymentMethodId);
 
                 rowCount = sp.ExecuteReturnValue<int>();
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error at Delete_PaymentGatewayPaymentMethod. groupId: {0}, paymentGatewayId: {1}, paymentMethodId: {2}",
-                    groupId, paymentGatewayId, paymentMethodId, ex);
+                log.ErrorFormat("Error at Delete_PaymentGatewayPaymentMethod. paymentMethodId: {0}", paymentMethodId, ex);
             }
 
             return rowCount > 0;
