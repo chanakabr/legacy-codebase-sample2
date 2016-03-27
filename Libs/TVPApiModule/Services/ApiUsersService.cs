@@ -381,7 +381,9 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    response = m_Module.ActivateAccount(m_wsUserName, m_wsPassword, sUserName, sToken);
+                    var res = m_Module.ActivateAccount(m_wsUserName, m_wsPassword, sUserName, sToken);
+                    if (res != null)
+                        response = res.user;
                 }
             }
             catch (Exception ex)
@@ -400,7 +402,9 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    response = m_Module.ResendActivationMail(m_wsUserName, m_wsPassword, sUserName, sNewPassword);
+                    var res = m_Module.ResendActivationMail(m_wsUserName, m_wsPassword, sUserName, sNewPassword);
+                    if (res != null && res.Code == (int)eStatus.OK)
+                        response = true;
                 }
             }
             catch (Exception ex)
