@@ -27,96 +27,97 @@ public partial class Gateways_JsonPostGW : BaseGateway
 
     protected void Page_Load(object sender, EventArgs e)
     {
-        Response.ContentType = "application/json; charset=utf-8";
-        Response.AppendHeader("Access-Control-Allow-Origin", "*");
-
-        Stream body = Request.InputStream;
-        Encoding encoding = Request.ContentEncoding;
-        StreamReader reader = new System.IO.StreamReader(body, encoding);
-
-        string sJsonRequest = reader.ReadToEnd();
-
-
-        if (!string.IsNullOrEmpty(sJsonRequest))
+        using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_CLIENT_API_START, null, null, null, null))
         {
+            Response.ContentType = "application/json; charset=utf-8";
+            Response.AppendHeader("Access-Control-Allow-Origin", "*");
+
+            Stream body = Request.InputStream;
+            Encoding encoding = Request.ContentEncoding;
+            StreamReader reader = new System.IO.StreamReader(body, encoding);
+
+            string sJsonRequest = reader.ReadToEnd();
 
 
-            JObject json = JObject.Parse(sJsonRequest);
-
-            try
+            if (!string.IsNullOrEmpty(sJsonRequest))
             {
-                if (json["initObj"] is JValue)
+
+
+                JObject json = JObject.Parse(sJsonRequest);
+
+                try
                 {
-                    json = DecryptInitObj(json);
-                }
-            }
-            catch (Exception ex) { }
-
-            foreach (KeyValuePair<string, JToken> pair in json)
-            {
-                string sValue = string.Empty;
-
-                if (pair.Value.GetType() == typeof(JArray))
-                    sValue = pair.Value.ToString(Newtonsoft.Json.Formatting.None);
-                else
-                {
-                    sValue = pair.Value.ToString(Newtonsoft.Json.Formatting.None);
-
-                    // Remove opening and closing ""
-                    if ((!pair.Key.Equals("initObj") &&
-                         !pair.Key.Equals("tagPairs") &&
-                         !pair.Key.Equals("metaPairs") &&
-                         !pair.Key.Equals("userBasicData") &&
-                         !pair.Key.Equals("userDynamicData")) &&
-                         !pair.Key.Equals("orderObj") &&
-                         !pair.Key.Equals("recordedEPGOrderObj"))
+                    if (json["initObj"] is JValue)
                     {
-                        if (sValue[0] == '\"' && sValue[sValue.Length - 1] == '\"')
-                        {
-                            sValue = sValue.Remove(sValue.Length - 1).Substring(1);
-                        }
+                        json = DecryptInitObj(json);
                     }
+                }
+                catch (Exception ex) { }
 
-                    if (pair.Key.Equals("initObj"))
+                foreach (KeyValuePair<string, JToken> pair in json)
+                {
+                    string sValue = string.Empty;
+
+                    if (pair.Value.GetType() == typeof(JArray))
+                        sValue = pair.Value.ToString(Newtonsoft.Json.Formatting.None);
+                    else
                     {
-                        InitializationObject initObj = JsonConvert.DeserializeObject<InitializationObject>(pair.Value.ToString());
-                        if (initObj != null)
-                        {
-                            // get user ID
-                            if (initObj.SiteGuid != null)
-                                HttpContext.Current.Items[Constants.USER_ID] = initObj.SiteGuid;
+                        sValue = pair.Value.ToString(Newtonsoft.Json.Formatting.None);
 
-                            // get group ID
-                            if (initObj.ApiUser != null && initObj.ApiUser != null)
+                        // Remove opening and closing ""
+                        if ((!pair.Key.Equals("initObj") &&
+                             !pair.Key.Equals("tagPairs") &&
+                             !pair.Key.Equals("metaPairs") &&
+                             !pair.Key.Equals("userBasicData") &&
+                             !pair.Key.Equals("userDynamicData")) &&
+                             !pair.Key.Equals("orderObj") &&
+                             !pair.Key.Equals("recordedEPGOrderObj"))
+                        {
+                            if (sValue[0] == '\"' && sValue[sValue.Length - 1] == '\"')
                             {
-                                int groupId = ConnectionHelper.GetGroupID("tvpapi", "Gateways_JsonPostGW", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
-                                HttpContext.Current.Items[Constants.GROUP_ID] = groupId;
+                                sValue = sValue.Remove(sValue.Length - 1).Substring(1);
+                            }
+                        }
+
+                        if (pair.Key.Equals("initObj"))
+                        {
+                            InitializationObject initObj = JsonConvert.DeserializeObject<InitializationObject>(pair.Value.ToString());
+                            if (initObj != null)
+                            {
+                                // get user ID
+                                if (initObj.SiteGuid != null)
+                                    HttpContext.Current.Items[Constants.USER_ID] = initObj.SiteGuid;
+
+                                // get group ID
+                                if (initObj.ApiUser != null && initObj.ApiUser != null)
+                                {
+                                    int groupId = ConnectionHelper.GetGroupID("tvpapi", "Gateways_JsonPostGW", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
+                                    HttpContext.Current.Items[Constants.GROUP_ID] = groupId;
+                                }
                             }
                         }
                     }
+
+                    HttpContext.Current.Items[pair.Key] = sValue;
                 }
 
-                HttpContext.Current.Items[pair.Key] = sValue;
+                // log request body
+                logger.DebugFormat("API Request - \n{0}", sJsonRequest);
             }
 
-            // log request body
-            logger.DebugFormat("API Request - \n{0}", sJsonRequest);
-        }
+
+            // add web service
+            MethodFinder queryServices = new MethodFinder(m_MediaService,
+                                                            m_SiteService,
+                                                            m_PricingService,
+                                                            m_DomainService,
+                                                            m_BillingService,
+                                                            m_ConditionalAccessService,
+                                                            m_SocialService,
+                                                            m_UsersService,
+                                                            m_NotificationService);
 
 
-        // add web service
-        MethodFinder queryServices = new MethodFinder(m_MediaService,
-                                                        m_SiteService,
-                                                        m_PricingService,
-                                                        m_DomainService,
-                                                        m_BillingService,
-                                                        m_ConditionalAccessService,
-                                                        m_SocialService,
-                                                        m_UsersService,
-                                                        m_NotificationService);
-
-        using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_API_START, null, null, null, null))
-        {
             queryServices.ProcessRequest(sJsonRequest);
         }
     }
