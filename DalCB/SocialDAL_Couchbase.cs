@@ -46,7 +46,8 @@ namespace DalCB
                         endKey = endKey,
                         isDescending = true,
                         skip = nSkip,
-                        limit = nNumOfRecords
+                        limit = nNumOfRecords,
+                        asJson = true
                     });
                 }
                 else
@@ -55,7 +56,8 @@ namespace DalCB
                     {
                         startKey = startKey,
                         endKey = endKey,
-                        isDescending = true
+                        isDescending = true,
+                        asJson = true
                     });
                 }
 
@@ -120,7 +122,7 @@ namespace DalCB
                     SocialActivityDoc socialDoc;
                     foreach (string sKey in dRetval.Keys)
                     {
-                        retObj = dRetval[sKey] as string;
+                        retObj = Convert.ToString(dRetval[sKey]);
                         if (!string.IsNullOrEmpty(retObj))
                         {
                             try
