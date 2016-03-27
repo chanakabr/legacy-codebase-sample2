@@ -32,7 +32,7 @@ namespace WebAPI.App_Start
                             request.RequestUri.OriginalString,            // 0
                             await request.Content.ReadAsStringAsync());   // 1
 
-            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_API_START))
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_CLIENT_API_START))
             {
                 //let other handlers process the request
                 var response = await base.SendAsync(request, cancellationToken);
@@ -79,7 +79,7 @@ namespace WebAPI.App_Start
 
             //We never return 500. even on errors/warning
             response.StatusCode = System.Net.HttpStatusCode.OK;
-            Guid reqID = request.GetCorrelationId();            
+            Guid reqID = request.GetCorrelationId();
             var newResponse = request.CreateResponse(response.StatusCode, new StatusWrapper(subCode, reqID, executionTime, content, message));
 
             newResponse.Headers.Add("X-Kaltura-Session", reqID.ToString());
@@ -122,7 +122,7 @@ namespace WebAPI.App_Start
 #else
             log.ErrorFormat("{0} {1}", message, stack);
 #endif
-            
+
 
             return message;
         }
