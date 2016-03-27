@@ -983,7 +983,7 @@ namespace DAL
             return sp.Execute();
         }
 
-        public static int InsertMPP(int groupID, ApiObjects.IngestMultiPricePlan mpp, List<KeyValuePair<Int64, int>> pricePlansCodes, List<Int64> channels, List<Int64> fileTypes,
+        public static int InsertMPP(int groupID, ApiObjects.IngestMultiPricePlan mpp, List<KeyValuePair<long, int>> pricePlansCodes, List<long> channels, List<long> fileTypes,
             int previewModuleID, int internalDiscountID)
         {
             try
@@ -1008,10 +1008,10 @@ namespace DAL
                 {
                     sp.AddKeyValueListParameter<string, string>("@Title", mpp.Titles.Select(t => new KeyValuePair<string, string>(t.key, t.value)).ToList(), "key", "value");
                 }
-                sp.AddKeyValueListParameter<Int64, int>("@PricePlansCodes", pricePlansCodes, "key", "value");
+                sp.AddKeyValueListParameter<long, int>("@PricePlansCodes", pricePlansCodes, "key", "value");
 
-                sp.AddIDListParameter<Int64>("@Channels", channels, "Id");
-                sp.AddIDListParameter<Int64>("@FileTypes", fileTypes, "Id");
+                sp.AddIDListParameter<long>("@Channels", channels, "Id");
+                sp.AddIDListParameter<long>("@FileTypes", fileTypes, "Id");
                 sp.AddParameter("@Date", DateTime.UtcNow);
                 sp.AddParameter("@OrderNum", mpp.OrderNumber);
                 
@@ -1041,7 +1041,7 @@ namespace DAL
             return 0;
         }
 
-        public static int UpdateMPP(int groupID, ApiObjects.IngestMultiPricePlan mpp, List<KeyValuePair<Int64, int>> pricePlansCodes, List<Int64> channels, List<Int64> fileTypes, 
+        public static int UpdateMPP(int groupID, ApiObjects.IngestMultiPricePlan mpp, List<KeyValuePair<long, int>> pricePlansCodes, List<long> channels, List<long> fileTypes, 
             int previewModuleID, int internalDiscountID)
         {
             StoredProcedure sp = new StoredProcedure("Update_MPP");
@@ -1065,9 +1065,9 @@ namespace DAL
                 sp.AddKeyValueListParameter<string, string>("@Title", mpp.Titles.Select(t => new KeyValuePair<string, string>(t.key, t.value)).ToList(), "key", "value");
             }
 
-            sp.AddKeyValueListParameter<Int64, int>("@PricePlansCodes", pricePlansCodes, "key", "value");
-            sp.AddIDListParameter<Int64>("@Channels", channels, "Id");
-            sp.AddIDListParameter<Int64>("@FileTypes", fileTypes, "Id");
+            sp.AddKeyValueListParameter<long, int>("@PricePlansCodes", pricePlansCodes, "key", "value");
+            sp.AddIDListParameter<long>("@Channels", channels, "Id");
+            sp.AddIDListParameter<long>("@FileTypes", fileTypes, "Id");
             sp.AddParameter("@Date", DateTime.UtcNow);
             sp.AddParameter("@OrderNum", mpp.OrderNumber);            
 
@@ -1180,7 +1180,7 @@ namespace DAL
         }
 
 
-        public static int InsertPPV(int groupID, ApiObjects.IngestPPV ppv, int priceCodeID, int usageModuleID, int discountID, int couponGroupID, List<Int64> fileTypes)
+        public static int InsertPPV(int groupID, ApiObjects.IngestPPV ppv, int priceCodeID, int usageModuleID, int discountID, int couponGroupID, List<long> fileTypes)
         {
             StoredProcedure sp = new StoredProcedure("Insert_PPVModule");
             sp.SetConnectionKey("pricing_connection");
@@ -1193,7 +1193,7 @@ namespace DAL
             sp.AddParameter("@subscriptionOnly", ppv.SubscriptionOnly);
             sp.AddParameter("@firstDeviceLimitation", ppv.FirstDeviceLimitation);
             sp.AddParameter("@productCode", ppv.ProductCode);
-            sp.AddIDListParameter<Int64>("@FileTypes", fileTypes, "Id");
+            sp.AddIDListParameter<long>("@FileTypes", fileTypes, "Id");
             sp.AddParameter("@IsActive", ppv.IsActive);
             sp.AddParameter("@Date", DateTime.UtcNow);
 
@@ -1205,7 +1205,7 @@ namespace DAL
             return sp.ExecuteReturnValue<int>();
         }
 
-        public static int UpdatePPV(int groupID, ApiObjects.IngestPPV ppv, int priceCodeID, int usageModuleID, int discountID, int couponGroupID, List<Int64> fileTypes)
+        public static int UpdatePPV(int groupID, ApiObjects.IngestPPV ppv, int priceCodeID, int usageModuleID, int discountID, int couponGroupID, List<long> fileTypes)
         {
             StoredProcedure sp = new StoredProcedure("Update_PPVModule");
             sp.SetConnectionKey("pricing_connection");
@@ -1219,7 +1219,7 @@ namespace DAL
             sp.AddParameter("@firstDeviceLimitation", ppv.FirstDeviceLimitation);
             sp.AddParameter("@productCode", ppv.ProductCode);
             sp.AddParameter("@IsActive", ppv.IsActive);
-            sp.AddIDListParameter<Int64>("@FileTypes", fileTypes, "Id");
+            sp.AddIDListParameter<long>("@FileTypes", fileTypes, "Id");
             sp.AddParameter("@Date", DateTime.UtcNow);
             if (ppv.Descriptions != null)
             {
