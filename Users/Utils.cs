@@ -19,6 +19,7 @@ using TVinciShared;
 using System.Xml;
 using System.IO;
 using System.Net;
+using ApiObjects.Notification;
 
 namespace Users
 {
@@ -1030,8 +1031,10 @@ namespace Users
             bool res = false;
             try
             {
-                string Address = Utils.GetTcmConfigValue("NotificationService");
-                string ContentType = Utils.GetTcmConfigValue("Content-Type");
+                string Address = Utils.GetTcmConfigValue("InitiateNotificationActionRest");
+                //string ContentType = Utils.GetTcmConfigValue("Content-Type");
+                //string Address = "http://localhost/WS_Notifications/NotificationService.svc/REST/InitiateNotificationAction";
+                string ContentType = "application/json";
                 if (string.IsNullOrEmpty(Address) || string.IsNullOrEmpty(ContentType))
                 {
                     // either address or content type retrieved from config is empty
@@ -1041,17 +1044,10 @@ namespace Users
                     return false;
                 }
 
-                List<KeyValuePair<string, string>> lst = new List<KeyValuePair<string, string>>(3);
-                lst.Add(new KeyValuePair<string, string>("sWSUserName", string.Format("notifications_{0}", groupId)));
-                lst.Add(new KeyValuePair<string, string>("sWSPassword", "11111"));
-                lst.Add(new KeyValuePair<string, string>("userAction", userAction.ToString()));
-                lst.Add(new KeyValuePair<string, string>("userId", userId.ToString()));
-                lst.Add(new KeyValuePair<string, string>("udid", udid));
-                lst.Add(new KeyValuePair<string, string>("pushToken", pushToken.ToString()));
-                string RequestData = TVinciShared.WS_Utils.BuildDelimiterSeperatedString(lst, "&", false, false);
+                InitiateNotificationActionRequest notificationActionRequest = new InitiateNotificationActionRequest("notifications_203", "11111", eUserMessageAction.AnonymousPushRegistration, "123123", "myUDID", "myToken");
+                string RequestData = Newtonsoft.Json.JsonConvert.SerializeObject(notificationActionRequest, Newtonsoft.Json.Formatting.None);
                 string ResponseJSON = string.Empty;
                 string ErrorMsg = string.Empty;
-
 
                 res = TVinciShared.WS_Utils.TrySendHttpPostRequest(Address, RequestData, ContentType, Encoding.UTF8, ref ResponseJSON,
                 ref ErrorMsg);
