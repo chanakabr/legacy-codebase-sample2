@@ -387,7 +387,7 @@ namespace Catalog.Request
                     if (IsFirstPlay(nActionID))
                     {
                         log.Debug("about to call WriteFirstPlay");
-                        Task.Factory.StartNew(() => WriteFirstPlay(mediaId, m_oMediaPlayRequestData.m_nMediaFileID,
+                        Task.Factory.StartNew(() => Utils.WriteFirstPlay(mediaId, m_oMediaPlayRequestData.m_nMediaFileID,
                             m_nGroupID, nMediaTypeID, nPlayTime, m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID));
                     }
                 }
