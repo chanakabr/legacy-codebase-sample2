@@ -461,6 +461,12 @@
   <ItemGroup>
     <WCFMetadataStorage Include="Service References\Catalog\" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\TvmCore\TvinciImporter\TvinciImporter.csproj">
+      <Project>{0a7d54e6-41a3-4f53-bbdd-81fd9a67a2c1}</Project>
+      <Name>TvinciImporter</Name>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
