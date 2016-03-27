@@ -365,7 +365,7 @@ namespace Catalog.Request
                             playCycleKey = CatalogDAL.GetOrInsert_PlayCycleKey(m_oMediaPlayRequestData.m_sSiteGuid, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID, 0, m_nGroupID, true);
                         }
 
-                        Task.Factory.StartNew(() => Catalog.WriteMediaEohStatistics(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID,
+                        Task.Run(() => Catalog.WriteMediaEohStatistics(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID,
                                                                                     nMediaDuration, nCountryID, nPlayerID, nFirstPlay, nPlay, nLoad, nPause, nStop, nFinish, nFull, nExitFull, nSendToFriend,
                                                                                     m_oMediaPlayRequestData.m_nLoc, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid,
                                                                                     m_oMediaPlayRequestData.m_sUDID, playCycleKey, nSwhoosh));
@@ -373,7 +373,7 @@ namespace Catalog.Request
 
                     if (nActionID == (int)MediaPlayActions.HIT)
                         // log for mediahit for statistics
-                        Task.Factory.StartNew(() => WriteLiveViews(m_nGroupID, mediaId, nMediaTypeID, nPlayTime));
+                        Task.Run(() => WriteLiveViews(m_nGroupID, mediaId, nMediaTypeID, nPlayTime));
                 }
 
                 if (nActionID != -1)
@@ -387,7 +387,7 @@ namespace Catalog.Request
                     if (IsFirstPlay(nActionID))
                     {
                         log.Debug("about to call WriteFirstPlay");
-                        Task.Factory.StartNew(() => Utils.WriteFirstPlay(mediaId, m_oMediaPlayRequestData.m_nMediaFileID,
+                        Task.Run(() => Utils.WriteFirstPlay(mediaId, m_oMediaPlayRequestData.m_nMediaFileID,
                             m_nGroupID, nMediaTypeID, nPlayTime, m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID));
                     }
                 }
