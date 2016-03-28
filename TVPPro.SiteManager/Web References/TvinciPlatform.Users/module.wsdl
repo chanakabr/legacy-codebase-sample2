@@ -5493,13 +5493,13 @@
   </wsdl:binding>
   <wsdl:service name="UsersService">
     <wsdl:port name="UsersServiceSoap" binding="tns:UsersServiceSoap">
-      <soap:address location="http://localhost/ws_users/module.asmx" />
+      <soap:address location="http://54.72.1.39:8030/users_v3_7/module.asmx" />
     </wsdl:port>
     <wsdl:port name="UsersServiceSoap12" binding="tns:UsersServiceSoap12">
-      <soap12:address location="http://localhost/ws_users/module.asmx" />
+      <soap12:address location="http://54.72.1.39:8030/users_v3_7/module.asmx" />
     </wsdl:port>
     <wsdl:port name="UsersServiceHttpPost" binding="tns:UsersServiceHttpPost">
-      <http:address location="http://localhost/ws_users/module.asmx" />
+      <http:address location="http://54.72.1.39:8030/users_v3_7/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
