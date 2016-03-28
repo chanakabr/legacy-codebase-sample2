@@ -366,7 +366,7 @@ namespace Catalog.Request
                         if (IsFirstPlay(nActionID))
                         {
                             log.Error("about to call WriteFirstPlay");
-                            Task writeFirstPlay = Task.Run(() => WriteFirstPlay(mediaId, m_oMediaPlayRequestData.m_nMediaFileID,
+                            Task writeFirstPlay = Task.Run(() => Utils.WriteFirstPlay(mediaId, m_oMediaPlayRequestData.m_nMediaFileID,
                                 m_nGroupID, nMediaTypeID, nPlayTime, m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID));
                             tasks.Add(writeFirstPlay);
                         }
