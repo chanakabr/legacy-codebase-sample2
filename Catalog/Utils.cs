@@ -1107,16 +1107,5 @@ namespace Catalog
             return result;
         }
 
-        public static void WriteFirstPlay(int mediaID, int mediaFileID, int groupID, int mediaTypeID, int playTime,
-            string siteGuid, string udid, int platform, int countryID)
-        {
-            log.Error("running WriteFirstPlay");
-            ApiDAL.Update_MediaViews(mediaID, mediaFileID);
-            if (!Catalog.InsertStatisticsRequestToES(groupID, mediaID, mediaTypeID, Catalog.STAT_ACTION_FIRST_PLAY, playTime))
-            {
-                log.Error("Error - " + String.Concat("Failed to write firstplay into stats index. mediaID: {0} ", mediaID));
-            }
-        }
-
     }
 }
