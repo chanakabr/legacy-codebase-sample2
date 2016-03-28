@@ -6286,6 +6286,7 @@ namespace Catalog
                                                    int nExitFullScreenCounterint, int nSendToFriendCounter, int nPlayTimeCounter, int nFileQualityID, int nFileFormatID, DateTime dStartHourDate, int nUpdaterID,
                                                    int nBrowser, int nPlatform, string sSiteGuid, string sDeviceUdID, string sPlayCycleID, int nSwooshCounter)
         {
+            log.Error("running WriteMediaEohStatistics");
             // We write an empty string as the first parameter to split the start of the log from the mediaEoh row data
             string infoToLog = string.Join(",", new object[] { " ", nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, mediaId, nMediaFileID, nBillingTypeID, nCDNID, nMediaDuration, nCountryID, nPlayerID,
                                                                nFirstPlayCounter, nPlayCounter, nLoadCounter, nPauseCounter, nStopCounter, nFinishCounter, nFullScreenCounter, nExitFullScreenCounterint,

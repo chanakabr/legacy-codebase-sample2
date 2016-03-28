@@ -1110,7 +1110,7 @@ namespace Catalog
         public static void WriteFirstPlay(int mediaID, int mediaFileID, int groupID, int mediaTypeID, int playTime,
             string siteGuid, string udid, int platform, int countryID)
         {
-            log.Debug("running WriteFirstPlay");
+            log.Error("running WriteFirstPlay");
             ApiDAL.Update_MediaViews(mediaID, mediaFileID);
             if (!Catalog.InsertStatisticsRequestToES(groupID, mediaID, mediaTypeID, Catalog.STAT_ACTION_FIRST_PLAY, playTime))
             {
