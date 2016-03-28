@@ -37,10 +37,29 @@ namespace Ingest.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling pricing service. ws address: {0}, exception: {1}", Api.Url, ex);
+                log.ErrorFormat("Exception received while calling api service. ws address: {0}, exception: {1}", Api.Url, ex);
             }
 
             return groupId;
+        }
+
+        internal bool UpdateFreeFileTypeOfModule(int groupID, int moduleID)
+        {
+            bool result = false;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    result = Api.UpdateFreeFileTypeOfModule(groupID, moduleID);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. ws address: {0}, exception: {1}", Api.Url, ex);
+            }
+
+            return result;
         }
 
     }

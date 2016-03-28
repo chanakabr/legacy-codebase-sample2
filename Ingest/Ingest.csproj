@@ -194,7 +194,9 @@
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <None Include="Web References\Pricing\module.disco" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Web References\Pricing\PPVModule.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -460,12 +462,6 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadataStorage Include="Service References\Catalog\" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\TvmCore\TvinciImporter\TvinciImporter.csproj">
-      <Project>{0a7d54e6-41a3-4f53-bbdd-81fd9a67a2c1}</Project>
-      <Name>TvinciImporter</Name>
-    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

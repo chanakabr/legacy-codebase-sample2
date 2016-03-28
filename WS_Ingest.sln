@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ingest", "Ingest\Ingest.csproj", "{BA8BCDE5-E302-42D2-90E1-AD81494672C3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TvinciImporter", "..\TvmCore\TvinciImporter\TvinciImporter.csproj", "{0A7D54E6-41A3-4F53-BBDD-81FD9A67A2C1}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,12 +16,6 @@ Global
 		{BA8BCDE5-E302-42D2-90E1-AD81494672C3}.Local|Any CPU.Build.0 = Release|Any CPU
 		{BA8BCDE5-E302-42D2-90E1-AD81494672C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BA8BCDE5-E302-42D2-90E1-AD81494672C3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0A7D54E6-41A3-4F53-BBDD-81FD9A67A2C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0A7D54E6-41A3-4F53-BBDD-81FD9A67A2C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0A7D54E6-41A3-4F53-BBDD-81FD9A67A2C1}.Local|Any CPU.ActiveCfg = Local|Any CPU
-		{0A7D54E6-41A3-4F53-BBDD-81FD9A67A2C1}.Local|Any CPU.Build.0 = Local|Any CPU
-		{0A7D54E6-41A3-4F53-BBDD-81FD9A67A2C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0A7D54E6-41A3-4F53-BBDD-81FD9A67A2C1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

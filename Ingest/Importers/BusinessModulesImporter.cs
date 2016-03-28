@@ -11,7 +11,6 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
-using TvinciImporter;
 
 namespace Ingest.Importers
 {
@@ -323,7 +322,7 @@ namespace Ingest.Importers
                     response = ClientsManager.PricingClient().DeletePPV(groupId, module.Code);
                     if (response != null && response.status != null && response.status.Code == (int)Models.StatusCodes.OK && response.Id > 0)
                     {
-                        if (!ImporterImpl.UpdateFreeFileTypeOfModule(groupId, response.Id))
+                        if (!ClientsManager.ApiClient().UpdateFreeFileTypeOfModule(groupId, response.Id))
                         {
                             log.Error(string.Format("Failed updating index for ppvModule: {0}, groupID: {1}", response.Id, groupId));
                         }

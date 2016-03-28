@@ -63,6 +63,10 @@ namespace Ingest.Api {
         
         private System.Threading.SendOrPostCallback GetGroupIdByUsernamePasswordOperationCompleted;
         
+        private System.Threading.SendOrPostCallback InitializeFreeItemsUpdateOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback UpdateFreeFileTypeOfModuleOperationCompleted;
+        
         private System.Threading.SendOrPostCallback TVAPI_GetTvinciGUIDOperationCompleted;
         
         private System.Threading.SendOrPostCallback TVAPI_GetMediasOperationCompleted;
@@ -404,6 +408,12 @@ namespace Ingest.Api {
         
         /// <remarks/>
         public event GetGroupIdByUsernamePasswordCompletedEventHandler GetGroupIdByUsernamePasswordCompleted;
+        
+        /// <remarks/>
+        public event InitializeFreeItemsUpdateCompletedEventHandler InitializeFreeItemsUpdateCompleted;
+        
+        /// <remarks/>
+        public event UpdateFreeFileTypeOfModuleCompletedEventHandler UpdateFreeFileTypeOfModuleCompleted;
         
         /// <remarks/>
         public event TVAPI_GetTvinciGUIDCompletedEventHandler TVAPI_GetTvinciGUIDCompleted;
@@ -1336,6 +1346,68 @@ namespace Ingest.Api {
             if ((this.GetGroupIdByUsernamePasswordCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.GetGroupIdByUsernamePasswordCompleted(this, new GetGroupIdByUsernamePasswordCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/InitializeFreeItemsUpdate", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public bool InitializeFreeItemsUpdate(string userName, string password) {
+            object[] results = this.Invoke("InitializeFreeItemsUpdate", new object[] {
+                        userName,
+                        password});
+            return ((bool)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void InitializeFreeItemsUpdateAsync(string userName, string password) {
+            this.InitializeFreeItemsUpdateAsync(userName, password, null);
+        }
+        
+        /// <remarks/>
+        public void InitializeFreeItemsUpdateAsync(string userName, string password, object userState) {
+            if ((this.InitializeFreeItemsUpdateOperationCompleted == null)) {
+                this.InitializeFreeItemsUpdateOperationCompleted = new System.Threading.SendOrPostCallback(this.OnInitializeFreeItemsUpdateOperationCompleted);
+            }
+            this.InvokeAsync("InitializeFreeItemsUpdate", new object[] {
+                        userName,
+                        password}, this.InitializeFreeItemsUpdateOperationCompleted, userState);
+        }
+        
+        private void OnInitializeFreeItemsUpdateOperationCompleted(object arg) {
+            if ((this.InitializeFreeItemsUpdateCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.InitializeFreeItemsUpdateCompleted(this, new InitializeFreeItemsUpdateCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/UpdateFreeFileTypeOfModule", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public bool UpdateFreeFileTypeOfModule(int groupID, int moduleID) {
+            object[] results = this.Invoke("UpdateFreeFileTypeOfModule", new object[] {
+                        groupID,
+                        moduleID});
+            return ((bool)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void UpdateFreeFileTypeOfModuleAsync(int groupID, int moduleID) {
+            this.UpdateFreeFileTypeOfModuleAsync(groupID, moduleID, null);
+        }
+        
+        /// <remarks/>
+        public void UpdateFreeFileTypeOfModuleAsync(int groupID, int moduleID, object userState) {
+            if ((this.UpdateFreeFileTypeOfModuleOperationCompleted == null)) {
+                this.UpdateFreeFileTypeOfModuleOperationCompleted = new System.Threading.SendOrPostCallback(this.OnUpdateFreeFileTypeOfModuleOperationCompleted);
+            }
+            this.InvokeAsync("UpdateFreeFileTypeOfModule", new object[] {
+                        groupID,
+                        moduleID}, this.UpdateFreeFileTypeOfModuleOperationCompleted, userState);
+        }
+        
+        private void OnUpdateFreeFileTypeOfModuleOperationCompleted(object arg) {
+            if ((this.UpdateFreeFileTypeOfModuleCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.UpdateFreeFileTypeOfModuleCompleted(this, new UpdateFreeFileTypeOfModuleCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -14253,6 +14325,58 @@ namespace Ingest.Api {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((int)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void InitializeFreeItemsUpdateCompletedEventHandler(object sender, InitializeFreeItemsUpdateCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class InitializeFreeItemsUpdateCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal InitializeFreeItemsUpdateCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public bool Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((bool)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void UpdateFreeFileTypeOfModuleCompletedEventHandler(object sender, UpdateFreeFileTypeOfModuleCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class UpdateFreeFileTypeOfModuleCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal UpdateFreeFileTypeOfModuleCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public bool Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((bool)(this.results[0]));
             }
         }
     }
