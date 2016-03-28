@@ -16541,8 +16541,8 @@ namespace ConditionalAccess
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
             // log request
-            string logString = string.Empty;
-            string.Format("RecoredPPVEntitlement request: siteguid {0}, household {1}, price {2}, currency {3}, contentId {4}, productId {5}, productType {6}, coupon {7}, userIp {8}, paymentGatewayId {9}",
+            string logString = 
+                string.Format("RecoredPPVEntitlement request: siteguid {0}, household {1}, price {2}, currency {3}, contentId {4}, productId {5}, productType {6}, coupon {7}, userIp {8}, paymentGatewayId {9}",
                 !string.IsNullOrEmpty(userId) ? userId : string.Empty, householdId, price, !string.IsNullOrEmpty(currency) ? currency : string.Empty,
                 contentId, productId, transactionType.ToString(), !string.IsNullOrEmpty(coupon) ? coupon : string.Empty, !string.IsNullOrEmpty(userIP) ? userIP : string.Empty, paymentGatewayId);
 
