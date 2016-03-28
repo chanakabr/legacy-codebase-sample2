@@ -68,8 +68,14 @@
     <Reference Include="ApiObjects">
       <HintPath>..\..\..\tvincicommon\External\ApiObjects.dll</HintPath>
     </Reference>
+    <Reference Include="Couchbase.NetClient">
+      <HintPath>..\..\..\tvincicommon\External\Couchbase-2.2.5\Couchbase.NetClient.dll</HintPath>
+    </Reference>
     <Reference Include="CouchbaseManager">
       <HintPath>..\..\..\tvincicommon\External\4.5\CouchbaseManager.dll</HintPath>
+    </Reference>
+    <Reference Include="Enyim.Caching">
+      <HintPath>..\..\..\tvincicommon\External\Couchbase-2.2.5\Enyim.Caching.dll</HintPath>
     </Reference>
     <Reference Include="Jil">
       <HintPath>..\..\..\tvincicommon\External\Jil.dll</HintPath>
