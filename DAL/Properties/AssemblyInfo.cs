@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("DAL")]
-[assembly: AssemblyDescription("2015-06-24 10:44:43 | Hostname:IRA-PC | Published by:Ira Yanai")]
+[assembly: AssemblyDescription("2016-03-16 07:40:50 | Hostname:IL-SUNNYS-RND | Published by:Sunny Simantov")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("DAL")]
@@ -31,6 +31,6 @@ using System.Runtime.InteropServices;
 //
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
-// [assembly: AssemblyVersion("3.4.0.*")]
-[assembly: AssemblyVersion("3.4.0.*")]
-[assembly: AssemblyInformationalVersion("3.4-0-g95e8e6e-dirty")]
+// [assembly: AssemblyVersion("3.4.583.*")]
+[assembly: AssemblyVersion("3.4.583.*")]
+[assembly: AssemblyInformationalVersion("3.4-583-gced9dd8-dirty")]

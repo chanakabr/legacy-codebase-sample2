@@ -556,6 +556,9 @@
     <None Include="Web References\WS_Domains\DomainResponseStatus.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\WS_Domains\DomainStatusResponse2.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\WS_Domains\HomeNetwork.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -609,6 +612,9 @@
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\ws_users\UserResponseObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\ws_users\UsersResponse1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\ws_users\UserState.datasource">
