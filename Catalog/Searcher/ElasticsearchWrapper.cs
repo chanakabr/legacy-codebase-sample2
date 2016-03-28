@@ -1401,7 +1401,7 @@ namespace Catalog
             FilteredQuery filteredQuery = new FilteredQuery()
             {
                 PageIndex = 0,
-                PageSize = 0
+                PageSize = 1
             };
 
             filteredQuery.Filter = new QueryFilter();

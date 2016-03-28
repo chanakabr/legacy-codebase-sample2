@@ -387,7 +387,7 @@ namespace Catalog
             List<ChannelViewsResult> channelViews = new List<ChannelViewsResult>();
 
             #region Define Facet Query
-            ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery() { PageIndex = 0, PageSize = 0 };
+            ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery() { PageIndex = 0, PageSize = 1 };
             filteredQuery.Filter = new ElasticSearch.Searcher.QueryFilter();
 
             BaseFilterCompositeType filter = new FilterCompositeType(CutWith.AND);
@@ -470,7 +470,7 @@ namespace Catalog
             List<int> result = new List<int>();
 
             #region Define Facet Query
-            ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery() { PageIndex = 0, PageSize = 0 };
+            ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery() { PageIndex = 0, PageSize = 1 };
             filteredQuery.Filter = new ElasticSearch.Searcher.QueryFilter();
 
             BaseFilterCompositeType filter = new FilterCompositeType(CutWith.AND);
@@ -545,7 +545,7 @@ namespace Catalog
             List<int> result = new List<int>();
 
             #region Define Facet Query
-            ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery() { PageIndex = 0, PageSize = 0 };
+            ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery() { PageIndex = 0, PageSize = 1 };
             filteredQuery.Filter = new ElasticSearch.Searcher.QueryFilter();
 
             BaseFilterCompositeType filter = new FilterCompositeType(CutWith.AND);
