@@ -414,28 +414,28 @@ namespace Catalog.Request
                         }
                         catch (AggregateException ae)
                         {
-                            log.ErrorFormat("Error in Task.WaitAll AggregateException, userID: {0}, mediaID: {1}, mediaFileID: {2}, UDID: {3}, groupID {4}, Exception: {5}, StackTrace: {6}, InnerException: {7}", m_oMediaPlayRequestData.m_sSiteGuid,
-                                mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_oMediaPlayRequestData.m_sUDID, m_nGroupID, ae.Message, ae.StackTrace, ae.InnerException);
+                            log.ErrorFormat("Error in Task.WaitAll AggregateException, userID: {0}, mediaID: {1}, mediaFileID: {2}, mediaTypeID: {3}, UDID: {4}, groupID: {5}, Exception: {6}, StackTrace: {7}, InnerException: {8}", m_oMediaPlayRequestData.m_sSiteGuid,
+                                mediaId, m_oMediaPlayRequestData.m_nMediaFileID, nMediaTypeID, m_oMediaPlayRequestData.m_sUDID, m_nGroupID, ae.Message, ae.StackTrace, ae.InnerException);
                         }
 
                         catch (Exception ex)
                         {
-                            log.ErrorFormat("Error in Task.WaitAll, userID: {0}, mediaID: {1}, mediaFileID: {2}, UDID: {3}, groupID {4}, Exception: {5}, StackTrace: {6}, InnerException: {7}", m_oMediaPlayRequestData.m_sSiteGuid,
-                                mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_oMediaPlayRequestData.m_sUDID, m_nGroupID, ex.Message, ex.StackTrace, ex.InnerException);
+                            log.ErrorFormat("Error in Task.WaitAll, userID: {0}, mediaID: {1}, mediaFileID: {2}, mediaTypeID: {3}, UDID: {4}, groupID: {5}, Exception: {6}, StackTrace: {7}, InnerException: {8}", m_oMediaPlayRequestData.m_sSiteGuid,
+                                mediaId, m_oMediaPlayRequestData.m_nMediaFileID, nMediaTypeID, m_oMediaPlayRequestData.m_sUDID, m_nGroupID, ex.Message, ex.StackTrace, ex.InnerException);
                         }
                     }
                 }
 
                 catch (AggregateException ae)
                 {
-                    log.ErrorFormat("Error in ProcessMediaMarkRequest AggregateException, userID: {0}, mediaID: {1}, mediaFileID: {2}, UDID: {3}, groupID {4}, Exception: {5}, StackTrace: {6}, InnerException: {7}", m_oMediaPlayRequestData.m_sSiteGuid,
-                        mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_oMediaPlayRequestData.m_sUDID, m_nGroupID, ae.Message, ae.StackTrace, ae.InnerException);
+                    log.ErrorFormat("Error in ProcessMediaMarkRequest AggregateException, userID: {0}, mediaID: {1}, mediaFileID: {2}, mediaTypeID: {3}, UDID: {4}, groupID: {5}, Exception: {6}, StackTrace: {7}, InnerException: {8}", m_oMediaPlayRequestData.m_sSiteGuid,
+                                mediaId, m_oMediaPlayRequestData.m_nMediaFileID, nMediaTypeID, m_oMediaPlayRequestData.m_sUDID, m_nGroupID, ae.Message, ae.StackTrace, ae.InnerException);
                 }
 
                 catch (Exception ex)
                 {
-                    log.ErrorFormat("Error in ProcessMediaMarkRequest, userID: {0}, mediaID: {1}, mediaFileID: {2}, UDID: {3}, groupID {4}, Exception: {5}, StackTrace: {6}, InnerException: {7}", m_oMediaPlayRequestData.m_sSiteGuid,
-                        mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_oMediaPlayRequestData.m_sUDID, m_nGroupID, ex.Message, ex.StackTrace, ex.InnerException);
+                    log.ErrorFormat("Error in ProcessMediaMarkRequest, userID: {0}, mediaID: {1}, mediaFileID: {2}, mediaTypeID: {3}, UDID: {4}, groupID: {5}, Exception: {6}, StackTrace: {7}, InnerException: {8}", m_oMediaPlayRequestData.m_sSiteGuid,
+                                mediaId, m_oMediaPlayRequestData.m_nMediaFileID, nMediaTypeID, m_oMediaPlayRequestData.m_sUDID, m_nGroupID, ex.Message, ex.StackTrace, ex.InnerException);
                 }
             }
 
