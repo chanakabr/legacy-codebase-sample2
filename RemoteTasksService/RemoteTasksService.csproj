@@ -112,6 +112,7 @@
   <ItemGroup>
     <Content Include="packages.config" />
     <Content Include="log4net.config" />
+    <None Include="Properties\PublishProfiles\PP.pubxml" />
     <None Include="Properties\PublishProfiles\remote tasks.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
