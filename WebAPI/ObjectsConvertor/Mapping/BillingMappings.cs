@@ -94,7 +94,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             Mapper.CreateMap<PaymentMethod, WebAPI.Models.Billing.KalturaPaymentMethodProfile>()
              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
-             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+             .ForMember(dest => dest.AllowMultiInstance, opt => opt.MapFrom(src => src.AllowMultiInstance));
 
             Mapper.CreateMap<PaymentGatewaySelectedBy, WebAPI.Models.Billing.KalturaPaymentGatewayBaseProfile>()
            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
