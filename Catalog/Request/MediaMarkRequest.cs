@@ -399,7 +399,7 @@ namespace Catalog.Request
                         }
 
                         if (nActionID == (int)MediaPlayActions.HIT)
-                            // log for mediahit for statistics
+                        // log for mediahit for statistics
                         {
                             Task writeLiveViews = Task.Run(() => WriteLiveViews(m_nGroupID, mediaId, nMediaTypeID, nPlayTime));
                             tasks.Add(writeLiveViews);
@@ -408,14 +408,34 @@ namespace Catalog.Request
 
                     if (tasks != null && tasks.Count > 0)
                     {
-                        Task.WaitAll(tasks.ToArray());
+                        try
+                        {
+                            Task.WaitAll(tasks.ToArray());
+                        }
+                        catch (AggregateException ae)
+                        {
+                            log.ErrorFormat("Error in Task.WaitAll AggregateException, userID: {0}, mediaID: {1}, mediaFileID: {2}, UDID: {3}, groupID {4}, Exception: {5}, StackTrace: {6}, InnerException: {7}", m_oMediaPlayRequestData.m_sSiteGuid,
+                                mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_oMediaPlayRequestData.m_sUDID, m_nGroupID, ae.Message, ae.StackTrace, ae.InnerException);
+                        }
+
+                        catch (Exception ex)
+                        {
+                            log.ErrorFormat("Error in Task.WaitAll, userID: {0}, mediaID: {1}, mediaFileID: {2}, UDID: {3}, groupID {4}, Exception: {5}, StackTrace: {6}, InnerException: {7}", m_oMediaPlayRequestData.m_sSiteGuid,
+                                mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_oMediaPlayRequestData.m_sUDID, m_nGroupID, ex.Message, ex.StackTrace, ex.InnerException);
+                        }
                     }
+                }
+
+                catch (AggregateException ae)
+                {
+                    log.ErrorFormat("Error in ProcessMediaMarkRequest AggregateException, userID: {0}, mediaID: {1}, mediaFileID: {2}, UDID: {3}, groupID {4}, Exception: {5}, StackTrace: {6}, InnerException: {7}", m_oMediaPlayRequestData.m_sSiteGuid,
+                        mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_oMediaPlayRequestData.m_sUDID, m_nGroupID, ae.Message, ae.StackTrace, ae.InnerException);
                 }
 
                 catch (Exception ex)
                 {
-                    log.ErrorFormat("Error in ProcessMediaMarkRequest, userID: {0}, mediaID: {1}, mediaFileID: {2}, UDID: {3}, groupID {4}, Exception: {5}, StackTrace: {6}", m_oMediaPlayRequestData.m_sSiteGuid,
-                        mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_oMediaPlayRequestData.m_sUDID, m_nGroupID, ex.Message, ex.StackTrace);
+                    log.ErrorFormat("Error in ProcessMediaMarkRequest, userID: {0}, mediaID: {1}, mediaFileID: {2}, UDID: {3}, groupID {4}, Exception: {5}, StackTrace: {6}, InnerException: {7}", m_oMediaPlayRequestData.m_sSiteGuid,
+                        mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_oMediaPlayRequestData.m_sUDID, m_nGroupID, ex.Message, ex.StackTrace, ex.InnerException);
                 }
             }
 
@@ -431,11 +451,19 @@ namespace Catalog.Request
         private void WriteFirstPlay(int mediaID, int mediaFileID, int groupID, int mediaTypeID, int playTime,
             string siteGuid, string udid, int platform, int countryID)
         {
-            log.Error("running WriteFirstPlay");
-            ApiDAL.Update_MediaViews(mediaID, mediaFileID);
-            if (!Catalog.InsertStatisticsRequestToES(groupID, mediaID, mediaTypeID, Catalog.STAT_ACTION_FIRST_PLAY, playTime))
+            try
             {
-                log.Error("Error - " + String.Concat("Failed to write firstplay into stats index. Req: ", ToString()));
+                log.Error("running WriteFirstPlay");
+                ApiDAL.Update_MediaViews(mediaID, mediaFileID);
+                if (!Catalog.InsertStatisticsRequestToES(groupID, mediaID, mediaTypeID, Catalog.STAT_ACTION_FIRST_PLAY, playTime))
+                {
+                    log.Error("Error - " + String.Concat("Failed to write firstplay into stats index. Req: ", ToString()));
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error in WriteFirstPlay, mediaID: {0}, mediaFileID: {1}, groupID: {2}, mediaTypeID: {3}, playTime: {4}, siteGuid: {5}, udid: {6}, platform: {7}, countryID: {8}", mediaID,
+                    mediaFileID, groupID, mediaTypeID, playTime, siteGuid, udid, platform, countryID);;
             }
         }
 
