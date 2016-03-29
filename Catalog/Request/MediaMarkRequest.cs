@@ -415,8 +415,7 @@ namespace Catalog.Request
             string siteGuid, string udid, int platform, int countryID)
         {
             try
-            {
-                log.Error("running WriteFirstPlay");
+            {                
                 ApiDAL.Update_MediaViews(mediaID, mediaFileID);
                 if (!Catalog.InsertStatisticsRequestToES(groupID, mediaID, mediaTypeID, Catalog.STAT_ACTION_FIRST_PLAY, playTime))
                 {
@@ -425,8 +424,8 @@ namespace Catalog.Request
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error in WriteFirstPlay, mediaID: {0}, mediaFileID: {1}, groupID: {2}, mediaTypeID: {3}, playTime: {4}, siteGuid: {5}, udid: {6}, platform: {7}, countryID: {8}", mediaID,
-                    mediaFileID, groupID, mediaTypeID, playTime, siteGuid, udid, platform, countryID);;
+                log.ErrorFormat("Error in WriteFirstPlay, mediaID: {0}, mediaFileID: {1}, groupID: {2}, mediaTypeID: {3}, playTime: {4}, siteGuid: {5}, udid: {6}, platform: {7}, countryID: {8}, Exception: {9}", mediaID,
+                    mediaFileID, groupID, mediaTypeID, playTime, siteGuid, udid, platform, countryID, ex);
             }
         }
 
