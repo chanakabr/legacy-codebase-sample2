@@ -346,98 +346,61 @@ namespace Catalog.Request
 
             if (!isTerminateRequest)
             {
-                try
+                if (nActionID == -1 && this.m_oMediaPlayRequestData.m_sAction.Length > 0)
                 {
-                    if (nActionID == -1 && this.m_oMediaPlayRequestData.m_sAction.Length > 0)
+                    nActionID = Catalog.GetMediaActionID(m_oMediaPlayRequestData.m_sAction);
+                }
+
+                List<Task> tasks = new List<Task>();
+
+                if (mediaId != 0)
+                {
+                    if (nFirstPlay != 0 || nPlay != 0 || nLoad != 0 || nPause != 0 || nStop != 0 || nFull != 0 || nExitFull != 0 || nSendToFriend != 0 || nPlayTime != 0 || nFinish != 0 || nSwhoosh != 0 || nActionID == (int)MediaPlayActions.HIT)
                     {
-                        nActionID = Catalog.GetMediaActionID(m_oMediaPlayRequestData.m_sAction);
+                        //  Insert into MediaEOH                        
+                        if (playCycleSession != null)
+                        {
+                            playCycleKey = playCycleSession.PlayCycleKey;
+                        }
+                        else
+                        {
+                            playCycleKey = CatalogDAL.GetOrInsert_PlayCycleKey(m_oMediaPlayRequestData.m_sSiteGuid, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID, 0, m_nGroupID, true);
+                        }
+
+                        log.Error("about to call WriteMediaEohStatistics");
+                        Catalog.WriteMediaEohStatistics(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID,
+                                                        nMediaDuration, nCountryID, nPlayerID, nFirstPlay, nPlay, nLoad, nPause, nStop, nFinish, nFull, nExitFull, nSendToFriend,
+                                                        m_oMediaPlayRequestData.m_nLoc, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid,
+                                                        m_oMediaPlayRequestData.m_sUDID, playCycleKey, nSwhoosh);
                     }
 
-                    List<Task> tasks = new List<Task>();
-
-                    if (nActionID != -1)
+                    if (nActionID == (int)MediaPlayActions.HIT)
+                    // log for mediahit for statistics
                     {
-                        if (nActionID != (int)MediaPlayActions.HIT)
-                        {
-                            CatalogDAL.Insert_NewWatcherMediaAction(nWatcherID, sSessionID, nBillingTypeID, nOwnerGroupID, nQualityID, nFormatID, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_nGroupID,
-                                                                    nCDNID, nActionID, nCountryID, nPlayerID, m_oMediaPlayRequestData.m_nLoc, nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID);
-                        }
-
-                        if (IsFirstPlay(nActionID))
-                        {
-                            log.Error("about to call WriteFirstPlay");
-                            Task writeFirstPlay = Task.Run(() => Utils.WriteFirstPlay(mediaId, m_oMediaPlayRequestData.m_nMediaFileID,
-                                m_nGroupID, nMediaTypeID, nPlayTime, m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID));
-                            tasks.Add(writeFirstPlay);
-                        }
-                    }
-                    else
-                    {
-                        oMediaMarkResponse.status = new Status((int)eResponseStatus.ActionNotRecognized, "Action not recognized");
-                    }
-
-                    if (mediaId != 0)
-                    {
-                        if (nFirstPlay != 0 || nPlay != 0 || nLoad != 0 || nPause != 0 || nStop != 0 || nFull != 0 || nExitFull != 0 || nSendToFriend != 0 || nPlayTime != 0 || nFinish != 0 || nSwhoosh != 0 || nActionID == (int)MediaPlayActions.HIT)
-                        {
-                            //  Insert into MediaEOH                        
-                            if (playCycleSession != null)
-                            {
-                                playCycleKey = playCycleSession.PlayCycleKey;
-                            }
-                            else
-                            {
-                                playCycleKey = CatalogDAL.GetOrInsert_PlayCycleKey(m_oMediaPlayRequestData.m_sSiteGuid, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID, 0, m_nGroupID, true);
-                            }
-
-                            log.Error("about to call WriteMediaEohStatistics");
-                            Task writeMediaEohStatistics = Task.Run(() => Catalog.WriteMediaEohStatistics(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID,
-                                                                                        nMediaDuration, nCountryID, nPlayerID, nFirstPlay, nPlay, nLoad, nPause, nStop, nFinish, nFull, nExitFull, nSendToFriend,
-                                                                                        m_oMediaPlayRequestData.m_nLoc, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid,
-                                                                                        m_oMediaPlayRequestData.m_sUDID, playCycleKey, nSwhoosh));
-                            tasks.Add(writeMediaEohStatistics);
-                        }
-
-                        if (nActionID == (int)MediaPlayActions.HIT)
-                        // log for mediahit for statistics
-                        {
-                            Task writeLiveViews = Task.Run(() => WriteLiveViews(m_nGroupID, mediaId, nMediaTypeID, nPlayTime));
-                            tasks.Add(writeLiveViews);
-                        }
-                    }
-
-                    if (tasks != null && tasks.Count > 0)
-                    {
-                        try
-                        {
-                            Task.WaitAll(tasks.ToArray());
-                        }
-                        catch (AggregateException ae)
-                        {
-                            log.ErrorFormat("Error in Task.WaitAll AggregateException, userID: {0}, mediaID: {1}, mediaFileID: {2}, mediaTypeID: {3}, UDID: {4}, groupID: {5}, Exception: {6}, StackTrace: {7}, InnerException: {8}", m_oMediaPlayRequestData.m_sSiteGuid,
-                                mediaId, m_oMediaPlayRequestData.m_nMediaFileID, nMediaTypeID, m_oMediaPlayRequestData.m_sUDID, m_nGroupID, ae.Message, ae.StackTrace, ae.InnerException);
-                        }
-
-                        catch (Exception ex)
-                        {
-                            log.ErrorFormat("Error in Task.WaitAll, userID: {0}, mediaID: {1}, mediaFileID: {2}, mediaTypeID: {3}, UDID: {4}, groupID: {5}, Exception: {6}, StackTrace: {7}, InnerException: {8}", m_oMediaPlayRequestData.m_sSiteGuid,
-                                mediaId, m_oMediaPlayRequestData.m_nMediaFileID, nMediaTypeID, m_oMediaPlayRequestData.m_sUDID, m_nGroupID, ex.Message, ex.StackTrace, ex.InnerException);
-                        }
+                        WriteLiveViews(m_nGroupID, mediaId, nMediaTypeID, nPlayTime);
                     }
                 }
 
-                catch (AggregateException ae)
+                if (nActionID != -1)
                 {
-                    log.ErrorFormat("Error in ProcessMediaMarkRequest AggregateException, userID: {0}, mediaID: {1}, mediaFileID: {2}, mediaTypeID: {3}, UDID: {4}, groupID: {5}, Exception: {6}, StackTrace: {7}, InnerException: {8}", m_oMediaPlayRequestData.m_sSiteGuid,
-                                mediaId, m_oMediaPlayRequestData.m_nMediaFileID, nMediaTypeID, m_oMediaPlayRequestData.m_sUDID, m_nGroupID, ae.Message, ae.StackTrace, ae.InnerException);
-                }
+                    if (nActionID != (int)MediaPlayActions.HIT)
+                    {
+                        CatalogDAL.Insert_NewWatcherMediaAction(nWatcherID, sSessionID, nBillingTypeID, nOwnerGroupID, nQualityID, nFormatID, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_nGroupID,
+                                                                nCDNID, nActionID, nCountryID, nPlayerID, m_oMediaPlayRequestData.m_nLoc, nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID);
+                    }
 
-                catch (Exception ex)
-                {
-                    log.ErrorFormat("Error in ProcessMediaMarkRequest, userID: {0}, mediaID: {1}, mediaFileID: {2}, mediaTypeID: {3}, UDID: {4}, groupID: {5}, Exception: {6}, StackTrace: {7}, InnerException: {8}", m_oMediaPlayRequestData.m_sSiteGuid,
-                                mediaId, m_oMediaPlayRequestData.m_nMediaFileID, nMediaTypeID, m_oMediaPlayRequestData.m_sUDID, m_nGroupID, ex.Message, ex.StackTrace, ex.InnerException);
+                    if (IsFirstPlay(nActionID))
+                    {
+                        log.Error("about to call WriteFirstPlay");
+                        WriteFirstPlay(mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_nGroupID, nMediaTypeID, nPlayTime,
+                                        m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID);
+                    }
                 }
-            }
+                else
+                {
+                    oMediaMarkResponse.status = new Status((int)eResponseStatus.ActionNotRecognized, "Action not recognized");
+                }
+            }            
 
             return oMediaMarkResponse;
         }
