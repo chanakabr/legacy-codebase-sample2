@@ -84,34 +84,41 @@ namespace KLogMonitor
 
         public KMonitor(Events.eEvent eventName, string groupID = null, string action = null, string uniqueID = null, string clientTag = null)
         {
-            // start counter
-            this.Watch = new Stopwatch();
-            this.Watch.Start();
+            try
+            {
+                // start counter
+                this.Watch = new Stopwatch();
+                this.Watch.Start();
 
-            this.Event = Events.GetEventString(eventName);
-            this.Server = Environment.MachineName;
+                this.Event = Events.GetEventString(eventName);
+                this.Server = Environment.MachineName;
 
-            // get monitor data from context
-            // WCF -> data is stored in IncomingMessageProperties
-            // WS  -> data is stored in OperationContext
-            UpdateMonitorData();
+                // get monitor data from context
+                // WCF -> data is stored in IncomingMessageProperties
+                // WS  -> data is stored in OperationContext
+                UpdateMonitorData();
 
-            // check if current constructor overwrites any of the context data
-            if (groupID != null)
-                this.PartnerID = groupID;
+                // check if current constructor overwrites any of the context data
+                if (groupID != null)
+                    this.PartnerID = groupID;
 
-            if (action != null)
-                this.Action = action;
+                if (action != null)
+                    this.Action = action;
 
-            if (uniqueID != null)
-                this.UniqueID = uniqueID;
+                if (uniqueID != null)
+                    this.UniqueID = uniqueID;
 
-            if (clientTag != null)
-                this.ClientTag = clientTag;
+                if (clientTag != null)
+                    this.ClientTag = clientTag;
 
-            // In case this is a start event, we fire it first, and on dispose, we will fire the END 
-            if (eventName == Events.eEvent.EVENT_API_START || eventName == Events.eEvent.EVENT_CLIENT_API_START)
-                logger.Monitor(this.ToString());
+                // In case this is a start event, we fire it first, and on dispose, we will fire the END 
+                if (eventName == Events.eEvent.EVENT_API_START || eventName == Events.eEvent.EVENT_CLIENT_API_START)
+                    logger.Monitor(this.ToString());
+            }
+            catch (Exception logException)
+            {
+                logger.Error("Kmonitor Error in constructor", logException);
+            }
         }
 
         private void UpdateMonitorData()

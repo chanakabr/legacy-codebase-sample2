@@ -77,96 +77,102 @@ namespace KLogMonitor
 
         private void handleEvent(string msg, KLogger.LogEvent.LogLevel level, bool isFlush, object[] args, Exception ex = null)
         {
-
-            StackTrace stackTrace = new StackTrace();           // get call stack
-            StackFrame[] stackFrames = stackTrace.GetFrames();  // get method calls (frames)
-
-            StackFrame callingFrame = stackFrames[2];
-            this.MethodName = callingFrame.GetMethod().Name;
-            this.Line = callingFrame.GetFileLineNumber();
-
-            if (args != null && ex != null)
-                throw new Exception("Args and Exception cannot co exist");
-
-            // get log data
-            // WCF -> data is stored in IncomingMessageProperties
-            // WS  -> data is stored in OperationContext
-            switch (AppType)
+            try
             {
-                case KLogEnums.AppType.WCF:
+                StackTrace stackTrace = new StackTrace();           // get call stack
+                StackFrame[] stackFrames = stackTrace.GetFrames();  // get method calls (frames)
 
-                    if (OperationContext.Current != null && OperationContext.Current.IncomingMessageProperties != null)
-                    {
-                        object temp;
-                        if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.CLIENT_TAG, out temp))
-                            this.ClientTag = temp.ToString();
+                StackFrame callingFrame = stackFrames[2];
+                this.MethodName = callingFrame.GetMethod().Name;
+                this.Line = callingFrame.GetFileLineNumber();
 
-                        if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.HOST_IP, out temp))
-                            this.IPAddress = temp.ToString();
+                if (args != null && ex != null)
+                    throw new Exception("Args and Exception cannot co exist");
 
-                        if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.REQUEST_ID_KEY, out temp))
-                            this.UniqueID = temp.ToString();
+                // get log data
+                // WCF -> data is stored in IncomingMessageProperties
+                // WS  -> data is stored in OperationContext
+                switch (AppType)
+                {
+                    case KLogEnums.AppType.WCF:
 
-                        if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.GROUP_ID, out temp))
-                            this.PartnerID = temp.ToString();
+                        if (OperationContext.Current != null && OperationContext.Current.IncomingMessageProperties != null)
+                        {
+                            object temp;
+                            if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.CLIENT_TAG, out temp))
+                                this.ClientTag = temp.ToString();
 
-                        if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.ACTION, out temp))
-                            this.Action = temp.ToString();
+                            if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.HOST_IP, out temp))
+                                this.IPAddress = temp.ToString();
 
-                        if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.USER_ID, out temp))
-                            this.UserID = temp.ToString();
+                            if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.REQUEST_ID_KEY, out temp))
+                                this.UniqueID = temp.ToString();
 
-                        if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.TOPIC, out temp))
-                            this.Topic = temp.ToString();
-                    }
-                    break;
+                            if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.GROUP_ID, out temp))
+                                this.PartnerID = temp.ToString();
 
-                case KLogEnums.AppType.WindowsService:
+                            if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.ACTION, out temp))
+                                this.Action = temp.ToString();
 
-                    this.UniqueID = UniqueStaticId;
-                    break;
+                            if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.USER_ID, out temp))
+                                this.UserID = temp.ToString();
 
-                case KLogEnums.AppType.WS:
-                default:
+                            if (OperationContext.Current.IncomingMessageProperties.TryGetValue(Constants.TOPIC, out temp))
+                                this.Topic = temp.ToString();
+                        }
+                        break;
 
-                    if (HttpContext.Current != null && HttpContext.Current.Items != null)
-                    {
-                        if (HttpContext.Current.Items[Constants.CLIENT_TAG] != null)
-                            this.ClientTag = HttpContext.Current.Items[Constants.CLIENT_TAG].ToString();
+                    case KLogEnums.AppType.WindowsService:
 
-                        if (HttpContext.Current.Items[Constants.HOST_IP] != null)
-                            this.IPAddress = HttpContext.Current.Items[Constants.HOST_IP].ToString();
+                        this.UniqueID = UniqueStaticId;
+                        break;
 
-                        if (HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
-                            this.UniqueID = HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString();
+                    case KLogEnums.AppType.WS:
+                    default:
 
-                        if (HttpContext.Current.Items[Constants.GROUP_ID] != null)
-                            this.PartnerID = HttpContext.Current.Items[Constants.GROUP_ID].ToString();
+                        if (HttpContext.Current != null && HttpContext.Current.Items != null)
+                        {
+                            if (HttpContext.Current.Items[Constants.CLIENT_TAG] != null)
+                                this.ClientTag = HttpContext.Current.Items[Constants.CLIENT_TAG].ToString();
 
-                        if (HttpContext.Current.Items[Constants.ACTION] != null)
-                            this.Action = HttpContext.Current.Items[Constants.ACTION].ToString();
+                            if (HttpContext.Current.Items[Constants.HOST_IP] != null)
+                                this.IPAddress = HttpContext.Current.Items[Constants.HOST_IP].ToString();
 
-                        if (HttpContext.Current.Items[Constants.USER_ID] != null)
-                            this.UserID = HttpContext.Current.Items[Constants.USER_ID].ToString();
+                            if (HttpContext.Current.Items[Constants.REQUEST_ID_KEY] != null)
+                                this.UniqueID = HttpContext.Current.Items[Constants.REQUEST_ID_KEY].ToString();
 
-                        if (HttpContext.Current.Items[Constants.TOPIC] != null)
-                            this.Topic = HttpContext.Current.Items[Constants.TOPIC].ToString();
-                    }
-                    break;
+                            if (HttpContext.Current.Items[Constants.GROUP_ID] != null)
+                                this.PartnerID = HttpContext.Current.Items[Constants.GROUP_ID].ToString();
+
+                            if (HttpContext.Current.Items[Constants.ACTION] != null)
+                                this.Action = HttpContext.Current.Items[Constants.ACTION].ToString();
+
+                            if (HttpContext.Current.Items[Constants.USER_ID] != null)
+                                this.UserID = HttpContext.Current.Items[Constants.USER_ID].ToString();
+
+                            if (HttpContext.Current.Items[Constants.TOPIC] != null)
+                                this.Topic = HttpContext.Current.Items[Constants.TOPIC].ToString();
+                        }
+                        break;
+                }
+
+                LogEvent le = new LogEvent()
+                {
+                    Message = formatMessage(msg, DateTime.UtcNow),
+                    Exception = ex,
+                    Level = level,
+                    args = args
+                };
+
+                if (isFlush)
+                    sendLog(le);
+                else
+                    logs.Add(le);
             }
-
-            LogEvent le = new LogEvent()
+            catch (Exception logException)
             {
-                Message = formatMessage(msg, DateTime.UtcNow),
-                Exception = ex,
-                Level = level,
-                args = args
-            };
-
-            if (isFlush)
-                sendLog(le);
-            else
-                logs.Add(le);
+                logger.Error("Klogger Error in handle event", logException);
+            }
         }
 
         //private string formatMessage(string msg, DateTime creationDate)
@@ -295,7 +301,7 @@ namespace KLogMonitor
                         else
                         {
                             logger.InfoFormat(logEvent.Message, logEvent.args);
-                        }                        
+                        }
                     }
                     else
                     {
@@ -306,7 +312,7 @@ namespace KLogMonitor
                         else
                         {
                             logger.Info(logEvent.Message, logEvent.Exception);
-                        }                        
+                        }
                     }
                     break;
 
