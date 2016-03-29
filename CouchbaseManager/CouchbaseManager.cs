@@ -1332,16 +1332,16 @@ namespace CouchbaseManager
 
                         if (definitions.asJson)
                         {
-                            List<ViewRow<string>> rowsJson = definitions.QueryRows<string>(bucket);
+                            List<ViewRow<object>> rowsJson = definitions.QueryRows<object>(bucket);
 
                             foreach (var viewRow in rowsJson)
                             {
                                 if (viewRow != null)
                                 {
-                                    // If we have a result - simply add it to list
+                                    // If we have a result - convert it to the typed object and add it to list
                                     if (null != viewRow.Value)
                                     {
-                                        result.Add(JsonToObject<T>(viewRow.Value));
+                                        result.Add(JsonToObject<T>(viewRow.Value.ToString()));
                                     }
                                     else
                                     {
@@ -1416,13 +1416,13 @@ namespace CouchbaseManager
                     {
                         if (definitions.asJson)
                         {
-                            var jsonResults = definitions.QueryKeyValuePairs<string>(bucket);
+                            var jsonResults = definitions.QueryKeyValuePairs<object>(bucket);
 
                             foreach (var jsonResult in jsonResults)
                             {
                                 result.Add(new KeyValuePair<object, T1>(
                                     jsonResult.Key,
-                                    JsonToObject<T1>(jsonResult.Value)
+                                    JsonToObject<T1>(jsonResult.Value.ToString())
                                     ));
                             }
                         }
@@ -1486,7 +1486,7 @@ namespace CouchbaseManager
                     {
                         if (definitions.asJson)
                         {
-                            var jsonResults = definitions.QueryRows<string>(bucket);
+                            var jsonResults = definitions.QueryRows<object>(bucket);
 
                             foreach (var jsonResult in jsonResults)
                             {
@@ -1494,7 +1494,7 @@ namespace CouchbaseManager
                                 {
                                     Id = jsonResult.Id,
                                     Key = jsonResult.Key,
-                                    Value = JsonToObject<T>(jsonResult.Value)
+                                    Value = JsonToObject<T>(jsonResult.Value.ToString())
                                 });
                             }
                         }
