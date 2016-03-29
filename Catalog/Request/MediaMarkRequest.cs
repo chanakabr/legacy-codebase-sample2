@@ -367,17 +367,16 @@ namespace Catalog.Request
                             playCycleKey = CatalogDAL.GetOrInsert_PlayCycleKey(m_oMediaPlayRequestData.m_sSiteGuid, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID, 0, m_nGroupID, true);
                         }
 
-                        log.Error("about to call WriteMediaEohStatistics");
-                        Task.Factory.StartNew(() => Catalog.WriteMediaEohStatistics(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID,
+                        tasks.Add(Task.Factory.StartNew(() => Catalog.WriteMediaEohStatistics(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID,
                                                         nMediaDuration, nCountryID, nPlayerID, nFirstPlay, nPlay, nLoad, nPause, nStop, nFinish, nFull, nExitFull, nSendToFriend,
                                                         m_oMediaPlayRequestData.m_nLoc, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid,
-                                                        m_oMediaPlayRequestData.m_sUDID, playCycleKey, nSwhoosh));
+                                                        m_oMediaPlayRequestData.m_sUDID, playCycleKey, nSwhoosh)));
                     }
 
                     if (nActionID == (int)MediaPlayActions.HIT)
                     // log for mediahit for statistics
                     {
-                        Task.Factory.StartNew(() => WriteLiveViews(m_nGroupID, mediaId, nMediaTypeID, nPlayTime));
+                        tasks.Add(Task.Factory.StartNew(() => WriteLiveViews(m_nGroupID, mediaId, nMediaTypeID, nPlayTime)));
                     }
                 }
 
@@ -392,15 +391,20 @@ namespace Catalog.Request
                     if (IsFirstPlay(nActionID))
                     {
                         log.Error("about to call WriteFirstPlay");
-                        Task.Factory.StartNew(() => WriteFirstPlay(mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_nGroupID, nMediaTypeID, nPlayTime,
-                                        m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID));
+                        tasks.Add(Task.Factory.StartNew(() => WriteFirstPlay(mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_nGroupID, nMediaTypeID, nPlayTime,
+                                        m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID)));
                     }
                 }
                 else
                 {
                     oMediaMarkResponse.status = new Status((int)eResponseStatus.ActionNotRecognized, "Action not recognized");
                 }
-            }            
+
+                if (tasks != null && tasks.Count > 0)
+                {
+                    Task.WaitAll(tasks.ToArray());
+                }
+            }
 
             return oMediaMarkResponse;
         }
