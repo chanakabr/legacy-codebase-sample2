@@ -368,16 +368,16 @@ namespace Catalog.Request
                         }
 
                         log.Error("about to call WriteMediaEohStatistics");
-                        Catalog.WriteMediaEohStatistics(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID,
+                        Task.Factory.StartNew(() => Catalog.WriteMediaEohStatistics(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID,
                                                         nMediaDuration, nCountryID, nPlayerID, nFirstPlay, nPlay, nLoad, nPause, nStop, nFinish, nFull, nExitFull, nSendToFriend,
                                                         m_oMediaPlayRequestData.m_nLoc, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid,
-                                                        m_oMediaPlayRequestData.m_sUDID, playCycleKey, nSwhoosh);
+                                                        m_oMediaPlayRequestData.m_sUDID, playCycleKey, nSwhoosh));
                     }
 
                     if (nActionID == (int)MediaPlayActions.HIT)
                     // log for mediahit for statistics
                     {
-                        WriteLiveViews(m_nGroupID, mediaId, nMediaTypeID, nPlayTime);
+                        Task.Factory.StartNew(() => WriteLiveViews(m_nGroupID, mediaId, nMediaTypeID, nPlayTime));
                     }
                 }
 
@@ -392,8 +392,8 @@ namespace Catalog.Request
                     if (IsFirstPlay(nActionID))
                     {
                         log.Error("about to call WriteFirstPlay");
-                        WriteFirstPlay(mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_nGroupID, nMediaTypeID, nPlayTime,
-                                        m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID);
+                        Task.Factory.StartNew(() => WriteFirstPlay(mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_nGroupID, nMediaTypeID, nPlayTime,
+                                        m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID));
                     }
                 }
                 else
