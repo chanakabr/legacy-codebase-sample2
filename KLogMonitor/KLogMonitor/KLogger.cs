@@ -171,7 +171,7 @@ namespace KLogMonitor
             }
             catch (Exception logException)
             {
-                logger.Error("Klogger Error in handle event", logException);
+                logger.ErrorFormat("Klogger Error in handle event. original log message: {0}, ex: {1}", msg, logException);
             }
         }
 
