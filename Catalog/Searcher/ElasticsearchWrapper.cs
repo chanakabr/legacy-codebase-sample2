@@ -1704,54 +1704,65 @@ namespace Catalog
 
                 string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(groupId);
 
-                // Create a task for the search and merge of partial facets
-                Task task = Task.Factory.StartNew((obj) =>
-                    {
-                        // Get facet results
-                        string facetsResults = m_oESApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref facetRequestBody);
+                try
+                {
 
-                        if (orderBy == ApiObjects.SearchObjects.OrderBy.RATING)
+                    // Create a task for the search and merge of partial facets
+                    Task task = Task.Factory.StartNew((obj) =>
                         {
-                            // Parse string into dictionary
-                            var partialDictionary = ESTermsStatsFacet.FacetResults(ref facetsResults);
+                            // Get facet results
+                            string facetsResults = m_oESApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref facetRequestBody);
 
-                            // Run on partial dictionary and merge into main dictionary
-                            foreach (var mainPart in partialDictionary)
+                            if (orderBy == ApiObjects.SearchObjects.OrderBy.RATING)
                             {
-                                if (!ratingsFacetsDictionary.ContainsKey(mainPart.Key))
-                                {
-                                    ratingsFacetsDictionary[mainPart.Key] = new List<ESTermsStatsFacet.StatisticFacetResult>();
-                                }
+                                // Parse string into dictionary
+                                var partialDictionary = ESTermsStatsFacet.FacetResults(ref facetsResults);
 
-                                foreach (var singleResult in mainPart.Value)
+                                // Run on partial dictionary and merge into main dictionary
+                                foreach (var mainPart in partialDictionary)
                                 {
-                                    ratingsFacetsDictionary[mainPart.Key].Add(singleResult);
+                                    if (!ratingsFacetsDictionary.ContainsKey(mainPart.Key))
+                                    {
+                                        ratingsFacetsDictionary[mainPart.Key] = new List<ESTermsStatsFacet.StatisticFacetResult>();
+                                    }
+
+                                    foreach (var singleResult in mainPart.Value)
+                                    {
+                                        ratingsFacetsDictionary[mainPart.Key].Add(singleResult);
+                                    }
                                 }
                             }
-                        }
-                        else
-                        {
-                            // Parse string into dictionary
-                            var partialDictionary = ESTermsFacet.FacetResults(ref facetsResults);
-
-                            // Run on partial dictionary and merge into main dictionary
-                            foreach (var mainPart in partialDictionary)
+                            else
                             {
-                                if (!countsFacetsDictionary.ContainsKey(mainPart.Key))
-                                {
-                                    countsFacetsDictionary[mainPart.Key] = new ConcurrentDictionary<string, int>();
-                                }
+                                // Parse string into dictionary
+                                var partialDictionary = ESTermsFacet.FacetResults(ref facetsResults);
 
-                                foreach (var singleResult in mainPart.Value)
+                                // Run on partial dictionary and merge into main dictionary
+                                foreach (var mainPart in partialDictionary)
                                 {
-                                    countsFacetsDictionary[mainPart.Key][singleResult.Key] = singleResult.Value;
+                                    if (!countsFacetsDictionary.ContainsKey(mainPart.Key))
+                                    {
+                                        countsFacetsDictionary[mainPart.Key] = new ConcurrentDictionary<string, int>();
+                                    }
+
+                                    foreach (var singleResult in mainPart.Value)
+                                    {
+                                        countsFacetsDictionary[mainPart.Key][singleResult.Key] = singleResult.Value;
+                                    }
                                 }
                             }
-                        }
-                    },
-                    new Object());
+                        },
+                        new Object());
 
-                tasks.Add(task);
+                    tasks.Add(task);
+
+                }
+
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Error in SortAssetsByStats, Exception: {0}", ex);
+                }
+
             }
 
             Task.WaitAll(tasks.ToArray());
