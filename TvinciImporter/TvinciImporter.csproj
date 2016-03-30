@@ -76,9 +76,9 @@
     <Reference Include="Jil">
       <HintPath>..\..\tvincicommon\External\Jil.dll</HintPath>
     </Reference>
-    <Reference Include="Logger, Version=3.4.93.26305, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Logger, Version=3.4.118.21167, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Logger\bin\Debug\Logger.dll</HintPath>
+      <HintPath>..\..\tvincicommon\External\Logger.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
