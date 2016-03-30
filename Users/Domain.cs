@@ -2457,7 +2457,7 @@ namespace Users
          * This method get MediaConcurrencyLimit (int) , domain and mediaID 
          * Get from CB all media play at the last 
          ************************************************************************************************************* */
-        internal DomainResponseStatus ValidateMediaConcurrency(int nRuleID, int nMediaConcurrencyLimit, long lDomainID, int nMediaID)
+        internal DomainResponseStatus ValidateMediaConcurrency(int nRuleID, int nMediaConcurrencyLimit, long lDomainID, int nMediaID, string sUDID)
         {
             DomainResponseStatus res = DomainResponseStatus.OK;
             if (nMediaConcurrencyLimit == 0)
@@ -2475,7 +2475,7 @@ namespace Users
                 List<UserMediaMark> lUserMediaMark = CatalogDAL.GetDomainLastPositions((int)lDomainID, Utils.CONCURRENCY_MILLISEC_THRESHOLD);
                 if (lUserMediaMark != null)
                 {
-                    List<UserMediaMark> lMediaConcurrency = lUserMediaMark.Where(c => c.MediaID == nMediaID && c.CreatedAt.AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow).ToList();
+                    List<UserMediaMark> lMediaConcurrency = lUserMediaMark.Where(c => !c.UDID.Equals(sUDID) && c.MediaID == nMediaID && c.CreatedAt.AddMilliseconds(Utils.CONCURRENCY_MILLISEC_THRESHOLD) > DateTime.UtcNow).ToList();
                     if (lMediaConcurrency != null && lMediaConcurrency.Count >= nMediaConcurrencyLimit)
                     {
                         res = DomainResponseStatus.MediaConcurrencyLimitation;

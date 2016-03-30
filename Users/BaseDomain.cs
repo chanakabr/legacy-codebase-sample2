@@ -633,7 +633,7 @@ namespace Users
                         {
                             if (nRuleID > 0)
                             {
-                                res.m_eStatus = domain.ValidateMediaConcurrency(nRuleID, nMediaConcurrencyLimit, res.m_lDomainID, nMediaID);
+                                res.m_eStatus = domain.ValidateMediaConcurrency(nRuleID, nMediaConcurrencyLimit, res.m_lDomainID, nMediaID, sUDID);
                             }
                             if (res.m_eStatus == DomainResponseStatus.OK || res.m_eStatus == DomainResponseStatus.UnKnown) // if it's MediaConcurrencyLimitation no need to check this one 
                             {
