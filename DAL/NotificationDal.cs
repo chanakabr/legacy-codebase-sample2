@@ -651,7 +651,7 @@ namespace DAL
             if (push_notification_enabled != null)
             {
                 sp.AddParameter("@push_notification_enabled", push_notification_enabled);
-            }            
+            }
             return sp.ExecuteReturnValue<bool>();
         }
 
@@ -909,6 +909,22 @@ namespace DAL
                 log.ErrorFormat("Error while set user notification data. gid: {0}, user ID: {1}, ex: {2}", groupId, userId, ex);
             }
 
+            return result;
+        }
+
+        public static bool RemoveUserNotificationData(int groupId, int userId)
+        {
+            bool result = false;
+            try
+            {
+                result = cbManager.Remove(GetUserNotificationKey(groupId, userId));
+                if (!result)
+                    log.ErrorFormat("Error while removing user notification data. GID: {0}, user ID: {1}.", groupId, userId);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while set user notification data. gid: {0}, user ID: {1}, ex: {2}", groupId, userId, ex);
+            }
             return result;
         }
 
