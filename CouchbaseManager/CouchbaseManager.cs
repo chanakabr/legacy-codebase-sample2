@@ -10,6 +10,10 @@ using Couchbase.Configuration;
 using Couchbase.Configuration.Client.Providers;
 using Couchbase.Configuration.Client;
 using Couchbase.Core.Serialization;
+using Couchbase.Core.Transcoders;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using CouchBaseExtensions;
 
 namespace CouchbaseManager
 {
@@ -133,17 +137,27 @@ namespace CouchbaseManager
                 }
             }
 
-            this.clientConfiguration.Serializer = GetSerializer;
+            this.clientConfiguration.Transcoder = GetTranscoder;
         }
 
-        private ITypeSerializer GetSerializer()
+        private ITypeTranscoder GetTranscoder()
         {
-            Couchbase.Core.Serialization.DefaultSerializer serializer = new DefaultSerializer();
-            serializer.DeserializationSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto;
-            serializer.SerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto;
+            JsonSerializerSettings serializerSettings = new JsonSerializerSettings() { ContractResolver = new DefaultContractResolver() };
+            JsonSerializerSettings deserializationSettings = new JsonSerializerSettings() { ContractResolver = new DefaultContractResolver() };
+            CustomSerializer serializer = new CustomSerializer(deserializationSettings, serializerSettings);
+            CustomTranscoder transcoder = new CustomTranscoder(serializer);
 
-            return serializer;   
+            return transcoder;
         }
+
+        //private ITypeSerializer GetSerializer()
+        //{
+        //    Couchbase.Core.Serialization.DefaultSerializer serializer = new DefaultSerializer();
+        //    serializer.DeserializationSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto;
+        //    serializer.SerializerSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto;
+
+        //    return serializer;   
+        //}
 
         private string GetBucketName(string configurationSection)
         {
