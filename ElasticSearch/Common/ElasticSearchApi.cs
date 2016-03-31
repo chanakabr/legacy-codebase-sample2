@@ -42,7 +42,7 @@ namespace ElasticSearch.Common
             return sRes;
         }
 
-        public bool BuildIndex(string sIndex, int nShards, int nReplicas, 
+        public bool BuildIndex(string sIndex, int nShards, int nReplicas,
             List<string> lAnalyzers, List<string> lFilters, List<string> tokenizers = null)
         {
             bool bRes = false;
@@ -758,24 +758,25 @@ namespace ElasticSearch.Common
             {
                 //using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_ELASTIC, null, null, null, null) { Database = sUrl })
                 //{
-                    HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse();
-                    HttpStatusCode sCode = webResponse.StatusCode;
-                    nStatusCode = GetResponseCode(sCode);
-                    StreamReader sr = null;
-                    try
-                    {
-                        sr = new StreamReader(webResponse.GetResponseStream());
-                        res = sr.ReadToEnd();
-                    }
-                    finally
-                    {
-                        if (sr != null)
-                            sr.Close();
-                    }
+                HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse();
+                HttpStatusCode sCode = webResponse.StatusCode;
+                nStatusCode = GetResponseCode(sCode);
+                StreamReader sr = null;
+                try
+                {
+                    sr = new StreamReader(webResponse.GetResponseStream());
+                    res = sr.ReadToEnd();
+                }
+                finally
+                {
+                    if (sr != null)
+                        sr.Close();
+                }
                 //}
             }
             catch (WebException ex)
             {
+                log.Error("Error in SendPostHttpReq WebException", ex);
                 StreamReader errorStream = null;
                 try
                 {
@@ -786,6 +787,10 @@ namespace ElasticSearch.Common
                 {
                     if (errorStream != null) errorStream.Close();
                 }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error in SendPostHttpReq Exception", ex);
             }
 
             //retry alternative URL if this is the original (=first) call, the result was not OK and there is an alternative URL

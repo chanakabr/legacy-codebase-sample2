@@ -1757,15 +1757,21 @@ namespace Catalog
                     tasks.Add(task);
 
                 }
-
                 catch (Exception ex)
                 {
                     log.ErrorFormat("Error in SortAssetsByStats, Exception: {0}", ex);
                 }
-
             }
 
-            Task.WaitAll(tasks.ToArray());
+            try
+            {
+                Task.WaitAll(tasks.ToArray());
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error in SortAssetsByStats (WAIT ALL), Exception: {0}", ex);
+            }
+            
 
             #endregion
 
