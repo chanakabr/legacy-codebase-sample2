@@ -402,22 +402,42 @@ namespace KLogMonitor
             handleEvent(format, KLogger.LogEvent.LogLevel.ERROR, false, args, null);
         }
 
+        // Protected implementation of Dispose pattern.
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    //dispose managed resources
-                    foreach (LogEvent e in logs)
-                        sendLog(e);
+            if (disposed)
+                return;
 
-                    logs.Clear();
-                }
+            if (disposing)
+            {
+                //dispose managed resources
+                foreach (LogEvent e in logs)
+                    sendLog(e);
+
+                logs.Clear();
             }
-            //dispose unmanaged resources
+
+            // Free any unmanaged objects here.
+            //
             disposed = true;
         }
+
+        //protected virtual void Dispose(bool disposing)
+        //{
+        //    if (!disposed)
+        //    {
+        //        if (disposing)
+        //        {
+        //            //dispose managed resources
+        //            foreach (LogEvent e in logs)
+        //                sendLog(e);
+
+        //            logs.Clear();
+        //        }
+        //    }
+        //    //dispose unmanaged resources
+        //    disposed = true;
+        //}
 
         public void Dispose()
         {

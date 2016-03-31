@@ -219,34 +219,68 @@ namespace KLogMonitor
             return string.Empty;
         }
 
+        //protected virtual void Dispose(bool disposing)
+        //{
+        //    if (!disposed)
+        //    {
+        //        if (disposing)
+        //        {
+        //            //dispose managed resources
+        //            this.Watch.Stop();
+
+        //            if (this.Event == Events.GetEventString(Events.eEvent.EVENT_API_START))
+        //            {
+        //                /* We are firing the END event, so we just overriding the START */
+        //                this.Event = Events.GetEventString(Events.eEvent.EVENT_API_END);
+        //            }
+
+        //            if (this.Event == Events.GetEventString(Events.eEvent.EVENT_CLIENT_API_START))
+        //            {
+        //                /* We are firing the END event, so we just overriding the START */
+        //                this.Event = Events.GetEventString(Events.eEvent.EVENT_CLIENT_API_END);
+        //            }
+
+        //            // check if data from context was updated
+        //            UpdateMonitorData();
+
+        //            logger.Monitor(this.ToString());
+        //        }
+        //    }
+        //    //dispose unmanaged resources
+        //    disposed = true;
+        //}
+
+        // Protected implementation of Dispose pattern.
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposed)
+            if (disposed)
+                return;
+
+            if (disposing)
             {
-                if (disposing)
+                //dispose managed resources
+                this.Watch.Stop();
+
+                if (this.Event == Events.GetEventString(Events.eEvent.EVENT_API_START))
                 {
-                    //dispose managed resources
-                    this.Watch.Stop();
-
-                    if (this.Event == Events.GetEventString(Events.eEvent.EVENT_API_START))
-                    {
-                        /* We are firing the END event, so we just overriding the START */
-                        this.Event = Events.GetEventString(Events.eEvent.EVENT_API_END);
-                    }
-
-                    if (this.Event == Events.GetEventString(Events.eEvent.EVENT_CLIENT_API_START))
-                    {
-                        /* We are firing the END event, so we just overriding the START */
-                        this.Event = Events.GetEventString(Events.eEvent.EVENT_CLIENT_API_END);
-                    }
-
-                    // check if data from context was updated
-                    UpdateMonitorData();
-
-                    logger.Monitor(this.ToString());
+                    /* We are firing the END event, so we just overriding the START */
+                    this.Event = Events.GetEventString(Events.eEvent.EVENT_API_END);
                 }
+
+                if (this.Event == Events.GetEventString(Events.eEvent.EVENT_CLIENT_API_START))
+                {
+                    /* We are firing the END event, so we just overriding the START */
+                    this.Event = Events.GetEventString(Events.eEvent.EVENT_CLIENT_API_END);
+                }
+
+                // check if data from context was updated
+                UpdateMonitorData();
+
+                logger.Monitor(this.ToString());
             }
-            //dispose unmanaged resources
+
+            // Free any unmanaged objects here.
+            //
             disposed = true;
         }
 
