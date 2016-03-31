@@ -688,7 +688,7 @@ namespace DAL
 
         public static DataRow Get_MessageAnnouncement(int messageAnnouncementId)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncement");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncementById");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             sp.AddParameter("@ID", messageAnnouncementId);
             DataSet ds = sp.ExecuteDataSet();
@@ -706,7 +706,7 @@ namespace DAL
 
         public static List<DataRow> Get_MessageAllAnnouncements(int groupId, int pageSize, int pageIndex)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncement");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncements");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@top", pageSize * (pageIndex + 1));
@@ -738,7 +738,7 @@ namespace DAL
 
         public static int Get_MessageAllAnnouncementsCount(int groupId)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncement");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncements");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
             DataSet ds = sp.ExecuteDataSet();
