@@ -99,13 +99,11 @@ namespace WebAPI.Utils
                     m_oFilter = new Filter()
                     {
                         m_nLanguage = request.m_oFilter.m_nLanguage,
-                        m_sDeviceId = request.m_oFilter.m_sDeviceId,
                         m_bUseStartDate = group.UseStartDate,
                         m_bOnlyActiveMedia = group.GetOnlyActiveAssets
                     },
                     m_sSignature = request.m_sSignature,
                     m_sSignString = request.m_sSignString,
-                    m_sSiteGuid = request.m_sSiteGuid,
                 };
 
                 AssetInfoResponse response = new AssetInfoResponse();
