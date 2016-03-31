@@ -99,6 +99,12 @@
     <Compile Include="Billing\PaymentGatewayListResponse.cs" />
     <Compile Include="Billing\PaymentGatewayAssociate.cs" />
     <Compile Include="Billing\PaymentMethod.cs" />
+    <Compile Include="CDVRAdapter\CDVRAdapter.cs" />
+    <Compile Include="CDVRAdapter\CDVRAdapterBase.cs" />
+    <Compile Include="CDVRAdapter\CDVRAdapterResponse.cs" />
+    <Compile Include="CDVRAdapter\CDVRAdapterResponseList.cs" />
+    <Compile Include="CDVRAdapter\CDVRAdapterSettings.cs" />
+    <Compile Include="CDVRAdapter\CDVRAdapterSettingsResponse.cs" />
     <Compile Include="DevicePinResponse.cs" />
     <Compile Include="IngestBusinessModules\BusinessModuleResponse.cs" />
     <Compile Include="IngestBusinessModules\IngestModule.cs" />

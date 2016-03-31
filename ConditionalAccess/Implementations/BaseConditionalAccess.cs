@@ -16814,5 +16814,20 @@ namespace ConditionalAccess
             return status;
             
         }
+
+        public CDVRAdapterResponseList GetCDVRAdapters()
+        {
+            throw new NotImplementedException();
+        }
+
+        public ApiObjects.Response.Status DeleteCDVRAdapter(int adapterId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public CDVRAdapterResponse InsertCDVRAdapter(CDVRAdapter adapter)
+        {
+            throw new NotImplementedException(); 
+        }
     }
 }
