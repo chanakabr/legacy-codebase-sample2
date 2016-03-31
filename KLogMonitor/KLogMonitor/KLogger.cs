@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.ServiceModel;
 using System.Text;
 using System.Web;
 using log4net;
+using Microsoft.Win32.SafeHandles;
 
 
 namespace KLogMonitor
@@ -15,7 +17,8 @@ namespace KLogMonitor
     public class KLogger : IDisposable
     {
         private static readonly ILog logger = log4net.LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-        private bool disposed;
+        private bool disposed = false;
+        SafeHandle handle = new SafeFileHandle(IntPtr.Zero, true);
         private static ILog separateLogeer;
         private bool isSeparateLog;
 
@@ -410,6 +413,7 @@ namespace KLogMonitor
 
             if (disposing)
             {
+                handle.Dispose();
                 //dispose managed resources
                 foreach (LogEvent e in logs)
                     sendLog(e);

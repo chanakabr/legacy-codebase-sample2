@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.Text;
 using System.Web;
 using log4net;
+using Microsoft.Win32.SafeHandles;
 
 
 namespace KLogMonitor
@@ -18,7 +20,8 @@ namespace KLogMonitor
         private static readonly ILog logger = log4net.LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         public static string UniqueStaticId { get; set; }
         public static KLogEnums.AppType AppType { get; set; }
-        private bool disposed;
+        private bool disposed = false;
+        SafeHandle handle = new SafeFileHandle(IntPtr.Zero, true);
 
         [Newtonsoft.Json.JsonProperty(PropertyName = "e")]
         [DataMember(Name = "e")]
@@ -258,6 +261,7 @@ namespace KLogMonitor
 
             if (disposing)
             {
+                handle.Dispose();
                 //dispose managed resources
                 this.Watch.Stop();
 
