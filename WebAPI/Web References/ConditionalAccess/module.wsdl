@@ -294,6 +294,63 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="GetUserBundles">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainID" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="fileTypeIDs" type="tns:ArrayOfInt" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserBundlesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetUserBundlesResult" type="tns:UserBundlesResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UserBundlesResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="channels" type="tns:ArrayOfInt" />
+          <s:element minOccurs="0" maxOccurs="1" name="status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetUserPurchasedAssets">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainID" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="fileTypeIDs" type="tns:ArrayOfInt" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserPurchasedAssetsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetUserPurchasedAssetsResult" type="tns:UserPurhcasedAssetsResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UserPurhcasedAssetsResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="assets" type="tns:ArrayOfKeyValuePair" />
+          <s:element minOccurs="0" maxOccurs="1" name="status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfKeyValuePair">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="KeyValuePair" nillable="true" type="tns:KeyValuePair" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="KeyValuePair">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="key" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="GetPurchaseSessionID">
         <s:complexType>
           <s:sequence>
@@ -344,6 +401,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="paymentDetails" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="paymentMethod" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="paymentGatewayId" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="paymentMethodExternalID" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -354,6 +412,121 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="UpdateRecordedTransaction">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="householdId" type="s:long" />
+            <s:element minOccurs="0" maxOccurs="1" name="paymentGatewayReferenceID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="paymentDetails" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="paymentMethod" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="paymentGatewayId" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="paymentMethodExternalID" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateRecordedTransactionResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpdateRecordedTransactionResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetCDVRAdapters">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetCDVRAdaptersResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetCDVRAdaptersResult" type="tns:CDVRAdapterResponseList" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="CDVRAdapterResponseList">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="Adapters" type="tns:ArrayOfCDVRAdapterBase" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfCDVRAdapterBase">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="CDVRAdapterBase" nillable="true" type="tns:CDVRAdapterBase" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="CDVRAdapterBase">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="ID" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DeleteCDVRAdapter">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="adapterId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteCDVRAdapterResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DeleteCDVRAdapterResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="InsertCDVRAdapter">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="adapter" type="tns:CDVRAdapter" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="CDVRAdapter">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:CDVRAdapterBase">
+            <s:sequence>
+              <s:element minOccurs="1" maxOccurs="1" name="IsActive" type="s:boolean" />
+              <s:element minOccurs="0" maxOccurs="1" name="AdapterUrl" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="ExternalIdentifier" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="SharedSecret" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="Settings" type="tns:ArrayOfCDVRAdapterSettings" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ArrayOfCDVRAdapterSettings">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="CDVRAdapterSettings" nillable="true" type="tns:CDVRAdapterSettings" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="CDVRAdapterSettings">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="key" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="InsertCDVRAdapterResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="InsertCDVRAdapterResult" type="tns:CDVRAdapterResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="CDVRAdapterResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="Adapter" type="tns:CDVRAdapter" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="GetUserPermittedItems">
         <s:complexType>
           <s:sequence>
@@ -2446,23 +2619,6 @@
           <s:element minOccurs="0" maxOccurs="1" name="assetID" type="s:string" />
         </s:sequence>
       </s:complexType>
-      <s:complexType name="LicensedLinkNPVRCommand">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:BaseNPVRCommand">
-            <s:sequence>
-              <s:element minOccurs="1" maxOccurs="1" name="startTime" type="s:dateTime" />
-              <s:element minOccurs="1" maxOccurs="1" name="format" type="s:int" />
-              <s:element minOccurs="1" maxOccurs="1" name="mediaFileID" type="s:int" />
-              <s:element minOccurs="0" maxOccurs="1" name="basicLink" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="userIP" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="referrer" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="countryCd" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="langCd" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="couponCode" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="ProtectNPVRCommand">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseNPVRCommand">
@@ -2492,12 +2648,12 @@
           <s:extension base="tns:BaseNPVRCommand" />
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="RecordNPVRCommand">
+      <s:complexType name="CancelNPVRCommand">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseNPVRCommand" />
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="CancelNPVRCommand">
+      <s:complexType name="DeleteNPVRCommand">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseNPVRCommand" />
         </s:complexContent>
@@ -2507,9 +2663,26 @@
           <s:extension base="tns:BaseNPVRCommand" />
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="DeleteNPVRCommand">
+      <s:complexType name="RecordNPVRCommand">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseNPVRCommand" />
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="LicensedLinkNPVRCommand">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:BaseNPVRCommand">
+            <s:sequence>
+              <s:element minOccurs="1" maxOccurs="1" name="startTime" type="s:dateTime" />
+              <s:element minOccurs="1" maxOccurs="1" name="format" type="s:int" />
+              <s:element minOccurs="1" maxOccurs="1" name="mediaFileID" type="s:int" />
+              <s:element minOccurs="0" maxOccurs="1" name="basicLink" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="userIP" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="referrer" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="countryCd" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="langCd" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="couponCode" type="s:string" />
+            </s:sequence>
+          </s:extension>
         </s:complexContent>
       </s:complexType>
       <s:element name="GetNPVRResponseResponse">
@@ -2534,16 +2707,6 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="QuotaResponse">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:NPVRResponse">
-            <s:sequence>
-              <s:element minOccurs="1" maxOccurs="1" name="totalQuota" type="s:long" />
-              <s:element minOccurs="1" maxOccurs="1" name="occupiedQuota" type="s:long" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="CancelDeleteResponse">
         <s:complexContent mixed="false">
           <s:extension base="tns:NPVRResponse" />
@@ -2554,6 +2717,16 @@
           <s:extension base="tns:NPVRResponse">
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="mainUrl" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="QuotaResponse">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:NPVRResponse">
+            <s:sequence>
+              <s:element minOccurs="1" maxOccurs="1" name="totalQuota" type="s:long" />
+              <s:element minOccurs="1" maxOccurs="1" name="occupiedQuota" type="s:long" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -2714,7 +2887,10 @@
       <s:element name="Status" nillable="true" type="tns:Status" />
       <s:element name="Entitlements" nillable="true" type="tns:Entitlements" />
       <s:element name="boolean" type="s:boolean" />
+      <s:element name="UserBundlesResponse" nillable="true" type="tns:UserBundlesResponse" />
+      <s:element name="UserPurhcasedAssetsResponse" nillable="true" type="tns:UserPurhcasedAssetsResponse" />
       <s:element name="PurchaseSessionIdResponse" nillable="true" type="tns:PurchaseSessionIdResponse" />
+      <s:element name="CDVRAdapterResponseList" nillable="true" type="tns:CDVRAdapterResponseList" />
       <s:element name="ArrayOfPermittedMediaContainer" nillable="true" type="tns:ArrayOfPermittedMediaContainer" />
       <s:element name="PermittedMediaContainerResponse" nillable="true" type="tns:PermittedMediaContainerResponse" />
       <s:element name="UserCAStatus" type="tns:UserCAStatus" />
@@ -3049,6 +3225,18 @@
   <wsdl:message name="ReconcileEntitlementsSoapOut">
     <wsdl:part name="parameters" element="tns:ReconcileEntitlementsResponse" />
   </wsdl:message>
+  <wsdl:message name="GetUserBundlesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetUserBundles" />
+  </wsdl:message>
+  <wsdl:message name="GetUserBundlesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetUserBundlesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserPurchasedAssetsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetUserPurchasedAssets" />
+  </wsdl:message>
+  <wsdl:message name="GetUserPurchasedAssetsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetUserPurchasedAssetsResponse" />
+  </wsdl:message>
   <wsdl:message name="GetPurchaseSessionIDSoapIn">
     <wsdl:part name="parameters" element="tns:GetPurchaseSessionID" />
   </wsdl:message>
@@ -3060,6 +3248,30 @@
   </wsdl:message>
   <wsdl:message name="RecordTransactionSoapOut">
     <wsdl:part name="parameters" element="tns:RecordTransactionResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateRecordedTransactionSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateRecordedTransaction" />
+  </wsdl:message>
+  <wsdl:message name="UpdateRecordedTransactionSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateRecordedTransactionResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetCDVRAdaptersSoapIn">
+    <wsdl:part name="parameters" element="tns:GetCDVRAdapters" />
+  </wsdl:message>
+  <wsdl:message name="GetCDVRAdaptersSoapOut">
+    <wsdl:part name="parameters" element="tns:GetCDVRAdaptersResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteCDVRAdapterSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteCDVRAdapter" />
+  </wsdl:message>
+  <wsdl:message name="DeleteCDVRAdapterSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteCDVRAdapterResponse" />
+  </wsdl:message>
+  <wsdl:message name="InsertCDVRAdapterSoapIn">
+    <wsdl:part name="parameters" element="tns:InsertCDVRAdapter" />
+  </wsdl:message>
+  <wsdl:message name="InsertCDVRAdapterSoapOut">
+    <wsdl:part name="parameters" element="tns:InsertCDVRAdapterResponse" />
   </wsdl:message>
   <wsdl:message name="GetUserPermittedItemsSoapIn">
     <wsdl:part name="parameters" element="tns:GetUserPermittedItems" />
@@ -3634,6 +3846,24 @@
   <wsdl:message name="ReconcileEntitlementsHttpPostOut">
     <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
+  <wsdl:message name="GetUserBundlesHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="domainID" type="s:string" />
+    <wsdl:part name="fileTypeIDs" type="s3:StringArray" />
+  </wsdl:message>
+  <wsdl:message name="GetUserBundlesHttpPostOut">
+    <wsdl:part name="Body" element="tns:UserBundlesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserPurchasedAssetsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="domainID" type="s:string" />
+    <wsdl:part name="fileTypeIDs" type="s3:StringArray" />
+  </wsdl:message>
+  <wsdl:message name="GetUserPurchasedAssetsHttpPostOut">
+    <wsdl:part name="Body" element="tns:UserPurhcasedAssetsResponse" />
+  </wsdl:message>
   <wsdl:message name="GetPurchaseSessionIDHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -3668,8 +3898,37 @@
     <wsdl:part name="paymentDetails" type="s:string" />
     <wsdl:part name="paymentMethod" type="s:string" />
     <wsdl:part name="paymentGatewayId" type="s:string" />
+    <wsdl:part name="paymentMethodExternalID" type="s:string" />
   </wsdl:message>
   <wsdl:message name="RecordTransactionHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="UpdateRecordedTransactionHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="householdId" type="s:string" />
+    <wsdl:part name="paymentGatewayReferenceID" type="s:string" />
+    <wsdl:part name="paymentDetails" type="s:string" />
+    <wsdl:part name="paymentMethod" type="s:string" />
+    <wsdl:part name="paymentGatewayId" type="s:string" />
+    <wsdl:part name="paymentMethodExternalID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="UpdateRecordedTransactionHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="GetCDVRAdaptersHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetCDVRAdaptersHttpPostOut">
+    <wsdl:part name="Body" element="tns:CDVRAdapterResponseList" />
+  </wsdl:message>
+  <wsdl:message name="DeleteCDVRAdapterHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="adapterId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="DeleteCDVRAdapterHttpPostOut">
     <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
   <wsdl:message name="GetUserPermittedItemsHttpPostIn">
@@ -4771,6 +5030,14 @@
       <wsdl:input message="tns:ReconcileEntitlementsSoapIn" />
       <wsdl:output message="tns:ReconcileEntitlementsSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetUserBundles">
+      <wsdl:input message="tns:GetUserBundlesSoapIn" />
+      <wsdl:output message="tns:GetUserBundlesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserPurchasedAssets">
+      <wsdl:input message="tns:GetUserPurchasedAssetsSoapIn" />
+      <wsdl:output message="tns:GetUserPurchasedAssetsSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetPurchaseSessionID">
       <wsdl:input message="tns:GetPurchaseSessionIDSoapIn" />
       <wsdl:output message="tns:GetPurchaseSessionIDSoapOut" />
@@ -4778,6 +5045,22 @@
     <wsdl:operation name="RecordTransaction">
       <wsdl:input message="tns:RecordTransactionSoapIn" />
       <wsdl:output message="tns:RecordTransactionSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateRecordedTransaction">
+      <wsdl:input message="tns:UpdateRecordedTransactionSoapIn" />
+      <wsdl:output message="tns:UpdateRecordedTransactionSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCDVRAdapters">
+      <wsdl:input message="tns:GetCDVRAdaptersSoapIn" />
+      <wsdl:output message="tns:GetCDVRAdaptersSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteCDVRAdapter">
+      <wsdl:input message="tns:DeleteCDVRAdapterSoapIn" />
+      <wsdl:output message="tns:DeleteCDVRAdapterSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="InsertCDVRAdapter">
+      <wsdl:input message="tns:InsertCDVRAdapterSoapIn" />
+      <wsdl:output message="tns:InsertCDVRAdapterSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <wsdl:input message="tns:GetUserPermittedItemsSoapIn" />
@@ -5145,6 +5428,14 @@
       <wsdl:input message="tns:ReconcileEntitlementsHttpPostIn" />
       <wsdl:output message="tns:ReconcileEntitlementsHttpPostOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetUserBundles">
+      <wsdl:input message="tns:GetUserBundlesHttpPostIn" />
+      <wsdl:output message="tns:GetUserBundlesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserPurchasedAssets">
+      <wsdl:input message="tns:GetUserPurchasedAssetsHttpPostIn" />
+      <wsdl:output message="tns:GetUserPurchasedAssetsHttpPostOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetPurchaseSessionID">
       <wsdl:input message="tns:GetPurchaseSessionIDHttpPostIn" />
       <wsdl:output message="tns:GetPurchaseSessionIDHttpPostOut" />
@@ -5152,6 +5443,18 @@
     <wsdl:operation name="RecordTransaction">
       <wsdl:input message="tns:RecordTransactionHttpPostIn" />
       <wsdl:output message="tns:RecordTransactionHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateRecordedTransaction">
+      <wsdl:input message="tns:UpdateRecordedTransactionHttpPostIn" />
+      <wsdl:output message="tns:UpdateRecordedTransactionHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCDVRAdapters">
+      <wsdl:input message="tns:GetCDVRAdaptersHttpPostIn" />
+      <wsdl:output message="tns:GetCDVRAdaptersHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteCDVRAdapter">
+      <wsdl:input message="tns:DeleteCDVRAdapterHttpPostIn" />
+      <wsdl:output message="tns:DeleteCDVRAdapterHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <wsdl:input message="tns:GetUserPermittedItemsHttpPostIn" />
@@ -5530,6 +5833,24 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetUserBundles">
+      <soap:operation soapAction="http://ca.tvinci.com/GetUserBundles" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserPurchasedAssets">
+      <soap:operation soapAction="http://ca.tvinci.com/GetUserPurchasedAssets" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetPurchaseSessionID">
       <soap:operation soapAction="http://ca.tvinci.com/GetPurchaseSessionID" style="document" />
       <wsdl:input>
@@ -5541,6 +5862,42 @@
     </wsdl:operation>
     <wsdl:operation name="RecordTransaction">
       <soap:operation soapAction="http://ca.tvinci.com/RecordTransaction" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateRecordedTransaction">
+      <soap:operation soapAction="http://ca.tvinci.com/UpdateRecordedTransaction" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCDVRAdapters">
+      <soap:operation soapAction="http://ca.tvinci.com/GetCDVRAdapters" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteCDVRAdapter">
+      <soap:operation soapAction="http://ca.tvinci.com/DeleteCDVRAdapter" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InsertCDVRAdapter">
+      <soap:operation soapAction="http://ca.tvinci.com/InsertCDVRAdapter" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -6379,6 +6736,24 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetUserBundles">
+      <soap12:operation soapAction="http://ca.tvinci.com/GetUserBundles" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserPurchasedAssets">
+      <soap12:operation soapAction="http://ca.tvinci.com/GetUserPurchasedAssets" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetPurchaseSessionID">
       <soap12:operation soapAction="http://ca.tvinci.com/GetPurchaseSessionID" style="document" />
       <wsdl:input>
@@ -6390,6 +6765,42 @@
     </wsdl:operation>
     <wsdl:operation name="RecordTransaction">
       <soap12:operation soapAction="http://ca.tvinci.com/RecordTransaction" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateRecordedTransaction">
+      <soap12:operation soapAction="http://ca.tvinci.com/UpdateRecordedTransaction" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCDVRAdapters">
+      <soap12:operation soapAction="http://ca.tvinci.com/GetCDVRAdapters" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteCDVRAdapter">
+      <soap12:operation soapAction="http://ca.tvinci.com/DeleteCDVRAdapter" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InsertCDVRAdapter">
+      <soap12:operation soapAction="http://ca.tvinci.com/InsertCDVRAdapter" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -7219,6 +7630,24 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetUserBundles">
+      <http:operation location="/GetUserBundles" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserPurchasedAssets">
+      <http:operation location="/GetUserPurchasedAssets" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetPurchaseSessionID">
       <http:operation location="/GetPurchaseSessionID" />
       <wsdl:input>
@@ -7230,6 +7659,33 @@
     </wsdl:operation>
     <wsdl:operation name="RecordTransaction">
       <http:operation location="/RecordTransaction" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateRecordedTransaction">
+      <http:operation location="/UpdateRecordedTransaction" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCDVRAdapters">
+      <http:operation location="/GetCDVRAdapters" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteCDVRAdapter">
+      <http:operation location="/DeleteCDVRAdapter" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>

@@ -856,5 +856,179 @@ namespace WebAPI.Clients
 
             return response.PurchaseCustomDataId;
         }
+
+        internal List<KalturaCDVRAdapterProfile> GetCDVRAdapters(int groupId)
+        {
+            List<KalturaCDVRAdapterProfile> adapters = new List<KalturaCDVRAdapterProfile>();
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            CDVRAdapterResponseList response = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = ConditionalAccess.GetCDVRAdapters(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling conditional access service. ws address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            adapters = AutoMapper.Mapper.Map<List<KalturaCDVRAdapterProfile>>(response.Adapters);
+
+            return adapters;
+        }
+
+        internal bool DeleteCDVRAdapter(int groupId, int adapterId)
+        {
+            Group group = GroupsManager.GetGroup(groupId);
+
+            Status response = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = ConditionalAccess.DeleteCDVRAdapter(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, adapterId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling conditional access service. ws address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        internal KalturaCDVRAdapterProfile InsertCDVRAdapter(int groupId, KalturaCDVRAdapterProfile cdvrAdapter)
+        {
+            KalturaCDVRAdapterProfile adapter = new KalturaCDVRAdapterProfile();
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            CDVRAdapterResponse response = null;
+
+            CDVRAdapter wsAdapter = AutoMapper.Mapper.Map<CDVRAdapter>(cdvrAdapter);
+            
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = ConditionalAccess.InsertCDVRAdapter(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, wsAdapter);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling conditional access service. ws address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            adapter = AutoMapper.Mapper.Map<KalturaCDVRAdapterProfile>(response.Adapter);
+
+            return adapter;
+        }
+
+        internal KalturaCDVRAdapterProfile SetCDVRAdapter(int groupId, KalturaCDVRAdapterProfile oss_adapter)
+        {
+            KalturaCDVRAdapterProfile adapter = new KalturaCDVRAdapterProfile();
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            CDVRAdapterResponse response = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    //response = Api.GetAllRegistry(group.ApiCredentials.Username, group.ApiCredentials.Password);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling conditional access service. ws address: {0}, exception: {1}", ConditionalAccess.Url, ex);                
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            adapter = AutoMapper.Mapper.Map<KalturaCDVRAdapterProfile>(response.Adapter);
+
+            return adapter;
+        }
+
+        internal KalturaCDVRAdapterProfile GenerateCDVRSharedSecret(int groupId, int adapterId)
+        {
+            KalturaCDVRAdapterProfile adapter = new KalturaCDVRAdapterProfile();
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            CDVRAdapterResponse response = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    //response = Api.GetAllRegistry(group.ApiCredentials.Username, group.ApiCredentials.Password);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling conditional access service. ws address: {0}, exception: {1}", ConditionalAccess.Url, ex);       
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            adapter = AutoMapper.Mapper.Map<KalturaCDVRAdapterProfile>(response.Adapter);
+
+            return adapter;
+        }
     }
 }

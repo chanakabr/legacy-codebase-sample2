@@ -190,6 +190,22 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
+            Mapper.CreateMap<KalturaCDVRAdapterProfile, WebAPI.ConditionalAccess.CDVRAdapter>()
+               .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+               .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
+               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+               .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertCDVRAdapterSettings(src.Settings)))
+               .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
+
+            Mapper.CreateMap<WebAPI.ConditionalAccess.CDVRAdapter, KalturaCDVRAdapterProfile>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+              .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
+              .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+              .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertCDVRAdapterSettings(src.Settings)))
+              .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
+
         }
 
         // TransactionType to eTransactionType
@@ -209,6 +225,53 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown transaction type");
+            }
+            return result;
+        }
+
+        internal static WebAPI.ConditionalAccess.CDVRAdapterSettings[] ConvertCDVRAdapterSettings(SerializableDictionary<string, KalturaStringValue> settings)
+        {
+            List<WebAPI.ConditionalAccess.CDVRAdapterSettings> result = null;
+
+            if (settings != null && settings.Count > 0)
+            {
+                result = new List<WebAPI.ConditionalAccess.CDVRAdapterSettings>();
+                WebAPI.ConditionalAccess.CDVRAdapterSettings pc;
+                foreach (KeyValuePair<string, KalturaStringValue> data in settings)
+                {
+                    if (!string.IsNullOrEmpty(data.Key))
+                    {
+                        pc = new WebAPI.ConditionalAccess.CDVRAdapterSettings();
+                        pc.key = data.Key;
+                        pc.value = data.Value.value;
+                        result.Add(pc);
+                    }
+                }
+            }
+            if (result != null && result.Count > 0)
+            {
+                return result.ToArray();
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public static Dictionary<string, KalturaStringValue> ConvertCDVRAdapterSettings(WebAPI.ConditionalAccess.CDVRAdapterSettings[] settings)
+        {
+            Dictionary<string, KalturaStringValue> result = null;
+
+            if (settings != null && settings.Count() > 0)
+            {
+                result = new Dictionary<string, KalturaStringValue>();
+                foreach (var data in settings)
+                {
+                    if (!string.IsNullOrEmpty(data.key))
+                    {
+                        result.Add(data.key, new KalturaStringValue() { value = data.value });
+                    }
+                }
             }
             return result;
         }
