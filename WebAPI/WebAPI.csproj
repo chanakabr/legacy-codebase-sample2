@@ -965,6 +965,7 @@
     <Compile Include="Controllers\AnnouncementController.cs" />
     <Compile Include="Controllers\AppTokenController.cs" />
     <Compile Include="Controllers\AssetController.cs" />
+    <Compile Include="Controllers\LicensedUrlController.cs" />
     <Compile Include="Controllers\HomeNetworkController.cs" />
     <Compile Include="Controllers\NotificationController.cs" />
     <Compile Include="Controllers\NotificationsPartnerSettingsController.cs" />
@@ -1070,6 +1071,8 @@
     <Compile Include="Models\Catalog\PersonalEnrichments\KalturaPersonalAssetRequest.cs" />
     <Compile Include="Models\Catalog\PersonalEnrichments\KalturaPersonalAssetWith.cs" />
     <Compile Include="Models\Catalog\KalturaAssetsBookmarksResponse.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaStreamType.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaLicensedUrl.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingAction.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingItemsType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingResponse.cs" />
