@@ -17,7 +17,7 @@ namespace WebAPI.Controllers
     public class LicensedUrlController : ApiController
     {
         /// <summary>
-        /// 
+        /// Get the URL for playing an asset - EPG or media (not available for recording for now).
         /// </summary>
         /// <param name="asset_id">Asset identifier - relevant only for asset_type = 'epg'</param>
         /// <param name="asset_type">Asset type</param>
