@@ -15,8 +15,6 @@ namespace CouchBaseExtensions
 
         public CustomSerializer()
         {
-            DefaultSerializator = new DefaultSerializer(new JsonSerializerSettings() { ContractResolver = new DefaultContractResolver() },
-                                                        new JsonSerializerSettings() { ContractResolver = new DefaultContractResolver() });            
         }
 
         public CustomSerializer(JsonSerializerSettings deserializationSettings, JsonSerializerSettings serializerSettings)

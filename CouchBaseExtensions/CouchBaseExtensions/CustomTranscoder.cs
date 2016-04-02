@@ -19,6 +19,11 @@ namespace CouchBaseExtensions
             DefualtTranscoder = new DefaultTranscoder();
         }
 
+        public CustomTranscoder(ITypeSerializer serializer)
+        {
+            DefualtTranscoder = new DefaultTranscoder() { Serializer = serializer };
+        }
+
         public CustomTranscoder(IByteConverter converter)
         {
             DefualtTranscoder = new DefaultTranscoder(converter);
@@ -28,8 +33,6 @@ namespace CouchBaseExtensions
         {
             DefualtTranscoder = new DefaultTranscoder(converter, serializer);
         }
-
-
 
         public IByteConverter Converter
         {
