@@ -20,6 +20,7 @@ using GroupsCacheManager;
 using ApiObjects;
 using Catalog.Request;
 using KLogMonitor;
+using KlogMonitorHelper;
 
 namespace Catalog
 {
@@ -325,9 +326,10 @@ namespace Catalog
 
                     try
                     {
+                        ContextData contextData = new ContextData();
                         Parallel.ForEach<int>(lMediaIDs, mediaID =>
                         {
-
+                            contextData.Load();
                             SearchResult res = new SearchResult()
                             {
                                 assetID = mediaID,

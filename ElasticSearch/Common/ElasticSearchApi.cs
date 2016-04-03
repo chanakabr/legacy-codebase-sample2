@@ -756,8 +756,8 @@ namespace ElasticSearch.Common
             string res = string.Empty;
             try
             {
-                //using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_ELASTIC, null, null, null, null) { Database = sUrl })
-                //{
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_ELASTIC, null, null, null, null) { Database = sUrl })
+                {
                 HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse();
                 HttpStatusCode sCode = webResponse.StatusCode;
                 nStatusCode = GetResponseCode(sCode);
@@ -772,7 +772,7 @@ namespace ElasticSearch.Common
                     if (sr != null)
                         sr.Close();
                 }
-                //}
+                }
             }
             catch (WebException ex)
             {
