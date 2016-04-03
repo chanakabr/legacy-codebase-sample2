@@ -19,6 +19,7 @@ using ApiObjects;
 using Catalog.Response;
 using KLogMonitor;
 using ApiObjects.PlayCycle;
+using KlogMonitorHelper;
 
 namespace Catalog.Request
 {
@@ -180,6 +181,7 @@ namespace Catalog.Request
             string playCycleKey = string.Empty;
             MediaPlayActions action;
             List<Task> tasks = new List<Task>();
+            ContextData contextData = new ContextData();
 
             if (m_oMediaPlayRequestData.m_nLoc > 0)
                 nPlayTime = m_oMediaPlayRequestData.m_nLoc;
@@ -212,11 +214,11 @@ namespace Catalog.Request
                 {
                     playCycleKey = CatalogDAL.GetOrInsert_PlayCycleKey(m_oMediaPlayRequestData.m_sSiteGuid, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID, 0, m_nGroupID, true);
                 }
-
+                
                 tasks.Add(Task.Factory.StartNew(() => Catalog.WriteMediaEohStatistics(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID,
                                                                             nMediaDuration, nCountryID, nPlayerID, nFirstPlay, nPlay, nLoad, nPause, nStop, nFinish, nFull, nExitFull, nSendToFriend,
                                                                             m_oMediaPlayRequestData.m_nLoc, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid,
-                                                                            m_oMediaPlayRequestData.m_sUDID, playCycleKey, nSwhoosh)));
+                                                                            m_oMediaPlayRequestData.m_sUDID, playCycleKey, nSwhoosh, contextData)));
 
                 if (!resultParse || action != MediaPlayActions.BITRATE_CHANGE)
                     Catalog.UpdateFollowMe(m_nGroupID, m_oMediaPlayRequestData.m_sAssetID, m_oMediaPlayRequestData.m_sSiteGuid, nPlayTime, m_oMediaPlayRequestData.m_sUDID, fileDuration, action.ToString(), nMediaTypeID, domainId);
@@ -234,7 +236,7 @@ namespace Catalog.Request
             //if this is not a bit rate change, log for mediahit for statistics
             if (!resultParse || action != MediaPlayActions.BITRATE_CHANGE)
             {
-                tasks.Add(Task.Factory.StartNew(() => WriteLiveViews(mediaHitRequest.m_nGroupID, mediaId, nMediaTypeID, nPlayTime)));
+                tasks.Add(Task.Factory.StartNew(() => WriteLiveViews(mediaHitRequest.m_nGroupID, mediaId, nMediaTypeID, nPlayTime, contextData)));
             }
 
             oMediaHitResponse.m_sStatus = Catalog.GetMediaPlayResponse(MediaPlayResponse.HIT);
@@ -246,10 +248,11 @@ namespace Catalog.Request
             return oMediaHitResponse;
         }
 
-        private void WriteLiveViews(int groupID, int mediaID, int mediaTypeID, int playTime)
+        private void WriteLiveViews(int groupID, int mediaID, int mediaTypeID, int playTime, ContextData context)
         {
             try
             {
+                context.Load();
                 if (!Catalog.InsertStatisticsRequestToES(groupID, mediaID, mediaTypeID, Catalog.STAT_ACTION_MEDIA_HIT, playTime))
                     log.Error("Error - " + String.Concat("Failed to write mediahit into stats index. M ID: ", mediaID, " MT ID: ", mediaTypeID));
             }

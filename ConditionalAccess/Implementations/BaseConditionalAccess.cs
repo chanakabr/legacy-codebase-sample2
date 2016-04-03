@@ -12308,7 +12308,7 @@ namespace ConditionalAccess
                                             licensedLinkParams[CDNTokenizers.Constants.URL] = fileAltUrl;
                                             res.altUrl = GetLicensedLink(fileAltStreamingCoID, licensedLinkParams);
                                             res.status = mediaConcurrencyResponse.ToString();
-                                            res.Status.Code = ConcurrencyResponseToResponseStatus(mediaConcurrencyResponse);
+                                            res.Status = ConcurrencyResponseToResponseStatus(mediaConcurrencyResponse);
 
                                             // create PlayCycle
                                             CreatePlayCycle(sSiteGuid, nMediaFileID, sUserIP, sDeviceName, nMediaID, lRuleIDS, domainID);
@@ -12318,7 +12318,7 @@ namespace ConditionalAccess
                                             res.altUrl = GetErrorLicensedLink(sBasicLink);
                                             res.mainUrl = GetErrorLicensedLink(sBasicLink);
                                             res.status = mediaConcurrencyResponse.ToString();
-                                            res.Status.Code = ConcurrencyResponseToResponseStatus(mediaConcurrencyResponse);
+                                            res.Status = ConcurrencyResponseToResponseStatus(mediaConcurrencyResponse);
 
                                             log.Debug("GetLicensedLinks - " + string.Format("{0}, user:{1}, MFID:{2}",
                                                 mediaConcurrencyResponse.ToString(), sSiteGuid, nMediaFileID));
@@ -12330,6 +12330,7 @@ namespace ConditionalAccess
                                         res.mainUrl = GetErrorLicensedLink(sBasicLink);
                                         res.status = eLicensedLinkStatus.InvalidBaseLink.ToString();
                                         res.Status.Code = (int)eResponseStatus.InvalidBaseLink;
+                                        res.Status.Message = "Invalid base link";
 
                                         log.Debug("GetLicensedLinks - " + string.Format("Error ValidateBaseLink, user:{0}, MFID:{1}, link:{2}",
                                             sSiteGuid, nMediaFileID, sBasicLink));
@@ -12340,7 +12341,9 @@ namespace ConditionalAccess
                                     res.altUrl = GetErrorLicensedLink(sBasicLink);
                                     res.mainUrl = GetErrorLicensedLink(sBasicLink);
                                     res.status = eLicensedLinkStatus.InvalidPrice.ToString();
-                                    res.Status.Code = (int)eResponseStatus.Error;
+                                    res.Status.Code = (int)eResponseStatus.NotEntitled;
+                                    res.Status.Message = "Not entitled";
+
 
                                     log.Debug("GetLicensedLinks - " + string.Format("Price not valid, user:{0}, MFID:{1}, priceReason:{2}, price:{3}", sSiteGuid,
                                         nMediaFileID, prices[0].m_oItemPrices[0].m_PriceReason.ToString(), prices[0].m_oItemPrices[0].m_oPrice.m_dPrice));
@@ -12352,6 +12355,7 @@ namespace ConditionalAccess
                                 res.mainUrl = GetErrorLicensedLink(sBasicLink);
                                 res.status = eLicensedLinkStatus.InvalidFileData.ToString();
                                 res.Status.Code = (int)eResponseStatus.Error;
+                                res.Status.Message = eResponseStatus.Error.ToString();
 
                                 log.Debug("GetLicensedLinks - " + string.Format("Failed to retrieve data from Catalog, user:{0}, MFID:{1}, link:{2}",
                                     sSiteGuid, nMediaFileID, sBasicLink));
@@ -12362,6 +12366,8 @@ namespace ConditionalAccess
                             //returns empty url
                             res.status = eLicensedLinkStatus.UserSuspended.ToString();
                             res.Status.Code = (int)eResponseStatus.UserSuspended;
+                            res.Status.Message = "User suspended";
+
 
                             log.Debug("GetLicensedLinks - " + string.Format("User is suspended. user:{0}, MFID:{1}", sSiteGuid, nMediaFileID));
                         }
@@ -12371,7 +12377,9 @@ namespace ConditionalAccess
                         res.altUrl = GetErrorLicensedLink(sBasicLink);
                         res.mainUrl = GetErrorLicensedLink(sBasicLink);
                         res.status = eLicensedLinkStatus.InvalidPrice.ToString();
-                        res.Status.Code = (int)eResponseStatus.Error;
+                        res.Status.Code = (int)eResponseStatus.NotEntitled;
+                        res.Status.Message = "Not entitled";
+
 
                         log.Debug("GetLicensedLinks - " + string.Format("Price is null. user:{0}, MFID:{1}", sSiteGuid, nMediaFileID));
                     }
@@ -12382,6 +12390,8 @@ namespace ConditionalAccess
                     res.mainUrl = GetErrorLicensedLink(sBasicLink);
                     res.status = eLicensedLinkStatus.InvalidInput.ToString();
                     res.Status.Code = (int)eResponseStatus.Error;
+                    res.Status.Message = eResponseStatus.Error.ToString();
+
 
                     log.Debug("GetLicensedLinks - " + string.Format("input is invalid. user:{0}, MFID:{1}, device:{2}, link:{3}",
                         sSiteGuid, nMediaFileID, sDeviceName, sBasicLink));
@@ -12393,6 +12403,7 @@ namespace ConditionalAccess
                 res.mainUrl = GetErrorLicensedLink(sBasicLink);
                 res.status = eLicensedLinkStatus.Error.ToString();
                 res.Status.Code = (int)eResponseStatus.Error;
+                res.Status.Message = eResponseStatus.Error.ToString();
 
                 #region Logging
                 StringBuilder sb = new StringBuilder("Exception at GetLicensedLinks. ");
@@ -12416,48 +12427,48 @@ namespace ConditionalAccess
             return res;
         }
 
-        private int ConcurrencyResponseToResponseStatus(TvinciDomains.DomainResponseStatus mediaConcurrencyResponse)
+        private ApiObjects.Response.Status ConcurrencyResponseToResponseStatus(TvinciDomains.DomainResponseStatus mediaConcurrencyResponse)
         {
-            eResponseStatus res;
+            ApiObjects.Response.Status res;
 
             switch (mediaConcurrencyResponse)
             {
                 case ConditionalAccess.TvinciDomains.DomainResponseStatus.LimitationPeriod:
-                    res = eResponseStatus.LimitationPeriod;
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.LimitationPeriod, "Limitation period");
                     break;
                 case ConditionalAccess.TvinciDomains.DomainResponseStatus.Error:
-                    res = eResponseStatus.Error;
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     break;
                 case ConditionalAccess.TvinciDomains.DomainResponseStatus.ExceededLimit:
-                    res = eResponseStatus.ExceededLimit;
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.ExceededLimit, "Exceeded limit");
                     break;
                 case ConditionalAccess.TvinciDomains.DomainResponseStatus.DeviceTypeNotAllowed:
-                    res = eResponseStatus.DeviceTypeNotAllowed;
+                   res = new ApiObjects.Response.Status((int)eResponseStatus.DeviceTypeNotAllowed, "Device type not allowed");
                     break;
                 case ConditionalAccess.TvinciDomains.DomainResponseStatus.DeviceNotInDomain:
-                    res = eResponseStatus.DeviceNotInDomain;
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.DeviceNotInDomain, "Device not in household"); 
                     break;
                 case ConditionalAccess.TvinciDomains.DomainResponseStatus.DeviceAlreadyExists:
-                    res = eResponseStatus.DeviceAlreadyExists;
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.DeviceAlreadyExists, "Device already exists");
                     break;
                 case ConditionalAccess.TvinciDomains.DomainResponseStatus.OK:
-                    res = eResponseStatus.OK;
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     break;
                 case ConditionalAccess.TvinciDomains.DomainResponseStatus.DeviceExistsInOtherDomains:
-                    res = eResponseStatus.DeviceExistsInOtherDomains;
+                    res = new ApiObjects.Response.Status((int) eResponseStatus.DeviceExistsInOtherDomains, "Device exists in other household");
                     break;
                 case ConditionalAccess.TvinciDomains.DomainResponseStatus.ConcurrencyLimitation:
-                    res = eResponseStatus.ConcurrencyLimitation;
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.ConcurrencyLimitation, "Concurrency limitation");
                     break;
                 case ConditionalAccess.TvinciDomains.DomainResponseStatus.MediaConcurrencyLimitation:
-                    res = eResponseStatus.MediaConcurrencyLimitation;
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.MediaConcurrencyLimitation, "Media concurrency limitation");
                     break;
                 default:
-                    res = eResponseStatus.Error;
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     break;
             }
 
-            return (int)res;
+            return res;
         }
 
         /*******************************************************************************************
@@ -16079,8 +16090,8 @@ namespace ConditionalAccess
             // Validate the fileTypeIDs
             if (!Utils.ValidateFileTypesConatainedInGroup(m_nGroupID, fileTypeIDs))
             {
-                response.status.Code = (int)eResponseStatus.InvalidFileType;
-                response.status.Message = eResponseStatus.InvalidFileType.ToString();
+                response.status.Code = (int)eResponseStatus.NotEntitled;
+                response.status.Message = eResponseStatus.NotEntitled.ToString();
                 return response;
             }
 
@@ -16162,8 +16173,8 @@ namespace ConditionalAccess
             // Validate the fileTypeIDs
             if (!Utils.ValidateFileTypesConatainedInGroup(m_nGroupID, fileTypeIDs))
             {
-                response.status.Code = (int)eResponseStatus.InvalidFileType;
-                response.status.Message = eResponseStatus.InvalidFileType.ToString();
+                response.status.Code = (int)eResponseStatus.NotEntitled;
+                response.status.Message = eResponseStatus.NotEntitled.ToString();
                 return response;
             }
 
