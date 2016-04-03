@@ -7,8 +7,8 @@ using System.Runtime.Serialization;
 namespace Catalog.Response
 {
     [DataContract]
-    public class MediaResponse : BaseResponse 
-    {   
+    public class MediaResponse : BaseResponse
+    {
         public MediaResponse()
         {
         }
@@ -16,9 +16,9 @@ namespace Catalog.Response
 
     [DataContract]
     public class MediaObj : BaseObject
-    {       
+    {
         [DataMember]
-        public string m_sName;   
+        public string m_sName;
         [DataMember]
         public string m_sDescription;
         [DataMember]
@@ -63,15 +63,18 @@ namespace Catalog.Response
         public string CoGuid;
         [DataMember]
         public bool IsActive;
-        
-        public MediaObj() : base()
+        [DataMember]
+        public LinearSettings linearSettings;
+
+        public MediaObj()
+            : base()
         {
         }
     }
 
-  
+
     public class RatingMedia
-    {   
+    {
         public Int32 m_nRatingSum;
         public Int32 m_nRatingCount;
         public double m_nRatingAvg;
@@ -83,11 +86,11 @@ namespace Catalog.Response
         public Int32 m_nVote3Count;
         public Int32 m_nVote4Count;
         public Int32 m_nVote5Count;
-       
+
         public RatingMedia()
         {
-            m_nRatingSum = 0;            
-            m_nRatingCount = 0;  
+            m_nRatingSum = 0;
+            m_nRatingCount = 0;
             m_nRatingAvg = 0.0;
             m_nViwes = 0;
             m_nVotesLoCnt = 0;
@@ -97,7 +100,7 @@ namespace Catalog.Response
             m_nVote3Count = 0;
             m_nVote4Count = 0;
             m_nVote5Count = 0;
-       
+
         }
 
         public RatingMedia(Int32 nRatingSum, Int32 nRatingCount, double nRatingAvg, Int32 nViwes, Int32 nVotesLoCnt, Int32 nVotesUpCnt, Int32 nVote1Count,
@@ -117,6 +120,42 @@ namespace Catalog.Response
         }
     }
 
+    [DataContract]
+    public class LinearSettings
+    {
+        [DataMember]
+        public bool EnableCDVR;
+        [DataMember]
+        public bool EnableCatchUp;
+        [DataMember]
+        public bool EnableStartOver;
+        [DataMember]
+        public bool EnableTrickPlay;
+        [DataMember]
+        public long CdvrBuffer;
+        [DataMember]
+        public long TrickPlayBuffer;
+
+        public LinearSettings()
+        {
+            EnableCDVR = false;
+            EnableCatchUp = false;
+            EnableStartOver = false;
+            EnableTrickPlay = false;
+            CdvrBuffer = 0;
+            TrickPlayBuffer = 0;
+        }
+
+        public LinearSettings(bool enableCDVR, bool enableCatchUp, bool enableStartOver, bool enableTrickPlay, long cdvrBuffer, long trickPlayBuffer)
+        {
+            this.EnableCDVR = enableCDVR;
+            this.EnableCatchUp = enableCatchUp;
+            this.EnableStartOver = enableStartOver;
+            this.EnableTrickPlay = enableTrickPlay;
+            this.CdvrBuffer = cdvrBuffer;
+            this.TrickPlayBuffer = trickPlayBuffer;
+        }
+    }
 
 }
 

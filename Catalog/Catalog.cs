@@ -324,7 +324,8 @@ namespace Catalog
                 if (ds.Tables.Count >= 6)
                 {
                     int assetGroupId = 0;
-                    bool isMedia = GetMediaBasicDetails(ref oMediaObj, ds.Tables[0], ds.Tables[5], bIsMainLang, ref assetGroupId);
+                    int isLinear = 0;
+                    bool isMedia = GetMediaBasicDetails(ref oMediaObj, ds.Tables[0], ds.Tables[5], bIsMainLang, ref assetGroupId, ref isLinear);
 
                     // only if we found basic details for media - media in status = 1 , and active if necessary. If not - return null.
                     if (!isMedia)
@@ -355,6 +356,17 @@ namespace Catalog
                             return null;
                         }
 
+                        if (isLinear != 0 && !string.IsNullOrEmpty(oMediaObj.m_ExternalIDs))
+                        {
+                            // get linear Channel settings 
+                            DataRow dr = CatalogDAL.GetLinearChannleSettings(groupId, oMediaObj.m_ExternalIDs);
+                            if (dr != null)
+                            {
+                                oMediaObj.linearSettings = GetLinearSettings(dr);
+                            }
+                        }
+
+
                         /*last watched - By SiteGuid <> 0*/
 
                         if (!string.IsNullOrEmpty(siteGuid) && siteGuid != "0")
@@ -384,6 +396,35 @@ namespace Catalog
             {
                 log.Error(ex.Message, ex);
                 result = false;
+                return null;
+            }
+        }
+
+        private static LinearSettings GetLinearSettings(DataRow dr)
+        {
+            try
+            {
+                LinearSettings linearSettings = new LinearSettings();
+                int epgLinearSettingsValue = ODBCWrapper.Utils.GetIntSafeVal(dr, "ENABLE_CDVR");
+                linearSettings.EnableCDVR = epgLinearSettingsValue == 1 ? true : false;
+
+                epgLinearSettingsValue = ODBCWrapper.Utils.GetIntSafeVal(dr, "ENABLE_CATCH_UP");
+                linearSettings.EnableCatchUp = epgLinearSettingsValue ==  1 ? true : false;
+
+                 epgLinearSettingsValue = ODBCWrapper.Utils.GetIntSafeVal(dr, "ENABLE_START_OVER");
+                 linearSettings.EnableStartOver = epgLinearSettingsValue == 1 ? true : false;
+
+                epgLinearSettingsValue = ODBCWrapper.Utils.GetIntSafeVal(dr, "ENABLE_TRICK_PLAY");
+                linearSettings.EnableTrickPlay = epgLinearSettingsValue == 1 ? true : false; 
+
+                linearSettings.CdvrBuffer = ODBCWrapper.Utils.GetIntSafeVal(dr,"CATCH_UP_BUFFER");
+                linearSettings.TrickPlayBuffer = ODBCWrapper.Utils.GetIntSafeVal(dr,"TRICK_PLAY_BUFFER");
+
+                return linearSettings;
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex.Message, ex);
                 return null;
             }
         }
@@ -702,7 +743,7 @@ namespace Catalog
         }
 
         /*Insert all Basic Details about media  that return from the "CompleteDetailsForMediaResponse" into MediaObj*/
-        private static bool GetMediaBasicDetails(ref MediaObj oMediaObj, DataTable dtMedia, DataTable dtUpdateDate, bool bIsMainLang, ref int assetGroupId)
+        private static bool GetMediaBasicDetails(ref MediaObj oMediaObj, DataTable dtMedia, DataTable dtUpdateDate, bool bIsMainLang, ref int assetGroupId, ref int isLinear)
         {
             bool result = false;
             try
@@ -736,6 +777,7 @@ namespace Catalog
                         {
                             oMediaObj.m_ExternalIDs = sEpgIdentifier;
                         }
+                        isLinear = Utils.GetIntSafeVal(dtMedia.Rows[0], "IS_LINEAR");
                         //Rating
                         oMediaObj.m_oRatingMedia = new RatingMedia();
                         oMediaObj.m_oRatingMedia.m_nViwes = Utils.GetIntSafeVal(dtMedia.Rows[0], "Viwes");
