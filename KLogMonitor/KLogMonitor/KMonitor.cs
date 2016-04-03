@@ -120,7 +120,7 @@ namespace KLogMonitor
             }
             catch (Exception logException)
             {
-                logger.Error("Kmonitor Error in constructor", logException);
+                logger.ErrorFormat("Kmonitor Error in constructor on action: {0}", eventName.ToString(), logException);
             }
         }
 
@@ -290,7 +290,15 @@ namespace KLogMonitor
 
         public void Dispose()
         {
-            Dispose(true);
+
+            try
+            {
+                Dispose(true);
+            }
+            catch (Exception logException)
+            {
+                logger.ErrorFormat("Kmonitor Error in destructor on action: {0}", this.Event != null ? this.Event : string.Empty, logException);
+            }
             GC.SuppressFinalize(this);
         }
     }
