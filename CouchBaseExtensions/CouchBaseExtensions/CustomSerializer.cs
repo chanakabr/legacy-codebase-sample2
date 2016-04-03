@@ -3,7 +3,10 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Web;
 
 namespace CouchBaseExtensions
@@ -29,11 +32,61 @@ namespace CouchBaseExtensions
 
         public T Deserialize<T>(byte[] buffer, int offset, int length)
         {
+            try
+            {            
+                if (typeof(T).ToString() != "GroupsCacheManager.Group")
+                {
+                    T value = default(T);
+                    using (MemoryStream stream = new MemoryStream(buffer))
+                    {
+                        IFormatter formatter = new BinaryFormatter();
+                        stream.Seek(offset, SeekOrigin.Begin);            
+                        value = (T)formatter.Deserialize(stream);
+                    }
+                    return value;
+                }
+            }
+
+            catch (Exception ex)
+            {
+                if (ex != null && ex.InnerException != null)
+                {
+                    ex = ex.InnerException;
+                }
+
+                throw new Exception("Error in Deserialize for CustomSerializer, Exception: {0}", ex);
+            }
+
             return DefaultSerializator.Deserialize<T>(buffer, offset, length);
         }
 
         public byte[] Serialize(object obj)
         {
+            try
+            {
+                if (obj.GetType().ToString() != "GroupsCacheManager.Group")
+                {
+                    BinaryFormatter formatter = new BinaryFormatter();
+                    byte[] objBytes = null;
+                    using (MemoryStream stream = new MemoryStream())
+                    {
+                        formatter.Serialize(stream, obj);
+                        objBytes = stream.ToArray();
+                    }
+                    return objBytes;
+                }
+            }
+
+            catch (Exception ex)
+            {
+                if (ex != null && ex.InnerException != null)
+                {
+                    ex = ex.InnerException;
+                }
+
+                throw new Exception("Error in Serialize for CustomSerializer, Exception: {0}", ex);
+            }
+
             return DefaultSerializator.Serialize(obj);
         }
     }
