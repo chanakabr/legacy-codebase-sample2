@@ -56,6 +56,8 @@ namespace KlogMonitorHelper
 
                         // set log configuration files
                         KLogger.Configure(log4netConfigFile, KLogEnums.AppType.WCF);
+                        KMonitor.Configure(log4netConfigFile, KLogEnums.AppType.WCF);
+
 
                         if (this.wcfContext != null)
                             OperationContext.Current = this.wcfContext;
@@ -66,6 +68,7 @@ namespace KlogMonitorHelper
 
                         // set log configuration files
                         KLogger.Configure(log4netConfigFile, KLogEnums.AppType.WS);
+                        KMonitor.Configure(log4netConfigFile, KLogEnums.AppType.WS);
 
                         if (this.wsContext != null)
                             HttpContext.Current = this.wsContext;
