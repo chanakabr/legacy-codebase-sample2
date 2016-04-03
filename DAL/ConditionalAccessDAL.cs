@@ -2178,5 +2178,86 @@ namespace DAL
             sp.AddIDListParameter("@subscription_purchase_ids", subscriptionIds, "ID");
             return sp.ExecuteReturnValue<int>() > 0;
         }
+
+        private static CDVRAdapter CreateCDVRAdapter(DataSet ds)
+        {
+            CDVRAdapter adapterResponse = null;
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            {
+                adapterResponse = new CDVRAdapter();
+                adapterResponse.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "adapter_url");
+                adapterResponse.ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "external_identifier");
+                adapterResponse.ID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
+                int is_Active = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active");
+                adapterResponse.IsActive = is_Active == 1 ? true : false;
+                adapterResponse.Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "name");
+                adapterResponse.SharedSecret = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "shared_secret");
+
+                if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
+                {
+                    foreach (DataRow dr in ds.Tables[1].Rows)
+                    {
+                        string key = ODBCWrapper.Utils.GetSafeStr(dr, "key");
+                        string value = ODBCWrapper.Utils.GetSafeStr(dr, "value");
+                        if (adapterResponse.Settings == null)
+                        {
+                            adapterResponse.Settings = new List<CDVRAdapterSettings>();
+                        }
+                        adapterResponse.Settings.Add(new CDVRAdapterSettings(key, value));
+                    }
+                }
+            }
+
+            return adapterResponse;
+        }
+
+        private static DataTable CreateDataTable(List<CDVRAdapterSettings> list)
+        {
+            DataTable resultTable = new DataTable("resultTable"); ;
+            resultTable.Columns.Add("idkey", typeof(string));
+            resultTable.Columns.Add("value", typeof(string));
+
+            foreach (CDVRAdapterSettings item in list)
+            {
+                DataRow row = resultTable.NewRow();
+                row["idkey"] = item.key;
+                row["value"] = item.value;
+                resultTable.Rows.Add(row);
+            }
+
+            return resultTable;
+        }
+
+        public static CDVRAdapter InsertCDVRAdapter(int groupID, CDVRAdapter adapter)
+        {
+            CDVRAdapter adapterResponse = null;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_OSSAdapter");
+                sp.SetConnectionKey("CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@name", adapter.Name);
+                sp.AddParameter("@adapter_url", adapter.AdapterUrl);
+                sp.AddParameter("@external_identifier", adapter.ExternalIdentifier);
+                sp.AddParameter("@shared_secret", adapter.SharedSecret);
+                sp.AddParameter("@isActive", adapter.IsActive);
+
+                DataTable dt = CreateDataTable(adapter.Settings);
+                sp.AddDataTableParameter("@KeyValueList", dt);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                adapterResponse = CreateCDVRAdapter(ds);
+            }
+
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return adapterResponse;
+        }
     }
 }
