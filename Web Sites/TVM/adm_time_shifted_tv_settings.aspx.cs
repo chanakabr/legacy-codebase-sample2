@@ -79,11 +79,11 @@ public partial class adm_time_shifted_tv_settings : System.Web.UI.Page
         theRecord.SetConnectionKey("MAIN_CONNECTION_STRING");
 
         DataRecordCheckBoxField dr_catchUp = new DataRecordCheckBoxField(true);
-        dr_catchUp.Initialize("Enable Catch-Up", "adm_table_header_nbg", "FormInput", "allow_catchup", false);
+        dr_catchUp.Initialize("Enable Catch-Up", "adm_table_header_nbg", "FormInput", "enable_catchup", false);
         theRecord.AddRecord(dr_catchUp);
 
         DataRecordCheckBoxField dr_cdvr = new DataRecordCheckBoxField(true);
-        dr_cdvr.Initialize("Enable C-DVR", "adm_table_header_nbg", "FormInput", "allow_cdvr", false);
+        dr_cdvr.Initialize("Enable C-DVR", "adm_table_header_nbg", "FormInput", "enable_cdvr", false);
         theRecord.AddRecord(dr_cdvr);
 
 
