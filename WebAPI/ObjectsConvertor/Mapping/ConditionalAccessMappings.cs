@@ -190,6 +190,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
+            // LicensedLinkResponse to KalturaLicensedUrls
+            Mapper.CreateMap<ConditionalAccess.LicensedLinkResponse, Models.ConditionalAccess.KalturaLicensedUrl>()
+               .ForMember(dest => dest.MainUrl, opt => opt.MapFrom(src => src.mainUrl))
+               .ForMember(dest => dest.AltUrl, opt => opt.MapFrom(src => src.altUrl));
+
         }
 
         // TransactionType to eTransactionType

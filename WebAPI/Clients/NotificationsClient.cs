@@ -57,7 +57,7 @@ namespace WebAPI.Clients
             {
                 log.ErrorFormat("Exception received while calling notification service. ws address: {0}, exception: {1}",
                     Notification.Endpoint != null && Notification.Endpoint.Address != null &&
-                            Notification.Endpoint.Address.Uri != null ? Notification.Endpoint.Address.Uri.ToString() : 
+                            Notification.Endpoint.Address.Uri != null ? Notification.Endpoint.Address.Uri.ToString() :
                 string.Empty, ex);
                 ErrorUtils.HandleWSException(ex);
             }
@@ -91,7 +91,7 @@ namespace WebAPI.Clients
                 log.Debug(string.Format("Username={0}, Password={1}", group.NotificationsCredentials.Username, group.NotificationsCredentials.Password));
                 int user_id = int.Parse(userId);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {                   
+                {
                     response = Notification.GetNotificationSettings(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, user_id);
                 }
                 log.Debug("return from Notification.UpdateNotificationPartnerSettings");
@@ -138,7 +138,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = Notification.UpdateNotificationPartnerSettings(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, settingsObj);
-                }          
+                }
             }
             catch (Exception ex)
             {
@@ -468,30 +468,22 @@ namespace WebAPI.Clients
 
         internal bool SetPush(int groupId, string userId, string udid, string pushToken)
         {
-            Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
 
             try
             {
                 eUserMessageAction action = string.IsNullOrEmpty(userId) || userId == "0" ? eUserMessageAction.AnonymousPushRegistration : eUserMessageAction.IdentifyPushRegistration;
-                
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.SetPush(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, action, int.Parse(userId), udid, pushToken);
+                    Notification.InitiateNotificationActionAsync(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, action, int.Parse(userId), udid, pushToken);
                 }
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("Error while SetPush. groupID: {0}, userId: {1}, udid: {2}", groupId, userId, udid, ex);
                 ErrorUtils.HandleWSException(ex);
+                return false;
             }
-
-            if (response.Code != (int)StatusCode.OK)
-            {
-                // Bad response received from WS
-                throw new ClientException(response.Code, response.Message);
-            }
-
             return true;
         }
     }

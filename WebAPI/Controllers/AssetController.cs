@@ -350,7 +350,7 @@ namespace WebAPI.Controllers
         /// </summary>        
         /// <param name="media_id">The ID of the asset for which to return related assets</param>
         /// <param name="filter_types">The type of related assets to return. Possible values: ALL – include all VOD asset types ; any media type ID (according to media type IDs defined dynamically in the system). If ommited – return assets of same asset type as the provided asset type. </param>        
-        /// <param name="pager">Paging filter - Page number to return. If omitted returns first page. Number of assets to return per page. Possible range 5 ≤ size ≥ 20. If omitted – 5 is used. Value greater than 20 will set to 20</param>
+        /// <param name="pager">Paging filter - Page number to return. If omitted returns first page. Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted – 5 is used. Value greater than 50 will set to 50</param>
         /// <param name="filter">Valid KSQL expression. If provided – the filter is applied on the resultset and further reduce it</param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
