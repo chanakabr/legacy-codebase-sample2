@@ -966,6 +966,7 @@
     <Compile Include="Controllers\AppTokenController.cs" />
     <Compile Include="Controllers\AssetController.cs" />
     <Compile Include="Controllers\HomeNetworkController.cs" />
+    <Compile Include="Controllers\LinearChannelController.cs" />
     <Compile Include="Controllers\NotificationController.cs" />
     <Compile Include="Controllers\NotificationsPartnerSettingsController.cs" />
     <Compile Include="Controllers\NotificationsSettingsController.cs" />
