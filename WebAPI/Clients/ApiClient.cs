@@ -2452,7 +2452,7 @@ namespace WebAPI.Clients
             }
         }
 
-        internal bool Update(int groupID, KalturaTimeShiftedTvPartnerSettings settings)
+        internal bool UpdateTimeShiftedTvPartnerSettings(int groupID, KalturaTimeShiftedTvPartnerSettings settings)
         {
             bool isSuccess = false;
             Status response = null;

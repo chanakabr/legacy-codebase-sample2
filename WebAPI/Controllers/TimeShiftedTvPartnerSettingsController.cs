@@ -60,7 +60,7 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
                 // call client                
-                response = ClientsManager.ApiClient().Update(groupId, settings);
+                response = ClientsManager.ApiClient().UpdateTimeShiftedTvPartnerSettings(groupId, settings);
             }
             catch (ClientException ex)
             {
