@@ -1255,7 +1255,7 @@ namespace DAL
             return res;
         }
 
-        public static List<PaymentGatewaySelectedBy> GetHouseholdPaymentGateways(int groupID, long householdId, int? selected, int status = 1, int isActive = 1)
+        public static List<PaymentGatewaySelectedBy> GetHouseholdPaymentGateways(int groupID, long householdId, int? selected)
         {
             List<PaymentGatewaySelectedBy> res = new List<PaymentGatewaySelectedBy>();
             try
@@ -1264,7 +1264,6 @@ namespace DAL
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
                 sp.AddParameter("@groupID", groupID);
                 sp.AddParameter("@houseHoldID", householdId);
-                sp.AddParameter("@status", status);
                 if (selected.HasValue)
                 {
                     sp.AddParameter("@selected", selected.Value);

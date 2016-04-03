@@ -389,8 +389,7 @@ namespace Catalog.Request
                     }
 
                     if (IsFirstPlay(nActionID))
-                    {
-                        log.Error("about to call WriteFirstPlay");
+                    {                        
                         tasks.Add(Task.Factory.StartNew(() => WriteFirstPlay(mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_nGroupID, nMediaTypeID, nPlayTime,
                                         m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID)));
                     }
@@ -411,8 +410,16 @@ namespace Catalog.Request
 
         private void WriteLiveViews(int groupID, int mediaID, int mediaTypeID, int playTime)
         {
-            if (!Catalog.InsertStatisticsRequestToES(groupID, mediaID, mediaTypeID, Catalog.STAT_ACTION_MEDIA_HIT, playTime))
-                log.Error("Error - " + String.Concat("Failed to write mediahit into stats index. M ID: ", mediaID, " MT ID: ", mediaTypeID));
+            try
+            {
+                if (!Catalog.InsertStatisticsRequestToES(groupID, mediaID, mediaTypeID, Catalog.STAT_ACTION_MEDIA_HIT, playTime))
+                    log.Error("Error - " + String.Concat("Failed to write mediahit into stats index. M ID: ", mediaID, " MT ID: ", mediaTypeID));
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error in WriteLiveViews, mediaID: {0}, groupID: {1}, mediaTypeID: {2}, playTime: {3}, Exception: {4}", mediaID,
+                    groupID, mediaTypeID, playTime, ex);
+            }
         }
 
         private void WriteFirstPlay(int mediaID, int mediaFileID, int groupID, int mediaTypeID, int playTime,

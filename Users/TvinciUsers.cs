@@ -679,7 +679,7 @@ namespace Users
                 return false;
 
             User u = new User();
-            if (u.Initialize(userID, m_nGroupID, false))
+            if (!u.Initialize(userID, m_nGroupID, false))
                 return false;
 
             if (u != null && u.m_oBasicData != null && !string.IsNullOrEmpty(u.m_oBasicData.m_sPassword))
@@ -1991,7 +1991,7 @@ namespace Users
             TvinciAPI.WelcomeMailRequest mailReq = GetWelcomeMailRequest(user.m_user.m_oBasicData.m_sFirstName, user.m_user.m_oBasicData.m_sUserName, user.m_user.m_oBasicData.m_sPassword,
                 user.m_user.m_oBasicData.m_sEmail, user.m_user.m_oBasicData.m_sFacebookID);
 
-            if (!Utils.SendMail(m_nGroupID, mailReq))
+            if (Utils.SendMail(m_nGroupID, mailReq))
                 response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             else
                 response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
