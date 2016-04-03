@@ -190,6 +190,34 @@ public partial class adm_epg_channels_new : System.Web.UI.Page
         dr_epg_channel_type.Initialize("Channel Type", "adm_table_header_nbg", "FormInput", "epg_channel_type", false);
         theRecord.AddRecord(dr_epg_channel_type);
 
+
+        // linear channel settings 
+
+        DataRecordDropDownField dr_CDVR = new DataRecordDropDownField("lu_epg_field_enable", "DESCRIPTION", "id", "", null, 60, false);
+        dr_CDVR.Initialize("C-DVR", "adm_table_header_nbg", "FormInput", "ENABLE_CDVR", false);
+        theRecord.AddRecord(dr_CDVR);
+
+        DataRecordDropDownField dr_CATCH_UP = new DataRecordDropDownField("lu_epg_field_enable", "DESCRIPTION", "id", "", null, 60, false);
+        dr_CATCH_UP.Initialize("CATCH_UP", "adm_table_header_nbg", "FormInput", "ENABLE_CATCH_UP", false);
+        theRecord.AddRecord(dr_CATCH_UP);
+
+        DataRecordShortIntField dr_CATCH_UP_BUFFER  = new DataRecordShortIntField(true, 9, 9);
+        dr_CATCH_UP_BUFFER.Initialize("CATCH_UP_BUFFER", "adm_table_header_nbg", "FormInput", "CATCH_UP_BUFFER", false);
+        theRecord.AddRecord(dr_CATCH_UP_BUFFER);
+
+        DataRecordDropDownField dr_START_OVER = new DataRecordDropDownField("lu_epg_field_enable", "DESCRIPTION", "id", "", null, 60, false);
+        dr_START_OVER.Initialize("START_OVER", "adm_table_header_nbg", "FormInput", "ENABLE_START_OVER", false);
+        theRecord.AddRecord(dr_START_OVER);
+
+        DataRecordDropDownField dr_LIVE_TRICK_PLAY = new DataRecordDropDownField("lu_epg_field_enable", "DESCRIPTION", "id", "", null, 60, false);
+        dr_LIVE_TRICK_PLAY.Initialize("LIVE_TRICK_PLAY", "adm_table_header_nbg", "FormInput", "ENABLE_TRICK_PLAY", false);
+        theRecord.AddRecord(dr_LIVE_TRICK_PLAY);
+
+        DataRecordShortIntField dr_LIVE_TRICK_PLAY_BUFFER  = new DataRecordShortIntField(true, 9, 9);
+        dr_LIVE_TRICK_PLAY_BUFFER.Initialize("LIVE_TRICK_PLAY_BUFFER", "adm_table_header_nbg", "FormInput", "TRICK_PLAY_BUFFER", false);
+        theRecord.AddRecord(dr_LIVE_TRICK_PLAY_BUFFER);
+
+
         string sTable = theRecord.GetTableHTML("adm_epg_channels_new.aspx?submited=1");
 
         return sTable;
