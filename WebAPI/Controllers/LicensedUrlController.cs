@@ -26,7 +26,7 @@ namespace WebAPI.Controllers
         /// <param name="start_date">The start date of the stream (epoch) - relevant only for asset_type = 'epg'</param>
         /// <param name="stream_type">The stream type to get the URL for - relevant only for asset_type = 'epg'</param>
         /// <remarks>Possible status codes: Device not in household = 1003, Invalid base URL = 3004, Media concurrency limitation = 4000, Concurrency limitation = 4001, 
-        /// Device type not allowed = 1002, Household suspended = 1009, User suspended = 2001, Service not allowed = 3003</remarks>
+        /// Device type not allowed = 1002, Household suspended = 1009, User suspended = 2001, Service not allowed = 3003, Not entitled = 3032</remarks>
         [Route("get"), HttpPost]
         [ApiAuthorize]
         public KalturaLicensedUrl Get(KalturaAssetType asset_type, int content_id, string base_url, string asset_id = null, long? start_date = null, KalturaStreamType? stream_type = null)
