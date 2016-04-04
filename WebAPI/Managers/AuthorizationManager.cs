@@ -20,8 +20,8 @@ namespace WebAPI.Managers
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private const string APP_TOKEN_PRIVILEGE_SESSION_ID = "sessionid";
-	    private const string APP_TOKEN_PRIVILEGE_APP_TOKEN = "apptoken";
-        
+        private const string APP_TOKEN_PRIVILEGE_APP_TOKEN = "apptoken";
+
         private const string CB_SECTION_NAME = "tokens";
 
         private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME, true);
@@ -36,7 +36,7 @@ namespace WebAPI.Managers
             if (string.IsNullOrEmpty(refreshToken))
             {
                 log.ErrorFormat("RefreshSession: Bad request refresh token is empty");
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "refresh token cannot be empty"); 
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "refresh token cannot be empty");
             }
 
             // get group configurations
@@ -45,18 +45,18 @@ namespace WebAPI.Managers
             // get token from CB
             string tokenKey = string.Format(groupConfig.TokenKeyFormat, refreshToken);
             ulong version;
-            ApiToken token = cbManager.GetWithVersion<ApiToken>(tokenKey, out version);
+            ApiToken token = cbManager.GetWithVersion<ApiToken>(tokenKey, out version, true);
             if (token == null)
             {
                 log.ErrorFormat("RefreshSession: refreshToken expired");
-                throw new UnauthorizedException((int)WebAPI.Managers.Models.StatusCode.InvalidRefreshToken, "invalid refresh token"); 
+                throw new UnauthorizedException((int)WebAPI.Managers.Models.StatusCode.InvalidRefreshToken, "invalid refresh token");
             }
-            
+
             // validate expired ks
             if (ks.ToString() != token.KS)
             {
                 log.ErrorFormat("RefreshSession: invalid ks");
-                throw new UnauthorizedException((int)WebAPI.Managers.Models.StatusCode.InvalidKS, "invalid ks"); 
+                throw new UnauthorizedException((int)WebAPI.Managers.Models.StatusCode.InvalidKS, "invalid ks");
             }
 
             string userId = token.UserId;
@@ -64,19 +64,23 @@ namespace WebAPI.Managers
 
             // get user
             ValidateUser(groupId, userId);
-             
+
 
             // generate new access token with the old refresh token
-             token = new ApiToken(token, groupConfig, udid);
+            token = new ApiToken(token, groupConfig, udid);
 
             // Store new access + refresh tokens pair
-            if (!cbManager.SetWithVersion(tokenKey, token, version, (uint)(token.RefreshTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow))))
+            if (!cbManager.SetWithVersion(tokenKey, token, version, (uint)(token.RefreshTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)), true))
             {
                 log.ErrorFormat("RefreshSession: Failed to store refreshed token");
-                throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.Error, "failed to refresh token"); 
+                throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.Error, "failed to refresh token");
             }
 
-            return new KalturaLoginSession() { KS = token.KS, RefreshToken = token.RefreshToken };
+            return new KalturaLoginSession()
+            {
+                KS = token.KS,
+                RefreshToken = token.RefreshToken
+            };
         }
 
         public static KalturaLoginSession GenerateSession(string userId, int groupId, bool isAdmin, bool isLoginWithPin, string udid = null)
@@ -84,7 +88,7 @@ namespace WebAPI.Managers
             if (string.IsNullOrEmpty(userId))
             {
                 log.ErrorFormat("GenerateSession: userId is missing");
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "refresh token cannot be empty"); 
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "refresh token cannot be empty");
             }
 
             // get group configurations
@@ -96,13 +100,17 @@ namespace WebAPI.Managers
             string tokenKey = string.Format(groupConfig.TokenKeyFormat, token.RefreshToken);
 
             // try store in CB, will return false if the same token already exists
-            if (!cbManager.Add(tokenKey, token, (uint)(token.RefreshTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow))))
+            if (!cbManager.Add(tokenKey, token, (uint)(token.RefreshTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)), true))
             {
                 log.ErrorFormat("GenerateSession: Failed to store refreshed token");
                 throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.Error, "failed to save session");
             }
 
-            return new KalturaLoginSession() { KS = token.KS, RefreshToken = token.RefreshToken };
+            return new KalturaLoginSession()
+            {
+                KS = token.KS,
+                RefreshToken = token.RefreshToken
+            };
         }
 
         private static Group GetGroupConfiguration(int groupId)
@@ -219,7 +227,7 @@ namespace WebAPI.Managers
 
             // 1. get token from cb by id
             string appTokenCbKey = string.Format(group.AppTokenKeyFormat, id);
-            AppToken appToken = cbManager.Get<AppToken>(appTokenCbKey);
+            AppToken appToken = cbManager.Get<AppToken>(appTokenCbKey, true);
             if (appToken == null)
             {
                 log.ErrorFormat("StartSessionWithAppToken: failed to get AppToken from CB, key = {0}", appTokenCbKey);
@@ -247,7 +255,7 @@ namespace WebAPI.Managers
 
             // the session duration will be the minimum between the token session duration and the token left expiration time
             long sessionDuration = Math.Min(appToken.SessionDuration, appToken.Expiry - SerializationUtils.GetCurrentUtcTimeInUnixTimestamp());
-            
+
             // if the minimum is < 0 - token is expired (not possible in our case - will be deleted from CB before)
             if (sessionDuration < 0)
             {
@@ -262,7 +270,10 @@ namespace WebAPI.Managers
             }
 
             // set udid in payload
-            string payload = KSUtils.PrepareKSPayload(new WebAPI.Managers.Models.KS.KSData() { UDID = udid });
+            string payload = KSUtils.PrepareKSPayload(new WebAPI.Managers.Models.KS.KSData()
+            {
+                UDID = udid
+            });
 
             // 6. get session type from cb token - user if not defined - we currently support only user
             KalturaSessionType sessionType = KalturaSessionType.USER;
@@ -278,7 +289,7 @@ namespace WebAPI.Managers
 
             // 9. privileges - we do not support it so copy from app token
             string privileges = appToken.SessionPrivileges;
-            
+
             // 10. build the ks:
             KS ks = new KS(
                 secret,
@@ -309,7 +320,7 @@ namespace WebAPI.Managers
             {
                 throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.UserIDInvalid, "user identifier cannot be empty");
             }
-            
+
             // 1. generate id for the appToken
             appToken.Id = Utils.Utils.Generate32LengthGuid();
             Group group = GroupsManager.GetGroup(groupId);
@@ -352,15 +363,15 @@ namespace WebAPI.Managers
             }
 
             // 4. save in CB
-            AppToken cbAppToken = new AppToken(appToken); 
+            AppToken cbAppToken = new AppToken(appToken);
 
             int appTokenExpiryInSeconds = appToken.Expiry - (int)Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow);
-            if (!cbManager.Add(appTokenCbKey, cbAppToken, (uint)appTokenExpiryInSeconds))
+            if (!cbManager.Add(appTokenCbKey, cbAppToken, (uint)appTokenExpiryInSeconds, true))
             {
                 log.ErrorFormat("GenerateSession: Failed to store refreshed token");
                 throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.Error, "failed to save application token");
-            } 
-           
+            }
+
             return appToken;
         }
 
@@ -390,7 +401,7 @@ namespace WebAPI.Managers
             Group group = GroupsManager.GetGroup(groupId);
 
             string appTokenCbKey = string.Format(group.AppTokenKeyFormat, id);
-            var appToken = cbManager.Get<KalturaAppToken>(appTokenCbKey);
+            var appToken = cbManager.Get<KalturaAppToken>(appTokenCbKey, true);
             if (appToken == null)
             {
                 log.ErrorFormat("GetAppToken: failed to get AppToken from CB, key = {0}", appTokenCbKey);
