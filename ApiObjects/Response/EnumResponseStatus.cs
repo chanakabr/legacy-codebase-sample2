@@ -102,6 +102,7 @@ namespace ApiObjects.Response
         ReconciliationFrequencyLimitation = 3029,
         InvalidCustomDataIdentifier = 3030,
         InvalidFileType = 3031,
+        NotEntitled = 3032,
 
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,

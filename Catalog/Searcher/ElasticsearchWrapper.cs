@@ -1706,10 +1706,11 @@ namespace Catalog
 
                 try
                 {
-
+                    ContextData contextData = new ContextData();
                     // Create a task for the search and merge of partial facets
                     Task task = Task.Factory.StartNew((obj) =>
                         {
+                            contextData.Load();
                             // Get facet results
                             string facetsResults = m_oESApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref facetRequestBody);
 
