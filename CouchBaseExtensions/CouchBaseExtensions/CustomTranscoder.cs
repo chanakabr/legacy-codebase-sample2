@@ -13,6 +13,7 @@ namespace CouchBaseExtensions
     public class CustomTranscoder : ITypeTranscoder
     {
         Couchbase.Core.Transcoders.DefaultTranscoder DefualtTranscoder;
+        const string groupAssemblyName = "GroupsCacheManager.Group";
 
         public CustomTranscoder()
         {
@@ -63,11 +64,23 @@ namespace CouchBaseExtensions
 
         public Couchbase.IO.Operations.Flags GetFormat<T>(T value)
         {
-            Couchbase.IO.Operations.Flags flags = DefualtTranscoder.GetFormat<T>(value);            
-            if (flags.TypeCode == TypeCode.Object) 
-            { 
-                flags.TypeCode = TypeCode.String; 
+            Couchbase.IO.Operations.Flags flags = DefualtTranscoder.GetFormat<T>(value);
+            try
+            {
+                if (value.GetType().ToString() != groupAssemblyName)
+                {
+                    if (flags.TypeCode == TypeCode.Object)
+                    {
+                        flags.TypeCode = TypeCode.String;
+                    }
+                }
             }
+
+            catch (Exception ex)
+            {
+                throw new Exception("Error in GetFormat for CustomTranscoder, Exception: {0}", ex);
+            }
+
             return flags;
         }
 
