@@ -1178,12 +1178,15 @@ namespace DAL
                 sp.AddParameter("@Id", nUserID);
                 sp.AddIDListParameter<int>("@GroupsID", lGroupIDs, "Id");
                 sp.AddParameter("@ActivationMustHours", nActivationMustHours);
-                int nSPReault = sp.ExecuteReturnValue<int>();
-                if (Enum.IsDefined(typeof(DALUserActivationState), nSPReault))
+                DataTable dt = sp.Execute();
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
-                    res = (DALUserActivationState)nSPReault;
+                    int state = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "STATE");
+                    if (Enum.IsDefined(typeof(DALUserActivationState), state))
+                    {
+                        res = (DALUserActivationState)state;
+                    }
                 }
-
 
                 #region OldCode
                 // CHECK ACTIVATION STATUS IN USERS
