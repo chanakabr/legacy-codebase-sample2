@@ -2235,7 +2235,7 @@ namespace DAL
 
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_OSSAdapter");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_CDVRAdapter");
                 sp.SetConnectionKey("CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@name", adapter.Name);
@@ -2252,6 +2252,160 @@ namespace DAL
                 adapterResponse = CreateCDVRAdapter(ds);
             }
 
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return adapterResponse;
+        }
+
+        public static CDVRAdapter GetCDVRAdapterByExternalId(int groupID, string externalIdentifier)
+        {
+            CDVRAdapter adapterResponse = null;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CDVRAdpterByExternalD");
+                sp.SetConnectionKey("CONNECTION_STRING");
+                sp.AddParameter("@groupID", groupID);
+                sp.AddParameter("@external_identifier", externalIdentifier);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                adapterResponse = CreateCDVRAdapter(ds);
+
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+            return adapterResponse;
+        }
+
+        public static CDVRAdapter GetCDVRAdapter(int groupID, int adapterId, int? isActive = null, int status = 1)
+        {
+            CDVRAdapter adapterResponse = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CDVRAdapter");
+                sp.SetConnectionKey("CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@id", adapterId);
+                sp.AddParameter("@status", status);
+                if (isActive.HasValue)
+                {
+                    sp.AddParameter("@isActive", isActive.Value);
+                }
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                adapterResponse = CreateCDVRAdapter(ds);
+
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+            return adapterResponse;
+        }
+
+        public static List<CDVRAdapterBase> GetCDVRAdapterList(int groupID, int status = 1, bool? isActive = null)
+        {
+            List<CDVRAdapterBase> res = new List<CDVRAdapterBase>();
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CDVRAdapters");
+                sp.SetConnectionKey("CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@status", status);
+                if (isActive.HasValue)
+                {
+                    sp.AddParameter("@isActive", isActive.Value);
+                }
+                DataSet ds = sp.ExecuteDataSetWithListParam();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    DataTable dtResult = ds.Tables[0];
+                    if (dtResult != null && dtResult.Rows != null && dtResult.Rows.Count > 0)
+                    {
+                        CDVRAdapterBase adapter = null;
+                        foreach (DataRow dr in dtResult.Rows)
+                        {
+                            adapter = new CDVRAdapterBase();
+                            adapter.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+                            adapter.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
+                            res.Add(adapter);
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                res = new List<CDVRAdapterBase>();
+            }
+            return res;
+        }
+
+        public static CDVRAdapter SetCDVRAdapterSharedSecret(int groupID, int adapterId, string sharedSecret)
+        {
+            CDVRAdapter adapterResponse = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_CDVRAdapterSharedSecret");
+                sp.SetConnectionKey("CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupID);
+                sp.AddParameter("@id", adapterId);
+                sp.AddParameter("@sharedSecret", sharedSecret);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                adapterResponse = CreateCDVRAdapter(ds);
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return adapterResponse;
+        }
+
+        public static bool DeleteCDVRAdapter(int groupID, int adapterId)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_CDVRAdapter");
+                sp.SetConnectionKey("CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@ID", adapterId);
+                bool isDelete = sp.ExecuteReturnValue<bool>();
+                return isDelete;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public static CDVRAdapter SetCDVRAdapter(int groupID, CDVRAdapter adapter)
+        {
+            CDVRAdapter adapterResponse = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_CDVRAdapter");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@ID", adapter.ID);
+                sp.AddParameter("@name", adapter.Name);
+                sp.AddParameter("@external_identifier", adapter.ExternalIdentifier);
+                sp.AddParameter("@shared_secret", adapter.SharedSecret);
+                sp.AddParameter("@adapter_url", adapter.AdapterUrl);
+                sp.AddParameter("@isActive", adapter.IsActive);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                adapterResponse = CreateCDVRAdapter(ds);
+            }
             catch (Exception ex)
             {
                 HandleException(ex);

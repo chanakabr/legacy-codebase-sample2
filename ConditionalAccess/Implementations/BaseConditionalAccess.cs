@@ -43,6 +43,18 @@ namespace ConditionalAccess
         protected const string ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION = "PROCESS_RENEW_SUBSCRIPTION\\{0}";
         protected const string BILLING_CONNECTION_STRING = "BILLING_CONNECTION";
 
+        //errors
+        private const string CONFLICTED_PARAMS = "Conflicted params";
+        private const string NO_ADAPTER_TO_INSERT = "No adapter to insert";
+        private const string NO_ADAPTER_TO_UPDATE = "No adapter to update";
+        private const string NAME_REQUIRED = "Name must have a value";
+        private const string ADAPTER_SHARED_SECRET_REQUIRED = "Shared secret must have a value";
+        private const string EXTERNAL_IDENTIFIER_REQUIRED = "External identifier must have a value";
+        private const string ERROR_EXT_ID_ALREADY_IN_USE = "External identifier must be unique";
+        private const string ADAPTER_ID_REQUIRED = "Adapter identifier is required";
+        private const string ADAPTER_NOT_EXIST = "Adapter not exist";
+        private const string ADAPTER_URL_REQUIRED = "Adapter url must have a value";
+
         public const string PRICE = "pri";
         public const string CURRENCY = "cu";
         public const string USER_IP = "up";
@@ -16828,17 +16840,318 @@ namespace ConditionalAccess
 
         public CDVRAdapterResponseList GetCDVRAdapters()
         {
-            throw new NotImplementedException();
+            CDVRAdapterResponseList response = new CDVRAdapterResponseList();
+            try
+            {
+                response.Adapters = DAL.ConditionalAccessDAL.GetCDVRAdapterList(m_nGroupID);
+                if (response.Adapters == null || response.Adapters.Count == 0)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "No adapters found");
+                }
+                else
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                response = new CDVRAdapterResponseList();
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error(string.Format("Failed groupID={0}", m_nGroupID), ex);
+            }
+
+            return response;
         }
 
         public ApiObjects.Response.Status DeleteCDVRAdapter(int adapterId)
         {
-            throw new NotImplementedException();
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            try
+            {
+
+                if (adapterId == 0)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.AdapterIdentifierRequired, ADAPTER_ID_REQUIRED);
+                    return response;
+                }
+
+                //// in case adapterId is the group selected CDVR Adapter  - delete isn’t allowed
+                ////-------------------------------------------------------------------------------
+                //object defaultAdapter = ODBCWrapper.Utils.GetTableSingleVal("groups_parameters", "OSS_ADAPTER", "GROUP_ID", "=", m_nGroupID, "billing_connection");
+                //int cdvrAdapterIdentifier = 0;
+                //if (defaultAdapter != null && int.TryParse(defaultAdapter.ToString(), out cdvrAdapterIdentifier) && cdvrAdapterIdentifier > 0)
+                //{
+                //    if (cdvrAdapterIdentifier == adapterId)
+                //    {
+                //        response = new ApiObjects.Response.Status((int)eResponseStatus.ActionIsNotAllowed, ACTION_IS_NOT_ALLOWED);
+                //        return response;
+                //    }
+                //}
+
+                //check CDVR Adapter exist
+                CDVRAdapter adapter = DAL.ConditionalAccessDAL.GetCDVRAdapter(m_nGroupID, adapterId);
+                if (adapter == null || adapter.ID <= 0)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
+                    return response;
+                }
+
+
+                bool isSet = DAL.ConditionalAccessDAL.DeleteCDVRAdapter(m_nGroupID, adapterId);
+                if (isSet)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+                else
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error(string.Format("Failed groupID={0}, adapterID={1}", m_nGroupID, adapterId), ex);
+            }
+            return response;
         }
 
         public CDVRAdapterResponse InsertCDVRAdapter(CDVRAdapter adapter)
         {
-            throw new NotImplementedException(); 
+            CDVRAdapterResponse response = new CDVRAdapterResponse();
+
+            try
+            {
+                if (adapter == null)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NoAdapterToInsert, NO_ADAPTER_TO_INSERT);
+                    return response;
+                }
+
+                if (string.IsNullOrEmpty(adapter.Name))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NameRequired, NAME_REQUIRED);
+                    return response;
+                }
+
+                if (string.IsNullOrEmpty(adapter.AdapterUrl))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterUrlRequired, ADAPTER_URL_REQUIRED);
+                    return response;
+                }
+
+                if (string.IsNullOrEmpty(adapter.ExternalIdentifier))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExternalIdentifierRequired, EXTERNAL_IDENTIFIER_REQUIRED);
+                    return response;
+                }
+
+                // Create Shared secret 
+                adapter.SharedSecret = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16);
+
+                //check External Identifier uniqueness 
+                CDVRAdapter responseAdapter = DAL.ConditionalAccessDAL.GetCDVRAdapterByExternalId(m_nGroupID, adapter.ExternalIdentifier);
+
+                if (responseAdapter != null && responseAdapter.ID > 0)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExternalIdentifierMustBeUnique, ERROR_EXT_ID_ALREADY_IN_USE);
+                    return response;
+                }
+
+                response.Adapter = DAL.ConditionalAccessDAL.InsertCDVRAdapter(m_nGroupID, adapter);
+                if (response.Adapter != null && response.Adapter.ID > 0)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+                    if (!SendConfigurationToAdapter(m_nGroupID, response.Adapter))
+                    {
+                        log.ErrorFormat("InsertCDVRAdapter - SendConfigurationToAdapter failed : adapterID = {0}", response.Adapter.ID);
+                    }
+                }
+                else
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "failed to insert new CDVR Adapter");
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error(string.Format("Failed groupID={0}", m_nGroupID), ex);
+            }
+            return response;
+        }
+
+        public CDVRAdapterResponse GenerateCDVRSharedSecret(int adapterId)
+        {
+            CDVRAdapterResponse response = new CDVRAdapterResponse();
+
+            try
+            {
+                if (adapterId <= 0)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterIdentifierRequired, ADAPTER_ID_REQUIRED);
+                    return response;
+                }
+
+                //check CDVR Adapter exist
+                CDVRAdapter adapter = DAL.ConditionalAccessDAL.GetCDVRAdapter(m_nGroupID, adapterId);
+                if (adapter == null || adapter.ID <= 0)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
+                    return response;
+                }
+
+                // Create Shared secret 
+                string sharedSecret = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16);
+
+                response.Adapter = DAL.ConditionalAccessDAL.SetCDVRAdapterSharedSecret(m_nGroupID, adapterId, sharedSecret);
+
+                if (response.Adapter != null && response.Adapter.ID > 0)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+                else
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                }
+
+            }
+            catch (Exception ex)
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error(string.Format("Failed groupID={0}, adapterId={1}", m_nGroupID, adapterId), ex);
+            }
+            return response;
+        }
+
+        public CDVRAdapterResponse SetCDVRAdapter(CDVRAdapter adapter)
+        {
+            CDVRAdapterResponse response = new CDVRAdapterResponse();
+
+            try
+            {
+                if (adapter == null)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterIsRequired, NO_ADAPTER_TO_UPDATE);
+                    return response;
+                }
+
+                if (adapter.ID == 0)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterIdentifierRequired, ADAPTER_ID_REQUIRED);
+                    return response;
+                }
+                if (string.IsNullOrEmpty(adapter.Name))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NameRequired, NAME_REQUIRED);
+                    return response;
+                }
+
+                if (string.IsNullOrEmpty(adapter.ExternalIdentifier))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExternalIdentifierRequired, EXTERNAL_IDENTIFIER_REQUIRED);
+                    return response;
+                }
+
+                if (string.IsNullOrEmpty(adapter.AdapterUrl))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterUrlRequired, ADAPTER_URL_REQUIRED);
+                    return response;
+                }
+
+                // SharedSecret generated only at insert 
+                // this value not relevant at update and should be ignored
+                //--------------------------------------------------------
+                adapter.SharedSecret = null;
+
+                //check External Identifier uniqueness 
+                CDVRAdapter responseAdpater = DAL.ConditionalAccessDAL.GetCDVRAdapterByExternalId(m_nGroupID, adapter.ExternalIdentifier);
+
+                if (responseAdpater == null)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
+                    return response;
+                }
+
+                if (responseAdpater.ID > 0 && responseAdpater.ID != responseAdpater.ID)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExternalIdentifierMustBeUnique, ERROR_EXT_ID_ALREADY_IN_USE);
+                    return response;
+                }
+
+                response.Adapter = DAL.ConditionalAccessDAL.SetCDVRAdapter(m_nGroupID, adapter);
+
+                if (response.Adapter != null && response.Adapter.ID > 0)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+                    bool isSendSucceeded = SendConfigurationToAdapter(m_nGroupID, response.Adapter);
+                    if (!isSendSucceeded)
+                    {
+                        log.DebugFormat("SetCDVRAdapter - SendConfigurationToAdapter failed : AdapterID = {0}", adapter.ID);
+                    }
+                }
+                else
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                }
+
+            }
+            catch (Exception ex)
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error(string.Format("Failed groupID={0}, adapterId={1}, name={2}, adapterUrl={3}, isActive={4}",
+                    m_nGroupID, adapter.ID, adapter.Name, adapter.AdapterUrl, adapter.IsActive), ex);
+            }
+            return response;
+        }
+
+        private static bool SendConfigurationToAdapter(int groupId, CDVRAdapter adapter)
+        {
+            try
+            {
+                if (adapter != null && !string.IsNullOrEmpty(adapter.AdapterUrl))
+                {
+                    //set unixTimestamp
+                    long unixTimestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+
+                    //set signature
+                    string signature = string.Concat(adapter.ID, adapter.Settings != null ? string.Concat(adapter.Settings.Select(s => string.Concat(s.key, s.value))) : string.Empty,
+                        groupId, unixTimestamp);
+
+                    using (CDVRAdapterService.ServiceClient client = new CDVRAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl))
+                    {
+                        if (!string.IsNullOrEmpty(adapter.AdapterUrl))
+                        {
+                            client.Endpoint.Address = new System.ServiceModel.EndpointAddress(adapter.AdapterUrl);
+                        }
+
+                        ConditionalAccess.CDVRAdapterService.AdapterStatus adapterResponse = client.SetConfiguration(
+                            adapter.ID,
+                            adapter.Settings != null ? adapter.Settings.Select(s => new ConditionalAccess.CDVRAdapterService.KeyValue() { Key = s.key, Value = s.value }).ToList() : null,
+                            groupId,
+                            unixTimestamp,
+                            System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(adapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+
+                        if (adapterResponse != null && adapterResponse.Code == (int)AdapterStatus.OK)
+                        {
+                            log.DebugFormat("CDVR Adapter SetConfiguration Result: AdapterID = {0}, AdapterStatus = {1}", adapter.ID, adapterResponse.Code);
+                            return true;
+                        }
+                        else
+                        {
+                            log.ErrorFormat("CDVR Adapter SetConfiguration Result: AdapterID = {0}, AdapterStatus = {1}",
+                                adapter.ID, adapterResponse != null ? adapterResponse.Code.ToString() : "ERROR");
+                            return false;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("SendConfigurationToAdapter Failed: AdapterID = {0}, ex = {1}", adapter.ID, ex);
+            }
+            return false;
         }
     }
 }
