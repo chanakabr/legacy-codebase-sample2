@@ -15,6 +15,7 @@ namespace CouchBaseExtensions
     {
 
         Couchbase.Core.Serialization.DefaultSerializer DefaultSerializator;
+        const string groupAssemblyName = "GroupsCacheManager.Group";
 
         public CustomSerializer()
         {
@@ -33,8 +34,8 @@ namespace CouchBaseExtensions
         public T Deserialize<T>(byte[] buffer, int offset, int length)
         {
             try
-            {            
-                if (typeof(T).ToString() != "GroupsCacheManager.Group")
+            {
+                if (typeof(T).ToString() == groupAssemblyName)
                 {
                     T value = default(T);
                     using (MemoryStream stream = new MemoryStream(buffer))
@@ -64,7 +65,7 @@ namespace CouchBaseExtensions
         {
             try
             {
-                if (obj.GetType().ToString() != "GroupsCacheManager.Group")
+                if (obj.GetType().ToString() == groupAssemblyName)
                 {
                     BinaryFormatter formatter = new BinaryFormatter();
                     byte[] objBytes = null;
