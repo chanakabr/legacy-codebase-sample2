@@ -48,7 +48,7 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "currency cannot be empty");
 
             //// validate price
-            if (price <= 0)
+            if (price < 0)
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "price is illegal");
 
             //// validate product_id
