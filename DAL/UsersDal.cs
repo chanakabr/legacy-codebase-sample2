@@ -1172,11 +1172,11 @@ namespace DAL
 
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_UserState");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_UserState_New");
                 sp.SetConnectionKey("USERS_CONNECTION_STRING");
                 sp.AddParameter("@Id", nUserID);
-                sp.AddParameter("@GroupID", nParentGroupID);
-                sp.AddParameter("@ActivationMustHours", nActivationMustHours);
+                sp.AddParameter("@UserName", sUserName);
+                sp.AddParameter("@GroupID", nParentGroupID);                
                 DataSet ds = sp.ExecuteDataSet();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 1)
                 {
@@ -1201,18 +1201,25 @@ namespace DAL
                         {
                             res = DALUserActivationState.Activated;
                         }
-                        else if (isActivationNeeded == 1 && createDate.AddHours(nActivationMustHours) < DateTime.UtcNow)
+                        else if (isActivationNeeded == 1)
                         {
-                            res = DALUserActivationState.NotActivated;
+                            if (createDate.AddHours(nActivationMustHours) < DateTime.UtcNow)
+                            {
+                                res = DALUserActivationState.NotActivated;
+                            }
+                            else
+                            {
+                                res = DALUserActivationState.Activated;
+                            }
                         }
 
                         if (domainDetails != null && domainDetails.Rows != null && domainDetails.Rows.Count > 0)
                         {
-                            DataRow domainRow = userDetails.Rows[0];
-                            int domainID = ODBCWrapper.Utils.GetIntSafeVal(dr, "DOMAIN_ID");
-                            bool isMaster = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_MASTER") == 1;
-                            bool isSuspended = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_SUSPENDED") == 1;
-                            int status = ODBCWrapper.Utils.GetIntSafeVal(dr, "STATUS");
+                            DataRow domainRow = domainDetails.Rows[0];
+                            int domainID = ODBCWrapper.Utils.GetIntSafeVal(domainRow, "DOMAIN_ID");
+                            bool isMaster = ODBCWrapper.Utils.GetIntSafeVal(domainRow, "IS_MASTER") == 1;
+                            bool isSuspended = ODBCWrapper.Utils.GetIntSafeVal(domainRow, "IS_SUSPENDED") == 1;
+                            int status = ODBCWrapper.Utils.GetIntSafeVal(domainRow, "STATUS");
 
                             if (domainID == 0)
                             {
