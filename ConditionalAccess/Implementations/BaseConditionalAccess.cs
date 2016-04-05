@@ -14150,15 +14150,16 @@ namespace ConditionalAccess
 
                 // call new billing method for charge adapter
                 var transactionResponse = wsBillingService.CC_DummyChargeUser(userName, password, siteGUID, price, currency, userIP, customData, 1, 1, string.Empty);
-
-                if (transactionResponse.m_oStatus == TvinciBilling.BillingResponseStatus.Success)
+                long billingTransactionId = 0;
+                if (transactionResponse.m_oStatus == TvinciBilling.BillingResponseStatus.Success && long.TryParse(transactionResponse.m_sRecieptCode, out billingTransactionId))
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     response.State = eTransactionState.OK.ToString();
                     response.FailReasonCode = 0;
                     response.TransactionID = transactionResponse.m_sRecieptCode;
+
+                    ApiDAL.UpdateBillingTransactionGuid(billingTransactionId, billingGuid);
                 }
-                
             }
             catch (Exception ex)
             {
