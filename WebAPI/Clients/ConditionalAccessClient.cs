@@ -834,7 +834,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = ConditionalAccess.GetPurchaseSessionID(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, price, currency, contentId, 
+                    response = ConditionalAccess.GetPurchaseSessionID(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, price, currency, contentId,
                         productId.ToString(), coupon, Utils.Utils.GetClientIP(), udid, transactionType, previewModuleId);
                 }
             }
@@ -855,6 +855,84 @@ namespace WebAPI.Clients
             }
 
             return response.PurchaseCustomDataId;
+        }
+
+        internal KalturaLicensedUrl GetLicensedLinks(int groupId, string userId, string udid, int contentId, string basicLink)
+        {
+            WebAPI.ConditionalAccess.LicensedLinkResponse response = null;
+            KalturaLicensedUrl urls = null;
+
+            // get group ID
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    response = ConditionalAccess.GetLicensedLinks(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password,
+                        userId, contentId, basicLink, Utils.Utils.GetClientIP(), string.Empty, string.Empty, string.Empty, udid);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            urls = Mapper.Map<KalturaLicensedUrl>(response);
+
+            return urls;
+        }
+
+        internal KalturaLicensedUrl GetEPGLicensedLink(int groupId, string userId, string udid, int epgId, int contentId, string baseUrl, long startDate, KalturaStreamType streamType)
+        {
+            WebAPI.ConditionalAccess.LicensedLinkResponse response = null;
+            KalturaLicensedUrl urls = null;
+
+            // get group ID
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                DateTime startTime = Utils.SerializationUtils.ConvertFromUnixTimestamp(startDate);
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    response = ConditionalAccess.GetEPGLicensedLink(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password,
+                        userId, contentId, epgId, startTime, baseUrl, Utils.Utils.GetClientIP(), string.Empty, string.Empty, string.Empty, udid, (int)streamType);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            urls = Mapper.Map<KalturaLicensedUrl>(response);
+
+            return urls;
         }
 
         internal List<KalturaCDVRAdapterProfile> GetCDVRAdapters(int groupId)
@@ -932,7 +1010,7 @@ namespace WebAPI.Clients
             CDVRAdapterResponse response = null;
 
             CDVRAdapter wsAdapter = AutoMapper.Mapper.Map<CDVRAdapter>(cdvrAdapter);
-            
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -980,7 +1058,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling conditional access service. ws address: {0}, exception: {1}", ConditionalAccess.Url, ex);                
+                log.ErrorFormat("Exception received while calling conditional access service. ws address: {0}, exception: {1}", ConditionalAccess.Url, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1015,7 +1093,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling conditional access service. ws address: {0}, exception: {1}", ConditionalAccess.Url, ex);       
+                log.ErrorFormat("Exception received while calling conditional access service. ws address: {0}, exception: {1}", ConditionalAccess.Url, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 

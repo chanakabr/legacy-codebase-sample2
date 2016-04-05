@@ -205,7 +205,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
               .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertCDVRAdapterSettings(src.Settings)))
               .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
-
+  
+            // LicensedLinkResponse to KalturaLicensedUrls
+            Mapper.CreateMap<ConditionalAccess.LicensedLinkResponse, Models.ConditionalAccess.KalturaLicensedUrl>()
+               .ForMember(dest => dest.MainUrl, opt => opt.MapFrom(src => src.mainUrl))
+               .ForMember(dest => dest.AltUrl, opt => opt.MapFrom(src => src.altUrl));
         }
 
         // TransactionType to eTransactionType
