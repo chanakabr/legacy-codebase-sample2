@@ -95,26 +95,19 @@ namespace Users
 
         public override UserActivationState GetUserActivationStatus(ref string sUserName, ref Int32 nUserID)
         {
-            int nActivateStatus = 0;
-
             if (!IsActivationNeeded(null))
             {
                 return UserActivationState.Activated;
             }
 
-            List<int> lGroupIDs = UtilsDal.GetAllRelatedGroups(m_nGroupID);
-
-            UserActivationState activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(m_nGroupID, lGroupIDs, m_nActivationMustHours, ref sUserName, ref nUserID, ref nActivateStatus);
+            UserActivationState activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(m_nGroupID, m_nActivationMustHours, ref sUserName, ref nUserID);
 
             return activStatus;
         }
 
         public UserActivationState GetUserStatus(ref string sUserName, ref Int32 nUserID)
         {
-            List<int> lGroupIDs = UtilsDal.GetAllRelatedGroups(m_nGroupID);
-
-            int nActivateStatus = 0;
-            UserActivationState activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(m_nGroupID, lGroupIDs, m_nActivationMustHours, ref sUserName, ref nUserID, ref nActivateStatus);
+            UserActivationState activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(m_nGroupID, m_nActivationMustHours, ref sUserName, ref nUserID);
 
             return activStatus;
         }
