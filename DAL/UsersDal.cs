@@ -1181,10 +1181,19 @@ namespace DAL
                 DataTable dt = sp.Execute();
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
-                    int state = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "STATE");
+                    DataRow dr = dt.Rows[0];
+                    int state = ODBCWrapper.Utils.GetIntSafeVal(dr, "STATE");                    
                     if (Enum.IsDefined(typeof(DALUserActivationState), state))
                     {
                         res = (DALUserActivationState)state;
+                    }
+                    if (string.IsNullOrEmpty(sUserName))
+                    {
+                        sUserName = ODBCWrapper.Utils.GetSafeStr(dr, "USERNAME");
+                    }
+                    if (nUserID <= 0)
+                    {
+                        nUserID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
                     }
                 }
 
