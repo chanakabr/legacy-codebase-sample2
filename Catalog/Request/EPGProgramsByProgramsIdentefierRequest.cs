@@ -47,7 +47,10 @@ namespace Catalog.Request
 
                  List<EPGChannelProgrammeObject> retList = epgBL.GetEPGPrograms(request.m_nGroupID,  request.pids, request.eLang, request.duration);
                  if (retList != null && retList.Count > 0)
-                 {                    
+                 {
+                     // get all linear settings about channel + group
+                     Catalog.GetLinearChannelSettings(request.m_nGroupID, retList);
+
                      response.lEpgList = retList;
                      response.m_nTotalItems = retList.Count;
                  }

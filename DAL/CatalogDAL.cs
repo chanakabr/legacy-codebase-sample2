@@ -4365,19 +4365,52 @@ namespace Tvinci.Core.DAL
             return playCycleSession;
         }
 
-        public static DataRow GetLinearChannleSettings(int groupId, string epgChannelID)
+        public static DataRow[] GetLinearChannelSettings(int groupId, int epgChannelID)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_LinearChannleSettings");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@GroupId", groupId);
-            sp.AddParameter("@EpgChannelID", epgChannelID);
-
-            DataTable dt = sp.Execute();
-            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            DataRow[] dr = new DataRow[2];
+            try
             {
-                return dt.Rows[0];
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_LinearChannelSettings");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupId", groupId);
+                List<int> epgChannelList = new List<int>() { epgChannelID };
+                sp.AddIDListParameter<int>("@EpgChannelID", epgChannelList, "id");
+
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count == 2)
+                {
+                    if (ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+                    {
+                        dr[0] = ds.Tables[0].Rows[0];
+                    }
+                    if (ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
+                    {
+                        dr[1] = ds.Tables[1].Rows[0];
+                    }
+                }
+                return dr;
             }
-            return null;
+            catch
+            {
+                return null;
+            }
+        }
+
+        public static DataSet GetLinearChannelSettings(int groupId, List<int> epgChannelIDs)
+        {            
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_LinearChannelSettings");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupId", groupId);
+                sp.AddIDListParameter<int>("@EpgChannelID", epgChannelIDs, "id");
+
+               return sp.ExecuteDataSet();               
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }

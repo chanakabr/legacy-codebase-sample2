@@ -63,12 +63,29 @@ namespace Catalog.Response
         public string CoGuid;
         [DataMember]
         public bool IsActive;
+
         [DataMember]
-        public LinearSettings linearSettings;
+        public bool EnableCDVR;
+        [DataMember]
+        public bool EnableCatchUp;
+        [DataMember]
+        public bool EnableStartOver;
+        [DataMember]
+        public bool EnableTrickPlay;
+        [DataMember]
+        public long CdvrBuffer;
+        [DataMember]
+        public long TrickPlayBuffer;
 
         public MediaObj()
             : base()
         {
+            EnableCDVR = false;
+            EnableCatchUp = false;
+            EnableStartOver = false;
+            EnableTrickPlay = false;
+            CdvrBuffer = 0;
+            TrickPlayBuffer = 0;
         }
     }
 
@@ -117,43 +134,6 @@ namespace Catalog.Response
             m_nVote3Count = nVote3Count;
             m_nVote4Count = nVote4Count;
             m_nVote5Count = nVote5Count;
-        }
-    }
-
-    [DataContract]
-    public class LinearSettings
-    {
-        [DataMember]
-        public bool EnableCDVR;
-        [DataMember]
-        public bool EnableCatchUp;
-        [DataMember]
-        public bool EnableStartOver;
-        [DataMember]
-        public bool EnableTrickPlay;
-        [DataMember]
-        public long CdvrBuffer;
-        [DataMember]
-        public long TrickPlayBuffer;
-
-        public LinearSettings()
-        {
-            EnableCDVR = false;
-            EnableCatchUp = false;
-            EnableStartOver = false;
-            EnableTrickPlay = false;
-            CdvrBuffer = 0;
-            TrickPlayBuffer = 0;
-        }
-
-        public LinearSettings(bool enableCDVR, bool enableCatchUp, bool enableStartOver, bool enableTrickPlay, long cdvrBuffer, long trickPlayBuffer)
-        {
-            this.EnableCDVR = enableCDVR;
-            this.EnableCatchUp = enableCatchUp;
-            this.EnableStartOver = enableStartOver;
-            this.EnableTrickPlay = enableTrickPlay;
-            this.CdvrBuffer = cdvrBuffer;
-            this.TrickPlayBuffer = trickPlayBuffer;
         }
     }
 
