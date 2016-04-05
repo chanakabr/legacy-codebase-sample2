@@ -58,6 +58,10 @@ namespace WebAPI.ConditionalAccess {
         
         private System.Threading.SendOrPostCallback InsertCDVRAdapterOperationCompleted;
         
+        private System.Threading.SendOrPostCallback GenerateCDVRSharedSecretOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback SetCDVRAdapterOperationCompleted;
+        
         private System.Threading.SendOrPostCallback GetUserPermittedItemsOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetDomainPermittedItemsOperationCompleted;
@@ -309,6 +313,12 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         public event InsertCDVRAdapterCompletedEventHandler InsertCDVRAdapterCompleted;
+        
+        /// <remarks/>
+        public event GenerateCDVRSharedSecretCompletedEventHandler GenerateCDVRSharedSecretCompleted;
+        
+        /// <remarks/>
+        public event SetCDVRAdapterCompletedEventHandler SetCDVRAdapterCompleted;
         
         /// <remarks/>
         public event GetUserPermittedItemsCompletedEventHandler GetUserPermittedItemsCompleted;
@@ -1183,6 +1193,72 @@ namespace WebAPI.ConditionalAccess {
             if ((this.InsertCDVRAdapterCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.InsertCDVRAdapterCompleted(this, new InsertCDVRAdapterCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GenerateCDVRSharedSecret", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public CDVRAdapterResponse GenerateCDVRSharedSecret(string sWSUserName, string sWSPassword, int adapterId) {
+            object[] results = this.Invoke("GenerateCDVRSharedSecret", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        adapterId});
+            return ((CDVRAdapterResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GenerateCDVRSharedSecretAsync(string sWSUserName, string sWSPassword, int adapterId) {
+            this.GenerateCDVRSharedSecretAsync(sWSUserName, sWSPassword, adapterId, null);
+        }
+        
+        /// <remarks/>
+        public void GenerateCDVRSharedSecretAsync(string sWSUserName, string sWSPassword, int adapterId, object userState) {
+            if ((this.GenerateCDVRSharedSecretOperationCompleted == null)) {
+                this.GenerateCDVRSharedSecretOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGenerateCDVRSharedSecretOperationCompleted);
+            }
+            this.InvokeAsync("GenerateCDVRSharedSecret", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        adapterId}, this.GenerateCDVRSharedSecretOperationCompleted, userState);
+        }
+        
+        private void OnGenerateCDVRSharedSecretOperationCompleted(object arg) {
+            if ((this.GenerateCDVRSharedSecretCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GenerateCDVRSharedSecretCompleted(this, new GenerateCDVRSharedSecretCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/SetCDVRAdapter", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public CDVRAdapterResponse SetCDVRAdapter(string sWSUserName, string sWSPassword, CDVRAdapter adapter) {
+            object[] results = this.Invoke("SetCDVRAdapter", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        adapter});
+            return ((CDVRAdapterResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void SetCDVRAdapterAsync(string sWSUserName, string sWSPassword, CDVRAdapter adapter) {
+            this.SetCDVRAdapterAsync(sWSUserName, sWSPassword, adapter, null);
+        }
+        
+        /// <remarks/>
+        public void SetCDVRAdapterAsync(string sWSUserName, string sWSPassword, CDVRAdapter adapter, object userState) {
+            if ((this.SetCDVRAdapterOperationCompleted == null)) {
+                this.SetCDVRAdapterOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetCDVRAdapterOperationCompleted);
+            }
+            this.InvokeAsync("SetCDVRAdapter", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        adapter}, this.SetCDVRAdapterOperationCompleted, userState);
+        }
+        
+        private void OnSetCDVRAdapterOperationCompleted(object arg) {
+            if ((this.SetCDVRAdapterCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.SetCDVRAdapterCompleted(this, new SetCDVRAdapterCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -5253,10 +5329,10 @@ namespace WebAPI.ConditionalAccess {
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(QuotaResponse))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(LicensedLinkNPVRResponse))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelDeleteResponse))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(QuotaResponse))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordResponse))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(LicensedLinkNPVRResponse))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -5287,6 +5363,15 @@ namespace WebAPI.ConditionalAccess {
                 this.msgField = value;
             }
         }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class CancelDeleteResponse : NPVRResponse {
     }
     
     /// <remarks/>
@@ -5328,36 +5413,6 @@ namespace WebAPI.ConditionalAccess {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class LicensedLinkNPVRResponse : NPVRResponse {
-        
-        private string mainUrlField;
-        
-        /// <remarks/>
-        public string mainUrl {
-            get {
-                return this.mainUrlField;
-            }
-            set {
-                this.mainUrlField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class CancelDeleteResponse : NPVRResponse {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class RecordResponse : NPVRResponse {
         
         private string recordingIDField;
@@ -5374,11 +5429,32 @@ namespace WebAPI.ConditionalAccess {
     }
     
     /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class LicensedLinkNPVRResponse : NPVRResponse {
+        
+        private string mainUrlField;
+        
+        /// <remarks/>
+        public string mainUrl {
+            get {
+                return this.mainUrlField;
+            }
+            set {
+                this.mainUrlField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(LicensedLinkNPVRCommand))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RetrieveQuotaNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(DeleteNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelNPVRCommand))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CancelSeriesNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordSeriesByProgramIdNPVRCommand))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RecordSeriesByNameNPVRCommand))]
@@ -5587,15 +5663,6 @@ namespace WebAPI.ConditionalAccess {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class RecordNPVRCommand : BaseNPVRCommand {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class RetrieveQuotaNPVRCommand : BaseNPVRCommand {
     }
     
@@ -5615,6 +5682,15 @@ namespace WebAPI.ConditionalAccess {
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class CancelNPVRCommand : BaseNPVRCommand {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class RecordNPVRCommand : BaseNPVRCommand {
     }
     
     /// <remarks/>
@@ -10697,6 +10773,58 @@ namespace WebAPI.ConditionalAccess {
         private object[] results;
         
         internal InsertCDVRAdapterCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public CDVRAdapterResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((CDVRAdapterResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GenerateCDVRSharedSecretCompletedEventHandler(object sender, GenerateCDVRSharedSecretCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GenerateCDVRSharedSecretCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GenerateCDVRSharedSecretCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public CDVRAdapterResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((CDVRAdapterResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void SetCDVRAdapterCompletedEventHandler(object sender, SetCDVRAdapterCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class SetCDVRAdapterCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal SetCDVRAdapterCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }

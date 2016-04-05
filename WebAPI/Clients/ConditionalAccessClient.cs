@@ -961,18 +961,21 @@ namespace WebAPI.Clients
             return adapter;
         }
 
-        internal KalturaCDVRAdapterProfile SetCDVRAdapter(int groupId, KalturaCDVRAdapterProfile oss_adapter)
+        internal KalturaCDVRAdapterProfile SetCDVRAdapter(int groupId, KalturaCDVRAdapterProfile adapter)
         {
-            KalturaCDVRAdapterProfile adapter = new KalturaCDVRAdapterProfile();
+            KalturaCDVRAdapterProfile adapterResponse = new KalturaCDVRAdapterProfile();
 
             Group group = GroupsManager.GetGroup(groupId);
 
             CDVRAdapterResponse response = null;
+
+            CDVRAdapter wsAdapter = AutoMapper.Mapper.Map<CDVRAdapter>(adapter);
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    //response = Api.GetAllRegistry(group.ApiCredentials.Username, group.ApiCredentials.Password);
+                    response = ConditionalAccess.SetCDVRAdapter(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, wsAdapter);
                 }
             }
             catch (Exception ex)
@@ -991,9 +994,9 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            adapter = AutoMapper.Mapper.Map<KalturaCDVRAdapterProfile>(response.Adapter);
+            adapterResponse = AutoMapper.Mapper.Map<KalturaCDVRAdapterProfile>(response.Adapter);
 
-            return adapter;
+            return adapterResponse;
         }
 
         internal KalturaCDVRAdapterProfile GenerateCDVRSharedSecret(int groupId, int adapterId)
@@ -1007,7 +1010,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    //response = Api.GetAllRegistry(group.ApiCredentials.Username, group.ApiCredentials.Password);
+                    response = ConditionalAccess.GenerateCDVRSharedSecret(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, adapterId);
                 }
             }
             catch (Exception ex)
