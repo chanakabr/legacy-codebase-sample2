@@ -27,6 +27,7 @@ namespace WebAPI.ConditionalAccess {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Web.Services.WebServiceBindingAttribute(Name="moduleSoap", Namespace="http://ca.tvinci.com/")]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CDVRAdapterBase))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PPVModule))]
     public partial class module : System.Web.Services.Protocols.SoapHttpClientProtocol {
         
@@ -9780,7 +9781,7 @@ namespace WebAPI.ConditionalAccess {
         
         private Status statusField;
         
-        private CDVRAdapterBase[] adaptersField;
+        private CDVRAdapter[] adaptersField;
         
         /// <remarks/>
         public Status Status {
@@ -9793,7 +9794,7 @@ namespace WebAPI.ConditionalAccess {
         }
         
         /// <remarks/>
-        public CDVRAdapterBase[] Adapters {
+        public CDVRAdapter[] Adapters {
             get {
                 return this.adaptersField;
             }
