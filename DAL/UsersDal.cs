@@ -1172,7 +1172,7 @@ namespace DAL
 
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_UserState_New");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_UserActivationStatus");
                 sp.SetConnectionKey("USERS_CONNECTION_STRING");
                 sp.AddParameter("@Id", nUserID);
                 sp.AddParameter("@UserName", sUserName);
