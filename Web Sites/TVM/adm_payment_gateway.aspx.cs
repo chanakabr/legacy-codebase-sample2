@@ -60,17 +60,18 @@ public partial class adm_payment_gateway : System.Web.UI.Page
     protected void FillTheTableEditor(ref DBTableWebEditor theTable, string sOrderBy)
     {
         Int32 groupID = LoginManager.GetLoginGroupID();
+        
 
         theTable += "select pg.id, pg.name, pg.group_id, pg.is_active, pg.status, pg.adapter_url as 'adapter url'";
         theTable += ",case gp.[DEFAULT_PAYMENT_GATEWAY] when pg.id then 'YES' else 'NO' end as 'is default'";
-        theTable += ",pg.external_identifier as 'external id', case pg.is_payment_method_support when 1 then 'YES' else 'NO' end as 'support payment method'"; 
+        theTable += ",pg.external_identifier as 'external id'";        
         theTable += "from payment_gateway pg ";
-        theTable += "left join groups_parameters gp on pg.group_id = gp.group_id";
-        theTable += "where";
+        theTable += "left join groups_parameters gp on pg.group_id = gp.group_id ";      
+        theTable += "where ";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("pg.group_id", "=", groupID);
-        theTable += "and";
+        theTable += " and ";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("pg.status", "=", 1);
-        theTable += "order by id";
+        theTable += " order by id ";
         theTable.SetConnectionKey("billing_connection");
 
         theTable.AddHiddenField("is_active");

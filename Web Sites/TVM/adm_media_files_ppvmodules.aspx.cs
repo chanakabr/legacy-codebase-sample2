@@ -324,8 +324,7 @@ public partial class adm_media_files_ppvmodules : System.Web.UI.Page
                 DateTime? updatedStartDate = ODBCWrapper.Utils.GetNullableDateSafeVal(updatedppvModuleMediaFileDetails, "start_date");
                 DateTime? updatedEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(updatedppvModuleMediaFileDetails, "end_date");
                 // check if changes in the start date require future index update call, incase updatedStartDate is in more than 2 years we don't update the index (per Ira's request)
-                if (updatedStartDate.HasValue && (updatedStartDate.Value > DateTime.UtcNow && updatedStartDate.Value <= DateTime.UtcNow.AddYears(2))
-                    && (!prevStartDate.HasValue || updatedStartDate.Value != prevStartDate.Value))
+                if (RabbitHelper.IsFutureIndexUpdate(prevStartDate, updatedStartDate))
                 {
                     if (!RabbitHelper.InsertFreeItemsIndexUpdate(nLogedInGroupID, ApiObjects.eObjectType.Media, new List<int>() { mediaID }, updatedStartDate.Value))
                     {
@@ -334,8 +333,7 @@ public partial class adm_media_files_ppvmodules : System.Web.UI.Page
                 }
 
                 // check if changes in the end date require future index update call, incase updatedEndDate is in more than 2 years we don't update the index (per Ira's request)
-                if (updatedEndDate.HasValue && (updatedEndDate > DateTime.UtcNow && updatedEndDate.Value <= DateTime.UtcNow.AddYears(2))
-                    && (!prevEndDate.HasValue || updatedEndDate.Value != prevEndDate.Value))
+                if (RabbitHelper.IsFutureIndexUpdate(prevEndDate, updatedEndDate))
                 {
                     if (!RabbitHelper.InsertFreeItemsIndexUpdate(nLogedInGroupID, ApiObjects.eObjectType.Media, new List<int>() { mediaID }, updatedEndDate.Value))
                     {

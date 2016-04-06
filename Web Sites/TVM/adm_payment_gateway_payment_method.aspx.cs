@@ -71,9 +71,9 @@ public partial class adm_payment_gateway_payment_method : System.Web.UI.Page
     {
         Int32 groupID = LoginManager.GetLoginGroupID();
         theTable.SetConnectionKey("billing_connection");
-        theTable += "select ID, group_id, status, Name ";
-        theTable += " from payment_gateway_payment_method ";
-        theTable += " where ( status = 1 or status = 4 ) AND " ;
+        theTable += "select ID, group_id, status, Name, case allow_multi_instance when 1 then 'YES' ELSE 'NO' END as 'allow_multi_instance'";
+        theTable += "from payment_gateway_payment_method ";
+        theTable += "where ( status = 1 or status = 4 ) AND " ;
         theTable += ODBCWrapper.Parameter.NEW_PARAM("payment_gateway_id", "=", int.Parse(Session["paymentGW_id"].ToString()));
         theTable += "AND";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", groupID);
