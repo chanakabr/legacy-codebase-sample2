@@ -16,7 +16,7 @@ namespace TvinciCache
         {
             string key = string.Format("{0}_GetWSCredentials_{1}_{2}", eMainWSModule.ToString(), nGroupID, eWSModule.ToString());
 
-            Credentials uc = new Credentials();
+            Credentials uc;
 
             if (!WSCache.Instance.TryGet<Credentials>(key, out uc))
             {
@@ -34,6 +34,10 @@ namespace TvinciCache
                             uc.m_sUsername = sUN;
                             uc.m_sPassword = sPass;
                             WSCache.Instance.Add(key, uc);
+                        }
+                        else
+                        {
+                            uc = new Credentials();
                         }
                     }
                 }

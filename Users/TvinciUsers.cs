@@ -95,26 +95,19 @@ namespace Users
 
         public override UserActivationState GetUserActivationStatus(ref string sUserName, ref Int32 nUserID)
         {
-            int nActivateStatus = 0;
-
             if (!IsActivationNeeded(null))
             {
                 return UserActivationState.Activated;
             }
 
-            List<int> lGroupIDs = UtilsDal.GetAllRelatedGroups(m_nGroupID);
-
-            UserActivationState activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(m_nGroupID, lGroupIDs, m_nActivationMustHours, ref sUserName, ref nUserID, ref nActivateStatus);
+            UserActivationState activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(m_nGroupID, m_nActivationMustHours, ref sUserName, ref nUserID);
 
             return activStatus;
         }
 
         public UserActivationState GetUserStatus(ref string sUserName, ref Int32 nUserID)
         {
-            List<int> lGroupIDs = UtilsDal.GetAllRelatedGroups(m_nGroupID);
-
-            int nActivateStatus = 0;
-            UserActivationState activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(m_nGroupID, lGroupIDs, m_nActivationMustHours, ref sUserName, ref nUserID, ref nActivateStatus);
+            UserActivationState activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(m_nGroupID, m_nActivationMustHours, ref sUserName, ref nUserID);
 
             return activStatus;
         }
@@ -672,16 +665,21 @@ namespace Users
             }
         }
 
-        public override bool ResendActivationMail(string sUN)
+        public override bool ResendActivationMail(string username)
         {
-            Int32 nUserID = GetUserIDByUserName(sUN);
+            Int32 userID = GetUserIDByUserName(username);
+            if (userID == 0)
+                return false;
+
             User u = new User();
-            u.Initialize(nUserID, m_nGroupID, false);
-            if (u.m_oBasicData.m_sPassword != "")
+            if (!u.Initialize(userID, m_nGroupID, false))
+                return false;
+
+            if (u != null && u.m_oBasicData != null && !string.IsNullOrEmpty(u.m_oBasicData.m_sPassword))
             {
-                TvinciAPI.WelcomeMailRequest sMailReq = GetWelcomeMailRequest(u.m_oBasicData.m_sFirstName, u.m_oBasicData.m_sUserName, u.m_oBasicData.m_sPassword, u.m_oBasicData.m_sEmail, u.m_oBasicData.m_sFacebookID);
-                bool sendingMailResult = Utils.SendMail(m_nGroupID, sMailReq);
-                return true;
+                TvinciAPI.WelcomeMailRequest mailReq = GetWelcomeMailRequest(u.m_oBasicData.m_sFirstName, u.m_oBasicData.m_sUserName, u.m_oBasicData.m_sPassword, u.m_oBasicData.m_sEmail, u.m_oBasicData.m_sFacebookID);
+                if (Utils.SendMail(m_nGroupID, mailReq))
+                    return true;
             }
             return false;
         }
@@ -1950,7 +1948,7 @@ namespace Users
                     {
                         if (family.DeviceInstances.Where(d => d.m_deviceUDID == udid).FirstOrDefault() != null)
                         {
-                            Utils.AddInitiateNotificationActionToQueue(groupId, eUserMessageAction.ChangeUsers, int.Parse(userIdToChange), udid);
+                            Utils.AddInitiateNotificationAction(groupId, eUserMessageAction.ChangeUsers, int.Parse(userIdToChange), udid);
                             return response;
                         }
                     }
@@ -1967,6 +1965,31 @@ namespace Users
                 response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 return response;
             }
+        }
+
+        public override ApiObjects.Response.Status ResendActivationToken(string username, string password)
+        {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            UserResponseObject user = User.CheckUserPassword(username, password, 0, 0, m_nGroupID, false, false);
+
+            if (user == null)
+                return response;
+
+            response = Utils.ConvertResponseStatusToResponseObject(user.m_RespStatus);
+
+            if (response.Code != (int)eResponseStatus.OK)
+                return response;
+
+            TvinciAPI.WelcomeMailRequest mailReq = GetWelcomeMailRequest(user.m_user.m_oBasicData.m_sFirstName, user.m_user.m_oBasicData.m_sUserName, user.m_user.m_oBasicData.m_sPassword,
+                user.m_user.m_oBasicData.m_sEmail, user.m_user.m_oBasicData.m_sFacebookID);
+
+            if (Utils.SendMail(m_nGroupID, mailReq))
+                response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            else
+                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            return response;
         }
     }
 }

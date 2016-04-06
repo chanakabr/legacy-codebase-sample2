@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using ApiObjects;
 using Catalog.Response;
 using KLogMonitor;
+using KlogMonitorHelper;
 using EpgBL;
 using ApiObjects.Response;
 using ApiObjects.PlayCycle;
@@ -24,7 +25,7 @@ namespace Catalog.Request
     [DataContract]
     public class MediaMarkRequest : BaseRequest, IRequestImp
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());        
 
         [DataMember]
         public MediaPlayRequestData m_oMediaPlayRequestData;
@@ -52,7 +53,7 @@ namespace Catalog.Request
             MediaMarkResponse oMediaMarkResponse = null;
 
             try
-            {                
+            {
                 MediaMarkRequest oMediaMarkRequest = null;
 
                 CheckSignature(oBaseRequest);
@@ -118,7 +119,7 @@ namespace Catalog.Request
             int nExitFull = 0;
             int nSendToFriend = 0;
             int nLoad = 0;
-            int nFirstPlay = 0;            
+            int nFirstPlay = 0;
             int nPlatform = 0;
             int nSwhoosh = 0;
             int fileDuration = 0;
@@ -128,7 +129,7 @@ namespace Catalog.Request
             if (assetType == eAssetTypes.EPG)
             {
                 BaseEpgBL epgBL = EpgBL.Utils.GetInstance(this.m_nGroupID);
-                List<EpgCB> lEpgProg = epgBL.GetEpgs(new List<string>(){this.m_oMediaPlayRequestData.m_sAssetID});
+                List<EpgCB> lEpgProg = epgBL.GetEpgs(new List<string>() { this.m_oMediaPlayRequestData.m_sAssetID });
                 if (lEpgProg != null && lEpgProg.Count > 0)
                     fileDuration = Convert.ToInt32((lEpgProg.First().EndDate - lEpgProg.First().StartDate).TotalSeconds);
                 else
@@ -147,7 +148,7 @@ namespace Catalog.Request
 
             // check anonymous user
             if (Catalog.IsAnonymousUser(m_oMediaPlayRequestData.m_sSiteGuid))
-            {                
+            {
                 oMediaMarkResponse.status = new Status((int)eResponseStatus.UserNotAllowed, "Anonymous User Can't watch nPVR");
                 return oMediaMarkResponse;
             }
@@ -171,11 +172,11 @@ namespace Catalog.Request
 
         /* no concurrency check for NPVR play , only UpdateFollowMe */
         private void HandleNpvrEpgPlayAction(MediaPlayActions mediaMarkAction, int nCountryID, int nPlatform, ref int nActionID, ref int nPlay, ref int nStop, ref int nPause,
-            ref int nFinish, ref int nFull, ref int nExitFull, ref int nSendToFriend, ref int nLoad, ref int nFirstPlay, ref bool isConcurrent, 
+            ref int nFinish, ref int nFull, ref int nExitFull, ref int nSendToFriend, ref int nLoad, ref int nFirstPlay, ref bool isConcurrent,
             ref bool isError, ref int nSwoosh, ref int fileDuration, eAssetTypes assetType)
         {
             int nDomainID = 0;
-            ePlayType playType = assetType == eAssetTypes.EPG ? ePlayType.EPG : ePlayType.NPVR;            
+            ePlayType playType = assetType == eAssetTypes.EPG ? ePlayType.EPG : ePlayType.NPVR;
 
             switch (mediaMarkAction)
             {
@@ -198,28 +199,28 @@ namespace Catalog.Request
                 case MediaPlayActions.PLAY:
                     {
                         nPlay = 1;
-                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, 
+                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc,
                             this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), (int)assetType, nDomainID, playType);
                         break;
                     }
                 case MediaPlayActions.STOP:
                     {
                         nStop = 1;
-                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, 
+                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc,
                             this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), (int)assetType, nDomainID, playType);
                         break;
                     }
                 case MediaPlayActions.PAUSE:
                     {
                         nPause = 1;
-                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, 
+                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc,
                             this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), (int)assetType, nDomainID, playType);
                         break;
                     }
                 case MediaPlayActions.FINISH:
                     {
                         nFinish = 1;
-                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, 0, this.m_oMediaPlayRequestData.m_sUDID, 
+                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, 0, this.m_oMediaPlayRequestData.m_sUDID,
                             fileDuration, mediaMarkAction.ToString(), (int)assetType, nDomainID, playType);
                         break;
                     }
@@ -246,7 +247,7 @@ namespace Catalog.Request
                 case MediaPlayActions.FIRST_PLAY:
                     {
                         nFirstPlay = 1;
-                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, 
+                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc,
                             this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), (int)assetType, nDomainID, playType);
                         break;
                     }
@@ -260,7 +261,7 @@ namespace Catalog.Request
                 case MediaPlayActions.SWOOSH:
                     {
                         nSwoosh = 1;
-                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc, 
+                        Catalog.UpdateFollowMe(this.m_nGroupID, this.m_oMediaPlayRequestData.m_sAssetID, this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nLoc,
                             this.m_oMediaPlayRequestData.m_sUDID, fileDuration, mediaMarkAction.ToString(), (int)assetType, nDomainID, playType);
                         break;
                     }
@@ -351,6 +352,9 @@ namespace Catalog.Request
                     nActionID = Catalog.GetMediaActionID(m_oMediaPlayRequestData.m_sAction);
                 }
 
+                List<Task> tasks = new List<Task>();
+                ContextData contextData = new ContextData();
+
                 if (mediaId != 0)
                 {
                     if (nFirstPlay != 0 || nPlay != 0 || nLoad != 0 || nPause != 0 || nStop != 0 || nFull != 0 || nExitFull != 0 || nSendToFriend != 0 || nPlayTime != 0 || nFinish != 0 || nSwhoosh != 0 || nActionID == (int)MediaPlayActions.HIT)
@@ -365,17 +369,19 @@ namespace Catalog.Request
                             playCycleKey = CatalogDAL.GetOrInsert_PlayCycleKey(m_oMediaPlayRequestData.m_sSiteGuid, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID, 0, m_nGroupID, true);
                         }
 
-                        Task.Factory.StartNew(() => Catalog.WriteMediaEohStatistics(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID,
-                                                                                    nMediaDuration, nCountryID, nPlayerID, nFirstPlay, nPlay, nLoad, nPause, nStop, nFinish, nFull, nExitFull, nSendToFriend,
-                                                                                    m_oMediaPlayRequestData.m_nLoc, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid,
-                                                                                    m_oMediaPlayRequestData.m_sUDID, playCycleKey, nSwhoosh));
+                        tasks.Add(Task.Factory.StartNew(() => Catalog.WriteMediaEohStatistics(nWatcherID, sSessionID, m_nGroupID, nOwnerGroupID, mediaId, m_oMediaPlayRequestData.m_nMediaFileID, nBillingTypeID, nCDNID,
+                                                        nMediaDuration, nCountryID, nPlayerID, nFirstPlay, nPlay, nLoad, nPause, nStop, nFinish, nFull, nExitFull, nSendToFriend,
+                                                        m_oMediaPlayRequestData.m_nLoc, nQualityID, nFormatID, dNow, nUpdaterID, nBrowser, nPlatform, m_oMediaPlayRequestData.m_sSiteGuid,
+                                                        m_oMediaPlayRequestData.m_sUDID, playCycleKey, nSwhoosh, contextData)));
                     }
 
                     if (nActionID == (int)MediaPlayActions.HIT)
-                        // log for mediahit for statistics
-                        Task.Factory.StartNew(() => WriteLiveViews(m_nGroupID, mediaId, nMediaTypeID, nPlayTime));
+                    // log for mediahit for statistics
+                    {
+                        tasks.Add(Task.Factory.StartNew(() => WriteLiveViews(m_nGroupID, mediaId, nMediaTypeID, nPlayTime, contextData)));
+                    }
                 }
-                
+
                 if (nActionID != -1)
                 {
                     if (nActionID != (int)MediaPlayActions.HIT)
@@ -385,33 +391,56 @@ namespace Catalog.Request
                     }
 
                     if (IsFirstPlay(nActionID))
-                    {
-                        Task.Factory.StartNew(() => WriteFirstPlay(mediaId, m_oMediaPlayRequestData.m_nMediaFileID,
-                            m_nGroupID, nMediaTypeID, nPlayTime, m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID));
+                    {                        
+                        tasks.Add(Task.Factory.StartNew(() => WriteFirstPlay(mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_nGroupID, nMediaTypeID, nPlayTime,
+                                        m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID, contextData)));
                     }
                 }
                 else
                 {
                     oMediaMarkResponse.status = new Status((int)eResponseStatus.ActionNotRecognized, "Action not recognized");
                 }
+
+                if (tasks != null && tasks.Count > 0)
+                {
+                    Task.WaitAll(tasks.ToArray());
+                }
             }
 
             return oMediaMarkResponse;
         }
 
-        private void WriteLiveViews(int groupID, int mediaID, int mediaTypeID, int playTime)
+        private void WriteLiveViews(int groupID, int mediaID, int mediaTypeID, int playTime, ContextData context)
         {
-            if (!Catalog.InsertStatisticsRequestToES(groupID, mediaID, mediaTypeID, Catalog.STAT_ACTION_MEDIA_HIT, playTime))
-                log.Error("Error - " + String.Concat("Failed to write mediahit into stats index. M ID: ", mediaID, " MT ID: ", mediaTypeID));
+            try
+            {
+                context.Load();
+                if (!Catalog.InsertStatisticsRequestToES(groupID, mediaID, mediaTypeID, Catalog.STAT_ACTION_MEDIA_HIT, playTime))
+                    log.Error("Error - " + String.Concat("Failed to write mediahit into stats index. M ID: ", mediaID, " MT ID: ", mediaTypeID));
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error in WriteLiveViews, mediaID: {0}, groupID: {1}, mediaTypeID: {2}, playTime: {3}, Exception: {4}", mediaID,
+                    groupID, mediaTypeID, playTime, ex);
+            }
         }
 
         private void WriteFirstPlay(int mediaID, int mediaFileID, int groupID, int mediaTypeID, int playTime,
-            string siteGuid, string udid, int platform, int countryID)
+            string siteGuid, string udid, int platform, int countryID, ContextData context)
         {
-            ApiDAL.Update_MediaViews(mediaID, mediaFileID);
-            if (!Catalog.InsertStatisticsRequestToES(groupID, mediaID, mediaTypeID, Catalog.STAT_ACTION_FIRST_PLAY, playTime))
+            try
             {
-                log.Error("Error - " + String.Concat("Failed to write firstplay into stats index. Req: ", ToString()));
+                context.Load();
+                ApiDAL.Update_MediaViews(mediaID, mediaFileID);
+                if (!Catalog.InsertStatisticsRequestToES(groupID, mediaID, mediaTypeID, Catalog.STAT_ACTION_FIRST_PLAY, playTime))
+                {
+                    log.Error("Error - " + String.Concat("Failed to write firstplay into stats index. Req: ", ToString()));
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error in WriteFirstPlay, mediaID: {0}, mediaFileID: {1}, groupID: {2}, mediaTypeID: {3}, playTime: {4}, siteGuid: {5}, udid: {6}, platform: {7}, countryID: {8}, Exception: {9}", mediaID,
+                    mediaFileID, groupID, mediaTypeID, playTime, siteGuid, udid, platform, countryID, ex);
             }
         }
 
@@ -529,7 +558,7 @@ namespace Catalog.Request
                                 if (!Catalog.IsAnonymousUser(m_oMediaPlayRequestData.m_sSiteGuid))
                                 {
                                     playCycleSession = CatalogDAL.InsertPlayCycleSession(this.m_oMediaPlayRequestData.m_sSiteGuid, this.m_oMediaPlayRequestData.m_nMediaFileID, this.m_nGroupID, this.m_oMediaPlayRequestData.m_sUDID, nPlatform, 0, nDomainID);
-                                }                                
+                                }
                                 // We still insert to DB incase needed by other process                            
                                 if (playCycleSession != null && !string.IsNullOrEmpty(playCycleSession.PlayCycleKey))
                                 {

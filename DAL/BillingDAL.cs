@@ -1255,7 +1255,7 @@ namespace DAL
             return res;
         }
 
-        public static List<PaymentGatewaySelectedBy> GetHouseholdPaymentGateways(int groupID, long householdId, int? selected, int status = 1, int isActive = 1)
+        public static List<PaymentGatewaySelectedBy> GetHouseholdPaymentGateways(int groupID, long householdId, int? selected)
         {
             List<PaymentGatewaySelectedBy> res = new List<PaymentGatewaySelectedBy>();
             try
@@ -1264,7 +1264,6 @@ namespace DAL
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
                 sp.AddParameter("@groupID", groupID);
                 sp.AddParameter("@houseHoldID", householdId);
-                sp.AddParameter("@status", status);
                 if (selected.HasValue)
                 {
                     sp.AddParameter("@selected", selected.Value);
@@ -1447,7 +1446,6 @@ namespace DAL
                 sp.AddParameter("@isActive", paymentGateway.IsActive);
                 sp.AddParameter("@renewal_interval", paymentGateway.RenewalIntervalMinutes);
                 sp.AddParameter("@renewal_start", paymentGateway.RenewalStartMinutes);
-                sp.AddParameter("@is_payment_method_support ", paymentGateway.SupportPaymentMethod);
 
                 bool isSet = sp.ExecuteReturnValue<bool>();
                 return isSet;
@@ -1479,7 +1477,6 @@ namespace DAL
                 sp.AddParameter("@isActive", pgw.IsActive);
                 sp.AddParameter("@renewal_interval", pgw.RenewalIntervalMinutes);
                 sp.AddParameter("@renewal_start", pgw.RenewalStartMinutes);
-                sp.AddParameter("@is_payment_method_support ", pgw.SupportPaymentMethod);
 
                 DataTable dt = CreateDataTable(pgw.Settings);
                 sp.AddDataTableParameter("@KeyValueList", dt);
@@ -1556,50 +1553,6 @@ namespace DAL
             }
         }
 
-        public static bool SetPaymentGWPending(int groupID, int? status, PaymentGatewayPending paymentGatewayPending)
-        {
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_PaymentGWPending");
-                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
-                sp.AddParameter("@ID", paymentGatewayPending.ID);
-                sp.AddParameter("@payment_gateway_transaction_id", paymentGatewayPending.PaymentGatewayTransactionId);
-                sp.AddParameter("@next_retry_date", paymentGatewayPending.NextRetryDate);
-                sp.AddParameter("@adapter_retry_count", paymentGatewayPending.AdapterRetryCount);
-                sp.AddParameter("@billing_guid", paymentGatewayPending.BillingGuid);
-
-                if (status.HasValue)
-                    sp.AddParameter("@status", status.Value);
-                else
-                    sp.AddParameter("@status", DBNull.Value);
-
-                bool isSet = sp.ExecuteReturnValue<bool>();
-                return isSet;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
-        public static bool DeletePaymentGWPending(int groupID, int paymentGWPending)
-        {
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_PaymentGWPending");
-                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
-                sp.AddParameter("@GroupID", groupID);
-                sp.AddParameter("@ID", paymentGWPending);
-
-                bool isDelete = sp.ExecuteReturnValue<bool>();
-                return isDelete;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
         public static int InsertPaymentGatewayTransaction(int groupID, long domainId, long siteGuid, PaymentGatewayTransaction paymentGateway)
         {
             try
@@ -1630,49 +1583,6 @@ namespace DAL
             catch (Exception)
             {
                 return 0;
-            }
-        }
-
-        public static bool SetPaymentGWTransaction(int groupID, PaymentGatewayTransaction pgt)
-        {
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_PaymentGWTransactions");
-                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
-                sp.AddParameter("@ID", pgt.ID);
-                sp.AddParameter("@payment_gateway_id", pgt.PaymentGatewayID);
-                sp.AddParameter("@external_transaction_id", pgt.ExternalTransactionId);
-                sp.AddParameter("@external_status", pgt.ExternalStatus);
-                sp.AddParameter("@product_type", pgt.ProductType);
-                sp.AddParameter("@product_id", pgt.ProductId);
-                sp.AddParameter("@billing_guid", pgt.BillingGuid);
-                sp.AddParameter("@content_id", pgt.ContentId);
-
-
-                bool isSet = sp.ExecuteReturnValue<bool>();
-                return isSet;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
-        public static bool DeletePaymentGWTransaction(int groupID, int paymentGWTransaction)
-        {
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_PaymentGWTransactions");
-                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
-                sp.AddParameter("@GroupID", groupID);
-                sp.AddParameter("@ID", paymentGWTransaction);
-
-                bool isDelete = sp.ExecuteReturnValue<bool>();
-                return isDelete;
-            }
-            catch (Exception)
-            {
-                return false;
             }
         }
 
@@ -2036,37 +1946,6 @@ namespace DAL
             return pghhpm;
         }
 
-        public static PaymentGatewayHouseholdPaymentMethod GetHouseholdPaymentMethod(int groupID, int paymentGatewayId, long householdId, int paymentMethodId)
-        {
-            PaymentGatewayHouseholdPaymentMethod pghhpm = null;
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_HouseholdPaymentMethod");
-                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
-                sp.AddParameter("@groupId", groupID);
-                sp.AddParameter("@householdId", householdId);
-                sp.AddParameter("@paymentGatewayId", paymentGatewayId);
-                sp.AddParameter("@paymentMethodId", paymentMethodId);
-
-                DataSet ds = sp.ExecuteDataSet();
-
-                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
-                {
-                    pghhpm = new PaymentGatewayHouseholdPaymentMethod();
-                    pghhpm.PaymentMethodExternalId = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "PAYMENT_METHOD_EXTERNAL_ID");
-                    pghhpm.PaymentMethodId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "PAYMENT_METHOD_ID");
-                    pghhpm.Id = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error at GetPaymentGatewayHouseholdPaymentMethod household: {0}, payment gateway: {1}, payment method:{2}, error {3}",
-                    householdId, paymentGatewayId, paymentMethodId, ex);
-            }
-
-            return pghhpm;
-        }
-
         public static PaymentGatewayHouseholdPaymentMethod GetPaymentGatewayHouseholdPaymentMethod(int groupID, int paymentGatewayId, long householdId, string paymentMethodExternalId)
         {
             PaymentGatewayHouseholdPaymentMethod pghhpm = null;
@@ -2097,10 +1976,10 @@ namespace DAL
             return pghhpm;
         }
 
-        public static PaymentGateway GetPaymentGatewayHousehold(int groupID, string externalIdentifier, int householdId, out bool isPaymentGatewayRelatedToHousehold)
+        public static PaymentGatewayHouseholdPaymentMethod GetPaymentGatewayHouseholdPaymentMethod(int groupID, string externalIdentifier, int householdId,
+            string paymentMethodName, string paymentMethodExternalId)
         {
-            PaymentGateway paymentGateway = null;
-            isPaymentGatewayRelatedToHousehold = false;
+            PaymentGatewayHouseholdPaymentMethod pghhpm = null;
 
             try
             {
@@ -2109,34 +1988,29 @@ namespace DAL
                 sp.AddParameter("@groupId", groupID);
                 sp.AddParameter("@externalIdentifier", externalIdentifier);
                 sp.AddParameter("@householdId", householdId);
+                sp.AddParameter("@paymentMethodName", paymentMethodName);
+                sp.AddParameter("@paymentMethodExternalId", paymentMethodExternalId);
 
                 DataSet ds = sp.ExecuteDataSet();
 
-                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
-                    if (ds.Tables[0].Rows.Count > 0)
-                    {
-                        paymentGateway = new PaymentGateway();
-                        paymentGateway.ID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "payment_gateway_id");
-                        int supportPaymentMethod = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_payment_method_support");
-                        paymentGateway.SupportPaymentMethod = supportPaymentMethod == 1;
-                    }
-                    if (ds.Tables.Count == 2 && ds.Tables[1].Rows.Count > 0 )
-                    {
-                        isPaymentGatewayRelatedToHousehold = true;
-                    }
+                    pghhpm = new PaymentGatewayHouseholdPaymentMethod();
+
+                    pghhpm.PaymentGatewayId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "PAYMENT_GATEWAY_ID");
+                    pghhpm.PaymentMethodId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "PAYMENT_METHOD_ID");
+                    pghhpm.HouseholdId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "HOUSEHOLD_ID");
+                    pghhpm.PaymentMethodExternalId = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "PAYMENT_METHOD_EXTERNAL_ID");
+                    pghhpm.PaymentDetails = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "PAYMENT_METHOD_DETAILS");
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error at GetPaymentGatewayHousehold household: {0}, payment gateway: {1}, error {2}", householdId,
+                log.ErrorFormat("Error at GetPaymentGatewayHouseholdPaymentMethod household: {0}, payment gateway: {1}, error {2}", householdId,
                     !string.IsNullOrEmpty(externalIdentifier) ? externalIdentifier : string.Empty, ex);
             }
 
-            log.DebugFormat("GetPaymentGatewayHousehold household {0}, payment gateway {1}, payment gateway Id {2}", householdId,
-                !string.IsNullOrEmpty(externalIdentifier) ? externalIdentifier : string.Empty, paymentGateway);
-
-            return paymentGateway;
+            return pghhpm;
         }
 
         public static bool GetPaymentMethod(int groupID, int paymentGatewayId, int paymentMethodId)
@@ -2216,7 +2090,7 @@ namespace DAL
             }
         }
 
-        public static PaymentMethod Insert_PaymentGatewayPaymentMethod(int groupId, int paymentGatewayId, string name)
+        public static PaymentMethod Insert_PaymentGatewayPaymentMethod(int groupId, int paymentGatewayId, string name, bool allowMultiInstance)
         {
             PaymentMethod response = null;
             try
@@ -2226,6 +2100,7 @@ namespace DAL
                 sp.AddParameter("@group_id", groupId);
                 sp.AddParameter("@payment_gateway_id", paymentGatewayId);
                 sp.AddParameter("@name", name);
+                sp.AddParameter("@allow_multi_instance", allowMultiInstance ? 1 : 0);
 
                 DataSet ds = sp.ExecuteDataSet();
 
@@ -2236,7 +2111,8 @@ namespace DAL
                         response = new PaymentMethod()
                         {
                             ID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID"),
-                            Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "NAME"),
+                            Name = name,
+                            AllowMultiInstance = allowMultiInstance,
                         };
                     }
                 }
@@ -2251,46 +2127,40 @@ namespace DAL
             return response;
         }
 
-        public static bool Update_PaymentGatewayPaymentMethod(int groupId, int paymentGatewayId, int paymentMethodId, string name)
+        public static bool Update_PaymentGatewayPaymentMethod(int paymentMethodId, string name, bool allowMultiInstance)
         {
             int rowCount = 0;
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_PaymentGatewayPaymentMethod");
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
-                sp.AddParameter("@group_id", groupId);
-                sp.AddParameter("@payment_gateway_id", paymentGatewayId);
                 sp.AddParameter("@payment_method_id", paymentMethodId);
                 sp.AddParameter("@name", name);
+                sp.AddParameter("@allow_multi_instance", allowMultiInstance ? 1 : 0);
 
                 rowCount = sp.ExecuteReturnValue<int>();
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error at Update_PaymentGatewayPaymentMethod. groupId: {0}, paymentGatewayId: {1}, paymentMethodId: {2}, name = {3}",
-                    groupId, paymentGatewayId, paymentMethodId, !string.IsNullOrEmpty(name) ? name : string.Empty, ex);
+                log.ErrorFormat("Error at Update_PaymentGatewayPaymentMethod. paymentMethodId: {0}, name = {1}", paymentMethodId, !string.IsNullOrEmpty(name) ? name : string.Empty, ex);
             }
 
             return rowCount > 0;
         }
 
-        public static bool Delete_PaymentGatewayPaymentMethod(int groupId, int paymentGatewayId, int paymentMethodId)
+        public static bool Delete_PaymentGatewayPaymentMethod(int paymentMethodId)
         {
             int rowCount = 0;
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_PaymentGatewayPaymentMethod");
-                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
-                sp.AddParameter("@group_id", groupId);
-                sp.AddParameter("@payment_gateway_id", paymentGatewayId);
                 sp.AddParameter("@payment_method_id", paymentMethodId);
 
                 rowCount = sp.ExecuteReturnValue<int>();
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error at Delete_PaymentGatewayPaymentMethod. groupId: {0}, paymentGatewayId: {1}, paymentMethodId: {2}",
-                    groupId, paymentGatewayId, paymentMethodId, ex);
+                log.ErrorFormat("Error at Delete_PaymentGatewayPaymentMethod. paymentMethodId: {0}", paymentMethodId, ex);
             }
 
             return rowCount > 0;
@@ -2319,6 +2189,7 @@ namespace DAL
                             {
                                 ID = ODBCWrapper.Utils.GetIntSafeVal(row, "ID"),
                                 Name = ODBCWrapper.Utils.GetSafeStr(row, "NAME"),
+                                AllowMultiInstance = ODBCWrapper.Utils.GetIntSafeVal(row, "ALLOW_MULTI_INSTANCE") == 1
                             };
 
                             response.Add(method);
@@ -2333,56 +2204,6 @@ namespace DAL
             }
 
             return response;
-        }
-
-        public static Dictionary<int, List<HouseholdPaymentMethod>> GetHouseholdPaymentMethods(int groupId, List<int> paymentGatewayIds, int householdId)
-        {
-            Dictionary<int, List<HouseholdPaymentMethod>> paymentGatewayHouseholdPaymentMethods = null;
-            int paymentGatewayId = 0;
-
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_HouseholdPaymentMethods");
-                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
-                sp.AddParameter("@groupId", groupId);
-                sp.AddIDListParameter<int>("@paymentGatewayIds", paymentGatewayIds, "Id");
-                sp.AddParameter("@householdId", householdId);
-
-                DataSet ds = sp.ExecuteDataSet();
-
-                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
-                {
-                    if (ds.Tables[0].Rows.Count > 0)
-                    {
-                        paymentGatewayHouseholdPaymentMethods = new Dictionary<int, List<HouseholdPaymentMethod>>();
-                        foreach (DataRow row in ds.Tables[0].Rows)
-                        {
-                            paymentGatewayId = ODBCWrapper.Utils.GetIntSafeVal(row, "PAYMENT_GATEWAY_ID");
-
-                            if (!paymentGatewayHouseholdPaymentMethods.ContainsKey(paymentGatewayId))
-                            {
-                                paymentGatewayHouseholdPaymentMethods.Add(paymentGatewayId, new List<HouseholdPaymentMethod>());
-                            }
-
-                            paymentGatewayHouseholdPaymentMethods[paymentGatewayId].Add(new HouseholdPaymentMethod()
-                            {
-                                ID = ODBCWrapper.Utils.GetIntSafeVal(row, "ID"),
-                                Name = ODBCWrapper.Utils.GetSafeStr(row, "Name"),
-                                Details = ODBCWrapper.Utils.GetSafeStr(row, "Details"),
-                                Selected = ODBCWrapper.Utils.GetSafeStr(row, "Selected") == "1" ? true : false,
-                                PaymentGatewayId = paymentGatewayId
-                            });
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error GetHouseholdPaymentMethods ex {0} ", ex);
-            }
-
-
-            return paymentGatewayHouseholdPaymentMethods;
         }
 
         public static bool UpdatePaymentGatewayTransaction(int groupId, int paymentGatewayId, string externalTransactionId, string paymentDetails, string paymentMethod, int paymentMethodId)
@@ -2410,6 +2231,17 @@ namespace DAL
 
             return rowCount > 0;
 
+        }
+
+        public static DataSet GetAllPaymentGatewaysWithPaymentMethods(int groupId, long householdId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_AllPaymentGatewaysWithPaymentMethods");
+            sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+            sp.AddParameter("@groupID", groupId);
+            sp.AddParameter("@houseHoldID", householdId);
+
+            DataSet ds = sp.ExecuteDataSet();
+            return ds;
         }
     }
 }

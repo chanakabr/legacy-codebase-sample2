@@ -20,6 +20,7 @@ using GroupsCacheManager;
 using ApiObjects;
 using Catalog.Request;
 using KLogMonitor;
+using KlogMonitorHelper;
 
 namespace Catalog
 {
@@ -322,16 +323,41 @@ namespace Catalog
                         if (!dictRes.ContainsKey(mediaID))
                             dictRes.Add(mediaID, new SearchResult());
                     }
-                    Parallel.ForEach<int>(lMediaIDs, mediaID =>
-                    {
 
-                        SearchResult res = searcher.GetDoc(nParentGroupID, mediaID);
-                        if (res != null)
+                    try
+                    {
+                        ContextData contextData = new ContextData();
+                        Parallel.ForEach<int>(lMediaIDs, mediaID =>
                         {
-                            dictRes[mediaID] = new SearchResult() { assetID = res.assetID, UpdateDate = res.UpdateDate };
+                            contextData.Load();
+                            SearchResult res = new SearchResult()
+                            {
+                                assetID = mediaID,
+                                UpdateDate = DateTime.MinValue
+                            };
+                            try
+                            {
+                                res = searcher.GetDoc(nParentGroupID, mediaID);
+                                if (res != null)
+                                {
+                                    dictRes[mediaID] = new SearchResult()
+                                    {
+                                        assetID = res.assetID,
+                                        UpdateDate = res.UpdateDate
+                                    };
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                log.ErrorFormat("Failed getting document of media {0}. ex = {1}", mediaID, ex);
+                            }
                         }
-                    }
                         );
+                    }
+                    catch (Exception ex)
+                    {
+                        log.ErrorFormat("Failed performing parallel GetMediaUpdateDate for group {0}. ex = {1}", nParentGroupID, ex);
+                    }
 
                     //lMediaRes = dictRes.Values.ToList();
 
@@ -403,7 +429,7 @@ namespace Catalog
             List<ChannelViewsResult> channelViews = new List<ChannelViewsResult>();
 
             #region Define Facet Query
-            ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery() { PageIndex = 0, PageSize = 0 };
+            ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery() { PageIndex = 0, PageSize = 1 };
             filteredQuery.Filter = new ElasticSearch.Searcher.QueryFilter();
 
             BaseFilterCompositeType filter = new FilterCompositeType(CutWith.AND);
@@ -486,7 +512,7 @@ namespace Catalog
             List<int> result = new List<int>();
 
             #region Define Facet Query
-            ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery() { PageIndex = 0, PageSize = 0 };
+            ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery() { PageIndex = 0, PageSize = 1 };
             filteredQuery.Filter = new ElasticSearch.Searcher.QueryFilter();
 
             BaseFilterCompositeType filter = new FilterCompositeType(CutWith.AND);
@@ -561,7 +587,7 @@ namespace Catalog
             List<int> result = new List<int>();
 
             #region Define Facet Query
-            ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery() { PageIndex = 0, PageSize = 0 };
+            ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery() { PageIndex = 0, PageSize = 1 };
             filteredQuery.Filter = new ElasticSearch.Searcher.QueryFilter();
 
             BaseFilterCompositeType filter = new FilterCompositeType(CutWith.AND);
@@ -1082,5 +1108,6 @@ namespace Catalog
 
             return result;
         }
+
     }
 }

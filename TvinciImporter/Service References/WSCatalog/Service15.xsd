@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/ApiObjects" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/ApiObjects" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:import schemaLocation="http://localhost:96/ws_catalog/Service.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
-  <xs:import schemaLocation="http://localhost:96/ws_catalog/Service.svc?xsd=xsd5" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Epg" />
+  <xs:import schemaLocation="http://54.72.1.39:8030/catalog_v3_7/Service.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+  <xs:import schemaLocation="http://54.72.1.39:8030/catalog_v3_7/Service.svc?xsd=xsd5" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Epg" />
   <xs:simpleType name="eAssetTypes">
     <xs:restriction base="xs:string">
       <xs:enumeration value="UNKNOWN">

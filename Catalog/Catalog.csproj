@@ -103,7 +103,7 @@
     <Reference Include="KlogMonitorHelper">
       <HintPath>..\External\KlogMonitorHelper.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\tvincicommon\External\Couchbase-2.2.5\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -556,6 +556,9 @@
     <None Include="Web References\WS_Domains\DomainResponseStatus.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\WS_Domains\DomainStatusResponse2.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\WS_Domains\HomeNetwork.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -609,6 +612,9 @@
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\ws_users\UserResponseObject.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\ws_users\UsersResponse1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\ws_users\UserState.datasource">

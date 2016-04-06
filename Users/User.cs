@@ -440,7 +440,13 @@ namespace Users
                 else
                 {
                     res = m_oBasicData.Initialize(nUserID, nGroupID);
-                    bool res2 = m_oDynamicData.Initialize(nUserID, nGroupID);
+
+                    if (!res)
+                    {
+                        return res;
+                    }
+
+                    res = m_oDynamicData.Initialize(nUserID, nGroupID);
 
                     m_sSiteGUID = nUserID.ToString();
 
@@ -454,7 +460,7 @@ namespace Users
                     m_eUserState = GetCurrentUserState(nUserID, nGroupID, false);
 
                     // Add user to cache only if initialization succeeded
-                    if (shouldSaveInCache && res && res2)
+                    if (shouldSaveInCache && res)
                     {
                         usersCache.InsertUser(this, nGroupID);
                     }
@@ -799,7 +805,7 @@ namespace Users
 
             if (retVal.m_RespStatus == ResponseStatus.SessionLoggedOut)
             {
-                Utils.AddInitiateNotificationActionToQueue(nGroupID, eUserMessageAction.Logout, siteGuid, sDeviceUDID);
+                Utils.AddInitiateNotificationAction(nGroupID, eUserMessageAction.Logout, siteGuid, sDeviceUDID);
             }
             else 
                 log.ErrorFormat("SignOut: error while logging user out: user: {0}, group: {1}, error: {2}", siteGuid, nGroupID, retVal.m_RespStatus);

@@ -651,7 +651,7 @@ namespace DAL
             if (push_notification_enabled != null)
             {
                 sp.AddParameter("@push_notification_enabled", push_notification_enabled);
-            }            
+            }
             return sp.ExecuteReturnValue<bool>();
         }
 
@@ -688,7 +688,7 @@ namespace DAL
 
         public static DataRow Get_MessageAnnouncement(int messageAnnouncementId)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncement");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncementById");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             sp.AddParameter("@ID", messageAnnouncementId);
             DataSet ds = sp.ExecuteDataSet();
@@ -706,7 +706,7 @@ namespace DAL
 
         public static List<DataRow> Get_MessageAllAnnouncements(int groupId, int pageSize, int pageIndex)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncement");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncements");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@top", pageSize * (pageIndex + 1));
@@ -738,7 +738,7 @@ namespace DAL
 
         public static int Get_MessageAllAnnouncementsCount(int groupId)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncement");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncements");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
             DataSet ds = sp.ExecuteDataSet();
@@ -909,6 +909,22 @@ namespace DAL
                 log.ErrorFormat("Error while set user notification data. gid: {0}, user ID: {1}, ex: {2}", groupId, userId, ex);
             }
 
+            return result;
+        }
+
+        public static bool RemoveUserNotificationData(int groupId, int userId)
+        {
+            bool result = false;
+            try
+            {
+                result = cbManager.Remove(GetUserNotificationKey(groupId, userId));
+                if (!result)
+                    log.ErrorFormat("Error while removing user notification data. GID: {0}, user ID: {1}.", groupId, userId);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while set user notification data. gid: {0}, user ID: {1}, ex: {2}", groupId, userId, ex);
+            }
             return result;
         }
 

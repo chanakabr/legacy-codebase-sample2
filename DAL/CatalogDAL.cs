@@ -1540,7 +1540,8 @@ namespace Tvinci.Core.DAL
             {
                 startKey = new object[] { usersList, 0 },
                 endKey = new object[] { usersList, string.Empty },
-                staleState = CouchbaseManager.ViewStaleState.False
+                staleState = CouchbaseManager.ViewStaleState.False,
+                asJson = true
             };
             
             List<WatchHistory> lastWatchViews = cbManager.View<WatchHistory>(viewManager);
@@ -1573,7 +1574,8 @@ namespace Tvinci.Core.DAL
                 {
                     startKey = new object[] { long.Parse(siteGuid), minFilterdate },
                     endKey =  new object[] { long.Parse(siteGuid), maxFilterDate },
-                    staleState = CouchbaseManager.ViewStaleState.False
+                    staleState = CouchbaseManager.ViewStaleState.False,
+                    asJson = true
                 };
 
                 List<WatchHistory> unFilteredresult = cbManager.View<WatchHistory>(viewManager);
@@ -1689,7 +1691,8 @@ namespace Tvinci.Core.DAL
             // get views
             ViewManager viewManager = new ViewManager(CB_MEDIA_MARK_DESGIN, "users_medias_lastdate")
             {
-                keys = usersList
+                keys = usersList,
+                asJson = true
             };
 
             var res = cbManager.ViewKeyValuePairs<object[]>(viewManager);
@@ -1731,7 +1734,8 @@ namespace Tvinci.Core.DAL
             ViewManager viewManager = new ViewManager(CB_MEDIA_MARK_DESGIN, "media_users_lastdate")
             {
                 keys = mediasList,
-                limit = 30
+                limit = 30,
+                asJson = true
             };
 
             var res = cbManager.ViewKeyValuePairs<object[]>(viewManager);
@@ -2719,7 +2723,7 @@ namespace Tvinci.Core.DAL
 
             // get all documents from CB
             var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.MEDIAMARK);
-            IDictionary<string, object> usersData = cbManager.GetValues<object>(userKeys, true);
+            IDictionary<string, MediaMarkLog> usersData = cbManager.GetValues<MediaMarkLog>(userKeys, true, true);
             List<UserMediaMark> usersMediaMark = new List<UserMediaMark>();
 
             if (usersData == null)
@@ -2727,12 +2731,11 @@ namespace Tvinci.Core.DAL
 
             if (usersData != null && usersData.Count > 0)
             {
-                MediaMarkLog mediaMarkLog;
-                foreach (KeyValuePair<string, object> userData in usersData)
+                foreach (KeyValuePair<string, MediaMarkLog> userData in usersData)
                 {
-                    if (userData.Value != null && !string.IsNullOrEmpty(userData.Value as string))
+                    if (userData.Value != null)
                     {
-                        mediaMarkLog = JsonConvert.DeserializeObject<MediaMarkLog>(userData.Value.ToString());
+                        MediaMarkLog mediaMarkLog = userData.Value;
                         if (mediaMarkLog != null && mediaMarkLog.LastMark != null)
                         {
                             usersMediaMark.Add(mediaMarkLog.LastMark);
@@ -2760,7 +2763,7 @@ namespace Tvinci.Core.DAL
                 keys.Add(docKey);
             }
             // get all documents from CB
-            IDictionary<string, object> data = cbManager.GetValues<object>(keys, true);
+            IDictionary<string, MediaMarkLog> data = cbManager.GetValues<MediaMarkLog>(keys, true, true);
 
             List<UserMediaMark> oRes = new List<UserMediaMark>();
 
@@ -2769,12 +2772,11 @@ namespace Tvinci.Core.DAL
 
             if (data != null && data.Count > 0)
             {
-                MediaMarkLog mml;
-                foreach (KeyValuePair<string, object> item in data)
+                foreach (KeyValuePair<string, MediaMarkLog> item in data)
                 {
-                    if (item.Value != null && !string.IsNullOrEmpty(item.Value as string))
+                    if (item.Value != null)
                     {
-                        mml = JsonConvert.DeserializeObject<MediaMarkLog>(item.Value.ToString());
+                        MediaMarkLog mml = item.Value;
                         if (mml != null && mml.LastMark != null)
                         {
                             oRes.Add(mml.LastMark);
@@ -4296,11 +4298,10 @@ namespace Tvinci.Core.DAL
                 string docKey = UtilsDal.GetPlayCycleKey(siteGuid, MediaFileID, groupID, UDID, platform);
 
                 ulong version;
-                string getResult = cbClient.GetWithVersion<string>(docKey, out version);
+                playCycleSession = cbClient.GetWithVersion<PlayCycleSession>(docKey, out version);
 
-                if (version != 0)
-                {
-                    playCycleSession = JsonConvert.DeserializeObject<PlayCycleSession>(getResult);
+                if (version != 0 && playCycleSession != null)
+                {                    
                     playCycleSession.MediaConcurrencyRuleID = mediaConcurrencyRuleID;
                     playCycleSession.CreateDateMs = Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
                     playCycleSession.PlayCycleKey = playCycleKey;
@@ -4313,8 +4314,8 @@ namespace Tvinci.Core.DAL
 
                 int ttl = 0;
                 bool shouldUseTtl = int.TryParse(CB_PLAYCYCLE_DOC_EXPIRY_MIN, out ttl);
-                
-                bool setResult = cbClient.SetWithVersionWithRetry<string>(docKey, playCycleSession, version, limitRetries, 50, (uint)(ttl *  60));
+
+                bool setResult = cbClient.SetWithVersionWithRetry<PlayCycleSession>(docKey, playCycleSession, version, limitRetries, 50, (uint)(ttl * 60));
 
                 if (!setResult)
                 {

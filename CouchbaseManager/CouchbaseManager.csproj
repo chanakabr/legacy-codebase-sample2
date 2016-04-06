@@ -65,6 +65,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\tvincicommon\External\Couchbase-2.2.5\Couchbase.NetClient.dll</HintPath>
     </Reference>
+    <Reference Include="CouchBaseExtensions">
+      <HintPath>..\..\tvincicommon\External\4.5\CouchBaseExtensions.dll</HintPath>
+    </Reference>
     <Reference Include="Enyim.Caching">
       <HintPath>..\..\tvincicommon\External\Couchbase-2.2.5\Enyim.Caching.dll</HintPath>
     </Reference>
