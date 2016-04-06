@@ -303,7 +303,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             extraParams.Add("enable_start_over", new KalturaStringValue() { value = media.EnableStartOver.ToString() });
             extraParams.Add("enable_trick_play", new KalturaStringValue() { value = media.EnableTrickPlay.ToString() });
 
-            extraParams.Add("cdvr_buffer", new KalturaStringValue() { value = media.CdvrBuffer.ToString() });
+            extraParams.Add("catch_up_buffer", new KalturaStringValue() { value = media.CatchUpBuffer.ToString() });
             extraParams.Add("trick_play_buffer", new KalturaStringValue() { value = media.TrickPlayBuffer.ToString() });
 
             return extraParams;
