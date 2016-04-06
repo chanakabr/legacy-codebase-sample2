@@ -2310,9 +2310,9 @@ namespace DAL
             return adapterResponse;
         }
 
-        public static List<CDVRAdapterBase> GetCDVRAdapterList(int groupID, int status = 1, bool? isActive = null)
+        public static List<CDVRAdapter> GetCDVRAdapterList(int groupID, int status = 1, bool? isActive = null)
         {
-            List<CDVRAdapterBase> res = new List<CDVRAdapterBase>();
+            List<CDVRAdapter> res = new List<CDVRAdapter>();
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CDVRAdapters");
@@ -2323,26 +2323,56 @@ namespace DAL
                 {
                     sp.AddParameter("@isActive", isActive.Value);
                 }
-                DataSet ds = sp.ExecuteDataSetWithListParam();
+                DataSet ds = sp.ExecuteDataSet();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
                     DataTable dtResult = ds.Tables[0];
                     if (dtResult != null && dtResult.Rows != null && dtResult.Rows.Count > 0)
                     {
-                        CDVRAdapterBase adapter = null;
+                        CDVRAdapter adapter = null;
                         foreach (DataRow dr in dtResult.Rows)
                         {
-                            adapter = new CDVRAdapterBase();
-                            adapter.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
-                            adapter.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
+                            adapter = new CDVRAdapter()
+                            {
+                                ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "id"),
+                                Name = ODBCWrapper.Utils.GetSafeStr(dr, "name"),
+                                AdapterUrl = ODBCWrapper.Utils.GetSafeStr(dr, "adapter_url"),
+                                ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(dr, "external_identifier"),
+                                IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active") == 0 ? false : true,
+                                SharedSecret = ODBCWrapper.Utils.GetSafeStr(dr, "shared_secret"),
+                            };
                             res.Add(adapter);
+                        }
+
+                        if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
+                        {
+                            Dictionary<int, List<CDVRAdapterSettings>> settingsDict = new Dictionary<int, List<CDVRAdapterSettings>>();
+                            foreach (DataRow dr in ds.Tables[1].Rows)
+                            {
+                                string key = ODBCWrapper.Utils.GetSafeStr(dr, "key");
+                                string value = ODBCWrapper.Utils.GetSafeStr(dr, "value");
+                                int adapterId = ODBCWrapper.Utils.GetIntSafeVal(dr, "adapter_id");
+                                if (!settingsDict.ContainsKey(adapterId))
+                                {
+                                    settingsDict.Add(adapterId, new List<CDVRAdapterSettings>());
+                                }
+                                settingsDict[adapterId].Add(new CDVRAdapterSettings(key, value));
+                            }
+
+                            foreach (var adapterRes in res)
+                            {
+                                if (settingsDict.ContainsKey(adapterRes.ID))
+                                {
+                                    adapterRes.Settings = settingsDict[adapterRes.ID];
+                                }
+                            }
                         }
                     }
                 }
             }
             catch (Exception)
             {
-                res = new List<CDVRAdapterBase>();
+                res = new List<CDVRAdapter>();
             }
             return res;
         }
@@ -2393,7 +2423,7 @@ namespace DAL
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_CDVRAdapter");
-                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.SetConnectionKey("CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@ID", adapter.ID);
                 sp.AddParameter("@name", adapter.Name);
