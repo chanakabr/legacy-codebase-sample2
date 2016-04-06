@@ -359,13 +359,15 @@ namespace Catalog
                         if (isLinear != 0 && !string.IsNullOrEmpty(oMediaObj.m_ExternalIDs))
                         {
                             // get linear Channel settings 
-                            int ExternalID = 0;
-                            bool parseExternalID = int.TryParse(oMediaObj.m_ExternalIDs, out ExternalID);
-                            DataRow[] dr = CatalogDAL.GetLinearChannelSettings(groupId, ExternalID);
-                            
-                            if (dr != null)
+                            Dictionary<string, LinearChannelSettings> linearChannelSettings = CatalogCache.Instance().GetLinearChannelSettings(groupId, new List<string>(){oMediaObj.m_ExternalIDs});
+                            if (linearChannelSettings != null && linearChannelSettings.ContainsKey(oMediaObj.m_ExternalIDs) && linearChannelSettings.Values != null)
                             {
-                                GetMediaLinearDetails(dr, ref oMediaObj);                               
+                                oMediaObj.EnableCatchUp = linearChannelSettings[oMediaObj.m_ExternalIDs].EnableCatchUp;
+                                oMediaObj.EnableCDVR = linearChannelSettings[oMediaObj.m_ExternalIDs].EnableCDVR;
+                                oMediaObj.EnableStartOver = linearChannelSettings[oMediaObj.m_ExternalIDs].EnableStartOver;
+                                oMediaObj.EnableTrickPlay = linearChannelSettings[oMediaObj.m_ExternalIDs].EnableTrickPlay;
+                                oMediaObj.CatchUpBuffer = linearChannelSettings[oMediaObj.m_ExternalIDs].CatchUpBuffer;
+                                oMediaObj.TrickPlayBuffer = linearChannelSettings[oMediaObj.m_ExternalIDs].TrickPlayBuffer;   
                             }
                         }
 
@@ -403,71 +405,7 @@ namespace Catalog
             }
         }
 
-        private static void GetMediaLinearDetails(DataRow[] dr, ref MediaObj oMediaObj)
-        {
-            int enable = 0;
-            int enableChannel = 0;
-
-            enable = ODBCWrapper.Utils.GetIntSafeVal(dr[0], "ENABLE_CDVR"); // account
-            if (enable == 1)
-            {
-                enableChannel = ODBCWrapper.Utils.GetIntSafeVal(dr[1], "ENABLE_CDVR"); // channel settings
-                if (enableChannel != 0) //None/NULL
-                {
-                    enable = enableChannel;
-                }
-            }
-
-            oMediaObj.EnableCDVR = enable == 1 ? true : false;
-
-            enable = ODBCWrapper.Utils.GetIntSafeVal(dr[0], "ENABLE_CATCH_UP"); // account
-            if (enable == 1)
-            {
-                enableChannel = ODBCWrapper.Utils.GetIntSafeVal(dr[1], "ENABLE_CATCH_UP"); // channel settings
-                if (enableChannel != 0) //None/NULL
-                {
-                    enable = enableChannel;
-                }
-            }
-            oMediaObj.EnableCatchUp = enable == 1 ? true : false;
-
-            enable = ODBCWrapper.Utils.GetIntSafeVal(dr[0], "ENABLE_START_OVER"); // account
-            if (enable == 1)
-            {
-                enableChannel = ODBCWrapper.Utils.GetIntSafeVal(dr[1], "ENABLE_START_OVER"); // channel settings
-                if (enableChannel != 0) //None/NULL
-                {
-                    enable = enableChannel;
-                }
-            }
-            oMediaObj.EnableStartOver = enable == 1 ? true : false;
-
-            enable = ODBCWrapper.Utils.GetIntSafeVal(dr[0], "ENABLE_TRICK_PLAY"); // account
-            if (enable == 0)
-            {
-                enableChannel = ODBCWrapper.Utils.GetIntSafeVal(dr[1], "ENABLE_TRICK_PLAY"); //channel settings
-                if (enableChannel != 0) //None/NULL
-                {
-                    enable = enableChannel;
-                }
-            }
-            oMediaObj.EnableTrickPlay = enable == 1 ? true : false;
-
-            // Buffer setting from Channel - if zero - get it from account            
-            int buffer = ODBCWrapper.Utils.GetIntSafeVal(dr[1], "CATCH_UP_BUFFER"); // channel settings
-            if (buffer == 0)
-            {
-                buffer = ODBCWrapper.Utils.GetIntSafeVal(dr[0], "CATCH_UP_BUFFER"); // account
-            }
-            oMediaObj.CdvrBuffer = buffer;
-                        
-            buffer = ODBCWrapper.Utils.GetIntSafeVal(dr[1], "TRICK_PLAY_BUFFER"); // channel settings
-            if (buffer == 0)
-            {
-                buffer = ODBCWrapper.Utils.GetIntSafeVal(dr[0], "TRICK_PLAY_BUFFER"); // account
-            }          
-            oMediaObj.TrickPlayBuffer = buffer;
-        }
+      
 
         /*Insert all tags that return from the "CompleteDetailsForMediaResponse" into List<Tags>*/
         private static List<Tags> GetTagsDetails(DataTable dtTags, bool bIsMainLang, ref bool result)
@@ -2542,71 +2480,46 @@ namespace Catalog
             return true;
         }
 
-        public static void GetLinearChannelSettings(int groupID , List<EPGChannelProgrammeObject> lEpgProg)
+        public static void GetLinearChannelSettings(int groupID, List<EPGChannelProgrammeObject> lEpgProg)
         {
-            List<int> epgChannelIds = lEpgProg.Where(item => item != null).Select(item => int.Parse(item.EPG_CHANNEL_ID)).ToList<int>();// get all epg channel ids                      
+            List<string> epgChannelIds = lEpgProg.Where(item => item != null).Select(item => item.EPG_CHANNEL_ID).ToList<string>();// get all epg channel ids
 
-            DataSet ds = Tvinci.Core.DAL.CatalogDAL.GetLinearChannelSettings(groupID, epgChannelIds);
-            DataRow drAccount = null;
-            DataTable dtChannel;
-            if (ds != null)
+            Dictionary<string, LinearChannelSettings> linearChannelSettings = CatalogCache.Instance().GetLinearChannelSettings(groupID, epgChannelIds);
+            foreach (EPGChannelProgrammeObject epg in lEpgProg)
             {
-                if (ds.Tables != null && ds.Tables.Count == 2)
+                if (linearChannelSettings.ContainsKey(epg.EPG_CHANNEL_ID))
                 {
-                    dtChannel = ds.Tables[1];
-                    if (ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+                    LinearChannelSettings linearSettings = linearChannelSettings[epg.EPG_CHANNEL_ID];
+                    if (linearSettings != null)
                     {
-                        drAccount = ds.Tables[0].Rows[0];
-                    }
-                    foreach (EPGChannelProgrammeObject epg in lEpgProg)
-                    {
-
-                        DataRow[] dr = dtChannel.Select("ID = " + epg.EPG_CHANNEL_ID);
-
-                        EPGChannelProgrammeObject tempEpg = GetLinearEpgProgramSettings(dr, drAccount);
-
-                        SetLinearEpgProgramSettings(epg, tempEpg);
+                        SetLinearEpgProgramSettings(epg, linearSettings);
                     }
                 }
             }
         }
 
-        private static void SetLinearEpgProgramSettings(EPGChannelProgrammeObject epg, EPGChannelProgrammeObject tempEpg)
+        private static void SetLinearEpgProgramSettings(EPGChannelProgrammeObject epg, LinearChannelSettings linearSettings)
         {
-            if (epg.ENABLE_CDVR == 0)// get value from epg channel
+            // 0 ==> need to get value from LinearChannelSettings
+            // 1 ==> check the value at LinearChannelSettings : if true - OK else false
+            // 2 ==> false - do nothing
+            if (epg.ENABLE_CDVR != 2)// get value from epg channel 
             {
-                epg.ENABLE_CDVR = tempEpg.ENABLE_CDVR;
-            }
-            else if (tempEpg.ENABLE_CDVR == 0)
-            {
-                epg.ENABLE_CDVR = 2; //false
-            }
-
-            if (epg.ENABLE_START_OVER == 0)// get value from epg channel
-            {
-                epg.ENABLE_START_OVER = tempEpg.ENABLE_START_OVER;
-            }
-            else if (tempEpg.ENABLE_START_OVER == 0)
-            {
-                epg.ENABLE_START_OVER = 2; //false
+                epg.ENABLE_CDVR = linearSettings.EnableCDVR == true ? 1 : 0;
             }
 
-            if (epg.ENABLE_CATCH_UP == 0)// get value from epg channel
+            if (epg.ENABLE_START_OVER != 2)// get value from epg channel
             {
-                epg.ENABLE_CATCH_UP = tempEpg.ENABLE_CATCH_UP;
+                epg.ENABLE_START_OVER = linearSettings.EnableStartOver == true ? 1 : 0;
             }
-            else if (tempEpg.ENABLE_CATCH_UP == 0)
+            if (epg.ENABLE_CATCH_UP != 2)// get value from epg channel
             {
-                epg.ENABLE_CATCH_UP = 2; //false
+                epg.ENABLE_CATCH_UP = linearSettings.EnableCatchUp == true ? 1 : 0;
             }
 
-            if (epg.ENABLE_TRICK_PLAY == 0)// get value from epg channel
+            if (epg.ENABLE_TRICK_PLAY != 2)// get value from epg channel
             {
-                epg.ENABLE_TRICK_PLAY = tempEpg.ENABLE_TRICK_PLAY;
-            }
-            else if (tempEpg.ENABLE_TRICK_PLAY == 0)
-            {
-                epg.ENABLE_TRICK_PLAY = 2; //false
+                epg.ENABLE_TRICK_PLAY = linearSettings.EnableTrickPlay == true ? 1 : 0;
             }
         }
 

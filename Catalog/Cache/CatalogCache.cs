@@ -240,6 +240,147 @@ namespace Catalog.Cache
             BaseModuleCache bModule = new BaseModuleCache(oValue);
             return CacheService.Set(sKey, bModule, dCacheTime);
         }
+            
+        
 
+        internal Dictionary<string,LinearChannelSettings> GetLinearChannelSettings(int groupID, List<string> keys)
+        {
+            Dictionary<string, LinearChannelSettings> linearChannelSettings = new Dictionary<string,LinearChannelSettings>();
+            try
+            {
+                List<int> missingsKeys = null;
+                LinearChannelSettings linear = null;                
+                List<string> fullKeys = keys.Select(k => (string.Format("LinearChannelSettings_{0}_{1}", groupID, k))).ToList();
+                Dictionary<string, object> values = GetValues(fullKeys);                
+                if (values != null && values.Count > 0)
+                {                    
+                    foreach (KeyValuePair<string, object> pair in values)
+                    {
+                        if (!string.IsNullOrEmpty(pair.Key) && pair.Value != null)
+                        {
+                            linear = (LinearChannelSettings)pair.Value;
+                            if (linear != null)
+                            {
+                                linearChannelSettings.Add(linear.ChannelID, linear);                                
+                            }
+                        }
+                    }
+                    // complete missing channel => get list of missings channels
+                    missingsKeys = keys.Except(linearChannelSettings.Keys).Select(k =>int.Parse(k)).ToList<int>();
+                }
+                else
+                {
+                    missingsKeys = keys.Select(k => int.Parse(k)).ToList<int>();
+                }
+                
+                if (missingsKeys != null && missingsKeys.Count > 0)
+                {
+                    //get from DB
+                    DataSet ds = Tvinci.Core.DAL.CatalogDAL.GetLinearChannelSettings(groupID, missingsKeys);
+                    DataRow drAccount = null;
+                    DataTable dtChannel;
+                    if (ds != null)
+                    {
+                        if (ds.Tables != null && ds.Tables.Count == 2)
+                        {
+                            dtChannel = ds.Tables[1];
+                            if (ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+                            {
+                                drAccount = ds.Tables[0].Rows[0];
+                            }
+                            //inset to cache
+                            foreach (DataRow channel in dtChannel.Rows)
+                            {
+                                linear = SetLinearChannelSettings(drAccount, channel);
+
+                                string channelID = ODBCWrapper.Utils.GetSafeStr(channel, "ID");
+                                string sKey = string.Format("LinearChannelSettings_{0}_{1}", groupID, channelID);
+                                if (linear != null)
+                                {
+                                    linearChannelSettings.Add(channelID, linear);
+                                    Set(sKey, linear);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+            return linearChannelSettings;
+        }
+        
+        private static LinearChannelSettings SetLinearChannelSettings(DataRow drAccount, DataRow drChannel)
+         {
+             int enable = 0;
+             int enableChannel = 0;
+             LinearChannelSettings linearChannelSettings = new LinearChannelSettings();
+
+             enable = ODBCWrapper.Utils.GetIntSafeVal(drAccount, "ENABLE_CDVR"); // account
+             enableChannel = ODBCWrapper.Utils.GetIntSafeVal(drChannel, "ENABLE_CDVR"); // channel settings
+             if (enable == 1 && enableChannel == 2)
+             {   
+                     enable = enableChannel;              
+             }
+
+             linearChannelSettings.EnableCDVR = enable == 1 ? true : false;
+
+
+             enable = ODBCWrapper.Utils.GetIntSafeVal(drAccount, "ENABLE_CATCH_UP"); // account
+             enableChannel = ODBCWrapper.Utils.GetIntSafeVal(drChannel, "ENABLE_CATCH_UP"); // channel settings
+             if (enable == 1 && enableChannel == 2)
+             {
+                 enable = enableChannel;
+             }
+             linearChannelSettings.EnableCatchUp = enable == 1 ? true : false;
+
+             enable = ODBCWrapper.Utils.GetIntSafeVal(drAccount, "ENABLE_START_OVER"); // account
+             enableChannel = ODBCWrapper.Utils.GetIntSafeVal(drChannel, "ENABLE_START_OVER"); // channel settings
+             if (enable == 1 && enableChannel == 2)
+             {
+                 enable = enableChannel;
+             }
+             linearChannelSettings.EnableStartOver = enable == 1 ? true : false;
+
+             enable = ODBCWrapper.Utils.GetIntSafeVal(drAccount, "ENABLE_TRICK_PLAY"); // account
+             enableChannel = ODBCWrapper.Utils.GetIntSafeVal(drChannel, "ENABLE_TRICK_PLAY"); //channel settings
+             if (enable == 0 && enableChannel == 2)
+             {
+                 enable = enableChannel;
+             }
+             linearChannelSettings.EnableTrickPlay = enable == 1 ? true : false;
+
+             // Buffer setting from Channel - if zero - get it from account            
+             int buffer = ODBCWrapper.Utils.GetIntSafeVal(drChannel, "CATCH_UP_BUFFER"); // channel settings
+             if (buffer == 0)
+             {
+                 buffer = ODBCWrapper.Utils.GetIntSafeVal(drAccount, "CATCH_UP_BUFFER"); // account
+             }
+             linearChannelSettings.CatchUpBuffer = buffer;
+
+             buffer = ODBCWrapper.Utils.GetIntSafeVal(drChannel, "TRICK_PLAY_BUFFER"); // channel settings
+             if (buffer == 0)
+             {
+                 buffer = ODBCWrapper.Utils.GetIntSafeVal(drAccount, "TRICK_PLAY_BUFFER"); // account
+             }
+             linearChannelSettings.TrickPlayBuffer = buffer;
+
+             linearChannelSettings.ChannelID = ODBCWrapper.Utils.GetSafeStr(drChannel, "ID"); 
+             return linearChannelSettings;
+         }
+        
+        private Dictionary<string, object> GetValues(List<string> keys)
+        {
+            Dictionary<string, object> values = null;
+            if (keys != null && keys.Count > 0)
+            {
+                keys = keys.Select(k => (string.Format("{0}{1}", sKeyCache, k))).ToList();
+                values = this.CacheService.GetValues(keys) as Dictionary<string, object>;
+            }
+
+            return values;
+        }
     }
 }

@@ -73,7 +73,7 @@ namespace Catalog.Response
         [DataMember]
         public bool EnableTrickPlay;
         [DataMember]
-        public long CdvrBuffer;
+        public long CatchUpBuffer;
         [DataMember]
         public long TrickPlayBuffer;
 
@@ -84,7 +84,7 @@ namespace Catalog.Response
             EnableCatchUp = false;
             EnableStartOver = false;
             EnableTrickPlay = false;
-            CdvrBuffer = 0;
+            CatchUpBuffer = 0;
             TrickPlayBuffer = 0;
         }
     }
