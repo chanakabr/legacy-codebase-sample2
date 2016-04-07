@@ -234,28 +234,16 @@ public partial class adm_epg_channels_schedule_new : System.Web.UI.Page
     protected void AddMetasFields(ref DBRecordWebEditor theRecord, EpgCB epg)
     {
         Dictionary<int, string> lMetas = getMetaTag(true);
-        // change the key in the dictionary from CB to lower letters!!!
-        Dictionary<string, List<string>> tempMetas = new Dictionary<string, List<string>>();
-        foreach (KeyValuePair<string, List<string>> kv in epg.Metas)
-        {
-            tempMetas.Add(kv.Key.ToLower(), kv.Value);
-        }
-
-        if (tempMetas != null && tempMetas.Count > 0)
-        {
-            epg.Metas = tempMetas;
-        }
-
+       
         foreach (int id in lMetas.Keys)
         {
             string sName = lMetas[id];
             DataRecordShortTextField dr_name = new DataRecordShortTextField("ltr", true, 60, 128, id);
-            dr_name.Initialize(sName, "adm_table_header_nbg", "FormInput", string.Empty, "", false);
-            string sNameLower = sName.ToLower();
-            if (epg.Metas.Keys.Contains(sNameLower))
+            dr_name.Initialize(sName, "adm_table_header_nbg", "FormInput", string.Empty, "", false);            
+            if (epg.Metas.Keys.Contains(sName))
             {
                 string val = "";
-                val += epg.Metas[sNameLower][0]; //asumming each meta has only one value
+                val += epg.Metas[sName][0]; //asumming each meta has only one value
                 dr_name.SetValue(val);
             }
             theRecord.AddRecord(dr_name);
@@ -272,12 +260,11 @@ public partial class adm_epg_channels_schedule_new : System.Web.UI.Page
             DataRecordMultiField dr_tags = new DataRecordMultiField("epg_tags", "id", "id", "EPG_program_tags", "program_id", "epg_tag_id", true, "ltr", 60, "tags");///
             dr_tags.Initialize(sName, "adm_table_header_nbg", "FormInput", "VALUE", "", false);
             dr_tags.SetCollectionLength(8);
-            dr_tags.SetExtraWhere("epg_tag_type_id=" + tagID.ToString());
-            string sNameLower = sName.ToLower();
-            if (epg.Tags.Keys.Contains(sNameLower))
+            dr_tags.SetExtraWhere("epg_tag_type_id=" + tagID.ToString());           
+            if (epg.Tags.Keys.Contains(sName))
             {
                 string val = "";
-                foreach (string tagVal in epg.Tags[sNameLower])
+                foreach (string tagVal in epg.Tags[sName])
                     val += tagVal + ";";
                 dr_tags.SetValue(val);
             }
@@ -351,6 +338,29 @@ public partial class adm_epg_channels_schedule_new : System.Web.UI.Page
         dr_media.Initialize("Related Media", "adm_table_header_nbg", "FormInput", "MEDIA_ID", false);
         dr_media.SetValue(epg.ExtraData.MediaID.ToString());
         theRecord.AddRecord(dr_media);
+
+        // linear channel settings 
+
+        DataRecordDropDownField dr_CDVR = new DataRecordDropDownField("lu_epg_field_enable", "DESCRIPTION", "id", "", null, 60, false);
+        dr_CDVR.Initialize("C-DVR", "adm_table_header_nbg", "FormInput", "ENABLE_CDVR", false);
+        dr_CDVR.SetValue(epg.EnableCDVR.ToString());
+        theRecord.AddRecord(dr_CDVR);
+
+        DataRecordDropDownField dr_CATCH_UP = new DataRecordDropDownField("lu_epg_field_enable", "DESCRIPTION", "id", "", null, 60, false);
+        dr_CATCH_UP.Initialize("Catch-up", "adm_table_header_nbg", "FormInput", "ENABLE_CATCH_UP", false);
+        dr_CATCH_UP.SetValue(epg.EnableCatchUp.ToString());
+        theRecord.AddRecord(dr_CATCH_UP);
+
+        DataRecordDropDownField dr_START_OVER = new DataRecordDropDownField("lu_epg_field_enable", "DESCRIPTION", "id", "", null, 60, false);
+        dr_START_OVER.Initialize("Start Over", "adm_table_header_nbg", "FormInput", "ENABLE_START_OVER", false);
+        dr_START_OVER.SetValue(epg.EnableStartOver.ToString());
+        theRecord.AddRecord(dr_START_OVER);
+
+        DataRecordDropDownField dr_LIVE_TRICK_PLAY = new DataRecordDropDownField("lu_epg_field_enable", "DESCRIPTION", "id", "", null, 60, false);
+        dr_LIVE_TRICK_PLAY.Initialize("Live Trick Play", "adm_table_header_nbg", "FormInput", "ENABLE_TRICK_PLAY", false);
+        dr_LIVE_TRICK_PLAY.SetValue(epg.EnableTrickPlay.ToString());
+        theRecord.AddRecord(dr_LIVE_TRICK_PLAY);
+
 
         AddMetasFields(ref theRecord, epg);
         AddTagsFields(ref theRecord, epg);
