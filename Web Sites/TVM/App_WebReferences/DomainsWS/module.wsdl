@@ -16,10 +16,16 @@
       <s:element name="AddDomainResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="AddDomainResult" type="tns:DomainResponseObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="AddDomainResult" type="tns:DomainStatusResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:complexType name="DomainStatusResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="DomainResponse" type="tns:DomainResponseObject" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
       <s:complexType name="DomainResponseObject">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="m_oDomain" type="tns:Domain" />
@@ -51,6 +57,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="m_nSSOOperatorID" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="m_DomainRestriction" type="tns:DomainRestriction" />
           <s:element minOccurs="0" maxOccurs="1" name="m_homeNetworks" type="tns:ArrayOfHomeNetwork" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_nRegion" type="s:int" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="ArrayOfInt">
@@ -119,6 +126,8 @@
           <s:enumeration value="HouseholdUserFailed" />
           <s:enumeration value="DomainCreatedWithoutNPVRAccount" />
           <s:enumeration value="DomainSuspended" />
+          <s:enumeration value="NoUsersInDomain" />
+          <s:enumeration value="UserExistsInOtherDomains" />
         </s:restriction>
       </s:simpleType>
       <s:simpleType name="DomainRestriction">
@@ -172,8 +181,15 @@
           <s:enumeration value="ConcurrencyLimitation" />
           <s:enumeration value="MediaConcurrencyLimitation" />
           <s:enumeration value="DomainSuspended" />
+          <s:enumeration value="UserAlreadyInDomain" />
         </s:restriction>
       </s:simpleType>
+      <s:complexType name="Status">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Code" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="AddDomainWithCoGuid">
         <s:complexType>
           <s:sequence>
@@ -189,7 +205,7 @@
       <s:element name="AddDomainWithCoGuidResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="AddDomainWithCoGuidResult" type="tns:DomainResponseObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="AddDomainWithCoGuidResult" type="tns:DomainStatusResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -223,7 +239,7 @@
       <s:element name="SetDomainInfoResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="SetDomainInfoResult" type="tns:DomainResponseObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="SetDomainInfoResult" type="tns:DomainStatusResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -242,7 +258,7 @@
       <s:element name="AddUserToDomainResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="AddUserToDomainResult" type="tns:DomainResponseObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="AddUserToDomainResult" type="tns:DomainStatusResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -297,7 +313,7 @@
       <s:element name="RemoveUserFromDomainResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="RemoveUserFromDomainResult" type="tns:DomainResponseObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="RemoveUserFromDomainResult" type="tns:DomainStatusResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -316,7 +332,7 @@
       <s:element name="AddDeviceToDomainResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="AddDeviceToDomainResult" type="tns:DomainResponseObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="AddDeviceToDomainResult" type="tns:DomainStatusResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -333,7 +349,7 @@
       <s:element name="RemoveDeviceFromDomainResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="RemoveDeviceFromDomainResult" type="tns:DomainResponseObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="RemoveDeviceFromDomainResult" type="tns:DomainStatusResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -367,10 +383,16 @@
       <s:element name="GetDomainInfoResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetDomainInfoResult" type="tns:Domain" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetDomainInfoResult" type="tns:DomainResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:complexType name="DomainResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Domain" type="tns:Domain" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="GetDomainIDByCoGuid">
         <s:complexType>
           <s:sequence>
@@ -399,7 +421,7 @@
       <s:element name="GetDomainByCoGuidResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetDomainByCoGuidResult" type="tns:DomainResponseObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetDomainByCoGuidResult" type="tns:DomainStatusResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -437,10 +459,16 @@
       <s:element name="GetPINForDeviceResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetPINForDeviceResult" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetPINForDeviceResult" type="tns:DevicePinResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:complexType name="DevicePinResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Pin" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="RegisterDeviceToDomainWithPIN">
         <s:complexType>
           <s:sequence>
@@ -455,10 +483,16 @@
       <s:element name="RegisterDeviceToDomainWithPINResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="RegisterDeviceToDomainWithPINResult" type="tns:DeviceResponseObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="RegisterDeviceToDomainWithPINResult" type="tns:DeviceResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:complexType name="DeviceResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Device" type="tns:DeviceResponseObject" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
       <s:complexType name="DeviceResponseObject">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="m_oDevice" type="tns:Device" />
@@ -472,6 +506,7 @@
           <s:enumeration value="DuplicatePin" />
           <s:enumeration value="DeviceNotExists" />
           <s:enumeration value="OK" />
+          <s:enumeration value="ExceededLimit" />
         </s:restriction>
       </s:simpleType>
       <s:element name="SetDeviceInfo">
@@ -487,7 +522,7 @@
       <s:element name="SetDeviceInfoResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="1" maxOccurs="1" name="SetDeviceInfoResult" type="s:boolean" />
+            <s:element minOccurs="0" maxOccurs="1" name="SetDeviceInfoResult" type="tns:Status" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -520,7 +555,7 @@
       <s:element name="ResetDomainFrequencyResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="ResetDomainFrequencyResult" type="tns:DomainResponseObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="ResetDomainFrequencyResult" type="tns:DomainStatusResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -682,7 +717,7 @@
       <s:element name="UpdateDomainHomeNetworkResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="UpdateDomainHomeNetworkResult" type="tns:NetworkResponseObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="UpdateDomainHomeNetworkResult" type="tns:Status" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -699,7 +734,7 @@
       <s:element name="RemoveDomainHomeNetworkResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="RemoveDomainHomeNetworkResult" type="tns:NetworkResponseObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="RemoveDomainHomeNetworkResult" type="tns:Status" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -715,10 +750,16 @@
       <s:element name="GetDomainHomeNetworksResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetDomainHomeNetworksResult" type="tns:ArrayOfHomeNetwork" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetDomainHomeNetworksResult" type="tns:HomeNetworksResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:complexType name="HomeNetworksResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="HomeNetworks" type="tns:ArrayOfHomeNetwork" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="ValidateLimitationModule">
         <s:complexType>
           <s:sequence>
@@ -793,12 +834,6 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:complexType name="Status">
-        <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="Code" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
-        </s:sequence>
-      </s:complexType>
       <s:element name="ChangeDLM">
         <s:complexType>
           <s:sequence>
@@ -858,7 +893,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="nUserLimit" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="UserFrequency" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="UserFrequencyDescrition" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="FrequencyDescrition" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="FrequencyDescription" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="ArrayOfDeviceFamilyLimitations">
@@ -872,14 +907,15 @@
           <s:element minOccurs="0" maxOccurs="1" name="deviceFamilyName" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="concurrency" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="quantity" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="Frequency" type="s:int" />
         </s:sequence>
       </s:complexType>
       <s:element name="SuspendDomain">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="1" maxOccurs="1" name="nDomainID" type="s:int" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nDomainID" type="s:int" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -893,9 +929,9 @@
       <s:element name="ResumeDomain">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="1" maxOccurs="1" name="nDomainID" type="s:int" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nDomainID" type="s:int" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -906,22 +942,149 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="DomainResponseObject" nillable="true" type="tns:DomainResponseObject" />
+      <s:element name="SetDomainRegion">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="extRegionId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="lookupKey" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetDomainRegionResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SetDomainRegionResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetDomainByUser">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetDomainByUserResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetDomainByUserResult" type="tns:DomainResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetDeviceRegistrationStatus">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="udid" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetDeviceRegistrationStatusResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetDeviceRegistrationStatusResult" type="tns:DeviceRegistrationStatusResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="DeviceRegistrationStatusResponse">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="DeviceRegistrationStatus" type="tns:DeviceRegistrationStatus" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
+      <s:simpleType name="DeviceRegistrationStatus">
+        <s:restriction base="s:string">
+          <s:enumeration value="Unknown" />
+          <s:enumeration value="NotRegistered" />
+          <s:enumeration value="Registered" />
+          <s:enumeration value="RegisteredToAnotherDomain" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="RemoveDomainById">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="nDomainID" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="RemoveDomainByIdResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="RemoveDomainByIdResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="RemoveDomainByCoGuid">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="coGuid" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="RemoveDomainByCoGuidResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="RemoveDomainByCoGuidResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="AddDomainHomeNetwork">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUsername" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="lDomainID" type="s:long" />
+            <s:element minOccurs="0" maxOccurs="1" name="sNetworkID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sNetworkName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sNetworkDesc" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="isActive" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="AddDomainHomeNetworkResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="AddDomainHomeNetworkResult" type="tns:HomeNetworkResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="HomeNetworkResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="HomeNetwork" type="tns:HomeNetwork" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DomainStatusResponse" nillable="true" type="tns:DomainStatusResponse" />
       <s:element name="DomainResponseStatus" type="tns:DomainResponseStatus" />
+      <s:element name="DomainResponseObject" nillable="true" type="tns:DomainResponseObject" />
       <s:element name="ArrayOfString" nillable="true" type="tns:ArrayOfString" />
-      <s:element name="Domain" nillable="true" type="tns:Domain" />
+      <s:element name="DomainResponse" nillable="true" type="tns:DomainResponse" />
       <s:element name="int" type="s:int" />
       <s:element name="ArrayOfDomain" nillable="true" type="tns:ArrayOfDomain" />
-      <s:element name="string" nillable="true" type="s:string" />
+      <s:element name="DevicePinResponse" nillable="true" type="tns:DevicePinResponse" />
+      <s:element name="DeviceResponse" nillable="true" type="tns:DeviceResponse" />
+      <s:element name="Status" nillable="true" type="tns:Status" />
+      <s:element name="ArrayOfInt" nillable="true" type="tns:ArrayOfInt" />
       <s:element name="DeviceResponseObject" nillable="true" type="tns:DeviceResponseObject" />
       <s:element name="boolean" type="s:boolean" />
-      <s:element name="ArrayOfInt" nillable="true" type="tns:ArrayOfInt" />
       <s:element name="NetworkResponseObject" nillable="true" type="tns:NetworkResponseObject" />
-      <s:element name="ArrayOfHomeNetwork" nillable="true" type="tns:ArrayOfHomeNetwork" />
+      <s:element name="HomeNetworksResponse" nillable="true" type="tns:HomeNetworksResponse" />
       <s:element name="ValidationResponseObject" nillable="true" type="tns:ValidationResponseObject" />
-      <s:element name="Status" nillable="true" type="tns:Status" />
       <s:element name="ChangeDLMObj" nillable="true" type="tns:ChangeDLMObj" />
       <s:element name="DLMResponse" nillable="true" type="tns:DLMResponse" />
+      <s:element name="DeviceRegistrationStatusResponse" nillable="true" type="tns:DeviceRegistrationStatusResponse" />
+      <s:element name="HomeNetworkResponse" nillable="true" type="tns:HomeNetworkResponse" />
     </s:schema>
   </wsdl:types>
   <wsdl:message name="AddDomainSoapIn">
@@ -1146,6 +1309,42 @@
   <wsdl:message name="ResumeDomainSoapOut">
     <wsdl:part name="parameters" element="tns:ResumeDomainResponse" />
   </wsdl:message>
+  <wsdl:message name="SetDomainRegionSoapIn">
+    <wsdl:part name="parameters" element="tns:SetDomainRegion" />
+  </wsdl:message>
+  <wsdl:message name="SetDomainRegionSoapOut">
+    <wsdl:part name="parameters" element="tns:SetDomainRegionResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainByUserSoapIn">
+    <wsdl:part name="parameters" element="tns:GetDomainByUser" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainByUserSoapOut">
+    <wsdl:part name="parameters" element="tns:GetDomainByUserResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetDeviceRegistrationStatusSoapIn">
+    <wsdl:part name="parameters" element="tns:GetDeviceRegistrationStatus" />
+  </wsdl:message>
+  <wsdl:message name="GetDeviceRegistrationStatusSoapOut">
+    <wsdl:part name="parameters" element="tns:GetDeviceRegistrationStatusResponse" />
+  </wsdl:message>
+  <wsdl:message name="RemoveDomainByIdSoapIn">
+    <wsdl:part name="parameters" element="tns:RemoveDomainById" />
+  </wsdl:message>
+  <wsdl:message name="RemoveDomainByIdSoapOut">
+    <wsdl:part name="parameters" element="tns:RemoveDomainByIdResponse" />
+  </wsdl:message>
+  <wsdl:message name="RemoveDomainByCoGuidSoapIn">
+    <wsdl:part name="parameters" element="tns:RemoveDomainByCoGuid" />
+  </wsdl:message>
+  <wsdl:message name="RemoveDomainByCoGuidSoapOut">
+    <wsdl:part name="parameters" element="tns:RemoveDomainByCoGuidResponse" />
+  </wsdl:message>
+  <wsdl:message name="AddDomainHomeNetworkSoapIn">
+    <wsdl:part name="parameters" element="tns:AddDomainHomeNetwork" />
+  </wsdl:message>
+  <wsdl:message name="AddDomainHomeNetworkSoapOut">
+    <wsdl:part name="parameters" element="tns:AddDomainHomeNetworkResponse" />
+  </wsdl:message>
   <wsdl:message name="AddDomainHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -1154,7 +1353,7 @@
     <wsdl:part name="nMasterUserGuid" type="s:string" />
   </wsdl:message>
   <wsdl:message name="AddDomainHttpPostOut">
-    <wsdl:part name="Body" element="tns:DomainResponseObject" />
+    <wsdl:part name="Body" element="tns:DomainStatusResponse" />
   </wsdl:message>
   <wsdl:message name="AddDomainWithCoGuidHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -1165,7 +1364,7 @@
     <wsdl:part name="sCoGuid" type="s:string" />
   </wsdl:message>
   <wsdl:message name="AddDomainWithCoGuidHttpPostOut">
-    <wsdl:part name="Body" element="tns:DomainResponseObject" />
+    <wsdl:part name="Body" element="tns:DomainStatusResponse" />
   </wsdl:message>
   <wsdl:message name="RemoveDomainHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -1183,7 +1382,7 @@
     <wsdl:part name="sDomainDescription" type="s:string" />
   </wsdl:message>
   <wsdl:message name="SetDomainInfoHttpPostOut">
-    <wsdl:part name="Body" element="tns:DomainResponseObject" />
+    <wsdl:part name="Body" element="tns:DomainStatusResponse" />
   </wsdl:message>
   <wsdl:message name="AddUserToDomainHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -1194,7 +1393,7 @@
     <wsdl:part name="bIsMaster" type="s:string" />
   </wsdl:message>
   <wsdl:message name="AddUserToDomainHttpPostOut">
-    <wsdl:part name="Body" element="tns:DomainResponseObject" />
+    <wsdl:part name="Body" element="tns:DomainStatusResponse" />
   </wsdl:message>
   <wsdl:message name="SubmitAddUserToDomainRequestHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -1220,7 +1419,7 @@
     <wsdl:part name="sUserGUID" type="s:string" />
   </wsdl:message>
   <wsdl:message name="RemoveUserFromDomainHttpPostOut">
-    <wsdl:part name="Body" element="tns:DomainResponseObject" />
+    <wsdl:part name="Body" element="tns:DomainStatusResponse" />
   </wsdl:message>
   <wsdl:message name="AddDeviceToDomainHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -1231,7 +1430,7 @@
     <wsdl:part name="deviceBrandID" type="s:string" />
   </wsdl:message>
   <wsdl:message name="AddDeviceToDomainHttpPostOut">
-    <wsdl:part name="Body" element="tns:DomainResponseObject" />
+    <wsdl:part name="Body" element="tns:DomainStatusResponse" />
   </wsdl:message>
   <wsdl:message name="RemoveDeviceFromDomainHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -1240,7 +1439,7 @@
     <wsdl:part name="udid" type="s:string" />
   </wsdl:message>
   <wsdl:message name="RemoveDeviceFromDomainHttpPostOut">
-    <wsdl:part name="Body" element="tns:DomainResponseObject" />
+    <wsdl:part name="Body" element="tns:DomainStatusResponse" />
   </wsdl:message>
   <wsdl:message name="ChangeDeviceDomainStatusHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -1258,7 +1457,7 @@
     <wsdl:part name="nDomainID" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetDomainInfoHttpPostOut">
-    <wsdl:part name="Body" element="tns:Domain" />
+    <wsdl:part name="Body" element="tns:DomainResponse" />
   </wsdl:message>
   <wsdl:message name="GetDomainIDByCoGuidHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -1274,7 +1473,7 @@
     <wsdl:part name="sCoGuid" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetDomainByCoGuidHttpPostOut">
-    <wsdl:part name="Body" element="tns:DomainResponseObject" />
+    <wsdl:part name="Body" element="tns:DomainStatusResponse" />
   </wsdl:message>
   <wsdl:message name="GetDeviceDomainsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -1291,7 +1490,7 @@
     <wsdl:part name="nBrandID" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetPINForDeviceHttpPostOut">
-    <wsdl:part name="Body" element="tns:string" />
+    <wsdl:part name="Body" element="tns:DevicePinResponse" />
   </wsdl:message>
   <wsdl:message name="RegisterDeviceToDomainWithPINHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -1301,7 +1500,7 @@
     <wsdl:part name="sDeviceName" type="s:string" />
   </wsdl:message>
   <wsdl:message name="RegisterDeviceToDomainWithPINHttpPostOut">
-    <wsdl:part name="Body" element="tns:DeviceResponseObject" />
+    <wsdl:part name="Body" element="tns:DeviceResponse" />
   </wsdl:message>
   <wsdl:message name="SetDeviceInfoHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -1310,7 +1509,7 @@
     <wsdl:part name="sDeviceName" type="s:string" />
   </wsdl:message>
   <wsdl:message name="SetDeviceInfoHttpPostOut">
-    <wsdl:part name="Body" element="tns:boolean" />
+    <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
   <wsdl:message name="ResetDomainHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -1327,7 +1526,7 @@
     <wsdl:part name="nFrequencyType" type="s:string" />
   </wsdl:message>
   <wsdl:message name="ResetDomainFrequencyHttpPostOut">
-    <wsdl:part name="Body" element="tns:DomainResponseObject" />
+    <wsdl:part name="Body" element="tns:DomainStatusResponse" />
   </wsdl:message>
   <wsdl:message name="ChangeDomainMasterHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -1408,7 +1607,7 @@
     <wsdl:part name="bIsActive" type="s:string" />
   </wsdl:message>
   <wsdl:message name="UpdateDomainHomeNetworkHttpPostOut">
-    <wsdl:part name="Body" element="tns:NetworkResponseObject" />
+    <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
   <wsdl:message name="RemoveDomainHomeNetworkHttpPostIn">
     <wsdl:part name="sWSUsername" type="s:string" />
@@ -1417,7 +1616,7 @@
     <wsdl:part name="sNetworkID" type="s:string" />
   </wsdl:message>
   <wsdl:message name="RemoveDomainHomeNetworkHttpPostOut">
-    <wsdl:part name="Body" element="tns:NetworkResponseObject" />
+    <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
   <wsdl:message name="GetDomainHomeNetworksHttpPostIn">
     <wsdl:part name="sWSUsername" type="s:string" />
@@ -1425,7 +1624,7 @@
     <wsdl:part name="lDomainID" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetDomainHomeNetworksHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfHomeNetwork" />
+    <wsdl:part name="Body" element="tns:HomeNetworksResponse" />
   </wsdl:message>
   <wsdl:message name="ValidateLimitationModuleHttpPostIn">
     <wsdl:part name="sWSUsername" type="s:string" />
@@ -1482,20 +1681,75 @@
     <wsdl:part name="Body" element="tns:DLMResponse" />
   </wsdl:message>
   <wsdl:message name="SuspendDomainHttpPostIn">
-    <wsdl:part name="nDomainID" type="s:string" />
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDomainID" type="s:string" />
   </wsdl:message>
   <wsdl:message name="SuspendDomainHttpPostOut">
     <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
   <wsdl:message name="ResumeDomainHttpPostIn">
-    <wsdl:part name="nDomainID" type="s:string" />
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDomainID" type="s:string" />
   </wsdl:message>
   <wsdl:message name="ResumeDomainHttpPostOut">
     <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="SetDomainRegionHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+    <wsdl:part name="extRegionId" type="s:string" />
+    <wsdl:part name="lookupKey" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SetDomainRegionHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainByUserHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainByUserHttpPostOut">
+    <wsdl:part name="Body" element="tns:DomainResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetDeviceRegistrationStatusHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="udid" type="s:string" />
+    <wsdl:part name="domainId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetDeviceRegistrationStatusHttpPostOut">
+    <wsdl:part name="Body" element="tns:DeviceRegistrationStatusResponse" />
+  </wsdl:message>
+  <wsdl:message name="RemoveDomainByIdHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="nDomainID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="RemoveDomainByIdHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="RemoveDomainByCoGuidHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="coGuid" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="RemoveDomainByCoGuidHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="AddDomainHomeNetworkHttpPostIn">
+    <wsdl:part name="sWSUsername" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="lDomainID" type="s:string" />
+    <wsdl:part name="sNetworkID" type="s:string" />
+    <wsdl:part name="sNetworkName" type="s:string" />
+    <wsdl:part name="sNetworkDesc" type="s:string" />
+    <wsdl:part name="isActive" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="AddDomainHomeNetworkHttpPostOut">
+    <wsdl:part name="Body" element="tns:HomeNetworkResponse" />
   </wsdl:message>
   <wsdl:portType name="moduleSoap">
     <wsdl:operation name="AddDomain">
@@ -1646,6 +1900,30 @@
       <wsdl:input message="tns:ResumeDomainSoapIn" />
       <wsdl:output message="tns:ResumeDomainSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="SetDomainRegion">
+      <wsdl:input message="tns:SetDomainRegionSoapIn" />
+      <wsdl:output message="tns:SetDomainRegionSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainByUser">
+      <wsdl:input message="tns:GetDomainByUserSoapIn" />
+      <wsdl:output message="tns:GetDomainByUserSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDeviceRegistrationStatus">
+      <wsdl:input message="tns:GetDeviceRegistrationStatusSoapIn" />
+      <wsdl:output message="tns:GetDeviceRegistrationStatusSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RemoveDomainById">
+      <wsdl:input message="tns:RemoveDomainByIdSoapIn" />
+      <wsdl:output message="tns:RemoveDomainByIdSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RemoveDomainByCoGuid">
+      <wsdl:input message="tns:RemoveDomainByCoGuidSoapIn" />
+      <wsdl:output message="tns:RemoveDomainByCoGuidSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AddDomainHomeNetwork">
+      <wsdl:input message="tns:AddDomainHomeNetworkSoapIn" />
+      <wsdl:output message="tns:AddDomainHomeNetworkSoapOut" />
+    </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="moduleHttpPost">
     <wsdl:operation name="AddDomain">
@@ -1795,6 +2073,30 @@
     <wsdl:operation name="ResumeDomain">
       <wsdl:input message="tns:ResumeDomainHttpPostIn" />
       <wsdl:output message="tns:ResumeDomainHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetDomainRegion">
+      <wsdl:input message="tns:SetDomainRegionHttpPostIn" />
+      <wsdl:output message="tns:SetDomainRegionHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainByUser">
+      <wsdl:input message="tns:GetDomainByUserHttpPostIn" />
+      <wsdl:output message="tns:GetDomainByUserHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDeviceRegistrationStatus">
+      <wsdl:input message="tns:GetDeviceRegistrationStatusHttpPostIn" />
+      <wsdl:output message="tns:GetDeviceRegistrationStatusHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RemoveDomainById">
+      <wsdl:input message="tns:RemoveDomainByIdHttpPostIn" />
+      <wsdl:output message="tns:RemoveDomainByIdHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RemoveDomainByCoGuid">
+      <wsdl:input message="tns:RemoveDomainByCoGuidHttpPostIn" />
+      <wsdl:output message="tns:RemoveDomainByCoGuidHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AddDomainHomeNetwork">
+      <wsdl:input message="tns:AddDomainHomeNetworkHttpPostIn" />
+      <wsdl:output message="tns:AddDomainHomeNetworkHttpPostOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="moduleSoap" type="tns:moduleSoap">
@@ -2125,6 +2427,60 @@
     </wsdl:operation>
     <wsdl:operation name="ResumeDomain">
       <soap:operation soapAction="http://domains.tvinci.com/ResumeDomain" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetDomainRegion">
+      <soap:operation soapAction="http://domains.tvinci.com/SetDomainRegion" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainByUser">
+      <soap:operation soapAction="http://domains.tvinci.com/GetDomainByUser" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDeviceRegistrationStatus">
+      <soap:operation soapAction="http://domains.tvinci.com/GetDeviceRegistrationStatus" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RemoveDomainById">
+      <soap:operation soapAction="http://domains.tvinci.com/RemoveDomainById" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RemoveDomainByCoGuid">
+      <soap:operation soapAction="http://domains.tvinci.com/RemoveDomainByCoGuid" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddDomainHomeNetwork">
+      <soap:operation soapAction="http://domains.tvinci.com/AddDomainHomeNetwork" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -2468,6 +2824,60 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="SetDomainRegion">
+      <soap12:operation soapAction="http://domains.tvinci.com/SetDomainRegion" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainByUser">
+      <soap12:operation soapAction="http://domains.tvinci.com/GetDomainByUser" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDeviceRegistrationStatus">
+      <soap12:operation soapAction="http://domains.tvinci.com/GetDeviceRegistrationStatus" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RemoveDomainById">
+      <soap12:operation soapAction="http://domains.tvinci.com/RemoveDomainById" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RemoveDomainByCoGuid">
+      <soap12:operation soapAction="http://domains.tvinci.com/RemoveDomainByCoGuid" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddDomainHomeNetwork">
+      <soap12:operation soapAction="http://domains.tvinci.com/AddDomainHomeNetwork" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="moduleHttpPost" type="tns:moduleHttpPost">
     <http:binding verb="POST" />
@@ -2804,16 +3214,70 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="SetDomainRegion">
+      <http:operation location="/SetDomainRegion" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainByUser">
+      <http:operation location="/GetDomainByUser" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDeviceRegistrationStatus">
+      <http:operation location="/GetDeviceRegistrationStatus" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RemoveDomainById">
+      <http:operation location="/RemoveDomainById" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RemoveDomainByCoGuid">
+      <http:operation location="/RemoveDomainByCoGuid" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddDomainHomeNetwork">
+      <http:operation location="/AddDomainHomeNetwork" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://192.168.192.146/webservices/domains/module.asmx" />
+      <soap:address location="http://preprodwsbeta:8030/domains_v3_7/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://192.168.192.146/webservices/domains/module.asmx" />
+      <soap12:address location="http://preprodwsbeta:8030/domains_v3_7/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://192.168.192.146/webservices/domains/module.asmx" />
+      <http:address location="http://preprodwsbeta:8030/domains_v3_7/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
