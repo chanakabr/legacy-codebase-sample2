@@ -92,7 +92,7 @@ namespace WebAPI.Models.Pricing
         public KalturaPriceDetails Price { get; set; }
 
         /// <summary>
-        /// The discount module for the subscription
+        /// The internal discount module for the subscription
         /// </summary>
         [DataMember(Name = "discount_module")]
         [JsonProperty("discount_module")]

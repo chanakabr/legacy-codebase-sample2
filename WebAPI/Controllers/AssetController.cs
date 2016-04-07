@@ -239,7 +239,11 @@ namespace WebAPI.Controllers
         /// If omitted – all types should be included.</param>
         /// <param name="filter"> <![CDATA[
         /// Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
-        /// Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date.
+        /// Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date. 
+        /// geo_block - only valid value is "true": When enabled, only assets that are not restriced to the user by geo-block rules will return.
+        /// parental_rules - only valid value is "true": When enabled, only assets that the user doesn't need to provide PIN code will return.
+        /// epg_channel_id – the channel identifier of the EPG program.
+        /// entitled_assets - valid values: "free", "entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
         /// Comparison operators: for numerical fields =, >, >=, <, <=. For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with). Logical conjunction: and, or. 
         /// Search values are limited to 20 characters each.
         /// (maximum length of entire filter is 1024 characters)]]></param>
@@ -346,7 +350,7 @@ namespace WebAPI.Controllers
         /// </summary>        
         /// <param name="media_id">The ID of the asset for which to return related assets</param>
         /// <param name="filter_types">The type of related assets to return. Possible values: ALL – include all VOD asset types ; any media type ID (according to media type IDs defined dynamically in the system). If ommited – return assets of same asset type as the provided asset type. </param>        
-        /// <param name="pager">Paging filter - Page number to return. If omitted returns first page. Number of assets to return per page. Possible range 5 ≤ size ≥ 20. If omitted – 5 is used. Value greater than 20 will set to 20</param>
+        /// <param name="pager">Paging filter - Page number to return. If omitted returns first page. Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted – 5 is used. Value greater than 50 will set to 50</param>
         /// <param name="filter">Valid KSQL expression. If provided – the filter is applied on the resultset and further reduce it</param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>

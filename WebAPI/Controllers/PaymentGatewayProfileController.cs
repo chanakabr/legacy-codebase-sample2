@@ -7,6 +7,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Billing;
+using WebAPI.Models.General;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -165,13 +166,14 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="alias">The payemnt gateway for which to return the registration URL/s for the household. If omitted – return the regisration URL for the household for the default payment gateway</param>                
         /// <param name="intent">Represent the client’s intent for working with the payment gateway. Intent options to be coordinated with the applicable payment gateway adapter.</param>                
+        /// <param name="extra_parameters">Additional parameters to send to the payment gateway adapter.</param>
         /// <remarks>
         /// Possible status codes:       
         /// PaymentGatewayNotExist = 6008, SignatureMismatch = 6013
         /// </remarks>
         [Route("getConfiguration"), HttpPost]
         [ApiAuthorize]
-        public Models.Billing.KalturaPaymentGatewayConfiguration GetConfiguration(string alias, string intent)
+        public Models.Billing.KalturaPaymentGatewayConfiguration GetConfiguration(string alias, string intent, List<KalturaKeyValue> extra_parameters)
         {
             Models.Billing.KalturaPaymentGatewayConfiguration response = null;
 
@@ -183,7 +185,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().GetPaymentGatewayConfiguration(groupId, alias, intent);
+                response = ClientsManager.BillingClient().GetPaymentGatewayConfiguration(groupId, alias, intent, extra_parameters);
             }
             catch (ClientException ex)
             {

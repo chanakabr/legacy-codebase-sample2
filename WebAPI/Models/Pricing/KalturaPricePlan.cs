@@ -35,6 +35,14 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "price_id")]
         [JsonProperty("price_id")]
         [XmlElement(ElementName = "price_id")]
-        public int price_id { get; set; }
+        public int PriceId { get; set; }
+
+        /// <summary>
+        /// The discount module identifier of the price plan
+        /// </summary>
+        [DataMember(Name = "discount_id")]
+        [JsonProperty("discount_id")]
+        [XmlElement(ElementName = "discount_id")]
+        public long DiscountId { get; set; }
     }
 }

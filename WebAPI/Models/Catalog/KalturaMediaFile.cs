@@ -45,5 +45,21 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "url")]
         [XmlElement(ElementName = "url")]
         public string Url { get; set; }
+
+        /// <summary>
+        /// Duration of the media file
+        /// </summary>
+        [DataMember(Name = "duration")]
+        [JsonProperty(PropertyName = "duration")]
+        [XmlElement(ElementName = "duration")]
+        public long Duration { get; set; }
+
+        /// <summary>
+        /// External identifier for the media file
+        /// </summary>
+        [DataMember(Name = "external_id")]
+        [JsonProperty(PropertyName = "external_id")]
+        [XmlElement(ElementName = "external_id")]
+        public string ExternalId { get; set; }
     }
 }

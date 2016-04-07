@@ -3,6 +3,7 @@ using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using WebAPI.Billing;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -521,17 +522,18 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaPaymentGatewayConfiguration GetPaymentGatewayConfiguration(int groupId, string alias, string intent)
+        internal KalturaPaymentGatewayConfiguration GetPaymentGatewayConfiguration(int groupId, string alias, string intent, List<KalturaKeyValue> extraParams)
         {
             Models.Billing.KalturaPaymentGatewayConfiguration configuration = null;
             WebAPI.Billing.PaymentGatewayConfigurationResponse response = null;
             Group group = GroupsManager.GetGroup(groupId);
-
+            List<KeyValuePair> keyValuePairs = Mapper.Map<List<KeyValuePair>>(extraParams);
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.GetPaymentGatewayConfiguration(group.BillingCredentials.Username, group.BillingCredentials.Password, alias, intent);
+                    response = Billing.GetPaymentGatewayConfiguration(group.BillingCredentials.Username, group.BillingCredentials.Password, alias, intent, keyValuePairs.ToArray());
                 }
             }
             catch (Exception ex)
@@ -622,9 +624,9 @@ namespace WebAPI.Clients
             return paymentMethods;
         }
 
-        internal KalturaPaymentMethodProfile AddPaymentMethodToPaymentGateway(int groupId, int paymentGatewayId, string name)
+        internal KalturaPaymentMethodProfile AddPaymentMethodToPaymentGateway(int groupId, int paymentGatewayId, string name, bool allowMultiInstance)
         {
-            WebAPI.Billing.PaymentMethodResponse response = null;
+            WebAPI.Billing.PaymentMethodsResponse response = null;
             KalturaPaymentMethodProfile paymentMethod = null;
 
             Group group = GroupsManager.GetGroup(groupId);
@@ -633,7 +635,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.AddPaymentMethodToPaymentGateway(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGatewayId, name);
+                    response = Billing.AddPaymentMethodToPaymentGateway(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGatewayId, name, allowMultiInstance);
                 }
             }
             catch (Exception ex)
@@ -652,12 +654,17 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.Status.Code, response.Status.Message);
             }
 
-            paymentMethod = Mapper.Map<KalturaPaymentMethodProfile>(response.PaymentMethod);
+            if (response.PaymentMethods == null || response.PaymentMethods.Length == 0)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            paymentMethod = Mapper.Map<KalturaPaymentMethodProfile>(response.PaymentMethods[0]);
 
             return paymentMethod;
         }
 
-        internal bool UpdatePaymentGatewayPaymentMethod(int groupId, int paymentGatewayId, int paymentMethodId, string name)
+        internal bool UpdatePaymentGatewayPaymentMethod(int groupId, int paymentGatewayId, int paymentMethodId, string name, bool allowMultiInstance)
         {
             WebAPI.Billing.Status response = null;
 
@@ -667,7 +674,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.UpdatePaymentGatewayPaymentMethod(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGatewayId, paymentMethodId, name);
+                    response = Billing.UpdatePaymentGatewayPaymentMethod(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGatewayId, paymentMethodId, name, allowMultiInstance);
                 }
             }
             catch (Exception ex)

@@ -109,13 +109,5 @@ namespace WebAPI.Models.Billing
         [JsonProperty("renew_start_minutes")]
         [XmlElement(ElementName = "renew_start_minutes")]
         public int RenewStartMinutes { get; set; }
-
-        /// <summary>
-        /// Renew Start Minutes
-        /// </summary>
-        [DataMember(Name = "support_payment_method")]
-        [JsonProperty("support_payment_method")]
-        [XmlElement(ElementName = "support_payment_method")]
-        public bool SupportPaymentMethod { get; set; }
     }
 }

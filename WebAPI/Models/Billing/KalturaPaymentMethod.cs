@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Models.General;
@@ -27,19 +28,20 @@ namespace WebAPI.Models.Billing
         public string Name { get; set; }
 
         /// <summary>
-        /// Payment method details
+        /// Indicates whether the payment method allow multiple instances 
         /// </summary>
-        [DataMember(Name = "details")]
-        [JsonProperty("details")]
-        [XmlElement(ElementName = "details")]
-        public string Details { get; set; }
+        [DataMember(Name = "allow_multi_instance")]
+        [JsonProperty("allow_multi_instance")]
+        [XmlElement(ElementName = "allow_multi_instance")]
+        public bool AllowMultiInstance { get; set; }
 
         /// <summary>
-        /// Selected payment method 
+        /// Payment method name
         /// </summary>
-        [DataMember(Name = "selected")]
-        [JsonProperty("selected")]
-        [XmlElement(ElementName = "selected")]
-        public bool Selected { get; set; }
+        [DataMember(Name = "household_payment_methods")]
+        [JsonProperty("household_payment_methods")]
+        [XmlArray(ElementName = "objects", IsNullable = true)]
+        [XmlArrayItem(ElementName = "item")]
+        public List<KalturaHouseholdPaymentMethod> HouseholdPaymentMethods { get; set; }
     }
 }

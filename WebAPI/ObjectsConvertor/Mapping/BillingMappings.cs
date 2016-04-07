@@ -30,7 +30,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.PendingInterval, opt => opt.MapFrom(src => src.PendingInterval))
                 .ForMember(dest => dest.RenewIntervalMinutes, opt => opt.MapFrom(src => src.RenewalIntervalMinutes))
                 .ForMember(dest => dest.RenewStartMinutes, opt => opt.MapFrom(src => src.RenewalStartMinutes))
-                .ForMember(dest => dest.SupportPaymentMethod, opt => opt.MapFrom(src => src.SupportPaymentMethod))
                 .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
 
             //KalturaPaymentGatewayProfile to PaymentGateway
@@ -48,7 +47,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
                .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
                .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertPaymentGatewaySettings(src.Settings)))
-               .ForMember(dest => dest.SupportPaymentMethod, opt => opt.MapFrom(src => src.SupportPaymentMethod))
                .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
 
             Mapper.CreateMap<PaymentGatewayBase, WebAPI.Models.Billing.KalturaPaymentGatewayBaseProfile>()
@@ -64,6 +62,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //from local object to WS object            
             Mapper.CreateMap<PaymentGatewayConfigurationResponse, WebAPI.Models.Billing.KalturaPaymentGatewayConfiguration>()
                 .ForMember(dest => dest.Configuration, opt => opt.MapFrom(src => src.Configuration.Select(x => new KalturaKeyValue() { key = x.key, value = x.value }).ToList()));
+
+            //from local object to WS object            
+            Mapper.CreateMap<KalturaKeyValue, KeyValuePair>()
+                .ForMember(dest => dest.key, opt => opt.MapFrom(src => src.key))
+                .ForMember(dest => dest.value, opt => opt.MapFrom(src => src.value));
 
             //PaymentGatewayItemResponse to KalturaPaymentGatewayProfile
             Mapper.CreateMap<PaymentGatewayItemResponse, WebAPI.Models.Billing.KalturaPaymentGatewayProfile>()
@@ -91,23 +94,30 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             Mapper.CreateMap<PaymentMethod, WebAPI.Models.Billing.KalturaPaymentMethodProfile>()
              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
-             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+             .ForMember(dest => dest.AllowMultiInstance, opt => opt.MapFrom(src => src.AllowMultiInstance));
 
             Mapper.CreateMap<PaymentGatewaySelectedBy, WebAPI.Models.Billing.KalturaPaymentGatewayBaseProfile>()
            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
            .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
-           .ForMember(dest => dest.PaymentMethods, opt => opt.MapFrom(src => ConvertHouseholdPaymentMethod(src.PaymentMethods)));
+           .ForMember(dest => dest.PaymentMethods, opt => opt.MapFrom(src => src.PaymentMethods));
 
-            Mapper.CreateMap<HouseholdPaymentMethod, WebAPI.Models.Billing.KalturaPaymentMethod>()
+            Mapper.CreateMap<PaymentGatwayPaymentMethods, WebAPI.Models.Billing.KalturaPaymentMethod>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.PaymentMethod.ID))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.PaymentMethod.Name))
+            .ForMember(dest => dest.AllowMultiInstance, opt => opt.MapFrom(src => src.PaymentMethod.AllowMultiInstance))
+            .ForMember(dest => dest.HouseholdPaymentMethods, opt => opt.MapFrom(src => src.HouseHoldPaymentMethods));
+
+            Mapper.CreateMap<HouseholdPaymentMethod, WebAPI.Models.Billing.KalturaHouseholdPaymentMethod>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
-            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
             .ForMember(dest => dest.Details, opt => opt.MapFrom(src => src.Details))
             .ForMember(dest => dest.Selected, opt => opt.MapFrom(src => src.Selected));
 
             Mapper.CreateMap<KalturaPaymentMethod, PaymentMethod>()
            .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
-           .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+           .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+           .ForMember(dest => dest.AllowMultiInstance, opt => opt.MapFrom(src => src.AllowMultiInstance));
         }
 
 
@@ -180,24 +190,24 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static List<KalturaPaymentMethod> ConvertHouseholdPaymentMethod(HouseholdPaymentMethod[] householdPaymentMethods)
-        {
-            List<KalturaPaymentMethod> result = null;
+        //private static List<KalturaPaymentMethod> ConvertHouseholdPaymentMethod(HouseholdPaymentMethod[] householdPaymentMethods)
+        //{
+        //    List<KalturaPaymentMethod> result = null;
 
-            if (householdPaymentMethods != null && householdPaymentMethods.Length > 0)
-            {
-                result = new List<KalturaPaymentMethod>();
+        //    if (householdPaymentMethods != null && householdPaymentMethods.Length > 0)
+        //    {
+        //        result = new List<KalturaPaymentMethod>();
 
-                KalturaPaymentMethod item;
+        //        KalturaPaymentMethod item;
 
-                foreach (var householdPaymentMethod in householdPaymentMethods)
-                {
-                    item = AutoMapper.Mapper.Map<KalturaPaymentMethod>(householdPaymentMethod);
-                    result.Add(item);
-                }
-            }
+        //        foreach (var householdPaymentMethod in householdPaymentMethods)
+        //        {
+        //            item = AutoMapper.Mapper.Map<KalturaPaymentMethod>(householdPaymentMethod);
+        //            result.Add(item);
+        //        }
+        //    }
 
-            return result;
-        }
+        //    return result;
+        //}
     }
 }

@@ -59,7 +59,7 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
-            if (response == null || response.user == null)
+            if (response == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
@@ -67,6 +67,11 @@ namespace WebAPI.Clients
             if (response.resp.Code != (int)StatusCode.OK)
             {
                 throw new ClientException((int)response.resp.Code, response.resp.Message);
+            }
+
+            if (response.user == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
             user = Mapper.Map<WebAPI.Models.Users.KalturaOTTUser>(response.user);
@@ -791,6 +796,79 @@ namespace WebAPI.Clients
             {
                 throw new ClientException((int)response.m_RespStatus, StatusCode.Error.ToString());
             }
+
+            return true;
+        }
+
+        public WebAPI.Models.Users.KalturaOTTUser ActivateAccount(int groupId, string username, string token)
+        {
+            WebAPI.Models.Users.KalturaOTTUser user = null;
+            UserResponse response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Users.ActivateAccount(group.UsersCredentials.Username, group.UsersCredentials.Password, username, token);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while ActivateAccount. Username: {0}, Password: {1}, exception: {2}", group.UsersCredentials.Username, group.UsersCredentials.Password, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.resp.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.resp.Code, response.resp.Message);
+            }
+
+            if (response.user == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            user = Mapper.Map<WebAPI.Models.Users.KalturaOTTUser>(response.user);
+
+            return user;
+        }
+
+        public bool ResendActivationToken(int groupId, string username, string password)
+        {
+            Status response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Users.ResendActivationToken(group.UsersCredentials.Username, group.UsersCredentials.Password, username, password);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while ActivateAccount. Username: {0}, Password: {1}, exception: {2}", group.UsersCredentials.Username, group.UsersCredentials.Password, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
 
             return true;
         }

@@ -167,7 +167,7 @@
     <None Include="Service References\Catalog\Service1.xsd">
       <SubType>Designer</SubType>
     </None>
-    <Content Include="Service References\Catalog\Service10.wsdl" />
+    <None Include="Service References\Catalog\Service10.wsdl" />
     <None Include="Service References\Catalog\Service10.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -344,13 +344,13 @@
     <None Include="Service References\Catalog\Service8.xsd">
       <SubType>Designer</SubType>
     </None>
-    <Content Include="Service References\Catalog\Service9.wsdl" />
+    <None Include="Service References\Catalog\Service9.wsdl" />
     <None Include="Service References\Catalog\Service9.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\Catalog\Service2.disco" />
     <Content Include="Service References\Catalog\Service4.disco" />
-    <Content Include="Service References\Catalog\Service5.disco" />
+    <None Include="Service References\Catalog\Service5.disco" />
     <Content Include="Service References\Catalog\WebAPI.Catalog.BaseResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
@@ -683,9 +683,6 @@
     <Content Include="Web References\Billing\PaymentGatewayListResponse1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\Billing\PaymentMethodResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
     <Content Include="Web References\Billing\PaymentMethodsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
@@ -971,6 +968,7 @@
     <Compile Include="Controllers\AnnouncementController.cs" />
     <Compile Include="Controllers\AppTokenController.cs" />
     <Compile Include="Controllers\AssetController.cs" />
+    <Compile Include="Controllers\LicensedUrlController.cs" />
     <Compile Include="Controllers\HomeNetworkController.cs" />
     <Compile Include="Controllers\NotificationController.cs" />
     <Compile Include="Controllers\NotificationsPartnerSettingsController.cs" />
@@ -1050,6 +1048,7 @@
     <Compile Include="Models\API\KalturaRuleType.cs" />
     <Compile Include="Models\API\KalturaUserRoleFilter.cs" />
     <Compile Include="Models\API\KalturaChannelProfile.cs" />
+    <Compile Include="Models\Billing\KalturaHouseholdPaymentMethod.cs" />
     <Compile Include="Models\Billing\KalturaPaymentMethod.cs" />
     <Compile Include="Models\Billing\KalturaPaymentGateway.cs" />
     <Compile Include="Models\Billing\KalturaHouseholdPaymentGatewaySelectedBy.cs" />
@@ -1076,6 +1075,8 @@
     <Compile Include="Models\Catalog\PersonalEnrichments\KalturaPersonalAssetRequest.cs" />
     <Compile Include="Models\Catalog\PersonalEnrichments\KalturaPersonalAssetWith.cs" />
     <Compile Include="Models\Catalog\KalturaAssetsBookmarksResponse.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaStreamType.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaLicensedUrl.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingAction.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingItemsType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingResponse.cs" />
