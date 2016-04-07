@@ -28,7 +28,7 @@ namespace DAL
         private const string SP_UPDATE_NOTIFICATION_MESSAGE_VIEW_STATUS = "UpdateNotificationMessageViewStatus";
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager("notification");
+        private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.NOTIFICATION);
 
         private static string GetDeviceDataKey(int groupId, string udid)
         {
