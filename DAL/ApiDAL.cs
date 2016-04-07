@@ -3361,7 +3361,7 @@ namespace DAL
         }
 
         public static bool UpdateTimeShiftedTvPartnerSettings(int groupID, bool? isCatchupAllowed, bool? isCdvrEnabled, bool? isStartOverEnabled, bool? isTrickPlayEnabled,
-                                                                int catchUpBufferLength, int trickPlayBufferLength)
+                                                                int? catchUpBufferLength, int? trickPlayBufferLength)
         {
             bool isUpdated = false;
             try
