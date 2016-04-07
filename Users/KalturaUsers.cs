@@ -366,11 +366,7 @@ namespace Users
 
         public UserActivationState GetUserStatus(ref string username, ref Int32 userId)
         {
-            List<int> groupIdList = UtilsDal.GetAllRelatedGroups(GroupId);
-            List<int> groupIdArray = groupIdList.Select(g => g).ToList();
-
-            int nActivateStatus = 0;
-            UserActivationState activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(GroupId, groupIdArray, activationMustHours, ref username, ref userId, ref nActivateStatus);
+            UserActivationState activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(GroupId, activationMustHours, ref username, ref userId);
 
             return activStatus;
         }

@@ -136,6 +136,7 @@
     <Compile Include="Attributes\LogTopicAttribute.cs" />
     <Compile Include="BaseObject.cs" />
     <Compile Include="EntitledAssetsUtils.cs" />
+    <Compile Include="LinearChannelSettings.cs" />
     <Compile Include="PicData.cs" />
     <Compile Include="PicSize.cs" />
     <Compile Include="Request\AssetsBookmarksRequest.cs" />

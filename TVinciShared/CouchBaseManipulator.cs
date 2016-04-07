@@ -134,7 +134,7 @@ namespace TVinciShared
                                             }
                                         }
 
-                                        string sTagType = tagTypes[nTagTypeID].ToLower();
+                                        string sTagType = tagTypes[nTagTypeID];
                                         if (!epg.Tags.ContainsKey(sTagType) && lValues.Count > 0)
                                         {
                                             epg.Tags.Add(sTagType, lValues); //add the new tagtype to the epg, with its values
@@ -219,7 +219,7 @@ namespace TVinciShared
                             bool wasFound = false;
                             if (metaTypes.ContainsKey(id)) //verify the meta type is in DB
                             {
-                                string typeName = metaTypes[id].ToLower();
+                                string typeName = metaTypes[id];
                                 if (epg.Metas.ContainsKey(typeName))
                                 {
                                     if (sVal == "") // if the value is "", remove the entire meta
@@ -255,6 +255,7 @@ namespace TVinciShared
             epg.UpdateDate = DateTime.UtcNow;
             epg.isActive = true;
             epg.Status = 1;
+            int enable = 0;
 
             try
             {
@@ -352,7 +353,50 @@ namespace TVinciShared
                     {
                         doTheWorkOnFile(nCounter, nGroupID, ref coll, ref bValid, ref epg);
                     }
+                    if (sFieldName.Trim() == "ENABLE_CDVR")
+                    {
 
+                        if (sVal != "")
+                        {
+                            enable = int.Parse(sVal);
+                        }
+                        epg.EnableCDVR = enable;
+
+                        enable = 0;
+                    }
+                    if (sFieldName.Trim() == "ENABLE_CATCH_UP")
+                    {
+
+                        if (sVal != "")
+                        {
+                            enable = int.Parse(sVal);
+                        }
+                        epg.EnableCatchUp = enable;
+
+                        enable = 0;
+                    }
+                    if (sFieldName.Trim() == "ENABLE_START_OVER")
+                    {
+
+                        if (sVal != "")
+                        {
+                            enable = int.Parse(sVal);
+                        }
+                        epg.EnableStartOver = enable;
+
+                        enable = 0;
+                    }
+                    if (sFieldName.Trim() == "ENABLE_TRICK_PLAY")
+                    {
+
+                        if (sVal != "")
+                        {
+                            enable = int.Parse(sVal);
+                        }
+                        epg.EnableTrickPlay = enable;
+
+                        enable = 0;
+                    }
                     nCounter++;
                 }
             }

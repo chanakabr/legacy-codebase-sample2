@@ -16,7 +16,7 @@ namespace EpgBL
         public int m_nGroupID { get; protected set; }
 
         public abstract EPGChannelProgrammeObject GetEpg(ulong nProgramID);
-        public abstract List<EPGChannelProgrammeObject> GetEpgs(List<int> lIds);
+        public abstract List<EPGChannelProgrammeObject> GetEpgs(List<int> lIds);        
         public abstract List<EpgCB> GetEpgs(List<string> lIds);
 
         public abstract EpgCB GetEpgCB(ulong nProgramID);

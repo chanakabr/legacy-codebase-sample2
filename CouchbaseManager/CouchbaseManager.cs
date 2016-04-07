@@ -473,15 +473,15 @@ namespace CouchbaseManager
                         string action = string.Format("Action: Insert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
                         using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                         {
-                        if (!asJson)
-                        {
-                            insertResult = bucket.Insert<T>(key, value, expiration);
-                        }
-                        else
-                        {
-                            string serializedValue = ObjectToJson(value);
-                            insertResult = bucket.Insert<string>(key, serializedValue, expiration);
-                        }
+                            if (!asJson)
+                            {
+                                insertResult = bucket.Insert<T>(key, value, expiration);
+                            }
+                            else
+                            {
+                                string serializedValue = ObjectToJson(value);
+                                insertResult = bucket.Insert<string>(key, serializedValue, expiration);
+                            }
                         }
 
                         if (insertResult != null)
@@ -633,15 +633,15 @@ namespace CouchbaseManager
                         string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
                         using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                         {
-                        if (!asJson)
-                        {
-                            insertResult = bucket.Upsert<T>(key, value, expiration);
-                        }
-                        else
-                        {
-                            string serializedValue = ObjectToJson(value);
-                            insertResult = bucket.Upsert<string>(key, serializedValue, expiration);
-                        }
+                            if (!asJson)
+                            {
+                                insertResult = bucket.Upsert<T>(key, value, expiration);
+                            }
+                            else
+                            {
+                                string serializedValue = ObjectToJson(value);
+                                insertResult = bucket.Upsert<string>(key, serializedValue, expiration);
+                            }
                         }
 
                         if (insertResult != null)
@@ -678,13 +678,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Set<T> with key = {0}, error = {1}, ST = {2}", key, ex.Message, ex.StackTrace), ex);
-
-                if (ex.InnerException != null)
-                {
-                    log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Set<T> with key = {0}, inner exception = {1}, ST = {2}", key,
-                        ex.InnerException.Message, ex.InnerException.StackTrace), ex.InnerException);
-                }
+                log.ErrorFormat("CouchBaseCache - Failed Set<T> with key = {0}, error = {1}", key, ex);
             }
             return result;
         }
@@ -697,7 +691,7 @@ namespace CouchbaseManager
             {
                 return this.GetJsonAsT<T>(key);
             }
-            
+
             try
             {
                 using (var cluster = new Cluster(clientConfiguration))
@@ -907,15 +901,15 @@ namespace CouchbaseManager
                     string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                     {
-                    if (!asJson)
-                    {
-                        setResult = bucket.Upsert(key, value, version, expiration);
-                    }
-                    else
-                    {
-                        string serializedValue = ObjectToJson(value);
-                        setResult = bucket.Upsert(key, serializedValue, version, expiration);
-                    }
+                        if (!asJson)
+                        {
+                            setResult = bucket.Upsert(key, value, version, expiration);
+                        }
+                        else
+                        {
+                            string serializedValue = ObjectToJson(value);
+                            setResult = bucket.Upsert(key, serializedValue, version, expiration);
+                        }
                     }
 
                     if (setResult != null)
@@ -968,15 +962,15 @@ namespace CouchbaseManager
                     string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                     {
-                    if (!asJson)
-                    {
-                        setResult = bucket.Upsert(key, value, version, expiration);
-                    }
-                    else
-                    {
-                        string serializedValue = ObjectToJson(value);
-                        setResult = bucket.Upsert(key, serializedValue, version, expiration);
-                    }
+                        if (!asJson)
+                        {
+                            setResult = bucket.Upsert(key, value, version, expiration);
+                        }
+                        else
+                        {
+                            string serializedValue = ObjectToJson(value);
+                            setResult = bucket.Upsert(key, serializedValue, version, expiration);
+                        }
                     }
 
                     if (setResult != null)
@@ -1040,15 +1034,15 @@ namespace CouchbaseManager
                     string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                     {
-                    if (!asJson)
-                    {
-                        setResult = bucket.Upsert<T>(key, value, version, expiration);
-                    }
-                    else
-                    {
-                        string serializedValue = ObjectToJson(value);
-                        setResult = bucket.Upsert(key, serializedValue, version, expiration);
-                    }
+                        if (!asJson)
+                        {
+                            setResult = bucket.Upsert<T>(key, value, version, expiration);
+                        }
+                        else
+                        {
+                            string serializedValue = ObjectToJson(value);
+                            setResult = bucket.Upsert(key, serializedValue, version, expiration);
+                        }
                     }
 
                     if (setResult != null)
@@ -1101,15 +1095,15 @@ namespace CouchbaseManager
                     string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                     {
-                    if (!asJson)
-                    {
-                        setResult = bucket.Upsert<T>(key, value, version, expiration);
-                    }
-                    else
-                    {
-                        string serializedValue = ObjectToJson(value);
-                        setResult = bucket.Upsert(key, serializedValue, version, expiration);
-                    }
+                        if (!asJson)
+                        {
+                            setResult = bucket.Upsert<T>(key, value, version, expiration);
+                        }
+                        else
+                        {
+                            string serializedValue = ObjectToJson(value);
+                            setResult = bucket.Upsert(key, serializedValue, version, expiration);
+                        }
                     }
 
                     if (setResult != null)
@@ -1210,7 +1204,7 @@ namespace CouchbaseManager
 
                 return result;
             }
-            
+
             try
             {
                 using (var cluster = new Cluster(clientConfiguration))
@@ -1389,7 +1383,7 @@ namespace CouchbaseManager
                                     }
                                 }
                             }
-                        }          
+                        }
 
                         // Get all missing values from Couchbase and fill the list
                         var missingValues = GetValues<T>(missingKeys, definitions.allowPartialQuery, definitions.asJson);
