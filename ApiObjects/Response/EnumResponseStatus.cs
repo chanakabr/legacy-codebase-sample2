@@ -153,7 +153,8 @@ namespace ApiObjects.Response
         AliasMustBeUnique = 5019, 
         AliasRequired = 5020,
         UserParentalRuleNotExists = 5021,
-        NoAdapterToInsert = 5022,
+        TimeShiftedTvPartnerSettingsNotFound = 5022,
+        TimeShiftedTvPartnerSettingsNotSent = 5023,
 
         // Billing 6000 - 6999
         IncorrectPrice = 6000,
@@ -246,6 +247,8 @@ namespace ApiObjects.Response
         // Adapters 10000-11000
         AdapterNotExists = 10000,
         AdapterIdentifierRequired = 10001,
-        AdapterIsRequired = 10002
+        AdapterIsRequired = 10002,
+        NoAdapterToInsert = 1000,
+
     }
 }
