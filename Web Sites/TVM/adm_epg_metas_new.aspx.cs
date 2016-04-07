@@ -112,6 +112,12 @@ public partial class adm_epg_metas_new : System.Web.UI.Page
         theRecord.AddRecord(dr_meta_flag);
 
 
+        DataRecordDropDownField dr_meta_type_mapping = new DataRecordDropDownField("lu_tag_type_flag", "DESCRIPTION", "id", "", null, 60, true);
+        dr_meta_type_mapping.SetNoSelectStr("---");
+        dr_meta_type_mapping.Initialize("related to meta", "adm_table_header_nbg", "FormInput", "", false);
+        theRecord.AddRecord(dr_meta_type_mapping);
+
+
         string sTable = theRecord.GetTableHTML("adm_epg_metas_new.aspx?submited=1");
 
         return sTable;
