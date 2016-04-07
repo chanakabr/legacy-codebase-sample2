@@ -14,7 +14,7 @@ namespace ApiObjects.TimeShiftedTv
         public bool? IsStartOverEnabled { get; set; }
         public bool? IsTrickPlayEnabled { get; set; }
         public int CatchUpBufferLength { get; set; }
-        public int TrickPlayBufferLength { get; set; }
+        public int TrickPlayBufferLength { get; set; }        
 
         public TimeShiftedTvPartnerSettings()
         {
@@ -27,7 +27,20 @@ namespace ApiObjects.TimeShiftedTv
             this.IsStartOverEnabled = isStartOverEnabled;
             this.IsTrickPlayEnabled = isTrickPlayEnabled;
             this.CatchUpBufferLength = catchUpBufferLength;
-            this.TrickPlayBufferLength = trickPlayBufferLength;
+            this.TrickPlayBufferLength = trickPlayBufferLength;            
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(string.Format("IsCatchUpEnabled: {0}, ", IsCatchUpEnabled.HasValue ? IsCatchUpEnabled.Value.ToString() : "Null"));
+            sb.Append(string.Format("IsCdvrEnabled: {0}, ", IsCdvrEnabled.HasValue ? IsCdvrEnabled.Value.ToString() : "Null"));
+            sb.Append(string.Format("IsStartOverEnabled: {0}, ", IsStartOverEnabled.HasValue ? IsStartOverEnabled.Value.ToString() : "Null"));
+            sb.Append(string.Format("IsTrickPlayEnabled: {0}, ", IsTrickPlayEnabled.HasValue ? IsTrickPlayEnabled.Value.ToString() : "Null"));
+            sb.Append(string.Format("CatchUpBufferLength: {0}, ", CatchUpBufferLength));
+            sb.Append(string.Format("TrickPlayBufferLength: {0}, ", TrickPlayBufferLength));            
+                        
+            return sb.ToString();
         }
 
     }
