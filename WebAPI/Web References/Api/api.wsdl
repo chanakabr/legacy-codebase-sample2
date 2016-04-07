@@ -515,6 +515,21 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="UpdateFreeFileTypeOfModule">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="groupID" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="moduleID" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateFreeFileTypeOfModuleResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="UpdateFreeFileTypeOfModuleResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="GetTimeShiftedTvPartnerSettings">
         <s:complexType>
           <s:sequence>
@@ -540,6 +555,11 @@
         <s:sequence>
           <s:element minOccurs="1" maxOccurs="1" name="IsCatchUpEnabled" nillable="true" type="s:boolean" />
           <s:element minOccurs="1" maxOccurs="1" name="IsCdvrEnabled" nillable="true" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsStartOverEnabled" nillable="true" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsTrickPlayEnabled" nillable="true" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="CatchUpBufferLength" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="TrickPlayBufferLength" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="AdapterID" type="s:int" />
         </s:sequence>
       </s:complexType>
       <s:element name="UpdateTimeShiftedTvPartnerSettings">
@@ -2669,6 +2689,10 @@
           <s:element minOccurs="0" maxOccurs="1" name="EPG_Meta" type="tns:ArrayOfEPGDictionary" />
           <s:element minOccurs="0" maxOccurs="1" name="EPG_PICTURES" type="tns:ArrayOfEpgPicture" />
           <s:element minOccurs="0" maxOccurs="1" name="media_id" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="ENABLE_CDVR" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="ENABLE_CATCH_UP" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="ENABLE_START_OVER" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="ENABLE_TRICK_PLAY" type="s:int" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="ArrayOfEPGDictionary">
@@ -4304,6 +4328,12 @@
   <wsdl:message name="InitializeFreeItemsUpdateSoapOut">
     <wsdl:part name="parameters" element="tns:InitializeFreeItemsUpdateResponse" />
   </wsdl:message>
+  <wsdl:message name="UpdateFreeFileTypeOfModuleSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateFreeFileTypeOfModule" />
+  </wsdl:message>
+  <wsdl:message name="UpdateFreeFileTypeOfModuleSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateFreeFileTypeOfModuleResponse" />
+  </wsdl:message>
   <wsdl:message name="GetTimeShiftedTvPartnerSettingsSoapIn">
     <wsdl:part name="parameters" element="tns:GetTimeShiftedTvPartnerSettings" />
   </wsdl:message>
@@ -5177,6 +5207,13 @@
   <wsdl:message name="InitializeFreeItemsUpdateHttpPostOut">
     <wsdl:part name="Body" element="tns:boolean" />
   </wsdl:message>
+  <wsdl:message name="UpdateFreeFileTypeOfModuleHttpPostIn">
+    <wsdl:part name="groupID" type="s:string" />
+    <wsdl:part name="moduleID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="UpdateFreeFileTypeOfModuleHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
   <wsdl:message name="GetTimeShiftedTvPartnerSettingsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -6047,6 +6084,10 @@
       <wsdl:input message="tns:InitializeFreeItemsUpdateSoapIn" />
       <wsdl:output message="tns:InitializeFreeItemsUpdateSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="UpdateFreeFileTypeOfModule">
+      <wsdl:input message="tns:UpdateFreeFileTypeOfModuleSoapIn" />
+      <wsdl:output message="tns:UpdateFreeFileTypeOfModuleSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetTimeShiftedTvPartnerSettings">
       <wsdl:input message="tns:GetTimeShiftedTvPartnerSettingsSoapIn" />
       <wsdl:output message="tns:GetTimeShiftedTvPartnerSettingsSoapOut" />
@@ -6613,6 +6654,10 @@
       <wsdl:input message="tns:InitializeFreeItemsUpdateHttpPostIn" />
       <wsdl:output message="tns:InitializeFreeItemsUpdateHttpPostOut" />
     </wsdl:operation>
+    <wsdl:operation name="UpdateFreeFileTypeOfModule">
+      <wsdl:input message="tns:UpdateFreeFileTypeOfModuleHttpPostIn" />
+      <wsdl:output message="tns:UpdateFreeFileTypeOfModuleHttpPostOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetTimeShiftedTvPartnerSettings">
       <wsdl:input message="tns:GetTimeShiftedTvPartnerSettingsHttpPostIn" />
       <wsdl:output message="tns:GetTimeShiftedTvPartnerSettingsHttpPostOut" />
@@ -7118,6 +7163,15 @@
     </wsdl:operation>
     <wsdl:operation name="InitializeFreeItemsUpdate">
       <soap:operation soapAction="http://api.tvinci.com/InitializeFreeItemsUpdate" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateFreeFileTypeOfModule">
+      <soap:operation soapAction="http://api.tvinci.com/UpdateFreeFileTypeOfModule" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -8451,6 +8505,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="UpdateFreeFileTypeOfModule">
+      <soap12:operation soapAction="http://api.tvinci.com/UpdateFreeFileTypeOfModule" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetTimeShiftedTvPartnerSettings">
       <soap12:operation soapAction="http://api.tvinci.com/GetTimeShiftedTvPartnerSettings" style="document" />
       <wsdl:input>
@@ -9716,6 +9779,15 @@
     </wsdl:operation>
     <wsdl:operation name="InitializeFreeItemsUpdate">
       <http:operation location="/InitializeFreeItemsUpdate" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateFreeFileTypeOfModule">
+      <http:operation location="/UpdateFreeFileTypeOfModule" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>

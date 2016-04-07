@@ -65,6 +65,8 @@ namespace WebAPI.Api {
         
         private System.Threading.SendOrPostCallback InitializeFreeItemsUpdateOperationCompleted;
         
+        private System.Threading.SendOrPostCallback UpdateFreeFileTypeOfModuleOperationCompleted;
+        
         private System.Threading.SendOrPostCallback GetTimeShiftedTvPartnerSettingsOperationCompleted;
         
         private System.Threading.SendOrPostCallback UpdateTimeShiftedTvPartnerSettingsOperationCompleted;
@@ -413,6 +415,9 @@ namespace WebAPI.Api {
         
         /// <remarks/>
         public event InitializeFreeItemsUpdateCompletedEventHandler InitializeFreeItemsUpdateCompleted;
+        
+        /// <remarks/>
+        public event UpdateFreeFileTypeOfModuleCompletedEventHandler UpdateFreeFileTypeOfModuleCompleted;
         
         /// <remarks/>
         public event GetTimeShiftedTvPartnerSettingsCompletedEventHandler GetTimeShiftedTvPartnerSettingsCompleted;
@@ -1382,6 +1387,37 @@ namespace WebAPI.Api {
             if ((this.InitializeFreeItemsUpdateCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.InitializeFreeItemsUpdateCompleted(this, new InitializeFreeItemsUpdateCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/UpdateFreeFileTypeOfModule", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public bool UpdateFreeFileTypeOfModule(int groupID, int moduleID) {
+            object[] results = this.Invoke("UpdateFreeFileTypeOfModule", new object[] {
+                        groupID,
+                        moduleID});
+            return ((bool)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void UpdateFreeFileTypeOfModuleAsync(int groupID, int moduleID) {
+            this.UpdateFreeFileTypeOfModuleAsync(groupID, moduleID, null);
+        }
+        
+        /// <remarks/>
+        public void UpdateFreeFileTypeOfModuleAsync(int groupID, int moduleID, object userState) {
+            if ((this.UpdateFreeFileTypeOfModuleOperationCompleted == null)) {
+                this.UpdateFreeFileTypeOfModuleOperationCompleted = new System.Threading.SendOrPostCallback(this.OnUpdateFreeFileTypeOfModuleOperationCompleted);
+            }
+            this.InvokeAsync("UpdateFreeFileTypeOfModule", new object[] {
+                        groupID,
+                        moduleID}, this.UpdateFreeFileTypeOfModuleOperationCompleted, userState);
+        }
+        
+        private void OnUpdateFreeFileTypeOfModuleOperationCompleted(object arg) {
+            if ((this.UpdateFreeFileTypeOfModuleCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.UpdateFreeFileTypeOfModuleCompleted(this, new UpdateFreeFileTypeOfModuleCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -8052,6 +8088,14 @@ namespace WebAPI.Api {
         
         private string media_idField;
         
+        private int eNABLE_CDVRField;
+        
+        private int eNABLE_CATCH_UPField;
+        
+        private int eNABLE_START_OVERField;
+        
+        private int eNABLE_TRICK_PLAYField;
+        
         /// <remarks/>
         public long EPG_ID {
             get {
@@ -8261,6 +8305,46 @@ namespace WebAPI.Api {
             }
             set {
                 this.media_idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int ENABLE_CDVR {
+            get {
+                return this.eNABLE_CDVRField;
+            }
+            set {
+                this.eNABLE_CDVRField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int ENABLE_CATCH_UP {
+            get {
+                return this.eNABLE_CATCH_UPField;
+            }
+            set {
+                this.eNABLE_CATCH_UPField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int ENABLE_START_OVER {
+            get {
+                return this.eNABLE_START_OVERField;
+            }
+            set {
+                this.eNABLE_START_OVERField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int ENABLE_TRICK_PLAY {
+            get {
+                return this.eNABLE_TRICK_PLAYField;
+            }
+            set {
+                this.eNABLE_TRICK_PLAYField = value;
             }
         }
     }
@@ -12984,6 +13068,16 @@ namespace WebAPI.Api {
         
         private System.Nullable<bool> isCdvrEnabledField;
         
+        private System.Nullable<bool> isStartOverEnabledField;
+        
+        private System.Nullable<bool> isTrickPlayEnabledField;
+        
+        private int catchUpBufferLengthField;
+        
+        private int trickPlayBufferLengthField;
+        
+        private int adapterIDField;
+        
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
         public System.Nullable<bool> IsCatchUpEnabled {
@@ -13003,6 +13097,58 @@ namespace WebAPI.Api {
             }
             set {
                 this.isCdvrEnabledField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<bool> IsStartOverEnabled {
+            get {
+                return this.isStartOverEnabledField;
+            }
+            set {
+                this.isStartOverEnabledField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<bool> IsTrickPlayEnabled {
+            get {
+                return this.isTrickPlayEnabledField;
+            }
+            set {
+                this.isTrickPlayEnabledField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int CatchUpBufferLength {
+            get {
+                return this.catchUpBufferLengthField;
+            }
+            set {
+                this.catchUpBufferLengthField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int TrickPlayBufferLength {
+            get {
+                return this.trickPlayBufferLengthField;
+            }
+            set {
+                this.trickPlayBufferLengthField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int AdapterID {
+            get {
+                return this.adapterIDField;
+            }
+            set {
+                this.adapterIDField = value;
             }
         }
     }
@@ -14448,6 +14594,32 @@ namespace WebAPI.Api {
         private object[] results;
         
         internal InitializeFreeItemsUpdateCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public bool Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((bool)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void UpdateFreeFileTypeOfModuleCompletedEventHandler(object sender, UpdateFreeFileTypeOfModuleCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class UpdateFreeFileTypeOfModuleCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal UpdateFreeFileTypeOfModuleCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }

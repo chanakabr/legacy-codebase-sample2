@@ -36,7 +36,7 @@ namespace WebAPI.Models.API
         public bool? StartOverEnabled { get; set; }
 
         /// <summary>
-        /// Is trick-play
+        /// Is trick-play enabled
         /// </summary>
         [DataMember(Name = "trick_play_enabled")]
         [JsonProperty("trick_play_enabled")]
@@ -46,17 +46,17 @@ namespace WebAPI.Models.API
         /// <summary>
         /// Catch-up buffer length
         /// </summary>
-        [DataMember(Name = "start_over_enabled")]
-        [JsonProperty("start_over_enabled")]
-        [XmlElement(ElementName = "start_over_enabled", IsNullable = true)]
+        [DataMember(Name = "catch_up_buffer_length")]
+        [JsonProperty("catch_up_buffer_length")]
+        [XmlElement(ElementName = "catch_up_buffer_length", IsNullable = true)]
         public int CatchUpBufferLength { get; set; }
 
         /// <summary>
         /// Trick play buffer length
         /// </summary>
-        [DataMember(Name = "trick_play_enabled")]
-        [JsonProperty("trick_play_enabled")]
-        [XmlElement(ElementName = "trick_play_enabled", IsNullable = true)]
+        [DataMember(Name = "trick_play_buffer_length")]
+        [JsonProperty("trick_play_buffer_length")]
+        [XmlElement(ElementName = "trick_play_buffer_length", IsNullable = true)]
         public int TrickPlayBufferLength { get; set; }
 
     }
