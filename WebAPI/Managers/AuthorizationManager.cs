@@ -382,7 +382,7 @@ namespace WebAPI.Managers
             Group group = GroupsManager.GetGroup(groupId);
 
             string appTokenCbKey = string.Format(group.AppTokenKeyFormat, id);
-            var cbAppToken = cbManager.Get<AppToken>(appTokenCbKey);
+            var cbAppToken = cbManager.Get<AppToken>(appTokenCbKey, true);
             if (cbAppToken == null)
             {
                 log.ErrorFormat("GetAppToken: failed to get AppToken from CB, key = {0}", appTokenCbKey);
