@@ -4,6 +4,34 @@
     <s:schema elementFormDefault="qualified" targetNamespace="http://ca.tvinci.com/">
       <s:import namespace="http://pricing.tvinci.com/" />
       <s:import namespace="http://billing.tvinci.com/" />
+      <s:element name="CheckPendingTransaction">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="wsUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="wsPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="paymentGatewayPendingId" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="numberOfRetries" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="billingGuid" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="paymentGatewayTransactionId" type="s:long" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="productId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="productType" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CheckPendingTransactionResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CheckPendingTransactionResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="Status">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Code" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="GetUserEntitlements">
         <s:complexType>
           <s:sequence>
@@ -11,6 +39,9 @@
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sSiteGUID" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="type" type="tns:eTransactionType" />
+            <s:element minOccurs="1" maxOccurs="1" name="isExpired" type="s:boolean" />
+            <s:element minOccurs="1" maxOccurs="1" name="pageSize" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="pageIndex" type="s:int" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -32,12 +63,6 @@
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="status" type="tns:Status" />
           <s:element minOccurs="0" maxOccurs="1" name="entitelments" type="tns:ArrayOfEntitlement" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="Status">
-        <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="Code" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="ArrayOfEntitlement">
@@ -64,6 +89,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="nextRenewalDate" type="s:dateTime" />
           <s:element minOccurs="1" maxOccurs="1" name="recurringStatus" type="s:boolean" />
           <s:element minOccurs="1" maxOccurs="1" name="isRenewable" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsInGracePeriod" type="s:boolean" />
           <s:element minOccurs="1" maxOccurs="1" name="mediaID" type="s:int" />
         </s:sequence>
       </s:complexType>
@@ -92,6 +118,9 @@
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="domainId" type="s:int" />
             <s:element minOccurs="1" maxOccurs="1" name="type" type="tns:eTransactionType" />
+            <s:element minOccurs="1" maxOccurs="1" name="isExpired" type="s:boolean" />
+            <s:element minOccurs="1" maxOccurs="1" name="pageSize" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="pageIndex" type="s:int" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -99,6 +128,169 @@
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="GetDomainEntitlementsResult" type="tns:Entitlements" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Renew">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteguid" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="purchaseId" type="s:long" />
+            <s:element minOccurs="0" maxOccurs="1" name="billingGuid" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="endDate" type="s:long" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="RenewResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="RenewResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetAssetPrices">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="couponCode" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="countryCd2" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="languageCode3" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="deviceName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="clientIP" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="assetFiles" type="tns:ArrayOfAssetFiles" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfAssetFiles">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="AssetFiles" nillable="true" type="tns:AssetFiles" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="AssetFiles">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="AssetId" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="AssetType" type="tns:eAssetTypes" />
+          <s:element minOccurs="0" maxOccurs="1" name="FileIds" type="tns:ArrayOfInt" />
+        </s:sequence>
+      </s:complexType>
+      <s:simpleType name="eAssetTypes">
+        <s:restriction base="s:string">
+          <s:enumeration value="UNKNOWN" />
+          <s:enumeration value="EPG" />
+          <s:enumeration value="NPVR" />
+          <s:enumeration value="MEDIA" />
+        </s:restriction>
+      </s:simpleType>
+      <s:complexType name="ArrayOfInt">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="int" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetAssetPricesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetAssetPricesResult" type="tns:AssetItemPriceResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="AssetItemPriceResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="Prices" type="tns:ArrayOfAssetItemPrices" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfAssetItemPrices">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="AssetItemPrices" nillable="true" type="tns:AssetItemPrices" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="AssetItemPrices">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="AssetId" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="AssetType" type="tns:eAssetTypes" />
+          <s:element minOccurs="0" maxOccurs="1" name="PriceContainers" type="tns:ArrayOfMediaFileItemPricesContainer" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfMediaFileItemPricesContainer">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="MediaFileItemPricesContainer" nillable="true" type="tns:MediaFileItemPricesContainer" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="MediaFileItemPricesContainer">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="m_nMediaFileID" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_oItemPrices" type="tns:ArrayOfItemPriceContainer" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sProductCode" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfItemPriceContainer">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="ItemPriceContainer" nillable="true" type="tns:ItemPriceContainer" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ItemPriceContainer">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="m_sPPVModuleCode" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_bSubscriptionOnly" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_oPrice" type="s1:Price" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_oFullPrice" type="s1:Price" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_PriceReason" type="tns:PriceReason" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_relevantSub" type="s1:Subscription" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_relevantCol" type="s1:Collection" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_relevantPP" type="s1:PrePaidModule" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_oPPVDescription" type="tns:ArrayOfLanguageContainer" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_couponStatus" type="s1:CouponsStatus" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sFirstDeviceNameFound" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_bCancelWindow" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sPurchasedBySiteGuid" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_lPurchasedMediaFileID" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_lRelatedMediaFileIDs" type="tns:ArrayOfInt" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_dtStartDate" nillable="true" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_dtEndDate" nillable="true" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_dtDiscountEndDate" nillable="true" type="s:dateTime" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sProductCode" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:simpleType name="PriceReason">
+        <s:restriction base="s:string">
+          <s:enumeration value="PPVPurchased" />
+          <s:enumeration value="Free" />
+          <s:enumeration value="ForPurchaseSubscriptionOnly" />
+          <s:enumeration value="SubscriptionPurchased" />
+          <s:enumeration value="ForPurchase" />
+          <s:enumeration value="UnKnown" />
+          <s:enumeration value="SubscriptionPurchasedWrongCurrency" />
+          <s:enumeration value="PrePaidPurchased" />
+          <s:enumeration value="GeoCommerceBlocked" />
+          <s:enumeration value="EntitledToPreviewModule" />
+          <s:enumeration value="FirstDeviceLimitation" />
+          <s:enumeration value="CollectionPurchased" />
+          <s:enumeration value="UserSuspended" />
+          <s:enumeration value="NotForPurchase" />
+        </s:restriction>
+      </s:simpleType>
+      <s:complexType name="ArrayOfLanguageContainer">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="LanguageContainer" nillable="true" type="s1:LanguageContainer" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="ReconcileEntitlements">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ReconcileEntitlementsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ReconcileEntitlementsResult" type="tns:Status" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -393,6 +585,7 @@
           <s:element minOccurs="0" maxOccurs="1" name="m_sDeviceUDID" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sDeviceName" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="m_bCancelWindow" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_bIsInGracePeriod" type="s:boolean" />
         </s:sequence>
       </s:complexType>
       <s:element name="GetUserPermittedSubscriptions">
@@ -616,6 +809,48 @@
           <s:enumeration value="SubscriptionDateChanged" />
         </s:restriction>
       </s:simpleType>
+      <s:complexType name="TransactionHistoryContainer">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:BillingTransactionContainer">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="SiteGuid" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="UserFullName" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:element name="GetDomainTransactionsHistory">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainID" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="dStartDate" type="s:dateTime" />
+            <s:element minOccurs="1" maxOccurs="1" name="dEndDate" type="s:dateTime" />
+            <s:element minOccurs="1" maxOccurs="1" name="pageSize" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="pageIndex" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetDomainTransactionsHistoryResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetDomainTransactionsHistoryResult" type="tns:DomainTransactionsHistoryResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="DomainTransactionsHistoryResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="1" maxOccurs="1" name="TransactionsCount" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="TransactionsHistory" type="tns:ArrayOfTransactionHistoryContainer" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfTransactionHistoryContainer">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="TransactionHistoryContainer" nillable="true" type="tns:TransactionHistoryContainer" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="GetDomainsBillingHistory">
         <s:complexType>
           <s:sequence>
@@ -627,18 +862,19 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:complexType name="ArrayOfInt">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="int" type="s:int" />
-        </s:sequence>
-      </s:complexType>
       <s:element name="GetDomainsBillingHistoryResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetDomainsBillingHistoryResult" type="tns:ArrayOfDomainBillingTransactionsResponse" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetDomainsBillingHistoryResult" type="tns:DomainsBillingTransactionsResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:complexType name="DomainsBillingTransactionsResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="billingTransactions" type="tns:ArrayOfDomainBillingTransactionsResponse" />
+        </s:sequence>
+      </s:complexType>
       <s:complexType name="ArrayOfDomainBillingTransactionsResponse">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="unbounded" name="DomainBillingTransactionsResponse" nillable="true" type="tns:DomainBillingTransactionsResponse" />
@@ -778,67 +1014,6 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:complexType name="ArrayOfMediaFileItemPricesContainer">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="MediaFileItemPricesContainer" nillable="true" type="tns:MediaFileItemPricesContainer" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="MediaFileItemPricesContainer">
-        <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="m_nMediaFileID" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_oItemPrices" type="tns:ArrayOfItemPriceContainer" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_sProductCode" type="s:string" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="ArrayOfItemPriceContainer">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="ItemPriceContainer" nillable="true" type="tns:ItemPriceContainer" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="ItemPriceContainer">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="m_sPPVModuleCode" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="m_bSubscriptionOnly" type="s:boolean" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_oPrice" type="s1:Price" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_oFullPrice" type="s1:Price" />
-          <s:element minOccurs="1" maxOccurs="1" name="m_PriceReason" type="tns:PriceReason" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_relevantSub" type="s1:Subscription" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_relevantCol" type="s1:Collection" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_relevantPP" type="s1:PrePaidModule" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_oPPVDescription" type="tns:ArrayOfLanguageContainer" />
-          <s:element minOccurs="1" maxOccurs="1" name="m_couponStatus" type="s1:CouponsStatus" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_sFirstDeviceNameFound" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="m_bCancelWindow" type="s:boolean" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_sPurchasedBySiteGuid" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="m_lPurchasedMediaFileID" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="m_lRelatedMediaFileIDs" type="tns:ArrayOfInt" />
-          <s:element minOccurs="1" maxOccurs="1" name="m_dtStartDate" nillable="true" type="s:dateTime" />
-          <s:element minOccurs="1" maxOccurs="1" name="m_dtEndDate" nillable="true" type="s:dateTime" />
-        </s:sequence>
-      </s:complexType>
-      <s:simpleType name="PriceReason">
-        <s:restriction base="s:string">
-          <s:enumeration value="PPVPurchased" />
-          <s:enumeration value="Free" />
-          <s:enumeration value="ForPurchaseSubscriptionOnly" />
-          <s:enumeration value="SubscriptionPurchased" />
-          <s:enumeration value="ForPurchase" />
-          <s:enumeration value="UnKnown" />
-          <s:enumeration value="SubscriptionPurchasedWrongCurrency" />
-          <s:enumeration value="PrePaidPurchased" />
-          <s:enumeration value="GeoCommerceBlocked" />
-          <s:enumeration value="EntitledToPreviewModule" />
-          <s:enumeration value="FirstDeviceLimitation" />
-          <s:enumeration value="CollectionPurchased" />
-          <s:enumeration value="UserSuspended" />
-          <s:enumeration value="NotForPurchase" />
-        </s:restriction>
-      </s:simpleType>
-      <s:complexType name="ArrayOfLanguageContainer">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="LanguageContainer" nillable="true" type="s1:LanguageContainer" />
-        </s:sequence>
-      </s:complexType>
       <s:element name="GetItemsPricesWithCouponsEx">
         <s:complexType>
           <s:sequence>
@@ -2167,7 +2342,7 @@
       <s:element name="WaiverTransactionResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="1" maxOccurs="1" name="WaiverTransactionResult" type="s:boolean" />
+            <s:element minOccurs="0" maxOccurs="1" name="WaiverTransactionResult" type="tns:Status" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -2237,6 +2412,11 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
+      <s:complexType name="DeleteSeriesNPVRCommand">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:BaseNPVRCommand" />
+        </s:complexContent>
+      </s:complexType>
       <s:complexType name="RecordSeriesByNameNPVRCommand">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseNPVRCommand" />
@@ -2252,16 +2432,6 @@
           <s:extension base="tns:BaseNPVRCommand" />
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="RecordNPVRCommand">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:BaseNPVRCommand" />
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="CancelNPVRCommand">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:BaseNPVRCommand" />
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="DeleteNPVRCommand">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseNPVRCommand" />
@@ -2272,7 +2442,12 @@
           <s:extension base="tns:BaseNPVRCommand" />
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="DeleteSeriesNPVRCommand">
+      <s:complexType name="RecordNPVRCommand">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:BaseNPVRCommand" />
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="CancelNPVRCommand">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseNPVRCommand" />
         </s:complexContent>
@@ -2289,15 +2464,6 @@
           <s:element minOccurs="0" maxOccurs="1" name="status" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="msg" type="s:string" />
         </s:sequence>
-      </s:complexType>
-      <s:complexType name="RecordResponse">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:NPVRResponse">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="recordingID" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
       </s:complexType>
       <s:complexType name="QuotaResponse">
         <s:complexContent mixed="false">
@@ -2319,6 +2485,15 @@
           <s:extension base="tns:NPVRResponse">
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="mainUrl" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="RecordResponse">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:NPVRResponse">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="recordingID" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -2372,7 +2547,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="siteguid" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="houshold" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="householdId" type="s:long" />
             <s:element minOccurs="1" maxOccurs="1" name="price" type="s:double" />
             <s:element minOccurs="0" maxOccurs="1" name="currency" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="contentId" type="s:int" />
@@ -2381,7 +2556,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="coupon" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="userIp" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="deviceName" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="paymentGwId" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="paymentGatewayId" type="s:int" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -2401,29 +2576,32 @@
           <s:element minOccurs="0" maxOccurs="1" name="State" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="FailReasonCode" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="CreatedAt" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="StartDateSeconds" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="EndDateSeconds" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="AutoRenewing" type="s:boolean" />
         </s:sequence>
       </s:complexType>
-      <s:element name="VerifyPurchase">
+      <s:element name="ProcessReceipt">
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="siteguid" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="houshold" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="household" type="s:long" />
             <s:element minOccurs="1" maxOccurs="1" name="contentId" type="s:int" />
             <s:element minOccurs="1" maxOccurs="1" name="productId" type="s:int" />
             <s:element minOccurs="1" maxOccurs="1" name="transactionType" type="tns:eTransactionType" />
             <s:element minOccurs="0" maxOccurs="1" name="userIp" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="deviceName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="purchaseToken" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="paymentGwId" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="paymentGatewayName" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="VerifyPurchaseResponse">
+      <s:element name="ProcessReceiptResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="VerifyPurchaseResult" type="tns:TransactionResponse" />
+            <s:element minOccurs="0" maxOccurs="1" name="ProcessReceiptResult" type="tns:TransactionResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -2472,29 +2650,9 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="CheckPendingTransaction">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="wsUserName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="wsPassword" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="paymentGatewayPendingId" type="s:long" />
-            <s:element minOccurs="1" maxOccurs="1" name="numberOfRetries" type="s:int" />
-            <s:element minOccurs="0" maxOccurs="1" name="billingGuid" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="paymentGatewayTransactionId" type="s:long" />
-            <s:element minOccurs="0" maxOccurs="1" name="siteGuid" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="productId" type="s:int" />
-            <s:element minOccurs="1" maxOccurs="1" name="productType" type="s:int" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="CheckPendingTransactionResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="CheckPendingTransactionResult" type="tns:Status" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
+      <s:element name="Status" nillable="true" type="tns:Status" />
       <s:element name="Entitlements" nillable="true" type="tns:Entitlements" />
+      <s:element name="boolean" type="s:boolean" />
       <s:element name="ArrayOfPermittedMediaContainer" nillable="true" type="tns:ArrayOfPermittedMediaContainer" />
       <s:element name="PermittedMediaContainerResponse" nillable="true" type="tns:PermittedMediaContainerResponse" />
       <s:element name="UserCAStatus" type="tns:UserCAStatus" />
@@ -2502,11 +2660,10 @@
       <s:element name="LicensedLinkResponse" nillable="true" type="tns:LicensedLinkResponse" />
       <s:element name="ArrayOfPermittedSubscriptionContainer" nillable="true" type="tns:ArrayOfPermittedSubscriptionContainer" />
       <s:element name="ArrayOfPermittedCollectionContainer" nillable="true" type="tns:ArrayOfPermittedCollectionContainer" />
-      <s:element name="boolean" type="s:boolean" />
       <s:element name="ArrayOfUserBillingTransactionsResponse" nillable="true" type="tns:ArrayOfUserBillingTransactionsResponse" />
-      <s:element name="ArrayOfDomainBillingTransactionsResponse" nillable="true" type="tns:ArrayOfDomainBillingTransactionsResponse" />
+      <s:element name="DomainTransactionsHistoryResponse" nillable="true" type="tns:DomainTransactionsHistoryResponse" />
+      <s:element name="DomainsBillingTransactionsResponse" nillable="true" type="tns:DomainsBillingTransactionsResponse" />
       <s:element name="BillingTransactions" nillable="true" type="tns:BillingTransactions" />
-      <s:element name="Status" nillable="true" type="tns:Status" />
       <s:element name="ArrayOfMediaFileItemPricesContainer" nillable="true" type="tns:ArrayOfMediaFileItemPricesContainer" />
       <s:element name="MediaFileItemPricesContainerResponse" nillable="true" type="tns:MediaFileItemPricesContainerResponse" />
       <s:element name="ArrayOfSubscriptionsPricesContainer" nillable="true" type="tns:ArrayOfSubscriptionsPricesContainer" />
@@ -2564,6 +2721,7 @@
               <s:element minOccurs="0" maxOccurs="1" name="m_oPreviewModule" type="s1:PreviewModule" />
               <s:element minOccurs="1" maxOccurs="1" name="m_nDomainLimitationModule" type="s:int" />
               <s:element minOccurs="0" maxOccurs="1" name="m_lServices" type="s1:ArrayOfServiceObject" />
+              <s:element minOccurs="1" maxOccurs="1" name="m_GracePeriodMinutes" type="s:int" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -2793,6 +2951,12 @@
       </s:complexType>
     </s:schema>
   </wsdl:types>
+  <wsdl:message name="CheckPendingTransactionSoapIn">
+    <wsdl:part name="parameters" element="tns:CheckPendingTransaction" />
+  </wsdl:message>
+  <wsdl:message name="CheckPendingTransactionSoapOut">
+    <wsdl:part name="parameters" element="tns:CheckPendingTransactionResponse" />
+  </wsdl:message>
   <wsdl:message name="GetUserEntitlementsSoapIn">
     <wsdl:part name="parameters" element="tns:GetUserEntitlements" />
   </wsdl:message>
@@ -2804,6 +2968,24 @@
   </wsdl:message>
   <wsdl:message name="GetDomainEntitlementsSoapOut">
     <wsdl:part name="parameters" element="tns:GetDomainEntitlementsResponse" />
+  </wsdl:message>
+  <wsdl:message name="RenewSoapIn">
+    <wsdl:part name="parameters" element="tns:Renew" />
+  </wsdl:message>
+  <wsdl:message name="RenewSoapOut">
+    <wsdl:part name="parameters" element="tns:RenewResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetAssetPricesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetAssetPrices" />
+  </wsdl:message>
+  <wsdl:message name="GetAssetPricesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetAssetPricesResponse" />
+  </wsdl:message>
+  <wsdl:message name="ReconcileEntitlementsSoapIn">
+    <wsdl:part name="parameters" element="tns:ReconcileEntitlements" />
+  </wsdl:message>
+  <wsdl:message name="ReconcileEntitlementsSoapOut">
+    <wsdl:part name="parameters" element="tns:ReconcileEntitlementsResponse" />
   </wsdl:message>
   <wsdl:message name="GetUserPermittedItemsSoapIn">
     <wsdl:part name="parameters" element="tns:GetUserPermittedItems" />
@@ -2912,6 +3094,12 @@
   </wsdl:message>
   <wsdl:message name="GetUsersBillingHistorySoapOut">
     <wsdl:part name="parameters" element="tns:GetUsersBillingHistoryResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainTransactionsHistorySoapIn">
+    <wsdl:part name="parameters" element="tns:GetDomainTransactionsHistory" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainTransactionsHistorySoapOut">
+    <wsdl:part name="parameters" element="tns:GetDomainTransactionsHistoryResponse" />
   </wsdl:message>
   <wsdl:message name="GetDomainsBillingHistorySoapIn">
     <wsdl:part name="parameters" element="tns:GetDomainsBillingHistory" />
@@ -3297,11 +3485,11 @@
   <wsdl:message name="PurchaseSoapOut">
     <wsdl:part name="parameters" element="tns:PurchaseResponse" />
   </wsdl:message>
-  <wsdl:message name="VerifyPurchaseSoapIn">
-    <wsdl:part name="parameters" element="tns:VerifyPurchase" />
+  <wsdl:message name="ProcessReceiptSoapIn">
+    <wsdl:part name="parameters" element="tns:ProcessReceipt" />
   </wsdl:message>
-  <wsdl:message name="VerifyPurchaseSoapOut">
-    <wsdl:part name="parameters" element="tns:VerifyPurchaseResponse" />
+  <wsdl:message name="ProcessReceiptSoapOut">
+    <wsdl:part name="parameters" element="tns:ProcessReceiptResponse" />
   </wsdl:message>
   <wsdl:message name="GrantEntitlementsSoapIn">
     <wsdl:part name="parameters" element="tns:GrantEntitlements" />
@@ -3315,17 +3503,28 @@
   <wsdl:message name="UpdatePendingTransactionSoapOut">
     <wsdl:part name="parameters" element="tns:UpdatePendingTransactionResponse" />
   </wsdl:message>
-  <wsdl:message name="CheckPendingTransactionSoapIn">
-    <wsdl:part name="parameters" element="tns:CheckPendingTransaction" />
+  <wsdl:message name="CheckPendingTransactionHttpPostIn">
+    <wsdl:part name="wsUserName" type="s:string" />
+    <wsdl:part name="wsPassword" type="s:string" />
+    <wsdl:part name="paymentGatewayPendingId" type="s:string" />
+    <wsdl:part name="numberOfRetries" type="s:string" />
+    <wsdl:part name="billingGuid" type="s:string" />
+    <wsdl:part name="paymentGatewayTransactionId" type="s:string" />
+    <wsdl:part name="siteGuid" type="s:string" />
+    <wsdl:part name="productId" type="s:string" />
+    <wsdl:part name="productType" type="s:string" />
   </wsdl:message>
-  <wsdl:message name="CheckPendingTransactionSoapOut">
-    <wsdl:part name="parameters" element="tns:CheckPendingTransactionResponse" />
+  <wsdl:message name="CheckPendingTransactionHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
   <wsdl:message name="GetUserEntitlementsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="sSiteGUID" type="s:string" />
     <wsdl:part name="type" type="s:string" />
+    <wsdl:part name="isExpired" type="s:string" />
+    <wsdl:part name="pageSize" type="s:string" />
+    <wsdl:part name="pageIndex" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetUserEntitlementsHttpPostOut">
     <wsdl:part name="Body" element="tns:Entitlements" />
@@ -3335,9 +3534,31 @@
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="domainId" type="s:string" />
     <wsdl:part name="type" type="s:string" />
+    <wsdl:part name="isExpired" type="s:string" />
+    <wsdl:part name="pageSize" type="s:string" />
+    <wsdl:part name="pageIndex" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetDomainEntitlementsHttpPostOut">
     <wsdl:part name="Body" element="tns:Entitlements" />
+  </wsdl:message>
+  <wsdl:message name="RenewHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="siteguid" type="s:string" />
+    <wsdl:part name="purchaseId" type="s:string" />
+    <wsdl:part name="billingGuid" type="s:string" />
+    <wsdl:part name="endDate" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="RenewHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="ReconcileEntitlementsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ReconcileEntitlementsHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
   <wsdl:message name="GetUserPermittedItemsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -3490,6 +3711,18 @@
   <wsdl:message name="GetUsersBillingHistoryHttpPostOut">
     <wsdl:part name="Body" element="tns:ArrayOfUserBillingTransactionsResponse" />
   </wsdl:message>
+  <wsdl:message name="GetDomainTransactionsHistoryHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="domainID" type="s:string" />
+    <wsdl:part name="dStartDate" type="s:string" />
+    <wsdl:part name="dEndDate" type="s:string" />
+    <wsdl:part name="pageSize" type="s:string" />
+    <wsdl:part name="pageIndex" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetDomainTransactionsHistoryHttpPostOut">
+    <wsdl:part name="Body" element="tns:DomainTransactionsHistoryResponse" />
+  </wsdl:message>
   <wsdl:message name="GetDomainsBillingHistoryHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -3498,7 +3731,7 @@
     <wsdl:part name="dEndDate" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetDomainsBillingHistoryHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfDomainBillingTransactionsResponse" />
+    <wsdl:part name="Body" element="tns:DomainsBillingTransactionsResponse" />
   </wsdl:message>
   <wsdl:message name="GetUserBillingHistoryHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -4304,7 +4537,7 @@
     <wsdl:part name="transactionType" type="s:string" />
   </wsdl:message>
   <wsdl:message name="WaiverTransactionHttpPostOut">
-    <wsdl:part name="Body" element="tns:boolean" />
+    <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
   <wsdl:message name="GetLicensedLinksHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -4341,7 +4574,7 @@
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="siteguid" type="s:string" />
-    <wsdl:part name="houshold" type="s:string" />
+    <wsdl:part name="householdId" type="s:string" />
     <wsdl:part name="price" type="s:string" />
     <wsdl:part name="currency" type="s:string" />
     <wsdl:part name="contentId" type="s:string" />
@@ -4350,25 +4583,25 @@
     <wsdl:part name="coupon" type="s:string" />
     <wsdl:part name="userIp" type="s:string" />
     <wsdl:part name="deviceName" type="s:string" />
-    <wsdl:part name="paymentGwId" type="s:string" />
+    <wsdl:part name="paymentGatewayId" type="s:string" />
   </wsdl:message>
   <wsdl:message name="PurchaseHttpPostOut">
     <wsdl:part name="Body" element="tns:TransactionResponse" />
   </wsdl:message>
-  <wsdl:message name="VerifyPurchaseHttpPostIn">
+  <wsdl:message name="ProcessReceiptHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="siteguid" type="s:string" />
-    <wsdl:part name="houshold" type="s:string" />
+    <wsdl:part name="household" type="s:string" />
     <wsdl:part name="contentId" type="s:string" />
     <wsdl:part name="productId" type="s:string" />
     <wsdl:part name="transactionType" type="s:string" />
     <wsdl:part name="userIp" type="s:string" />
     <wsdl:part name="deviceName" type="s:string" />
     <wsdl:part name="purchaseToken" type="s:string" />
-    <wsdl:part name="paymentGwId" type="s:string" />
+    <wsdl:part name="paymentGatewayName" type="s:string" />
   </wsdl:message>
-  <wsdl:message name="VerifyPurchaseHttpPostOut">
+  <wsdl:message name="ProcessReceiptHttpPostOut">
     <wsdl:part name="Body" element="tns:TransactionResponse" />
   </wsdl:message>
   <wsdl:message name="GrantEntitlementsHttpPostIn">
@@ -4400,21 +4633,11 @@
   <wsdl:message name="UpdatePendingTransactionHttpPostOut">
     <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
-  <wsdl:message name="CheckPendingTransactionHttpPostIn">
-    <wsdl:part name="wsUserName" type="s:string" />
-    <wsdl:part name="wsPassword" type="s:string" />
-    <wsdl:part name="paymentGatewayPendingId" type="s:string" />
-    <wsdl:part name="numberOfRetries" type="s:string" />
-    <wsdl:part name="billingGuid" type="s:string" />
-    <wsdl:part name="paymentGatewayTransactionId" type="s:string" />
-    <wsdl:part name="siteGuid" type="s:string" />
-    <wsdl:part name="productId" type="s:string" />
-    <wsdl:part name="productType" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="CheckPendingTransactionHttpPostOut">
-    <wsdl:part name="Body" element="tns:Status" />
-  </wsdl:message>
   <wsdl:portType name="moduleSoap">
+    <wsdl:operation name="CheckPendingTransaction">
+      <wsdl:input message="tns:CheckPendingTransactionSoapIn" />
+      <wsdl:output message="tns:CheckPendingTransactionSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetUserEntitlements">
       <wsdl:input message="tns:GetUserEntitlementsSoapIn" />
       <wsdl:output message="tns:GetUserEntitlementsSoapOut" />
@@ -4422,6 +4645,18 @@
     <wsdl:operation name="GetDomainEntitlements">
       <wsdl:input message="tns:GetDomainEntitlementsSoapIn" />
       <wsdl:output message="tns:GetDomainEntitlementsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Renew">
+      <wsdl:input message="tns:RenewSoapIn" />
+      <wsdl:output message="tns:RenewSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAssetPrices">
+      <wsdl:input message="tns:GetAssetPricesSoapIn" />
+      <wsdl:output message="tns:GetAssetPricesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ReconcileEntitlements">
+      <wsdl:input message="tns:ReconcileEntitlementsSoapIn" />
+      <wsdl:output message="tns:ReconcileEntitlementsSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <wsdl:input message="tns:GetUserPermittedItemsSoapIn" />
@@ -4494,6 +4729,10 @@
     <wsdl:operation name="GetUsersBillingHistory">
       <wsdl:input message="tns:GetUsersBillingHistorySoapIn" />
       <wsdl:output message="tns:GetUsersBillingHistorySoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainTransactionsHistory">
+      <wsdl:input message="tns:GetDomainTransactionsHistorySoapIn" />
+      <wsdl:output message="tns:GetDomainTransactionsHistorySoapOut" />
     </wsdl:operation>
     <wsdl:operation name="GetDomainsBillingHistory">
       <wsdl:input message="tns:GetDomainsBillingHistorySoapIn" />
@@ -4751,9 +4990,9 @@
       <wsdl:input message="tns:PurchaseSoapIn" />
       <wsdl:output message="tns:PurchaseSoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="VerifyPurchase">
-      <wsdl:input message="tns:VerifyPurchaseSoapIn" />
-      <wsdl:output message="tns:VerifyPurchaseSoapOut" />
+    <wsdl:operation name="ProcessReceipt">
+      <wsdl:input message="tns:ProcessReceiptSoapIn" />
+      <wsdl:output message="tns:ProcessReceiptSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="GrantEntitlements">
       <wsdl:input message="tns:GrantEntitlementsSoapIn" />
@@ -4763,12 +5002,12 @@
       <wsdl:input message="tns:UpdatePendingTransactionSoapIn" />
       <wsdl:output message="tns:UpdatePendingTransactionSoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="CheckPendingTransaction">
-      <wsdl:input message="tns:CheckPendingTransactionSoapIn" />
-      <wsdl:output message="tns:CheckPendingTransactionSoapOut" />
-    </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="moduleHttpPost">
+    <wsdl:operation name="CheckPendingTransaction">
+      <wsdl:input message="tns:CheckPendingTransactionHttpPostIn" />
+      <wsdl:output message="tns:CheckPendingTransactionHttpPostOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetUserEntitlements">
       <wsdl:input message="tns:GetUserEntitlementsHttpPostIn" />
       <wsdl:output message="tns:GetUserEntitlementsHttpPostOut" />
@@ -4776,6 +5015,14 @@
     <wsdl:operation name="GetDomainEntitlements">
       <wsdl:input message="tns:GetDomainEntitlementsHttpPostIn" />
       <wsdl:output message="tns:GetDomainEntitlementsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Renew">
+      <wsdl:input message="tns:RenewHttpPostIn" />
+      <wsdl:output message="tns:RenewHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ReconcileEntitlements">
+      <wsdl:input message="tns:ReconcileEntitlementsHttpPostIn" />
+      <wsdl:output message="tns:ReconcileEntitlementsHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <wsdl:input message="tns:GetUserPermittedItemsHttpPostIn" />
@@ -4836,6 +5083,10 @@
     <wsdl:operation name="GetUsersBillingHistory">
       <wsdl:input message="tns:GetUsersBillingHistoryHttpPostIn" />
       <wsdl:output message="tns:GetUsersBillingHistoryHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainTransactionsHistory">
+      <wsdl:input message="tns:GetDomainTransactionsHistoryHttpPostIn" />
+      <wsdl:output message="tns:GetDomainTransactionsHistoryHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="GetDomainsBillingHistory">
       <wsdl:input message="tns:GetDomainsBillingHistoryHttpPostIn" />
@@ -5081,9 +5332,9 @@
       <wsdl:input message="tns:PurchaseHttpPostIn" />
       <wsdl:output message="tns:PurchaseHttpPostOut" />
     </wsdl:operation>
-    <wsdl:operation name="VerifyPurchase">
-      <wsdl:input message="tns:VerifyPurchaseHttpPostIn" />
-      <wsdl:output message="tns:VerifyPurchaseHttpPostOut" />
+    <wsdl:operation name="ProcessReceipt">
+      <wsdl:input message="tns:ProcessReceiptHttpPostIn" />
+      <wsdl:output message="tns:ProcessReceiptHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="GrantEntitlements">
       <wsdl:input message="tns:GrantEntitlementsHttpPostIn" />
@@ -5093,13 +5344,18 @@
       <wsdl:input message="tns:UpdatePendingTransactionHttpPostIn" />
       <wsdl:output message="tns:UpdatePendingTransactionHttpPostOut" />
     </wsdl:operation>
-    <wsdl:operation name="CheckPendingTransaction">
-      <wsdl:input message="tns:CheckPendingTransactionHttpPostIn" />
-      <wsdl:output message="tns:CheckPendingTransactionHttpPostOut" />
-    </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="moduleSoap" type="tns:moduleSoap">
     <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="CheckPendingTransaction">
+      <soap:operation soapAction="http://ca.tvinci.com/CheckPendingTransaction" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetUserEntitlements">
       <soap:operation soapAction="http://ca.tvinci.com/GetUserEntitlements" style="document" />
       <wsdl:input>
@@ -5111,6 +5367,33 @@
     </wsdl:operation>
     <wsdl:operation name="GetDomainEntitlements">
       <soap:operation soapAction="http://ca.tvinci.com/GetDomainEntitlements" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Renew">
+      <soap:operation soapAction="http://ca.tvinci.com/Renew" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAssetPrices">
+      <soap:operation soapAction="http://ca.tvinci.com/GetAssetPrices" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ReconcileEntitlements">
+      <soap:operation soapAction="http://ca.tvinci.com/ReconcileEntitlements" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -5273,6 +5556,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetUsersBillingHistory">
       <soap:operation soapAction="http://ca.tvinci.com/GetUsersBillingHistory" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainTransactionsHistory">
+      <soap:operation soapAction="http://ca.tvinci.com/GetDomainTransactionsHistory" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -5856,8 +6148,8 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="VerifyPurchase">
-      <soap:operation soapAction="http://ca.tvinci.com/VerifyPurchase" style="document" />
+    <wsdl:operation name="ProcessReceipt">
+      <soap:operation soapAction="http://ca.tvinci.com/ProcessReceipt" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -5883,18 +6175,18 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="CheckPendingTransaction">
-      <soap:operation soapAction="http://ca.tvinci.com/CheckPendingTransaction" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="moduleSoap12" type="tns:moduleSoap">
     <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="CheckPendingTransaction">
+      <soap12:operation soapAction="http://ca.tvinci.com/CheckPendingTransaction" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetUserEntitlements">
       <soap12:operation soapAction="http://ca.tvinci.com/GetUserEntitlements" style="document" />
       <wsdl:input>
@@ -5906,6 +6198,33 @@
     </wsdl:operation>
     <wsdl:operation name="GetDomainEntitlements">
       <soap12:operation soapAction="http://ca.tvinci.com/GetDomainEntitlements" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Renew">
+      <soap12:operation soapAction="http://ca.tvinci.com/Renew" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAssetPrices">
+      <soap12:operation soapAction="http://ca.tvinci.com/GetAssetPrices" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ReconcileEntitlements">
+      <soap12:operation soapAction="http://ca.tvinci.com/ReconcileEntitlements" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -6068,6 +6387,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetUsersBillingHistory">
       <soap12:operation soapAction="http://ca.tvinci.com/GetUsersBillingHistory" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainTransactionsHistory">
+      <soap12:operation soapAction="http://ca.tvinci.com/GetDomainTransactionsHistory" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -6651,8 +6979,8 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="VerifyPurchase">
-      <soap12:operation soapAction="http://ca.tvinci.com/VerifyPurchase" style="document" />
+    <wsdl:operation name="ProcessReceipt">
+      <soap12:operation soapAction="http://ca.tvinci.com/ProcessReceipt" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -6678,18 +7006,18 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="CheckPendingTransaction">
-      <soap12:operation soapAction="http://ca.tvinci.com/CheckPendingTransaction" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="moduleHttpPost" type="tns:moduleHttpPost">
     <http:binding verb="POST" />
+    <wsdl:operation name="CheckPendingTransaction">
+      <http:operation location="/CheckPendingTransaction" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetUserEntitlements">
       <http:operation location="/GetUserEntitlements" />
       <wsdl:input>
@@ -6701,6 +7029,24 @@
     </wsdl:operation>
     <wsdl:operation name="GetDomainEntitlements">
       <http:operation location="/GetDomainEntitlements" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Renew">
+      <http:operation location="/Renew" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ReconcileEntitlements">
+      <http:operation location="/ReconcileEntitlements" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
@@ -6836,6 +7182,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetUsersBillingHistory">
       <http:operation location="/GetUsersBillingHistory" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDomainTransactionsHistory">
+      <http:operation location="/GetDomainTransactionsHistory" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
@@ -7392,8 +7747,8 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="VerifyPurchase">
-      <http:operation location="/VerifyPurchase" />
+    <wsdl:operation name="ProcessReceipt">
+      <http:operation location="/ProcessReceipt" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
@@ -7419,25 +7774,16 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="CheckPendingTransaction">
-      <http:operation location="/CheckPendingTransaction" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://192.168.192.146/webservices/cas/module.asmx" />
+      <soap:address location="http://52.31.200.113:8030/cas_v3_7/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://192.168.192.146/webservices/cas/module.asmx" />
+      <soap12:address location="http://52.31.200.113:8030/cas_v3_7/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://192.168.192.146/webservices/cas/module.asmx" />
+      <http:address location="http://52.31.200.113:8030/cas_v3_7/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
