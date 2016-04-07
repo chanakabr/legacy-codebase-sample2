@@ -50,6 +50,9 @@ namespace KlogMonitorHelper
 
         public static void InitMonitorLogsDataWS(eWSModules module, string requestString)
         {
+            KLogger.AppType = KLogEnums.AppType.WS;
+            KMonitor.AppType = KLogEnums.AppType.WS;
+
             if (string.IsNullOrEmpty(requestString))
                 log.Debug("REQUEST STRING IS EMPTY");
             else
@@ -116,6 +119,9 @@ namespace KlogMonitorHelper
 
         public static void InitMonitorLogsDataWCF(Message requestMessage)
         {
+            KLogger.AppType = KLogEnums.AppType.WCF;
+            KMonitor.AppType = KLogEnums.AppType.WCF;
+
             if (requestMessage == null)
                 log.Debug("REQUEST STRING IS NULL");
             else

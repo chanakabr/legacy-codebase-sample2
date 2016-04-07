@@ -4298,11 +4298,10 @@ namespace Tvinci.Core.DAL
                 string docKey = UtilsDal.GetPlayCycleKey(siteGuid, MediaFileID, groupID, UDID, platform);
 
                 ulong version;
-                string getResult = cbClient.GetWithVersion<string>(docKey, out version);
+                playCycleSession = cbClient.GetWithVersion<PlayCycleSession>(docKey, out version);
 
-                if (version != 0)
-                {
-                    playCycleSession = JsonConvert.DeserializeObject<PlayCycleSession>(getResult);
+                if (version != 0 && playCycleSession != null)
+                {                    
                     playCycleSession.MediaConcurrencyRuleID = mediaConcurrencyRuleID;
                     playCycleSession.CreateDateMs = Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
                     playCycleSession.PlayCycleKey = playCycleKey;
@@ -4315,8 +4314,8 @@ namespace Tvinci.Core.DAL
 
                 int ttl = 0;
                 bool shouldUseTtl = int.TryParse(CB_PLAYCYCLE_DOC_EXPIRY_MIN, out ttl);
-                
-                bool setResult = cbClient.SetWithVersionWithRetry<string>(docKey, playCycleSession, version, limitRetries, 50, (uint)(ttl *  60));
+
+                bool setResult = cbClient.SetWithVersionWithRetry<PlayCycleSession>(docKey, playCycleSession, version, limitRetries, 50, (uint)(ttl * 60));
 
                 if (!setResult)
                 {

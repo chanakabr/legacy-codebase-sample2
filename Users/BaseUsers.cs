@@ -1023,9 +1023,8 @@ namespace Users
 
             if (parse)
             {
-                List<int> groupIdList = UtilsDal.GetAllRelatedGroups(groupID);
-                List<int> groupIdArray = groupIdList.Select(g => g).ToList();
-                activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(groupID, groupIdArray, 0, userId);
+                string userName = string.Empty;
+                activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(groupID, 0, ref userName, ref userId);
             }
             if (userId <= 0)
             {

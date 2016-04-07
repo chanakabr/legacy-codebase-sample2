@@ -1042,7 +1042,7 @@ namespace DAL
                         endKey = new object[] { nSiteGuid, string.Empty },
                         shouldLookupById = true
                     };
-                    
+
                     var res = cbManager.View<string>(view);
 
                     // deserialize string to MediaMarkLog
@@ -2798,7 +2798,7 @@ namespace DAL
                     {
                         startKey = new object[] { messageDataType.ToLower(), baseDateSec },
                         endKey = new object[] { messageDataType.ToLower(), DateTimeToUnixTimestamp(DateTime.MaxValue) },
-                        staleState =  ViewStaleState.False
+                        staleState = ViewStaleState.False
                     }));
                 }
                 catch (Exception ex)
@@ -3259,7 +3259,7 @@ namespace DAL
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
                 DataSet ds = sp.ExecuteDataSet();
-                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows!= null && ds.Tables[0].Rows.Count > 0)
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
                 {
                     result = new List<RegistrySettings>();
                     RegistrySettings registrySetting;
@@ -3270,10 +3270,10 @@ namespace DAL
                         registrySetting.value = ODBCWrapper.Utils.GetSafeStr(dr, "value");
                         result.Add(registrySetting);
                     }
-                   
+
                     return result;
                 }
-                return new  List<RegistrySettings>();
+                return new List<RegistrySettings>();
             }
             catch (Exception ex)
             {
@@ -3306,24 +3306,34 @@ namespace DAL
                         DateTime? ppvModuleMediaFileEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "ppv_module_media_file_end_date");
                         if (mediaFileStartDate.HasValue && mediaFileStartDate.Value > DateTime.UtcNow && mediaFileStartDate.Value <= DateTime.UtcNow.AddYears(2))
                         {
-                            itemsToInitialize.Add(new KeyValuePair<int,DateTime>(mediaID, mediaFileStartDate.Value));
+                            itemsToInitialize.Add(new KeyValuePair<int, DateTime>(mediaID, mediaFileStartDate.Value));
                         }
                         if (mediaFileEndDate.HasValue && mediaFileEndDate.Value > DateTime.UtcNow && mediaFileEndDate.Value <= DateTime.UtcNow.AddYears(2))
                         {
-                            itemsToInitialize.Add(new KeyValuePair<int,DateTime>(mediaID, mediaFileEndDate.Value));
+                            itemsToInitialize.Add(new KeyValuePair<int, DateTime>(mediaID, mediaFileEndDate.Value));
                         }
                         if (ppvModuleMediaFileStartDate.HasValue && ppvModuleMediaFileStartDate.Value > DateTime.UtcNow && ppvModuleMediaFileStartDate.Value <= DateTime.UtcNow.AddYears(2))
                         {
-                            itemsToInitialize.Add(new KeyValuePair<int,DateTime>(mediaID, ppvModuleMediaFileStartDate.Value));
+                            itemsToInitialize.Add(new KeyValuePair<int, DateTime>(mediaID, ppvModuleMediaFileStartDate.Value));
                         }
                         if (ppvModuleMediaFileEndDate.HasValue && ppvModuleMediaFileEndDate.Value > DateTime.UtcNow && ppvModuleMediaFileEndDate.Value <= DateTime.UtcNow.AddYears(2))
                         {
-                            itemsToInitialize.Add(new KeyValuePair<int,DateTime>(mediaID, ppvModuleMediaFileEndDate.Value));
+                            itemsToInitialize.Add(new KeyValuePair<int, DateTime>(mediaID, ppvModuleMediaFileEndDate.Value));
                         }
                     }
-                }                
+                }
             }
             return itemsToInitialize;
+        }
+
+        public static bool UpdateBillingTransactionGuid(long lBillingTransactionID, string billingGuid)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_BillingTransactionGuid");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@ID", lBillingTransactionID);
+            sp.AddParameter("@BillingGuid", billingGuid);
+
+            return sp.ExecuteReturnValue<bool>();
         }
     }
 }
