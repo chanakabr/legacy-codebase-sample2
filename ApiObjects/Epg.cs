@@ -71,6 +71,16 @@ namespace ApiObjects
         [JsonProperty("pictures",Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
         public List<EpgPicture> pictures { get; set; }
 
+        //from ROBIN version
+        [JsonProperty("enable_cdvr", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        public int EnableCDVR { get; set; }
+        [JsonProperty("enable_catch_up", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        public int EnableCatchUp { get; set; }
+        [JsonProperty("enable_start_over", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        public int EnableStartOver { get; set; }
+        [JsonProperty("enable_trick_play", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        public int EnableTrickPlay { get; set; }
+
         public EpgCB()
         {
             EpgID = 0;
@@ -99,6 +109,11 @@ namespace ApiObjects
 
             Language = string.Empty;
             pictures = new List<EpgPicture>();
+
+            EnableCDVR = 0;
+            EnableCatchUp = 0;
+            EnableStartOver = 0;
+            EnableTrickPlay = 0;
         }
 
               

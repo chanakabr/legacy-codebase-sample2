@@ -4362,6 +4362,23 @@ namespace Tvinci.Core.DAL
             }
 
             return playCycleSession;
+        }      
+
+        public static DataSet GetLinearChannelSettings(int groupId, List<int> epgChannelIDs)
+        {            
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_LinearChannelSettings");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupId", groupId);
+                sp.AddIDListParameter<int>("@EpgChannelID", epgChannelIDs, "id");
+
+               return sp.ExecuteDataSet();               
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }
