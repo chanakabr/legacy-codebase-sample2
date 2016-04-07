@@ -79,13 +79,35 @@ public partial class adm_time_shifted_tv_settings : System.Web.UI.Page
         theRecord.SetConnectionKey("MAIN_CONNECTION_STRING");
 
         DataRecordCheckBoxField dr_catchUp = new DataRecordCheckBoxField(true);
-        dr_catchUp.Initialize("Enable Catch-Up", "adm_table_header_nbg", "FormInput", "enable_catchup", false);
+        dr_catchUp.Initialize("Enable Catch-Up", "adm_table_header_nbg", "FormInput", "enable_catch_up", false);
         theRecord.AddRecord(dr_catchUp);
+
+        DataRecordShortIntField dr_catchUpBuffer = new DataRecordShortIntField(true, 9, 9);
+        dr_catchUpBuffer.Initialize("Catch-Up Buffer Length", "adm_table_header_nbg", "FormInput", "catch_up_buffer", false);
+        theRecord.AddRecord(dr_catchUpBuffer);
 
         DataRecordCheckBoxField dr_cdvr = new DataRecordCheckBoxField(true);
         dr_cdvr.Initialize("Enable C-DVR", "adm_table_header_nbg", "FormInput", "enable_cdvr", false);
         theRecord.AddRecord(dr_cdvr);
 
+        DataRecordCheckBoxField dr_startOver = new DataRecordCheckBoxField(true);
+        dr_startOver.Initialize("Enable Start-Over", "adm_table_header_nbg", "FormInput", "enable_start_over", false);
+        theRecord.AddRecord(dr_startOver);
+
+        DataRecordCheckBoxField dr_trickPlay = new DataRecordCheckBoxField(true);
+        dr_trickPlay.Initialize("Enable Live Trick-Play ", "adm_table_header_nbg", "FormInput", "enable_trick_play", false);
+        theRecord.AddRecord(dr_trickPlay);
+
+        DataRecordShortIntField dr_trickPlayBuffer = new DataRecordShortIntField(true, 9, 9);
+        dr_trickPlayBuffer.Initialize("Live Trick-Play Buffer Length", "adm_table_header_nbg", "FormInput", "trick_play_buffer", false);
+        theRecord.AddRecord(dr_trickPlayBuffer);
+
+        DataRecordDropDownField dr_adapters = new DataRecordDropDownField("time_shifted_tv_settings", "adapter_id", "id", "", null, 60, true);
+        string sQuery = "select name as txt,id as id from conditionalAccess..cdvr_adapters where status=1 and is_active=1 and group_id=" + LoginManager.GetLoginGroupID();
+        dr_adapters.SetSelectsQuery(sQuery);
+        dr_adapters.Initialize("C-DVR Adapter", "adm_table_header_nbg", "FormInput", "adapter_id", false);
+        dr_adapters.SetDefaultVal("---");
+        theRecord.AddRecord(dr_adapters);
 
         sTable = theRecord.GetTableHTML("adm_time_shifted_tv_settings.aspx?submited=1");
 
