@@ -17,7 +17,8 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns all C-DVR adapters for partner
         /// </summary>
-        /// <remarks>       
+        /// <remarks> 
+        /// 
         /// </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
@@ -44,8 +45,7 @@ namespace WebAPI.Controllers
         /// Delete C-DVR adapter by C-DVR adapter id
         /// </summary>
         /// <remarks>
-        /// Possible status codes:       
-        /// C-DVR adapter identifier required = 5007, C-DVR adapter not exist = 5008,  action is not allowed = 5011
+        /// Possible status codes: Adapter does not exist = 10000
         /// </remarks>
         /// <param name="adapter_id">C-DVR adapter identifier</param>
         [Route("delete"), HttpPost]
@@ -74,9 +74,9 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:     
-        /// no oss adapter to insert = 5004, name required = 5005, adapter url required = 5013, external identifier required = 6016, external identifier must be unique = 6040  
+        /// Adapter Name is required = 5005, Adapter URL is required = 5013, External identifier is required = 6016, External identifier must be unique = 6040
         /// </remarks>
-        /// <param name="adapter">OSS adapter Object</param>
+        /// <param name="adapter">C-DVR adapter object</param>
         [Route("add"), HttpPost]
         [ApiAuthorize]
         public KalturaCDVRAdapterProfile Add(KalturaCDVRAdapterProfile adapter)
@@ -103,7 +103,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:   
-        /// name required = 5005, oss adapter identifier required = 5007, no oss adapter to update = 5012, adapter url required = 5013, external identifier required = 6016
+        /// Adapter name is required = 5005, Adapter identifier is required = 10001, Adapter URL is required = 5013, External identifier required = 6016, Adapter does not exist = 10000
         /// </remarks>
         /// <param name="adapter">C-DVR adapter Object</param>       
         [Route("update"), HttpPost]
@@ -132,7 +132,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:  
-        /// oss adapter identifier required = 5007, oss adapter not exist = 5008
+        /// Adapter identifier is required = 10001, AdapterNotExists = 10000
         /// </remarks>
         /// <param name="adapter_id">C-DVR adapter identifier</param>
         [Route("generateSharedSecret"), HttpPost]
