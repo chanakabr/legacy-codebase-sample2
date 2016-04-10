@@ -248,7 +248,7 @@ namespace ApiObjects.Response
         AdapterNotExists = 10000,
         AdapterIdentifierRequired = 10001,
         AdapterIsRequired = 10002,
-        NoAdapterToInsert = 1000,
+        NoAdapterToInsert = 10003,
 
     }
 }
