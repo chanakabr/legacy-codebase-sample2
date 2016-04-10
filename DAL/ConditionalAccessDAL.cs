@@ -2290,7 +2290,7 @@ namespace DAL
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CDVRAdapter");
                 sp.SetConnectionKey("CONNECTION_STRING");
-                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@groupID", groupID);
                 sp.AddParameter("@id", adapterId);
                 sp.AddParameter("@status", status);
                 if (isActive.HasValue)
