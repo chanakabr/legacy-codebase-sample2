@@ -72,7 +72,7 @@ namespace EpgBL
         {
             EPGChannelProgrammeObject res = GetProgramData(nProgramID.ToString());
             return res;
-        }
+        }      
 
         public override List<EPGChannelProgrammeObject> GetEpgs(List<int> lIds)
         {

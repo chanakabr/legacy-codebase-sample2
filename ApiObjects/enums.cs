@@ -553,5 +553,12 @@ namespace ApiObjects
         Delete = 2
     }
 
+    public enum AdapterStatus
+    {
+        OK = 0,
+        Error = 1,
+        SignatureMismatch = 2,
+        NoConfigurationFound = 3
+    }
    
 }

@@ -15,9 +15,10 @@ namespace ODBCWrapper
     public class StoredProcedure
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public StoredProcedure(string sProcedureName)
         {
-            m_sProcedureName = sProcedureName;
+            m_sProcedureName = string.Format("{0}{1}", Utils.dBVersionPrefix, sProcedureName);
             m_Parameters = new Dictionary<string, object>();
             m_bIsWritable = false;
         }

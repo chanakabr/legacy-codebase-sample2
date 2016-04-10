@@ -324,7 +324,8 @@ namespace Catalog
                 if (ds.Tables.Count >= 6)
                 {
                     int assetGroupId = 0;
-                    bool isMedia = GetMediaBasicDetails(ref oMediaObj, ds.Tables[0], ds.Tables[5], bIsMainLang, ref assetGroupId);
+                    int isLinear = 0;
+                    bool isMedia = GetMediaBasicDetails(ref oMediaObj, ds.Tables[0], ds.Tables[5], bIsMainLang, ref assetGroupId, ref isLinear);
 
                     // only if we found basic details for media - media in status = 1 , and active if necessary. If not - return null.
                     if (!isMedia)
@@ -354,6 +355,22 @@ namespace Catalog
                         {
                             return null;
                         }
+
+                        if (isLinear != 0 && !string.IsNullOrEmpty(oMediaObj.m_ExternalIDs))
+                        {
+                            // get linear Channel settings 
+                            Dictionary<string, LinearChannelSettings> linearChannelSettings = CatalogCache.Instance().GetLinearChannelSettings(groupId, new List<string>(){oMediaObj.m_ExternalIDs});
+                            if (linearChannelSettings != null && linearChannelSettings.ContainsKey(oMediaObj.m_ExternalIDs) && linearChannelSettings.Values != null)
+                            {
+                                oMediaObj.EnableCatchUp = linearChannelSettings[oMediaObj.m_ExternalIDs].EnableCatchUp;
+                                oMediaObj.EnableCDVR = linearChannelSettings[oMediaObj.m_ExternalIDs].EnableCDVR;
+                                oMediaObj.EnableStartOver = linearChannelSettings[oMediaObj.m_ExternalIDs].EnableStartOver;
+                                oMediaObj.EnableTrickPlay = linearChannelSettings[oMediaObj.m_ExternalIDs].EnableTrickPlay;
+                                oMediaObj.CatchUpBuffer = linearChannelSettings[oMediaObj.m_ExternalIDs].CatchUpBuffer;
+                                oMediaObj.TrickPlayBuffer = linearChannelSettings[oMediaObj.m_ExternalIDs].TrickPlayBuffer;   
+                            }
+                        }
+
 
                         /*last watched - By SiteGuid <> 0*/
 
@@ -388,6 +405,7 @@ namespace Catalog
             }
         }
 
+      
 
         /*Insert all tags that return from the "CompleteDetailsForMediaResponse" into List<Tags>*/
         private static List<Tags> GetTagsDetails(DataTable dtTags, bool bIsMainLang, ref bool result)
@@ -702,7 +720,7 @@ namespace Catalog
         }
 
         /*Insert all Basic Details about media  that return from the "CompleteDetailsForMediaResponse" into MediaObj*/
-        private static bool GetMediaBasicDetails(ref MediaObj oMediaObj, DataTable dtMedia, DataTable dtUpdateDate, bool bIsMainLang, ref int assetGroupId)
+        private static bool GetMediaBasicDetails(ref MediaObj oMediaObj, DataTable dtMedia, DataTable dtUpdateDate, bool bIsMainLang, ref int assetGroupId, ref int isLinear)
         {
             bool result = false;
             try
@@ -736,6 +754,7 @@ namespace Catalog
                         {
                             oMediaObj.m_ExternalIDs = sEpgIdentifier;
                         }
+                        isLinear = Utils.GetIntSafeVal(dtMedia.Rows[0], "IS_LINEAR");
                         //Rating
                         oMediaObj.m_oRatingMedia = new RatingMedia();
                         oMediaObj.m_oRatingMedia.m_nViwes = Utils.GetIntSafeVal(dtMedia.Rows[0], "Viwes");
@@ -2428,22 +2447,20 @@ namespace Catalog
                 lEpgIDs.Add(pRequest.m_lProgramsIds[i]);
             }
 
-            BaseEpgBL epgBL = EpgBL.Utils.GetInstance(pRequest.m_nGroupID);
+            BaseEpgBL epgBL = EpgBL.Utils.GetInstance(pRequest.m_nGroupID);            
             List<EPGChannelProgrammeObject> lEpgProg = epgBL.GetEpgs(lEpgIDs);
+            // get all linear settings about channel + group
+            GetLinearChannelSettings(pRequest.m_nGroupID, lEpgProg);
+
+
             EPGChannelProgrammeObject epgProg = null;
 
             //keeping the original order and amount of items (some of the items might return as null)
             if (pRequest.m_lProgramsIds != null && lEpgProg != null)
             {
-                pResponse.m_nTotalItems = lEpgProg.Count;
-
-                //    string epgPicBaseUrl = string.Empty;
-                //    string epgPicWidth = string.Empty;
-                //    string epgPicHeight = string.Empty;
-                //    Dictionary<int, List<string>> groupTreeEpgPicUrl = CatalogDAL.Get_GroupTreePicEpgUrl(pRequest.m_nGroupID);
-                //    GetEpgPicUrlData(lEpgProg, groupTreeEpgPicUrl, ref epgPicBaseUrl, ref epgPicWidth, ref epgPicHeight);
-                //    MutateFullEpgPicURL(lEpgProg, epgPicBaseUrl, epgPicWidth, epgPicHeight);
+                pResponse.m_nTotalItems = lEpgProg.Count;               
             }
+
             foreach (int nProgram in pRequest.m_lProgramsIds)
             {
                 if (lEpgProg.Exists(x => x.EPG_ID == nProgram))
@@ -2461,6 +2478,103 @@ namespace Catalog
             pResponse.m_lObj = lProgramObj;
 
             return true;
+        }
+
+        public static void GetLinearChannelSettings(int groupID, List<EPGChannelProgrammeObject> lEpgProg)
+        {
+            List<string> epgChannelIds = lEpgProg.Where(item => item != null).Select(item => item.EPG_CHANNEL_ID).ToList<string>();// get all epg channel ids
+
+            Dictionary<string, LinearChannelSettings> linearChannelSettings = CatalogCache.Instance().GetLinearChannelSettings(groupID, epgChannelIds);
+            foreach (EPGChannelProgrammeObject epg in lEpgProg)
+            {
+                if (linearChannelSettings.ContainsKey(epg.EPG_CHANNEL_ID))
+                {
+                    LinearChannelSettings linearSettings = linearChannelSettings[epg.EPG_CHANNEL_ID];
+                    if (linearSettings != null)
+                    {
+                        SetLinearEpgProgramSettings(epg, linearSettings);
+                    }
+                }
+            }
+        }
+
+        private static void SetLinearEpgProgramSettings(EPGChannelProgrammeObject epg, LinearChannelSettings linearSettings)
+        {
+            // 0 ==> need to get value from LinearChannelSettings
+            // 1 ==> check the value at LinearChannelSettings : if true - OK else false
+            // 2 ==> false - do nothing
+            if (epg.ENABLE_CDVR != 2)// get value from epg channel 
+            {
+                epg.ENABLE_CDVR = linearSettings.EnableCDVR == true ? 1 : 0;
+            }
+
+            if (epg.ENABLE_START_OVER != 2)// get value from epg channel
+            {
+                epg.ENABLE_START_OVER = linearSettings.EnableStartOver == true ? 1 : 0;
+            }
+            if (epg.ENABLE_CATCH_UP != 2)// get value from epg channel
+            {
+                epg.ENABLE_CATCH_UP = linearSettings.EnableCatchUp == true ? 1 : 0;
+            }
+
+            if (epg.ENABLE_TRICK_PLAY != 2)// get value from epg channel
+            {
+                epg.ENABLE_TRICK_PLAY = linearSettings.EnableTrickPlay == true ? 1 : 0;
+            }
+        }
+
+        private static EPGChannelProgrammeObject GetLinearEpgProgramSettings(DataRow[] dr, DataRow drAccount)
+        {
+            EPGChannelProgrammeObject epg = new EPGChannelProgrammeObject();
+            int enable = 0;
+            int enableChannel = 0;
+
+            enable = ODBCWrapper.Utils.GetIntSafeVal(dr[0], "ENABLE_CDVR"); // account
+            if (enable == 1)
+            {
+                enableChannel = ODBCWrapper.Utils.GetIntSafeVal(drAccount, "ENABLE_CDVR"); // channel settings
+                if (enableChannel != 0) //None/NULL
+                {                   
+                    enable = enableChannel;
+                }
+            }
+
+            epg.ENABLE_CDVR = enable;
+
+            enable = ODBCWrapper.Utils.GetIntSafeVal(dr[0], "ENABLE_CATCH_UP"); // account
+            if (enable == 1)
+            {
+                enableChannel = ODBCWrapper.Utils.GetIntSafeVal(drAccount, "ENABLE_CATCH_UP"); // channel settings
+                if (enableChannel != 0) //None/NULL
+                {
+                    enable = enableChannel;
+                }
+            }
+            epg.ENABLE_CATCH_UP = enable;
+
+            enable = ODBCWrapper.Utils.GetIntSafeVal(dr[0], "ENABLE_START_OVER"); // account
+            if (enable == 1)
+            {
+                enableChannel = ODBCWrapper.Utils.GetIntSafeVal(drAccount, "ENABLE_START_OVER"); // channel settings
+                if (enableChannel != 0) //None/NULL
+                {
+                    enable = enableChannel;
+                }
+            }
+            epg.ENABLE_START_OVER = enable;
+
+            enable = ODBCWrapper.Utils.GetIntSafeVal(dr[0], "ENABLE_TRICK_PLAY"); // account
+            if (enable == 0)
+            {
+                enableChannel = ODBCWrapper.Utils.GetIntSafeVal(drAccount, "ENABLE_TRICK_PLAY"); //channel settings
+                if (enableChannel != 0) //None/NULL
+                {
+                    enable = enableChannel;
+                }
+            }
+            epg.ENABLE_TRICK_PLAY = enable;
+          
+            return epg;
         }
 
         private static ProgramObj GetProgramDetails(int nProgramID, EpgProgramDetailsRequest pRequest)
@@ -2646,18 +2760,10 @@ namespace Catalog
             List<EPGChannelProgrammeObject> epgs = GetEpgsByGroupAndIDs(parentGroupID, epgIDs);
             if (epgs != null && epgs.Count > 0)
             {
-
-                //    Dictionary<int, List<string>> groupTreeEpgUrls = CatalogDAL.Get_GroupTreePicEpgUrl(parentGroupID);
-                //    string epgPicBaseUrl = string.Empty;
-                //    string epgPicWidth = string.Empty;
-                //    string epgPicHeight = string.Empty;
-                //    GetEpgPicUrlData(epgs, groupTreeEpgUrls, ref epgPicBaseUrl, ref epgPicWidth, ref epgPicHeight);
-                //    bool epgPicBaseUrlExists = !string.IsNullOrEmpty(epgPicBaseUrl);
-                //    bool epgPicWidthExists = !string.IsNullOrEmpty(epgPicWidth);
-                //    bool epgPicHeightExists = !string.IsNullOrEmpty(epgPicHeight);
-                //    string alternativePicUrl = string.Format("_{0}X{1}.", epgPicWidth, epgPicHeight);
-                //    string dot = ".";
                 int totalItems = 0;
+                // get all linear settings about channel + group
+                GetLinearChannelSettings(parentGroupID, epgs);
+
                 Dictionary<int, ICollection<EPGChannelProgrammeObject>> channelIdsToProgrammesMapping = new Dictionary<int, ICollection<EPGChannelProgrammeObject>>(epgChannelIDs.Count);
 
                 for (int i = 0; i < epgs.Count; i++)
@@ -2667,17 +2773,7 @@ namespace Catalog
                     {
                         continue;
                     }
-
-                    //// mutate epg pic url
-                    //if (epgPicBaseUrlExists && !string.IsNullOrEmpty(epgs[i].PIC_URL))
-                    //{
-                    //    if (epgPicWidthExists && epgPicHeightExists)
-                    //    {
-                    //        epgs[i].PIC_URL = epgs[i].PIC_URL.Replace(dot, alternativePicUrl);
-                    //    }
-                    //    epgs[i].PIC_URL = string.Format("{0}{1}", epgPicBaseUrl, epgs[i].PIC_URL);
-                    //}
-
+                   
                     if (channelIdsToProgrammesMapping.ContainsKey(tempEpgChannelID))
                     {
                         channelIdsToProgrammesMapping[tempEpgChannelID].Add(epgs[i]);
@@ -2734,6 +2830,9 @@ namespace Catalog
 
             if (basicEpgObjects != null && basicEpgObjects.Count > 0)
             {
+                // get all linear settings about channel + group
+                GetLinearChannelSettings(groupId, basicEpgObjects);
+
                 for (int i = 0; i < basicEpgObjects.Count; i++)
                 {
                     var currentEpg = basicEpgObjects[i];
@@ -4385,6 +4484,9 @@ namespace Catalog
                             List<EPGChannelProgrammeObject> epgs = GetEpgsByGroupAndIDs(groupID, request.m_lProgramIDs);
                             if (epgs != null && epgs.Count > 0)
                             {
+                                // get all linear settings about channel + group
+                                GetLinearChannelSettings(groupID, epgs);
+
                                 args.EpgProgramIDs.AddRange(epgs.Select((item) => item.EPG_IDENTIFIER));
                                 args.SearchBy.Add(SearchByField.byProgramId);
                             }
@@ -6303,6 +6405,8 @@ namespace Catalog
             }
         }
 
+
+       
     }
 }
 
