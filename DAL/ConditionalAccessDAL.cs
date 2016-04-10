@@ -2406,7 +2406,6 @@ namespace DAL
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_CDVRAdapter");
                 sp.SetConnectionKey("CONNECTION_STRING");
-                sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@ID", adapterId);
                 bool isDelete = sp.ExecuteReturnValue<bool>();
                 return isDelete;
