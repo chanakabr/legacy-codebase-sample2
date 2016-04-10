@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Data;
-using Tvinci.Core.DAL;
+﻿using ApiObjects;
 using ApiObjects.Notification;
 using CouchbaseManager;
-using Newtonsoft.Json;
 using KLogMonitor;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using System.Reflection;
-using ApiObjects;
+using System.Threading;
+using Tvinci.Core.DAL;
 
 
 namespace DAL
@@ -26,6 +26,8 @@ namespace DAL
         private const string SP_IS_NOTIFICATION_EXIST = "IsNotifictaionExist";
         private const string SP_GET_DEVICE_NOTIFICATION = "GetDeviceNotification";
         private const string SP_UPDATE_NOTIFICATION_MESSAGE_VIEW_STATUS = "UpdateNotificationMessageViewStatus";
+        private const int NUM_OF_INSERT_TRIES = 10;
+        private const int SLEEP_BETWEEN_RETRIES_MILLI = 1000;
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.STATISTICS);
@@ -857,13 +859,33 @@ namespace DAL
             bool result = false;
             try
             {
-                result = cbManager.Set(GetDeviceDataKey(groupId, udid), newDeviceNotificationData);
-                if (!result)
+                int numOfTries = 0;
+                while (!result && numOfTries < NUM_OF_INSERT_TRIES)
                 {
-                    log.ErrorFormat("Error while trying to set device notification. gid: {0}, udid: {1}, data: {2}",
-                        groupId,
-                        udid,
-                        JsonConvert.SerializeObject(newDeviceNotificationData));
+                    result = cbManager.Set(GetDeviceDataKey(groupId, udid), newDeviceNotificationData);
+                    if (!result)
+                    {
+                        numOfTries++;
+                        log.ErrorFormat("Error while trying to set device notification number of tries: {0}/{1}. gid: {2}, udid: {3}, data: {4}",
+                            numOfTries,
+                            NUM_OF_INSERT_TRIES,
+                            groupId,
+                            udid,
+                            JsonConvert.SerializeObject(newDeviceNotificationData));
+                        Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
+                    }
+                    else
+                    {
+                        // log success on retry
+                        if (numOfTries > 0)
+                        {
+                            numOfTries++;
+                            log.DebugFormat("successfully set device notification. number of tries: {0}/{1}. object {2}",
+                            numOfTries,
+                            NUM_OF_INSERT_TRIES,
+                            JsonConvert.SerializeObject(newDeviceNotificationData));
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -895,13 +917,33 @@ namespace DAL
             bool result = false;
             try
             {
-                result = cbManager.Set(GetUserNotificationKey(groupId, userId), userNotification);
-                if (!result)
+                int numOfTries = 0;
+                while (!result && numOfTries < NUM_OF_INSERT_TRIES)
                 {
-                    log.ErrorFormat("Error while set user notification data. GID: {0}, user ID: {1}. data: {2}",
-                        groupId,
-                        userId,
-                        JsonConvert.SerializeObject(userNotification));
+                    result = cbManager.Set(GetUserNotificationKey(groupId, userId), userNotification);
+                    if (!result)
+                    {
+                        numOfTries++;
+                        log.ErrorFormat("Error while set user notification data. number of tries: {0}/{1}. GID: {2}, user ID: {3}. data: {4}",
+                             numOfTries,
+                            NUM_OF_INSERT_TRIES,
+                            groupId,
+                            userId,
+                            JsonConvert.SerializeObject(userNotification));
+                        Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
+                    }
+                    else
+                    {
+                        // log success on retry
+                        if (numOfTries > 0)
+                        {
+                            numOfTries++;
+                            log.DebugFormat("successfully set user notification data. number of tries: {0}/{1}. object {2}",
+                            numOfTries,
+                            NUM_OF_INSERT_TRIES,
+                            JsonConvert.SerializeObject(userNotification));
+                        }
+                    }
                 }
             }
             catch (Exception ex)
