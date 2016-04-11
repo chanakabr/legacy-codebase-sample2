@@ -2294,6 +2294,11 @@ namespace Catalog
             return UpdateEpg(lEpgIds, nGroupId, eObjectType.EPG, eAction);
         }
 
+        public static bool UpdateEpgChannelIndex(List<int> ids, int groupId, eAction action)
+        {
+            return UpdateEpg(ids, groupId, eObjectType.EpgChannel, action);
+        }
+
         public static bool UpdateChannelIndex(List<int> lChannelIds, int nGroupId, eAction eAction)
         {
             return Update(lChannelIds, nGroupId, eObjectType.Channel, eAction);
@@ -2348,7 +2353,7 @@ namespace Catalog
                 if (group != null)
                 {
                     ApiObjects.CeleryIndexingData data = new CeleryIndexingData(group.m_nParentGroupID,
-                        ids, eObjectType.EPG, action, DateTime.Now);
+                        ids, objectType, action, DateTime.Now);
 
                     var queue = new CatalogQueue();
 
@@ -6406,7 +6411,8 @@ namespace Catalog
         }
 
 
-       
+        
+      
     }
 }
 

@@ -243,7 +243,7 @@ namespace Catalog.Cache
             
         
 
-        internal Dictionary<string,LinearChannelSettings> GetLinearChannelSettings(int groupID, List<string> keys)
+        public Dictionary<string,LinearChannelSettings> GetLinearChannelSettings(int groupID, List<string> keys)
         {
             Dictionary<string, LinearChannelSettings> linearChannelSettings = new Dictionary<string,LinearChannelSettings>();
             try

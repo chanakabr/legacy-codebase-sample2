@@ -92,7 +92,10 @@ namespace ApiObjects
         [EnumMember]
         Channel,
         [EnumMember]
-        EPG
+        EPG,
+        [EnumMember]
+        EpgChannel
+
     }
 
     [Serializable]
