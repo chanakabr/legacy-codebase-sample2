@@ -196,7 +196,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
                .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertCDVRAdapterSettings(src.Settings)))
-               .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
+               .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier))
+               .ForMember(dest => dest.DynamicLinksSupport, opt => opt.MapFrom(src => src.DynamicLinksSupport))
+               .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret));
 
             Mapper.CreateMap<WebAPI.ConditionalAccess.CDVRAdapter, KalturaCDVRAdapterProfile>()
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
@@ -204,7 +206,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
               .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertCDVRAdapterSettings(src.Settings)))
-              .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier));
+              .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier))
+              .ForMember(dest => dest.DynamicLinksSupport, opt => opt.MapFrom(src => src.DynamicLinksSupport));
+
   
             // LicensedLinkResponse to KalturaLicensedUrls
             Mapper.CreateMap<ConditionalAccess.LicensedLinkResponse, Models.ConditionalAccess.KalturaLicensedUrl>()

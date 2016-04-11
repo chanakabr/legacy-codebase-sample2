@@ -27,7 +27,6 @@ namespace WebAPI.ConditionalAccess {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Web.Services.WebServiceBindingAttribute(Name="moduleSoap", Namespace="http://ca.tvinci.com/")]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CDVRAdapterBase))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PPVModule))]
     public partial class module : System.Web.Services.Protocols.SoapHttpClientProtocol {
         
@@ -9641,7 +9640,11 @@ namespace WebAPI.ConditionalAccess {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class CDVRAdapter : CDVRAdapterBase {
+    public partial class CDVRAdapter {
+        
+        private int idField;
+        
+        private string nameField;
         
         private bool isActiveField;
         
@@ -9651,7 +9654,29 @@ namespace WebAPI.ConditionalAccess {
         
         private string sharedSecretField;
         
+        private bool dynamicLinksSupportField;
+        
         private CDVRAdapterSettings[] settingsField;
+        
+        /// <remarks/>
+        public int ID {
+            get {
+                return this.idField;
+            }
+            set {
+                this.idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Name {
+            get {
+                return this.nameField;
+            }
+            set {
+                this.nameField = value;
+            }
+        }
         
         /// <remarks/>
         public bool IsActive {
@@ -9690,6 +9715,16 @@ namespace WebAPI.ConditionalAccess {
             }
             set {
                 this.sharedSecretField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool DynamicLinksSupport {
+            get {
+                return this.dynamicLinksSupportField;
+            }
+            set {
+                this.dynamicLinksSupportField = value;
             }
         }
         
@@ -9733,40 +9768,6 @@ namespace WebAPI.ConditionalAccess {
             }
             set {
                 this.valueField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CDVRAdapter))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class CDVRAdapterBase {
-        
-        private int idField;
-        
-        private string nameField;
-        
-        /// <remarks/>
-        public int ID {
-            get {
-                return this.idField;
-            }
-            set {
-                this.idField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Name {
-            get {
-                return this.nameField;
-            }
-            set {
-                this.nameField = value;
             }
         }
     }

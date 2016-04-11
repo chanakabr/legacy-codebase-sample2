@@ -69,5 +69,13 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("shared_secret")]
         [XmlElement(ElementName = "shared_secret")]
         public string SharedSecret { get; set; }
+
+        /// <summary>
+        /// Indicates whether the C-DVR adapter supports dynamic URLs
+        /// </summary>
+        [DataMember(Name = "dynamic_links_support")]
+        [JsonProperty("dynamic_links_support")]
+        [XmlElement(ElementName = "dynamic_links_support")]
+        public bool DynamicLinksSupport { get; set; }
     }
 }
