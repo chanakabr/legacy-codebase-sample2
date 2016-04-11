@@ -235,7 +235,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
         {
             Dictionary<string, KalturaStringValue> extraParams = new Dictionary<string, KalturaStringValue>();
 
-            extraParams.Add("epg_channel_id ", new KalturaStringValue() { value = epg.EPG_CHANNEL_ID });
+            extraParams.Add("epg_channel_id", new KalturaStringValue() { value = epg.EPG_CHANNEL_ID });
             extraParams.Add("epg_id", new KalturaStringValue() { value = epg.EPG_IDENTIFIER });
             extraParams.Add("related_media_id", new KalturaStringValue() { value = epg.media_id });
 
