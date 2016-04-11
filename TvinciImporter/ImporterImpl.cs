@@ -5482,22 +5482,22 @@ namespace TvinciImporter
                                         switch (eAction)
                                         {
                                             case eAction.Off:
-                                            actionCatalog = WSCatalog.eAction.Off;
-                                            break;
+                                                actionCatalog = WSCatalog.eAction.Off;
+                                                break;
                                             case eAction.On:
-                                            actionCatalog = WSCatalog.eAction.On;
-                                            break;
+                                                actionCatalog = WSCatalog.eAction.On;
+                                                break;
                                             case eAction.Update:
-                                            actionCatalog = WSCatalog.eAction.Update;
-                                            break;
+                                                actionCatalog = WSCatalog.eAction.Update;
+                                                break;
                                             case eAction.Delete:
-                                            actionCatalog = WSCatalog.eAction.Delete;
-                                            break;
+                                                actionCatalog = WSCatalog.eAction.Delete;
+                                                break;
                                             case eAction.Rebuild:
-                                            actionCatalog = WSCatalog.eAction.Rebuild;
-                                            break;
+                                                actionCatalog = WSCatalog.eAction.Rebuild;
+                                                break;                                          
                                             default:
-                                            break;
+                                                break;
                                         }
 
                                         isUpdateIndexSucceeded = wsCatalog.UpdateEpgIndex(arrEPGIds, nParentGroupID, actionCatalog);
@@ -5531,6 +5531,100 @@ namespace TvinciImporter
 
             return isUpdateIndexSucceeded;
         }
+
+
+        public static bool UpdateEpgChannelIndex(List<ulong> epgChannels, int groupID, eAction eAction)
+        {
+            bool isUpdateIndexSucceeded = false;
+
+            string sUseElasticSearch = GetConfigVal("indexer");  /// Indexer - ES / Lucene
+            if (!string.IsNullOrEmpty(sUseElasticSearch) && sUseElasticSearch.Equals("ES")) //ES
+            {
+                WSCatalog.IserviceClient wsCatalog = null;
+
+                try
+                {
+                    int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupID);
+                    wsCatalog = GetWCFSvc("WS_Catalog");
+                    if (epgChannels != null && epgChannels.Count > 0 && nParentGroupID > 0)
+                    {
+                        string sWSURL = GetCatalogUrl(nParentGroupID);
+
+                        if (!string.IsNullOrEmpty(sWSURL))
+                        {
+                            string[] arrAddresses = sWSURL.Split(';');
+                            int[] arrEPGIds = new int[epgChannels.Count];
+                            int nArrayIndex = 0;
+
+                            foreach (ulong item in epgChannels)
+                            {
+                                arrEPGIds[nArrayIndex] = int.Parse(item.ToString());
+                                nArrayIndex++;
+                            }
+
+                            foreach (string sEndPointAddress in arrAddresses)
+                            {
+                                try
+                                {
+                                    wsCatalog = GetCatalogClient(sEndPointAddress);
+
+                                    if (wsCatalog != null)
+                                    {
+                                        WSCatalog.eAction actionCatalog = WSCatalog.eAction.Update;
+
+                                        switch (eAction)
+                                        {
+                                            case eAction.Off:
+                                                actionCatalog = WSCatalog.eAction.Off;
+                                                break;
+                                            case eAction.On:
+                                                actionCatalog = WSCatalog.eAction.On;
+                                                break;
+                                            case eAction.Update:
+                                                actionCatalog = WSCatalog.eAction.Update;
+                                                break;
+                                            case eAction.Delete:
+                                                actionCatalog = WSCatalog.eAction.Delete;
+                                                break;
+                                            case eAction.Rebuild:
+                                                actionCatalog = WSCatalog.eAction.Rebuild;
+                                                break;
+                                            default:
+                                                break;
+                                        }
+
+                                        isUpdateIndexSucceeded = wsCatalog.UpdateEpgChannelIndex(arrEPGIds, nParentGroupID, actionCatalog);
+
+                                        string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
+                                        log.DebugFormat("Update index {0} in catalog '{1}'", sInfo, sEndPointAddress);
+
+                                        wsCatalog.Close();
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    log.ErrorFormat("Couldn't update catalog '{0}' due to the following error: {1}", sEndPointAddress, ex.Message);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error("process failed", ex);
+                }
+                finally
+                {
+                    if (wsCatalog != null)
+                    {
+                        wsCatalog.Close();
+                    }
+                }
+            }
+
+            return isUpdateIndexSucceeded;
+        }
+
 
         public static DateTime? ExtractDate(string sDate, string format)
         {
@@ -5586,7 +5680,9 @@ namespace TvinciImporter
             }
 
             return result;
-        }                
+        }
+
+
 
         
     }
