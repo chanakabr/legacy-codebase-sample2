@@ -82,7 +82,7 @@ public partial class adm_time_shifted_tv_settings : System.Web.UI.Page
         dr_catchUp.Initialize("Enable Catch-Up", "adm_table_header_nbg", "FormInput", "enable_catch_up", false);
         theRecord.AddRecord(dr_catchUp);
 
-        DataRecordShortIntField dr_catchUpBuffer = new DataRecordShortIntField(true, 9, 9);
+        DataRecordShortIntField dr_catchUpBuffer = new DataRecordShortIntField(true, 9, 9, 0);
         dr_catchUpBuffer.Initialize("Catch-Up Buffer Length", "adm_table_header_nbg", "FormInput", "catch_up_buffer", false);
         theRecord.AddRecord(dr_catchUpBuffer);
 
@@ -98,7 +98,7 @@ public partial class adm_time_shifted_tv_settings : System.Web.UI.Page
         dr_trickPlay.Initialize("Enable Live Trick-Play ", "adm_table_header_nbg", "FormInput", "enable_trick_play", false);
         theRecord.AddRecord(dr_trickPlay);
 
-        DataRecordShortIntField dr_trickPlayBuffer = new DataRecordShortIntField(true, 9, 9);
+        DataRecordShortIntField dr_trickPlayBuffer = new DataRecordShortIntField(true, 9, 9, 0);
         dr_trickPlayBuffer.Initialize("Live Trick-Play Buffer Length", "adm_table_header_nbg", "FormInput", "trick_play_buffer", false);
         theRecord.AddRecord(dr_trickPlayBuffer);
 
