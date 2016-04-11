@@ -1,0 +1,148 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using System.Reflection;
+using KLogMonitor;
+using TVinciShared;
+using System.Data;
+
+public partial class adm_time_shifted_tv_settings : System.Web.UI.Page
+{
+
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+    protected string m_sMenu;
+    protected string m_sSubMenu;
+
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        if (LoginManager.CheckLogin() == false)
+            Response.Redirect("login.html");
+        else if (LoginManager.IsPagePermitted("adm_time_shifted_tv_settings.aspx") == false)
+            LoginManager.LogoutFromSite("login.html");
+        if (AMS.Web.RemoteScripting.InvokeMethod(this))
+            return;
+        Int32 nMenuID = 0;
+        if (!IsPostBack)
+        {
+            m_sMenu = TVinciShared.Menu.GetMainMenu(7, true, ref nMenuID);
+            m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, true);
+            if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
+            {
+                DBManipulator.DoTheWork("MAIN_CONNECTION_STRING");
+            }
+        }
+    }
+
+    protected void GetMainMenu()
+    {
+        Response.Write(m_sMenu);
+    }
+
+    public void GetHeader()
+    {
+        Response.Write(PageUtils.GetPreHeader() + ": Time Shifted TV Settings");
+    }
+
+    protected void GetSubMenu()
+    {
+        Response.Write(m_sSubMenu);
+    }
+
+    public string GetPageContent(string sOrderBy, string sPageNum)
+    {
+        object fieldIndexValue = null;
+
+        if (Session["error_msg"] != null && Session["error_msg"].ToString() != "")
+        {
+            Session["error_msg"] = "";
+            return Session["last_page_html"].ToString();
+        }
+
+        int groupID = LoginManager.GetLoginGroupID();
+
+        // check if to insert a new record to the table or update an existing one
+        int idFromTable = DAL.TvmDAL.GetTimeShiftedTVSettingsID(groupID);
+        int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupID);
+
+        string sTable = string.Empty;
+ 
+        if (idFromTable > 0)
+        {
+            fieldIndexValue = idFromTable;
+        }
+
+        string sBack = "adm_time_shifted_tv_settings.aspx?search_save=1";
+        DBRecordWebEditor theRecord = new DBRecordWebEditor("time_shifted_tv_settings", "adm_table_pager", sBack, "", "ID", fieldIndexValue, sBack, "");
+        theRecord.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+        DataRecordCheckBoxField dr_catchUp = new DataRecordCheckBoxField(true);
+        dr_catchUp.Initialize("Enable Catch-Up", "adm_table_header_nbg", "FormInput", "enable_catch_up", false);
+        theRecord.AddRecord(dr_catchUp);
+
+        DataRecordShortIntField dr_catchUpBuffer = new DataRecordShortIntField(true, 9, 9, 0);
+        dr_catchUpBuffer.Initialize("Catch-Up Buffer Length", "adm_table_header_nbg", "FormInput", "catch_up_buffer", false);
+        theRecord.AddRecord(dr_catchUpBuffer);
+
+        DataRecordCheckBoxField dr_cdvr = new DataRecordCheckBoxField(true);
+        dr_cdvr.Initialize("Enable C-DVR", "adm_table_header_nbg", "FormInput", "enable_cdvr", false);
+        theRecord.AddRecord(dr_cdvr);
+
+        DataRecordCheckBoxField dr_startOver = new DataRecordCheckBoxField(true);
+        dr_startOver.Initialize("Enable Start-Over", "adm_table_header_nbg", "FormInput", "enable_start_over", false);
+        theRecord.AddRecord(dr_startOver);
+
+        DataRecordCheckBoxField dr_trickPlay = new DataRecordCheckBoxField(true);
+        dr_trickPlay.Initialize("Enable Live Trick-Play ", "adm_table_header_nbg", "FormInput", "enable_trick_play", false);
+        theRecord.AddRecord(dr_trickPlay);
+
+        DataRecordShortIntField dr_trickPlayBuffer = new DataRecordShortIntField(true, 9, 9, 0);
+        dr_trickPlayBuffer.Initialize("Live Trick-Play Buffer Length", "adm_table_header_nbg", "FormInput", "trick_play_buffer", false);
+        theRecord.AddRecord(dr_trickPlayBuffer);
+
+        DataRecordDropDownField dr_adapters = new DataRecordDropDownField("time_shifted_tv_settings", "adapter_id", "id", "", null, 60, true);
+        string sQuery = "select name as txt,id as id from conditionalAccess..cdvr_adapters where status=1 and is_active=1 and group_id=" + LoginManager.GetLoginGroupID();
+        dr_adapters.SetSelectsQuery(sQuery);
+        dr_adapters.Initialize("C-DVR Adapter", "adm_table_header_nbg", "FormInput", "adapter_id", false);
+        dr_adapters.SetDefaultVal("---");
+        theRecord.AddRecord(dr_adapters);
+
+        sTable = theRecord.GetTableHTML("adm_time_shifted_tv_settings.aspx?submited=1");
+
+        return sTable;
+    }
+
+    private bool IsParentGroup(int groupID)
+    {
+        bool res = false;
+        try
+        {
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+            selectQuery += "select * from F_Get_GroupsParent(" + groupID.ToString() + ")";
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                {
+                    int parentGroupID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row, "PARENT_GROUP_ID");
+                    if (parentGroupID == 1)
+                    {
+                        res = true;
+                    }
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+        }
+        catch (Exception ex)
+        {
+            log.Error("", ex);
+            res = false;
+        }
+        return res;
+    }
+    
+}
