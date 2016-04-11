@@ -2342,7 +2342,7 @@ namespace DAL
                                 ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(dr, "external_identifier"),
                                 IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active") == 0 ? false : true,
                                 SharedSecret = ODBCWrapper.Utils.GetSafeStr(dr, "shared_secret"),
-                                DynamicLinksSupport = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "dynamic_links_support") == 1 ? true : false
+                                DynamicLinksSupport = ODBCWrapper.Utils.GetIntSafeVal(dr, "dynamic_links_support") == 1 ? true : false
 
                             };
                             res.Add(adapter);
