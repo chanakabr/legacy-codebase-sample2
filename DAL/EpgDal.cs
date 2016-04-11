@@ -66,6 +66,31 @@ namespace Tvinci.Core.DAL
             return retVal;
         }
 
+        public static List<int> GetEpgProgramsByChannelIds(int groupID, List<int> epgChannelIDs, DateTime fromUTCDay, DateTime toUTCDay)
+        {
+            List<int> epgIds = new List<int>();
+            StoredProcedure spGetEpgSchedule = new StoredProcedure("Get_EpgProgramsByChannelIds");
+            spGetEpgSchedule.SetConnectionKey("CONNECTION_STRING");
+
+            spGetEpgSchedule.AddParameter("@groupID", groupID);
+            spGetEpgSchedule.AddParameter("@startDate", fromUTCDay);
+            spGetEpgSchedule.AddParameter("@endDate", toUTCDay);
+            spGetEpgSchedule.AddIDListParameter("@epgChannelIDs", epgChannelIDs, "Id");
+
+            DataSet ds = spGetEpgSchedule.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+            {
+
+                foreach (DataRow dr in ds.Tables[0].Rows )
+                {
+                    int id = ODBCWrapper.Utils.GetIntSafeVal(dr, "id");
+                    epgIds.Add(id);
+                }
+                return epgIds;
+            }
+            return null;
+        }
         public static DataTable GetEpgMultiScheduleDataTable(int? topRowsNumber, int groupID, DateTime? fromUTCDay, DateTime? toUTCDay, string[] sEPGChannelIDs)
         {
             StoredProcedure spGetEpgSchedule = new StoredProcedure("Get_EpgMultiChannelsSchedule");
