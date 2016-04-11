@@ -207,7 +207,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
               .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertCDVRAdapterSettings(src.Settings)))
               .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.ExternalIdentifier))
-              .ForMember(dest => dest.DynamicLinksSupport, opt => opt.MapFrom(src => src.DynamicLinksSupport));
+              .ForMember(dest => dest.DynamicLinksSupport, opt => opt.MapFrom(src => src.DynamicLinksSupport))
+              .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret));
 
   
             // LicensedLinkResponse to KalturaLicensedUrls
