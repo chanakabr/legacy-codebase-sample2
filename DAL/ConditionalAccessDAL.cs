@@ -2391,7 +2391,7 @@ namespace DAL
                 sp.AddParameter("@groupId", groupID);
                 sp.AddParameter("@id", adapterId);
                 sp.AddParameter("@sharedSecret", sharedSecret);
-
+               
                 DataSet ds = sp.ExecuteDataSet();
 
                 adapterResponse = CreateCDVRAdapter(ds);
@@ -2435,6 +2435,8 @@ namespace DAL
                 sp.AddParameter("@dynamic_links_support", adapter.DynamicLinksSupport);
                 sp.AddParameter("@adapter_url", adapter.AdapterUrl);
                 sp.AddParameter("@isActive", adapter.IsActive);
+                DataTable dt = CreateDataTable(adapter.Settings);
+                sp.AddDataTableParameter("@KeyValueList", dt);
 
                 DataSet ds = sp.ExecuteDataSet();
 
