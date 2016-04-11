@@ -17123,7 +17123,7 @@ namespace ConditionalAccess
                 adapter.SharedSecret = null;
 
                 //check External Identifier uniqueness 
-                CDVRAdapter responseAdpater = DAL.ConditionalAccessDAL.GetCDVRAdapterByExternalId(m_nGroupID, adapter.ExternalIdentifier);
+                CDVRAdapter responseAdpater = DAL.ConditionalAccessDAL.GetCDVRAdapter(m_nGroupID, adapter.ID);
 
                 if (responseAdpater == null)
                 {
@@ -17131,7 +17131,9 @@ namespace ConditionalAccess
                     return response;
                 }
 
-                if (responseAdpater.ID > 0 && responseAdpater.ID != responseAdpater.ID)
+                CDVRAdapter responseAdpaterExternal = DAL.ConditionalAccessDAL.GetCDVRAdapterByExternalId(m_nGroupID, adapter.ExternalIdentifier);
+
+                if (responseAdpaterExternal != null && responseAdpaterExternal.ID != adapter.ID) 
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExternalIdentifierMustBeUnique, ERROR_EXT_ID_ALREADY_IN_USE);
                     return response;
