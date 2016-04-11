@@ -280,6 +280,10 @@ namespace ElasticSearchHandler.IndexBuilders
 
                 List<KeyValuePair<ulong, string>> epgList = new List<KeyValuePair<ulong, string>>();
 
+
+                // GetLinear Channel Values 
+                ElasticSearchTaskUtils.GetLinearChannelValues(programs.Values.ToList(), groupId);
+
                 // Run on all programs
                 foreach (ulong epgID in programs.Keys)
                 {

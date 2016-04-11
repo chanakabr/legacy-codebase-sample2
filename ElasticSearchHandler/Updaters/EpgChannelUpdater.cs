@@ -1,22 +1,22 @@
 ﻿using ApiObjects;
 using ElasticSearch.Common;
 using GroupsCacheManager;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using KLogMonitor;
-using System.Reflection;
-using Catalog;
-using Catalog.Cache;
 
-namespace ESIndexUpdateHandler.Updaters
+namespace ElasticSearchHandler.Updaters
 {
-    public class EpgUpdater : IUpdateable
+    class EpgChannelUpdater : IUpdateable
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public static readonly string EPG = "epg";
+        public static readonly int DAYS = 30;
 
 
         #region Data Members
@@ -36,7 +36,7 @@ namespace ESIndexUpdateHandler.Updaters
 
         #region Ctors
 
-        public EpgUpdater(int groupId)
+        public EpgChannelUpdater(int groupId)
         {
             this.groupId = groupId;
             esSerializer = new ElasticSearch.Common.ESSerializer();
@@ -68,15 +68,12 @@ namespace ESIndexUpdateHandler.Updaters
             switch (Action)
             {
                 case ApiObjects.eAction.Off:
-                case ApiObjects.eAction.Delete:
-                    result = DeleteEpg(IDs);
+                case ApiObjects.eAction.Delete:                    
                     break;
-
                 case ApiObjects.eAction.On:
                 case ApiObjects.eAction.Update:
-                    result = UpdateEpg(IDs);
+                    result = UpdateEpgChannel(IDs);
                     break;
-
                 default:
                     result = true;
                     break;
@@ -85,21 +82,28 @@ namespace ESIndexUpdateHandler.Updaters
             return result;
         }
 
+        
+
         #endregion
-
-        #region Private Methods
-
         private bool UpdateEpg(List<int> epgIds)
         {
             bool result = false;
 
             try
             {
+
+                EpgUpdater epgUpdater = new EpgUpdater(this.groupId);
+                epgUpdater.IDs = epgIds;
+                epgUpdater.Action = eAction.Update;
+
+                result = epgUpdater.Start();
+                /*
                 // get all languages per group
                 Group group = GroupsCache.Instance().GetGroup(this.groupId);
 
                 if (group == null)
                 {
+                    log.ErrorFormat("Couldn't get group {0}", this.groupId);
                     return false;
                 }
 
@@ -135,7 +139,8 @@ namespace ESIndexUpdateHandler.Updaters
 
                 List<EpgCB> epgObjects = programsTasks.SelectMany(t => t.Result).Where(t => t != null).ToList();
 
-                
+                // GetLinear Channel Values 
+                ElasticSearchTaskUtils.GetLinearChannelValues(epgObjects, this.groupId);
 
                 if (epgObjects != null & epgObjects.Count > 0)
                 {
@@ -175,7 +180,9 @@ namespace ESIndexUpdateHandler.Updaters
                             {
                                 foreach (var invalidResult in invalidResults)
                                 {
-                                    log.Error("Error - " + string.Format("Could not update media in ES. GroupID={0};Type={1};MediaID={2};serializedObj={3};", groupId, EPG, invalidResult.docID, invalidResult.document));
+                                    log.Error("Error - " + string.Format(
+                                        "Could not update EPG in ES. GroupID={0};Type={1};EPG_ID={2};serializedObj={3};",
+                                        groupId, EPG, invalidResult.docID, invalidResult.document));
                                 }
 
                                 result = false;
@@ -189,7 +196,8 @@ namespace ESIndexUpdateHandler.Updaters
                     }
 
                     result = temporaryResult;
-                }
+                 *
+                } */
             }
             catch (Exception ex)
             {
@@ -199,37 +207,47 @@ namespace ESIndexUpdateHandler.Updaters
 
             return result;
         }
-
-        private bool DeleteEpg(List<int> epgIDs)
+        
+        private bool UpdateEpgChannel(List<int> epgChannelIDs)
         {
             bool result = false;
 
-            if (epgIDs != null & epgIDs.Count > 0)
+            try
             {
-                List<ESBulkRequestObj<int>> bulkRequests = new List<ESBulkRequestObj<int>>();
-                string alias = ElasticsearchTasksCommon.Utils.GetEpgGroupAliasStr(groupId);
+                // get all languages per group
+                Group group = GroupsCache.Instance().GetGroup(this.groupId);
 
-                foreach (int epgId in epgIDs)
+                if (group == null)
                 {
-                    bulkRequests.Add(new ESBulkRequestObj<int>()
-                    {
-                        docID = epgId,
-                        index = alias,
-                        type = EPG,
-                        Operation = eOperation.delete
-                    });
+                    log.ErrorFormat("Couldn't get group {0}", this.groupId);
+                    return false;
+                }
+                if (epgChannelIDs == null || epgChannelIDs.Count == 0)
+                {
+                    log.ErrorFormat("No epgChannelIDs sent for group {0}", this.groupId);
+                    return false;
                 }
 
-                esApi.CreateBulkIndexRequest(bulkRequests);
+                // get all epg programs related to epg channel      
+                int days = TCMClient.Settings.Instance.GetValue<int>("Channel_StartDate_Days");
+                if (days == 0)
+                    days = DAYS;
+                
+                DateTime fromUTCDay = DateTime.UtcNow.AddDays(-days);                 
+                 DateTime toUTCDay = new DateTime(2100,12,01);
 
-                result = true;
+                 List<int> epgIds = Tvinci.Core.DAL.EpgDal.GetEpgProgramsByChannelIds(this.groupId, epgChannelIDs, fromUTCDay, toUTCDay);
+
+                result = UpdateEpg(epgIds);
+                
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error - " + string.Format("Update EPGs threw an exception. Exception={0};Stack={1}", ex.Message, ex.StackTrace), ex);
+                throw ex;
             }
 
             return result;
         }
-
-
-        #endregion
-
     }
 }

@@ -70,6 +70,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TaskHandler.cs" />
     <Compile Include="Updaters\ChannelUpdater.cs" />
+    <Compile Include="Updaters\EpgChannelUpdater.cs" />
     <Compile Include="Updaters\EpgUpdater.cs" />
     <Compile Include="Updaters\IUpdateable.cs" />
     <Compile Include="Updaters\MediaUpdater.cs" />

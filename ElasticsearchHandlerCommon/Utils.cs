@@ -429,6 +429,7 @@ namespace ElasticsearchTasksCommon
 
         #region Channels
 
+      
         public static UnifiedSearchDefinitions BuildSearchDefinitions(Channel channel, bool useMediaTypes)
         {
             UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();

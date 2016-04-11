@@ -12,6 +12,7 @@ using Catalog.Cache;
 using Tvinci.Core.DAL;
 using KLogMonitor;
 using System.Reflection;
+using Catalog;
 
 namespace ElasticSearchHandler
 {
@@ -147,6 +148,34 @@ namespace ElasticSearchHandler
                 log.ErrorFormat("Error GettingLanguages of group {0}. Exception: {1}", nGroupID, ex);
 
                 return new List<LanguageObj>();
+            }
+        }
+
+
+        // Get linear channel settings from catalog cache 
+        public static void GetLinearChannelValues(List<EpgCB> lEpg, int groupID)
+        {
+            try
+            {
+                List<string> epgChannelIds = lEpg.Distinct().Select(item => item.ChannelID.ToString()).ToList<string>();
+                Dictionary<string, LinearChannelSettings> linearChannelSettings = CatalogCache.Instance().GetLinearChannelSettings(groupID, epgChannelIds);
+
+                Parallel.ForEach(lEpg.Cast<EpgCB>(), currentElement =>
+                {
+                    if (linearChannelSettings.ContainsKey(currentElement.ChannelID.ToString()))
+                    {
+                        currentElement.SearchEndDate = currentElement.EndDate.AddMinutes(linearChannelSettings[currentElement.ChannelID.ToString()].CatchUpBuffer);
+                    }
+                    else
+                    {
+                        currentElement.SearchEndDate = currentElement.EndDate;
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error - " + string.Format("Update EPGs threw an exception. (in GetLinearChannelValues).  Exception={0};Stack={1}", ex.Message, ex.StackTrace), ex);
+                throw ex;
             }
         }
     }
