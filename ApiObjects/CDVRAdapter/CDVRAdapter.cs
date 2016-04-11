@@ -3,12 +3,15 @@ using System.Xml.Serialization;
 
 namespace ApiObjects
 {
-    public class CDVRAdapter : CDVRAdapterBase
+    public class CDVRAdapter 
     {
+        public int ID { get; set; }
+        public string Name { get; set; }
         public bool IsActive { get; set; }
         public string AdapterUrl { get; set; }
         public string ExternalIdentifier { get; set; }        
-        public string SharedSecret { get; set; } 
+        public string SharedSecret { get; set; }
+        public bool DynamicLinksSupport { get; set; } 
 
         public List<CDVRAdapterSettings> Settings { get; set; }
          
@@ -26,6 +29,7 @@ namespace ApiObjects
             this.ExternalIdentifier = cdvrAdapter.ExternalIdentifier;
             this.SharedSecret = cdvrAdapter.SharedSecret;
             this.Settings = cdvrAdapter.Settings;
+            this.DynamicLinksSupport = cdvrAdapter.DynamicLinksSupport;
         }
 
 
