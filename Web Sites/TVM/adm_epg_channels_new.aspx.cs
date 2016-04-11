@@ -1,9 +1,11 @@
-﻿using System;
+﻿using ApiObjects;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using TvinciImporter;
 using TVinciShared;
 
 public partial class adm_epg_channels_new : System.Web.UI.Page
@@ -26,7 +28,10 @@ public partial class adm_epg_channels_new : System.Web.UI.Page
         {
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
-                DBManipulator.DoTheWork();
+                int epgChannelID = DBManipulator.DoTheWork();
+                bool result = false;
+                int nGroupID = LoginManager.GetLoginGroupID();
+                result = ImporterImpl.UpdateEpgChannelIndex(new List<ulong>() { (ulong)epgChannelID }, nGroupID, eAction.Update);
                 return;
             }
             Int32 nMenuID = 0;
