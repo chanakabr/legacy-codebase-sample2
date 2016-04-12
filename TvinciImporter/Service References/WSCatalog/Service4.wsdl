@@ -7,7 +7,7 @@
       </wsp:All>
     </wsp:ExactlyOne>
   </wsp:Policy>
-  <wsdl:import namespace="" location="http://localhost:96/ws_catalog/Service.svc?wsdl=wsdl0" />
+  <wsdl:import namespace="" location="http://localhost/ws_catalog/Service.svc?wsdl=wsdl0" />
   <wsdl:types />
   <wsdl:binding name="WSHttpBinding_Iservice" type="Iservice">
     <wsp:PolicyReference URI="#WSHttpBinding_Iservice_policy" />
@@ -111,6 +111,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="UpdateEpgChannelIndex">
+      <soap12:operation soapAction="urn:Iservice/UpdateEpgChannelIndex" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="RebuildIndex">
       <soap12:operation soapAction="urn:Iservice/RebuildIndex" style="document" />
       <wsdl:input>
@@ -141,9 +150,9 @@
   </wsdl:binding>
   <wsdl:service name="Service">
     <wsdl:port name="WSHttpBinding_Iservice" binding="tns:WSHttpBinding_Iservice">
-      <soap12:address location="http://localhost:96/ws_catalog/Service.svc" />
+      <soap12:address location="http://localhost/ws_catalog/Service.svc" />
       <wsa10:EndpointReference>
-        <wsa10:Address>http://localhost:96/ws_catalog/Service.svc</wsa10:Address>
+        <wsa10:Address>http://localhost/ws_catalog/Service.svc</wsa10:Address>
       </wsa10:EndpointReference>
     </wsdl:port>
   </wsdl:service>
