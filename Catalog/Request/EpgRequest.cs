@@ -122,8 +122,9 @@ namespace Catalog.Request
                         {
                             List<string> EpgChannelIds = channel.Select(grp => grp.Value.ChannelID).ToList<string>();
                             long buffer = channel.Select(grp => grp.Value.CatchUpBuffer).FirstOrDefault();
-                            
-                            sro = Catalog.GetProgramIdsFromSearcher(BuildEPGSearchObject(buffer, EpgChannelIds));
+                            bool enableCatchUp = channel.Select(grp => grp.Value.EnableCatchUp).FirstOrDefault();
+
+                            sro = Catalog.GetProgramIdsFromSearcher(BuildEPGSearchObject(enableCatchUp ,buffer, EpgChannelIds));
                             if (sro != null && sro.m_resultIDs != null && sro.m_resultIDs.Count > 0)
                             {
                                 tempResponse = Catalog.GetEPGProgramsFromCB(sro.m_resultIDs.Select(item => item.assetID).ToList<int>(), m_nGroupID, m_eSearchType == EpgSearchType.Current, m_nChannelIDs);
@@ -149,9 +150,9 @@ namespace Catalog.Request
 
         public EpgSearchObj BuildEPGSearchObject()
         {
-            return BuildEPGSearchObject(0, null);
+            return BuildEPGSearchObject(false, 0, null);
         }
-        private EpgSearchObj BuildEPGSearchObject(long buffer = 0, List<string> EpgChannelIds = null)
+        private EpgSearchObj BuildEPGSearchObject(bool enableCatchUp, long buffer = 0, List<string> EpgChannelIds = null)
         {
             EpgSearchObj res = new EpgSearchObj();
             res.m_bSearchOnlyDatesAndChannels = true;
@@ -190,7 +191,8 @@ namespace Catalog.Request
                     }
             }
             DateTime StartDateTime = DateTime.UtcNow;
-            if (buffer > 0 && StartDateTime.AddMinutes(-buffer) > res.m_dStartDate)
+            // if enableCatchUp=true change the start time by the buffer
+            if (enableCatchUp && buffer > 0 && StartDateTime.AddMinutes(-buffer) > res.m_dStartDate)
             {
                 res.m_dStartDate = StartDateTime.AddMinutes(-buffer);
             }

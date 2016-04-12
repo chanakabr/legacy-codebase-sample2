@@ -134,8 +134,9 @@ namespace Catalog.Request
                         {
                             List<string> EpgChannelIds = channel.Select(grp => grp.Value.ChannelID).ToList<string>();
                             long buffer = channel.Select(grp => grp.Value.CatchUpBuffer).FirstOrDefault();
+                            bool enableCatchUp = channel.Select(grp => grp.Value.EnableCatchUp).FirstOrDefault();
 
-                            sro = Catalog.GetProgramIdsFromSearcher(BuildEPGSearchObject(buffer, EpgChannelIds));
+                            sro = Catalog.GetProgramIdsFromSearcher(BuildEPGSearchObject(enableCatchUp, buffer, EpgChannelIds));
                             if (sro != null && sro.m_resultIDs != null && sro.m_resultIDs.Count > 0)
                             {
                                 oResponse.m_nTotalItems += sro.n_TotalItems;
@@ -206,9 +207,9 @@ namespace Catalog.Request
 
         public EpgSearchObj BuildEPGSearchObject()
         {
-            return BuildEPGSearchObject(0, null);
+            return BuildEPGSearchObject(false, 0, null);
         }
-        private EpgSearchObj BuildEPGSearchObject(long buffer = 0, List<string> EpgChannelIds = null)
+        private EpgSearchObj BuildEPGSearchObject(bool enableCatchUp, long buffer = 0, List<string> EpgChannelIds = null)
         {
             EpgSearchObj res = null;
             ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
@@ -228,13 +229,13 @@ namespace Catalog.Request
             }
             else
             {
-                res = BuildEPGSearchObjectInner(buffer, EpgChannelIds);
+                res = BuildEPGSearchObjectInner(enableCatchUp, buffer, EpgChannelIds);
             }
 
             return res;
         }
 
-        private EpgSearchObj BuildEPGSearchObjectInner(long buffer = 0, List<string> EpgChannelIds = null)
+        private EpgSearchObj BuildEPGSearchObjectInner(bool enableCatchUp = false, long buffer = 0, List<string> EpgChannelIds = null)
         {
             List<string> lSearchList = new List<string>();
             EpgSearchObj searcherEpgSearch = new EpgSearchObj();
@@ -243,7 +244,7 @@ namespace Catalog.Request
             searcherEpgSearch.m_dEndDate = m_dEndDate;
             searcherEpgSearch.m_dStartDate = m_dStartDate;
             DateTime StartDateTime = DateTime.UtcNow;
-            if (buffer > 0 && StartDateTime.AddMinutes(-buffer) > searcherEpgSearch.m_dStartDate)
+            if (enableCatchUp && buffer > 0 && StartDateTime.AddMinutes(-buffer) > searcherEpgSearch.m_dStartDate)
             {
                 searcherEpgSearch.m_dStartDate = StartDateTime.AddMinutes(-buffer);
             }
