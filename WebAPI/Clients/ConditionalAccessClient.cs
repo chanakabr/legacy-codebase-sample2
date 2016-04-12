@@ -1111,5 +1111,18 @@ namespace WebAPI.Clients
 
             return adapter;
         }
+
+        internal List<KalturaRecording> GetRecordingsStatus(int groupdID, string userID, List<int> epgID)
+        {
+            List<KalturaRecording> response = new List<KalturaRecording>();
+            return response;
+        }
+
+        internal KalturaRecording Record(int groupdID, string userID, int epgID)
+        {
+            KalturaRecording response = null;
+            return response;
+        }
+
     }
 }
