@@ -541,7 +541,7 @@ namespace WebAPI.Filters
         {
             // get token from CB
             string tokenKey = string.Format(accessTokenKeyFormat, ksVal);
-            ApiToken token = cbManager.Get<ApiToken>(tokenKey);
+            ApiToken token = cbManager.Get<ApiToken>(tokenKey, true);
 
             if (token == null)
             {
