@@ -133,10 +133,8 @@ namespace Catalog.Request
                         foreach (var channel in groupedLinearChannelSettings)
                         {
                             List<string> EpgChannelIds = channel.Select(grp => grp.Value.ChannelID).ToList<string>();
-                            long buffer = channel.Select(grp => grp.Value.CatchUpBuffer).FirstOrDefault();
-                            bool enableCatchUp = channel.Select(grp => grp.Value.EnableCatchUp).FirstOrDefault();
-
-                            sro = Catalog.GetProgramIdsFromSearcher(BuildEPGSearchObject(enableCatchUp, buffer, EpgChannelIds));
+                          
+                            sro = Catalog.GetProgramIdsFromSearcher(BuildEPGSearchObject(EpgChannelIds));
                             if (sro != null && sro.m_resultIDs != null && sro.m_resultIDs.Count > 0)
                             {
                                 oResponse.m_nTotalItems += sro.n_TotalItems;
@@ -207,9 +205,9 @@ namespace Catalog.Request
 
         public EpgSearchObj BuildEPGSearchObject()
         {
-            return BuildEPGSearchObject(false, 0, null);
+            return BuildEPGSearchObject(null);
         }
-        private EpgSearchObj BuildEPGSearchObject(bool enableCatchUp, long buffer = 0, List<string> EpgChannelIds = null)
+        private EpgSearchObj BuildEPGSearchObject(List<string> EpgChannelIds = null)
         {
             EpgSearchObj res = null;
             ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
@@ -229,13 +227,13 @@ namespace Catalog.Request
             }
             else
             {
-                res = BuildEPGSearchObjectInner(enableCatchUp, buffer, EpgChannelIds);
+                res = BuildEPGSearchObjectInner(EpgChannelIds);
             }
 
             return res;
         }
 
-        private EpgSearchObj BuildEPGSearchObjectInner(bool enableCatchUp = false, long buffer = 0, List<string> EpgChannelIds = null)
+        private EpgSearchObj BuildEPGSearchObjectInner(List<string> EpgChannelIds = null)
         {
             List<string> lSearchList = new List<string>();
             EpgSearchObj searcherEpgSearch = new EpgSearchObj();
@@ -244,10 +242,9 @@ namespace Catalog.Request
             searcherEpgSearch.m_dEndDate = m_dEndDate;
             searcherEpgSearch.m_dStartDate = m_dStartDate;
             DateTime StartDateTime = DateTime.UtcNow;
-            if (enableCatchUp && buffer > 0 && StartDateTime.AddMinutes(-buffer) > searcherEpgSearch.m_dStartDate)
-            {
-                searcherEpgSearch.m_dStartDate = StartDateTime.AddMinutes(-buffer);
-            }
+
+            searcherEpgSearch.m_dSearchEndDate = DateTime.UtcNow;
+           
 
             //deafult values for OrderBy object 
             searcherEpgSearch.m_bDesc = true;

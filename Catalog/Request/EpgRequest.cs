@@ -121,10 +121,8 @@ namespace Catalog.Request
                         foreach (var channel in groupedLinearChannelSettings)
                         {
                             List<string> EpgChannelIds = channel.Select(grp => grp.Value.ChannelID).ToList<string>();
-                            long buffer = channel.Select(grp => grp.Value.CatchUpBuffer).FirstOrDefault();
-                            bool enableCatchUp = channel.Select(grp => grp.Value.EnableCatchUp).FirstOrDefault();
-
-                            sro = Catalog.GetProgramIdsFromSearcher(BuildEPGSearchObject(enableCatchUp ,buffer, EpgChannelIds));
+                            
+                            sro = Catalog.GetProgramIdsFromSearcher(BuildEPGSearchObject(EpgChannelIds));
                             if (sro != null && sro.m_resultIDs != null && sro.m_resultIDs.Count > 0)
                             {
                                 tempResponse = Catalog.GetEPGProgramsFromCB(sro.m_resultIDs.Select(item => item.assetID).ToList<int>(), m_nGroupID, m_eSearchType == EpgSearchType.Current, m_nChannelIDs);
@@ -147,12 +145,12 @@ namespace Catalog.Request
 
             return response;
         }
-
         public EpgSearchObj BuildEPGSearchObject()
         {
-            return BuildEPGSearchObject(false, 0, null);
+            return BuildEPGSearchObject(null);
         }
-        private EpgSearchObj BuildEPGSearchObject(bool enableCatchUp, long buffer = 0, List<string> EpgChannelIds = null)
+              
+        private EpgSearchObj BuildEPGSearchObject(List<string> EpgChannelIds = null)
         {
             EpgSearchObj res = new EpgSearchObj();
             res.m_bSearchOnlyDatesAndChannels = true;
@@ -190,12 +188,8 @@ namespace Catalog.Request
                         break;
                     }
             }
-            DateTime StartDateTime = DateTime.UtcNow;
-            // if enableCatchUp=true change the start time by the buffer
-            if (enableCatchUp && buffer > 0 && StartDateTime.AddMinutes(-buffer) > res.m_dStartDate)
-            {
-                res.m_dStartDate = StartDateTime.AddMinutes(-buffer);
-            }
+            // for Buffer ....
+            res.m_dSearchEndDate = DateTime.UtcNow;
 
             return res;
         }     
