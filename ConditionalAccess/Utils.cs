@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.Response;
+using ApiObjects.TimeShiftedTv;
 using ConditionalAccess.TvinciDomains;
 using ConditionalAccess.TvinciPricing;
 using ConditionalAccess.TvinciUsers;
@@ -4147,6 +4148,36 @@ namespace ConditionalAccess
             }
             
             return channelsList;
+        }
+
+        internal static TimeShiftedTvPartnerSettings GetTimeShiftedTvPartnerSettings(int groupID)
+        {
+            TimeShiftedTvPartnerSettings settings = null;
+
+            try
+            {
+                DataRow dr = DAL.ApiDAL.GetTimeShiftedTvPartnerSettings(groupID);
+                if (dr != null)
+                {
+                    int catchup = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_catch_up", -1);
+                    int cdvr = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_cdvr", -1);
+                    int startOver = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_start_over", -1);
+                    int trickPlay = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_trick_play", -1);
+                    int catchUpBuffer = ODBCWrapper.Utils.GetIntSafeVal(dr, "catch_up_buffer", -1);
+                    int trickPlayBuffer = ODBCWrapper.Utils.GetIntSafeVal(dr, "trick_play_buffer", -1);
+                    if (catchup > -1 && cdvr > -1 && startOver > -1 && trickPlay > -1 && catchUpBuffer > -1 && trickPlayBuffer > -1)
+                    {
+                        settings = new TimeShiftedTvPartnerSettings(catchup == 1, cdvr == 1, startOver == 1, trickPlay == 1, catchUpBuffer, trickPlayBuffer);
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error("GetTimeShiftedTvPartnerSettings - " + string.Format("Error in GetTimeShiftedTvPartnerSettings: groupID = {0} ex = {1}", groupID, ex.Message, ex.StackTrace), ex);
+            }
+
+            return settings;
         }
 
     }

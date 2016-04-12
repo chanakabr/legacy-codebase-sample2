@@ -563,5 +563,16 @@ namespace ApiObjects
         SignatureMismatch = 2,
         NoConfigurationFound = 3
     }
+
+    public enum TstvRecordingStatus
+    {
+        Scheduled = 0,
+        Recording = 1,
+        Recorded = 2,
+        Canceled = 3,
+        Failed = 4,
+        Not_recorded = 5,
+        Deleted = 6
+    }
    
 }

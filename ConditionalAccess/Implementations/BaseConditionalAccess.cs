@@ -3,6 +3,7 @@ using ApiObjects.Billing;
 using ApiObjects.MediaIndexingObjects;
 using ApiObjects.PlayCycle;
 using ApiObjects.Response;
+using ApiObjects.TimeShiftedTv;
 using ConditionalAccess.Response;
 using ConditionalAccess.TvinciPricing;
 using ConditionalAccess.TvinciUsers;
@@ -17213,5 +17214,126 @@ namespace ConditionalAccess
             }
             return false;
         }
+
+        public RecordingResponse Record(string userID, int epgID)
+        {
+            RecordingResponse response = new RecordingResponse();            
+            try
+            {
+                RecordingsResponse recordings = QueryRecords(userID, new List<int>() { epgID });
+                if (recordings == null || recordings.Status == null)
+                {
+                    return response;
+                }
+                else if (recordings.Status.Code != (int)eResponseStatus.OK)
+                {
+                    response.Status = new ApiObjects.Response.Status(recordings.Status.Code, recordings.Status.Message);
+                }
+                else if (recordings.Recordings != null && recordings.Recordings.Count > 0)
+                {
+                    response = recordings.Recordings[0];
+                    if (response.Status != null && response.Status.Code != (int)eResponseStatus.OK)
+                    {
+                        return response;
+                    }
+                    /*********************************************************************************************
+                    /* check if recording already exists (by recordingID or TstvRecordingStatus)
+                     * if it does return the existing response, if not run Sunnys Record method and return it's response 
+                     ***********************************************************************************************/
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder("Exception at Record. ");                
+                sb.Append(String.Concat("userID: ", userID));
+                sb.Append(String.Concat(", epgID: ", epgID));
+                sb.Append(String.Concat(", Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(", Stack Trace: ", ex.StackTrace));
+
+                log.Error(sb.ToString(), ex);
+            }
+
+            return response;
+        }
+
+        public RecordingsResponse QueryRecords(string userID, List<int> epgIDs)
+        {
+            RecordingsResponse response = new RecordingsResponse();
+            try
+            {
+                long domainID = 0;
+                ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userID, ref domainID);
+                if (validationStatus.Code != (int)eResponseStatus.OK)
+                {
+                    response.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
+                    return response;
+                }
+
+                TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
+                if (accountSettings == null || !(accountSettings.IsCdvrEnabled.HasValue && accountSettings.IsCdvrEnabled.Value))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AccountCdvrNotEnabled, eResponseStatus.AccountCdvrNotEnabled.ToString());
+                    return response;
+                }
+
+                if (!IsServiceAllowed(m_nGroupID, (int)domainID, eService.NPVR))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ServiceNotAllowed, eResponseStatus.ServiceNotAllowed.ToString());
+                    return response;
+                }
+
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+                foreach (int epgID in epgIDs)
+                {
+                    response.Recordings.Add(QueryRecord(epgID, domainID));
+                }
+            }
+
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder("Exception at QueryRecords. ");
+                sb.Append(String.Concat("userID: ", userID));
+                sb.Append(", epgIDs: ");
+                foreach (int epgID in epgIDs)
+                {
+                    sb.Append(String.Concat(epgID, ", "));
+                }                
+                sb.Append(String.Concat("Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(", Stack Trace: ", ex.StackTrace));
+
+                log.Error(sb.ToString(), ex);
+            }
+
+            return response;
+        }
+
+        public RecordingResponse QueryRecord(int epgID, long domainID)
+        {
+            RecordingResponse response = new RecordingResponse();
+            try
+            {
+                /********************************************************
+                 * Add all the needed validations and if they pass check if record already exists for domain
+                 *******************************************************/
+            }
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder("Exception at QueryRecords. ");
+                sb.Append(String.Concat("epgID: ", epgID));
+                sb.Append(String.Concat("domainID: ", domainID));      
+                sb.Append(String.Concat("Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(", Stack Trace: ", ex.StackTrace));
+
+                log.Error(sb.ToString(), ex);
+            }
+
+            return response;
+        }
+
     }
 }
