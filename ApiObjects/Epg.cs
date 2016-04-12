@@ -81,6 +81,10 @@ namespace ApiObjects
         [JsonProperty("enable_trick_play", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
         public int EnableTrickPlay { get; set; }
 
+        [JsonProperty("search_end_date", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        [JsonConverter(typeof(EpgTimeConverter))]
+        public DateTime SearchEndDate { get; set; }
+
         public EpgCB()
         {
             EpgID = 0;

@@ -155,6 +155,7 @@ namespace ApiObjects.Response
         UserParentalRuleNotExists = 5021,
         TimeShiftedTvPartnerSettingsNotFound = 5022,
         TimeShiftedTvPartnerSettingsNotSent = 5023,
+        TimeShiftedTvPartnerSettingsNegativeBufferSent = 5024,
 
         // Billing 6000 - 6999
         IncorrectPrice = 6000,

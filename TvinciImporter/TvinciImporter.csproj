@@ -432,8 +432,8 @@
     <Content Include="obj\Release\TvinciImporter.csproj.FileListAbsolute.txt" />
     <Content Include="obj\Release\TvinciImporter.dll" />
     <Content Include="obj\Release\TvinciImporter.pdb" />
-    <None Include="Service References\Notification_WCF\NotificationService.disco" />
     <None Include="Service References\WSCatalog\Service2.disco" />
+    <None Include="Service References\Notification_WCF\NotificationService.disco" />
     <None Include="Service References\WSCatalog\Service1.disco" />
     <None Include="Service References\WSCatalog\Reference.svcmap">
       <Generator>WCF Proxy Generator</Generator>

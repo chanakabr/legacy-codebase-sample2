@@ -1460,7 +1460,7 @@ namespace ConditionalAccess
                                                             {
                                                                 // Set end date according to subscription's usage module full life cycle
                                                                 // This data is in MINUTES
-                                                                endDate = startDate.AddMinutes(theSub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle);
+                                                                endDate = Utils.GetEndDateTime(startDate, theSub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle);
 
                                                                 shouldAddTimeToEndDate = false;
                                                             }
@@ -1496,7 +1496,7 @@ namespace ConditionalAccess
                                                                 {
                                                                     // Set end date according to subscription's usage module full life cycle
                                                                     // This data is in MINUTES
-                                                                    endDate = startDate.AddMinutes(theSub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle);
+                                                                    endDate = Utils.GetEndDateTime(startDate, theSub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle);
 
                                                                     shouldAddTimeToEndDate = false;
                                                                 }
@@ -1553,7 +1553,7 @@ namespace ConditionalAccess
                                                             {
                                                                 // Set end date according to subscription's usage module full life cycle
                                                                 // This data is in MINUTES
-                                                                endDate = startDate.AddMinutes(theSub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle);
+                                                                endDate = Utils.GetEndDateTime(startDate, theSub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle);
 
                                                                 shouldAddTimeToEndDate = false;
                                                             }
@@ -1580,6 +1580,9 @@ namespace ConditionalAccess
                                             {
                                                 endDate = endDate.AddHours(6);
                                             }
+
+                                            if (startDate > DateTime.UtcNow)
+                                                startDate = DateTime.UtcNow;
 
                                             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", endDate);
                                             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", startDate);
@@ -17123,7 +17126,7 @@ namespace ConditionalAccess
                 adapter.SharedSecret = null;
 
                 //check External Identifier uniqueness 
-                CDVRAdapter responseAdpater = DAL.ConditionalAccessDAL.GetCDVRAdapterByExternalId(m_nGroupID, adapter.ExternalIdentifier);
+                CDVRAdapter responseAdpater = DAL.ConditionalAccessDAL.GetCDVRAdapter(m_nGroupID, adapter.ID);
 
                 if (responseAdpater == null)
                 {
@@ -17131,7 +17134,9 @@ namespace ConditionalAccess
                     return response;
                 }
 
-                if (responseAdpater.ID > 0 && responseAdpater.ID != responseAdpater.ID)
+                CDVRAdapter responseAdpaterExternal = DAL.ConditionalAccessDAL.GetCDVRAdapterByExternalId(m_nGroupID, adapter.ExternalIdentifier);
+
+                if (responseAdpaterExternal != null && responseAdpaterExternal.ID != adapter.ID) 
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExternalIdentifierMustBeUnique, ERROR_EXT_ID_ALREADY_IN_USE);
                     return response;

@@ -2193,6 +2193,7 @@ namespace DAL
                 adapterResponse.IsActive = is_Active == 1 ? true : false;
                 adapterResponse.Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "name");
                 adapterResponse.SharedSecret = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "shared_secret");
+                adapterResponse.DynamicLinksSupport = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "dynamic_links_support") == 1 ? true : false;
 
                 if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
                 {
@@ -2241,6 +2242,7 @@ namespace DAL
                 sp.AddParameter("@name", adapter.Name);
                 sp.AddParameter("@adapter_url", adapter.AdapterUrl);
                 sp.AddParameter("@external_identifier", adapter.ExternalIdentifier);
+                sp.AddParameter("@dynamic_links_support", adapter.DynamicLinksSupport);
                 sp.AddParameter("@shared_secret", adapter.SharedSecret);
                 sp.AddParameter("@isActive", adapter.IsActive);
 
@@ -2290,7 +2292,7 @@ namespace DAL
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CDVRAdapter");
                 sp.SetConnectionKey("CONNECTION_STRING");
-                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@groupID", groupID);
                 sp.AddParameter("@id", adapterId);
                 sp.AddParameter("@status", status);
                 if (isActive.HasValue)
@@ -2340,6 +2342,8 @@ namespace DAL
                                 ExternalIdentifier = ODBCWrapper.Utils.GetSafeStr(dr, "external_identifier"),
                                 IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active") == 0 ? false : true,
                                 SharedSecret = ODBCWrapper.Utils.GetSafeStr(dr, "shared_secret"),
+                                DynamicLinksSupport = ODBCWrapper.Utils.GetIntSafeVal(dr, "dynamic_links_support") == 1 ? true : false
+
                             };
                             res.Add(adapter);
                         }
@@ -2387,7 +2391,7 @@ namespace DAL
                 sp.AddParameter("@groupId", groupID);
                 sp.AddParameter("@id", adapterId);
                 sp.AddParameter("@sharedSecret", sharedSecret);
-
+               
                 DataSet ds = sp.ExecuteDataSet();
 
                 adapterResponse = CreateCDVRAdapter(ds);
@@ -2406,7 +2410,6 @@ namespace DAL
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_CDVRAdapter");
                 sp.SetConnectionKey("CONNECTION_STRING");
-                sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@ID", adapterId);
                 bool isDelete = sp.ExecuteReturnValue<bool>();
                 return isDelete;
@@ -2424,13 +2427,16 @@ namespace DAL
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_CDVRAdapter");
                 sp.SetConnectionKey("CONNECTION_STRING");
-                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@groupID", groupID);
                 sp.AddParameter("@ID", adapter.ID);
                 sp.AddParameter("@name", adapter.Name);
                 sp.AddParameter("@external_identifier", adapter.ExternalIdentifier);
                 sp.AddParameter("@shared_secret", adapter.SharedSecret);
+                sp.AddParameter("@dynamic_links_support", adapter.DynamicLinksSupport);
                 sp.AddParameter("@adapter_url", adapter.AdapterUrl);
                 sp.AddParameter("@isActive", adapter.IsActive);
+                DataTable dt = CreateDataTable(adapter.Settings);
+                sp.AddDataTableParameter("@KeyValueList", dt);
 
                 DataSet ds = sp.ExecuteDataSet();
 

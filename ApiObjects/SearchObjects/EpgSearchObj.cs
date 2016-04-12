@@ -25,6 +25,7 @@ namespace ApiObjects.SearchObjects
 
         public DateTime m_dStartDate { get; set; }
         public DateTime m_dEndDate { get; set; }
+        public DateTime m_dSearchEndDate { get; set; }
         public int m_nProgramID { get; set; }
         public int m_nGroupID { get; set; }    // ParentGroup  
         public int m_nPageIndex { get; set; }
@@ -42,6 +43,7 @@ namespace ApiObjects.SearchObjects
 
             m_dStartDate = DateTime.UtcNow;
             m_dEndDate = DateTime.UtcNow.AddDays(7);
+            m_dSearchEndDate = DateTime.UtcNow;
 
             m_bSearchAnd = false;
             m_bDesc = false;
