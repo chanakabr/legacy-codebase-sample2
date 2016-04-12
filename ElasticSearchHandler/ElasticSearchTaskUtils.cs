@@ -162,14 +162,13 @@ namespace ElasticSearchHandler
 
                 Parallel.ForEach(lEpg.Cast<EpgCB>(), currentElement =>
                 {
-                    if (linearChannelSettings.ContainsKey(currentElement.ChannelID.ToString()))
+                    currentElement.SearchEndDate = currentElement.EndDate;
+
+                    if (linearChannelSettings.ContainsKey(currentElement.ChannelID.ToString()) && linearChannelSettings[currentElement.ChannelID.ToString()].EnableCatchUp)
                     {
                         currentElement.SearchEndDate = currentElement.EndDate.AddMinutes(linearChannelSettings[currentElement.ChannelID.ToString()].CatchUpBuffer);
                     }
-                    else
-                    {
-                        currentElement.SearchEndDate = currentElement.EndDate;
-                    }
+                    
                 });
             }
             catch (Exception ex)
