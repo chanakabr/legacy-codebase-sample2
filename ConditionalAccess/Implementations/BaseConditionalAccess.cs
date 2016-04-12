@@ -1439,7 +1439,7 @@ namespace ConditionalAccess
                                                             {
                                                                 // Set end date according to subscription's usage module full life cycle
                                                                 // This data is in MINUTES
-                                                                endDate = startDate.AddMinutes(theSub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle);
+                                                                endDate = Utils.GetEndDateTime(startDate, theSub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle);
 
                                                                 shouldAddTimeToEndDate = false;
                                                             }
@@ -1475,7 +1475,7 @@ namespace ConditionalAccess
                                                                 {
                                                                     // Set end date according to subscription's usage module full life cycle
                                                                     // This data is in MINUTES
-                                                                    endDate = startDate.AddMinutes(theSub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle);
+                                                                    endDate = Utils.GetEndDateTime(startDate, theSub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle);
 
                                                                     shouldAddTimeToEndDate = false;
                                                                 }
@@ -1532,7 +1532,7 @@ namespace ConditionalAccess
                                                             {
                                                                 // Set end date according to subscription's usage module full life cycle
                                                                 // This data is in MINUTES
-                                                                endDate = startDate.AddMinutes(theSub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle);
+                                                                endDate = Utils.GetEndDateTime(startDate, theSub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle);
 
                                                                 shouldAddTimeToEndDate = false;
                                                             }
@@ -1559,6 +1559,9 @@ namespace ConditionalAccess
                                             {
                                                 endDate = endDate.AddHours(6);
                                             }
+
+                                            if (startDate > DateTime.UtcNow)
+                                                startDate = DateTime.UtcNow;
 
                                             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", endDate);
                                             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", startDate);
