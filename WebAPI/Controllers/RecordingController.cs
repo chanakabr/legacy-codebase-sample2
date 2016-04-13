@@ -32,7 +32,7 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
                 // call client                
-                response = ClientsManager.ConditionalAccessClient().GetRecordingsStatus(groupId, userId, epgIDs);
+                response = ClientsManager.ConditionalAccessClient().QueryRecords(groupId, userId, epgIDs);
             }
             catch (ClientException ex)
             {
