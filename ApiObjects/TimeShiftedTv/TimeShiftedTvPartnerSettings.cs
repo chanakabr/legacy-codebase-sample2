@@ -13,14 +13,14 @@ namespace ApiObjects.TimeShiftedTv
         public bool? IsCdvrEnabled { get; set; }
         public bool? IsStartOverEnabled { get; set; }
         public bool? IsTrickPlayEnabled { get; set; }
-        public int? CatchUpBufferLength { get; set; }
-        public int? TrickPlayBufferLength { get; set; }        
+        public long? CatchUpBufferLength { get; set; }
+        public long? TrickPlayBufferLength { get; set; }        
 
         public TimeShiftedTvPartnerSettings()
         {
         }
 
-        public TimeShiftedTvPartnerSettings(bool? isCatchUpEnabled, bool? isCdvrEnabled, bool? isStartOverEnabled, bool? isTrickPlayEnabled, int? catchUpBufferLength, int? trickPlayBufferLength)
+        public TimeShiftedTvPartnerSettings(bool? isCatchUpEnabled, bool? isCdvrEnabled, bool? isStartOverEnabled, bool? isTrickPlayEnabled, long? catchUpBufferLength, long? trickPlayBufferLength)
         {
             this.IsCatchUpEnabled = isCatchUpEnabled;
             this.IsCdvrEnabled = isCdvrEnabled;
