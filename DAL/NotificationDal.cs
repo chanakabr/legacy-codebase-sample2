@@ -1134,5 +1134,44 @@ namespace DAL
 
             return passed;
         }
+
+        public static List<DbAnnouncement> GetAnnouncements(int groupId)
+        {
+            List<DbAnnouncement> result = null;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAnnouncementsByGroupId");
+                sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    result = new List<DbAnnouncement>();
+                    DbAnnouncement dbAnnouncement = null;
+                    foreach (DataRow row in ds.Tables[0].Rows)
+                    {
+                        int recipientType = ODBCWrapper.Utils.GetIntSafeVal(row, "recipient_type");
+
+                        dbAnnouncement = new DbAnnouncement()
+                        {
+                            ID = ODBCWrapper.Utils.GetIntSafeVal(row, "id"),
+                            ExternalId = ODBCWrapper.Utils.GetSafeStr(row, "external_id"),
+                            FollowPhrase = ODBCWrapper.Utils.GetSafeStr(row, "follow_phrase"),
+                            RecipientsType = Enum.IsDefined(typeof(eAnnouncementRecipientsType), recipientType) ? (eAnnouncementRecipientsType)recipientType : eAnnouncementRecipientsType.All
+                        };
+
+                        result.Add(dbAnnouncement);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at GetAnnouncementsByGroupId. groupId: {0}. Error {1}", groupId, ex);
+            }
+
+            return result;
+        }
     }
 }
