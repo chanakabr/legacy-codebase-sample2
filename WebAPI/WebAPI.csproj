@@ -981,6 +981,7 @@
     <Compile Include="Controllers\AppTokenController.cs" />
     <Compile Include="Controllers\AssetController.cs" />
     <Compile Include="Controllers\CDVRAdapterProfileController.cs" />
+    <Compile Include="Controllers\RecordingController.cs" />
     <Compile Include="Controllers\LicensedUrlController.cs" />
     <Compile Include="Controllers\HomeNetworkController.cs" />
     <Compile Include="Controllers\NotificationController.cs" />
@@ -1089,6 +1090,8 @@
     <Compile Include="Models\Catalog\PersonalEnrichments\KalturaPersonalAssetRequest.cs" />
     <Compile Include="Models\Catalog\PersonalEnrichments\KalturaPersonalAssetWith.cs" />
     <Compile Include="Models\Catalog\KalturaAssetsBookmarksResponse.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaRecording.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaRecordingStatus.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaStreamType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaLicensedUrl.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingAction.cs" />
@@ -1370,7 +1373,6 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Models\API\KSQLChannel\" />
-    <Folder Include="Models\TimeShiftedTv\" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
