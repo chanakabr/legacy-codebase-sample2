@@ -71,7 +71,7 @@ namespace Recordings
 
                 recording.ExternalRecordingId = externalRecordingId;
 
-                ConditionalAccessDAL.InsertRecording(recording, groupId);
+                recording = ConditionalAccessDAL.InsertRecording(recording, groupId);
             }
 
             return recording;

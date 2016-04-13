@@ -574,5 +574,10 @@ namespace ApiObjects
         Not_recorded = 5,
         Deleted = 6
     }
+
+    public enum eRecordingTask
+    {
+        GetStatusAfterProgramEnded = 1,
+    }
    
 }

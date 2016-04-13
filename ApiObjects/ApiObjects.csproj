@@ -161,6 +161,7 @@
     <Compile Include="QueueObjects\ImageUploadData.cs" />
     <Compile Include="QueueObjects\ExportTaskData.cs" />
     <Compile Include="QueueObjects\MessageAnnouncementData.cs" />
+    <Compile Include="QueueObjects\RecordingTaskData.cs" />
     <Compile Include="QueueObjects\UserNotificationData.cs" />
     <Compile Include="RecommendationEngine\RecommendationEngineResponse.cs" />
     <Compile Include="RecommendationEngine\RecommendationEngineResponseList.cs" />
