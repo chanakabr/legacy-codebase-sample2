@@ -103,8 +103,8 @@ namespace ApiObjects.Response
         InvalidCustomDataIdentifier = 3030,
         InvalidFileType = 3031,
         NotEntitled = 3032,
-        AccountCdvrNotEnabled = 3032,
-        AccountCatchUpNotEnabled = 3033,
+        AccountCdvrNotEnabled = 3033,
+        AccountCatchUpNotEnabled = 3034,
 
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,
