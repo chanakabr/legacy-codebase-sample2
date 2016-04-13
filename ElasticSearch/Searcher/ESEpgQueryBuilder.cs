@@ -212,6 +212,7 @@ namespace ElasticSearch.Searcher
 
                     datesContraints.AddChild(startDateRange);
                     datesContraints.AddChild(endDateRange);
+                    datesContraints.AddChild(searchEndDateRange);
 
                     filterComposite.AddChild(isActiveTerm);
                     filterComposite.AddChild(datesContraints);
