@@ -103,5 +103,23 @@ namespace Recordings
         }
 
         #endregion
+
+        public Recording GetRecordingStatus(int groupId, long recordingId)
+        {
+            Recording result = null;
+
+            Recording currentRecording = ConditionalAccessDAL.GetRecordingByRecordingId(recordingId);
+
+            if (currentRecording != null)
+            {
+                // TODO: Call Adapter to check status of recording,
+                // 
+                // TODO: Update recording object according to response from adapter
+
+                ConditionalAccessDAL.UpdateRecording(currentRecording, groupId);
+            }
+
+            return result;
+        }
     }
 }

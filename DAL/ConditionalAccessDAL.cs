@@ -2486,5 +2486,43 @@ namespace DAL
             //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_NAME", "=", sDEVICE_NAME);
             return recording;
         }
+
+        public static Recording GetRecordingByRecordingId(long recordingId)
+        {
+            Recording recording = null;
+
+            DataRow row = ODBCWrapper.Utils.GetTableSingleRowByValue("recordings", "ID", recordingId, true);
+
+            if (row != null)
+            {
+                recording = new Recording();
+                recording.EpgID = ODBCWrapper.Utils.ExtractValue<long>(row, "EPG_PROGRAM_ID");
+                recording.RecordingID = ODBCWrapper.Utils.ExtractValue<long>(row, "ID");
+                recording.RecordingStatus = (TstvRecordingStatus)ODBCWrapper.Utils.ExtractInteger(row, "RECORDING_STATUS");
+                recording.ExternalRecordingId = ODBCWrapper.Utils.ExtractString(row, "EXTERNAL_RECORDING_ID");
+                recording.StartDate = ODBCWrapper.Utils.ExtractDateTime(row, "START_DATE");
+                recording.EndDate = ODBCWrapper.Utils.ExtractDateTime(row, "END_DATE");
+            }
+
+            return recording;
+        }
+
+        public static bool UpdateRecording(Recording currentRecording, int groupId)
+        {
+            bool result = false;
+
+            var updateQuery = new ODBCWrapper.UpdateQuery("recordings");
+            //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
+            //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SUBSCRIPTION_CODE", "=", sSubscriptionCode);
+            //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sSiteGUID);
+            //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("PRICE", "=", dPrice);
+            //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CURRENCY_CD", "=", sCurrency);
+            //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CUSTOMDATA", "=", sCustomData);
+            //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("NUM_OF_USES", "=", 0);
+            //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("COUNTRY_CODE", "=", sCountryCd);
+            //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("LANGUAGE_CODE", "=", sLANGUAGE_CODE);
+            //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_NAME", "=", sDEVICE_NAME);
+            return result;
+        }
     }
 }
