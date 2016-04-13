@@ -1149,6 +1149,7 @@ namespace Users
         public string m_sSiteGUID;
         public int m_domianID;
         public bool m_isDomainMaster;
-        public int m_nSSOOperatorID;        
+        public int m_nSSOOperatorID;
+        public bool IsActivationGracePeriod;
     }
 }

@@ -317,7 +317,7 @@ namespace Users
         public abstract UserResponseObject ActivateAccount(string sUN, string sToken);
         public abstract UserResponseObject ActivateAccountByDomainMaster(string sMasterUN, string sUN, string sToken);
         public abstract bool IsUserActivated(ref string sUserName, ref Int32 nUserID);
-        public abstract UserActivationState GetUserActivationStatus(ref string sUserName, ref Int32 nUserID);
+        public abstract UserActivationState GetUserActivationStatus(ref string sUserName, ref Int32 nUserID, ref bool isGracePeriod);
         public abstract bool SendPasswordMail(string sUN);
 
         public virtual bool IsUserActivated(Int32 nUserID)
@@ -1024,7 +1024,8 @@ namespace Users
             if (parse)
             {
                 string userName = string.Empty;
-                activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(groupID, 0, ref userName, ref userId);
+                bool isGracePeriod = false;
+                activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(groupID, 0, ref userName, ref userId, ref isGracePeriod);
             }
             if (userId <= 0)
             {

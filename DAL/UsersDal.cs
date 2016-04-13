@@ -1166,7 +1166,7 @@ namespace DAL
         ///      3 - user removed from domain
         ///      
         /// </returns>
-        public static DALUserActivationState GetUserActivationState(int nParentGroupID, int nActivationMustHours, ref string sUserName, ref int nUserID)
+        public static DALUserActivationState GetUserActivationState(int nParentGroupID, int nActivationMustHours, ref string sUserName, ref int nUserID, ref bool isGracePeriod)
         {
             DALUserActivationState res = DALUserActivationState.Error;
 
@@ -1210,6 +1210,7 @@ namespace DAL
                             else
                             {
                                 res = DALUserActivationState.Activated;
+                                isGracePeriod = true;
                             }
                         }
 
@@ -1232,10 +1233,6 @@ namespace DAL
                             else if (isSuspended)
                             {
                                 res = DALUserActivationState.UserDomainSuspended;
-                            }
-                            else if (res == DALUserActivationState.NotActivated && isMaster)
-                            {
-                                res = DALUserActivationState.Activated;
                             }
                         }
 

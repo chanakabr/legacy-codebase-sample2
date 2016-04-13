@@ -86,28 +86,28 @@ namespace Users
 
         public override bool IsUserActivated(ref string sUserName, ref Int32 nUserID)
         {
-
-            UserActivationState nAS = GetUserActivationStatus(ref sUserName, ref nUserID);
+            bool isGracePeriod = false;
+            UserActivationState nAS = GetUserActivationStatus(ref sUserName, ref nUserID, ref isGracePeriod);
 
             return nAS == UserActivationState.Activated;
 
         }
 
-        public override UserActivationState GetUserActivationStatus(ref string sUserName, ref Int32 nUserID)
+        public override UserActivationState GetUserActivationStatus(ref string sUserName, ref Int32 nUserID, ref bool isGracePeriod)
         {
             if (!IsActivationNeeded(null))
             {
                 return UserActivationState.Activated;
             }
 
-            UserActivationState activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(m_nGroupID, m_nActivationMustHours, ref sUserName, ref nUserID);
+            UserActivationState activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(m_nGroupID, m_nActivationMustHours, ref sUserName, ref nUserID, ref isGracePeriod);
 
             return activStatus;
         }
 
-        public UserActivationState GetUserStatus(ref string sUserName, ref Int32 nUserID)
+        public UserActivationState GetUserStatus(ref string sUserName, ref Int32 nUserID, ref bool isGracePeriod)
         {
-            UserActivationState activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(m_nGroupID, m_nActivationMustHours, ref sUserName, ref nUserID);
+            UserActivationState activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(m_nGroupID, m_nActivationMustHours, ref sUserName, ref nUserID, ref isGracePeriod);
 
             return activStatus;
         }
@@ -135,8 +135,8 @@ namespace Users
         {
             Int32 nUserID = -2;
 
-            //  UserActivationState nActivationStatus = GetUserActivationStatus(ref sUN, ref nUserID);
-            UserActivationState nUserStatus = GetUserStatus(ref sUN, ref nUserID);
+            bool isGracePeriod = false;
+            UserActivationState nUserStatus = GetUserStatus(ref sUN, ref nUserID, ref isGracePeriod);
 
             if (nUserStatus != UserActivationState.Activated)
             {
@@ -190,7 +190,13 @@ namespace Users
                 }
             }
 
-            return User.SignIn(sUN, sPass, 3, 3, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins);
+            var response =  User.SignIn(sUN, sPass, 3, 3, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins);
+            if (response != null && response.m_user != null)
+            {
+                response.m_user.IsActivationGracePeriod = isGracePeriod;
+            }
+
+            return response;
         }
 
         public override DomainResponseObject AddNewDomain(string sUN, int nUserID, int nGroupID)
@@ -212,8 +218,8 @@ namespace Users
         {
             string sUN = string.Empty;
 
-            //  UserActivationState nActivationStatus = GetUserActivationStatus(ref sUN, ref siteGuid);
-            UserActivationState nUserStatus = GetUserStatus(ref sUN, ref siteGuid);
+            bool isGracePeriod = false;
+            UserActivationState nUserStatus = GetUserStatus(ref sUN, ref siteGuid, ref isGracePeriod);
 
             if (nUserStatus != UserActivationState.Activated)
             {
@@ -262,7 +268,12 @@ namespace Users
                 }
             }
 
-            return User.SignIn(siteGuid, nMaxFailCount, nLockMinutes, m_nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins);
+            var response = User.SignIn(siteGuid, nMaxFailCount, nLockMinutes, m_nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins);
+            if (response != null && response.m_user != null)
+            {
+                response.m_user.IsActivationGracePeriod = isGracePeriod;
+            }
+            return response;
         }
 
         public override UserResponseObject SignInWithToken(string sToken, int nMaxFailCount, int nLockMinutes, int nGroupID, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins)
@@ -436,7 +447,8 @@ namespace Users
             // Check if user already activated by master
             string sNewUserName = sUN;
             int nDbUserID = nUserID;
-            UserActivationState curActState = GetUserActivationStatus(ref sNewUserName, ref nDbUserID);
+            bool isGracePeriod = false;
+            UserActivationState curActState = GetUserActivationStatus(ref sNewUserName, ref nDbUserID, ref isGracePeriod);
 
             // Find user ID by given token
             int nUsersDomainID = 0;
