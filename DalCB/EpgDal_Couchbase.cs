@@ -248,7 +248,7 @@ namespace DalCB
                                             EpgCB tempEpg = JsonConvert.DeserializeObject<EpgCB>(sValue);
 
                                             // If it was successful, add to list
-                                            if (tempEpg != null)
+                                            if (tempEpg != null && tempEpg.Status == 1)
                                             {
                                                 resultEpgs.Add(tempEpg);
                                             }

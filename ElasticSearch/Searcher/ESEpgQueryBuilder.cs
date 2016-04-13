@@ -204,11 +204,18 @@ namespace ElasticSearch.Searcher
                     ESRange endDateRange = new ESRange(false) { Key = "end_date" };
                     endDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, m_oEpgSearchObj.m_dStartDate.ToString(Utils.ES_DATE_FORMAT)));
                     endDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, m_oEpgSearchObj.m_dEndDate.ToString(Utils.ES_DATE_FORMAT)));
+                    
+                    
+                    ESRange searchEndDateRange = new ESRange(false) { Key = "search_end_date" };
+                    searchEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GT, m_oEpgSearchObj.m_dSearchEndDate.ToString(Utils.ES_DATE_FORMAT)));
+
+
                     ESTerm isActiveTerm = new ESTerm(true) { Key = "is_active", Value = "1" };
 
                     datesContraints.AddChild(startDateRange);
                     datesContraints.AddChild(endDateRange);
 
+                    filterComposite.AddChild(searchEndDateRange);
                     filterComposite.AddChild(isActiveTerm);
                     filterComposite.AddChild(datesContraints);
                     for (int i = 0; i < m_oEpgSearchObj.m_oEpgChannelIDs.Count; i++)
