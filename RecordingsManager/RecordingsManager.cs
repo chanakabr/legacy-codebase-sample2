@@ -26,9 +26,9 @@ namespace Recordings
         }
 
         private static object locker = new object();
-        private RecordingsManager instance;
+        private static RecordingsManager instance;
 
-        public RecordingsManager Instance
+        public static RecordingsManager Instance
         {
             get
             {
