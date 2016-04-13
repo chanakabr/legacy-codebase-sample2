@@ -468,6 +468,8 @@ namespace ElasticSearch.Common
 
             sRes = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sSearchQuery, true);
 
+            log.DebugFormat("ES API request: URL = {0}, body = {1}, result = {2}", sUrl, sSearchQuery, sRes);
+
             if (nStatus != 200)
             {
                 log.Error("Error - " + string.Format("Search query failed. url={0};query={1}; explanation={2}", sUrl, sSearchQuery, sRes));
@@ -513,6 +515,8 @@ namespace ElasticSearch.Common
             string sUrl = string.Format("{0}/_msearch", ES_URL);
             int nStatus = 0;
             sRes = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sb.ToString(), true);
+            log.DebugFormat("ES request: URL = {0}, body = {1}, result = {2}", sUrl, sb.ToString(), sRes);
+            
 
             if (nStatus != 200)
             {
