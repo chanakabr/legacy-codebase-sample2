@@ -26,26 +26,75 @@ public partial class adm_epg_channels_new : System.Web.UI.Page
             return;
         if (!IsPostBack)
         {
+            bool flag = false;
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
-                int epgChannelID = DBManipulator.DoTheWork();
-                bool result = false;
-                int nGroupID = LoginManager.GetLoginGroupID();
-                result = ImporterImpl.UpdateEpgChannelIndex(new List<ulong>() { (ulong)epgChannelID }, nGroupID, eAction.Update);
-                return;
+                 System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;
+
+                 if (coll != null && coll.Count > 13 && !string.IsNullOrEmpty(coll["14_val"]))
+                 {
+                     bool isCdvtIDExists = IsCdvtIDExists(coll["14_val"], Session["epg_channel_id"].ToString());
+                     if (isCdvtIDExists)
+                     {
+                         Session["error_msg"] = "Cdvr Id must be unique";
+                         flag = true;
+                     }
+                     else
+                     {
+                         int epgChannelID = DBManipulator.DoTheWork();
+                         bool result = false;
+                         if (epgChannelID > 0)
+                         {
+                             int nGroupID = LoginManager.GetLoginGroupID();
+                             result = ImporterImpl.UpdateEpgChannelIndex(new List<ulong>() { (ulong)epgChannelID }, nGroupID, eAction.Update);
+                         }
+                         return;
+                     }
+                 }
             }
             Int32 nMenuID = 0;
             m_sMenu = TVinciShared.Menu.GetMainMenu(6, true, ref nMenuID);
             if (Request.QueryString["epg_channel_id"] != null &&
                 Request.QueryString["epg_channel_id"].ToString() != "")
                 Session["epg_channel_id"] = int.Parse(Request.QueryString["epg_channel_id"].ToString());
-            else
+            else if (!flag)
                 Session["epg_channel_id"] = 0;
 
             Int32 nOwnerGroupID = LoginManager.GetLoginGroupID();
             m_sLangMenu = GetLangMenu(nOwnerGroupID);
             m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 3, false);
         }
+    }
+
+
+    static private bool IsCdvtIDExists(string cdvrlId, string channelID)
+    {
+        int groupID = LoginManager.GetLoginGroupID();
+        bool result = false;
+
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery.SetConnectionKey("main_connection_string");
+        selectQuery += "select ID from epg_channels where status = 1 and group_id in (SELECT * FROM Tvinci..F_Get_GroupsTree ("+ groupID +"))";
+        selectQuery += " And ";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CDVR_ID", "=", cdvrlId);
+        selectQuery += " And ";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "<>", channelID);
+        
+
+        if (selectQuery.Execute("query", true) != null)
+        {
+            int count = selectQuery.Table("query").DefaultView.Count;
+
+            if (count > 0)
+            {
+                result = true;               
+            }
+        }
+
+        selectQuery.Finish();
+        selectQuery = null;
+
+        return result;
     }
 
     protected void GetLangMenu()
@@ -221,7 +270,10 @@ public partial class adm_epg_channels_new : System.Web.UI.Page
         DataRecordShortIntField dr_LIVE_TRICK_PLAY_BUFFER  = new DataRecordShortIntField(true, 9, 9);
         dr_LIVE_TRICK_PLAY_BUFFER.Initialize("LIVE_TRICK_PLAY_BUFFER", "adm_table_header_nbg", "FormInput", "TRICK_PLAY_BUFFER", false);
         theRecord.AddRecord(dr_LIVE_TRICK_PLAY_BUFFER);
-
+        
+        DataRecordShortTextField dr_cdvr_id = new DataRecordShortTextField("ltr", true, 60, 128);
+        dr_cdvr_id.Initialize("Cdvr ID", "adm_table_header_nbg", "FormInput", "CDVR_ID", false);
+        theRecord.AddRecord(dr_cdvr_id);
 
         string sTable = theRecord.GetTableHTML("adm_epg_channels_new.aspx?submited=1");
 
