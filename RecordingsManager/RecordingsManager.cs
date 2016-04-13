@@ -2,6 +2,7 @@
 using ApiObjects.Response;
 using ApiObjects.TimeShiftedTv;
 using DAL;
+using DalCB;
 using KLogMonitor;
 using QueueWrapper;
 using System;
@@ -18,7 +19,9 @@ namespace Recordings
         #region Consts
 
         private const string SCHEDULED_TASKS_ROUTING_KEY = "PROCESS_RECORDING_TASK\\{0}";
+
         #endregion
+
         #region Static Members
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -112,11 +115,26 @@ namespace Recordings
 
             if (currentRecording != null)
             {
-                // TODO: Call Adapter to check status of recording,
-                // 
-                // TODO: Update recording object according to response from adapter
+                // First we get information about the program - if it really finished at this time
+                EpgDal_Couchbase dal = new EpgDal_Couchbase(groupId);
 
-                ConditionalAccessDAL.UpdateRecording(currentRecording, groupId);
+                var epg = dal.GetProgram(currentRecording.EpgID.ToString());
+
+                // If the program finished already or not: if it didn't finish, then the recording obviously didn't finish...
+                if (epg.EndDate < DateTime.Now)
+                {
+                    var timeSpan = DateTime.UtcNow - epg.EndDate;
+
+                    // Only if the difference is less than 5 minutes we continue
+                    if (timeSpan.TotalMinutes < 5)
+                    {
+                        // TODO: Call Adapter to check status of recording,
+                        // 
+                        // TODO: Update recording object according to response from adapter
+
+                        ConditionalAccessDAL.UpdateRecording(currentRecording, groupId);
+                    }
+                }
             }
 
             return result;
