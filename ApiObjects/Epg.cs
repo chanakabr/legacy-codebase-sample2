@@ -76,6 +76,8 @@ namespace ApiObjects
         public int EnableCDVR { get; set; }
         [JsonProperty("enable_catch_up", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
         public int EnableCatchUp { get; set; }
+        [JsonProperty("catch_up_buffer", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        public long CatchUpBuffer { get; set; }
         [JsonProperty("enable_start_over", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
         public int EnableStartOver { get; set; }
         [JsonProperty("enable_trick_play", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
