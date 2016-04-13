@@ -105,6 +105,9 @@ namespace ApiObjects.Response
         NotEntitled = 3032,
         AccountCdvrNotEnabled = 3033,
         AccountCatchUpNotEnabled = 3034,
+        ProgramCdvrNotEnabled = 3035,
+        ProgramCatchUpNotEnabled = 3036,
+        CatchUpBufferLimitation = 3037,        
 
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,

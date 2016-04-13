@@ -18,30 +18,18 @@ namespace ApiObjects.TimeShiftedTv
 
         public TstvRecordingStatus RecordingStatus { get; set; }
 
-        public string ExternalRecordingId
-        {
-            get;
-            set;
-        }
+        public string ExternalRecordingId { get; set; }
 
-        public DateTime StartDate
-        {
-            get;
-            set;
-        }
+        public DateTime StartDate { get; set; }
 
-        public DateTime EndDate
-        {
-            get;
-            set;
-        }
+        public DateTime EndDate { get; set; }
 
-        public Recording() 
+        public Recording(long epgID) 
         {
-            Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            RecordingID = 0;
-            EpgID = 0;
-            RecordingStatus = TstvRecordingStatus.Failed;
+            this.EpgID = epgID;
+            this.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            this.RecordingID = 0;
+            this.RecordingStatus = TstvRecordingStatus.Not_recorded;
         }
 
         public Recording(ApiObjects.Response.Status status, int recordingID, TstvRecordingStatus recordingStatus, long epgID)

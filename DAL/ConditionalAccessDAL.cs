@@ -2459,8 +2459,7 @@ namespace DAL
 
             if (row != null)
             {
-                recording = new Recording();
-                recording.EpgID = programId;
+                recording = new Recording(programId);
                 recording.RecordingID = ODBCWrapper.Utils.ExtractValue<long>(row, "ID");
                 recording.RecordingStatus = (TstvRecordingStatus)ODBCWrapper.Utils.ExtractInteger(row, "RECORDING_STATUS");
                 recording.ExternalRecordingId = ODBCWrapper.Utils.ExtractString(row, "EXTERNAL_RECORDING_ID");
@@ -2495,7 +2494,7 @@ namespace DAL
 
             if (row != null)
             {
-                recording = new Recording();
+                recording = new Recording(recordingId);
                 recording.EpgID = ODBCWrapper.Utils.ExtractValue<long>(row, "EPG_PROGRAM_ID");
                 recording.RecordingID = ODBCWrapper.Utils.ExtractValue<long>(row, "ID");
                 recording.RecordingStatus = (TstvRecordingStatus)ODBCWrapper.Utils.ExtractInteger(row, "RECORDING_STATUS");

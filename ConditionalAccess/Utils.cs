@@ -4,6 +4,7 @@ using ApiObjects.TimeShiftedTv;
 using ConditionalAccess.TvinciDomains;
 using ConditionalAccess.TvinciPricing;
 using ConditionalAccess.TvinciUsers;
+using ConditionalAccess.WS_Catalog;
 using DAL;
 using KLogMonitor;
 using System;
@@ -4178,6 +4179,53 @@ namespace ConditionalAccess
             }
 
             return settings;
+        }
+
+        internal static List<EPGChannelProgrammeObject> GetEpgsByIds (int nGroupID, List<int> epgIds)
+        {
+            WS_Catalog.IserviceClient client = null;
+            List<EPGChannelProgrammeObject> epgs = null;
+
+            try
+            {
+                WS_Catalog.EpgProgramDetailsRequest request = new WS_Catalog.EpgProgramDetailsRequest();
+                request.m_nGroupID = nGroupID;
+                //don't get the same EPG from catalog
+                request.m_lProgramsIds = epgIds.Distinct().ToArray();
+                request.m_oFilter = new WS_Catalog.Filter();
+                FillCatalogSignature(request);
+                client = new WS_Catalog.IserviceClient();
+                string sCatalogUrl = GetWSURL("WS_Catalog");
+                client.Endpoint.Address = new System.ServiceModel.EndpointAddress(sCatalogUrl);
+                WS_Catalog.EpgProgramResponse response = client.GetProgramsByIDs(request) as WS_Catalog.EpgProgramResponse;
+                if (response != null && response.m_nTotalItems > 0 && response.m_lObj != null && response.m_lObj.Length > 0)
+                {
+                    epgs = new List<EPGChannelProgrammeObject>();
+                    foreach (ProgramObj program in response.m_lObj)
+                    {
+                        // no need to check epg status since catalog returns only active epg's
+                        if (program.AssetType == eAssetTypes.EPG && program.m_oProgram != null && program.m_oProgram.EPG_ID > 0)
+                        {
+                            epgs.Add(program.m_oProgram);
+                        }
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error("Failed GetEpgsByIds Request To Catalog", ex);
+            }
+
+            finally
+            {
+                if (client != null)
+                {
+                    client.Close();
+                }
+            }
+
+            return epgs;
         }
 
     }

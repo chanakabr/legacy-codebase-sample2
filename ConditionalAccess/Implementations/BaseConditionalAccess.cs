@@ -17220,7 +17220,7 @@ namespace ConditionalAccess
 
         public Recording Record(string userID, int epgID)
         {
-            Recording response = new Recording();            
+            Recording response = new Recording(epgID);            
             try
             {
                 RecordingResponse recordings = QueryRecords(userID, new List<int>() { epgID });
@@ -17285,13 +17285,20 @@ namespace ConditionalAccess
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ServiceNotAllowed, eResponseStatus.ServiceNotAllowed.ToString());
                     return response;
+                }                
+
+                List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(m_nGroupID, epgIDs);
+                if (epgs == null || epgs.Count == 0)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.InvalidAssetId, eResponseStatus.InvalidAssetId.ToString());
+                    return response;
                 }
 
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
-                foreach (int epgID in epgIDs)
+                foreach (EPGChannelProgrammeObject epg in epgs)
                 {
-                    response.Recordings.Add(QueryRecord(epgID, domainID));
+                    response.Recordings.Add(QueryRecord(accountSettings, epg, domainID));
                 }
             }
 
@@ -17314,11 +17321,38 @@ namespace ConditionalAccess
             return response;
         }
 
-        public Recording QueryRecord(int epgID, long domainID)
+        public Recording QueryRecord(TimeShiftedTvPartnerSettings accountSettings, EPGChannelProgrammeObject epg, long domainID)
         {
-            Recording response = new Recording();
+            Recording response = new Recording(epg.EPG_ID);
             try
             {
+                if (epg.ENABLE_CDVR != 1)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramCdvrNotEnabled, eResponseStatus.ProgramCdvrNotEnabled.ToString());
+                    return response;
+                }
+                
+                DateTime epgStartDate;
+                // IRA should i validate the parsing???
+                DateTime.TryParse(epg.START_DATE, out epgStartDate);
+                if (epgStartDate < DateTime.UtcNow)
+                {
+                    if (!accountSettings.IsCdvrEnabled.HasValue || !accountSettings.IsCdvrEnabled.Value)
+                    {
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AccountCatchUpNotEnabled, eResponseStatus.AccountCatchUpNotEnabled.ToString());
+                        return response;
+                    }
+                    else if (epg.ENABLE_CATCH_UP != 1)
+                    {
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramCatchUpNotEnabled, eResponseStatus.ProgramCatchUpNotEnabled.ToString());
+                        return response;
+                    }
+                    else if (!accountSettings.CatchUpBufferLength.HasValue || accountSettings.IsCdvrEnabled.Value)
+                    {
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramCatchUpNotEnabled, eResponseStatus.ProgramCatchUpNotEnabled.ToString());
+                        return response;
+                    }
+                }
                 /********************************************************
                  * Add all the needed validations and if they pass check if record already exists for domain
                  *******************************************************/
@@ -17326,7 +17360,7 @@ namespace ConditionalAccess
             catch (Exception ex)
             {
                 StringBuilder sb = new StringBuilder("Exception at QueryRecords. ");
-                sb.Append(String.Concat("epgID: ", epgID));
+                sb.Append(String.Concat("epgID: ", epg.EPG_ID));
                 sb.Append(String.Concat("domainID: ", domainID));      
                 sb.Append(String.Concat("Ex Msg: ", ex.Message));
                 sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
