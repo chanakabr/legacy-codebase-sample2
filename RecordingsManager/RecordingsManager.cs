@@ -3,6 +3,7 @@ using ApiObjects.Response;
 using ApiObjects.TimeShiftedTv;
 using DAL;
 using KLogMonitor;
+using QueueWrapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,10 @@ namespace Recordings
 {
     public class RecordingsManager
     {
+        #region Consts
+
+        private const string SCHEDULED_TASKS_ROUTING_KEY = "RECORDING_TASKS\\{0}";
+        #endregion
         #region Static Members
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -58,6 +63,7 @@ namespace Recordings
 
             recording = ConditionalAccessDAL.GetRecordingByProgramId(programId);
 
+            // If there is no recording for this program - create one. This is the first, hurray!
             if (recording == null)
             {
                 recording = new Recording();
@@ -66,12 +72,24 @@ namespace Recordings
                 recording.EndDate = endDate;
                 recording.RecordingStatus = TstvRecordingStatus.Scheduled;
 
-                // TODO: Call Adapter to Record
+                // TODO: Call Adapter to schedule recording,
+                // 
                 string externalRecordingId = string.Empty;
 
                 recording.ExternalRecordingId = externalRecordingId;
 
+                // Insert recording information to database
                 recording = ConditionalAccessDAL.InsertRecording(recording, groupId);
+
+                // Schedule a message tocheck status 5 minutes after recording of program is supposed to be over
+                var queue = new GenericCeleryQueue();
+                var message = new RecordingTaskData(groupId, eRecordingTask.GetStatusAfterProgramEnded, 
+                    // add 5 minutes here
+                    endDate.AddMinutes(5),
+                    programId,
+                    recording.RecordingID);
+
+                queue.Enqueue(message, string.Format(SCHEDULED_TASKS_ROUTING_KEY, groupId));
             }
 
             return recording;
