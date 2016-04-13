@@ -1112,13 +1112,13 @@ namespace WebAPI.Clients
             return adapter;
         }
 
-        internal List<KalturaRecording> QueryRecords(int groupdID, string userID, List<int> epgID)
+        internal List<KalturaRecording> QueryRecords(int groupdID, string userID, List<long> epgID)
         {
             List<KalturaRecording> response = new List<KalturaRecording>();
             return response;
         }
 
-        internal KalturaRecording Record(int groupdID, string userID, int epgID)
+        internal KalturaRecording Record(int groupdID, string userID, long epgID)
         {
             KalturaRecording response = null;
             return response;

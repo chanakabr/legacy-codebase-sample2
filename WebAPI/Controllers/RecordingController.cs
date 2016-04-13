@@ -23,7 +23,7 @@ namespace WebAPI.Controllers
         /// 
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public List<KalturaRecording> List(List<int> epgIDs)
+        public List<KalturaRecording> List(List<long> epgIDs)
         {
             List<KalturaRecording> response = null;
 
