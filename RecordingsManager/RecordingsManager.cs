@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.Response;
 using ApiObjects.TimeShiftedTv;
+using DAL;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
@@ -51,11 +52,27 @@ namespace Recordings
 
         #region Public Methods
 
-        public Recording Record(int groupId, long programId, DateTime startDate, DateTime endDate, string siteGuid, int domainId)
+        public Recording Record(int groupId, long programId, string externalChannelId, DateTime startDate, DateTime endDate, string siteGuid, int domainId)
         {
             Recording recording = null;
 
-            recording = DAL.ConditionalAccessDAL.GetRecordingByProgramId(programId);
+            recording = ConditionalAccessDAL.GetRecordingByProgramId(programId);
+
+            if (recording == null)
+            {
+                recording = new Recording();
+                recording.EpgID = programId;
+                recording.StartDate = startDate;
+                recording.EndDate = endDate;
+                recording.RecordingStatus = TstvRecordingStatus.Scheduled;
+
+                // TODO: Call Adapter to Record
+                string externalRecordingId = string.Empty;
+
+                recording.ExternalRecordingId = externalRecordingId;
+
+                ConditionalAccessDAL.InsertRecording(recording, groupId);
+            }
 
             return recording;
         }
