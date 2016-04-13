@@ -4181,7 +4181,7 @@ namespace ConditionalAccess
             return settings;
         }
 
-        internal static List<EPGChannelProgrammeObject> GetEpgsByIds (int nGroupID, List<int> epgIds)
+        internal static List<EPGChannelProgrammeObject> GetEpgsByIds (int nGroupID, List<long> epgIds)
         {
             WS_Catalog.IserviceClient client = null;
             List<EPGChannelProgrammeObject> epgs = null;
@@ -4191,7 +4191,7 @@ namespace ConditionalAccess
                 WS_Catalog.EpgProgramDetailsRequest request = new WS_Catalog.EpgProgramDetailsRequest();
                 request.m_nGroupID = nGroupID;
                 //don't get the same EPG from catalog
-                request.m_lProgramsIds = epgIds.Distinct().ToArray();
+                request.m_lProgramsIds = epgIds.ConvertAll<int>(x => (int)x).Distinct().ToArray();
                 request.m_oFilter = new WS_Catalog.Filter();
                 FillCatalogSignature(request);
                 client = new WS_Catalog.IserviceClient();
@@ -4226,6 +4226,12 @@ namespace ConditionalAccess
             }
 
             return epgs;
+        }
+
+        internal static Recording GetExistingRecording(long epgID, long domainID)
+        {
+            Recording recording = new Recording(epgID);
+            return recording;
         }
 
     }

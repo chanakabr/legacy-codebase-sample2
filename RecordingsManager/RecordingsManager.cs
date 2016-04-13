@@ -60,7 +60,7 @@ namespace Recordings
 
         #region Public Methods
 
-        public Recording Record(int groupId, long programId, string externalChannelId, DateTime startDate, DateTime endDate, string siteGuid, int domainId)
+        public Recording Record(int groupId, long programId, string externalChannelId, DateTime startDate, DateTime endDate, string siteGuid, long domainId)
         {
             Recording recording = null;
 

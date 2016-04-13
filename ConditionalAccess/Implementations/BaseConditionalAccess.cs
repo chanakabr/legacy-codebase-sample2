@@ -11,6 +11,7 @@ using DAL;
 using GroupsCacheManager;
 using KLogMonitor;
 using QueueWrapper;
+using Recordings;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7811,268 +7812,6 @@ namespace ConditionalAccess
         {
             return GetItemsPrices(nMediaFiles, sUserGUID, sCouponCode, bOnlyLowest, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, "");
         }
-
-        /// <summary>
-        /// Get Items Prices
-        /// </summary>
-        //public virtual MediaFileItemPricesContainer[] GetItemsPrices(Int32[] nMediaFiles, string sUserGUID, string sCouponCode, bool bOnlyLowest,
-        //    string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sClientIP)
-        //{
-        //    string sFirstDeviceNameFound = string.Empty;
-        //    TvinciPricing.mdoule objPricingModule = null;
-        //    MediaFileItemPricesContainer[] ret = null;
-        //    string sPricingUsername = string.Empty;
-        //    string sPricingPassword = string.Empty;
-        //    string sAPIUsername = string.Empty;
-        //    string sAPIPassword = string.Empty;
-        //    bool bCancellationWindow = false;
-        //    try
-        //    {
-        //        TvinciPricing.MediaFilePPVContainer[] oModules = null;
-        //        Utils.GetWSCredentials(m_nGroupID, eWSModules.API, ref sAPIUsername, ref sAPIPassword);
-        //        Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sPricingUsername, ref sPricingPassword);
-
-        //        // get details about files + media (validity about files)    
-        //        Dictionary<int, string> mediaFilesProductCode = new Dictionary<int, string>();
-        //        Dictionary<int, MediaFileStatus> validMediaFiles = Utils.ValidateMediaFiles(nMediaFiles, ref mediaFilesProductCode);
-
-        //        //return - MediaAdObject is NotFiniteNumberException validMediaFiles for purchase                    
-        //        List<MediaFileItemPricesContainer> tempRet = new List<MediaFileItemPricesContainer>();
-        //        MediaFileItemPricesContainer tempItemPricesContainer = null;
-
-        //        List<int> notForPurchaseFiles = validMediaFiles.Where(x => x.Value == MediaFileStatus.NotForPurchase).Select(x => x.Key).ToList();
-        //        nMediaFiles = validMediaFiles.Where(x => x.Value != MediaFileStatus.NotForPurchase).Select(x => x.Key).ToArray();
-
-        //        foreach (int mf in notForPurchaseFiles)
-        //        {
-        //            tempItemPricesContainer = new MediaFileItemPricesContainer();
-        //            tempItemPricesContainer.m_nMediaFileID = mf;
-        //            tempItemPricesContainer.m_oItemPrices = new ItemPriceContainer[1];
-        //            tempItemPricesContainer.m_oItemPrices[0] = new ItemPriceContainer();
-        //            tempItemPricesContainer.m_oItemPrices[0].m_PriceReason = PriceReason.NotForPurchase;
-        //            tempItemPricesContainer.m_sProductCode = string.Empty;
-        //            tempRet.Add(tempItemPricesContainer);
-        //        }
-        //        if (nMediaFiles.Count() == 0) // all file not for purchase - return
-        //        {
-        //            ret = tempRet.ToArray();
-        //            return ret;
-        //        }
-
-        //        InitializePricingModule(ref objPricingModule);
-        //        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, "GetPPVModuleListForMediaFilesWithExpiry"))
-        //        {
-        //            oModules = objPricingModule.GetPPVModuleListForMediaFilesWithExpiry(sPricingUsername, sPricingPassword, nMediaFiles, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-        //        }                
-
-        //        if (oModules != null && oModules.Length > 0)
-        //        {
-        //            ret = new MediaFileItemPricesContainer[oModules.Length];
-        //            Dictionary<int, int> mediaFileTypesMapping = null;
-        //            List<int> allUsersInDomain = null;
-        //            GetAllUsersInDomainAndMediaFileTypes(oModules, sUserGUID, out mediaFileTypesMapping, out allUsersInDomain);
-
-        //            for (int i = 0; i < oModules.Length; i++)
-        //            {
-        //                Int32 nMediaFileID = oModules[i].m_nMediaFileID;
-        //                TvinciPricing.PPVModuleWithExpiry[] ppvModules = oModules[i].m_oPPVModules;
-        //                MediaFileItemPricesContainer mf = new MediaFileItemPricesContainer();
-        //                int nMediaFileTypeID = Utils.GetMediaFileTypeID(m_nGroupID, nMediaFileID, sAPIUsername, sAPIPassword);
-
-        //                if (ppvModules != null && ppvModules.Length > 0)
-        //                {
-        //                    List<ItemPriceContainer> itemPriceCont = new List<ItemPriceContainer>();
-
-        //                    Int32 nLowestIndex = 0;
-        //                    double dLowest = -1;
-        //                    TvinciPricing.Price pLowest = null;
-        //                    PriceReason theLowestReason = PriceReason.UnKnown;
-        //                    TvinciPricing.Subscription relevantLowestSub = null;
-        //                    TvinciPricing.Collection relevantLowestCol = null;
-        //                    TvinciPricing.PrePaidModule relevantLowestPrePaid = null;
-        //                    string sProductCode = string.Empty;
-        //                    bool tempCancellationWindow = false;
-        //                    string lowestPurchasedBySiteGuid = string.Empty;
-        //                    int lowestPurchasedAsMediaFileID = 0;
-        //                    List<int> lowestRelatedMediaFileIDs = new List<int>();
-        //                    DateTime? dtLowestStartDate = null;
-        //                    DateTime? dtLowestEndDate = null;
-        //                    bool isUserSuspended = false;
-
-        //                    for (int j = 0; j < ppvModules.Length; j++)
-        //                    {
-        //                        string sPPVCode = GetPPVCodeForGetItemsPrices(ppvModules[j].PPVModule.m_sObjectCode, ppvModules[j].PPVModule.m_sObjectVirtualName);
-
-        //                        PriceReason theReason = PriceReason.UnKnown;
-        //                        TvinciPricing.Subscription relevantSub = null;
-        //                        TvinciPricing.Collection relevantCol = null;
-        //                        TvinciPricing.PrePaidModule relevantPrePaid = null;
-        //                        string purchasedBySiteGuid = string.Empty;
-        //                        int purchasedAsMediaFileID = 0;
-        //                        List<int> relatedMediaFileIDs = new List<int>();
-        //                        DateTime? dtEntitlementStartDate = null;
-        //                        DateTime? dtEntitlementEndDate = null;
-
-        //                        TvinciPricing.Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, validMediaFiles[nMediaFileID], ppvModules[j].PPVModule, sUserGUID, sCouponCode, m_nGroupID, ppvModules[j].IsValidForPurchase,
-        //                            ref theReason, ref relevantSub, ref relevantCol, ref relevantPrePaid, ref sFirstDeviceNameFound,
-        //                            sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sClientIP, mediaFileTypesMapping,
-        //                            allUsersInDomain, nMediaFileTypeID, sAPIUsername, sAPIPassword, sPricingUsername, sPricingPassword,
-        //                            ref bCancellationWindow, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref relatedMediaFileIDs, ref dtEntitlementStartDate, ref dtEntitlementEndDate);
-
-        //                        sProductCode = mediaFilesProductCode[nMediaFileID];
-
-        //                        var tempItemPriceContainer = new ItemPriceContainer();
-        //                        tempItemPriceContainer.Initialize(p, ppvModules[j].PPVModule.m_oPriceCode.m_oPrise, sPPVCode, ppvModules[j].PPVModule.m_sDescription,
-        //                            theReason, relevantSub, relevantCol, ppvModules[j].PPVModule.m_bSubscriptionOnly, relevantPrePaid,
-        //                            sFirstDeviceNameFound, bCancellationWindow, purchasedBySiteGuid, purchasedAsMediaFileID, relatedMediaFileIDs, dtEntitlementStartDate,
-        //                            dtEntitlementEndDate);
-
-        //                        if (theReason == PriceReason.UserSuspended)
-        //                        {
-        //                            isUserSuspended = true;
-
-        //                            if (!bOnlyLowest)
-        //                            {
-        //                                itemPriceCont.Add(tempItemPriceContainer);
-        //                            }
-        //                            else
-        //                            {
-        //                                if (j == 0)//insert only the first ppvModule (when the user is suspended we cannot compare prices)
-        //                                {
-        //                                    itemPriceCont.Insert(0, tempItemPriceContainer);
-        //                                }
-        //                            }
-        //                        }
-        //                        else //user is not suspended
-        //                        {
-        //                            bool isValidForPurchase = ppvModules[j].IsValidForPurchase;
-        //                            if (isValidForPurchase || (!isValidForPurchase && theReason == PriceReason.PPVPurchased))
-        //                            {
-        //                                if (!bOnlyLowest)
-        //                                {
-        //                                    itemPriceCont.Add(tempItemPriceContainer);
-        //                                }
-        //                                else
-        //                                {
-        //                                    if (p != null && (p.m_dPrice < dLowest || j == 0))
-        //                                    {
-        //                                        #region insert lowest price parameters
-        //                                        nLowestIndex = j;
-        //                                        dLowest = p.m_dPrice;
-        //                                        pLowest = p;
-        //                                        theLowestReason = theReason;
-        //                                        relevantLowestSub = relevantSub;
-        //                                        relevantLowestCol = relevantCol;
-        //                                        relevantLowestPrePaid = relevantPrePaid;
-        //                                        tempCancellationWindow = bCancellationWindow;
-        //                                        lowestPurchasedBySiteGuid = purchasedBySiteGuid;
-        //                                        lowestPurchasedAsMediaFileID = purchasedAsMediaFileID;
-        //                                        lowestRelatedMediaFileIDs = relatedMediaFileIDs;
-        //                                        dtLowestStartDate = dtEntitlementStartDate;
-        //                                        dtLowestEndDate = dtEntitlementEndDate;
-        //                                        #endregion
-        //                                    }
-        //                                }
-        //                            }
-        //                        }
-        //                    } // end for
-
-        //                    if (ppvModules.Length > 0 && itemPriceCont.Count == 0 && !isUserSuspended)
-        //                    {
-        //                        if (bOnlyLowest)
-        //                        {
-        //                            var tempItemPriceContainer = new ItemPriceContainer();
-
-        //                            tempItemPriceContainer.Initialize(pLowest, ppvModules[nLowestIndex].PPVModule.m_oPriceCode.m_oPrise,
-        //                                ppvModules[nLowestIndex].PPVModule.m_sObjectCode, ppvModules[nLowestIndex].PPVModule.m_sDescription, theLowestReason,
-        //                                relevantLowestSub, relevantLowestCol, ppvModules[nLowestIndex].PPVModule.m_bSubscriptionOnly,
-        //                                relevantLowestPrePaid, sFirstDeviceNameFound, tempCancellationWindow,
-        //                                lowestPurchasedBySiteGuid, lowestPurchasedAsMediaFileID, lowestRelatedMediaFileIDs, dtLowestStartDate, dtLowestEndDate);
-        //                            itemPriceCont.Insert(0, tempItemPriceContainer);
-        //                        }
-        //                        else
-        //                        {
-        //                            ItemPriceContainer[] priceContainer = new ItemPriceContainer[1];
-        //                            priceContainer[0] = GetFreeItemPriceContainer();
-
-        //                            itemPriceCont.Insert(0, priceContainer[0]);
-
-        //                        }
-        //                    }
-
-        //                    mf.Initialize(nMediaFileID, itemPriceCont.ToArray(), sProductCode);
-        //                }
-        //                else
-        //                {
-        //                    ItemPriceContainer[] priceContainer = new ItemPriceContainer[1];
-        //                    priceContainer[0] = GetFreeItemPriceContainer();
-
-        //                    mf.Initialize(nMediaFileID, priceContainer);
-        //                }
-
-        //                ret[i] = mf;
-        //            }
-        //        }
-        //        else
-        //        {
-        //            ret = new MediaFileItemPricesContainer[1];
-        //            MediaFileItemPricesContainer mc = new MediaFileItemPricesContainer();
-        //            foreach (int mediaFileID in nMediaFiles)
-        //            {
-        //                ItemPriceContainer freeContainer = new ItemPriceContainer();
-        //                freeContainer.m_PriceReason = PriceReason.Free;
-        //                ItemPriceContainer[] priceContainer = new ItemPriceContainer[1];
-        //                priceContainer[0] = freeContainer;
-
-        //                mc.Initialize(mediaFileID, priceContainer);
-        //            }
-        //            ret[0] = mc;
-        //        }
-
-        //        // add all files that are not for purchased
-        //        tempRet.AddRange(ret);
-        //        ret = tempRet.ToArray();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        #region Logging
-        //        StringBuilder sb = new StringBuilder(String.Concat("GetItemsPrices Exception. Msg: ", ex.Message));
-        //        sb.Append(String.Concat(" SiteGuid: ", sUserGUID));
-        //        sb.Append(String.Concat(" Coupon Code: ", sCouponCode));
-        //        sb.Append(String.Concat(" OnlyLowest: ", bOnlyLowest.ToString().ToLower()));
-        //        if (nMediaFiles != null && nMediaFiles.Length > 0)
-        //        {
-        //            sb.Append(" Media Files: ");
-        //            for (int i = 0; i < nMediaFiles.Length; i++)
-        //            {
-        //                sb.Append(String.Concat(nMediaFiles[i], " "));
-        //            }
-        //        }
-        //        else
-        //        {
-        //            sb.Append(" No Media Files ");
-        //        }
-        //        sb.Append(String.Concat(" BaseCAS is: ", this.GetType().Name));
-        //        sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
-
-        //        log.Error("Exception - " + sb.ToString(), ex);
-
-        //        ret = null;
-        //        #endregion
-        //    }
-        //    finally
-        //    {
-        //        #region Disposing
-        //        if (objPricingModule != null)
-        //        {
-        //            objPricingModule.Dispose();
-        //        }
-
-        //        #endregion
-        //    }
-
-        //    return ret;
-        //}
 
         /// <summary>
         /// Get Items Prices
@@ -17218,12 +16957,13 @@ namespace ConditionalAccess
             return false;
         }
 
-        public Recording Record(string userID, int epgID)
+        public Recording Record(string userID, long epgID)
         {
             Recording response = new Recording(epgID);            
             try
             {
-                RecordingResponse recordings = QueryRecords(userID, new List<int>() { epgID });
+                long domainID = 0;
+                RecordingResponse recordings = QueryRecords(userID, new List<long>() { epgID }, ref domainID);
                 if (recordings == null || recordings.Status == null)
                 {
                     return response;
@@ -17238,6 +16978,11 @@ namespace ConditionalAccess
                     if (response.Status != null && response.Status.Code != (int)eResponseStatus.OK)
                     {
                         return response;
+                    }
+                    else if (response.RecordingID > 0 && response.RecordingStatus != TstvRecordingStatus.Scheduled && 
+                            response.RecordingStatus == TstvRecordingStatus.Recording && response.RecordingStatus == TstvRecordingStatus.Recorded)
+                    {
+                        response = RecordingsManager.Instance.Record(m_nGroupID, epgID, string.Empty, response.StartDate, response.EndDate, userID, domainID);
                     }
                     /*********************************************************************************************
                     /* check if recording already exists (by recordingID or TstvRecordingStatus)
@@ -17261,12 +17006,11 @@ namespace ConditionalAccess
             return response;
         }
 
-        public RecordingResponse QueryRecords(string userID, List<int> epgIDs)
+        public RecordingResponse QueryRecords(string userID, List<long> epgIDs, ref long domainID)
         {
             RecordingResponse response = new RecordingResponse();
             try
-            {
-                long domainID = 0;
+            {                
                 ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userID, ref domainID);
                 if (validationStatus.Code != (int)eResponseStatus.OK)
                 {
@@ -17298,7 +17042,7 @@ namespace ConditionalAccess
 
                 foreach (EPGChannelProgrammeObject epg in epgs)
                 {
-                    response.Recordings.Add(QueryRecord(accountSettings, epg, domainID));
+                    response.Recordings.Add(QueryRecord(accountSettings, epg, domainID, userID));
                 }
             }
 
@@ -17321,7 +17065,7 @@ namespace ConditionalAccess
             return response;
         }
 
-        public Recording QueryRecord(TimeShiftedTvPartnerSettings accountSettings, EPGChannelProgrammeObject epg, long domainID)
+        public Recording QueryRecord(TimeShiftedTvPartnerSettings accountSettings, EPGChannelProgrammeObject epg, long domainID, string userID)
         {
             Recording response = new Recording(epg.EPG_ID);
             try
@@ -17334,7 +17078,12 @@ namespace ConditionalAccess
                 
                 DateTime epgStartDate;
                 // IRA should i validate the parsing???
-                DateTime.TryParse(epg.START_DATE, out epgStartDate);
+                if (!DateTime.TryParse(epg.START_DATE, out epgStartDate))
+                {            
+                    /************************************* add error log
+                     * ***************************************************************/
+                        return response;
+                }
                 if (epgStartDate < DateTime.UtcNow)
                 {
                     if (!accountSettings.IsCdvrEnabled.HasValue || !accountSettings.IsCdvrEnabled.Value)
@@ -17342,20 +17091,42 @@ namespace ConditionalAccess
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AccountCatchUpNotEnabled, eResponseStatus.AccountCatchUpNotEnabled.ToString());
                         return response;
                     }
-                    else if (epg.ENABLE_CATCH_UP != 1)
+                    if (epg.ENABLE_CATCH_UP != 1)
                     {
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramCatchUpNotEnabled, eResponseStatus.ProgramCatchUpNotEnabled.ToString());
                         return response;
                     }
-                    else if (!accountSettings.CatchUpBufferLength.HasValue || accountSettings.IsCdvrEnabled.Value)
+                    long accountCatchUpBuffer = accountSettings.CatchUpBufferLength.HasValue ? accountSettings.CatchUpBufferLength.Value : 0;
+                    if ((epg.CHANNEL_CATCH_UP_BUFFER == 0 && accountCatchUpBuffer == 0) && epgStartDate.AddHours(epg.CHANNEL_CATCH_UP_BUFFER) < DateTime.UtcNow
+                                && epgStartDate.AddHours(accountCatchUpBuffer) < DateTime.UtcNow)
                     {
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramCatchUpNotEnabled, eResponseStatus.ProgramCatchUpNotEnabled.ToString());
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.CatchUpBufferLimitation, eResponseStatus.CatchUpBufferLimitation.ToString());
                         return response;
                     }
                 }
-                /********************************************************
-                 * Add all the needed validations and if they pass check if record already exists for domain
-                 *******************************************************/
+
+                List<int> fileIds = DAL.ConditionalAccessDAL.GetFileIdsByEpgProgramId(Convert.ToInt32(epg.EPG_ID), m_nGroupID);
+                if (fileIds != null && fileIds.Count > 0)
+                {
+                    bool priceValidationPassed = false;
+                    MediaFileItemPricesContainer[] prices = GetItemsPrices(fileIds.ToArray(), userID, true, string.Empty, string.Empty, string.Empty);
+                    if (prices != null && prices.Length > 0)
+                    {
+                        foreach (var price in prices)
+                        {
+                            if (IsFreeItem(price) || IsItemPurchased(price))
+                            {
+                                priceValidationPassed = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (priceValidationPassed)
+                    {
+                        response = Utils.GetExistingRecording(epg.EPG_ID, domainID);
+                    }
+                }
+                
             }
             catch (Exception ex)
             {
