@@ -129,6 +129,7 @@ namespace ODBCWrapper
                 return 0;
             }
         }
+
         static public Int64 GetLongSafeVal(DataRowView dr, string sField)
         {
             try
@@ -145,7 +146,20 @@ namespace ODBCWrapper
             }
         }
 
-
+        public static Int64 GetLongSafeVal(DataRow dr, string sField, Int64 returnThisInCaseOfFail)
+        {
+            Int64 res = returnThisInCaseOfFail;
+            try
+            {
+                if (dr != null && dr[sField] != DBNull.Value)
+                    res = Int64.Parse(dr[sField].ToString());
+                return res;
+            }
+            catch
+            {
+                return res;
+            }
+        }
 
         static public object GetTableSingleVal(string sTable, string sFieldName, Int32 nID, Int32 nCachSec)
         {

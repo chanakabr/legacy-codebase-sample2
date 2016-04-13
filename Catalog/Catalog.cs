@@ -2525,10 +2525,7 @@ namespace Catalog
                 epg.ENABLE_CATCH_UP = linearSettings.EnableCatchUp == true ? 1 : 0;
             }
 
-            if (epg.CHANNEL_CATCH_UP_BUFFER != 2)
-            {
-                epg.CHANNEL_CATCH_UP_BUFFER = linearSettings.CatchUpBuffer;
-            }
+            epg.CHANNEL_CATCH_UP_BUFFER = linearSettings.CatchUpBuffer;
 
             if (epg.ENABLE_TRICK_PLAY != 2)// get value from epg channel
             {
