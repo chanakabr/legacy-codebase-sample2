@@ -1158,6 +1158,7 @@ namespace DAL
                         {
                             ID = ODBCWrapper.Utils.GetIntSafeVal(row, "id"),
                             ExternalId = ODBCWrapper.Utils.GetSafeStr(row, "external_id"),
+                            Name= ODBCWrapper.Utils.GetSafeStr(row, "name"),
                             FollowPhrase = ODBCWrapper.Utils.GetSafeStr(row, "follow_phrase"),
                             RecipientsType = Enum.IsDefined(typeof(eAnnouncementRecipientsType), recipientType) ? (eAnnouncementRecipientsType)recipientType : eAnnouncementRecipientsType.All
                         };
