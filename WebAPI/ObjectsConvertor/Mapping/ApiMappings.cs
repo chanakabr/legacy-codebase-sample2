@@ -621,7 +621,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             foreach (var item in errors)
             {
-                result.Add(item.key, int.Parse(item.value));
+                if (!result.ContainsKey(item.key))
+                {
+                    result.Add(item.key, int.Parse(item.value));
+                }
             }
 
             return result;
