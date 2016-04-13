@@ -1,0 +1,87 @@
+﻿using ApiObjects;
+using KLogMonitor;
+using Newtonsoft.Json;
+using RecordingTaskHandler.WS_CAS;
+using RemoteTasksCommon;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using TVinciShared;
+
+namespace RecordingTaskHandler
+{
+    public class TaskHandler : ITaskHandler
+    {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        #region ITaskHandler Members
+
+        public string HandleTask(string data)
+        {
+            string result = "failure";
+
+            try
+            {
+                log.InfoFormat("starting setup task. data={0}", data);
+
+                RecordingTaskRequest request = JsonConvert.DeserializeObject<RecordingTaskHandler.RecordingTaskRequest>(data);
+
+                bool success = false;
+
+                if (request.Task == null || !request.Task.HasValue)
+                {
+                    throw new Exception("Received invalid recording task");
+                }
+
+                string url = WS_Utils.GetTcmConfigValue("WS_CAS");
+                string username = string.Empty;
+                string password = string.Empty;
+
+                TasksCommon.RemoteTasksUtils.GetCredentials(request.GroupID, ref username, ref password, ApiObjects.eWSModules.CONDITIONALACCESS);
+
+                module cas = new module();
+
+                if (!string.IsNullOrEmpty(url))
+                {
+                    cas.Url = url;
+                }
+                                
+                switch (request.Task.Value)
+                {
+                    case eRecordingTask.GetStatusAfterProgramEnded:
+                    {
+                        var recording = cas.GetRecordingStatus(username, password, request.RecordingId);
+
+                        if (recording.Status != null &&
+                            recording.Status.Code == 0)
+                        {
+                            success = true;
+                        }
+
+                        break;
+                    }
+                }
+
+                if (!success)
+                {
+                    throw new Exception(string.Format(
+                        "Recording task on {0} did not finish successfully.", request.Task.ToString()));
+                }
+                else
+                {
+                    result = "success";
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            return result;
+        }
+
+        #endregion
+    }
+}
