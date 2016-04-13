@@ -15,7 +15,7 @@ namespace WebAPI.Controllers
     public class TimeShiftedTvPartnerSettingsController : ApiController
     {
         /// <summary>
-        /// Retrieve the partner's time shifted tv settings.
+        /// Retrieve the account’s time-shifted TV settings (catch-up and C-DVR, Trick-play, Start-over)
         /// </summary>
         /// <remarks>
         /// </remarks>
@@ -42,7 +42,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Update the partner's time shifted tv settings.      
+        /// Configure the account’s time-shifted TV settings (catch-up and C-DVR, Trick-play, Start-over)
         /// </summary>    
         /// 
         /// <remarks>        
