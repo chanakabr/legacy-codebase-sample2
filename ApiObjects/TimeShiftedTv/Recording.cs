@@ -18,6 +18,24 @@ namespace ApiObjects.TimeShiftedTv
 
         public TstvRecordingStatus RecordingStatus { get; set; }
 
+        public string ExternalRecordingId
+        {
+            get;
+            set;
+        }
+
+        public DateTime StartDate
+        {
+            get;
+            set;
+        }
+
+        public DateTime EndDate
+        {
+            get;
+            set;
+        }
+
         public Recording() 
         {
             Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());

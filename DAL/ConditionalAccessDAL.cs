@@ -2453,7 +2453,22 @@ namespace DAL
 
         public static Recording GetRecordingByProgramId(long programId)
         {
-            throw new NotImplementedException();
+            Recording recording = null;
+
+            DataRow row = ODBCWrapper.Utils.GetTableSingleRowByValue("recordings", "EPG_PROGRAM_ID", programId, true);
+
+            if (row != null)
+            {
+                recording = new Recording();
+                recording.EpgID = programId;
+                recording.RecordingID = ODBCWrapper.Utils.ExtractValue<long>(row, "ID");
+                recording.RecordingStatus = (TstvRecordingStatus)ODBCWrapper.Utils.ExtractInteger(row, "RECORDING_STATUS");
+                recording.ExternalRecordingId = ODBCWrapper.Utils.ExtractString(row, "EXTERNAL_RECORDING_ID");
+                recording.StartDate = ODBCWrapper.Utils.ExtractDateTime(row, "START_DATE");
+                recording.EndDate = ODBCWrapper.Utils.ExtractDateTime(row, "END_DATE");
+            }
+
+            return recording;
         }
     }
 }
