@@ -468,6 +468,8 @@ namespace ElasticSearch.Common
 
             sRes = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sSearchQuery, true);
 
+            log.DebugFormat("ES API request: URL = {0}, body = {1}, result = {2}", sUrl, sSearchQuery, sRes);
+
             if (nStatus != 200)
             {
                 log.Error("Error - " + string.Format("Search query failed. url={0};query={1}; explanation={2}", sUrl, sSearchQuery, sRes));
