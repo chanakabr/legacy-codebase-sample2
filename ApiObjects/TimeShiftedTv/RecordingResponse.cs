@@ -12,29 +12,30 @@ namespace ApiObjects.TimeShiftedTv
 
         public ApiObjects.Response.Status Status { get; set; }
 
-        public Recording Recording { get; set; }
-
-        public string EpgID { get; set; }
+        public List<Recording> Recordings { get; set; }
 
         public RecordingResponse()
         {
             Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            Recording = null;
-            EpgID = null;
+            Recordings = new List<Recording>();
         }
 
-        public RecordingResponse(ApiObjects.Response.Status status, Recording recording, int epgID)
+        public RecordingResponse(ApiObjects.Response.Status status, List<Recording> recordings)
         {
             this.Status = status;
-            this.Recording = recording;
-            this.EpgID = epgID.ToString();
+            this.Recordings = recordings;
         }
 
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
             sb.Append(string.Format("Status Code: {0}, Status Message: {1} ", Status.Code, Status.Message));
-            sb.Append(string.Format(", Recording: {0}", Recording.ToString()));
+            sb.Append("Recordings: ");
+            foreach (Recording record in Recordings)
+            {
+                sb.Append(record.ToString());
+                sb.Append(", ");
+            }            
 
             return sb.ToString();
         }

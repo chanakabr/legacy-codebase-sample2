@@ -17215,12 +17215,12 @@ namespace ConditionalAccess
             return false;
         }
 
-        public RecordingResponse Record(string userID, int epgID)
+        public Recording Record(string userID, int epgID)
         {
-            RecordingResponse response = new RecordingResponse();            
+            Recording response = new Recording();            
             try
             {
-                RecordingsResponse recordings = QueryRecords(userID, new List<int>() { epgID });
+                RecordingResponse recordings = QueryRecords(userID, new List<int>() { epgID });
                 if (recordings == null || recordings.Status == null)
                 {
                     return response;
@@ -17258,9 +17258,9 @@ namespace ConditionalAccess
             return response;
         }
 
-        public RecordingsResponse QueryRecords(string userID, List<int> epgIDs)
+        public RecordingResponse QueryRecords(string userID, List<int> epgIDs)
         {
-            RecordingsResponse response = new RecordingsResponse();
+            RecordingResponse response = new RecordingResponse();
             try
             {
                 long domainID = 0;
@@ -17311,9 +17311,9 @@ namespace ConditionalAccess
             return response;
         }
 
-        public RecordingResponse QueryRecord(int epgID, long domainID)
+        public Recording QueryRecord(int epgID, long domainID)
         {
-            RecordingResponse response = new RecordingResponse();
+            Recording response = new Recording();
             try
             {
                 /********************************************************
