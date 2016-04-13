@@ -141,7 +141,8 @@ namespace Users
         {
             UserResponseObject Response = new UserResponseObject();
             Int32 oldSiteGuid = siteGuid;
-            UserActivationState userStatus = GetUserStatus(ref userName, ref siteGuid);
+            bool isGracePeriod = false;
+            UserActivationState userStatus = GetUserStatus(ref userName, ref siteGuid, ref isGracePeriod);
 
             if (userStatus != UserActivationState.Activated)
             {
@@ -186,15 +187,26 @@ namespace Users
             if (oldSiteGuid == 0)
             {
                 // check username and password
-                return User.SignIn(userName, password, maxFailCount, lockMin, groupId, sessionId, ip, deviceId, preventDoubleLogin);
+                Response = User.SignIn(userName, password, maxFailCount, lockMin, groupId, sessionId, ip, deviceId, preventDoubleLogin);
+                if (Response != null && Response.m_user != null)
+                {
+                    Response.m_user.IsActivationGracePeriod = isGracePeriod;
+                }
+                return Response;
             }
             else if (oldSiteGuid == siteGuid)
             {
                 // validate siteguid received is legal
-                return User.SignIn(siteGuid, maxFailCount, lockMin, groupId, sessionId, ip, deviceId, preventDoubleLogin);
+                Response = User.SignIn(siteGuid, maxFailCount, lockMin, groupId, sessionId, ip, deviceId, preventDoubleLogin);
+                if (Response != null && Response.m_user != null)
+                {
+                    Response.m_user.IsActivationGracePeriod = isGracePeriod;
+                }
+                return Response;
             }
-
+            
             Response.m_RespStatus = ResponseStatus.WrongPasswordOrUserName;
+
             return Response;
         }
 
@@ -364,9 +376,9 @@ namespace Users
 
         public override void PostDefaultRules(ref UserResponseObject userResponse, bool passed, string siteGuid, int groupId, ref User userBo, ref List<KeyValuePair> keyValueList) { }
 
-        public UserActivationState GetUserStatus(ref string username, ref Int32 userId)
+        public UserActivationState GetUserStatus(ref string username, ref Int32 userId, ref bool isGracePeriod)
         {
-            UserActivationState activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(GroupId, activationMustHours, ref username, ref userId);
+            UserActivationState activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(GroupId, activationMustHours, ref username, ref userId, ref isGracePeriod);
 
             return activStatus;
         }

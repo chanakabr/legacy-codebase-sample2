@@ -101,55 +101,21 @@ namespace Catalog.Request
                 CheckEPGRequestIsValid();
                 CheckSignature(this);
                 SearchResultsObj epgSearchResponse = null;
-                if (DateTime.UtcNow <= m_dStartDate)
+                epgSearchResponse = Catalog.GetProgramIdsFromSearcher(BuildEPGSearchObject());
+                if (epgSearchResponse == null)
                 {
-                    epgSearchResponse = Catalog.GetProgramIdsFromSearcher(BuildEPGSearchObject());
-                    if (epgSearchResponse == null)
-                    {
-                        oResponse = new EpgSearchResponse();
-                    }
-                    else
-                    {
-                        oResponse.m_nTotalItems = epgSearchResponse.n_TotalItems;
-
-                        //Complete max updatedate per mediaId
-                        if (epgSearchResponse.m_resultIDs != null)
-                        {
-                            oResponse.m_nEpgIds = epgSearchResponse.m_resultIDs;
-                        }
-                    }
+                    oResponse = new EpgSearchResponse();
                 }
                 else
                 {
-                    // get channel linear settings                     
-                    List<string> epgChannelIds = m_oEPGChannelIDs.Distinct().Select(item => item.ToString()).ToList<string>();
-                    Dictionary<string, LinearChannelSettings> linearChannelSettings = CatalogCache.Instance().GetLinearChannelSettings(m_nGroupID, epgChannelIds);
-                    
-                    //get catachUpBuffer
-                    if (linearChannelSettings != null && linearChannelSettings.Count > 0)
+                    oResponse.m_nTotalItems = epgSearchResponse.n_TotalItems;
+
+                    //Complete max updatedate per mediaId
+                    if (epgSearchResponse.m_resultIDs != null)
                     {
-                        SearchResultsObj sro = null;
-                        var groupedLinearChannelSettings = linearChannelSettings.GroupBy(u => u.Value.CatchUpBuffer).Select(grp => grp.ToList()).ToList();
-                        foreach (var channel in groupedLinearChannelSettings)
-                        {
-                            List<string> EpgChannelIds = channel.Select(grp => grp.Value.ChannelID).ToList<string>();
-                          
-                            sro = Catalog.GetProgramIdsFromSearcher(BuildEPGSearchObject(EpgChannelIds));
-                            if (sro != null && sro.m_resultIDs != null && sro.m_resultIDs.Count > 0)
-                            {
-                                oResponse.m_nTotalItems += sro.n_TotalItems;
-
-                                oResponse.m_nEpgIds.AddRange(epgSearchResponse.m_resultIDs);
-                            }
-
-                            if (epgSearchResponse == null)
-                            {
-                                oResponse = new EpgSearchResponse();
-                            }
-                        }
+                        oResponse.m_nEpgIds = epgSearchResponse.m_resultIDs;
                     }
                 }
-
                 return oResponse;
             }
             catch (Exception ex)
@@ -204,11 +170,7 @@ namespace Catalog.Request
         }
 
         public EpgSearchObj BuildEPGSearchObject()
-        {
-            return BuildEPGSearchObject(null);
-        }
-        private EpgSearchObj BuildEPGSearchObject(List<string> EpgChannelIds = null)
-        {
+        {           
             EpgSearchObj res = null;
             ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
 
@@ -227,13 +189,13 @@ namespace Catalog.Request
             }
             else
             {
-                res = BuildEPGSearchObjectInner(EpgChannelIds);
+                res = BuildEPGSearchObjectInner();
             }
 
             return res;
         }
 
-        private EpgSearchObj BuildEPGSearchObjectInner(List<string> EpgChannelIds = null)
+        private EpgSearchObj BuildEPGSearchObjectInner()
         {
             List<string> lSearchList = new List<string>();
             EpgSearchObj searcherEpgSearch = new EpgSearchObj();
@@ -241,7 +203,6 @@ namespace Catalog.Request
             searcherEpgSearch.m_bExact = m_bExact;
             searcherEpgSearch.m_dEndDate = m_dEndDate;
             searcherEpgSearch.m_dStartDate = m_dStartDate;
-            DateTime StartDateTime = DateTime.UtcNow;
 
             searcherEpgSearch.m_dSearchEndDate = DateTime.UtcNow;
            
@@ -280,15 +241,9 @@ namespace Catalog.Request
 
             searcherEpgSearch.m_nPageIndex = m_nPageIndex;
             searcherEpgSearch.m_nPageSize = m_nPageSize;
-
-            if (EpgChannelIds != null)
-            {
-                searcherEpgSearch.m_oEpgChannelIDs = EpgChannelIds.Select(item => long.Parse(item)).ToList<long>(); ;
-            }
-            else
-            {
-                searcherEpgSearch.m_oEpgChannelIDs = m_oEPGChannelIDs;
-            }
+          
+            searcherEpgSearch.m_oEpgChannelIDs = m_oEPGChannelIDs;
+            
             searcherEpgSearch.m_nNextTop = 0;
             searcherEpgSearch.m_nPrevTop = 0;
             searcherEpgSearch.m_bIsCurrent = false;
