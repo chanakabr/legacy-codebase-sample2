@@ -540,17 +540,16 @@ namespace WebAPI.Controllers
         /// Resend the activation token to a user
         /// </summary>
         /// <param name="partnerId">The partner ID</param>
-        /// <param name="password">Password of the user to activate</param>
         /// <param name="username">Username of the user to activate</param>
         /// <returns></returns>
         [Route("resendActivationToken"), HttpPost]
-        public bool ResendActivationToken(int partnerId, string username, string password)
+        public bool ResendActivationToken(int partnerId, string username)
         {
             bool response = false;
 
             try
             {
-                response = ClientsManager.UsersClient().ResendActivationToken(partnerId, username, password);
+                response = ClientsManager.UsersClient().ResendActivationToken(partnerId, username);
             }
             catch (ClientException ex)
             {
