@@ -840,7 +840,7 @@ namespace WebAPI.Clients
             return user;
         }
 
-        public bool ResendActivationToken(int groupId, string username, string password)
+        public bool ResendActivationToken(int groupId, string username)
         {
             Status response = null;
 
@@ -850,7 +850,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.ResendActivationToken(group.UsersCredentials.Username, group.UsersCredentials.Password, username, password);
+                    response = Users.ResendActivationToken(group.UsersCredentials.Username, group.UsersCredentials.Password, username);
                 }
             }
             catch (Exception ex)

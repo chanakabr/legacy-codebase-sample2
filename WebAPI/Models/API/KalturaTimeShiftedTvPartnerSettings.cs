@@ -49,7 +49,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "catch_up_buffer_length")]
         [JsonProperty("catch_up_buffer_length")]
         [XmlElement(ElementName = "catch_up_buffer_length", IsNullable = true)]
-        public int? CatchUpBufferLength { get; set; }
+        public long? CatchUpBufferLength { get; set; }
 
         /// <summary>
         /// Trick play buffer length
@@ -57,7 +57,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "trick_play_buffer_length")]
         [JsonProperty("trick_play_buffer_length")]
         [XmlElement(ElementName = "trick_play_buffer_length", IsNullable = true)]
-        public int? TrickPlayBufferLength { get; set; }
+        public long? TrickPlayBufferLength { get; set; }
 
     }
 }

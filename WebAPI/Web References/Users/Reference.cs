@@ -3409,30 +3409,28 @@ namespace WebAPI.Users {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://users.tvinci.com/ResendActivationToken", RequestNamespace="http://users.tvinci.com/", ResponseNamespace="http://users.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Status ResendActivationToken(string sWSUserName, string sWSPassword, string username, string password) {
+        public Status ResendActivationToken(string sWSUserName, string sWSPassword, string username) {
             object[] results = this.Invoke("ResendActivationToken", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        username,
-                        password});
+                        username});
             return ((Status)(results[0]));
         }
         
         /// <remarks/>
-        public void ResendActivationTokenAsync(string sWSUserName, string sWSPassword, string username, string password) {
-            this.ResendActivationTokenAsync(sWSUserName, sWSPassword, username, password, null);
+        public void ResendActivationTokenAsync(string sWSUserName, string sWSPassword, string username) {
+            this.ResendActivationTokenAsync(sWSUserName, sWSPassword, username, null);
         }
         
         /// <remarks/>
-        public void ResendActivationTokenAsync(string sWSUserName, string sWSPassword, string username, string password, object userState) {
+        public void ResendActivationTokenAsync(string sWSUserName, string sWSPassword, string username, object userState) {
             if ((this.ResendActivationTokenOperationCompleted == null)) {
                 this.ResendActivationTokenOperationCompleted = new System.Threading.SendOrPostCallback(this.OnResendActivationTokenOperationCompleted);
             }
             this.InvokeAsync("ResendActivationToken", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        username,
-                        password}, this.ResendActivationTokenOperationCompleted, userState);
+                        username}, this.ResendActivationTokenOperationCompleted, userState);
         }
         
         private void OnResendActivationTokenOperationCompleted(object arg) {
@@ -3615,6 +3613,8 @@ namespace WebAPI.Users {
         
         private int m_nSSOOperatorIDField;
         
+        private bool isActivationGracePeriodField;
+        
         /// <remarks/>
         public UserBasicData m_oBasicData {
             get {
@@ -3692,6 +3692,16 @@ namespace WebAPI.Users {
             }
             set {
                 this.m_nSSOOperatorIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool IsActivationGracePeriod {
+            get {
+                return this.isActivationGracePeriodField;
+            }
+            set {
+                this.isActivationGracePeriodField = value;
             }
         }
     }

@@ -74,7 +74,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_user.m_sSiteGUID))
                 .ForMember(dest => dest.SuspentionState, opt => opt.MapFrom(src => ConvertDomainSuspentionStatus(src.m_user.m_eSuspendState)))
                 .ForMember(dest => dest.IsHouseholdMaster, opt => opt.MapFrom(src => src.m_user.m_isDomainMaster))
-                .ForMember(dest => dest.UserState, opt => opt.MapFrom(src => ConvertResponseStatusToUserState(src.m_RespStatus)));
+                .ForMember(dest => dest.UserState, opt => opt.MapFrom(src => ConvertResponseStatusToUserState(src.m_RespStatus, src.m_user.IsActivationGracePeriod)));
 
             // User
             Mapper.CreateMap<Users.User, KalturaOTTUser>()
@@ -252,22 +252,29 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         }
 
-        private static KalturaUserState ConvertResponseStatusToUserState(WebAPI.Users.ResponseStatus type)
+        private static KalturaUserState ConvertResponseStatusToUserState(WebAPI.Users.ResponseStatus type, bool isActivationGracePeriod)
         {
             KalturaUserState result;
-            switch (type)
+            if (isActivationGracePeriod)
             {
-                case WebAPI.Users.ResponseStatus.OK:
-                    result = KalturaUserState.ok;
-                    break;
-                case WebAPI.Users.ResponseStatus.UserWithNoDomain:
-                    result = KalturaUserState.user_with_no_household;
-                    break;
-                case WebAPI.Users.ResponseStatus.UserCreatedWithNoRole:
-                    result = KalturaUserState.user_created_with_no_role;
-                    break;
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown user state");
+                result = KalturaUserState.user_not_activated;
+            }
+            else
+            {
+                switch (type)
+                {
+                    case WebAPI.Users.ResponseStatus.OK:
+                        result = KalturaUserState.ok;
+                        break;
+                    case WebAPI.Users.ResponseStatus.UserWithNoDomain:
+                        result = KalturaUserState.user_with_no_household;
+                        break;
+                    case WebAPI.Users.ResponseStatus.UserCreatedWithNoRole:
+                        result = KalturaUserState.user_created_with_no_role;
+                        break;
+                    default:
+                        throw new ClientException((int)StatusCode.Error, "Unknown user state");
+                }
             }
             return result;
         }
