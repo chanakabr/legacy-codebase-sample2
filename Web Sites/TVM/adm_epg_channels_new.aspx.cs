@@ -31,8 +31,8 @@ public partial class adm_epg_channels_new : System.Web.UI.Page
             {
                  System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;
 
-                 if (coll != null && coll.Count > 13 && !string.IsNullOrEmpty(coll["14_val"]))
-                 {
+                 if (coll != null && coll.Count > 13 )
+                 {   
                      bool isCdvtIDExists = IsCdvtIDExists(coll["14_val"], Session["epg_channel_id"].ToString());
                      if (isCdvtIDExists)
                      {
@@ -69,8 +69,13 @@ public partial class adm_epg_channels_new : System.Web.UI.Page
 
     static private bool IsCdvtIDExists(string cdvrlId, string channelID)
     {
-        int groupID = LoginManager.GetLoginGroupID();
         bool result = false;
+        if (string.IsNullOrEmpty(cdvrlId))
+        {
+            return result;
+        }
+
+        int groupID = LoginManager.GetLoginGroupID();       
 
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
         selectQuery.SetConnectionKey("main_connection_string");
