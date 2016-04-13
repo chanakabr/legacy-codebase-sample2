@@ -6,6 +6,7 @@ using System.Data;
 using ODBCWrapper;
 using ApiObjects;
 using System.Text.RegularExpressions;
+using ApiObjects.TimeShiftedTv;
 
 namespace DAL
 {
@@ -2448,6 +2449,11 @@ namespace DAL
             }
 
             return adapterResponse;
+        }
+
+        public static Recording GetRecordingByProgramId(long programId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

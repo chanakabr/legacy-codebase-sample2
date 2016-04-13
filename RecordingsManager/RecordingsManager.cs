@@ -1,4 +1,6 @@
-﻿using ApiObjects.Response;
+﻿using ApiObjects;
+using ApiObjects.Response;
+using ApiObjects.TimeShiftedTv;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,14 +11,16 @@ namespace RecordingsManager
 {
     public class RecordingsManager
     {
-        public int Record(long programId, DateTime startDate, DateTime endDate, string siteGuid, int domainId)
+        public Recording Record(int groupId, long programId, DateTime startDate, DateTime endDate, string siteGuid, int domainId)
         {
-            int recordingId = 0;
+            Recording recording = null;
 
-            return recordingId;
+            recording = DAL.ConditionalAccessDAL.GetRecordingByProgramId(programId);
+
+            return recording;
         }
 
-        public Status CancelRecord(long programId, DateTime startDate, DateTime endDate, string siteGuid, int domainId)
+        public Status CancelRecord(int groupId, long programId, DateTime startDate, DateTime endDate, string siteGuid, int domainId)
         {
             Status status = new Status();
 
