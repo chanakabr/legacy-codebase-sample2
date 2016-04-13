@@ -1967,11 +1967,11 @@ namespace Users
             }
         }
 
-        public override ApiObjects.Response.Status ResendActivationToken(string username, string password)
+        public override ApiObjects.Response.Status ResendActivationToken(string username)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
-            UserResponseObject user = User.CheckUserPassword(username, password, 0, 0, m_nGroupID, false, false);
+            UserResponseObject user = GetUserByUsername(username, m_nGroupID);
 
             if (user == null)
                 return response;

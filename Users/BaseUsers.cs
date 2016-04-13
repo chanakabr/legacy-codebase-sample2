@@ -1353,6 +1353,6 @@ namespace Users
             return response;
         }
 
-        public abstract ApiObjects.Response.Status ResendActivationToken(string username, string password);
+        public abstract ApiObjects.Response.Status ResendActivationToken(string username);
     }
 }
