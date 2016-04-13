@@ -387,6 +387,9 @@ namespace Users
                 if (isActivated)
                 {
                     bool resetSession = DAL.UsersDal.SetUserSessionStatus(nID, 0, 0);
+                    // remove user from cache
+                    UsersCache usersCache = UsersCache.Instance();
+                    usersCache.RemoveUser(nID, m_nGroupID);
                 }
                 try
                 {
