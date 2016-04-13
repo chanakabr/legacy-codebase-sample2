@@ -17,7 +17,7 @@ namespace Recordings
     {
         #region Consts
 
-        private const string SCHEDULED_TASKS_ROUTING_KEY = "RECORDING_TASKS\\{0}";
+        private const string SCHEDULED_TASKS_ROUTING_KEY = "PROCESS_RECORDING_TASK\\{0}";
         #endregion
         #region Static Members
 
