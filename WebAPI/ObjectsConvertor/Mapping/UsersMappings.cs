@@ -255,12 +255,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
         private static KalturaUserState ConvertResponseStatusToUserState(WebAPI.Users.ResponseStatus type, bool isActivationGracePeriod)
         {
             KalturaUserState result;
-            //if (isActivationGracePeriod)
-            //{
-            //    result = KalturaUserState.user_not_activated;
-            //}
-            //else
-            //{
+            if (isActivationGracePeriod)
+            {
+                result = KalturaUserState.user_not_activated;
+            }
+            else
+            {
                 switch (type)
                 {
                     case WebAPI.Users.ResponseStatus.OK:
@@ -275,7 +275,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     default:
                         throw new ClientException((int)StatusCode.Error, "Unknown user state");
                 }
-            //}
+            }
             return result;
         }
 
