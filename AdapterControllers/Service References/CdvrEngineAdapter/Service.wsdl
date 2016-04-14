@@ -26,6 +26,30 @@
   <wsdl:message name="IService_GetRecordingStatus_OutputMessage">
     <wsdl:part name="parameters" element="tns:GetRecordingStatusResponse" />
   </wsdl:message>
+  <wsdl:message name="IService_UpdateRecordingSchedule_InputMessage">
+    <wsdl:part name="parameters" element="tns:UpdateRecordingSchedule" />
+  </wsdl:message>
+  <wsdl:message name="IService_UpdateRecordingSchedule_OutputMessage">
+    <wsdl:part name="parameters" element="tns:UpdateRecordingScheduleResponse" />
+  </wsdl:message>
+  <wsdl:message name="IService_CancelRecording_InputMessage">
+    <wsdl:part name="parameters" element="tns:CancelRecording" />
+  </wsdl:message>
+  <wsdl:message name="IService_CancelRecording_OutputMessage">
+    <wsdl:part name="parameters" element="tns:CancelRecordingResponse" />
+  </wsdl:message>
+  <wsdl:message name="IService_DeleteRecording_InputMessage">
+    <wsdl:part name="parameters" element="tns:DeleteRecording" />
+  </wsdl:message>
+  <wsdl:message name="IService_DeleteRecording_OutputMessage">
+    <wsdl:part name="parameters" element="tns:DeleteRecordingResponse" />
+  </wsdl:message>
+  <wsdl:message name="IService_GetRecordingLinks_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetRecordingLinks" />
+  </wsdl:message>
+  <wsdl:message name="IService_GetRecordingLinks_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetRecordingLinksResponse" />
+  </wsdl:message>
   <wsdl:portType name="IService">
     <wsdl:operation name="SetConfiguration">
       <wsdl:input wsaw:Action="http://tempuri.org/IService/SetConfiguration" message="tns:IService_SetConfiguration_InputMessage" />
@@ -38,6 +62,22 @@
     <wsdl:operation name="GetRecordingStatus">
       <wsdl:input wsaw:Action="http://tempuri.org/IService/GetRecordingStatus" message="tns:IService_GetRecordingStatus_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/IService/GetRecordingStatusResponse" message="tns:IService_GetRecordingStatus_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateRecordingSchedule">
+      <wsdl:input wsaw:Action="http://tempuri.org/IService/UpdateRecordingSchedule" message="tns:IService_UpdateRecordingSchedule_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IService/UpdateRecordingScheduleResponse" message="tns:IService_UpdateRecordingSchedule_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="CancelRecording">
+      <wsdl:input wsaw:Action="http://tempuri.org/IService/CancelRecording" message="tns:IService_CancelRecording_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IService/CancelRecordingResponse" message="tns:IService_CancelRecording_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteRecording">
+      <wsdl:input wsaw:Action="http://tempuri.org/IService/DeleteRecording" message="tns:IService_DeleteRecording_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IService/DeleteRecordingResponse" message="tns:IService_DeleteRecording_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetRecordingLinks">
+      <wsdl:input wsaw:Action="http://tempuri.org/IService/GetRecordingLinks" message="tns:IService_GetRecordingLinks_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IService/GetRecordingLinksResponse" message="tns:IService_GetRecordingLinks_OutputMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="BasicHttpBinding_IService" type="tns:IService">
@@ -62,6 +102,42 @@
     </wsdl:operation>
     <wsdl:operation name="GetRecordingStatus">
       <soap:operation soapAction="http://tempuri.org/IService/GetRecordingStatus" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateRecordingSchedule">
+      <soap:operation soapAction="http://tempuri.org/IService/UpdateRecordingSchedule" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CancelRecording">
+      <soap:operation soapAction="http://tempuri.org/IService/CancelRecording" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteRecording">
+      <soap:operation soapAction="http://tempuri.org/IService/DeleteRecording" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRecordingLinks">
+      <soap:operation soapAction="http://tempuri.org/IService/GetRecordingLinks" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>

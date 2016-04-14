@@ -145,9 +145,6 @@ namespace AdapterControllers.CdvrEngineAdapter {
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private AdapterControllers.CdvrEngineAdapter.ProviderStatus ProviderStatusField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private AdapterControllers.CdvrEngineAdapter.Recording RecordingField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -160,19 +157,6 @@ namespace AdapterControllers.CdvrEngineAdapter {
             }
             set {
                 this.extensionDataField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public AdapterControllers.CdvrEngineAdapter.ProviderStatus ProviderStatus {
-            get {
-                return this.ProviderStatusField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.ProviderStatusField, value) != true)) {
-                    this.ProviderStatusField = value;
-                    this.RaisePropertyChanged("ProviderStatus");
-                }
             }
         }
         
@@ -214,73 +198,24 @@ namespace AdapterControllers.CdvrEngineAdapter {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="ProviderStatus", Namespace="http://schemas.datacontract.org/2004/07/CDVRAdapter.Models")]
-    [System.SerializableAttribute()]
-    public partial class ProviderStatus : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
-        [System.NonSerializedAttribute()]
-        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int CodeField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string MessageField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
-                return this.extensionDataField;
-            }
-            set {
-                this.extensionDataField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int Code {
-            get {
-                return this.CodeField;
-            }
-            set {
-                if ((this.CodeField.Equals(value) != true)) {
-                    this.CodeField = value;
-                    this.RaisePropertyChanged("Code");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string Message {
-            get {
-                return this.MessageField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.MessageField, value) != true)) {
-                    this.MessageField = value;
-                    this.RaisePropertyChanged("Message");
-                }
-            }
-        }
-        
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
-            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
-                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="Recording", Namespace="http://schemas.datacontract.org/2004/07/CDVRAdapter.Models")]
     [System.SerializableAttribute()]
     public partial class Recording : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
         
         [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int FailReasonField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<AdapterControllers.CdvrEngineAdapter.RecordingLink> LinksField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string ProviderStatusCodeField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string ProviderStatusMessageField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string RecordingIdField;
@@ -295,6 +230,58 @@ namespace AdapterControllers.CdvrEngineAdapter {
             }
             set {
                 this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int FailReason {
+            get {
+                return this.FailReasonField;
+            }
+            set {
+                if ((this.FailReasonField.Equals(value) != true)) {
+                    this.FailReasonField = value;
+                    this.RaisePropertyChanged("FailReason");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<AdapterControllers.CdvrEngineAdapter.RecordingLink> Links {
+            get {
+                return this.LinksField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.LinksField, value) != true)) {
+                    this.LinksField = value;
+                    this.RaisePropertyChanged("Links");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string ProviderStatusCode {
+            get {
+                return this.ProviderStatusCodeField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.ProviderStatusCodeField, value) != true)) {
+                    this.ProviderStatusCodeField = value;
+                    this.RaisePropertyChanged("ProviderStatusCode");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string ProviderStatusMessage {
+            get {
+                return this.ProviderStatusMessageField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.ProviderStatusMessageField, value) != true)) {
+                    this.ProviderStatusMessageField = value;
+                    this.RaisePropertyChanged("ProviderStatusMessage");
+                }
             }
         }
         
@@ -334,27 +321,112 @@ namespace AdapterControllers.CdvrEngineAdapter {
         }
     }
     
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="RecordingLink", Namespace="http://schemas.datacontract.org/2004/07/CDVRAdapter.Models")]
+    [System.SerializableAttribute()]
+    public partial class RecordingLink : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string DeviceTypeField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string UrlField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string DeviceType {
+            get {
+                return this.DeviceTypeField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.DeviceTypeField, value) != true)) {
+                    this.DeviceTypeField = value;
+                    this.RaisePropertyChanged("DeviceType");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Url {
+            get {
+                return this.UrlField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.UrlField, value) != true)) {
+                    this.UrlField = value;
+                    this.RaisePropertyChanged("Url");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="CdvrEngineAdapter.IService")]
     public interface IService {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/SetConfiguration", ReplyAction="http://tempuri.org/IService/SetConfigurationResponse")]
-        AdapterControllers.CdvrEngineAdapter.AdapterStatus SetConfiguration(int adapterId, AdapterControllers.CdvrEngineAdapter.KeyValue[] settings, int partnerId, long timeStamp, string signature);
+        AdapterControllers.CdvrEngineAdapter.AdapterStatus SetConfiguration(int adapterId, System.Collections.Generic.List<AdapterControllers.CdvrEngineAdapter.KeyValue> settings, int partnerId, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/SetConfiguration", ReplyAction="http://tempuri.org/IService/SetConfigurationResponse")]
-        System.Threading.Tasks.Task<AdapterControllers.CdvrEngineAdapter.AdapterStatus> SetConfigurationAsync(int adapterId, AdapterControllers.CdvrEngineAdapter.KeyValue[] settings, int partnerId, long timeStamp, string signature);
+        System.Threading.Tasks.Task<AdapterControllers.CdvrEngineAdapter.AdapterStatus> SetConfigurationAsync(int adapterId, System.Collections.Generic.List<AdapterControllers.CdvrEngineAdapter.KeyValue> settings, int partnerId, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/Record", ReplyAction="http://tempuri.org/IService/RecordResponse")]
-        AdapterControllers.CdvrEngineAdapter.RecordingResponse Record(long startTimeSeconds, long durationSeconds, int channelId, int adapterId, long timeStamp, string signature);
+        AdapterControllers.CdvrEngineAdapter.RecordingResponse Record(long startTimeSeconds, long durationSeconds, string channelId, int adapterId, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/Record", ReplyAction="http://tempuri.org/IService/RecordResponse")]
-        System.Threading.Tasks.Task<AdapterControllers.CdvrEngineAdapter.RecordingResponse> RecordAsync(long startTimeSeconds, long durationSeconds, int channelId, int adapterId, long timeStamp, string signature);
+        System.Threading.Tasks.Task<AdapterControllers.CdvrEngineAdapter.RecordingResponse> RecordAsync(long startTimeSeconds, long durationSeconds, string channelId, int adapterId, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetRecordingStatus", ReplyAction="http://tempuri.org/IService/GetRecordingStatusResponse")]
         AdapterControllers.CdvrEngineAdapter.RecordingResponse GetRecordingStatus(string recordingId, int adapterId, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetRecordingStatus", ReplyAction="http://tempuri.org/IService/GetRecordingStatusResponse")]
         System.Threading.Tasks.Task<AdapterControllers.CdvrEngineAdapter.RecordingResponse> GetRecordingStatusAsync(string recordingId, int adapterId, long timeStamp, string signature);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/UpdateRecordingSchedule", ReplyAction="http://tempuri.org/IService/UpdateRecordingScheduleResponse")]
+        AdapterControllers.CdvrEngineAdapter.RecordingResponse UpdateRecordingSchedule(string recordingId, int adapterId, long startDateSeconds, long durationSeconds, long timeStamp, string signature);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/UpdateRecordingSchedule", ReplyAction="http://tempuri.org/IService/UpdateRecordingScheduleResponse")]
+        System.Threading.Tasks.Task<AdapterControllers.CdvrEngineAdapter.RecordingResponse> UpdateRecordingScheduleAsync(string recordingId, int adapterId, long startDateSeconds, long durationSeconds, long timeStamp, string signature);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/CancelRecording", ReplyAction="http://tempuri.org/IService/CancelRecordingResponse")]
+        AdapterControllers.CdvrEngineAdapter.RecordingResponse CancelRecording(string recordingId, int adapterId, long timeStamp, string signature);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/CancelRecording", ReplyAction="http://tempuri.org/IService/CancelRecordingResponse")]
+        System.Threading.Tasks.Task<AdapterControllers.CdvrEngineAdapter.RecordingResponse> CancelRecordingAsync(string recordingId, int adapterId, long timeStamp, string signature);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/DeleteRecording", ReplyAction="http://tempuri.org/IService/DeleteRecordingResponse")]
+        AdapterControllers.CdvrEngineAdapter.RecordingResponse DeleteRecording(string recordingId, int adapterId, long timeStamp, string signature);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/DeleteRecording", ReplyAction="http://tempuri.org/IService/DeleteRecordingResponse")]
+        System.Threading.Tasks.Task<AdapterControllers.CdvrEngineAdapter.RecordingResponse> DeleteRecordingAsync(string recordingId, int adapterId, long timeStamp, string signature);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetRecordingLinks", ReplyAction="http://tempuri.org/IService/GetRecordingLinksResponse")]
+        AdapterControllers.CdvrEngineAdapter.RecordingResponse GetRecordingLinks(string recordingId, int adapterId, long timeStamp, string signature);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetRecordingLinks", ReplyAction="http://tempuri.org/IService/GetRecordingLinksResponse")]
+        System.Threading.Tasks.Task<AdapterControllers.CdvrEngineAdapter.RecordingResponse> GetRecordingLinksAsync(string recordingId, int adapterId, long timeStamp, string signature);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -384,19 +456,19 @@ namespace AdapterControllers.CdvrEngineAdapter {
                 base(binding, remoteAddress) {
         }
         
-        public AdapterControllers.CdvrEngineAdapter.AdapterStatus SetConfiguration(int adapterId, AdapterControllers.CdvrEngineAdapter.KeyValue[] settings, int partnerId, long timeStamp, string signature) {
+        public AdapterControllers.CdvrEngineAdapter.AdapterStatus SetConfiguration(int adapterId, System.Collections.Generic.List<AdapterControllers.CdvrEngineAdapter.KeyValue> settings, int partnerId, long timeStamp, string signature) {
             return base.Channel.SetConfiguration(adapterId, settings, partnerId, timeStamp, signature);
         }
         
-        public System.Threading.Tasks.Task<AdapterControllers.CdvrEngineAdapter.AdapterStatus> SetConfigurationAsync(int adapterId, AdapterControllers.CdvrEngineAdapter.KeyValue[] settings, int partnerId, long timeStamp, string signature) {
+        public System.Threading.Tasks.Task<AdapterControllers.CdvrEngineAdapter.AdapterStatus> SetConfigurationAsync(int adapterId, System.Collections.Generic.List<AdapterControllers.CdvrEngineAdapter.KeyValue> settings, int partnerId, long timeStamp, string signature) {
             return base.Channel.SetConfigurationAsync(adapterId, settings, partnerId, timeStamp, signature);
         }
         
-        public AdapterControllers.CdvrEngineAdapter.RecordingResponse Record(long startTimeSeconds, long durationSeconds, int channelId, int adapterId, long timeStamp, string signature) {
+        public AdapterControllers.CdvrEngineAdapter.RecordingResponse Record(long startTimeSeconds, long durationSeconds, string channelId, int adapterId, long timeStamp, string signature) {
             return base.Channel.Record(startTimeSeconds, durationSeconds, channelId, adapterId, timeStamp, signature);
         }
         
-        public System.Threading.Tasks.Task<AdapterControllers.CdvrEngineAdapter.RecordingResponse> RecordAsync(long startTimeSeconds, long durationSeconds, int channelId, int adapterId, long timeStamp, string signature) {
+        public System.Threading.Tasks.Task<AdapterControllers.CdvrEngineAdapter.RecordingResponse> RecordAsync(long startTimeSeconds, long durationSeconds, string channelId, int adapterId, long timeStamp, string signature) {
             return base.Channel.RecordAsync(startTimeSeconds, durationSeconds, channelId, adapterId, timeStamp, signature);
         }
         
@@ -406,6 +478,38 @@ namespace AdapterControllers.CdvrEngineAdapter {
         
         public System.Threading.Tasks.Task<AdapterControllers.CdvrEngineAdapter.RecordingResponse> GetRecordingStatusAsync(string recordingId, int adapterId, long timeStamp, string signature) {
             return base.Channel.GetRecordingStatusAsync(recordingId, adapterId, timeStamp, signature);
+        }
+        
+        public AdapterControllers.CdvrEngineAdapter.RecordingResponse UpdateRecordingSchedule(string recordingId, int adapterId, long startDateSeconds, long durationSeconds, long timeStamp, string signature) {
+            return base.Channel.UpdateRecordingSchedule(recordingId, adapterId, startDateSeconds, durationSeconds, timeStamp, signature);
+        }
+        
+        public System.Threading.Tasks.Task<AdapterControllers.CdvrEngineAdapter.RecordingResponse> UpdateRecordingScheduleAsync(string recordingId, int adapterId, long startDateSeconds, long durationSeconds, long timeStamp, string signature) {
+            return base.Channel.UpdateRecordingScheduleAsync(recordingId, adapterId, startDateSeconds, durationSeconds, timeStamp, signature);
+        }
+        
+        public AdapterControllers.CdvrEngineAdapter.RecordingResponse CancelRecording(string recordingId, int adapterId, long timeStamp, string signature) {
+            return base.Channel.CancelRecording(recordingId, adapterId, timeStamp, signature);
+        }
+        
+        public System.Threading.Tasks.Task<AdapterControllers.CdvrEngineAdapter.RecordingResponse> CancelRecordingAsync(string recordingId, int adapterId, long timeStamp, string signature) {
+            return base.Channel.CancelRecordingAsync(recordingId, adapterId, timeStamp, signature);
+        }
+        
+        public AdapterControllers.CdvrEngineAdapter.RecordingResponse DeleteRecording(string recordingId, int adapterId, long timeStamp, string signature) {
+            return base.Channel.DeleteRecording(recordingId, adapterId, timeStamp, signature);
+        }
+        
+        public System.Threading.Tasks.Task<AdapterControllers.CdvrEngineAdapter.RecordingResponse> DeleteRecordingAsync(string recordingId, int adapterId, long timeStamp, string signature) {
+            return base.Channel.DeleteRecordingAsync(recordingId, adapterId, timeStamp, signature);
+        }
+        
+        public AdapterControllers.CdvrEngineAdapter.RecordingResponse GetRecordingLinks(string recordingId, int adapterId, long timeStamp, string signature) {
+            return base.Channel.GetRecordingLinks(recordingId, adapterId, timeStamp, signature);
+        }
+        
+        public System.Threading.Tasks.Task<AdapterControllers.CdvrEngineAdapter.RecordingResponse> GetRecordingLinksAsync(string recordingId, int adapterId, long timeStamp, string signature) {
+            return base.Channel.GetRecordingLinksAsync(recordingId, adapterId, timeStamp, signature);
         }
     }
 }

@@ -25,7 +25,7 @@
       <xs:sequence>
         <xs:element minOccurs="0" name="startTimeSeconds" type="xs:long" />
         <xs:element minOccurs="0" name="durationSeconds" type="xs:long" />
-        <xs:element minOccurs="0" name="channelId" type="xs:int" />
+        <xs:element minOccurs="0" name="channelId" nillable="true" type="xs:string" />
         <xs:element minOccurs="0" name="adapterId" type="xs:int" />
         <xs:element minOccurs="0" name="timeStamp" type="xs:long" />
         <xs:element minOccurs="0" name="signature" nillable="true" type="xs:string" />
@@ -53,6 +53,76 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/CDVRAdapter.Models" minOccurs="0" name="GetRecordingStatusResult" nillable="true" type="q4:RecordingResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UpdateRecordingSchedule">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="recordingId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="adapterId" type="xs:int" />
+        <xs:element minOccurs="0" name="startDateSeconds" type="xs:long" />
+        <xs:element minOccurs="0" name="durationSeconds" type="xs:long" />
+        <xs:element minOccurs="0" name="timeStamp" type="xs:long" />
+        <xs:element minOccurs="0" name="signature" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UpdateRecordingScheduleResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/CDVRAdapter.Models" minOccurs="0" name="UpdateRecordingScheduleResult" nillable="true" type="q5:RecordingResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="CancelRecording">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="recordingId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="adapterId" type="xs:int" />
+        <xs:element minOccurs="0" name="timeStamp" type="xs:long" />
+        <xs:element minOccurs="0" name="signature" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="CancelRecordingResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/CDVRAdapter.Models" minOccurs="0" name="CancelRecordingResult" nillable="true" type="q6:RecordingResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="DeleteRecording">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="recordingId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="adapterId" type="xs:int" />
+        <xs:element minOccurs="0" name="timeStamp" type="xs:long" />
+        <xs:element minOccurs="0" name="signature" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="DeleteRecordingResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/CDVRAdapter.Models" minOccurs="0" name="DeleteRecordingResult" nillable="true" type="q7:RecordingResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetRecordingLinks">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="recordingId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="adapterId" type="xs:int" />
+        <xs:element minOccurs="0" name="timeStamp" type="xs:long" />
+        <xs:element minOccurs="0" name="signature" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetRecordingLinksResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/CDVRAdapter.Models" minOccurs="0" name="GetRecordingLinksResult" nillable="true" type="q8:RecordingResponse" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
