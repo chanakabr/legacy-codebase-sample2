@@ -247,7 +247,10 @@ namespace ApiObjects
         EPG
     }
 
-
+    public enum eOTTAssetTypes
+    {
+        Series= 0
+    }
 
     public enum eAssetTypes
     {
