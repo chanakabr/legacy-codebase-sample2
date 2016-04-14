@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/CDVRAdapter.Models" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/CDVRAdapter.Models" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://localhost/CdvrAdp/Service.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" />
+  <xs:complexType name="RecordingResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ProviderStatus" nillable="true" type="tns:ProviderStatus" />
+      <xs:element minOccurs="0" name="Recording" nillable="true" type="tns:Recording" />
+      <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" minOccurs="0" name="Status" nillable="true" type="q1:AdapterStatus" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="RecordingResponse" nillable="true" type="tns:RecordingResponse" />
+  <xs:complexType name="ProviderStatus">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Code" type="xs:int" />
+      <xs:element minOccurs="0" name="Message" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ProviderStatus" nillable="true" type="tns:ProviderStatus" />
+  <xs:complexType name="Recording">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="RecordingId" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="RecordingState" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Recording" nillable="true" type="tns:Recording" />
+</xs:schema>
