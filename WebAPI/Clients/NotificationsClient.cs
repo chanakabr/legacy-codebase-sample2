@@ -499,7 +499,7 @@ namespace WebAPI.Clients
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.AddFollowTemplate(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, apiFollowTemplate);
+                    response = Notification.SetFollowTemplate(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, apiFollowTemplate);
                 }
             }
             catch (Exception ex)
