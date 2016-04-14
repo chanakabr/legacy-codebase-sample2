@@ -89,9 +89,14 @@ public partial class MethodFinder
                         {
                             Product = Array.ConvertAll<object, long>((object[])ser.DeserializeObject(DeserializationTarget), Convert.ToInt64);
                         }
+                        else if (TargetType.ToString().Equals("System.Int32[]"))
+                        {
+                            Product = Array.ConvertAll<object, int>((object[])ser.DeserializeObject(DeserializationTarget), Convert.ToInt32);
+                        }
                         else
                         {
-                            Product = ser.GetType().GetMethod("Deserialize").MakeGenericMethod(TargetType).Invoke(ser, new object[] { DeserializationTarget });
+                            Product = ser.GetType().GetMethod("Deserialize", new Type[] { typeof(string) }).
+                                MakeGenericMethod(TargetType).Invoke(ser, new object[] { DeserializationTarget });
                         }
                     }
                     catch (Exception ex)
