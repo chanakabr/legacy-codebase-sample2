@@ -11,6 +11,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using TVinciShared;
 
 namespace Recordings
 {
@@ -107,7 +108,7 @@ namespace Recordings
 
         #endregion
 
-        public Recording GetRecordingStatus(int groupId, long recordingId)
+        public Recording CheckFinishedRecordingStatus(int groupId, long recordingId)
         {
             Recording result = null;
 
@@ -133,6 +134,21 @@ namespace Recordings
                         // TODO: Update recording object according to response from adapter
 
                         ConditionalAccessDAL.UpdateRecording(currentRecording, groupId);
+
+                        // After we know that recording was succesful,
+                        // we index data so it is available on search
+                        if (currentRecording.RecordingStatus == TstvRecordingStatus.Recorded)
+                        {
+                            using (WS_Catalog.IserviceClient catalog = new WS_Catalog.IserviceClient())
+                            {
+                                catalog.Endpoint.Address = new System.ServiceModel.EndpointAddress(WS_Utils.GetTcmConfigValue("WS_Catalog"));
+
+                                long[] objectIds = new long[]{
+                                    recordingId
+                                };
+                                catalog.UpdateRecordingsIndex(objectIds, groupId, eAction.On);
+                            }
+                        }
                     }
                 }
             }

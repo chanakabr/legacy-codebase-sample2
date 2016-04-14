@@ -2284,27 +2284,34 @@ namespace Catalog
         }
 
         #region UPDATE
-        public static bool UpdateIndex(List<int> lMediaIds, int nGroupId, eAction eAction)
+        public static bool UpdateIndex(List<long> lMediaIds, int nGroupId, eAction eAction)
         {
             return Update(lMediaIds, nGroupId, eObjectType.Media, eAction);
         }
 
-        public static bool UpdateEpgIndex(List<int> lEpgIds, int nGroupId, eAction eAction)
+        public static bool UpdateEpgIndex(List<long> lEpgIds, int nGroupId, eAction eAction)
         {
             return UpdateEpg(lEpgIds, nGroupId, eObjectType.EPG, eAction);
         }
 
-        public static bool UpdateEpgChannelIndex(List<int> ids, int groupId, eAction action)
+        public static bool UpdateEpgChannelIndex(List<long> ids, int groupId, eAction action)
         {
             return UpdateEpg(ids, groupId, eObjectType.EpgChannel, action);
         }
 
-        public static bool UpdateChannelIndex(List<int> lChannelIds, int nGroupId, eAction eAction)
+        public static bool UpdateChannelIndex(List<long> lChannelIds, int nGroupId, eAction eAction)
         {
             return Update(lChannelIds, nGroupId, eObjectType.Channel, eAction);
         }
 
         private static bool Update(List<int> ids, int groupId, eObjectType updatedObjectType, eAction action)
+        {
+            var longIds = ids.Select(i => (long)i).ToList();
+
+            return Update(longIds, groupId, updatedObjectType, action);
+        }
+
+        private static bool Update(List<long> ids, int groupId, eObjectType updatedObjectType, eAction action)
         {
             bool isUpdateIndexSucceeded = false;
 
@@ -2336,7 +2343,7 @@ namespace Catalog
             return isUpdateIndexSucceeded;
         }
 
-        private static bool UpdateEpg(List<int> ids, int groupId, eObjectType objectType, eAction action)
+        private static bool UpdateEpg(List<long> ids, int groupId, eObjectType objectType, eAction action)
         {
             bool isUpdateIndexSucceeded = false;
 
@@ -6415,9 +6422,10 @@ namespace Catalog
             }
         }
 
-
-        
-      
+        public static bool UpdateRecordingsIndex(List<long> recordingsIds, int groupId, eAction action)
+        {
+            return Catalog.Update(recordingsIds, groupId, eObjectType.Recordning, action);
+        }
     }
 }
 
