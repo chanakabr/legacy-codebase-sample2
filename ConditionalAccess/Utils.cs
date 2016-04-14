@@ -4196,6 +4196,10 @@ namespace ConditionalAccess
                 FillCatalogSignature(request);
                 client = new WS_Catalog.IserviceClient();
                 string sCatalogUrl = GetWSURL("WS_Catalog");
+                if (string.IsNullOrEmpty(sCatalogUrl))
+                {
+                    return epgs;
+                }
                 client.Endpoint.Address = new System.ServiceModel.EndpointAddress(sCatalogUrl);
                 WS_Catalog.EpgProgramResponse response = client.GetProgramsByIDs(request) as WS_Catalog.EpgProgramResponse;
                 if (response != null && response.m_nTotalItems > 0 && response.m_lObj != null && response.m_lObj.Length > 0)
@@ -4228,9 +4232,28 @@ namespace ConditionalAccess
             return epgs;
         }
 
-        internal static long GetDomainExistingRecordingID(long epgID, long domainID)
+        internal static bool IsValidRecordingStatus(TstvRecordingStatus recordingStatus)
         {
-            return 0;
+            bool res = false;
+            switch (recordingStatus)
+            {
+                case TstvRecordingStatus.OK:                    
+                case TstvRecordingStatus.Recording:                    
+                case TstvRecordingStatus.Recorded:                    
+                case TstvRecordingStatus.Scheduled:
+                    res = true;
+                    break;
+
+                case TstvRecordingStatus.DoesNotExist:
+                case TstvRecordingStatus.Deleted:
+                case TstvRecordingStatus.Failed:
+                case TstvRecordingStatus.Canceled:
+                default:
+                    res = false;
+                    break;
+            }
+
+            return res;
         }
 
     }

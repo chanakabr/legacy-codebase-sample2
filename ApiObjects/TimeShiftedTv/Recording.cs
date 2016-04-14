@@ -22,16 +22,16 @@ namespace ApiObjects.TimeShiftedTv
 
         public string ExternalRecordingId { get; set; }
 
-        public DateTime StartDate { get; set; }
+        public DateTime EpgStartDate { get; set; }
 
-        public DateTime EndDate { get; set; }
+        public DateTime EpgEndDate { get; set; }
 
         public Recording(long epgID) 
         {
             this.EpgID = epgID;
             this.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             this.RecordingID = 0;
-            this.RecordingStatus = TstvRecordingStatus.Not_recorded;
+            this.RecordingStatus = TstvRecordingStatus.DoesNotExist;
         }
 
         public Recording(long epgID, string epgChannelID, DateTime startDate, DateTime endDate)
@@ -39,10 +39,21 @@ namespace ApiObjects.TimeShiftedTv
             this.EpgID = epgID;
             this.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             this.RecordingID = 0;
-            this.RecordingStatus = TstvRecordingStatus.Not_recorded;
+            this.RecordingStatus = TstvRecordingStatus.DoesNotExist;
             this.EpgChannelID = epgChannelID;
-            this.StartDate = startDate;
-            this.EndDate = endDate;
+            this.EpgStartDate = startDate;
+            this.EpgEndDate = endDate;
+        }
+
+        public Recording(eResponseStatus status, long epgID, string epgChannelID, DateTime startDate, DateTime endDate)
+        {
+            this.EpgID = epgID;
+            this.Status = new ApiObjects.Response.Status((int)status, status.ToString());
+            this.RecordingID = 0;
+            this.RecordingStatus = TstvRecordingStatus.DoesNotExist;
+            this.EpgChannelID = epgChannelID;
+            this.EpgStartDate = startDate;
+            this.EpgEndDate = endDate;
         }
 
         public override string ToString()
@@ -54,8 +65,8 @@ namespace ApiObjects.TimeShiftedTv
             sb.Append(string.Format("RecordingStatus: {0}, ", RecordingStatus));
             sb.Append(string.Format("EpgChannelID: {0}, ", string.IsNullOrEmpty(EpgChannelID) ? "" : EpgChannelID));
             sb.Append(string.Format("ExternalRecordingId: {0}, ", string.IsNullOrEmpty(ExternalRecordingId) ? "" : ExternalRecordingId));
-            sb.Append(string.Format("StartDate: {0}, ", StartDate != null ? StartDate.ToString() : ""));
-            sb.Append(string.Format("EndDate: {0}, ", EndDate != null ? EndDate.ToString() : ""));
+            sb.Append(string.Format("StartDate: {0}, ", EpgStartDate != null ? EpgStartDate.ToString() : ""));
+            sb.Append(string.Format("EndDate: {0}, ", EpgEndDate != null ? EpgEndDate.ToString() : ""));
 
             return sb.ToString();
         }

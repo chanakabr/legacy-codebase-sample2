@@ -72,8 +72,8 @@ namespace Recordings
             {
                 recording = new Recording(programId);
                 recording.EpgID = programId;
-                recording.StartDate = startDate;
-                recording.EndDate = endDate;
+                recording.EpgStartDate = startDate;
+                recording.EpgEndDate = endDate;
                 recording.RecordingStatus = TstvRecordingStatus.Scheduled;
 
                 // TODO: Call Adapter to schedule recording,

@@ -567,13 +567,14 @@ namespace ApiObjects
 
     public enum TstvRecordingStatus
     {
-        Scheduled = 0,
-        Recording = 1,
-        Recorded = 2,
-        Canceled = 3,
-        Failed = 4,
-        Not_recorded = 5,
-        Deleted = 6
+        OK = 0,
+        Failed = 1,
+        Scheduled = 2,
+        Recording = 3,
+        Recorded = 4,
+        Canceled = 5,
+        DoesNotExist = 6,
+        Deleted = 7
     }
 
     public enum eRecordingTask

@@ -16976,13 +16976,21 @@ namespace ConditionalAccess
                 {
                     response = recordings.Recordings[0];
                     if (response.Status != null && response.Status.Code != (int)eResponseStatus.OK)
-                    {
+                    {                        
                         return response;
                     }
-                    else if (response.RecordingID > 0 && response.RecordingStatus != TstvRecordingStatus.Scheduled && 
-                            response.RecordingStatus == TstvRecordingStatus.Recording && response.RecordingStatus == TstvRecordingStatus.Recorded)
+                    else if (response.RecordingID == 0 || !Utils.IsValidRecordingStatus(response.RecordingStatus))
                     {
-                        response = RecordingsManager.Instance.Record(m_nGroupID, response.EpgID, response.EpgChannelID, response.StartDate, response.EndDate, userID, domainID);
+                        response = RecordingsManager.Instance.Record(m_nGroupID, response.EpgID, response.EpgChannelID, response.EpgStartDate, response.EpgEndDate, userID, domainID);
+                        if (response != null && response.Status != null && response.Status.Code == (int)eResponseStatus.OK
+                            && response.RecordingID > 0 && Utils.IsValidRecordingStatus(response.RecordingStatus))
+                        {
+                            long userIDToUpdate = 0;
+                            if (!long.TryParse(userID, out userIDToUpdate) || userIDToUpdate > 0 || !ConditionalAccessDAL.UpdateOrInsertDomainRecording(m_nGroupID, userIDToUpdate, domainID, response))
+                            {
+                                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.FailedSavingDomainRecording, eResponseStatus.FailedSavingDomainRecording.ToString());
+                            }
+                        }
                     }
                 }
                 
@@ -17015,7 +17023,7 @@ namespace ConditionalAccess
                 }
 
                 TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
-                if (accountSettings == null || !(accountSettings.IsCdvrEnabled.HasValue && accountSettings.IsCdvrEnabled.Value))
+                if (accountSettings == null || !accountSettings.IsCdvrEnabled.HasValue || !accountSettings.IsCdvrEnabled.Value)
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AccountCdvrNotEnabled, eResponseStatus.AccountCdvrNotEnabled.ToString());
                     return response;
@@ -17082,7 +17090,7 @@ namespace ConditionalAccess
                 }
                 if (epgStartDate < DateTime.UtcNow)
                 {
-                    if (!accountSettings.IsCdvrEnabled.HasValue || !accountSettings.IsCdvrEnabled.Value)
+                    if (!accountSettings.IsCatchUpEnabled.HasValue || !accountSettings.IsCatchUpEnabled.Value)
                     {
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AccountCatchUpNotEnabled, eResponseStatus.AccountCatchUpNotEnabled.ToString());
                         return response;
@@ -17091,10 +17099,8 @@ namespace ConditionalAccess
                     {
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramCatchUpNotEnabled, eResponseStatus.ProgramCatchUpNotEnabled.ToString());
                         return response;
-                    }
-                    long accountCatchUpBuffer = accountSettings.CatchUpBufferLength.HasValue ? accountSettings.CatchUpBufferLength.Value : 0;
-                    if ((epg.CHANNEL_CATCH_UP_BUFFER == 0 && accountCatchUpBuffer == 0) && epgStartDate.AddHours(epg.CHANNEL_CATCH_UP_BUFFER) < DateTime.UtcNow
-                                && epgStartDate.AddHours(accountCatchUpBuffer) < DateTime.UtcNow)
+                    }                    
+                    if (epg.CHANNEL_CATCH_UP_BUFFER == 0 && epgStartDate.AddHours(epg.CHANNEL_CATCH_UP_BUFFER) < DateTime.UtcNow)
                     {
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.CatchUpBufferLimitation, eResponseStatus.CatchUpBufferLimitation.ToString());
                         return response;
@@ -17118,13 +17124,21 @@ namespace ConditionalAccess
                         }
                     }
                     if (priceValidationPassed)
-                    {
-                        long recordingID = Utils.GetDomainExistingRecordingID(epg.EPG_ID, domainID);
+                    {                        
+                        long recordingID = 0;
+                        //TstvRecordingStatus recordingStatus = TstvRecordingStatus.DoesNotExist;
+                        DataRow dr = ConditionalAccessDAL.GetDomainExistingRecordingID(m_nGroupID, domainID, epg.EPG_ID);
+                        if (dr != null)
+                        {
+                            recordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "recording_id", 0);
+                            //recordingStatus = (TstvRecordingStatus)ODBCWrapper.Utils.GetIntSafeVal(dr, "recording_state", 6);
+                        }
+
                         if (recordingID > 0)
                         {
                             response = ConditionalAccessDAL.GetRecordingByRecordingId(recordingID);
                             // initialize response object if record not found
-                            if (response == null)
+                            if (response == null || response.Status == null || response.Status.Code != (int)eResponseStatus.OK)
                             {
                                 response = new Recording(epg.EPG_ID);
                             }
@@ -17135,7 +17149,7 @@ namespace ConditionalAccess
                             DateTime epgEndDate;
                             if (!DateTime.TryParse(epg.END_DATE, out epgEndDate))
                             {
-                                response = new Recording(epg.EPG_ID, epg.EPG_CHANNEL_ID, epgStartDate, epgEndDate);
+                                response = new Recording(eResponseStatus.OK, epg.EPG_ID, epg.EPG_CHANNEL_ID, epgStartDate, epgEndDate);
                             }
                             else
                             {
