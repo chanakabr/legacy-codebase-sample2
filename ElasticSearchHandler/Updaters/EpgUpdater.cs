@@ -23,9 +23,9 @@ namespace ElasticSearchHandler.Updaters
 
         #region Data Members
 
-        private int groupId;
-        private ElasticSearch.Common.ESSerializer esSerializer;
-        private ElasticSearch.Common.ElasticSearchApi esApi;
+        protected int groupId;
+        protected ElasticSearch.Common.ESSerializer esSerializer;
+        protected ElasticSearch.Common.ElasticSearchApi esApi;
 
         #endregion
 
@@ -61,7 +61,7 @@ namespace ElasticSearchHandler.Updaters
                 return result;
             }
 
-            if (!esApi.IndexExists(ElasticsearchTasksCommon.Utils.GetEpgGroupAliasStr(groupId)))
+            if (!esApi.IndexExists(GetAlias()))
             {
                 log.Error("Error - " + string.Format("Index of type EPG for group {0} does not exist", groupId));
                 return result;
@@ -154,7 +154,7 @@ namespace ElasticSearchHandler.Updaters
                         if (currentLanguageEpgs != null && currentLanguageEpgs.Count > 0)
                         {
                             List<ESBulkRequestObj<ulong>> bulkRequests = new List<ESBulkRequestObj<ulong>>();
-                            string alias = ElasticsearchTasksCommon.Utils.GetEpgGroupAliasStr(groupId);
+                            string alias = GetAlias();
 
                             // Create bulk request object for each program
                             foreach (EpgCB epg in epgObjects)
@@ -211,7 +211,7 @@ namespace ElasticSearchHandler.Updaters
             if (epgIDs != null & epgIDs.Count > 0)
             {
                 List<ESBulkRequestObj<int>> bulkRequests = new List<ESBulkRequestObj<int>>();
-                string alias = ElasticsearchTasksCommon.Utils.GetEpgGroupAliasStr(groupId);
+                string alias = GetAlias();
 
                 foreach (int epgId in epgIDs)
                 {
@@ -230,6 +230,11 @@ namespace ElasticSearchHandler.Updaters
             }
 
             return result;
+        }
+
+        protected virtual string GetAlias()
+        {
+            return ElasticsearchTasksCommon.Utils.GetEpgGroupAliasStr(groupId);
         }
         
         //private bool UpdateEpgChannel(List<int> epgChannelIDs)

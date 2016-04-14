@@ -20,6 +20,11 @@ namespace ElasticSearchHandler.IndexBuilders
                 case ApiObjects.eObjectType.EPG:
                     result = new EpgIndexBuilder(nGroupID);
                     break;
+                case ApiObjects.eObjectType.Recordning:
+                    {
+                        result = new RecordingIndexBuilder(nGroupID);
+                        break;
+                    }
                 default:
                     break;
             }
