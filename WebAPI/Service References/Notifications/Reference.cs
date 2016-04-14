@@ -1335,7 +1335,7 @@ namespace WebAPI.Notifications {
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="eAnnouncementStatus", Namespace="http://schemas.datacontract.org/2004/07/NotificationObj")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="eAnnouncementStatus", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects")]
     public enum eAnnouncementStatus : int {
         
         [System.Runtime.Serialization.EnumMemberAttribute()]
@@ -1512,6 +1512,168 @@ namespace WebAPI.Notifications {
         }
     }
     
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="FollowTemplate", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification")]
+    [System.SerializableAttribute()]
+    public partial class FollowTemplate : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private WebAPI.Notifications.eOTTAssetTypes AssetTypeField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string DateFormatField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int IdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string MessageField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public WebAPI.Notifications.eOTTAssetTypes AssetType {
+            get {
+                return this.AssetTypeField;
+            }
+            set {
+                if ((this.AssetTypeField.Equals(value) != true)) {
+                    this.AssetTypeField = value;
+                    this.RaisePropertyChanged("AssetType");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string DateFormat {
+            get {
+                return this.DateFormatField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.DateFormatField, value) != true)) {
+                    this.DateFormatField = value;
+                    this.RaisePropertyChanged("DateFormat");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int Id {
+            get {
+                return this.IdField;
+            }
+            set {
+                if ((this.IdField.Equals(value) != true)) {
+                    this.IdField = value;
+                    this.RaisePropertyChanged("Id");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Message {
+            get {
+                return this.MessageField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.MessageField, value) != true)) {
+                    this.MessageField = value;
+                    this.RaisePropertyChanged("Message");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="eOTTAssetTypes", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects")]
+    public enum eOTTAssetTypes : int {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Series = 0,
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="FollowTemplateResponse", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification")]
+    [System.SerializableAttribute()]
+    public partial class FollowTemplateResponse : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private WebAPI.Notifications.FollowTemplate FollowTemplateField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private WebAPI.Notifications.Status StatusField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public WebAPI.Notifications.FollowTemplate FollowTemplate {
+            get {
+                return this.FollowTemplateField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.FollowTemplateField, value) != true)) {
+                    this.FollowTemplateField = value;
+                    this.RaisePropertyChanged("FollowTemplate");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public WebAPI.Notifications.Status Status {
+            get {
+                return this.StatusField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.StatusField, value) != true)) {
+                    this.StatusField = value;
+                    this.RaisePropertyChanged("Status");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="Notifications.INotificationService")]
     public interface INotificationService {
@@ -1644,11 +1806,11 @@ namespace WebAPI.Notifications {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetAllMessageAnnouncements", ReplyAction="http://tempuri.org/INotificationService/GetAllMessageAnnouncementsResponse")]
         System.Threading.Tasks.Task<WebAPI.Notifications.GetAllMessageAnnouncementsResponse> GetAllMessageAnnouncementsAsync(string sWSUserName, string sWSPassword, int pageSize, int pageIndex);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SetPush", ReplyAction="http://tempuri.org/INotificationService/SetPushResponse")]
-        WebAPI.Notifications.Status SetPush(string sWSUserName, string sWSPassword, WebAPI.Notifications.eUserMessageAction userAction, int userId, string udid, string pushToken);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/AddFollowTemplate", ReplyAction="http://tempuri.org/INotificationService/AddFollowTemplateResponse")]
+        WebAPI.Notifications.FollowTemplateResponse AddFollowTemplate(string sWSUserName, string sWSPassword, WebAPI.Notifications.FollowTemplate followTemplate);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SetPush", ReplyAction="http://tempuri.org/INotificationService/SetPushResponse")]
-        System.Threading.Tasks.Task<WebAPI.Notifications.Status> SetPushAsync(string sWSUserName, string sWSPassword, WebAPI.Notifications.eUserMessageAction userAction, int userId, string udid, string pushToken);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/AddFollowTemplate", ReplyAction="http://tempuri.org/INotificationService/AddFollowTemplateResponse")]
+        System.Threading.Tasks.Task<WebAPI.Notifications.FollowTemplateResponse> AddFollowTemplateAsync(string sWSUserName, string sWSPassword, WebAPI.Notifications.FollowTemplate followTemplate);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -1846,12 +2008,12 @@ namespace WebAPI.Notifications {
             return base.Channel.GetAllMessageAnnouncementsAsync(sWSUserName, sWSPassword, pageSize, pageIndex);
         }
         
-        public WebAPI.Notifications.Status SetPush(string sWSUserName, string sWSPassword, WebAPI.Notifications.eUserMessageAction userAction, int userId, string udid, string pushToken) {
-            return base.Channel.SetPush(sWSUserName, sWSPassword, userAction, userId, udid, pushToken);
+        public WebAPI.Notifications.FollowTemplateResponse AddFollowTemplate(string sWSUserName, string sWSPassword, WebAPI.Notifications.FollowTemplate followTemplate) {
+            return base.Channel.AddFollowTemplate(sWSUserName, sWSPassword, followTemplate);
         }
         
-        public System.Threading.Tasks.Task<WebAPI.Notifications.Status> SetPushAsync(string sWSUserName, string sWSPassword, WebAPI.Notifications.eUserMessageAction userAction, int userId, string udid, string pushToken) {
-            return base.Channel.SetPushAsync(sWSUserName, sWSPassword, userAction, userId, udid, pushToken);
+        public System.Threading.Tasks.Task<WebAPI.Notifications.FollowTemplateResponse> AddFollowTemplateAsync(string sWSUserName, string sWSPassword, WebAPI.Notifications.FollowTemplate followTemplate) {
+            return base.Channel.AddFollowTemplateAsync(sWSUserName, sWSPassword, followTemplate);
         }
     }
 }

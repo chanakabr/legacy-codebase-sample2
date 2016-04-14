@@ -4,6 +4,60 @@
         <name>WebAPI</name>
     </assembly>
     <members>
+        <member name="M:WebAPI.Controllers.AnnouncementController.Add(WebAPI.Models.Notifications.KalturaAnnouncement)">
+            <summary>
+            Add a new future scheduled system announcment push notification
+            </summary>
+            <param name="announcement">The announcement to be added.
+            timezone param should be taken from the 'name of timezone' from: https://msdn.microsoft.com/en-us/library/ms912391(v=winembedded.11).aspx
+            Recipients values: All, LoggedIn, Guests</param>
+            <returns></returns>
+            <remarks>Possible status codes: AnnouncementMessageTooLong = 8010, AnnouncementMessageIsEmpty = 8004, AnnouncementInvalidStartTime = 8005,
+            FeatureDisabled = 8009</remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.AnnouncementController.Update(WebAPI.Models.Notifications.KalturaAnnouncement)">
+            <summary>
+            Update an existing future system annoucement push notification. Annoucement can only be updated only before sending
+            </summary>
+            <param name="announcement">The announcement to update.
+            timezone param should be taken from the 'name of timezone' from: https://msdn.microsoft.com/en-us/library/ms912391(v=winembedded.11).aspx
+            Recipients values: All, LoggedIn, Guests</param>
+            <returns></returns>
+            <remarks>Possible status codes: AnnouncementMessageTooLong = 8010, AnnouncementMessageIsEmpty = 8004, AnnouncementInvalidStartTime = 8005, AnnouncementNotFound = 8006,
+            AnnouncementUpdateNotAllowed = 8007, FeatureDisabled = 8009</remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.AnnouncementController.UpdateStatus(System.Int32,System.Boolean)">
+            <summary>
+            Update a system announcement status
+            </summary>
+            <param name="id">Id of the announcement.</param>
+            <param name="status">Status to update to.</param>
+            <returns></returns>
+            <remarks>AnnouncementNotFound = 8006, AnnouncementUpdateNotAllowed = 8007, FeatureDisabled = 8009</remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.AnnouncementController.Delete(System.Int32)">
+            <summary>
+            Delete an exisitng annoucnent. Annoucment cannot be delete while being sent.
+            </summary>
+            <param name="id">Id of the announcement.</param>
+            <returns></returns>
+            <remarks>AnnouncementNotFound = 8006, FeatureDisabled = 8009</remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.AnnouncementController.CreateAnnouncement">
+            <summary>
+            create system announcment 
+            </summary>       
+            <returns></returns>
+            <remarks>Possible status codes: FeatureDisabled = 8009, FailCreateAnnouncement = 8011</remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.AnnouncementController.List(WebAPI.Models.General.KalturaFilterPager)">
+            <summary>
+            Lists all announcements in the system.
+            </summary>
+            <param name="pager">Paging the request</param>
+            <returns></returns>
+            <remarks>FeatureDisabled = 8009</remarks>
+        </member>
         <member name="M:WebAPI.Controllers.AppTokenController.Add(WebAPI.Models.General.KalturaAppToken)">
             <summary>
             Add new application authentication token
@@ -42,6 +96,7 @@
             <param name="userId">session user id, will be ignored if a different user id already defined on the application token</param>
             <param name="type">session type, will be ignored if a different session type already defined on the application token</param>
             <param name="expiry">session expiry (in seconds), could be overwritten by shorter expiry of the application token and the session-expiry that defined on the application token</param>
+            <param name="udid"></param>
             <remarks>
             Possible status codes: 50020 = Invalid Application token, 50022 = Invalid application token hash, 50023 = Not active application token
             </remarks>
@@ -70,7 +125,7 @@
             <param name="language">Language code</param>        
             <remarks></remarks>
         </member>
-        <member name="M:WebAPI.Controllers.AssetController.Search(System.Nullable{WebAPI.Models.Catalog.KalturaOrder},System.Collections.Generic.List{WebAPI.Models.General.KalturaIntegerValue},System.String,System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder},System.String,WebAPI.Models.General.KalturaFilterPager)">
+        <member name="M:WebAPI.Controllers.AssetController.Search(System.Nullable{WebAPI.Models.Catalog.KalturaOrder},System.Collections.Generic.List{WebAPI.Models.General.KalturaIntegerValue},System.String,System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder},System.String,WebAPI.Models.General.KalturaFilterPager,System.String)">
             <summary>
             Unified search across – VOD: Movies, TV Series/episodes, EPG content.        
             </summary>
@@ -79,7 +134,11 @@
             If omitted – all types should be included.</param>
             <param name="filter"> <![CDATA[
             Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
-            Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date.
+            Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date. 
+            geo_block - only valid value is "true": When enabled, only assets that are not restriced to the user by geo-block rules will return.
+            parental_rules - only valid value is "true": When enabled, only assets that the user doesn't need to provide PIN code will return.
+            epg_channel_id – the channel identifier of the EPG program.
+            entitled_assets - valid values: "free", "entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
             Comparison operators: for numerical fields =, >, >=, <, <=. For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with). Logical conjunction: and, or. 
             Search values are limited to 20 characters each.
             (maximum length of entire filter is 1024 characters)]]></param>
@@ -89,6 +148,7 @@
             Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
             <param name="language">Language Code</param>
             <param name="pager">Page size and index</param>
+            <param name="request_id">Current request identifier (used for paging)</param>
             <remarks>Possible status codes: Bad search request = 4002, Missing index = 4003, SyntaxError = 4004, InvalidSearchField = 4005</remarks>
         </member>
         <member name="M:WebAPI.Controllers.AssetController.Autocomplete(System.String,System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder},System.Collections.Generic.List{WebAPI.Models.General.KalturaIntegerValue},System.Nullable{WebAPI.Models.Catalog.KalturaOrder},System.Nullable{System.Int32},System.String)">
@@ -111,7 +171,7 @@
             </summary>        
             <param name="media_id">The ID of the asset for which to return related assets</param>
             <param name="filter_types">The type of related assets to return. Possible values: ALL – include all VOD asset types ; any media type ID (according to media type IDs defined dynamically in the system). If ommited – return assets of same asset type as the provided asset type. </param>        
-            <param name="pager">Paging filter - Page number to return. If omitted returns first page. Number of assets to return per page. Possible range 5 ≤ size ≥ 20. If omitted – 5 is used. Value greater than 20 will set to 20</param>
+            <param name="pager">Paging filter - Page number to return. If omitted returns first page. Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted – 5 is used. Value greater than 50 will set to 50</param>
             <param name="filter">Valid KSQL expression. If provided – the filter is applied on the resultset and further reduce it</param>
             <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
             Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
@@ -183,6 +243,76 @@
             BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, 
             RecommendationEngineNotExist = 4007, ExternalChannelNotExist = 4011</remarks>
         </member>
+        <member name="M:WebAPI.Controllers.CDVRAdapterProfileController.List">
+            <summary>
+            Returns all C-DVR adapters for partner
+            </summary>
+            <remarks> 
+            
+            </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.CDVRAdapterProfileController.Delete(System.Int32)">
+            <summary>
+            Delete C-DVR adapter by C-DVR adapter id
+            </summary>
+            <remarks>
+            Possible status codes: Adapter does not exist = 10000
+            </remarks>
+            <param name="adapter_id">C-DVR adapter identifier</param>
+        </member>
+        <member name="M:WebAPI.Controllers.CDVRAdapterProfileController.Add(WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfile)">
+            <summary>
+            Insert new C-DVR adapter for partner
+            </summary>
+            <remarks>
+            Possible status codes:     
+            Adapter Name is required = 5005, Adapter URL is required = 5013, External identifier is required = 6016, External identifier must be unique = 6040
+            </remarks>
+            <param name="adapter">C-DVR adapter object</param>
+        </member>
+        <member name="M:WebAPI.Controllers.CDVRAdapterProfileController.Update(WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfile)">
+            <summary>
+            Update C-DVR adapter details
+            </summary>
+            <remarks>
+            Possible status codes:   
+            Adapter name is required = 5005, Adapter identifier is required = 10001, Adapter URL is required = 5013, External identifier required = 6016, Adapter does not exist = 10000
+            </remarks>
+            <param name="adapter">C-DVR adapter Object</param>       
+        </member>
+        <member name="M:WebAPI.Controllers.CDVRAdapterProfileController.GenerateSharedSecret(System.Int32)">
+            <summary>
+            Generate C-DVR adapter shared secret
+            </summary>
+            <remarks>
+            Possible status codes:  
+            Adapter identifier is required = 10001, AdapterNotExists = 10000
+            </remarks>
+            <param name="adapter_id">C-DVR adapter identifier</param>
+        </member>
+        <member name="M:WebAPI.Controllers.FollowTemplate.Add(WebAPI.Models.Notification.KalturaFollowTemplate)">
+            <summary>
+            TBD
+            </summary>
+            <param name="follow_template">TBD</param>
+            <remarks>
+            
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.LicensedUrlController.Get(WebAPI.Models.Catalog.KalturaAssetType,System.Int32,System.String,System.String,System.Nullable{System.Int64},System.Nullable{WebAPI.Models.ConditionalAccess.KalturaStreamType})">
+            <summary>
+            Get the URL for playing an asset - EPG or media (not available for recording for now).
+            </summary>
+            <param name="asset_id">Asset identifier - relevant only for asset_type = 'epg'</param>
+            <param name="asset_type">Asset type</param>
+            <param name="base_url">Base URL for the licensed URLs</param>
+            <param name="content_id">Identifier of the content to get the link for(file identifier)</param>
+            <param name="start_date">The start date of the stream (epoch) - relevant only for asset_type = 'epg'</param>
+            <param name="stream_type">The stream type to get the URL for - relevant only for asset_type = 'epg'</param>
+            <remarks>Possible status codes: Device not in household = 1003, Invalid base URL = 3004, Media concurrency limitation = 4000, Concurrency limitation = 4001, 
+            Device type not allowed = 1002, Household suspended = 1009, User suspended = 2001, Service not allowed = 3003, Not entitled = 3032</remarks>
+        </member>
         <member name="M:WebAPI.Controllers.HomeNetworkController.Add(WebAPI.Models.Domains.KalturaHomeNetwork)">
             <summary>
             Add a new home network to a household
@@ -221,6 +351,16 @@
             <remarks>
             Possible status codes:
             Home network does not exist = 1033, Home network frequency limitation = 1034, External identifier is required = 6016
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.NotificationController.SetPush(System.String)">
+            <summary>
+            TBD
+            </summary>
+            <param name="push_token">TBD</param>
+            <remarks>
+            
             </remarks>
             <returns></returns>
         </member>
@@ -271,7 +411,7 @@
             <param name="payment_gateway_id"> Payment gateway identifier to list the payment methods for</param>
             <remarks>
             Possible status codes: TBD       
-             
+            Payment gateway not exist = 6008
             </remarks>
         </member>
         <member name="M:WebAPI.Controllers.PaymentMethodProfileController.Add(System.Int32,WebAPI.Models.Billing.KalturaPaymentMethodProfile)">
@@ -281,7 +421,8 @@
             <param name="payment_gateway_id">Payment gateway identifier to add the payment method for</param>
             <param name="payment_method">Payment method to add</param>
             <remarks>
-            Possible status codes: Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method name required = 6055
+            Possible status codes: 
+            Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method name required = 6055
             </remarks>
         </member>
         <member name="M:WebAPI.Controllers.PaymentMethodProfileController.Update(System.Int32,WebAPI.Models.Billing.KalturaPaymentMethodProfile)">
@@ -291,8 +432,8 @@
             <param name="payment_gateway_id">Payment gateway identifier to update the payment method for</param>
             <param name="payment_method">Payment method to update</param>
             <remarks>
-            Possible status codes: Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method does not exist = 6049, Payment method ID is required = 6050      
-             
+            Possible status codes: 
+            Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method does not exist = 6049, Payment method ID is required = 6050      
             </remarks>
         </member>
         <member name="M:WebAPI.Controllers.PaymentMethodProfileController.Delete(System.Int32,System.Int32)">
@@ -302,8 +443,8 @@
             <param name="payment_gateway_id">Payment gateway identifier to delete the payment method for</param>
             <param name="payment_method_id">Payment method identifier to delete</param>
             <remarks>
-             Possible status codes: Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method does not exist = 6049, Payment method ID is required = 6050    
-             
+             Possible status codes: 
+             Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method does not exist = 6049, Payment method ID is required = 6050    
             </remarks>
         </member>
         <member name="M:WebAPI.Controllers.RegistrySettingsController.List">
@@ -313,6 +454,25 @@
             <remarks>        
             </remarks>
             <returns>The registry settings that apply for the partner</returns>
+            
+        </member>
+        <member name="M:WebAPI.Controllers.TimeShiftedTvPartnerSettingsController.Get">
+            <summary>
+            Retrieve the account’s time-shifted TV settings (catch-up and C-DVR, Trick-play, Start-over)
+            </summary>
+            <remarks>
+            </remarks>
+            <returns>The time shifted tv settings that apply for the partner</returns>
+            
+        </member>
+        <member name="M:WebAPI.Controllers.TimeShiftedTvPartnerSettingsController.Update(WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings)">
+            <summary>
+            Configure the account’s time-shifted TV settings (catch-up and C-DVR, Trick-play, Start-over)
+            </summary>    
+            
+            <remarks>        
+            </remarks>
+            <returns>The time shifted tv settings that apply for the partner</returns>
             
         </member>
         <member name="M:WebAPI.Controllers.VersionController.Get">
@@ -970,8 +1130,8 @@
             <remarks></remarks>
         </member>
         <member name="M:WebAPI.Controllers.EntitlementController.Grant(System.Int32,WebAPI.Models.ConditionalAccess.KalturaTransactionType,System.Boolean,System.Int32)">
-             <summary>
-             Grant entitlements for a household for specific product or subscription. If a subscription is provided – the grant will apply only till the end of the first renewal period.
+             <summary>        
+             Grant household for an entitlement for a PPV or Subscription.
              </summary>
              <param name="content_id">Identifier for the content. Relevant only if Product type = PPV</param>
              <param name="product_id">Identifier for the product package from which this content is offered  </param>
@@ -1039,7 +1199,7 @@
         </member>
         <member name="M:WebAPI.Controllers.PaymentGatewayController.List">
             <summary>
-            Get a list of all configured Payment Gateways providers available for the partner
+            Get a list of all configured Payment Gateways providers available for the account. For each payment is provided with the household associated payment methods. 
             </summary>
             <remarks>
             Possible status codes:       
@@ -1070,10 +1230,12 @@
         </member>
         <member name="M:WebAPI.Controllers.PaymentGatewayController.SetPaymentMethod(System.Int32,System.Int32)">
             <summary>
-            TBD
+            Set a payment method to payment gateway for the household. 
             </summary>
             <remarks>
-            Possible status codes:       
+            Possible status codes:  
+            Payment gateway not set for household = 6007, Payment gateway not valid = 6043, Payment method not set for household = 6048,
+            Error saving payment gateway household payment method = 6052, Payment gateway not support payment method = 6056
             </remarks>
             <param name="payment_gateway_id">Payment Gateway Identifier</param> 
             <param name="payment_method_id">Payment method Identifier</param> 
@@ -1129,12 +1291,13 @@
             </remarks>
             <param name="payment_gateway_id">Payment gateway identifier</param>
         </member>
-        <member name="M:WebAPI.Controllers.PaymentGatewayProfileController.GetConfiguration(System.String,System.String)">
+        <member name="M:WebAPI.Controllers.PaymentGatewayProfileController.GetConfiguration(System.String,System.String,System.Collections.Generic.List{WebAPI.Models.General.KalturaKeyValue})">
             <summary>
             Gets the Payment Gateway Configuration for the payment gateway identifier given
             </summary>
             <param name="alias">The payemnt gateway for which to return the registration URL/s for the household. If omitted – return the regisration URL for the household for the default payment gateway</param>                
             <param name="intent">Represent the client’s intent for working with the payment gateway. Intent options to be coordinated with the applicable payment gateway adapter.</param>                
+            <param name="extra_parameters">Additional parameters to send to the payment gateway adapter.</param>
             <remarks>
             Possible status codes:       
             PaymentGatewayNotExist = 6008, SignatureMismatch = 6013
@@ -1207,23 +1370,25 @@
             <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.TransactionController.Purchase(System.Double,System.String,System.Int32,WebAPI.Models.ConditionalAccess.KalturaTransactionType,System.Int32,System.String,System.Int32,System.Nullable{System.Int32})">
-             <summary>
-             Purchase specific product or subscription utilizing the household’s pre-assigned payment gateway. Upon successful charge entitlements to use the requested product or subscription are granted.
-             </summary>
-             <param name="price">Net sum to charge – as a one-time transaction. Price must match the previously provided price for the specified content. </param>
-             <param name="currency">Identifier for paying currency, according to ISO 4217</param>
-             <param name="content_id">Identifier for the content to purchase. Relevant only if Product type = PPV</param>
-             <param name="product_id">Identifier for the package from which this content is offered</param>        
-             <param name="product_type">Package type. Possible values: PPV, Subscription, Collection</param>
-             <param name="coupon">Coupon code</param> 
-             <param name="payment_gateway_id">Payment gateway identifier</param>
-             <param name="payment_method_id">Payment method identifier</param>
-             <remarks>Possible status codes: 
-             User not in domain = 1005, Invalid user = 1026, User does not exist = 2000, User suspended = 2001, Coupon not valid = 3020, Unable to purchase - PPV purchased = 3021,  Unable to purchase - Free = 3022,  Unable to purchase - For purchase subscription only = 3023,
-              Unable to purchase - Subscription purchased = 3024, Not for purchase = 3025, Unable to purchase - Collection purchased = 3027, Adapter Url required = 5013, Incorrect price = 6000, UnKnown PPV module = 6001, Payment gateway not set for household = 6007, Payment gateway does not exist = 6008, 
-             Payment gateway charge ID required = 6009, No configuration found = 6011, Signature mismatch = 6013, Unknown transaction state = 6042
-            ,       
-             </remarks>
+            <summary>
+            Purchase specific product or subscription for a household. Upon successful charge entitlements to use the requested product or subscription are granted. 
+            </summary>
+            <param name="price">Net sum to charge – as a one-time transaction. Price must match the previously provided price for the specified content. </param>
+            <param name="currency">Identifier for paying currency, according to ISO 4217</param>
+            <param name="content_id">Identifier for the content to purchase. Relevant only if Product type = PPV</param>
+            <param name="product_id">Identifier for the package from which this content is offered</param>        
+            <param name="product_type">Package type. Possible values: PPV, Subscription, Collection</param>
+            <param name="coupon">Coupon code</param> 
+            <param name="payment_gateway_id">Identifier for a pre-associated payment gateway. If not provided – the account’s default payment gateway is used</param>
+            <param name="payment_method_id">Identifier for a pre-entered payment method. If not provided – the household’s default payment method is used</param>
+            <remarks>Possible status codes: 
+            User not in domain = 1005, Invalid user = 1026, User does not exist = 2000, User suspended = 2001, Coupon not valid = 3020, Unable to purchase - PPV purchased = 3021,  Unable to purchase - Free = 3022,  Unable to purchase - For purchase subscription only = 3023,
+             Unable to purchase - Subscription purchased = 3024, Not for purchase = 3025, Unable to purchase - Collection purchased = 3027, 
+             Adapter Url required = 5013, Incorrect price = 6000, UnKnown PPV module = 6001, Payment gateway not set for household = 6007, 
+             Payment gateway does not exist = 6008, Payment gateway charge ID required = 6009, No configuration found = 6011, 
+             Signature mismatch = 6013, Unknown transaction state = 6042, Payment method not set for household = 6048,
+             Payment method not exist = 6049       
+            </remarks>
         </member>
         <member name="M:WebAPI.Controllers.TransactionController.UpdateState(System.String,System.Int32,System.String,System.String,System.String,System.Int32,System.String)">
              <summary>
@@ -1267,7 +1432,20 @@
              User suspended = 2001
             </remarks>
         </member>
-        <!-- Badly formed XML comment ignored for member "M:WebAPI.Controllers.TransactionController.PurchaseSessionId(System.Double,System.String,System.Int32,WebAPI.Models.ConditionalAccess.KalturaTransactionType,System.Int32,System.String,System.Int32)" -->
+        <member name="M:WebAPI.Controllers.TransactionController.PurchaseSessionId(System.Double,System.String,System.Int32,WebAPI.Models.ConditionalAccess.KalturaTransactionType,System.Int32,System.String,System.Int32)">
+            <summary>
+            Retrieve the purchase session identifier
+            </summary>
+            <param name="price">Net sum to charge – as a one-time transaction. Price must match the previously provided price for the specified content. </param>
+            <param name="currency">Identifier for paying currency, according to ISO 4217</param>
+            <param name="content_id">Identifier for the content to purchase. Relevant only if Product type = PPV</param>
+            <param name="product_id">Identifier for the package from which this content is offered</param>        
+            <param name="product_type">Package type. Possible values: PPV, Subscription, Collection</param>
+            <param name="coupon">Coupon code</param> 
+            <param name="preview_module_id">Preview module identifier (relevant only for subscription)</param> 
+            <remarks>
+            </remarks>
+        </member>
         <member name="M:WebAPI.Controllers.UserAssetsListController.List(WebAPI.Models.Users.KalturaUserAssetsListFilter)">
             <summary>
             Retrieve the user’s private asset lists 
@@ -1475,14 +1653,59 @@
             <param name="usersGroup">list of users separated by ';'</param>
             <returns>True if the action is permitted, false otherwise, and a users group list (if exists) for this action</returns>
         </member>
-        <member name="T:WebAPI.Models.API.KalturaPermissionsFilter">
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfile">
             <summary>
-            Permissions filter
+            C-DVR Adapter
             </summary>
         </member>
         <member name="T:WebAPI.Models.General.KalturaOTTObject">
             <summary>
             Base class
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfile.Id">
+            <summary>
+            C-DVR adapter identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfile.Name">
+            <summary>
+            C-DVR adapter name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfile.IsActive">
+            <summary>
+            C-DVR adapter active status
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfile.AdapterUrl">
+            <summary>
+            C-DVR adapter adapter URL
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfile.Settings">
+            <summary>
+            C-DVR adapter extra parameters
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfile.ExternalIdentifier">
+            <summary>
+            C-DVR adapter external identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfile.SharedSecret">
+            <summary>
+            C-DVR shared secret
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfile.DynamicLinksSupport">
+            <summary>
+            Indicates whether the C-DVR adapter supports dynamic URLs
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaPermissionsFilter">
+            <summary>
+            Permissions filter
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaPermissionsFilter.Ids">
@@ -1806,6 +2029,21 @@
             Channel order
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Billing.KalturaHouseholdPaymentMethod.Id">
+            <summary>
+            Household payment method identifier (internal)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Billing.KalturaHouseholdPaymentMethod.Details">
+            <summary>
+            Payment method details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Billing.KalturaHouseholdPaymentMethod.Selected">
+            <summary>
+            Selected payment method 
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Billing.KalturaPaymentMethod">
             <summary>
             payment method
@@ -1821,14 +2059,14 @@
             Payment method name
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Billing.KalturaPaymentMethod.Details">
+        <member name="P:WebAPI.Models.Billing.KalturaPaymentMethod.AllowMultiInstance">
             <summary>
-            Payment method details
+            Indicates whether the payment method allow multiple instances 
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Billing.KalturaPaymentMethod.Selected">
+        <member name="P:WebAPI.Models.Billing.KalturaPaymentMethod.HouseholdPaymentMethods">
             <summary>
-            Selected payment method 
+            Payment method name
             </summary>
         </member>
         <member name="P:WebAPI.Models.Billing.KalturaPaymentGateway.paymentGateway">
@@ -1859,6 +2097,11 @@
         <member name="P:WebAPI.Models.Billing.KalturaPaymentMethodProfile.Name">
             <summary>
             Payment method name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Billing.KalturaPaymentMethodProfile.AllowMultiInstance">
+            <summary>
+            Indicates whether the payment method allow multiple instances 
             </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaAssetBookmark">
@@ -2151,11 +2394,6 @@
             Renew Start Minutes
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Billing.KalturaPaymentGatewayProfile.SupportPaymentMethod">
-            <summary>
-            Renew Start Minutes
-            </summary>
-        </member>
         <member name="T:WebAPI.Models.API.KalturaParentalRuleListResponse">
             <summary>
             ParentalRules list
@@ -2204,6 +2442,16 @@
         <member name="P:WebAPI.Models.Catalog.KalturaAssetBookmarks.Bookmarks">
             <summary>
             List of bookmarks
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaLicensedUrl.MainUrl">
+            <summary>
+            Main licensed URL
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaLicensedUrl.AltUrl">
+            <summary>
+            An alternate URL to use in case the main fails
             </summary>
         </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaBillingResponse">
@@ -2414,6 +2662,11 @@
         <member name="P:WebAPI.Models.Domains.KalturaDevicePin.Pin">
             <summary>
             Device pin
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaOTTAssetType">
+            <summary>
+            OTT Asset Type
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaPermissionItem.Id">
@@ -2744,6 +2997,16 @@
         <member name="F:WebAPI.Models.Catalog.KalturaPlayerAssetData.currentBitRate">
             <summary>
             Current Bitrate
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaMessageAnnouncementListResponse">
+            <summary>
+            List of message announcements from DB.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaMessageAnnouncementListResponse.Announcements">
+            <summary>
+            Announcements
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaNotificationSettings.PushNotificationEnabled">
@@ -3156,9 +3419,14 @@
             Defines the number of times the module will be renewed (for the life_cycle period)
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaPricePlan.price_id">
+        <member name="P:WebAPI.Models.Pricing.KalturaPricePlan.PriceId">
             <summary>
             Unique identifier associated with this object's price 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPricePlan.DiscountId">
+            <summary>
+            The discount module identifier of the price plan
             </summary>
         </member>
         <member name="T:WebAPI.Models.Pricing.KalturaSubscriptionListResponse">
@@ -3498,7 +3766,7 @@
         </member>
         <member name="P:WebAPI.Models.Pricing.KalturaSubscription.DiscountModule">
             <summary>
-            The discount module for the subscription
+            The internal discount module for the subscription
             </summary>
         </member>
         <member name="P:WebAPI.Models.Pricing.KalturaSubscription.CouponsGroup">
@@ -3685,6 +3953,36 @@
         <member name="T:WebAPI.Models.Social.KalturaSocialNetwork">
             <summary>
             Social network type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings.CatchUpEnabled">
+            <summary>
+            Is catch-up enabled
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings.CdvrEnabled">
+            <summary>
+            Is c-dvr enabled
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings.StartOverEnabled">
+            <summary>
+            Is start-over enabled
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings.TrickPlayEnabled">
+            <summary>
+            Is trick-play enabled
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings.CatchUpBufferLength">
+            <summary>
+            Catch-up buffer length
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings.TrickPlayBufferLength">
+            <summary>
+            Trick play buffer length
             </summary>
         </member>
         <member name="T:WebAPI.Models.Users.KalturaFavoriteFilter">
@@ -4008,12 +4306,12 @@
         </member>
         <member name="M:WebAPI.Controllers.HouseholdController.SetPaymentMethodExternalId(System.String,System.String,System.String,System.String)">
             <summary>
-            Set user billing account identifier (charge ID), for a specific household and a specific payment gateway
+            Set user billing payment method identifier (payment method external id), for a specific household and a specific payment gateway
             </summary>
             <remarks>
             Possible status codes:         
-            Payment gateway not exist = 6008, Payment gateway charge id required = 6009, External identifier required = 6016, Error saving payment gateway household = 6017, 
-            Charge id already set to household payment gateway = 6025
+            Payment gateway not set for household = 6007, Payment gateway not exist = 6008, Payment method not exist = 6049,  Error saving payment gateway household payment method = 6052, 
+            Payment method already set to household payment gateway = 6054, Payment gateway not support payment method = 6056
             </remarks>        
             <param name="payment_gateway_id">External identifier for the payment gateway  </param>
             <param name="payment_method_name"></param>      
@@ -4038,7 +4336,14 @@
             <param name="description">Description for the household</param>
             <remarks></remarks>
         </member>
-        <!-- Badly formed XML comment ignored for member "M:WebAPI.Controllers.HouseholdController.DeleteByOperator(WebAPI.Models.General.KalturaIdentifierTypeFilter)" -->
+        <member name="M:WebAPI.Controllers.HouseholdController.DeleteByOperator(WebAPI.Models.General.KalturaIdentifierTypeFilter)">
+             <summary>
+             Fully delete a household per specified internal or external ID. Delete all of the household information, including users, devices, transactions and assets.
+             </summary>                
+             <param name="filter">Household ID by which to delete a household. Possible values: internal – internal ID ; external – external ID</param>
+             <remarks>Possible status codes: 
+            </remarks>
+        </member>
         <member name="M:WebAPI.Controllers.HouseholdController.Suspend">
              <summary>
              Suspend a given household service. Sets the household status to “suspended".The household service settings are maintained for later resume
@@ -4532,8 +4837,7 @@
         <member name="M:WebAPI.Controllers.OTTUserController.Get">
             <summary>
             Retrieving users' data
-            </summary>
-            <param name="filter">Filter object to filter relevant users in the account</param>
+            </summary>        
             <remarks></remarks>
             <remarks></remarks>        
         </member>
@@ -4559,6 +4863,29 @@
             Possible status codes: 
             Household suspended = 1009, Limitation period = 1014,  User does not exist = 2000, Default user cannot be deleted = 2030, Exclusive master user cannot be deleted = 2031
             </remarks>        
+        </member>
+        <member name="M:WebAPI.Controllers.OTTUserController.Logout">
+            <summary>
+            Logout the calling user.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.OTTUserController.Activate(System.Int32,System.String,System.String)">
+            <summary>
+            Activate the account by activation token
+            </summary>
+            <param name="partnerId">The partner ID</param>
+            <param name="activation_token">Activation token of the user</param>
+            <param name="username">Username of the user to activate</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.OTTUserController.ResendActivationToken(System.Int32,System.String)">
+            <summary>
+            Resend the activation token to a user
+            </summary>
+            <param name="partnerId">The partner ID</param>
+            <param name="username">Username of the user to activate</param>
+            <returns></returns>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaIAssetable">
             <summary>
@@ -4726,6 +5053,16 @@
         <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Url">
             <summary>
             URL of the media file to be played
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Duration">
+            <summary>
+            Duration of the media file
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.ExternalId">
+            <summary>
+            External identifier for the media file
             </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaMediaImage">
@@ -4967,6 +5304,51 @@
             <remarks/>
         </member>
         <member name="M:WebAPI.Api.API.GetAllRegistryAsync(System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetGroupIdByUsernamePassword(System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetGroupIdByUsernamePasswordAsync(System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetGroupIdByUsernamePasswordAsync(System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.InitializeFreeItemsUpdate(System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.InitializeFreeItemsUpdateAsync(System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.InitializeFreeItemsUpdateAsync(System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.UpdateFreeFileTypeOfModule(System.Int32,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.UpdateFreeFileTypeOfModuleAsync(System.Int32,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.UpdateFreeFileTypeOfModuleAsync(System.Int32,System.Int32,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetTimeShiftedTvPartnerSettings(System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetTimeShiftedTvPartnerSettingsAsync(System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetTimeShiftedTvPartnerSettingsAsync(System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.UpdateTimeShiftedTvPartnerSettings(System.String,System.String,WebAPI.Api.TimeShiftedTvPartnerSettings)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.UpdateTimeShiftedTvPartnerSettingsAsync(System.String,System.String,WebAPI.Api.TimeShiftedTvPartnerSettings)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.UpdateTimeShiftedTvPartnerSettingsAsync(System.String,System.String,WebAPI.Api.TimeShiftedTvPartnerSettings,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.Api.API.TVAPI_GetTvinciGUID(System.String,System.String,WebAPI.Api.InitializationObject)">
@@ -6169,6 +6551,21 @@
         <member name="E:WebAPI.Api.API.GetAllRegistryCompleted">
             <remarks/>
         </member>
+        <member name="E:WebAPI.Api.API.GetGroupIdByUsernamePasswordCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.InitializeFreeItemsUpdateCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.UpdateFreeFileTypeOfModuleCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.GetTimeShiftedTvPartnerSettingsCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.UpdateTimeShiftedTvPartnerSettingsCompleted">
+            <remarks/>
+        </member>
         <member name="E:WebAPI.Api.API.TVAPI_GetTvinciGUIDCompleted">
             <remarks/>
         </member>
@@ -7216,6 +7613,21 @@
         <member name="P:WebAPI.Api.EPGChannelProgrammeObject.media_id">
             <remarks/>
         </member>
+        <member name="P:WebAPI.Api.EPGChannelProgrammeObject.ENABLE_CDVR">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.EPGChannelProgrammeObject.ENABLE_CATCH_UP">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.EPGChannelProgrammeObject.CHANNEL_CATCH_UP_BUFFER">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.EPGChannelProgrammeObject.ENABLE_START_OVER">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.EPGChannelProgrammeObject.ENABLE_TRICK_PLAY">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Api.RecordedEPGChannelProgrammeObject">
             <remarks/>
         </member>
@@ -7552,18 +7964,6 @@
         <member name="F:WebAPI.Api.eMailTemplateType.AddDeviceToDomain">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Api.ChangedPinMailRequest">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ChangedPinMailRequest.m_sToken">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ChangedPinMailRequest.m_sSiteGuid">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ChangedPinMailRequest.m_sRuleName">
-            <remarks/>
-        </member>
         <member name="T:WebAPI.Api.AddDeviceMailRequest">
             <remarks/>
         </member>
@@ -7733,6 +8133,18 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.WelcomeMailRequest.m_sPassword">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.ChangedPinMailRequest">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ChangedPinMailRequest.m_sToken">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ChangedPinMailRequest.m_sSiteGuid">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ChangedPinMailRequest.m_sRuleName">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.ForgotPasswordMailRequest">
@@ -8566,6 +8978,36 @@
         <member name="P:WebAPI.Api.InitializationObject.m_sAdminToken">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Api.TimeShiftedTvPartnerSettings">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.TimeShiftedTvPartnerSettings.IsCatchUpEnabled">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.TimeShiftedTvPartnerSettings.IsCdvrEnabled">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.TimeShiftedTvPartnerSettings.IsStartOverEnabled">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.TimeShiftedTvPartnerSettings.IsTrickPlayEnabled">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.TimeShiftedTvPartnerSettings.CatchUpBufferLength">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.TimeShiftedTvPartnerSettings.TrickPlayBufferLength">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.TimeShiftedTvPartnerSettingsResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.TimeShiftedTvPartnerSettingsResponse.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.TimeShiftedTvPartnerSettingsResponse.Settings">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Api.RegistrySettings">
             <remarks/>
         </member>
@@ -9071,6 +9513,51 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.GetAllRegistryCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetGroupIdByUsernamePasswordCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetGroupIdByUsernamePasswordCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.GetGroupIdByUsernamePasswordCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.InitializeFreeItemsUpdateCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.InitializeFreeItemsUpdateCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.InitializeFreeItemsUpdateCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.UpdateFreeFileTypeOfModuleCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.UpdateFreeFileTypeOfModuleCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.UpdateFreeFileTypeOfModuleCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetTimeShiftedTvPartnerSettingsCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetTimeShiftedTvPartnerSettingsCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.GetTimeShiftedTvPartnerSettingsCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.UpdateTimeShiftedTvPartnerSettingsCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.UpdateTimeShiftedTvPartnerSettingsCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.UpdateTimeShiftedTvPartnerSettingsCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.TVAPI_GetTvinciGUIDCompletedEventHandler">
@@ -10612,13 +11099,13 @@
         <member name="M:WebAPI.Billing.module.SetPaymentGatewayConfigurationAsync(System.String,System.String,System.Int32,System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Billing.module.GetPaymentGatewayConfiguration(System.String,System.String,System.String,System.String)">
+        <member name="M:WebAPI.Billing.module.GetPaymentGatewayConfiguration(System.String,System.String,System.String,System.String,WebAPI.Billing.KeyValuePair[])">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Billing.module.GetPaymentGatewayConfigurationAsync(System.String,System.String,System.String,System.String)">
+        <member name="M:WebAPI.Billing.module.GetPaymentGatewayConfigurationAsync(System.String,System.String,System.String,System.String,WebAPI.Billing.KeyValuePair[])">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Billing.module.GetPaymentGatewayConfigurationAsync(System.String,System.String,System.String,System.String,System.Object)">
+        <member name="M:WebAPI.Billing.module.GetPaymentGatewayConfigurationAsync(System.String,System.String,System.String,System.String,WebAPI.Billing.KeyValuePair[],System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.Billing.module.UpdatePendingTransaction(System.String,System.String,System.String,System.Int32,System.String,System.String,System.String,System.Int32,System.String)">
@@ -10702,22 +11189,22 @@
         <member name="M:WebAPI.Billing.module.SetPaymentGatewayHouseholdPaymentMethodAsync(System.String,System.String,System.String,System.Int32,System.String,System.String,System.String,System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Billing.module.AddPaymentMethodToPaymentGateway(System.String,System.String,System.Int32,System.String)">
+        <member name="M:WebAPI.Billing.module.AddPaymentMethodToPaymentGateway(System.String,System.String,System.Int32,System.String,System.Boolean)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Billing.module.AddPaymentMethodToPaymentGatewayAsync(System.String,System.String,System.Int32,System.String)">
+        <member name="M:WebAPI.Billing.module.AddPaymentMethodToPaymentGatewayAsync(System.String,System.String,System.Int32,System.String,System.Boolean)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Billing.module.AddPaymentMethodToPaymentGatewayAsync(System.String,System.String,System.Int32,System.String,System.Object)">
+        <member name="M:WebAPI.Billing.module.AddPaymentMethodToPaymentGatewayAsync(System.String,System.String,System.Int32,System.String,System.Boolean,System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Billing.module.UpdatePaymentGatewayPaymentMethod(System.String,System.String,System.Int32,System.Int32,System.String)">
+        <member name="M:WebAPI.Billing.module.UpdatePaymentGatewayPaymentMethod(System.String,System.String,System.Int32,System.Int32,System.String,System.Boolean)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Billing.module.UpdatePaymentGatewayPaymentMethodAsync(System.String,System.String,System.Int32,System.Int32,System.String)">
+        <member name="M:WebAPI.Billing.module.UpdatePaymentGatewayPaymentMethodAsync(System.String,System.String,System.Int32,System.Int32,System.String,System.Boolean)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Billing.module.UpdatePaymentGatewayPaymentMethodAsync(System.String,System.String,System.Int32,System.Int32,System.String,System.Object)">
+        <member name="M:WebAPI.Billing.module.UpdatePaymentGatewayPaymentMethodAsync(System.String,System.String,System.Int32,System.Int32,System.String,System.Boolean,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.Billing.module.DeletePaymentGatewayPaymentMethod(System.String,System.String,System.Int32,System.Int32)">
@@ -10745,6 +11232,15 @@
             <remarks/>
         </member>
         <member name="M:WebAPI.Billing.module.SetPaymentMethodHouseholdPaymentGatewayAsync(System.String,System.String,System.Int32,System.String,System.Int32,System.Int32,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Billing.module.UpdateRecordedTransaction(System.String,System.String,System.Int32,System.String,System.String,System.String,System.Int32,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Billing.module.UpdateRecordedTransactionAsync(System.String,System.String,System.Int32,System.String,System.String,System.String,System.Int32,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Billing.module.UpdateRecordedTransactionAsync(System.String,System.String,System.Int32,System.String,System.String,System.String,System.Int32,System.String,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.Billing.module.CancelAsync(System.Object)">
@@ -10918,6 +11414,9 @@
         <member name="E:WebAPI.Billing.module.SetPaymentMethodHouseholdPaymentGatewayCompleted">
             <remarks/>
         </member>
+        <member name="E:WebAPI.Billing.module.UpdateRecordedTransactionCompleted">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Billing.AdyenBillingDetail">
             <remarks/>
         </member>
@@ -10972,13 +11471,7 @@
         <member name="P:WebAPI.Billing.PaymentMethod.Name">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Billing.PaymentMethodResponse">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentMethodResponse.Status">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.PaymentMethodResponse.PaymentMethod">
+        <member name="P:WebAPI.Billing.PaymentMethod.AllowMultiInstance">
             <remarks/>
         </member>
         <member name="T:WebAPI.Billing.PartnerConfiguration">
@@ -11098,13 +11591,19 @@
         <member name="F:WebAPI.Billing.eHouseholdPaymentGatewaySelectedBy.Household">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Billing.PaymentGatwayPaymentMethods">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.PaymentGatwayPaymentMethods.PaymentMethod">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.PaymentGatwayPaymentMethods.HouseHoldPaymentMethods">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Billing.HouseholdPaymentMethod">
             <remarks/>
         </member>
         <member name="P:WebAPI.Billing.HouseholdPaymentMethod.ID">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.HouseholdPaymentMethod.Name">
             <remarks/>
         </member>
         <member name="P:WebAPI.Billing.HouseholdPaymentMethod.Details">
@@ -11152,15 +11651,6 @@
         <member name="F:WebAPI.Billing.eTransactionState.Failed">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Billing.KeyValuePair">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.KeyValuePair.key">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Billing.KeyValuePair.value">
-            <remarks/>
-        </member>
         <member name="T:WebAPI.Billing.PaymentGatewayConfigurationResponse">
             <remarks/>
         </member>
@@ -11168,6 +11658,15 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Billing.PaymentGatewayConfigurationResponse.Configuration">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Billing.KeyValuePair">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.KeyValuePair.key">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.KeyValuePair.value">
             <remarks/>
         </member>
         <member name="T:WebAPI.Billing.TransactResult">
@@ -11959,6 +12458,15 @@
         <member name="P:WebAPI.Billing.SetPaymentMethodHouseholdPaymentGatewayCompletedEventArgs.Result">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Billing.UpdateRecordedTransactionCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Billing.UpdateRecordedTransactionCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Billing.UpdateRecordedTransactionCompletedEventArgs.Result">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.ConditionalAccess.module">
             <remarks/>
         </member>
@@ -12019,6 +12527,24 @@
         <member name="M:WebAPI.ConditionalAccess.module.ReconcileEntitlementsAsync(System.String,System.String,System.String,System.Object)">
             <remarks/>
         </member>
+        <member name="M:WebAPI.ConditionalAccess.module.GetUserBundles(System.String,System.String,System.Int32,System.Int32[])">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.GetUserBundlesAsync(System.String,System.String,System.Int32,System.Int32[])">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.GetUserBundlesAsync(System.String,System.String,System.Int32,System.Int32[],System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.GetUserPurchasedAssets(System.String,System.String,System.Int32,System.Int32[])">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.GetUserPurchasedAssetsAsync(System.String,System.String,System.Int32,System.Int32[])">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.GetUserPurchasedAssetsAsync(System.String,System.String,System.Int32,System.Int32[],System.Object)">
+            <remarks/>
+        </member>
         <member name="M:WebAPI.ConditionalAccess.module.GetPurchaseSessionID(System.String,System.String,System.String,System.Double,System.String,System.Int32,System.String,System.String,System.String,System.String,WebAPI.ConditionalAccess.eTransactionType,System.Int32)">
             <remarks/>
         </member>
@@ -12028,13 +12554,67 @@
         <member name="M:WebAPI.ConditionalAccess.module.GetPurchaseSessionIDAsync(System.String,System.String,System.String,System.Double,System.String,System.Int32,System.String,System.String,System.String,System.String,WebAPI.ConditionalAccess.eTransactionType,System.Int32,System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.RecordTransaction(System.String,System.String,System.String,System.Int64,System.Int32,System.String,System.String,System.Int32,System.Double,System.String,System.Int32,System.Int32,WebAPI.ConditionalAccess.eTransactionType,System.String,System.String,System.Int32)">
+        <member name="M:WebAPI.ConditionalAccess.module.RecordTransaction(System.String,System.String,System.String,System.Int64,System.Int32,System.String,System.String,System.Int32,System.Double,System.String,System.Int32,System.Int32,WebAPI.ConditionalAccess.eTransactionType,System.String,System.String,System.Int32,System.String)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.RecordTransactionAsync(System.String,System.String,System.String,System.Int64,System.Int32,System.String,System.String,System.Int32,System.Double,System.String,System.Int32,System.Int32,WebAPI.ConditionalAccess.eTransactionType,System.String,System.String,System.Int32)">
+        <member name="M:WebAPI.ConditionalAccess.module.RecordTransactionAsync(System.String,System.String,System.String,System.Int64,System.Int32,System.String,System.String,System.Int32,System.Double,System.String,System.Int32,System.Int32,WebAPI.ConditionalAccess.eTransactionType,System.String,System.String,System.Int32,System.String)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.RecordTransactionAsync(System.String,System.String,System.String,System.Int64,System.Int32,System.String,System.String,System.Int32,System.Double,System.String,System.Int32,System.Int32,WebAPI.ConditionalAccess.eTransactionType,System.String,System.String,System.Int32,System.Object)">
+        <member name="M:WebAPI.ConditionalAccess.module.RecordTransactionAsync(System.String,System.String,System.String,System.Int64,System.Int32,System.String,System.String,System.Int32,System.Double,System.String,System.Int32,System.Int32,WebAPI.ConditionalAccess.eTransactionType,System.String,System.String,System.Int32,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.UpdateRecordedTransaction(System.String,System.String,System.Int64,System.String,System.String,System.String,System.Int32,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.UpdateRecordedTransactionAsync(System.String,System.String,System.Int64,System.String,System.String,System.String,System.Int32,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.UpdateRecordedTransactionAsync(System.String,System.String,System.Int64,System.String,System.String,System.String,System.Int32,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.GetCDVRAdapters(System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.GetCDVRAdaptersAsync(System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.GetCDVRAdaptersAsync(System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.DeleteCDVRAdapter(System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.DeleteCDVRAdapterAsync(System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.DeleteCDVRAdapterAsync(System.String,System.String,System.Int32,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.InsertCDVRAdapter(System.String,System.String,WebAPI.ConditionalAccess.CDVRAdapter)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.InsertCDVRAdapterAsync(System.String,System.String,WebAPI.ConditionalAccess.CDVRAdapter)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.InsertCDVRAdapterAsync(System.String,System.String,WebAPI.ConditionalAccess.CDVRAdapter,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.GenerateCDVRSharedSecret(System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.GenerateCDVRSharedSecretAsync(System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.GenerateCDVRSharedSecretAsync(System.String,System.String,System.Int32,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.SetCDVRAdapter(System.String,System.String,WebAPI.ConditionalAccess.CDVRAdapter)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.SetCDVRAdapterAsync(System.String,System.String,WebAPI.ConditionalAccess.CDVRAdapter)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.SetCDVRAdapterAsync(System.String,System.String,WebAPI.ConditionalAccess.CDVRAdapter,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.ConditionalAccess.module.GetUserPermittedItems(System.String,System.String,System.String)">
@@ -12832,10 +13412,34 @@
         <member name="E:WebAPI.ConditionalAccess.module.ReconcileEntitlementsCompleted">
             <remarks/>
         </member>
+        <member name="E:WebAPI.ConditionalAccess.module.GetUserBundlesCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.ConditionalAccess.module.GetUserPurchasedAssetsCompleted">
+            <remarks/>
+        </member>
         <member name="E:WebAPI.ConditionalAccess.module.GetPurchaseSessionIDCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.ConditionalAccess.module.RecordTransactionCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.ConditionalAccess.module.UpdateRecordedTransactionCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.ConditionalAccess.module.GetCDVRAdaptersCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.ConditionalAccess.module.DeleteCDVRAdapterCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.ConditionalAccess.module.InsertCDVRAdapterCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.ConditionalAccess.module.GenerateCDVRSharedSecretCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.ConditionalAccess.module.SetCDVRAdapterCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.ConditionalAccess.module.GetUserPermittedItemsCompleted">
@@ -13165,12 +13769,6 @@
         <member name="P:WebAPI.ConditionalAccess.NPVRResponse.msg">
             <remarks/>
         </member>
-        <member name="T:WebAPI.ConditionalAccess.LicensedLinkNPVRResponse">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.ConditionalAccess.LicensedLinkNPVRResponse.mainUrl">
-            <remarks/>
-        </member>
         <member name="T:WebAPI.ConditionalAccess.CancelDeleteResponse">
             <remarks/>
         </member>
@@ -13187,6 +13785,12 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.ConditionalAccess.RecordResponse.recordingID">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.LicensedLinkNPVRResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.LicensedLinkNPVRResponse.mainUrl">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.BaseNPVRCommand">
@@ -13208,36 +13812,6 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.ConditionalAccess.BaseNPVRCommand.assetID">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.DeleteNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.RetrieveQuotaNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.CancelNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.RecordNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.CancelSeriesNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.RecordSeriesByProgramIdNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.RecordSeriesByNameNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.DeleteSeriesNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.ProtectNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.ConditionalAccess.ProtectNPVRCommand.isProtect">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.LicensedLinkNPVRCommand">
@@ -13268,6 +13842,36 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.ConditionalAccess.LicensedLinkNPVRCommand.couponCode">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.RetrieveQuotaNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.DeleteNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.CancelNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.RecordNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.CancelSeriesNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.RecordSeriesByProgramIdNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.RecordSeriesByNameNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.DeleteSeriesNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.ProtectNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.ProtectNPVRCommand.isProtect">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.EntitlementResponse">
@@ -14440,6 +15044,60 @@
         <member name="P:WebAPI.ConditionalAccess.PermittedMediaContainer.PPVCode">
             <remarks/>
         </member>
+        <member name="T:WebAPI.ConditionalAccess.CDVRAdapterResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.CDVRAdapterResponse.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.CDVRAdapterResponse.Adapter">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.CDVRAdapter">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.CDVRAdapter.ID">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.CDVRAdapter.Name">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.CDVRAdapter.IsActive">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.CDVRAdapter.AdapterUrl">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.CDVRAdapter.ExternalIdentifier">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.CDVRAdapter.SharedSecret">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.CDVRAdapter.DynamicLinksSupport">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.CDVRAdapter.Settings">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.CDVRAdapterSettings">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.CDVRAdapterSettings.key">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.CDVRAdapterSettings.value">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.CDVRAdapterResponseList">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.CDVRAdapterResponseList.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.CDVRAdapterResponseList.Adapters">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.ConditionalAccess.PurchaseSessionIdResponse">
             <remarks/>
         </member>
@@ -14447,6 +15105,33 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.ConditionalAccess.PurchaseSessionIdResponse.Status">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.KeyValuePair">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.KeyValuePair.key">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.KeyValuePair.value">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.UserPurhcasedAssetsResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.UserPurhcasedAssetsResponse.assets">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.UserPurhcasedAssetsResponse.status">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.UserBundlesResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.UserBundlesResponse.channels">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.UserBundlesResponse.status">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.AssetItemPrices">
@@ -14683,6 +15368,24 @@
         <member name="P:WebAPI.ConditionalAccess.ReconcileEntitlementsCompletedEventArgs.Result">
             <remarks/>
         </member>
+        <member name="T:WebAPI.ConditionalAccess.GetUserBundlesCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.GetUserBundlesCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.GetUserBundlesCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.GetUserPurchasedAssetsCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.GetUserPurchasedAssetsCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.GetUserPurchasedAssetsCompletedEventArgs.Result">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.ConditionalAccess.GetPurchaseSessionIDCompletedEventHandler">
             <remarks/>
         </member>
@@ -14699,6 +15402,60 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.ConditionalAccess.RecordTransactionCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.UpdateRecordedTransactionCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.UpdateRecordedTransactionCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.UpdateRecordedTransactionCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.GetCDVRAdaptersCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.GetCDVRAdaptersCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.GetCDVRAdaptersCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.DeleteCDVRAdapterCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.DeleteCDVRAdapterCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.DeleteCDVRAdapterCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.InsertCDVRAdapterCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.InsertCDVRAdapterCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.InsertCDVRAdapterCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.GenerateCDVRSharedSecretCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.GenerateCDVRSharedSecretCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.GenerateCDVRSharedSecretCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.SetCDVRAdapterCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.SetCDVRAdapterCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.SetCDVRAdapterCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.GetUserPermittedItemsCompletedEventHandler">
@@ -19993,13 +20750,13 @@
         <member name="M:WebAPI.Users.UsersService.CheckUserPasswordAsync(System.String,System.String,System.String,System.String,System.Boolean,System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Users.UsersService.SignIn(System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.Boolean)">
+        <member name="M:WebAPI.Users.UsersService.SignIn(System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.Boolean,WebAPI.Users.KeyValuePair[])">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Users.UsersService.SignInAsync(System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.Boolean)">
+        <member name="M:WebAPI.Users.UsersService.SignInAsync(System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.Boolean,WebAPI.Users.KeyValuePair[])">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Users.UsersService.SignInAsync(System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.Boolean,System.Object)">
+        <member name="M:WebAPI.Users.UsersService.SignInAsync(System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.Boolean,WebAPI.Users.KeyValuePair[],System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.Users.UsersService.KalturaSignIn(System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.Boolean,WebAPI.Users.KeyValuePair[])">
@@ -20695,6 +21452,33 @@
         <member name="M:WebAPI.Users.UsersService.DeleteUserAsync(System.String,System.String,System.Int32,System.Object)">
             <remarks/>
         </member>
+        <member name="M:WebAPI.Users.UsersService.ChangeUsers(System.String,System.String,System.String,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Users.UsersService.ChangeUsersAsync(System.String,System.String,System.String,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Users.UsersService.ChangeUsersAsync(System.String,System.String,System.String,System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Users.UsersService.AddInitiateNotificationAction(System.String,System.String,WebAPI.Users.eUserMessageAction,System.Int32,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Users.UsersService.AddInitiateNotificationActionAsync(System.String,System.String,WebAPI.Users.eUserMessageAction,System.Int32,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Users.UsersService.AddInitiateNotificationActionAsync(System.String,System.String,WebAPI.Users.eUserMessageAction,System.Int32,System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Users.UsersService.ResendActivationToken(System.String,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Users.UsersService.ResendActivationTokenAsync(System.String,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Users.UsersService.ResendActivationTokenAsync(System.String,System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
         <member name="M:WebAPI.Users.UsersService.CancelAsync(System.Object)">
             <remarks/>
         </member>
@@ -20935,6 +21719,15 @@
         <member name="E:WebAPI.Users.UsersService.DeleteUserCompleted">
             <remarks/>
         </member>
+        <member name="E:WebAPI.Users.UsersService.ChangeUsersCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Users.UsersService.AddInitiateNotificationActionCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Users.UsersService.ResendActivationTokenCompleted">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Users.UserResponseObject">
             <remarks/>
         </member>
@@ -21037,6 +21830,12 @@
         <member name="P:WebAPI.Users.User.m_oDynamicData">
             <remarks/>
         </member>
+        <member name="P:WebAPI.Users.User.m_eUserState">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Users.User.m_eSuspendState">
+            <remarks/>
+        </member>
         <member name="P:WebAPI.Users.User.m_sSiteGUID">
             <remarks/>
         </member>
@@ -21046,13 +21845,10 @@
         <member name="P:WebAPI.Users.User.m_isDomainMaster">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Users.User.m_eUserState">
-            <remarks/>
-        </member>
         <member name="P:WebAPI.Users.User.m_nSSOOperatorID">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Users.User.m_eSuspendState">
+        <member name="P:WebAPI.Users.User.IsActivationGracePeriod">
             <remarks/>
         </member>
         <member name="T:WebAPI.Users.UserBasicData">
@@ -21170,15 +21966,6 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Users.UsersResponse.users">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Users.UserResponse">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Users.UserResponse.resp">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Users.UserResponse.user">
             <remarks/>
         </member>
         <member name="T:WebAPI.Users.PinCodeResponse">
@@ -21334,6 +22121,15 @@
         <member name="P:WebAPI.Users.UserOfflineObject.m_UpdateDate">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Users.UserResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Users.UserResponse.resp">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Users.UserResponse.user">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Users.FavoritObject">
             <remarks/>
         </member>
@@ -21437,6 +22233,27 @@
             <remarks/>
         </member>
         <member name="F:WebAPI.Users.DomainSuspentionStatus.Suspended">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Users.eUserMessageAction">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Users.eUserMessageAction.Login">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Users.eUserMessageAction.Logout">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Users.eUserMessageAction.AnonymousPushRegistration">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Users.eUserMessageAction.IdentifyPushRegistration">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Users.eUserMessageAction.DeleteUser">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Users.eUserMessageAction.ChangeUsers">
             <remarks/>
         </member>
         <member name="T:WebAPI.Users.CheckUserPasswordCompletedEventHandler">
@@ -22130,6 +22947,27 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Users.DeleteUserCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Users.ChangeUsersCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Users.ChangeUsersCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Users.ChangeUsersCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Users.AddInitiateNotificationActionCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Users.ResendActivationTokenCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Users.ResendActivationTokenCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Users.ResendActivationTokenCompletedEventArgs.Result">
             <remarks/>
         </member>
     </members>

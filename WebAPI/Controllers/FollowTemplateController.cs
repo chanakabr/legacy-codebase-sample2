@@ -17,7 +17,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// TBD
         /// </summary>
-        /// <param name="push_token">TBD</param>
+        /// <param name="follow_template">TBD</param>
         /// <remarks>
         /// 
         /// </remarks>

@@ -26,5 +26,10 @@ namespace WebAPI.Models.Notification
         [JsonProperty(PropertyName = "Date_Format")]
         [XmlElement(ElementName = "Date_Format")]
         public string DateFormat { get; set; }
+
+        [DataMember(Name = "asset_type")]
+        [JsonProperty(PropertyName = "asset_type")]
+        [XmlElement(ElementName = "asset_type")]
+        public KalturaOTTAssetType AssetType { get; set; }        
     }
 }

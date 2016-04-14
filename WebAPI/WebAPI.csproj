@@ -459,6 +459,9 @@
     <Content Include="Service References\Notifications\WebAPI.Notifications.GetAllMessageAnnouncementsResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
+    <Content Include="Service References\Notifications\WebAPI.Notifications.FollowTemplateResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
     <None Include="Web References\Api\api.disco" />
     <Content Include="Web References\Billing\AdyenBillingDetail.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -981,6 +984,7 @@
     <Compile Include="Controllers\AppTokenController.cs" />
     <Compile Include="Controllers\AssetController.cs" />
     <Compile Include="Controllers\CDVRAdapterProfileController.cs" />
+    <Compile Include="Controllers\FollowTemplateController.cs" />
     <Compile Include="Controllers\LicensedUrlController.cs" />
     <Compile Include="Controllers\HomeNetworkController.cs" />
     <Compile Include="Controllers\NotificationController.cs" />
@@ -1100,6 +1104,7 @@
     <Compile Include="Models\Domains\KalturaHouseholdFrequencyType.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdLimitations.cs" />
     <Compile Include="Models\Domains\KalturaDevicePin.cs" />
+    <Compile Include="Models\General\KalturaOTTAssetType.cs" />
     <Compile Include="Models\General\KalturaApiActionPermissionItem.cs" />
     <Compile Include="Models\General\KalturaAppToken.cs" />
     <Compile Include="Models\General\KalturaAppTokenHashType.cs" />
@@ -1135,6 +1140,7 @@
     <Compile Include="Models\Notification\KalturaAnnouncement.cs" />
     <Compile Include="Models\Notification\KalturaAnnouncementRecipientsType.cs" />
     <Compile Include="Models\Notification\KalturaAnnouncementStatus.cs" />
+    <Compile Include="Models\Notification\KalturaFollowTemplate.cs" />
     <Compile Include="Models\Notification\KalturaMessageAnnouncementListResponse.cs" />
     <Compile Include="Models\Notification\KalturaNotificationSettings.cs" />
     <Compile Include="Models\Notification\KalturaPartnerNotificationSettings.cs" />

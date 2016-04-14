@@ -186,8 +186,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                     result = 2; 
                     break;
                 default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown household frequency type");
-                    break;
+                    throw new ClientException((int)StatusCode.Error, "Unknown household frequency type");                    
             }
 
             return result;

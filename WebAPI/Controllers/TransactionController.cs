@@ -214,6 +214,7 @@ namespace WebAPI.Controllers
         /// <param name="product_type">Package type. Possible values: PPV, Subscription, Collection</param>
         /// <param name="coupon">Coupon code</param> 
         /// <param name="preview_module_id">Preview module identifier (relevant only for subscription)</param> 
+        /// <remarks>
         /// </remarks>
         [Route("purchaseSessionId"), HttpPost]
         [ApiAuthorize]

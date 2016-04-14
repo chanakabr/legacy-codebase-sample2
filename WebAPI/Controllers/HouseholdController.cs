@@ -346,7 +346,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Fully delete a household per specified internal or external ID. Delete all of the household information, includinh users, devices, transactions & assets.
+        /// Fully delete a household per specified internal or external ID. Delete all of the household information, including users, devices, transactions and assets.
         /// </summary>                
         /// <param name="filter">Household ID by which to delete a household. Possible values: internal – internal ID ; external – external ID</param>
         /// <remarks>Possible status codes: 

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Web;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Models.General;
 using WebAPI.Models.Notification;
 using WebAPI.Models.Notifications;
 using WebAPI.Notifications;
@@ -40,6 +41,20 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.StartTime))
                  .ForMember(dest => dest.Timezone, opt => opt.MapFrom(src => src.Timezone))
                  .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertAnnouncementStatusType(src.Status)));
+
+            //FollowTemplate to KalturaFollowTemplate
+            Mapper.CreateMap<FollowTemplate, KalturaFollowTemplate>()
+                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                 .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
+                 .ForMember(dest => dest.DateFormat, opt => opt.MapFrom(src => src.DateFormat))
+                 .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertOTTAssetType(src.AssetType)));
+
+            //KalturaFollowTemplate TO FollowTemplate
+            Mapper.CreateMap<KalturaFollowTemplate, FollowTemplate>()
+                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                 .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
+                 .ForMember(dest => dest.DateFormat, opt => opt.MapFrom(src => src.DateFormat))
+                 .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertOTTAssetType(src.AssetType)));
         }
 
         public static KalturaAnnouncementRecipientsType ConvertRecipientsType(eAnnouncementRecipientsType recipients)
@@ -85,6 +100,38 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown status Type");
+            }
+
+            return result;
+        }
+
+        public static KalturaOTTAssetType ConvertOTTAssetType(eOTTAssetTypes assetType)
+        {
+            KalturaOTTAssetType result;
+
+            switch (assetType)
+            {
+                case eOTTAssetTypes.Series:
+                    result = KalturaOTTAssetType.Series;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown asset Type");
+            }
+
+            return result;
+        }
+
+        public static eOTTAssetTypes ConvertOTTAssetType(KalturaOTTAssetType assetType)
+        {
+            eOTTAssetTypes result;
+
+            switch (assetType)
+            {
+                case KalturaOTTAssetType.Series:
+                    result = eOTTAssetTypes.Series;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown asset Type");
             }
 
             return result;

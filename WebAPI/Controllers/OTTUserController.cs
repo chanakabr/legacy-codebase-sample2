@@ -360,8 +360,7 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Retrieving users' data
-        /// </summary>
-        /// <param name="filter">Filter object to filter relevant users in the account</param>
+        /// </summary>        
         /// <remarks></remarks>
         /// <remarks></remarks>        
         [Route("get"), HttpPost]
