@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseCacheHelper.cs" />
+    <Compile Include="CdvrEnginesCache.cs" />
     <Compile Include="ExternalChannelCache.cs" />
     <Compile Include="GeoBlockRulesCache.cs" />
     <Compile Include="ParentalRulesCache.cs" />
