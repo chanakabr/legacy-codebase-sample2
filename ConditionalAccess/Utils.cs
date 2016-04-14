@@ -4228,10 +4228,9 @@ namespace ConditionalAccess
             return epgs;
         }
 
-        internal static Recording GetExistingRecording(long epgID, long domainID)
+        internal static long GetDomainExistingRecordingID(long epgID, long domainID)
         {
-            Recording recording = new Recording(epgID);
-            return recording;
+            return 0;
         }
 
     }

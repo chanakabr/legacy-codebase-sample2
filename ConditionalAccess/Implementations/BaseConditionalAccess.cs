@@ -16982,12 +16982,8 @@ namespace ConditionalAccess
                     else if (response.RecordingID > 0 && response.RecordingStatus != TstvRecordingStatus.Scheduled && 
                             response.RecordingStatus == TstvRecordingStatus.Recording && response.RecordingStatus == TstvRecordingStatus.Recorded)
                     {
-                        response = RecordingsManager.Instance.Record(m_nGroupID, epgID, string.Empty, response.StartDate, response.EndDate, userID, domainID);
+                        response = RecordingsManager.Instance.Record(m_nGroupID, response.EpgID, response.EpgChannelID, response.StartDate, response.EndDate, userID, domainID);
                     }
-                    /*********************************************************************************************
-                    /* check if recording already exists (by recordingID or TstvRecordingStatus)
-                     * if it does return the existing response, if not run Sunnys Record method and return it's response 
-                     ***********************************************************************************************/
                 }
                 
             }
@@ -17038,7 +17034,7 @@ namespace ConditionalAccess
                     return response;
                 }
 
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());                
 
                 foreach (EPGChannelProgrammeObject epg in epgs)
                 {
@@ -17123,7 +17119,29 @@ namespace ConditionalAccess
                     }
                     if (priceValidationPassed)
                     {
-                        response = Utils.GetExistingRecording(epg.EPG_ID, domainID);
+                        long recordingID = Utils.GetDomainExistingRecordingID(epg.EPG_ID, domainID);
+                        if (recordingID > 0)
+                        {
+                            response = ConditionalAccessDAL.GetRecordingByRecordingId(recordingID);
+                            // initialize response object if record not found
+                            if (response == null)
+                            {
+                                response = new Recording(epg.EPG_ID);
+                            }
+                        }
+                        // initialize response object if record doesn't exist for domain
+                        else
+                        {
+                            DateTime epgEndDate;
+                            if (!DateTime.TryParse(epg.END_DATE, out epgEndDate))
+                            {
+                                response = new Recording(epg.EPG_ID, epg.EPG_CHANNEL_ID, epgStartDate, epgEndDate);
+                            }
+                            else
+                            {
+                                response = new Recording(epg.EPG_ID);
+                            }
+                        }
                     }
                 }
                 

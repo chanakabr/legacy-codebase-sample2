@@ -16,6 +16,8 @@ namespace ApiObjects.TimeShiftedTv
 
         public long EpgID { get; set; }
 
+        public string EpgChannelID { get; set; }
+
         public TstvRecordingStatus RecordingStatus { get; set; }
 
         public string ExternalRecordingId { get; set; }
@@ -32,12 +34,15 @@ namespace ApiObjects.TimeShiftedTv
             this.RecordingStatus = TstvRecordingStatus.Not_recorded;
         }
 
-        public Recording(ApiObjects.Response.Status status, int recordingID, TstvRecordingStatus recordingStatus, long epgID)
+        public Recording(long epgID, string epgChannelID, DateTime startDate, DateTime endDate)
         {
-            this.Status = status;
-            this.RecordingID = recordingID;
-            this.RecordingStatus = recordingStatus;
             this.EpgID = epgID;
+            this.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            this.RecordingID = 0;
+            this.RecordingStatus = TstvRecordingStatus.Not_recorded;
+            this.EpgChannelID = epgChannelID;
+            this.StartDate = startDate;
+            this.EndDate = endDate;
         }
 
         public override string ToString()
@@ -47,6 +52,10 @@ namespace ApiObjects.TimeShiftedTv
             sb.Append(string.Format("RecordingID: {0}, ", RecordingID));
             sb.Append(string.Format("EpgID: {0}, ", EpgID));
             sb.Append(string.Format("RecordingStatus: {0}, ", RecordingStatus));
+            sb.Append(string.Format("EpgChannelID: {0}, ", string.IsNullOrEmpty(EpgChannelID) ? "" : EpgChannelID));
+            sb.Append(string.Format("ExternalRecordingId: {0}, ", string.IsNullOrEmpty(ExternalRecordingId) ? "" : ExternalRecordingId));
+            sb.Append(string.Format("StartDate: {0}, ", StartDate != null ? StartDate.ToString() : ""));
+            sb.Append(string.Format("EndDate: {0}, ", EndDate != null ? EndDate.ToString() : ""));
 
             return sb.ToString();
         }

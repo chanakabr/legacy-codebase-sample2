@@ -2523,5 +2523,19 @@ namespace DAL
             //insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_NAME", "=", sDEVICE_NAME);
             return result;
         }
+
+        public static long GetDomainExistingRecordingID(int groupID, long epgID, long domainID)
+        {
+            long recordingID = 0;            
+            ODBCWrapper.StoredProcedure spGetDomainExistingRecordingID = new ODBCWrapper.StoredProcedure("Get_DomainRecordingID");
+            spGetDomainExistingRecordingID.SetConnectionKey("CONNECTION_STRING");
+            spGetDomainExistingRecordingID.AddParameter("@GroupID", groupID);
+            spGetDomainExistingRecordingID.AddParameter("@EpgID", epgID);
+            spGetDomainExistingRecordingID.AddParameter("@DomainID", domainID);
+
+            recordingID = spGetDomainExistingRecordingID.ExecuteReturnValue<long>();
+
+            return recordingID;
+        }
     }
 }

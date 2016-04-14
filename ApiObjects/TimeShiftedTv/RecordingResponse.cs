@@ -20,12 +20,6 @@ namespace ApiObjects.TimeShiftedTv
             Recordings = new List<Recording>();
         }
 
-        public RecordingResponse(ApiObjects.Response.Status status, List<Recording> recordings)
-        {
-            this.Status = status;
-            this.Recordings = recordings;
-        }
-
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
