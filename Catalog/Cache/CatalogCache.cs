@@ -346,7 +346,7 @@ namespace Catalog.Cache
 
              enable = ODBCWrapper.Utils.GetIntSafeVal(drAccount, "ENABLE_TRICK_PLAY"); // account
              enableChannel = ODBCWrapper.Utils.GetIntSafeVal(drChannel, "ENABLE_TRICK_PLAY"); //channel settings
-             if (enable == 0 && enableChannel == 2)
+             if (enable == 1 && enableChannel == 2)
              {
                  enable = enableChannel;
              }
