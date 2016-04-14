@@ -2533,7 +2533,7 @@ namespace DAL
         public static Recording GetDomainExistingRecording(int groupID, long domainID, long epgID)
         {
             Recording recording = null;
-            ODBCWrapper.StoredProcedure spGetDomainExistingRecordingID = new ODBCWrapper.StoredProcedure("Get_DomainRecordingID");
+            ODBCWrapper.StoredProcedure spGetDomainExistingRecordingID = new ODBCWrapper.StoredProcedure("GetDomainExistingRecording");
             spGetDomainExistingRecordingID.SetConnectionKey("CONNECTION_STRING");
             spGetDomainExistingRecordingID.AddParameter("@GroupID", groupID);
             spGetDomainExistingRecordingID.AddParameter("@DomainID", domainID);
@@ -2546,6 +2546,12 @@ namespace DAL
                 if (dr != null)
                 {
                     recording = new Recording();
+                    recording.EpgID = epgID;
+                    recording.RecordingID = ODBCWrapper.Utils.ExtractValue<long>(dr, "recording_id");
+                    recording.RecordingStatus = (TstvRecordingStatus)ODBCWrapper.Utils.ExtractInteger(dr, "RECORDING_STATUS");
+                    recording.ExternalRecordingId = ODBCWrapper.Utils.ExtractString(dr, "EXTERNAL_RECORDING_ID");
+                    recording.EpgStartDate = ODBCWrapper.Utils.ExtractDateTime(dr, "START_DATE");
+                    recording.EpgEndDate = ODBCWrapper.Utils.ExtractDateTime(dr, "END_DATE");                    
                 }
             }
 
