@@ -102,13 +102,13 @@ namespace ElasticSearchFeeder
                                         switch (oMessage.ObjectType)
                                         {
                                             case ApiObjects.eObjectType.Media:
-                                                bRetVal = await MediaChanged(oMessage.Ids, oMessage.Action);
+                                                bRetVal = await MediaChanged(oMessage.Ids.ConvertAll<int>(x => (int)x), oMessage.Action);
                                                 break;
                                             case ApiObjects.eObjectType.Channel:
-                                                bRetVal = ChannelChanged(oMessage.Ids, oMessage.Action);
+                                                bRetVal = ChannelChanged(oMessage.Ids.ConvertAll<int>(x => (int)x), oMessage.Action);
                                                 break;
                                             case ApiObjects.eObjectType.EPG:
-                                                bRetVal = EpgChanged(oMessage.Ids, oMessage.Action);
+                                                bRetVal = EpgChanged(oMessage.Ids.ConvertAll<int>(x => (int)x), oMessage.Action);
                                                 break;
                                             default:
                                                 bRetVal = true;
