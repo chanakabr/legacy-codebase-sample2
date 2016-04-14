@@ -290,7 +290,7 @@
             </remarks>
             <param name="adapter_id">C-DVR adapter identifier</param>
         </member>
-        <member name="M:WebAPI.Controllers.FollowTemplate.Add(WebAPI.Models.Notification.KalturaFollowTemplate)">
+        <member name="M:WebAPI.Controllers.FollowTemplateController.Add(WebAPI.Models.Notification.KalturaFollowTemplate)">
             <summary>
             TBD
             </summary>
