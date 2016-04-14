@@ -1158,7 +1158,7 @@ namespace DAL
                         {
                             ID = ODBCWrapper.Utils.GetIntSafeVal(row, "id"),
                             ExternalId = ODBCWrapper.Utils.GetSafeStr(row, "external_id"),
-                            Name= ODBCWrapper.Utils.GetSafeStr(row, "name"),
+                            Name = ODBCWrapper.Utils.GetSafeStr(row, "name"),
                             FollowPhrase = ODBCWrapper.Utils.GetSafeStr(row, "follow_phrase"),
                             RecipientsType = Enum.IsDefined(typeof(eAnnouncementRecipientsType), recipientType) ? (eAnnouncementRecipientsType)recipientType : eAnnouncementRecipientsType.All
                         };
@@ -1173,6 +1173,45 @@ namespace DAL
             }
 
             return result;
+        }
+
+        public static FollowTemplate AddFollowTemplate(int groupId, FollowTemplate followTemplate)
+        {
+            FollowTemplate result = new FollowTemplate();
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertFollowTemplate");
+                sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@message", followTemplate.Message);
+                sp.AddParameter("@dateFormat", followTemplate.DateFormat);
+                sp.AddParameter("@assetType", (int)followTemplate.AssetType);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    if (ds.Tables[0].Rows.Count > 0)
+                    {
+                        int assetType = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ASSET_TYPE");
+
+                        result = new FollowTemplate()
+                        {
+                            Id = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID"),
+                            Message = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "MESSAGE"),
+                            DateFormat = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "DATE_FORMAT"),
+                            AssetType = Enum.IsDefined(typeof(eOTTAssetTypes), assetType) ? (eOTTAssetTypes)assetType : eOTTAssetTypes.Series
+                        };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at AddFollowTemplate. groupId: {0}, followTemplate: {1} . Error {2}", groupId, followTemplate.ToString() ,ex);
+            }
+
+            return result;
+
         }
     }
 }
