@@ -12,7 +12,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/FollowTemplate/action")]
-    public class FollowTemplate : ApiController
+    public class FollowTemplateController : ApiController
     {
         /// <summary>
         /// TBD
