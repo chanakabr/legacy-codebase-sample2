@@ -18,7 +18,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "recording_id")]
         [JsonProperty("recording_id")]
         [XmlElement(ElementName = "recording_id")]
-        public string RecordingId { get; set; }
+        public long RecordingId { get; set; }
 
         /// <summary>
         /// Recording state: Scheduled/Recording/Recorded/Canceled/Failed/DoesNotExists/Deleted
@@ -28,6 +28,13 @@ namespace WebAPI.Models.ConditionalAccess
         [XmlElement(ElementName = "recording_state")]
         public KalturaRecordingStatus RecordingStatus { get; set; }
 
+        /// <summary>
+        /// Kaltura unique ID representing the program identifier
+        /// </summary>
+        [DataMember(Name = "epg_id")]
+        [JsonProperty("epg_id")]
+        [XmlElement(ElementName = "epg_id")]
+        public long EpgID { get; set; }
     }
 
 }

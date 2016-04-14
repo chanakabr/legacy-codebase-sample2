@@ -13,7 +13,7 @@ namespace WebAPI.Models.ConditionalAccess
         recorded = 2,
         canceled = 3,
         failed = 4,
-        not_recorded = 5,
+        does_not_exists = 5,
         deleted = 6
     }
 }

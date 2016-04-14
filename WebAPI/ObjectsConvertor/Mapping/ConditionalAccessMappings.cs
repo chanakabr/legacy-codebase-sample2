@@ -215,6 +215,83 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<ConditionalAccess.LicensedLinkResponse, Models.ConditionalAccess.KalturaLicensedUrl>()
                .ForMember(dest => dest.MainUrl, opt => opt.MapFrom(src => src.mainUrl))
                .ForMember(dest => dest.AltUrl, opt => opt.MapFrom(src => src.altUrl));
+
+            // KalturaRecording to Recording
+            Mapper.CreateMap<KalturaRecording, WebAPI.ConditionalAccess.Recording>()
+               .ForMember(dest => dest.EpgID, opt => opt.MapFrom(src => src.EpgID))
+               .ForMember(dest => dest.RecordingID, opt => opt.MapFrom(src => src.RecordingId))
+               .ForMember(dest => dest.RecordingStatus, opt => opt.MapFrom(src => ConvertKalturaRecordingStatus(src.RecordingStatus)));
+
+            // Recording to KalturaRecording
+            Mapper.CreateMap<WebAPI.ConditionalAccess.Recording, KalturaRecording>()
+               .ForMember(dest => dest.EpgID, opt => opt.MapFrom(src => src))
+               .ForMember(dest => dest.RecordingId, opt => opt.MapFrom(src => src.RecordingID))
+               .ForMember(dest => dest.RecordingStatus, opt => opt.MapFrom(src => ConvertTstvRecordingStatus(src.RecordingStatus)));
+        }
+
+        //
+        public static WebAPI.ConditionalAccess.TstvRecordingStatus ConvertKalturaRecordingStatus(KalturaRecordingStatus recordingStatus)
+        {
+            WebAPI.ConditionalAccess.TstvRecordingStatus result;
+            switch (recordingStatus)
+            {
+                case KalturaRecordingStatus.canceled:
+                    result = WebAPI.ConditionalAccess.TstvRecordingStatus.Canceled;
+                    break;
+                case KalturaRecordingStatus.deleted:
+                    result = WebAPI.ConditionalAccess.TstvRecordingStatus.Deleted;
+                    break;
+                case KalturaRecordingStatus.does_not_exists:
+                    result = WebAPI.ConditionalAccess.TstvRecordingStatus.DoesNotExist;
+                    break;
+                case KalturaRecordingStatus.failed:
+                    result = WebAPI.ConditionalAccess.TstvRecordingStatus.Failed;
+                    break;
+                case KalturaRecordingStatus.recorded:
+                    result = WebAPI.ConditionalAccess.TstvRecordingStatus.Recorded;
+                    break;
+                case KalturaRecordingStatus.recording:
+                    result = WebAPI.ConditionalAccess.TstvRecordingStatus.Recording;
+                    break;
+                case KalturaRecordingStatus.scheduled:
+                    result = WebAPI.ConditionalAccess.TstvRecordingStatus.Scheduled;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown recordingStatus type");
+            }
+            return result;
+        }
+
+        public static KalturaRecordingStatus ConvertTstvRecordingStatus(WebAPI.ConditionalAccess.TstvRecordingStatus recordingStatus)
+        {
+            KalturaRecordingStatus result;
+            switch (recordingStatus)
+            {
+                case WebAPI.ConditionalAccess.TstvRecordingStatus.Canceled:
+                    result = KalturaRecordingStatus.canceled;
+                    break;
+                case WebAPI.ConditionalAccess.TstvRecordingStatus.Deleted:
+                    result = KalturaRecordingStatus.deleted;
+                    break;
+                case WebAPI.ConditionalAccess.TstvRecordingStatus.DoesNotExist:
+                    result = KalturaRecordingStatus.does_not_exists;
+                    break;
+                case WebAPI.ConditionalAccess.TstvRecordingStatus.Failed:
+                    result = KalturaRecordingStatus.failed;
+                    break;
+                case WebAPI.ConditionalAccess.TstvRecordingStatus.Recorded:
+                    result = KalturaRecordingStatus.recorded;
+                    break;
+                case WebAPI.ConditionalAccess.TstvRecordingStatus.Recording:
+                    result = KalturaRecordingStatus.recording;
+                    break;
+                case WebAPI.ConditionalAccess.TstvRecordingStatus.Scheduled:
+                    result = KalturaRecordingStatus.scheduled;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown recordingStatus type");
+            }
+            return result;
         }
 
         // TransactionType to eTransactionType

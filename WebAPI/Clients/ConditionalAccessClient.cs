@@ -1112,16 +1112,84 @@ namespace WebAPI.Clients
             return adapter;
         }
 
-        internal List<KalturaRecording> QueryRecords(int groupdID, string userID, List<long> epgID)
+        internal List<KalturaRecording> QueryRecords(int groupdID, string userID, long[] epgIDs)
         {
-            List<KalturaRecording> response = new List<KalturaRecording>();
-            return response;
+            List<KalturaRecording> recordings = null;
+            RecordingResponse response = null;
+
+            // get group ID
+            Group group = GroupsManager.GetGroup(groupdID);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    response = ConditionalAccess.QueryRecords(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, epgIDs);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            // convert response
+            recordings = Mapper.Map<List<WebAPI.Models.ConditionalAccess.KalturaRecording>>(response.Recordings);
+
+            return recordings;
         }
 
         internal KalturaRecording Record(int groupdID, string userID, long epgID)
         {
-            KalturaRecording response = null;
-            return response;
+            KalturaRecording recording = null;
+            Recording response = null;
+
+            // get group ID
+            Group group = GroupsManager.GetGroup(groupdID);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    response = ConditionalAccess.Record(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, epgID);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            // convert response
+            recording = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaRecording>(response);
+
+            return recording;
         }
 
     }
