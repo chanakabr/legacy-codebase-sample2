@@ -517,5 +517,111 @@ namespace WebAPI.Clients
             result = AutoMapper.Mapper.Map<KalturaFollowTemplate>(response.FollowTemplate);            
             return result;
         }
+
+        internal KalturaListFollowDataResponse GetUserTvSeriesFollows(int groupId, string userID, int pageSize, int pageIndex)
+        {
+            List<KalturaFollowData> result = null;
+            GetUserFollowsResponse response = null;
+            KalturaListFollowDataResponse ret;
+
+            Group group = GroupsManager.GetGroup(groupId);
+            int userId = 0;
+            if (!int.TryParse(userID, out userId))
+            {
+                throw new ClientException((int)StatusCode.UserIDInvalid, "Invalid Username");
+            }
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Notification.GetUserFollows(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, pageSize, pageIndex);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetUserTvSeriesFollows.  groupID: {0}, userId: {1}, exception: {2}", groupId, userID, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            result = Mapper.Map<List<KalturaFollowData>>(response.Follows);
+
+            ret = new KalturaListFollowDataResponse() { FollowDataList = result, TotalCount = response.TotalCount };
+            return ret;
+        }
+
+        internal bool DeleteUserTvSeriesFollow(int groupId, string userID, long announcementId)
+        {
+            Status response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+            int userId = 0;
+            if (!int.TryParse(userID, out userId))
+            {
+                throw new ClientException((int)StatusCode.UserIDInvalid, "Invalid Username");
+            }
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Notification.Unfollow(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, announcementId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetUserTvSeriesFollows.  groupID: {0}, userId: {1}, exception: {2}", groupId, userID, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+            if (response.Code != (int)StatusCode.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        internal bool AddUserTvSeriesFollow(int groupId, string userID, KalturaFollowData followData)
+        {
+            Status response = null;
+            FollowData followDataNotification = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+            int userId = 0;
+            if (!int.TryParse(userID, out userId))
+            {
+                throw new ClientException((int)StatusCode.UserIDInvalid, "Invalid Username");
+            }
+
+            followData.Type = KalturaFollowType.Tv_Series;
+            followData.Status = 1;
+            followDataNotification = Mapper.Map<FollowData>(followData);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Notification.Follow(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, followDataNotification);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetUserTvSeriesFollows.  groupID: {0}, userId: {1}, exception: {2}", groupId, userID, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+            if (response.Code != (int)StatusCode.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
+        }
     }
 }
