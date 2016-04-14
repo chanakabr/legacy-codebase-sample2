@@ -1193,25 +1193,61 @@ namespace DAL
                 {
                     if (ds.Tables[0].Rows.Count > 0)
                     {
-                        int assetType = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ASSET_TYPE");
-
-                        result = new FollowTemplate()
-                        {
-                            Id = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID"),
-                            Message = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "MESSAGE"),
-                            DateFormat = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "DATE_FORMAT"),
-                            AssetType = Enum.IsDefined(typeof(eOTTAssetTypes), assetType) ? (eOTTAssetTypes)assetType : eOTTAssetTypes.Series
-                        };
+                        result = CreateFollowTemplate(result, ds.Tables[0].Rows[0]);
                     }
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error at AddFollowTemplate. groupId: {0}, followTemplate: {1} . Error {2}", groupId, followTemplate.ToString() ,ex);
+                log.ErrorFormat("Error at AddFollowTemplate. groupId: {0}, followTemplate: {1} . Error {2}", groupId, followTemplate.ToString(), ex);
             }
 
             return result;
 
         }
+
+        public static FollowTemplate GetFollowTemplate(int groupId)
+        {
+            FollowTemplate result = new FollowTemplate();
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetFollowTemplate");
+                sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    if (ds.Tables[0].Rows.Count > 0)
+                    {
+                        result = CreateFollowTemplate(result, ds.Tables[0].Rows[0]);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at GetFollowTemplate. groupId: {0}. Error {1}", groupId, ex);
+            }
+
+            return result;
+
+        }
+
+        private static FollowTemplate CreateFollowTemplate(FollowTemplate result, DataRow row)
+        {
+            int assetType = ODBCWrapper.Utils.GetIntSafeVal(row, "ASSET_TYPE");
+
+            result = new FollowTemplate()
+            {
+                Id = ODBCWrapper.Utils.GetIntSafeVal(row, "ID"),
+                Message = ODBCWrapper.Utils.GetSafeStr(row, "MESSAGE"),
+                DateFormat = ODBCWrapper.Utils.GetSafeStr(row, "DATE_FORMAT"),
+                AssetType = Enum.IsDefined(typeof(eOTTAssetTypes), assetType) ? (eOTTAssetTypes)assetType : eOTTAssetTypes.Series
+            };
+            return result;
+        }
+
+
     }
 }
