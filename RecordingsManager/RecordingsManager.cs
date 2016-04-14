@@ -89,11 +89,14 @@ namespace Recordings
                 var queue = new GenericCeleryQueue();
                 var message = new RecordingTaskData(groupId, eRecordingTask.GetStatusAfterProgramEnded, 
                     // add 5 minutes here
-                    endDate.AddMinutes(5),
+                    endDate.AddMinutes(1),
                     programId,
                     recording.RecordingID);
 
                 queue.Enqueue(message, string.Format(SCHEDULED_TASKS_ROUTING_KEY, groupId));
+
+                // We're OK
+                recording.Status = new Status((int)eResponseStatus.OK);
             }
 
             return recording;
@@ -116,15 +119,10 @@ namespace Recordings
 
             if (currentRecording != null)
             {
-                // First we get information about the program - if it really finished at this time
-                EpgDal_Couchbase dal = new EpgDal_Couchbase(groupId);
-
-                var epg = dal.GetProgram(currentRecording.EpgID.ToString());
-
                 // If the program finished already or not: if it didn't finish, then the recording obviously didn't finish...
-                if (epg.EndDate < DateTime.Now)
+                if (currentRecording.EpgEndDate < DateTime.Now)
                 {
-                    var timeSpan = DateTime.UtcNow - epg.EndDate;
+                    var timeSpan = DateTime.UtcNow - currentRecording.EpgEndDate;
 
                     // Only if the difference is less than 5 minutes we continue
                     if (timeSpan.TotalMinutes < 5)
