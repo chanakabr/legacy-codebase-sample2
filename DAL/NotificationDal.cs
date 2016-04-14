@@ -1175,7 +1175,7 @@ namespace DAL
             return result;
         }
 
-        public static FollowTemplate AddFollowTemplate(int groupId, FollowTemplate followTemplate)
+        public static FollowTemplate SetFollowTemplate(int groupId, FollowTemplate followTemplate)
         {
             FollowTemplate result = new FollowTemplate();
             try
