@@ -2459,12 +2459,13 @@ namespace DAL
 
             if (row != null)
             {
-                recording = new Recording(programId);
+                recording = new Recording();
+                recording.EpgID = programId;
                 recording.RecordingID = ODBCWrapper.Utils.ExtractValue<long>(row, "ID");
                 recording.RecordingStatus = (TstvRecordingStatus)ODBCWrapper.Utils.ExtractInteger(row, "RECORDING_STATUS");
                 recording.ExternalRecordingId = ODBCWrapper.Utils.ExtractString(row, "EXTERNAL_RECORDING_ID");
                 recording.EpgStartDate = ODBCWrapper.Utils.ExtractDateTime(row, "START_DATE");
-                recording.EpgEndDate = ODBCWrapper.Utils.ExtractDateTime(row, "END_DATE");
+                recording.EpgEndDate = ODBCWrapper.Utils.ExtractDateTime(row, "END_DATE");                
             }
 
             return recording;
@@ -2497,13 +2498,13 @@ namespace DAL
 
             if (row != null)
             {
-                recording = new Recording(recordingId);
+                recording = new Recording();
                 recording.EpgID = ODBCWrapper.Utils.ExtractValue<long>(row, "EPG_PROGRAM_ID");
                 recording.RecordingID = ODBCWrapper.Utils.ExtractValue<long>(row, "ID");
                 recording.RecordingStatus = (TstvRecordingStatus)ODBCWrapper.Utils.ExtractInteger(row, "RECORDING_STATUS");
                 recording.ExternalRecordingId = ODBCWrapper.Utils.ExtractString(row, "EXTERNAL_RECORDING_ID");
                 recording.EpgStartDate = ODBCWrapper.Utils.ExtractDateTime(row, "START_DATE");
-                recording.EpgEndDate = ODBCWrapper.Utils.ExtractDateTime(row, "END_DATE");
+                recording.EpgEndDate = ODBCWrapper.Utils.ExtractDateTime(row, "END_DATE");                
             }
 
             return recording;
@@ -2529,9 +2530,9 @@ namespace DAL
             return result;
         }
 
-        public static DataRow GetDomainExistingRecordingID(int groupID, long domainID, long epgID)
+        public static Recording GetDomainExistingRecording(int groupID, long domainID, long epgID)
         {
-            DataRow dr = null;
+            Recording recording = null;
             ODBCWrapper.StoredProcedure spGetDomainExistingRecordingID = new ODBCWrapper.StoredProcedure("Get_DomainRecordingID");
             spGetDomainExistingRecordingID.SetConnectionKey("CONNECTION_STRING");
             spGetDomainExistingRecordingID.AddParameter("@GroupID", groupID);
@@ -2541,10 +2542,14 @@ namespace DAL
             DataTable dt = spGetDomainExistingRecordingID.Execute();
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
-                dr = dt.Rows[0];
+                DataRow dr = dt.Rows[0];
+                if (dr != null)
+                {
+                    recording = new Recording();
+                }
             }
 
-            return dr;
+            return recording;
         }
 
         public static bool UpdateOrInsertDomainRecording(int groupID, long userID, long domainID, Recording recording)

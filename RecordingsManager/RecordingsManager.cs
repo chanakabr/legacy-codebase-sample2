@@ -70,7 +70,7 @@ namespace Recordings
             // If there is no recording for this program - create one. This is the first, hurray!
             if (recording == null)
             {
-                recording = new Recording(programId);
+                recording = new Recording();
                 recording.EpgID = programId;
                 recording.EpgStartDate = startDate;
                 recording.EpgEndDate = endDate;

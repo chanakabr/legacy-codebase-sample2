@@ -16959,36 +16959,40 @@ namespace ConditionalAccess
 
         public Recording Record(string userID, long epgID)
         {
-            Recording response = new Recording(epgID);            
+            Recording response = new Recording() { EpgID = epgID };
             try
             {
                 long domainID = 0;
-                RecordingResponse recordings = QueryRecords(userID, new List<long>() { epgID }, ref domainID);
+                string epgChannelID = string.Empty;
+                RecordingResponse recordings = QueryRecords(userID, new List<long>() { epgID }, ref domainID, epgChannelID);
                 if (recordings == null || recordings.Status == null)
                 {
                     return response;
                 }
-                else if (recordings.Status.Code != (int)eResponseStatus.OK)
+
+                if (recordings.Status.Code != (int)eResponseStatus.OK)
                 {
                     response.Status = new ApiObjects.Response.Status(recordings.Status.Code, recordings.Status.Message);
+                    return response;
                 }
-                else if (recordings.Recordings != null && recordings.Recordings.Count > 0)
+
+                if (recordings.Recordings != null && recordings.Recordings.Count > 0)
                 {
                     response = recordings.Recordings[0];
                     if (response.Status != null && response.Status.Code != (int)eResponseStatus.OK)
                     {                        
                         return response;
                     }
-                    else if (response.RecordingID == 0 || !Utils.IsValidRecordingStatus(response.RecordingStatus))
+
+                    if (response.RecordingID == 0 || !Utils.IsValidRecordingStatus(response.RecordingStatus))
                     {
-                        response = RecordingsManager.Instance.Record(m_nGroupID, response.EpgID, response.EpgChannelID, response.EpgStartDate, response.EpgEndDate, userID, domainID);
+                        response = RecordingsManager.Instance.Record(m_nGroupID, response.EpgID, epgChannelID, response.EpgStartDate, response.EpgEndDate, userID, domainID);
                         if (response != null && response.Status != null && response.Status.Code == (int)eResponseStatus.OK
                             && response.RecordingID > 0 && Utils.IsValidRecordingStatus(response.RecordingStatus))
-                        {
-                            long userIDToUpdate = 0;
-                            if (!long.TryParse(userID, out userIDToUpdate) || userIDToUpdate > 0 || !ConditionalAccessDAL.UpdateOrInsertDomainRecording(m_nGroupID, userIDToUpdate, domainID, response))
+                        {                            
+                            if (!ConditionalAccessDAL.UpdateOrInsertDomainRecording(m_nGroupID, long.Parse(userID), domainID, response))
                             {
-                                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.FailedSavingDomainRecording, eResponseStatus.FailedSavingDomainRecording.ToString());
+                                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                             }
                         }
                     }
@@ -17010,7 +17014,7 @@ namespace ConditionalAccess
             return response;
         }
 
-        public RecordingResponse QueryRecords(string userID, List<long> epgIDs, ref long domainID)
+        public RecordingResponse QueryRecords(string userID, List<long> epgIDs, ref long domainID, string epgChannelID = null)
         {
             RecordingResponse response = new RecordingResponse();
             try
@@ -17045,9 +17049,12 @@ namespace ConditionalAccess
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());                
 
                 foreach (EPGChannelProgrammeObject epg in epgs)
-                {
+                {                                        
                     response.Recordings.Add(QueryRecord(accountSettings, epg, domainID, userID));
                 }
+
+                // needed only when called by record
+                epgChannelID = epgs[0].EPG_CHANNEL_ID;
             }
 
             catch (Exception ex)
@@ -17071,7 +17078,7 @@ namespace ConditionalAccess
 
         public Recording QueryRecord(TimeShiftedTvPartnerSettings accountSettings, EPGChannelProgrammeObject epg, long domainID, string userID)
         {
-            Recording response = new Recording(epg.EPG_ID);
+            Recording response = new Recording() { EpgID = epg.EPG_ID };
             try
             {
                 if (epg.ENABLE_CDVR != 1)
@@ -17079,14 +17086,13 @@ namespace ConditionalAccess
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramCdvrNotEnabled, eResponseStatus.ProgramCdvrNotEnabled.ToString());
                     return response;
                 }
-                
+
                 DateTime epgStartDate;
-                // IRA should i validate the parsing???
                 if (!DateTime.TryParse(epg.START_DATE, out epgStartDate))
-                {            
+                {
                     /************************************* add error log
                      * ***************************************************************/
-                        return response;
+                    return response;
                 }
                 if (epgStartDate < DateTime.UtcNow)
                 {
@@ -17099,7 +17105,7 @@ namespace ConditionalAccess
                     {
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramCatchUpNotEnabled, eResponseStatus.ProgramCatchUpNotEnabled.ToString());
                         return response;
-                    }                    
+                    }
                     if (epg.CHANNEL_CATCH_UP_BUFFER == 0 && epgStartDate.AddHours(epg.CHANNEL_CATCH_UP_BUFFER) < DateTime.UtcNow)
                     {
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.CatchUpBufferLimitation, eResponseStatus.CatchUpBufferLimitation.ToString());
@@ -17125,46 +17131,41 @@ namespace ConditionalAccess
                     }
                     if (priceValidationPassed)
                     {                        
-                        long recordingID = 0;
-                        //TstvRecordingStatus recordingStatus = TstvRecordingStatus.DoesNotExist;
-                        DataRow dr = ConditionalAccessDAL.GetDomainExistingRecordingID(m_nGroupID, domainID, epg.EPG_ID);
-                        if (dr != null)
-                        {
-                            recordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "recording_id", 0);
-                            //recordingStatus = (TstvRecordingStatus)ODBCWrapper.Utils.GetIntSafeVal(dr, "recording_state", 6);
-                        }
-
-                        if (recordingID > 0)
-                        {
-                            response = ConditionalAccessDAL.GetRecordingByRecordingId(recordingID);
-                            // initialize response object if record not found
-                            if (response == null || response.Status == null || response.Status.Code != (int)eResponseStatus.OK)
-                            {
-                                response = new Recording(epg.EPG_ID);
-                            }
-                        }
-                        // initialize response object if record doesn't exist for domain
-                        else
+                        response = ConditionalAccessDAL.GetDomainExistingRecording(m_nGroupID, domainID, epg.EPG_ID);
+                        if (response == null || response.Status.Code != (int)eResponseStatus.OK || response.RecordingID == 0)
                         {
                             DateTime epgEndDate;
                             if (!DateTime.TryParse(epg.END_DATE, out epgEndDate))
                             {
-                                response = new Recording(eResponseStatus.OK, epg.EPG_ID, epg.EPG_CHANNEL_ID, epgStartDate, epgEndDate);
+                                response = new Recording()
+                                {
+                                    Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString()),
+                                    EpgID = epg.EPG_ID,                                    
+                                    RecordingID = 0,
+                                    RecordingStatus = TstvRecordingStatus.DoesNotExist,
+                                    EpgStartDate = epgStartDate,
+                                    EpgEndDate = epgEndDate
+                                };
                             }
-                            else
-                            {
-                                response = new Recording(epg.EPG_ID);
-                            }
+                        }
+                        else
+                        {
+                            response = new Recording() { EpgID = epg.EPG_ID };
                         }
                     }
                 }
-                
+                else
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NotEntitled, eResponseStatus.NotEntitled.ToString());
+                    return response;
+                }
             }
+
             catch (Exception ex)
             {
                 StringBuilder sb = new StringBuilder("Exception at QueryRecords. ");
                 sb.Append(String.Concat("epgID: ", epg.EPG_ID));
-                sb.Append(String.Concat("domainID: ", domainID));      
+                sb.Append(String.Concat("domainID: ", domainID));
                 sb.Append(String.Concat("Ex Msg: ", ex.Message));
                 sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(", Stack Trace: ", ex.StackTrace));
