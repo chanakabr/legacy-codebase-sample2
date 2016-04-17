@@ -66,6 +66,8 @@ namespace WebAPI.ConditionalAccess {
         
         private System.Threading.SendOrPostCallback QueryRecordsOperationCompleted;
         
+        private System.Threading.SendOrPostCallback QueryRecordOperationCompleted;
+        
         private System.Threading.SendOrPostCallback GetRecordingStatusOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetUserPermittedItemsOperationCompleted;
@@ -331,6 +333,9 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         public event QueryRecordsCompletedEventHandler QueryRecordsCompleted;
+        
+        /// <remarks/>
+        public event QueryRecordCompletedEventHandler QueryRecordCompleted;
         
         /// <remarks/>
         public event GetRecordingStatusCompletedEventHandler GetRecordingStatusCompleted;
@@ -1344,6 +1349,41 @@ namespace WebAPI.ConditionalAccess {
             if ((this.QueryRecordsCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.QueryRecordsCompleted(this, new QueryRecordsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/QueryRecord", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Recording QueryRecord(string sWSUserName, string sWSPassword, string userID, long epgID) {
+            object[] results = this.Invoke("QueryRecord", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        userID,
+                        epgID});
+            return ((Recording)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void QueryRecordAsync(string sWSUserName, string sWSPassword, string userID, long epgID) {
+            this.QueryRecordAsync(sWSUserName, sWSPassword, userID, epgID, null);
+        }
+        
+        /// <remarks/>
+        public void QueryRecordAsync(string sWSUserName, string sWSPassword, string userID, long epgID, object userState) {
+            if ((this.QueryRecordOperationCompleted == null)) {
+                this.QueryRecordOperationCompleted = new System.Threading.SendOrPostCallback(this.OnQueryRecordOperationCompleted);
+            }
+            this.InvokeAsync("QueryRecord", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        userID,
+                        epgID}, this.QueryRecordOperationCompleted, userState);
+        }
+        
+        private void OnQueryRecordOperationCompleted(object arg) {
+            if ((this.QueryRecordCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.QueryRecordCompleted(this, new QueryRecordCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -9766,6 +9806,8 @@ namespace WebAPI.ConditionalAccess {
         
         private long epgIDField;
         
+        private string channelIdField;
+        
         private TstvRecordingStatus recordingStatusField;
         
         private string externalRecordingIdField;
@@ -9801,6 +9843,16 @@ namespace WebAPI.ConditionalAccess {
             }
             set {
                 this.epgIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string ChannelId {
+            get {
+                return this.channelIdField;
+            }
+            set {
+                this.channelIdField = value;
             }
         }
         
@@ -11163,6 +11215,32 @@ namespace WebAPI.ConditionalAccess {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((RecordingResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void QueryRecordCompletedEventHandler(object sender, QueryRecordCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class QueryRecordCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal QueryRecordCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Recording Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Recording)(this.results[0]));
             }
         }
     }
