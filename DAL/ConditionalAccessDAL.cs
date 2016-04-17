@@ -2588,5 +2588,35 @@ namespace DAL
 
             return adapterId;
         }
+
+        public List<Recording> GetRecordings(int groupId, List<long> recordingIds)
+        {
+            List<Recording> recordings = new List<Recording>();
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_Recordings");
+            storedProcedure.SetConnectionKey("CONNECTION_STRING");
+            storedProcedure.AddIDListParameter<long>("@RecordingIds", recordingIds, "Id");
+            storedProcedure.AddParameter("@groupId", groupId);
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0 &&
+                dataSet.Tables[0] != null && dataSet.Tables[0].Rows != null)
+            {
+                foreach (DataRow row in dataSet.Tables[0].Rows)
+                {
+                    Recording recording = new Recording();
+                    recording.EpgID = ODBCWrapper.Utils.ExtractValue<long>(row, "EPG_PROGRAM_ID");
+                    recording.RecordingID = ODBCWrapper.Utils.ExtractValue<long>(row, "ID");
+                    recording.RecordingStatus = (TstvRecordingStatus)ODBCWrapper.Utils.ExtractInteger(row, "RECORDING_STATUS");
+                    recording.ExternalRecordingId = ODBCWrapper.Utils.ExtractString(row, "EXTERNAL_RECORDING_ID");
+                    recording.EpgStartDate = ODBCWrapper.Utils.ExtractDateTime(row, "START_DATE");
+                    recording.EpgEndDate = ODBCWrapper.Utils.ExtractDateTime(row, "END_DATE");
+
+                    recordings.Add(recording);
+                }
+            }
+
+            return recordings;
+        }
     }
 }
