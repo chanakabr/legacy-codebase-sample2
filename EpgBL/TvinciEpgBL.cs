@@ -698,7 +698,10 @@ namespace EpgBL
 
                         // complete the picURL for back support                
                         string baseEpgPicUrl = string.Empty;
-                        if (oProgram != null && !string.IsNullOrEmpty(oProgram.PIC_URL) && pictures[progGroup] != null)
+                        if (oProgram != null &&
+                            !string.IsNullOrEmpty(oProgram.PIC_URL) &&
+                            pictures.ContainsKey(progGroup) &&
+                            pictures[progGroup] != null)
                         {
                             EpgPicture pict = pictures[progGroup].First();
                             if (pict != null && !string.IsNullOrEmpty(pict.Url))
