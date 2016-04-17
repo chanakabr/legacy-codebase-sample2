@@ -20,7 +20,6 @@ namespace ElasticSearchHandler.Updaters
         public static readonly string EPG = "epg";
         public static readonly int DAYS = 30;
 
-
         #region Data Members
 
         protected int groupId;
@@ -49,7 +48,7 @@ namespace ElasticSearchHandler.Updaters
 
         #region Interface methods
 
-        public bool Start()
+        public virtual bool Start()
         {
             bool result = false;
             log.Debug("Info - Start EPG update");
@@ -88,8 +87,8 @@ namespace ElasticSearchHandler.Updaters
         
 
         #endregion
-      
-        private bool UpdateEpg(List<int> epgIds)
+
+        protected bool UpdateEpg(List<int> epgIds)
         {
             bool result = false;
 
@@ -159,10 +158,10 @@ namespace ElasticSearchHandler.Updaters
                             // Create bulk request object for each program
                             foreach (EpgCB epg in epgObjects)
                             {
-                                string serializedEpg = esSerializer.SerializeEpgObject(epg);
+                                string serializedEpg = SerializeEPG(epg);
                                 bulkRequests.Add(new ESBulkRequestObj<ulong>()
                                 {
-                                    docID = epg.EpgID,
+                                    docID = GetDocumentId(epg),
                                     index = alias,
                                     type = EPG,
                                     Operation = eOperation.index,
@@ -204,7 +203,17 @@ namespace ElasticSearchHandler.Updaters
             return result;
         }
 
-        private bool DeleteEpg(List<int> epgIDs)
+        protected virtual ulong GetDocumentId(EpgCB epg)
+        {
+            return epg.EpgID;
+        }
+
+        protected virtual string SerializeEPG(EpgCB epg)
+        {
+            return esSerializer.SerializeEpgObject(epg);
+        }
+
+        protected bool DeleteEpg(List<int> epgIDs)
         {
             bool result = false;
 
