@@ -23,7 +23,7 @@ namespace WebAPI.Controllers
         /// 
         [Route("get"), HttpPost]
         [ApiAuthorize]
-        public KalturaRecording Get(long epgID)
+        public KalturaRecording Get(long epg_id)
         {
             KalturaRecording response = null;
 
@@ -32,7 +32,7 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
                 // call client                
-                response = ClientsManager.ConditionalAccessClient().QueryRecord(groupId, userId, epgID);
+                response = ClientsManager.ConditionalAccessClient().QueryRecord(groupId, userId, epg_id);
             }
             catch (ClientException ex)
             {
@@ -50,7 +50,7 @@ namespace WebAPI.Controllers
         /// 
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        public KalturaRecording Add(long epgID)
+        public KalturaRecording Add(long epg_id)
         {
             KalturaRecording response = null;
 
@@ -59,7 +59,7 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
                 // call client                
-                response = ClientsManager.ConditionalAccessClient().Record(groupId, userId, epgID);
+                response = ClientsManager.ConditionalAccessClient().Record(groupId, userId, epg_id);
             }
             catch (ClientException ex)
             {
