@@ -75,6 +75,7 @@ namespace Recordings
                 recording.EpgStartDate = startDate;
                 recording.EpgEndDate = endDate;
                 recording.RecordingStatus = TstvRecordingStatus.Scheduled;
+                recording.ChannelId = epgChannelID;
 
                 int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
 

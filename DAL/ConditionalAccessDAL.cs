@@ -2480,6 +2480,8 @@ namespace DAL
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("EXTERNAL_RECORDING_ID", "=", recording.ExternalRecordingId);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("RECORDING_STATUS", "=", (int)recording.RecordingStatus);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", recording.EpgStartDate);
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
 
             var executeResult = insertQuery.ExecuteAndGetId();
             insertQuery.Finish();
@@ -2584,7 +2586,10 @@ namespace DAL
             object result = 
                 ODBCWrapper.Utils.GetTableSingleVal("time_shifted_tv_settings", "adapter_id", "group_id", "=", groupId, 1440, "MAIN_CONNECTION_STRING");
 
-            adapterId = Convert.ToInt32(result);
+            if (result != DBNull.Value)
+            {
+                adapterId = Convert.ToInt32(result);
+            }
 
             return adapterId;
         }
