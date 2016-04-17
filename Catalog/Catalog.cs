@@ -2360,9 +2360,12 @@ namespace Catalog
                     isUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", group.m_nParentGroupID, objectType.ToString()));
 
                     // Backward compatibility
-                    ApiObjects.MediaIndexingObjects.IndexingData oldData = new ApiObjects.MediaIndexingObjects.IndexingData(ids, group.m_nParentGroupID, objectType, action);
+                    if (objectType == eObjectType.EPG)
+                    {
+                        ApiObjects.MediaIndexingObjects.IndexingData oldData = new ApiObjects.MediaIndexingObjects.IndexingData(ids, group.m_nParentGroupID, objectType, action);
 
-                    queue.Enqueue(oldData, string.Format(@"{0}\{1}", group.m_nParentGroupID, objectType.ToString()));
+                        queue.Enqueue(oldData, string.Format(@"{0}\{1}", group.m_nParentGroupID, objectType.ToString()));
+                    }
                 }
             }
 
@@ -2521,6 +2524,8 @@ namespace Catalog
             {
                 epg.ENABLE_CATCH_UP = linearSettings.EnableCatchUp == true ? 1 : 0;
             }
+
+            epg.CHANNEL_CATCH_UP_BUFFER = linearSettings.CatchUpBuffer;
 
             if (epg.ENABLE_TRICK_PLAY != 2)// get value from epg channel
             {
