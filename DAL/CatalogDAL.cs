@@ -4267,6 +4267,7 @@ namespace Tvinci.Core.DAL
         {
             DataTable result = null;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
 
             //selectQuery += "select " + sFieldName + " from " + sTable + " where ";
             selectQuery += "SELECT ID, MEDIA_TYPE_ID FROM groups_media_type WHERE GROUP_ID IN (" + subGroups + ") ";
