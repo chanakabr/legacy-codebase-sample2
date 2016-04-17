@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Tvinci.Core.DAL;
 using TVinciShared;
 
 namespace Recordings
@@ -75,6 +76,8 @@ namespace Recordings
                 recording.EpgEndDate = endDate;
                 recording.RecordingStatus = TstvRecordingStatus.Scheduled;
 
+                int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
+
                 // TODO: Call Adapter to schedule recording,
                 // 
                 string externalRecordingId = string.Empty;
@@ -126,6 +129,8 @@ namespace Recordings
                     // Only if the difference is less than 5 minutes we continue
                     if (timeSpan.TotalMinutes < 5)
                     {
+                        int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
+
                         // TODO: Call Adapter to check status of recording,
                         // 
                         // TODO: Update recording object according to response from adapter

@@ -2576,5 +2576,17 @@ namespace DAL
 
             return res;
         }
+
+        public static int GetTimeShiftedTVAdapterId(int groupId)
+        {
+            int adapterId = 0;
+
+            object result = 
+                ODBCWrapper.Utils.GetTableSingleVal("time_shifted_tv_settings", "adapter_id", "group_id", "ID", groupId, 1440, "MAIN_CONNECTION_STRING");
+
+            adapterId = Convert.ToInt32(result);
+
+            return adapterId;
+        }
     }
 }
