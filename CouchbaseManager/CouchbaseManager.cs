@@ -40,7 +40,7 @@ namespace CouchbaseManager
         //public const string COUCHBASE_CONFIG = "couchbaseClients/couchbase";
         public const string COUCHBASE_CONFIG = "couchbaseClients/";
         private const string TCM_KEY_FORMAT = "cb_{0}.{1}";
-        private const double GET_LOCK_TS_SECONDS = 2;
+        private const double GET_LOCK_TS_SECONDS = 5;
 
         /// <summary>
         /// Defines duration of a month in seconds, see http://docs.couchbase.com/developer/dev-guide-3.0/doc-expiration.html
