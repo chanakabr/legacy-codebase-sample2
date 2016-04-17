@@ -9,15 +9,15 @@ using System.Threading.Tasks;
 
 namespace CachingHelpers
 {
-    public class CdvrEnginesCache : BaseCacheHelper<CDVRAdapter>
+    public class CdvrAdapterCache : BaseCacheHelper<CDVRAdapter>
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         #region Singleton
 
-        private static CdvrEnginesCache instance;
+        private static CdvrAdapterCache instance;
 
-        public static CdvrEnginesCache Instance()
+        public static CdvrAdapterCache Instance()
         {
             if (instance == null)
             {
@@ -25,7 +25,7 @@ namespace CachingHelpers
                 {
                     if (instance == null)
                     {
-                        instance = new CdvrEnginesCache();
+                        instance = new CdvrAdapterCache();
                     }
                 }
             }
@@ -37,7 +37,7 @@ namespace CachingHelpers
 
         #region Ctor
 
-        private CdvrEnginesCache()
+        private CdvrAdapterCache()
             : base()
         {
 

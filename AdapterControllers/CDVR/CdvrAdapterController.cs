@@ -1,4 +1,4 @@
-﻿using AdapterControllers.CdvrEngineAdapter;
+﻿using AdapterControllers.CdvrAdapterService;
 using ApiObjects;
 using ApiObjects.Response;
 using CachingHelpers;
@@ -78,34 +78,34 @@ namespace AdapterControllers.CDVR
         #endregion
 
         #region Public Method
-        public bool SendConfiguration(CDVRAdapter adapter, int groupId)
+        public bool SetConfiguration(CDVRAdapter adapter, int partnerId)
         {
             bool result = false;
             try
             {
-                CdvrEngineAdapter.IService client = new CdvrEngineAdapter.ServiceClient();
+                CdvrAdapterService.IService client = new CdvrAdapterService.ServiceClient();
                
                 //set unixTimestamp
-                long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                long timeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
                 //set signature
-                string signature = string.Empty;
+                string signature = string.Concat(adapter.Settings != null ? string.Concat(adapter.Settings.Select(kv => string.Concat(kv.key, kv.value))) : string.Empty, 
+                    partnerId, timeStamp);
 
                 //call Adapter 
-                List<AdapterControllers.CdvrEngineAdapter.KeyValue> keyValue = new List<KeyValue>();
-                CdvrEngineAdapter.AdapterStatus adapterStatus = null;
+                List<AdapterControllers.CdvrAdapterService.KeyValue> keyValue = new List<AdapterControllers.CdvrAdapterService.KeyValue>();
+                CdvrAdapterService.AdapterStatus adapterStatus = null;
                 if (adapter.Settings != null)
                 {
-                    keyValue = adapter.Settings.Select(setting => new AdapterControllers.CdvrEngineAdapter.KeyValue()
+                    keyValue = adapter.Settings.Select(setting => new AdapterControllers.CdvrAdapterService.KeyValue()
                     {
                         Key = setting.key,
                         Value = setting.value
                     }).ToList();
                 }
-                    client.SetConfiguration(adapter.ID, keyValue,
-                                        groupId, unixTimestamp, System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature))));
+                    client.SetConfiguration(adapter.ID, keyValue, partnerId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
 
                 if (adapterStatus != null)
-                    log.DebugFormat("Cdvr Engine Adapter Send Configuration Result = {0}", adapterStatus);
+                    log.DebugFormat("Cdvr Adapter Send Configuration Result = {0}", adapterStatus);
                 else
                     log.Debug("Adapter status is null");
 
@@ -116,16 +116,16 @@ namespace AdapterControllers.CDVR
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Failed ex = {0}, engine id = {1}", ex, adapter != null ? adapter.ID : 0);
+                log.ErrorFormat("Failed ex = {0}, adapter id = {1}", ex, adapter != null ? adapter.ID : 0);
             }
             return result;
         }
 
-        public RecordResult Record(int groupID, long startTimeSeconds, long durationSeconds, string channelId, int adapterId)
+        public RecordResult Record(int partnerId, long startTimeSeconds, long durationSeconds, string channelId, int adapterId)
         {
             RecordResult recordResult = new RecordResult();
 
-            CDVRAdapter adapter = CdvrEnginesCache.Instance().GetCdvrAdapter(groupID, adapterId);
+            CDVRAdapter adapter = CdvrAdapterCache.Instance().GetCdvrAdapter(partnerId, adapterId);
 
             if (adapter == null)
             {
@@ -134,31 +134,29 @@ namespace AdapterControllers.CDVR
 
             if (string.IsNullOrEmpty(adapter.AdapterUrl))
             {
-                throw new KalturaException("Recommendation engine adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
+                throw new KalturaException("Cdvr adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
 
-            CdvrEngineAdapter.ServiceClient client = new CdvrEngineAdapter.ServiceClient(string.Empty, adapter.AdapterUrl);            
+            CdvrAdapterService.ServiceClient client = new CdvrAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl);            
 
             //set unixTimestamp
-            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            long timeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
 
             //TODO: verify that signature is correct
-            string signature = string.Concat(adapter.ExternalIdentifier, adapter.ID, unixTimestamp);
+            string signature = string.Concat(startTimeSeconds, durationSeconds, channelId, adapterId, timeStamp);
            
             try
             {
-                log.DebugFormat("Sending request to cdvr engine adapter. groupID ID = {0}, adapterID = {1}, startTimeSeconds = {2}, durationSeconds = {3}, channelId = {4}",
-                    groupID, adapter.ID, startTimeSeconds, durationSeconds, channelId);
+                log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, startTimeSeconds = {2}, durationSeconds = {3}, channelId = {4}",
+                    partnerId, adapter.ID, startTimeSeconds, durationSeconds, channelId);
 
-                CdvrEngineAdapter.RecordingResponse adapterResponse = new CdvrEngineAdapter.RecordingResponse();
+                CdvrAdapterService.RecordingResponse adapterResponse = new CdvrAdapterService.RecordingResponse();
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    //call Adapter get channel recommendations
-                    adapterResponse = client.Record(startTimeSeconds, durationSeconds, channelId, adapter.ID, unixTimestamp,
-                        System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature)))
-                        );
-                }               
+                    //call Adapter Record
+                    adapterResponse = client.Record(startTimeSeconds, durationSeconds, channelId, adapter.ID, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                }
 
                 LogAdapterResponse(adapterResponse, "Record");
 
@@ -167,23 +165,21 @@ namespace AdapterControllers.CDVR
                 {
                     #region Send Configuration if not found
 
-                    string key = string.Format("CdvrEngine_Adapter_Locker_{0}", adapterId);
+                    string key = string.Format("Cdvr_Adapter_Locker_{0}", adapterId);
 
                     // Build dictionary for synchronized action
                     Dictionary<string, object> parameters = new Dictionary<string, object>()
                     {
                         {PARAMETER_ADAPTER, adapter},
-                        {PARAMETER_GROUP_ID, groupID}
+                        {PARAMETER_GROUP_ID, partnerId}
                     };
 
                     configurationSynchronizer.DoAction(key, parameters);
 
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                     {
-                        //call Adapter get recommendations - after it is configured
-                        adapterResponse = client.Record(startTimeSeconds, durationSeconds, channelId, adapter.ID, unixTimestamp,
-                        System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature)))
-                        );
+                        //call Adapter Record - after it is configured
+                        adapterResponse = client.Record(startTimeSeconds, durationSeconds, channelId, adapter.ID, timeStamp,Utils.GetSignature(adapter.SharedSecret, signature));
                     }
 
                     LogAdapterResponse(adapterResponse, "Record");
@@ -227,11 +223,11 @@ namespace AdapterControllers.CDVR
             return recordResult;
         }
 
-        public RecordResult GetRecordingStatus(int groupID, string recordingId, int adapterId)
+        public RecordResult GetRecordingStatus(int partnerId, string recordingId, int adapterId)
         {
             RecordResult recordResult = new RecordResult();
 
-            CDVRAdapter adapter = CdvrEnginesCache.Instance().GetCdvrAdapter(groupID, adapterId);
+            CDVRAdapter adapter = CdvrAdapterCache.Instance().GetCdvrAdapter(partnerId, adapterId);
 
             if (adapter == null)
             {
@@ -240,30 +236,28 @@ namespace AdapterControllers.CDVR
 
             if (string.IsNullOrEmpty(adapter.AdapterUrl))
             {
-                throw new KalturaException("Recommendation engine adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
+                throw new KalturaException("Cdvr adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
 
-            CdvrEngineAdapter.ServiceClient client = new CdvrEngineAdapter.ServiceClient(string.Empty, adapter.AdapterUrl);
+            CdvrAdapterService.ServiceClient client = new CdvrAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl);
 
             //set unixTimestamp
-            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            long timeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
 
             //TODO: verify that signature is correct
-            string signature = string.Concat(adapter.ExternalIdentifier, adapter.ID, unixTimestamp);
+            string signature = string.Concat(recordingId, adapterId, timeStamp);
 
             try
             {
-                log.DebugFormat("Sending request to cdvr engine adapter. groupID ID = {0}, adapterID = {1}, recordingId = {2}",
-                    groupID, adapter.ID, recordingId);
+                log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, recordingId = {2}",
+                    partnerId, adapter.ID, recordingId);
 
                 var adapterResponse = new RecordingResponse();
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    //call Adapter get channel recommendations
-                    adapterResponse = client.GetRecordingStatus(recordingId,adapterId,unixTimestamp,
-                        System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature)))
-                        );
+                    //call Adapter GetRecordingStatus
+                    adapterResponse = client.GetRecordingStatus(recordingId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                 }
 
                 LogAdapterResponse(adapterResponse, "GetRecordingStatus");
@@ -272,23 +266,21 @@ namespace AdapterControllers.CDVR
                 {
                     #region Send Configuration if not found
 
-                    string key = string.Format("CdvrEngine_Adapter_Locker_{0}", adapterId);
+                    string key = string.Format("Cdvr_Adapter_Locker_{0}", adapterId);
 
                     // Build dictionary for synchronized action
                     Dictionary<string, object> parameters = new Dictionary<string, object>()
                     {
                         {PARAMETER_ADAPTER, adapter},
-                        {PARAMETER_GROUP_ID, groupID}
+                        {PARAMETER_GROUP_ID, partnerId}
                     };
 
                     configurationSynchronizer.DoAction(key, parameters);
 
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                     {
-                        //call Adapter get recommendations - after it is configured
-                        adapterResponse = client.GetRecordingStatus(recordingId, adapterId, unixTimestamp,
-                        System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature)))
-                        );
+                        //call Adapter GetRecordingStatus - after it is configured
+                        adapterResponse = client.GetRecordingStatus(recordingId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                     }
 
                     LogAdapterResponse(adapterResponse, "GetRecordingStatus");
@@ -332,11 +324,11 @@ namespace AdapterControllers.CDVR
             return recordResult;
         }
 
-        public RecordResult UpdateRecordingSchedule(int groupID, string recordingId, int adapterId, long startDateSeconds, long durationSeconds)
+        public RecordResult UpdateRecordingSchedule(int partnerId, string recordingId, int adapterId, long startDateSeconds, long durationSeconds)
         {
             RecordResult recordResult = new RecordResult();
 
-            CDVRAdapter adapter = CdvrEnginesCache.Instance().GetCdvrAdapter(groupID, adapterId);
+            CDVRAdapter adapter = CdvrAdapterCache.Instance().GetCdvrAdapter(partnerId, adapterId);
 
             if (adapter == null)
             {
@@ -345,30 +337,28 @@ namespace AdapterControllers.CDVR
 
             if (string.IsNullOrEmpty(adapter.AdapterUrl))
             {
-                throw new KalturaException("Recommendation engine adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
+                throw new KalturaException("Cdvr adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
 
-            CdvrEngineAdapter.ServiceClient client = new CdvrEngineAdapter.ServiceClient(string.Empty, adapter.AdapterUrl);
+            CdvrAdapterService.ServiceClient client = new CdvrAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl);
 
             //set unixTimestamp
-            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            long timeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
 
             //TODO: verify that signature is correct
-            string signature = string.Concat(adapter.ExternalIdentifier, adapter.ID, unixTimestamp);
+            string signature = string.Concat(recordingId, adapterId, timeStamp);
 
             try
             {
-                log.DebugFormat("Sending request to cdvr engine adapter. groupID ID = {0}, adapterID = {1}, recordingId = {2}",
-                    groupID, adapter.ID, recordingId);
+                log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, recordingId = {2}",
+                    partnerId, adapter.ID, recordingId);
 
                 var adapterResponse = new RecordingResponse();
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    //call Adapter get channel recommendations
-                    adapterResponse = client.UpdateRecordingSchedule(recordingId, adapterId, startDateSeconds, durationSeconds, unixTimestamp,
-                        System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature)))
-                        );
+                    //call Adapter UpdateRecordingSchedule
+                    adapterResponse = client.UpdateRecordingSchedule(recordingId, adapterId, startDateSeconds, durationSeconds, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                 }
 
                 LogAdapterResponse(adapterResponse, "UpdateRecordingSchedule");
@@ -377,23 +367,21 @@ namespace AdapterControllers.CDVR
                 {
                     #region Send Configuration if not found
 
-                    string key = string.Format("CdvrEngine_Adapter_Locker_{0}", adapterId);
+                    string key = string.Format("Cdvr_Adapter_Locker_{0}", adapterId);
 
                     // Build dictionary for synchronized action
                     Dictionary<string, object> parameters = new Dictionary<string, object>()
                     {
                         {PARAMETER_ADAPTER, adapter},
-                        {PARAMETER_GROUP_ID, groupID}
+                        {PARAMETER_GROUP_ID, partnerId}
                     };
 
                     configurationSynchronizer.DoAction(key, parameters);
 
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                     {
-                        //call Adapter get recommendations - after it is configured
-                        adapterResponse = client.UpdateRecordingSchedule(recordingId, adapterId, startDateSeconds, durationSeconds, unixTimestamp,
-                            System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature)))
-                            );
+                        //call Adapter UpdateRecordingSchedule - after it is configured
+                        adapterResponse = client.UpdateRecordingSchedule(recordingId, adapterId, startDateSeconds, durationSeconds, timeStamp,Utils.GetSignature(adapter.SharedSecret, signature));
                     }
 
                     LogAdapterResponse(adapterResponse, "UpdateRecordingSchedule");
@@ -437,11 +425,11 @@ namespace AdapterControllers.CDVR
             return recordResult;
         }
 
-        public RecordResult CancelRecording(int groupID, string recordingId, int adapterId)
+        public RecordResult CancelRecording(int partnerId, string recordingId, int adapterId)
         {
             RecordResult recordResult = new RecordResult();
 
-            CDVRAdapter adapter = CdvrEnginesCache.Instance().GetCdvrAdapter(groupID, adapterId);
+            CDVRAdapter adapter = CdvrAdapterCache.Instance().GetCdvrAdapter(partnerId, adapterId);
 
             if (adapter == null)
             {
@@ -450,30 +438,28 @@ namespace AdapterControllers.CDVR
 
             if (string.IsNullOrEmpty(adapter.AdapterUrl))
             {
-                throw new KalturaException("Recommendation engine adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
+                throw new KalturaException("Cdvr adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
 
-            CdvrEngineAdapter.ServiceClient client = new CdvrEngineAdapter.ServiceClient(string.Empty, adapter.AdapterUrl);
+            CdvrAdapterService.ServiceClient client = new CdvrAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl);
 
             //set unixTimestamp
-            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            long timeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
 
             //TODO: verify that signature is correct
-            string signature = string.Concat(adapter.ExternalIdentifier, adapter.ID, unixTimestamp);
+            string signature = string.Concat(recordingId, adapterId, timeStamp);
 
             try
             {
-                log.DebugFormat("Sending request to cdvr engine adapter. groupID ID = {0}, adapterID = {1}, recordingId = {2}",
-                    groupID, adapter.ID, recordingId);
+                log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, recordingId = {2}",
+                    partnerId, adapter.ID, recordingId);
 
                 var adapterResponse = new RecordingResponse();
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    //call Adapter get channel recommendations
-                    adapterResponse = client.CancelRecording(recordingId, adapterId, unixTimestamp,
-                        System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature)))
-                        );
+                    //call Adapter CancelRecording
+                    adapterResponse = client.CancelRecording(recordingId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                 }
 
                 LogAdapterResponse(adapterResponse, "CancelRecording");
@@ -482,23 +468,21 @@ namespace AdapterControllers.CDVR
                 {
                     #region Send Configuration if not found
 
-                    string key = string.Format("CdvrEngine_Adapter_Locker_{0}", adapterId);
+                    string key = string.Format("Cdvr_Adapter_Locker_{0}", adapterId);
 
                     // Build dictionary for synchronized action
                     Dictionary<string, object> parameters = new Dictionary<string, object>()
                     {
                         {PARAMETER_ADAPTER, adapter},
-                        {PARAMETER_GROUP_ID, groupID}
+                        {PARAMETER_GROUP_ID, partnerId}
                     };
 
                     configurationSynchronizer.DoAction(key, parameters);
 
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                     {
-                        //call Adapter get recommendations - after it is configured
-                        adapterResponse = client.CancelRecording(recordingId, adapterId, unixTimestamp,
-                         System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature)))
-                         );
+                        //call Adapter CancelRecording - after it is configured
+                        adapterResponse = client.CancelRecording(recordingId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                     }
 
                     LogAdapterResponse(adapterResponse, "CancelRecording");
@@ -543,11 +527,11 @@ namespace AdapterControllers.CDVR
         }
 
 
-        public RecordResult DeleteRecording(int groupID, string recordingId, int adapterId)
+        public RecordResult DeleteRecording(int partnerId, string recordingId, int adapterId)
         {
             RecordResult recordResult = new RecordResult();
 
-            CDVRAdapter adapter = CdvrEnginesCache.Instance().GetCdvrAdapter(groupID, adapterId);
+            CDVRAdapter adapter = CdvrAdapterCache.Instance().GetCdvrAdapter(partnerId, adapterId);
 
             if (adapter == null)
             {
@@ -556,30 +540,28 @@ namespace AdapterControllers.CDVR
 
             if (string.IsNullOrEmpty(adapter.AdapterUrl))
             {
-                throw new KalturaException("Recommendation engine adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
+                throw new KalturaException("Cdvr adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
 
-            CdvrEngineAdapter.ServiceClient client = new CdvrEngineAdapter.ServiceClient(string.Empty, adapter.AdapterUrl);
+            CdvrAdapterService.ServiceClient client = new CdvrAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl);
 
             //set unixTimestamp
-            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            long timeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
 
             //TODO: verify that signature is correct
-            string signature = string.Concat(adapter.ExternalIdentifier, adapter.ID, unixTimestamp);
+            string signature = string.Concat(recordingId, adapterId, timeStamp);
 
             try
             {
-                log.DebugFormat("Sending request to cdvr engine adapter. groupID ID = {0}, adapterID = {1}, recordingId = {2}",
-                    groupID, adapter.ID, recordingId);
+                log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, recordingId = {2}",
+                    partnerId, adapter.ID, recordingId);
 
                 var adapterResponse = new RecordingResponse();
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    //call Adapter get channel recommendations
-                    adapterResponse = client.DeleteRecording(recordingId, adapterId, unixTimestamp,
-                        System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature)))
-                        );
+                    //call Adapter DeleteRecording
+                    adapterResponse = client.DeleteRecording(recordingId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                 }
 
                 LogAdapterResponse(adapterResponse, "DeleteRecording");
@@ -588,23 +570,21 @@ namespace AdapterControllers.CDVR
                 {
                     #region Send Configuration if not found
 
-                    string key = string.Format("CdvrEngine_Adapter_Locker_{0}", adapterId);
+                    string key = string.Format("Cdvr_Adapter_Locker_{0}", adapterId);
 
                     // Build dictionary for synchronized action
                     Dictionary<string, object> parameters = new Dictionary<string, object>()
                     {
                         {PARAMETER_ADAPTER, adapter},
-                        {PARAMETER_GROUP_ID, groupID}
+                        {PARAMETER_GROUP_ID, partnerId}
                     };
 
                     configurationSynchronizer.DoAction(key, parameters);
 
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                     {
-                        //call Adapter get recommendations - after it is configured
-                        adapterResponse = client.DeleteRecording(recordingId, adapterId, unixTimestamp,
-                        System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature)))
-                        );
+                        //call Adapter - DeleteRecording after it is configured
+                        adapterResponse = client.DeleteRecording(recordingId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                     }
 
                     LogAdapterResponse(adapterResponse, "DeleteRecording");
@@ -648,11 +628,11 @@ namespace AdapterControllers.CDVR
             return recordResult;
         }
 
-        public RecordResult GetRecordingLinks(int groupID, string recordingId, int adapterId)
+        public RecordResult GetRecordingLinks(int partnerId, string recordingId, int adapterId)
         {
             RecordResult recordResult = new RecordResult();
 
-            CDVRAdapter adapter = CdvrEnginesCache.Instance().GetCdvrAdapter(groupID, adapterId);
+            CDVRAdapter adapter = CdvrAdapterCache.Instance().GetCdvrAdapter(partnerId, adapterId);
 
             if (adapter == null)
             {
@@ -661,30 +641,28 @@ namespace AdapterControllers.CDVR
 
             if (string.IsNullOrEmpty(adapter.AdapterUrl))
             {
-                throw new KalturaException("Recommendation engine adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
+                throw new KalturaException("Cdvr adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
 
-            CdvrEngineAdapter.ServiceClient client = new CdvrEngineAdapter.ServiceClient(string.Empty, adapter.AdapterUrl);
+            CdvrAdapterService.ServiceClient client = new CdvrAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl);
 
             //set unixTimestamp
-            long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            long timeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
 
             //TODO: verify that signature is correct
-            string signature = string.Concat(adapter.ExternalIdentifier, adapter.ID, unixTimestamp);
+            string signature = string.Concat(recordingId, adapterId, timeStamp);
 
             try
             {
-                log.DebugFormat("Sending request to cdvr engine adapter. groupID ID = {0}, adapterID = {1}, recordingId = {2}",
-                    groupID, adapter.ID, recordingId);
+                log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, recordingId = {2}",
+                    partnerId, adapter.ID, recordingId);
 
                 var adapterResponse = new RecordingResponse();
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    //call Adapter get channel recommendations
-                    adapterResponse = client.GetRecordingLinks(recordingId, adapterId, unixTimestamp,
-                        System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature)))
-                        );
+                    //call Adapter GetRecordingLinks
+                    adapterResponse = client.GetRecordingLinks(recordingId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                 }
 
                 LogAdapterResponse(adapterResponse, "GetRecordingLinks");
@@ -693,23 +671,21 @@ namespace AdapterControllers.CDVR
                 {
                     #region Send Configuration if not found
 
-                    string key = string.Format("CdvrEngine_Adapter_Locker_{0}", adapterId);
+                    string key = string.Format("Cdvr_Adapter_Locker_{0}", adapterId);
 
                     // Build dictionary for synchronized action
                     Dictionary<string, object> parameters = new Dictionary<string, object>()
                     {
                         {PARAMETER_ADAPTER, adapter},
-                        {PARAMETER_GROUP_ID, groupID}
+                        {PARAMETER_GROUP_ID, partnerId}
                     };
 
                     configurationSynchronizer.DoAction(key, parameters);
 
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                     {
-                        //call Adapter get recommendations - after it is configured
-                        adapterResponse = client.GetRecordingLinks(recordingId, adapterId, unixTimestamp,
-                        System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature)))
-                        );
+                        //call Adapter GetRecordingLinks - after it is configured
+                        adapterResponse = client.GetRecordingLinks(recordingId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
                     }
 
                     LogAdapterResponse(adapterResponse, "GetRecordingLinks");
@@ -762,12 +738,12 @@ namespace AdapterControllers.CDVR
 
             if (parameters != null)
             {                
-                int groupId = 0;
+                int partnerId = 0;
                 CDVRAdapter adapter = null;
 
                 if (parameters.ContainsKey(PARAMETER_GROUP_ID))
                 {
-                    groupId = (int)parameters[PARAMETER_GROUP_ID];
+                    partnerId = (int)parameters[PARAMETER_GROUP_ID];
                 }
 
                 if (parameters.ContainsKey(PARAMETER_ADAPTER))
@@ -776,7 +752,7 @@ namespace AdapterControllers.CDVR
                 }
 
                 // get the right 
-                result = this.SendConfiguration(adapter, groupId);
+                result = this.SetConfiguration(adapter, partnerId);
             }
 
             return result;
@@ -788,22 +764,22 @@ namespace AdapterControllers.CDVR
 
             if (adapterResponse == null)
             {
-                logMessage = string.Format("Cdvr Engine Adapter {0} Result is null", action != null ? action : string.Empty);
+                logMessage = string.Format("Cdvr Adapter {0} Result is null", action != null ? action : string.Empty);
             }
             else if (adapterResponse.Status == null)
             {
-                logMessage = string.Format("Cdvr Engine Adapter {0} Result's status is null", action != null ? action : string.Empty);
+                logMessage = string.Format("Cdvr Adapter {0} Result's status is null", action != null ? action : string.Empty);
             }
             else if (adapterResponse.Recording == null)
             {
-                logMessage = string.Format("Cdvr Engine Adapter {0} Result Status: Message = {1}, Code = {2}",
+                logMessage = string.Format("Cdvr Adapter {0} Result Status: Message = {1}, Code = {2}",
                                  action != null ? action : string.Empty,                                                                                                                // {0}
                                  adapterResponse != null && adapterResponse.Status != null && adapterResponse.Status.Message != null ? adapterResponse.Status.Message : string.Empty,   // {1}
                                  adapterResponse != null && adapterResponse.Status != null ? adapterResponse.Status.Code : -1);                                                         // {2}
             }
             else
             {
-                logMessage = string.Format("Cdvr Engine Adapter  RecordingId = {1}, RecordingState = {2}",                  
+                logMessage = string.Format("Cdvr Adapter RecordingId = {1}, RecordingState = {2}",                  
                   adapterResponse.Recording.RecordingId,
                     adapterResponse.Recording.RecordingState
                     );

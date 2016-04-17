@@ -56,7 +56,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RecommendationAdapterController.cs" />
     <Compile Include="RecommendationResult.cs" />
-    <Compile Include="Service References\CdvrEngineAdapter\Reference.cs">
+    <Compile Include="Service References\CdvrAdapterService\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
@@ -66,6 +66,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
+    <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ApiObjects\ApiObjects.csproj">
@@ -90,23 +91,23 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="Service References\CdvrEngineAdapter\AdapterControllers.CdvrEngineAdapter.AdapterStatus.datasource">
+    <None Include="Service References\CdvrAdapterService\AdapterControllers.CdvrAdapterService.AdapterStatus.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\CdvrEngineAdapter\AdapterControllers.CdvrEngineAdapter.RecordingResponse.datasource">
+    <None Include="Service References\CdvrAdapterService\AdapterControllers.CdvrAdapterService.RecordingResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\CdvrEngineAdapter\Service.wsdl" />
-    <None Include="Service References\CdvrEngineAdapter\Service.xsd">
+    <None Include="Service References\CdvrAdapterService\Service.wsdl" />
+    <None Include="Service References\CdvrAdapterService\Service.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\CdvrEngineAdapter\Service1.xsd">
+    <None Include="Service References\CdvrAdapterService\Service1.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\CdvrEngineAdapter\Service2.xsd">
+    <None Include="Service References\CdvrAdapterService\Service2.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\CdvrEngineAdapter\Service3.xsd">
+    <None Include="Service References\CdvrAdapterService\Service3.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\RecommendationEngineAdapter\AdapterControllers.RecommendationEngineAdapter.AdapterStatus.datasource">
@@ -149,7 +150,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <WCFMetadataStorage Include="Service References\CdvrEngineAdapter\" />
+    <WCFMetadataStorage Include="Service References\CdvrAdapterService\" />
     <WCFMetadataStorage Include="Service References\RecommendationEngineAdapter\" />
   </ItemGroup>
   <ItemGroup>
@@ -171,16 +172,16 @@
     <None Include="Service References\RecommendationEngineAdapter\Service.disco" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\CdvrEngineAdapter\Service.disco" />
+    <None Include="Service References\CdvrAdapterService\Service.disco" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\CdvrEngineAdapter\configuration91.svcinfo" />
+    <None Include="Service References\CdvrAdapterService\configuration91.svcinfo" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\CdvrEngineAdapter\configuration.svcinfo" />
+    <None Include="Service References\CdvrAdapterService\configuration.svcinfo" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\CdvrEngineAdapter\Reference.svcmap">
+    <None Include="Service References\CdvrAdapterService\Reference.svcmap">
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
