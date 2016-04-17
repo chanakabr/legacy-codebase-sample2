@@ -2597,7 +2597,7 @@ namespace DAL
             return adapterId;
         }
 
-        public List<Recording> GetRecordings(int groupId, List<long> recordingIds)
+        public static List<Recording> GetRecordings(int groupId, List<long> recordingIds)
         {
             List<Recording> recordings = new List<Recording>();
             ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_Recordings");
