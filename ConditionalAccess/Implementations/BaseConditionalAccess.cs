@@ -16960,49 +16960,31 @@ namespace ConditionalAccess
 
         public Recording Record(string userID, long epgID)
         {
-            Recording response = new Recording() { EpgID = epgID };
+            Recording recording = new Recording() { EpgID = epgID };
             try
             {
                 long domainID = 0;
-                RecordingResponse recordings = QueryRecords(userID, new List<long>() { epgID }, ref domainID);
-                if (recordings == null || recordings.Status == null)
+                recording = QueryRecord(userID, epgID, ref domainID);
+                if (recording.Status != null && recording.Status.Code != (int)eResponseStatus.OK)
                 {
-                    log.DebugFormat("No recording were return from QueryRecords, EpgID: {0}, DomainID: {1}, UserID: {2}", epgID, domainID, userID);
-                    return response;
+                    log.DebugFormat("Recording status not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
+                    return recording;
                 }
 
-                if (recordings.Status.Code != (int)eResponseStatus.OK)
+                if (recording.RecordingID == 0 || !Utils.IsValidRecordingStatus(recording.RecordingStatus))
                 {
-                    log.DebugFormat("Recordings status no valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recordings.ToString());
-                    response.Status = new ApiObjects.Response.Status(recordings.Status.Code, recordings.Status.Message);
-                    return response;
-                }
-
-                if (recordings.Recordings != null && recordings.Recordings.Count > 0)
-                {
-                    response = recordings.Recordings[0];
-                    if (response.Status != null && response.Status.Code != (int)eResponseStatus.OK)
+                    log.DebugFormat("Recording ID is 0 or RecordingStatus not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
+                    recording = RecordingsManager.Instance.Record(m_nGroupID, recording.EpgID, recording.ChannelId, recording.EpgStartDate, recording.EpgEndDate, userID, domainID);
+                    if (recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK
+                        && recording.RecordingID > 0 && Utils.IsValidRecordingStatus(recording.RecordingStatus))
                     {
-                        log.DebugFormat("Recording status no valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, response.ToString());
-                        return response;
-                    }
-
-                    if (response.RecordingID == 0 || !Utils.IsValidRecordingStatus(response.RecordingStatus))
-                    {
-                        log.DebugFormat("Recording ID is 0 or RecordingStatus not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, response.ToString());
-                        response = RecordingsManager.Instance.Record(m_nGroupID, response.EpgID, response.ChannelId, response.EpgStartDate, response.EpgEndDate, userID, domainID);
-                        if (response != null && response.Status != null && response.Status.Code == (int)eResponseStatus.OK
-                            && response.RecordingID > 0 && Utils.IsValidRecordingStatus(response.RecordingStatus))
+                        if (!ConditionalAccessDAL.UpdateOrInsertDomainRecording(m_nGroupID, long.Parse(userID), domainID, recording))
                         {
-                            if (!ConditionalAccessDAL.UpdateOrInsertDomainRecording(m_nGroupID, long.Parse(userID), domainID, response))
-                            {
-                                log.DebugFormat("Failed UpdateOrInsertDomainRecording, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, response.ToString());
-                                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                            }
+                            log.DebugFormat("Failed UpdateOrInsertDomainRecording, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
+                            recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                         }
                     }
                 }
-                
             }
             catch (Exception ex)
             {
@@ -17016,7 +16998,53 @@ namespace ConditionalAccess
                 log.Error(sb.ToString(), ex);
             }
 
-            return response;
+            return recording;
+        }
+
+        public Recording QueryRecord(string userID, long epgID, ref long domainID)
+        {
+            Recording recording = new Recording() { EpgID = epgID };
+            try
+            {
+                RecordingResponse recordings = QueryRecords(userID, new List<long>() { epgID }, ref domainID);
+                if (recordings == null || recordings.Status == null)
+                {
+                    log.DebugFormat("No recordings were returned from QueryRecords, EpgID: {0}, DomainID: {1}, UserID: {2}", epgID, domainID, userID);
+                    return recording;
+                }
+
+                if (recordings.Status.Code != (int)eResponseStatus.OK)
+                {
+                    log.DebugFormat("Recordings status not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recordings.ToString());
+                    recording.Status = new ApiObjects.Response.Status(recordings.Status.Code, recordings.Status.Message);
+                    return recording;
+                }
+
+                if (recordings.Recordings != null && recordings.Recordings.Count > 0)
+                {
+                    recording = recordings.Recordings[0];
+                    if (recording.Status != null && recording.Status.Code != (int)eResponseStatus.OK)
+                    {
+                        log.DebugFormat("Recording status not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
+                        return recording;
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder("Exception at QueryRecord. ");
+                sb.Append(String.Concat("userID: ", userID));
+                sb.Append(", epgIDs: ");
+                sb.Append(String.Concat("epgID: ", epgID));
+                sb.Append(String.Concat("Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(", Stack Trace: ", ex.StackTrace));
+
+                log.Error(sb.ToString(), ex);
+            }
+
+            return recording;
         }
 
         public RecordingResponse QueryRecords(string userID, List<long> epgIDs, ref long domainID)
@@ -17059,7 +17087,7 @@ namespace ConditionalAccess
 
                 foreach (EPGChannelProgrammeObject epg in epgs)
                 {                                        
-                    response.Recordings.Add(QueryRecord(accountSettings, epg, domainID, userID));
+                    response.Recordings.Add(QueryEpgRecord(accountSettings, epg, domainID, userID));
                 }
             }
 
@@ -17082,7 +17110,7 @@ namespace ConditionalAccess
             return response;
         }
 
-        public Recording QueryRecord(TimeShiftedTvPartnerSettings accountSettings, EPGChannelProgrammeObject epg, long domainID, string userID)
+        private Recording QueryEpgRecord(TimeShiftedTvPartnerSettings accountSettings, EPGChannelProgrammeObject epg, long domainID, string userID)
         {
             Recording response = new Recording() { EpgID = epg.EPG_ID };
             try
