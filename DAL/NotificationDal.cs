@@ -42,6 +42,11 @@ namespace DAL
             return string.Format("user_notification_{0}_{1}", groupId, userId);
         }
 
+        private static string GetUserFollowsNotificationKey(int groupId, long userId, long notificationId)
+        {
+            return string.Format("user_notification_item:{0}:{1}:{2}", groupId, userId, notificationId);
+        }
+
         /// <summary>
         /// Insert one notification request to notifications_requests table
         /// by calling InsertNotifictaionRequest stored procedure.
@@ -1033,5 +1038,216 @@ namespace DAL
 
             return rowCollection;
         }
+
+        /// <summary>
+        /// Retrieve userIds which follows the notification 
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="notificationId"></param>
+        /// <returns></returns>
+        public static List<int> GetUsersFollowNotificationView(int groupId, int notificationId)
+        {
+            List<int> userIds = null;
+            try
+            {
+                // prepare view request
+                ViewManager viewManager = new ViewManager("notification", "get_users_notification")
+                {
+                    startKey = new object[] { groupId, notificationId },
+                    endKey = new object[] { groupId, notificationId },
+                    staleState = ViewStaleState.False
+                };
+
+                // execute request
+                userIds = cbManager.View<int>(viewManager);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to get users follows notification. GID: {0}, notification ID: {1}, ex: {2}", groupId, notificationId, ex);
+            }
+
+            return userIds;
+        }
+
+        public static bool SetUserFollowNotificationData(int groupId, int userId, int notificationId)
+        {
+            bool result = false;
+            try
+            {
+                int numOfTries = 0;
+                while (!result && numOfTries < NUM_OF_INSERT_TRIES)
+                {
+                    result = cbManager.Set(GetUserFollowsNotificationKey(groupId, userId, notificationId), userId);
+                    if (!result)
+                    {
+                        numOfTries++;
+                        log.ErrorFormat("Error while set user follow notification data. number of tries: {0}/{1}. GID: {2}, notification ID: {3}. userId: {4}",
+                             numOfTries,
+                            NUM_OF_INSERT_TRIES,
+                            groupId,
+                            notificationId,
+                            userId);
+                        Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
+                    }
+                    else
+                    {
+                        // log success on retry
+                        if (numOfTries > 0)
+                        {
+                            numOfTries++;
+                            log.DebugFormat("successfully set user follow notification data. number of tries: {0}/{1}. GID: {2}, notification ID: {3}. userId: {4}",
+                            numOfTries,
+                            NUM_OF_INSERT_TRIES,
+                            groupId,
+                            notificationId,
+                            userId);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while set user follow  notification data.  GID: {0}, notification ID: {1}. userId: {2}. error:{3}",
+                  groupId, notificationId, userId, ex);
+            }
+
+            return result;
+        }
+
+        public static bool RemoveUserFollowNotification(int groupId, int userId, int notificationId)
+        {
+            bool passed = false;
+            string userNotificationItemKey = GetUserFollowsNotificationKey(groupId, userId, notificationId);
+
+            try
+            {
+                passed = cbManager.Remove(userNotificationItemKey);
+                if (passed)
+                    log.DebugFormat("Successfully removed {0}", userNotificationItemKey);
+                else
+                    log.ErrorFormat("Error while removing {0}", userNotificationItemKey);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while removing {0}. ex: {1}", userNotificationItemKey, ex);
+            }
+
+            return passed;
+        }
+
+        public static List<DbAnnouncement> GetAnnouncements(int groupId)
+        {
+            List<DbAnnouncement> result = null;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAnnouncementsByGroupId");
+                sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    result = new List<DbAnnouncement>();
+                    DbAnnouncement dbAnnouncement = null;
+                    foreach (DataRow row in ds.Tables[0].Rows)
+                    {
+                        int recipientType = ODBCWrapper.Utils.GetIntSafeVal(row, "recipient_type");
+
+                        dbAnnouncement = new DbAnnouncement()
+                        {
+                            ID = ODBCWrapper.Utils.GetIntSafeVal(row, "id"),
+                            ExternalId = ODBCWrapper.Utils.GetSafeStr(row, "external_id"),
+                            Name = ODBCWrapper.Utils.GetSafeStr(row, "name"),
+                            FollowPhrase = ODBCWrapper.Utils.GetSafeStr(row, "follow_phrase"),
+                            RecipientsType = Enum.IsDefined(typeof(eAnnouncementRecipientsType), recipientType) ? (eAnnouncementRecipientsType)recipientType : eAnnouncementRecipientsType.All
+                        };
+
+                        result.Add(dbAnnouncement);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at GetAnnouncementsByGroupId. groupId: {0}. Error {1}", groupId, ex);
+            }
+
+            return result;
+        }
+
+        public static FollowTemplate SetFollowTemplate(int groupId, FollowTemplate followTemplate)
+        {
+            FollowTemplate result = new FollowTemplate();
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertFollowTemplate");
+                sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@message", followTemplate.Message);
+                sp.AddParameter("@dateFormat", followTemplate.DateFormat);
+                sp.AddParameter("@assetType", (int)followTemplate.AssetType);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    if (ds.Tables[0].Rows.Count > 0)
+                    {
+                        result = CreateFollowTemplate(result, ds.Tables[0].Rows[0]);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at AddFollowTemplate. groupId: {0}, followTemplate: {1} . Error {2}", groupId, followTemplate.ToString(), ex);
+            }
+
+            return result;
+
+        }
+
+        public static FollowTemplate GetFollowTemplate(int groupId)
+        {
+            FollowTemplate result = new FollowTemplate();
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetFollowTemplate");
+                sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    if (ds.Tables[0].Rows.Count > 0)
+                    {
+                        result = CreateFollowTemplate(result, ds.Tables[0].Rows[0]);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at GetFollowTemplate. groupId: {0}. Error {1}", groupId, ex);
+            }
+
+            return result;
+
+        }
+
+        private static FollowTemplate CreateFollowTemplate(FollowTemplate result, DataRow row)
+        {
+            int assetType = ODBCWrapper.Utils.GetIntSafeVal(row, "ASSET_TYPE");
+
+            result = new FollowTemplate()
+            {
+                Id = ODBCWrapper.Utils.GetIntSafeVal(row, "ID"),
+                Message = ODBCWrapper.Utils.GetSafeStr(row, "MESSAGE"),
+                DateFormat = ODBCWrapper.Utils.GetSafeStr(row, "DATE_FORMAT"),
+                AssetType = Enum.IsDefined(typeof(eOTTAssetTypes), assetType) ? (eOTTAssetTypes)assetType : eOTTAssetTypes.Series
+            };
+            return result;
+        }
+
+
     }
 }

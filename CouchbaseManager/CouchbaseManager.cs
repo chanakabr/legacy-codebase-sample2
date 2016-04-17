@@ -40,6 +40,7 @@ namespace CouchbaseManager
         //public const string COUCHBASE_CONFIG = "couchbaseClients/couchbase";
         public const string COUCHBASE_CONFIG = "couchbaseClients/";
         private const string TCM_KEY_FORMAT = "cb_{0}.{1}";
+        private const double GET_LOCK_TS_SECONDS = 2;
 
         /// <summary>
         /// Defines duration of a month in seconds, see http://docs.couchbase.com/developer/dev-guide-3.0/doc-expiration.html
@@ -438,13 +439,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Add with key = {0}, error = {1}, ST = {2}", key, ex.Message, ex.StackTrace), ex);
-
-                if (ex.InnerException != null)
-                {
-                    log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Add with key = {0}, inner exception = {1}, ST = {2}", key,
-                        ex.InnerException.Message, ex.InnerException.StackTrace), ex.InnerException);
-                }
+                log.ErrorFormat("CouchBaseCache - Failed Add with key = {0}, ex = {1}", key, ex);
             }
 
             return result;
@@ -518,13 +513,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Add with key = {0}, error = {1}, ST = {2}", key, ex.Message, ex.StackTrace), ex);
-
-                if (ex.InnerException != null)
-                {
-                    log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Add with key = {0}, inner exception = {1}, ST = {2}", key,
-                        ex.InnerException.Message, ex.InnerException.StackTrace), ex.InnerException);
-                }
+                log.ErrorFormat("CouchBaseCache - Failed Add with key = {0}, ex = {1}", key, ex);
             }
 
             return result;
@@ -598,13 +587,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Set with key = {0}, error = {1}, ST = {2}", key, ex.Message, ex.StackTrace), ex);
-
-                if (ex.InnerException != null)
-                {
-                    log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Set with key = {0}, inner exception = {1}, ST = {2}", key,
-                        ex.InnerException.Message, ex.InnerException.StackTrace), ex.InnerException);
-                }
+                log.ErrorFormat("CouchBaseCache - Failed Set with key = {0}, ex = {1}", key, ex);
             }
             return result;
         }
@@ -683,6 +666,61 @@ namespace CouchbaseManager
             return result;
         }
 
+        public bool SetUnlock<T>(string key, T value, uint expiration = 0, ulong casUnlock = 0)
+        {
+            bool result = false;
+
+            try
+            {
+                using (var cluster = new Cluster(clientConfiguration))
+                {
+                    using (var bucket = cluster.OpenBucket(bucketName))
+                    {
+                        IOperationResult insertResult = null;
+                        expiration = FixExpirationTime(expiration);
+
+                        string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                        {
+                            string serializedValue = ObjectToJson(value);
+                            insertResult = bucket.Upsert<string>(key, serializedValue, expiration);
+                        }
+
+                        if (insertResult != null)
+                        {
+                            if (insertResult.Exception != null)
+                            {
+                                throw insertResult.Exception;
+                            }
+
+                            if (insertResult.Status == Couchbase.IO.ResponseStatus.Success)
+                            {
+                                result = insertResult.Success;
+                            }
+                            else
+                            {
+                                HandleStatusCode(insertResult.Status, key);
+
+                                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                                {
+                                    string serializedValue = ObjectToJson(value);
+                                    insertResult = bucket.Upsert<string>(key, serializedValue, expiration);
+                                }
+                            }
+                        }
+
+                        if (casUnlock > 0)
+                            bucket.Unlock(key, casUnlock);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("CouchBaseCache - Failed Set<T> with key = {0}, error = {1}", key, ex);
+            }
+            return result;
+        }
+
         public T Get<T>(string key, bool asJson = false)
         {
             T result = default(T);
@@ -709,47 +747,111 @@ namespace CouchbaseManager
                         if (getResult != null)
                         {
                             if (getResult.Exception != null)
-                            {
                                 throw getResult.Exception;
-                            }
 
                             if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
-                            {
                                 result = getResult.Value;
-                            }
                             else
-                            {
                                 HandleStatusCode(getResult.Status, key);
-
-                                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
-                                {
-                                    if (!asJson)
-                                    {
-                                        getResult = bucket.Get<T>(key);
-                                    }
-                                    else
-                                    {
-                                        return this.GetJsonAsT<T>(key);
-                                    }
-                                }
-                            }
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Get with key = {0}, error = {1}, ST = {2}", key, ex.Message, ex.StackTrace), ex);
-
-                if (ex.InnerException != null)
-                {
-                    log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Get with key = {0}, inner exception = {1}, ST = {2}", key,
-                        ex.InnerException.Message, ex.InnerException.StackTrace), ex.InnerException);
-                }
+                log.ErrorFormat("CouchBaseCache - Failed Get with key = {0}, ex = {1}", key, ex);
             }
 
             return result;
         }
+
+        public T Get<T>(string key, out Couchbase.IO.ResponseStatus status)
+        {
+            T result = default(T);
+            status = Couchbase.IO.ResponseStatus.None;
+
+            try
+            {
+                using (var cluster = new Cluster(clientConfiguration))
+                {
+                    using (var bucket = cluster.OpenBucket(bucketName))
+                    {
+                        IOperationResult<T> getResult = null;
+
+                        string action = string.Format("Action: Get bucket: {0} key: {1}", bucketName, key);
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                        {
+                            getResult = bucket.Get<T>(key);
+                        }
+
+                        if (getResult != null)
+                        {
+                            status = getResult.Status;
+                            if (getResult.Exception != null)
+                                throw getResult.Exception;
+
+                            if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
+                                result = getResult.Value;
+                            else
+                                HandleStatusCode(getResult.Status, key);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("CouchBaseCache - Failed Get with key = {0}, ex = {1}", key, ex);
+            }
+
+            return result;
+        }
+
+        public T GetWithLock<T>(string key, out ulong cas, out Couchbase.IO.ResponseStatus status)
+        {
+            T result = default(T);
+            cas = 0;
+            status = Couchbase.IO.ResponseStatus.None;
+
+            try
+            {
+                using (var cluster = new Cluster(clientConfiguration))
+                {
+                    using (var bucket = cluster.OpenBucket(bucketName))
+                    {
+                        IOperationResult<T> getResult = null;
+
+                        string action = string.Format("Action: GetWithLock bucket: {0} key: {1}", bucketName, key);
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                        {
+                            getResult = bucket.GetWithLock<T>(key, TimeSpan.FromSeconds(GET_LOCK_TS_SECONDS));
+                        }
+
+                        if (getResult != null)
+                        {
+                            if (getResult.Exception != null)
+                                throw getResult.Exception;
+
+                            status = getResult.Status;
+
+                            if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
+                            {
+                                result = getResult.Value;
+                                cas = getResult.Cas;
+                            }
+                            else
+                                HandleStatusCode(getResult.Status, key);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("CouchBaseCache - Failed GetWithLock with key = {0}, ex = {1}", key, ex);
+            }
+
+            return result;
+        }
+
 
         public bool Remove(string key)
         {
@@ -800,13 +902,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed remove with key = {0}, error = {1}, ST = {2}", key, ex.Message, ex.StackTrace), ex);
-
-                if (ex.InnerException != null)
-                {
-                    log.ErrorFormat("CouchBaseCache - " + string.Format("Failed remove with key = {0}, inner exception = {1}, ST = {2}", key,
-                        ex.InnerException.Message, ex.InnerException.StackTrace), ex.InnerException);
-                }
+                log.ErrorFormat("CouchBaseCache - Failed remove with key = {0}, ex = {1}", key, ex);
             }
 
             return result;
@@ -866,13 +962,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Get with key = {0}, error = {1}, ST = {2}", key, ex.Message, ex.StackTrace), ex);
-
-                if (ex.InnerException != null)
-                {
-                    log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Get with key = {0}, inner exception = {1}, ST = {2}", key,
-                        ex.InnerException.Message, ex.InnerException.StackTrace), ex.InnerException);
-                }
+                log.ErrorFormat("CouchBaseCache - Failed GetWithVersion with key = {0}, ex = {1}", key, ex);
             }
 
             return result;

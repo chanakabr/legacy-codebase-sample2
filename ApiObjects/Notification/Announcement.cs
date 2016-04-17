@@ -9,5 +9,6 @@ namespace ApiObjects.Notification
     {
         public long AnnouncementId { get; set; }
         public string AnnouncementName { get; set; }
+        public long AddedDateSec { get; set; }
     }
 }
