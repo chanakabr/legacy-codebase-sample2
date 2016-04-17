@@ -600,7 +600,7 @@ namespace CouchbaseManager
         /// <param name="value"></param>
         /// <param name="expiration">TTL in seconds</param>
         /// <returns></returns>
-        public bool Set<T>(string key, T value, uint expiration = 0, bool asJson = false, ulong casUnlock = 0)
+        public bool Set<T>(string key, T value, uint expiration = 0, bool asJson = false)
         {
             bool result = false;
 
@@ -653,6 +653,58 @@ namespace CouchbaseManager
                                         string serializedValue = ObjectToJson(value);
                                         insertResult = bucket.Upsert<string>(key, serializedValue, expiration);
                                     }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("CouchBaseCache - Failed Set<T> with key = {0}, error = {1}", key, ex);
+            }
+            return result;
+        }
+
+        public bool SetUnlock<T>(string key, T value, uint expiration = 0, ulong casUnlock = 0)
+        {
+            bool result = false;
+
+            try
+            {
+                using (var cluster = new Cluster(clientConfiguration))
+                {
+                    using (var bucket = cluster.OpenBucket(bucketName))
+                    {
+                        IOperationResult insertResult = null;
+                        expiration = FixExpirationTime(expiration);
+
+                        string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                        {
+                            string serializedValue = ObjectToJson(value);
+                            insertResult = bucket.Upsert<string>(key, serializedValue, expiration);
+                        }
+
+                        if (insertResult != null)
+                        {
+                            if (insertResult.Exception != null)
+                            {
+                                throw insertResult.Exception;
+                            }
+
+                            if (insertResult.Status == Couchbase.IO.ResponseStatus.Success)
+                            {
+                                result = insertResult.Success;
+                            }
+                            else
+                            {
+                                HandleStatusCode(insertResult.Status, key);
+
+                                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                                {
+                                    string serializedValue = ObjectToJson(value);
+                                    insertResult = bucket.Upsert<string>(key, serializedValue, expiration);
                                 }
                             }
                         }
