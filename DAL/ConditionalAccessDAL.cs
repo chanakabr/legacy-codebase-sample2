@@ -2545,13 +2545,16 @@ namespace DAL
                 DataRow dr = dt.Rows[0];
                 if (dr != null)
                 {
-                    recording = new Recording();
-                    recording.EpgID = epgID;
-                    recording.RecordingID = ODBCWrapper.Utils.ExtractValue<long>(dr, "recording_id");
-                    recording.RecordingStatus = (TstvRecordingStatus)ODBCWrapper.Utils.ExtractInteger(dr, "RECORDING_STATUS");
-                    recording.ExternalRecordingId = ODBCWrapper.Utils.ExtractString(dr, "EXTERNAL_RECORDING_ID");
-                    recording.EpgStartDate = ODBCWrapper.Utils.ExtractDateTime(dr, "START_DATE");
-                    recording.EpgEndDate = ODBCWrapper.Utils.ExtractDateTime(dr, "END_DATE");                    
+                    recording = new Recording()
+                    {
+                        Status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, ApiObjects.Response.eResponseStatus.OK.ToString()),
+                        EpgID = epgID,
+                        RecordingID = ODBCWrapper.Utils.ExtractValue<long>(dr, "recording_id"),
+                        RecordingStatus = (TstvRecordingStatus)ODBCWrapper.Utils.ExtractInteger(dr, "RECORDING_STATUS"),
+                        ExternalRecordingId = ODBCWrapper.Utils.ExtractString(dr, "EXTERNAL_RECORDING_ID"),
+                        EpgStartDate = ODBCWrapper.Utils.ExtractDateTime(dr, "START_DATE"),
+                        EpgEndDate = ODBCWrapper.Utils.ExtractDateTime(dr, "END_DATE")
+                    };
                 }
             }
 

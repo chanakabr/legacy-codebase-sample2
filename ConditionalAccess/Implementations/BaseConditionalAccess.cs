@@ -17172,9 +17172,8 @@ namespace ConditionalAccess
                         if (response == null || response.Status.Code != (int)eResponseStatus.OK || response.RecordingID == 0)
                         {
                             DateTime epgEndDate;
-                            if (!DateTime.TryParseExact(epg.END_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgEndDate))
-                            {
-                                log.ErrorFormat("Failed parsing EPG end date, epgID: {0}, domainID: {1}, userID {2}, startDate: {3}", epg.EPG_ID, domainID, userID, epg.END_DATE);
+                            if (DateTime.TryParseExact(epg.END_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgEndDate))
+                            {                                
                                 response = new Recording()
                                 {
                                     Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString()),
@@ -17185,6 +17184,11 @@ namespace ConditionalAccess
                                     EpgStartDate = epgStartDate,
                                     EpgEndDate = epgEndDate
                                 };
+                            }
+                            else
+                            {
+                                log.ErrorFormat("Failed parsing EPG end date, epgID: {0}, domainID: {1}, userID {2}, startDate: {3}", epg.EPG_ID, domainID, userID, epg.END_DATE);
+                                response = new Recording() { EpgID = epg.EPG_ID, ChannelId = epg.EPG_CHANNEL_ID };
                             }
                         }
                         else
