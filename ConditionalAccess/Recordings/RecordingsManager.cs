@@ -80,19 +80,20 @@ namespace Recordings
 
                 var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
 
-                // TODO: Call Adapter to schedule recording,
-                // 
-                
-                string externalRecordingId = string.Empty;
+                // Call Adapter to schedule recording,
 
                 // Initialize parameters for adapter controller
                 long startTimeSeconds = ODBCWrapper.Utils.DateTimeToUnixTimestamp(startDate);
                 long durationSeconds = (long)(endDate - startDate).TotalSeconds;
                 string externalChannelId = CatalogDAL.GetEPGChannelCDVRId(groupId, epgChannelID);
 
-                adapterController.Record(groupId, startTimeSeconds, durationSeconds, externalChannelId, adapterId);
+                var adapterResponse = adapterController.Record(groupId, startTimeSeconds, durationSeconds, externalChannelId, adapterId);
 
-                recording.ExternalRecordingId = externalRecordingId;
+                //
+                // TODO: Validate adapter response
+                //
+
+                recording.ExternalRecordingId = adapterResponse.RecordingId;
 
                 // Insert recording information to database
                 recording = ConditionalAccessDAL.InsertRecording(recording, groupId);
