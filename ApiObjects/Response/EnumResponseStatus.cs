@@ -229,7 +229,8 @@ namespace ApiObjects.Response
         FailCreateAnnouncement = 8011,
         UserNotFollowing = 8012,
         UserAlreadyFollowing = 8013,
-
+        PlaceholdersIsInvalid = 8014,
+        DatetimeFormatIsInvalid = 8015,
 
         //Pricing 9000-9999
         InvalidPriceCode = 9000,
