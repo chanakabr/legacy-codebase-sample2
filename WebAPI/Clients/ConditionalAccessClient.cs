@@ -1114,7 +1114,7 @@ namespace WebAPI.Clients
 
         internal KalturaRecording QueryRecord(int groupdID, string userID, long epgID)
         {
-            List<KalturaRecording> recordings = null;
+            KalturaRecording recording = null;
             RecordingResponse response = null;
 
             // get group ID
@@ -1148,9 +1148,9 @@ namespace WebAPI.Clients
             }
 
             // convert response
-            recordings = Mapper.Map<List<WebAPI.Models.ConditionalAccess.KalturaRecording>>(response.Recordings);
+            recording = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaRecording>(response.Recordings[0]);
 
-            return recordings[0];
+            return recording;
         }
 
         internal KalturaRecording Record(int groupdID, string userID, long epgID)
