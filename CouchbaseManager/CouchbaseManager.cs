@@ -713,10 +713,52 @@ namespace CouchbaseManager
             return result;
         }
 
-        public T GetWithLock<T>(string key, out ulong cas)
+        public T Get<T>(string key, out Couchbase.IO.ResponseStatus status)
+        {
+            T result = default(T);
+            status = Couchbase.IO.ResponseStatus.None;
+
+            try
+            {
+                using (var cluster = new Cluster(clientConfiguration))
+                {
+                    using (var bucket = cluster.OpenBucket(bucketName))
+                    {
+                        IOperationResult<T> getResult = null;
+
+                        string action = string.Format("Action: Get bucket: {0} key: {1}", bucketName, key);
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                        {
+                            getResult = bucket.Get<T>(key);
+                        }
+
+                        if (getResult != null)
+                        {
+                            status = getResult.Status;
+                            if (getResult.Exception != null)
+                                throw getResult.Exception;
+
+                            if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
+                                result = getResult.Value;
+                            else
+                                HandleStatusCode(getResult.Status, key);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("CouchBaseCache - Failed Get with key = {0}, ex = {1}", key, ex);
+            }
+
+            return result;
+        }
+
+        public T GetWithLock<T>(string key, out ulong cas, out Couchbase.IO.ResponseStatus status)
         {
             T result = default(T);
             cas = 0;
+            status = Couchbase.IO.ResponseStatus.None;
 
             try
             {
@@ -736,6 +778,8 @@ namespace CouchbaseManager
                         {
                             if (getResult.Exception != null)
                                 throw getResult.Exception;
+
+                            status = getResult.Status;
 
                             if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
                             {
