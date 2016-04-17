@@ -78,9 +78,19 @@ namespace Recordings
 
                 int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
 
+                var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
+
                 // TODO: Call Adapter to schedule recording,
                 // 
+                
                 string externalRecordingId = string.Empty;
+
+                // Initialize parameters for adapter controller
+                long startTimeSeconds = ODBCWrapper.Utils.DateTimeToUnixTimestamp(startDate);
+                long durationSeconds = (long)(endDate - startDate).TotalSeconds;
+                string externalChannelId = CatalogDAL.GetEPGChannelCDVRId(groupId, epgChannelID);
+
+                adapterController.Record(groupId, startTimeSeconds, durationSeconds, externalChannelId, adapterId);
 
                 recording.ExternalRecordingId = externalRecordingId;
 
