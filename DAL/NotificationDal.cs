@@ -1358,7 +1358,7 @@ namespace DAL
                     if (!result)
                     {
                         numOfTries++;
-                        log.ErrorFormat("Error while set user notification data. number of tries: {0}/{1}. GID: {2}, user ID: {3}. data: {4}",
+                        log.ErrorFormat("Error while setting user notification data (unlock). number of tries: {0}/{1}. GID: {2}, user ID: {3}. data: {4}",
                              numOfTries,
                             NUM_OF_INSERT_TRIES,
                             groupId,
@@ -1372,7 +1372,7 @@ namespace DAL
                         if (numOfTries > 0)
                         {
                             numOfTries++;
-                            log.DebugFormat("successfully set user notification data. number of tries: {0}/{1}. object {2}",
+                            log.DebugFormat("successfully set user notification data (unlock). number of tries: {0}/{1}. object {2}",
                             numOfTries,
                             NUM_OF_INSERT_TRIES,
                             JsonConvert.SerializeObject(userNotification));
@@ -1382,7 +1382,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while set user notification data. gid: {0}, user ID: {1}, ex: {2}", groupId, userId, ex);
+                log.ErrorFormat("Error while setting user notification data (unlock). gid: {0}, user ID: {1}, ex: {2}", groupId, userId, ex);
             }
 
             return result;
