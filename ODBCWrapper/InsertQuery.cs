@@ -119,6 +119,54 @@ namespace ODBCWrapper
             return true;
         }
 
+        public int ExecuteAndGetId()
+        {
+            string oraStr = m_sOraStr.ToString();
+
+            int id = -1;
+            m_sOraStr = new System.Text.StringBuilder(oraStr);
+            m_sOraStr.Append(sInsertStructure);
+            m_sOraStr.Append(") ");
+            m_sOraStr.Append("VALUES ");
+            m_sOraStr.Append(sInsertValues);
+            m_sOraStr.Append(")");
+            oraStr = m_sOraStr.ToString();
+            int_Execute();
+            string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable);
+            if (sConn == "")
+            {
+                log.ErrorFormat("Empty connection string. could not run query. m_sOraStr: {0}", m_sOraStr != null ? m_sOraStr.ToString() : string.Empty);
+                return id;
+            }
+            using (SqlConnection con = new SqlConnection(sConn))
+            {
+                try
+                {
+                    con.Open();
+                    SetLockTimeOut(con);
+                    command.Connection = con;
+
+                    SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null)
+                    {
+                        Database = queryInfo.Database,
+                        QueryType = queryInfo.QueryType,
+                        Table = queryInfo.Table
+                    })
+                    {
+                        id = command.ExecuteNonQuery();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    string sMes = "While running : '" + m_sLastExecutedOraStr + "'\r\n Exception occurred: " + ex.Message;
+                    log.Error(sMes, ex);
+                    return -1;
+                }
+            }
+
+            return id;
+        }
         public static InsertQuery operator +(InsertQuery p, object sOraStr)
         {
             if (sOraStr.GetType() == System.Type.GetType("ODBCWrapper.Parameter"))

@@ -825,12 +825,36 @@ namespace ODBCWrapper
             return sqlInfo;
         }
 
-        public static DataRow GetTableSingleRow(string tableName, long id, string connectionKey = "", int timeInCache = -1)
+        public static DataRow GetTableSingleRow(string tableName, long id, string connectionKey = "", int timeInCache = -1, bool checkStatusAndIsActive = false)
         {
-            return GetTableSingleRow(tableName, id.ToString(), connectionKey, timeInCache);
+            return GetTableSingleRow(tableName, id.ToString(), connectionKey, timeInCache, checkStatusAndIsActive);
         }
 
-        public static DataRow GetTableSingleRow(string tableName, string id, string connectionKey = "", int timeInCache = -1)
+        public static DataRow GetTableSingleRow(string tableName, string id, string connectionKey = "", int timeInCache = -1, bool checkStatusAndIsActive = false)
+        {
+            return GetTableSingleRowByValue(tableName, "ID", id, checkStatusAndIsActive, connectionKey, timeInCache);
+        }
+
+        public static DataRow GetTableSingleRowByValue(string tableName, string columnName, object value, 
+            bool checkStatusAndIsActive = false, string connectionKey = "", int timeInCache = -1)
+        {
+            List<KeyValuePair<string, object>> values = new List<KeyValuePair<string, object>>();
+
+            values.Add(new KeyValuePair<string,object>(columnName, value));
+
+            if (checkStatusAndIsActive)
+            {
+                values.Add(new KeyValuePair<string, object>("STATUS", 1));
+                values.Add(new KeyValuePair<string, object>("IS_ACTIVE", 1));
+            }
+
+            return GetTableSingleRowByValues(tableName,
+                values,
+                connectionKey, 
+                timeInCache);
+        }
+
+        public static DataRow GetTableSingleRowByValues(string tableName, List<KeyValuePair<string, object>> values, string connectionKey = "", int timeInCache = -1)
         {
             DataRow result = null;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
@@ -847,7 +871,11 @@ namespace ODBCWrapper
 
             //selectQuery += "select " + sFieldName + " from " + sTable + " where ";
             selectQuery += "SELECT * FROM " + tableName + " WHERE ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", id);
+
+            foreach (var value in values)
+            {
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM(value.Key, "=", value.Value);
+            }
 
             if (selectQuery.Execute("query", true) != null)
             {

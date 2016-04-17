@@ -94,8 +94,9 @@ namespace ApiObjects
         [EnumMember]
         EPG,
         [EnumMember]
-        EpgChannel
-
+        EpgChannel,
+        [EnumMember]
+        Recordning
     }
 
     [Serializable]
@@ -562,6 +563,23 @@ namespace ApiObjects
         Error = 1,
         SignatureMismatch = 2,
         NoConfigurationFound = 3
+    }
+
+    public enum TstvRecordingStatus
+    {
+        OK = 0,
+        Failed = 1,
+        Scheduled = 2,
+        Recording = 3,
+        Recorded = 4,
+        Canceled = 5,
+        DoesNotExist = 6,
+        Deleted = 7
+    }
+
+    public enum eRecordingTask
+    {
+        GetStatusAfterProgramEnded = 1,
     }
    
 }

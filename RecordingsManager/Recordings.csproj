@@ -1,0 +1,180 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{DCF4A78F-3BBF-4634-8666-196FF9F1E386}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Recordings</RootNamespace>
+    <AssemblyName>Recordings</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="KLogMonitor, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\tvincicommon\External\4.5\KLogMonitor.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RecordingsManager.cs" />
+    <Compile Include="Service References\WS_Catalog\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ApiObjects\ApiObjects.csproj">
+      <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
+      <Name>ApiObjects</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DalCB\DalCB.csproj">
+      <Project>{cc97d8e8-cfcb-4a33-a8ae-34ebdb0812c3}</Project>
+      <Name>DalCB</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DAL\DAL.csproj">
+      <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
+      <Name>DAL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GroupsCacheManager\GroupsCacheManager.csproj">
+      <Project>{25037a8a-7c6d-4496-b757-6fa85abdd3cf}</Project>
+      <Name>GroupsCacheManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ODBCWrapper\ODBCWrapper.csproj">
+      <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
+      <Name>ODBCWrapper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\QueueWrapper\QueueWrapper.csproj">
+      <Project>{e4f95ccc-2127-4a5c-90bb-d60a446bec3b}</Project>
+      <Name>QueueWrapper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TVinciShared\TVinciShared.csproj">
+      <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>
+      <Name>TVinciShared</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="Service References\WS_Catalog\Recordings.WS_Catalog.BaseResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\WS_Catalog\Recordings.WS_Catalog.EpgProgramResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\WS_Catalog\Recordings.WS_Catalog.MediaResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\WS_Catalog\Recordings.WS_Catalog.Response.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\WS_Catalog\Service.wsdl" />
+    <None Include="Service References\WS_Catalog\Service.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WS_Catalog\Service1.wsdl" />
+    <None Include="Service References\WS_Catalog\Service1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WS_Catalog\Service10.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WS_Catalog\Service11.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WS_Catalog\Service12.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WS_Catalog\Service13.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WS_Catalog\Service14.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WS_Catalog\Service15.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WS_Catalog\Service2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WS_Catalog\Service3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WS_Catalog\Service4.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WS_Catalog\Service5.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WS_Catalog\Service6.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WS_Catalog\Service7.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WS_Catalog\Service8.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WS_Catalog\Service9.xsd">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Service References\WS_Catalog\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\WS_Catalog\Service.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\WS_Catalog\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\WS_Catalog\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\WS_Catalog\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

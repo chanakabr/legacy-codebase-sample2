@@ -1,8 +1,10 @@
 ﻿using ApiObjects;
 using ApiObjects.Response;
+using ApiObjects.TimeShiftedTv;
 using ConditionalAccess.TvinciDomains;
 using ConditionalAccess.TvinciPricing;
 using ConditionalAccess.TvinciUsers;
+using ConditionalAccess.WS_Catalog;
 using DAL;
 using KLogMonitor;
 using System;
@@ -4147,6 +4149,111 @@ namespace ConditionalAccess
             }
             
             return channelsList;
+        }
+
+        internal static TimeShiftedTvPartnerSettings GetTimeShiftedTvPartnerSettings(int groupID)
+        {
+            TimeShiftedTvPartnerSettings settings = null;
+
+            try
+            {
+                DataRow dr = DAL.ApiDAL.GetTimeShiftedTvPartnerSettings(groupID);
+                if (dr != null)
+                {
+                    int catchup = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_catch_up", -1);
+                    int cdvr = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_cdvr", -1);
+                    int startOver = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_start_over", -1);
+                    int trickPlay = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_trick_play", -1);
+                    int catchUpBuffer = ODBCWrapper.Utils.GetIntSafeVal(dr, "catch_up_buffer", -1);
+                    int trickPlayBuffer = ODBCWrapper.Utils.GetIntSafeVal(dr, "trick_play_buffer", -1);
+                    if (catchup > -1 && cdvr > -1 && startOver > -1 && trickPlay > -1 && catchUpBuffer > -1 && trickPlayBuffer > -1)
+                    {
+                        settings = new TimeShiftedTvPartnerSettings(catchup == 1, cdvr == 1, startOver == 1, trickPlay == 1, catchUpBuffer, trickPlayBuffer);
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error("GetTimeShiftedTvPartnerSettings - " + string.Format("Error in GetTimeShiftedTvPartnerSettings: groupID = {0} ex = {1}", groupID, ex.Message, ex.StackTrace), ex);
+            }
+
+            return settings;
+        }
+
+        internal static List<EPGChannelProgrammeObject> GetEpgsByIds (int nGroupID, List<long> epgIds)
+        {
+            WS_Catalog.IserviceClient client = null;
+            List<EPGChannelProgrammeObject> epgs = null;
+
+            try
+            {
+                WS_Catalog.EpgProgramDetailsRequest request = new WS_Catalog.EpgProgramDetailsRequest();
+                request.m_nGroupID = nGroupID;
+                //don't get the same EPG from catalog
+                request.m_lProgramsIds = epgIds.ConvertAll<int>(x => (int)x).Distinct().ToArray();
+                request.m_oFilter = new WS_Catalog.Filter();
+                FillCatalogSignature(request);
+                client = new WS_Catalog.IserviceClient();
+                string sCatalogUrl = GetWSURL("WS_Catalog");
+                if (string.IsNullOrEmpty(sCatalogUrl))
+                {
+                    return epgs;
+                }
+                client.Endpoint.Address = new System.ServiceModel.EndpointAddress(sCatalogUrl);
+                WS_Catalog.EpgProgramResponse response = client.GetProgramsByIDs(request) as WS_Catalog.EpgProgramResponse;
+                if (response != null && response.m_nTotalItems > 0 && response.m_lObj != null && response.m_lObj.Length > 0)
+                {
+                    epgs = new List<EPGChannelProgrammeObject>();
+                    foreach (ProgramObj program in response.m_lObj)
+                    {
+                        // no need to check epg status since catalog returns only active epg's
+                        if (program.AssetType == eAssetTypes.EPG && program.m_oProgram != null && program.m_oProgram.EPG_ID > 0)
+                        {
+                            epgs.Add(program.m_oProgram);
+                        }
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error("Failed GetEpgsByIds Request To Catalog", ex);
+            }
+
+            finally
+            {
+                if (client != null)
+                {
+                    client.Close();
+                }
+            }
+
+            return epgs;
+        }
+
+        internal static bool IsValidRecordingStatus(TstvRecordingStatus recordingStatus)
+        {
+            bool res = false;
+            switch (recordingStatus)
+            {
+                case TstvRecordingStatus.OK:                    
+                case TstvRecordingStatus.Recording:                    
+                case TstvRecordingStatus.Recorded:                    
+                case TstvRecordingStatus.Scheduled:
+                    res = true;
+                    break;
+
+                case TstvRecordingStatus.DoesNotExist:
+                case TstvRecordingStatus.Deleted:
+                case TstvRecordingStatus.Failed:
+                case TstvRecordingStatus.Canceled:
+                default:
+                    res = false;
+                    break;
+            }
+
+            return res;
         }
 
     }
