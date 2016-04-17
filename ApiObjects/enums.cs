@@ -566,5 +566,13 @@ namespace ApiObjects
         SignatureMismatch = 2,
         NoConfigurationFound = 3
     }
+
+    public enum eFollowSeriesPlaceHolders
+    {
+        MediaName= 0,
+        MetaTag = 1,
+        CatalaogStartDate = 2,
+        StartDate = 3
+    }
    
 }
