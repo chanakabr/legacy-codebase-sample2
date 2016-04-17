@@ -18,9 +18,9 @@ namespace WebAPI.Controllers
         /// 
         /// </remarks>
         /// <returns></returns>
-        [Route("add"), HttpPost]
+        [Route("set"), HttpPost]
         [ApiAuthorize]
-        public KalturaFollowTemplate Add(KalturaFollowTemplate follow_template)
+        public KalturaFollowTemplate Set(KalturaFollowTemplate follow_template)
         {
             KalturaFollowTemplate response = null;
 
@@ -29,7 +29,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.NotificationClient().InsertFollowTemplate(groupId, follow_template);
+                response = ClientsManager.NotificationClient().SetFollowTemplate(groupId, follow_template);
             }
             catch (ClientException ex)
             {
@@ -38,5 +38,34 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        /// <summary>
+        /// TBD
+        /// </summary>
+        /// <remarks>
+        /// 
+        /// </remarks>
+        /// <returns></returns>
+        [Route("Get"), HttpPost]
+        [ApiAuthorize]
+        public KalturaFollowTemplate Get()
+        {
+            KalturaFollowTemplate response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                response = ClientsManager.NotificationClient().GetFollowTemplate(groupId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
     }
 }

@@ -290,7 +290,7 @@
             </remarks>
             <param name="adapter_id">C-DVR adapter identifier</param>
         </member>
-        <member name="M:WebAPI.Controllers.FollowTemplateController.Add(WebAPI.Models.Notification.KalturaFollowTemplate)">
+        <member name="M:WebAPI.Controllers.FollowTemplateController.Set(WebAPI.Models.Notification.KalturaFollowTemplate)">
             <summary>
             TBD
             </summary>
@@ -298,6 +298,37 @@
             <remarks>
             
             </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.FollowTemplateController.Get">
+            <summary>
+            TBD
+            </summary>
+            <remarks>
+            
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.FollowTvSeriesController.List(System.Nullable{WebAPI.Models.Catalog.KalturaOrder},WebAPI.Models.General.KalturaFilterPager)">
+            <summary>
+            
+            </summary>
+            <param name="order_by"></param>
+            <param name="pager"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.FollowTvSeriesController.Delete(System.Int64)">
+            <summary>
+            
+            </summary>
+            <param name="announcement_id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.FollowTvSeriesController.Add(WebAPI.Models.Notification.KalturaFollowData)">
+            <summary>
+            
+            </summary>
+            <param name="follow_data"></param>
             <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.LicensedUrlController.Get(WebAPI.Models.Catalog.KalturaAssetType,System.Int32,System.String,System.String,System.Nullable{System.Int64},System.Nullable{WebAPI.Models.ConditionalAccess.KalturaStreamType})">
@@ -2997,6 +3028,46 @@
         <member name="F:WebAPI.Models.Catalog.KalturaPlayerAssetData.currentBitRate">
             <summary>
             Current Bitrate
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaFollowData.AnnouncementId">
+            <summary>
+            Announcement Id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaFollowData.Status">
+            <summary>
+            Status
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaFollowData.Type">
+            <summary>
+            Type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaFollowData.Title">
+            <summary>
+            Title
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaFollowData.Timestamp">
+            <summary>
+            Timestamp
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaFollowData.FollowPhrase">
+            <summary>
+            Follow Phrase
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaListFollowDataResponse">
+            <summary>
+            List of message follow data.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaListFollowDataResponse.FollowDataList">
+            <summary>
+            Follow data list
             </summary>
         </member>
         <member name="T:WebAPI.Models.Notification.KalturaMessageAnnouncementListResponse">
