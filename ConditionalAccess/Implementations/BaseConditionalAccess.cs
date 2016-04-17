@@ -12558,24 +12558,21 @@ namespace ConditionalAccess
 
         protected bool IsServiceAllowed(int groupID, int domainID, eService service)
         {
-            GroupsCacheManager.Group group = GroupsCache.Instance().GetGroup(groupID);
-            if (group != null)
+            List<int> enforcedGroupServices = Utils.GetGroupEnforcedServices(groupID);
+            //check if service is part of the group enforced services
+            if (enforcedGroupServices == null || enforcedGroupServices.Count == 0 || !enforcedGroupServices.Contains((int)service))
             {
-                List<int> enforcedGroupServices = group.GetServices();
-                //check if service is part of the group enforced services
-                if (enforcedGroupServices == null || enforcedGroupServices.Count == 0 || !enforcedGroupServices.Contains((int)service))
-                {
-                    return true;
-                }
-
-                // check if the service is allowed for the domain
-                ConditionalAccess.Response.DomainServicesResponse allowedDomainServicesRes = GetDomainServices(groupID, domainID);
-                if (allowedDomainServicesRes != null && allowedDomainServicesRes.Status.Code == 0 &&
-                    allowedDomainServicesRes.Services != null && allowedDomainServicesRes.Services.Count > 0 && allowedDomainServicesRes.Services.Where(s => s.ID == (int)service).FirstOrDefault() != null)
-                {
-                    return true;
-                }
+                return true;
             }
+
+            // check if the service is allowed for the domain
+            ConditionalAccess.Response.DomainServicesResponse allowedDomainServicesRes = GetDomainServices(groupID, domainID);
+            if (allowedDomainServicesRes != null && allowedDomainServicesRes.Status.Code == 0 &&
+                allowedDomainServicesRes.Services != null && allowedDomainServicesRes.Services.Count > 0 && allowedDomainServicesRes.Services.Where(s => s.ID == (int)service).FirstOrDefault() != null)
+            {
+                return true;
+            }
+
             return false;
         }
 
