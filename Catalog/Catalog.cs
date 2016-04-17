@@ -3961,12 +3961,12 @@ namespace Catalog
                 {
                     long ipVal = 0;
                     ipVal = ParseIPOutOfString(userIP);
-                    if (ipVal > 0)
-                    {
-                        CatalogDAL.Get_IPCountryCode(ipVal, ref countryID);
-                        catalogCache.Set(ipKey, countryID, cacheTime);
-                        bIP = true;
-                    }
+                    CatalogDAL.Get_IPCountryCode(ipVal, ref countryID);
+                }
+                if (countryID > 0)
+                {
+                    catalogCache.Set(ipKey, countryID, cacheTime);
+                    bIP = true;
                 }
             }
 
