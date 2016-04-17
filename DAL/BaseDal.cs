@@ -22,14 +22,9 @@ namespace Tvinci.Core.DAL
 
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             if (!string.IsNullOrEmpty(sConnectionKey))
-            {
                 selectQuery.SetConnectionKey(sConnectionKey);
-            }
-            else
-            {
-                selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
-            }
-            selectQuery += "select * from F_Get_GroupsTree(" + groupID.ToString() + ")";
+
+            selectQuery += "select * from dbo.F_Get_GroupsTree(" + groupID.ToString() + ")";
 
             if (selectQuery.Execute("query", true) != null)
             {
