@@ -1,20 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
-  <xs:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/ApiObjects" />
-  <xs:complexType name="ArrayOfSearchResult">
+  <xs:import schemaLocation="http://localhost:82/WS_Catalog/Service.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+  <xs:import schemaLocation="http://localhost:82/WS_Catalog/Service.svc?xsd=xsd5" namespace="http://schemas.datacontract.org/2004/07/ApiObjects" />
+  <xs:complexType name="OrderObj">
     <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="SearchResult" nillable="true" type="tns:SearchResult" />
+      <xs:element minOccurs="0" name="lu_min_period_id" type="xs:int" />
+      <xs:element minOccurs="0" name="m_bIsSlidingWindowField" type="xs:boolean" />
+      <xs:element minOccurs="0" name="m_eOrderBy" type="tns:OrderBy" />
+      <xs:element minOccurs="0" name="m_eOrderDir" type="tns:OrderDir" />
+      <xs:element minOccurs="0" name="m_sOrderValue" nillable="true" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
-  <xs:element name="ArrayOfSearchResult" nillable="true" type="tns:ArrayOfSearchResult" />
-  <xs:complexType name="SearchResult">
-    <xs:sequence>
-      <xs:element minOccurs="0" name="UpdateDate" type="xs:dateTime" />
-      <xs:element minOccurs="0" name="assetID" type="xs:int" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="SearchResult" nillable="true" type="tns:SearchResult" />
+  <xs:element name="OrderObj" nillable="true" type="tns:OrderObj" />
   <xs:simpleType name="OrderBy">
     <xs:restriction base="xs:string">
       <xs:enumeration value="ID" />
@@ -105,6 +102,27 @@
     </xs:restriction>
   </xs:simpleType>
   <xs:element name="OrderBy" nillable="true" type="tns:OrderBy" />
+  <xs:simpleType name="OrderDir">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ASC" />
+      <xs:enumeration value="DESC" />
+      <xs:enumeration value="NONE" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="OrderDir" nillable="true" type="tns:OrderDir" />
+  <xs:complexType name="ArrayOfSearchResult">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="SearchResult" nillable="true" type="tns:SearchResult" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfSearchResult" nillable="true" type="tns:ArrayOfSearchResult" />
+  <xs:complexType name="SearchResult">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="UpdateDate" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="assetID" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="SearchResult" nillable="true" type="tns:SearchResult" />
   <xs:complexType name="ArrayOfEpgResultsObj">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="unbounded" name="EpgResultsObj" nillable="true" type="tns:EpgResultsObj" />
@@ -123,24 +141,6 @@
     <xs:sequence />
   </xs:complexType>
   <xs:element name="BooleanPhraseNode" nillable="true" type="tns:BooleanPhraseNode" />
-  <xs:complexType name="OrderObj">
-    <xs:sequence>
-      <xs:element minOccurs="0" name="lu_min_period_id" type="xs:int" />
-      <xs:element minOccurs="0" name="m_bIsSlidingWindowField" type="xs:boolean" />
-      <xs:element minOccurs="0" name="m_eOrderBy" type="tns:OrderBy" />
-      <xs:element minOccurs="0" name="m_eOrderDir" type="tns:OrderDir" />
-      <xs:element minOccurs="0" name="m_sOrderValue" nillable="true" type="xs:string" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="OrderObj" nillable="true" type="tns:OrderObj" />
-  <xs:simpleType name="OrderDir">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="ASC" />
-      <xs:enumeration value="DESC" />
-      <xs:enumeration value="NONE" />
-    </xs:restriction>
-  </xs:simpleType>
-  <xs:element name="OrderDir" nillable="true" type="tns:OrderDir" />
   <xs:simpleType name="CutWith">
     <xs:restriction base="xs:string">
       <xs:enumeration value="WCF_ONLY_DEFAULT_VALUE" />
