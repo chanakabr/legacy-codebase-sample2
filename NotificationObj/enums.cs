@@ -103,6 +103,10 @@ namespace NotificationObj
         ElisaEmailNotification = 2
     }
 
-   
+    public enum FollowType
+    {
+        [EnumMember]
+        TV_Series_VOD = 0
+    }
 }
 

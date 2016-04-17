@@ -232,6 +232,8 @@ namespace ApiObjects.Response
         FeatureDisabled = 8009,
         AnnouncementMessageTooLong = 8010,
         FailCreateAnnouncement = 8011,
+        UserNotFollowing = 8012,
+        UserAlreadyFollowing = 8013,
 
 
         //Pricing 9000-9999
