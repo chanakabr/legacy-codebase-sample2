@@ -2,7 +2,6 @@
 using ApiObjects.Response;
 using ApiObjects.TimeShiftedTv;
 using DAL;
-using DalCB;
 using KLogMonitor;
 using QueueWrapper;
 using System;
@@ -137,7 +136,7 @@ namespace Recordings
                         // we index data so it is available on search
                         if (currentRecording.RecordingStatus == TstvRecordingStatus.Recorded)
                         {
-                            using (WS_Catalog.IserviceClient catalog = new WS_Catalog.IserviceClient())
+                            using (ConditionalAccess.WS_Catalog.IserviceClient catalog = new ConditionalAccess.WS_Catalog.IserviceClient())
                             {
                                 catalog.Endpoint.Address = new System.ServiceModel.EndpointAddress(WS_Utils.GetTcmConfigValue("WS_Catalog"));
 
