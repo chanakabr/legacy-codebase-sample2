@@ -117,7 +117,7 @@
   <xs:element name="UpdateIndex">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q5="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="objectIDs" nillable="true" type="q5:ArrayOflong" />
+        <xs:element xmlns:q5="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="objectIDs" nillable="true" type="q5:ArrayOfint" />
         <xs:element minOccurs="0" name="groupId" type="xs:int" />
         <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="action" type="q6:eAction" />
       </xs:sequence>
@@ -133,7 +133,7 @@
   <xs:element name="UpdateChannelIndex">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q7="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="lChannelIds" nillable="true" type="q7:ArrayOflong" />
+        <xs:element xmlns:q7="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="lChannelIds" nillable="true" type="q7:ArrayOfint" />
         <xs:element minOccurs="0" name="nGroupId" type="xs:int" />
         <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="eAction" type="q8:eAction" />
       </xs:sequence>
@@ -181,7 +181,7 @@
   <xs:element name="UpdateEpgIndex">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q12="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="lEpgIds" nillable="true" type="q12:ArrayOflong" />
+        <xs:element xmlns:q12="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="lEpgIds" nillable="true" type="q12:ArrayOfint" />
         <xs:element minOccurs="0" name="nGroupId" type="xs:int" />
         <xs:element xmlns:q13="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="eAction" type="q13:eAction" />
       </xs:sequence>
@@ -197,7 +197,7 @@
   <xs:element name="UpdateEpgChannelIndex">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q14="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="lEpgChannelIds" nillable="true" type="q14:ArrayOflong" />
+        <xs:element xmlns:q14="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="lEpgChannelIds" nillable="true" type="q14:ArrayOfint" />
         <xs:element minOccurs="0" name="nGroupId" type="xs:int" />
         <xs:element xmlns:q15="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="eAction" type="q15:eAction" />
       </xs:sequence>

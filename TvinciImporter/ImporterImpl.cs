@@ -5246,7 +5246,7 @@ namespace TvinciImporter
                                         break;
                                     }
                                     isUpdateIndexSucceeded = wsCatalog.UpdateIndex(
-                                        arrMediaIds.Select(i => (long)i).ToArray(), 
+                                        arrMediaIds, 
                                         nParentGroupID, actionCatalog);
 
                                     string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
@@ -5330,7 +5330,7 @@ namespace TvinciImporter
                                         }
 
                                         isUpdateChannelIndexSucceeded = wsCatalog.UpdateChannelIndex(
-                                            arrChannelIds.Select(i => (long)i).ToArray(), 
+                                            arrChannelIds, 
                                             nParentGroupID, actionCatalog);
 
                                         string sInfo = isUpdateChannelIndexSucceeded == true ? "succeeded" : "not succeeded";
@@ -5505,7 +5505,7 @@ namespace TvinciImporter
                                         }
 
                                         isUpdateIndexSucceeded = wsCatalog.UpdateEpgIndex(
-                                            arrEPGIds.Select(i => (long)i).ToArray(), 
+                                            arrEPGIds, 
                                             nParentGroupID, actionCatalog);
 
                                         string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
@@ -5600,7 +5600,7 @@ namespace TvinciImporter
                                         }
 
                                         isUpdateIndexSucceeded = wsCatalog.UpdateEpgChannelIndex(
-                                            arrEPGIds.Select(i => (long)i).ToArray(),
+                                            arrEPGIds,
                                             nParentGroupID, actionCatalog);
 
                                         string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
