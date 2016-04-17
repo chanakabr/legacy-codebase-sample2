@@ -39,6 +39,7 @@ namespace ConditionalAccess
         protected bool m_bIsInitialized;
         protected Int32 m_nGroupID;
 
+        private const string EPG_DATETIME_FORMAT = "dd/MM/yyyy HH:mm:ss";
         private const long DEFAULT_RECONCILIATION_FREQUENCY_SECONDS = 7200;
         private const string ILLEGAL_CONTENT_ID = "Illegal content ID";
         private const string CONTENT_ID_WITH_A_RELATED_MEDIA = "Content ID with a related media";
@@ -17094,7 +17095,7 @@ namespace ConditionalAccess
                 }
 
                 DateTime epgStartDate;
-                if (!DateTime.TryParse(epg.START_DATE, out epgStartDate))
+                if (!DateTime.TryParseExact(epg.START_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgStartDate))
                 {
                     log.ErrorFormat("Failed parsing EPG start date, epgID: {0}, domainID: {1}, userID {2}, startDate: {3}", epg.EPG_ID, domainID, userID, epg.START_DATE);
                     return response;
@@ -17143,7 +17144,7 @@ namespace ConditionalAccess
                         if (response == null || response.Status.Code != (int)eResponseStatus.OK || response.RecordingID == 0)
                         {
                             DateTime epgEndDate;
-                            if (!DateTime.TryParse(epg.END_DATE, out epgEndDate))
+                            if (!DateTime.TryParseExact(epg.END_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgEndDate))
                             {
                                 log.ErrorFormat("Failed parsing EPG end date, epgID: {0}, domainID: {1}, userID {2}, startDate: {3}", epg.EPG_ID, domainID, userID, epg.END_DATE);
                                 response = new Recording()
