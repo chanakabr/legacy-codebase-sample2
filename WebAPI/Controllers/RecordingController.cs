@@ -21,9 +21,9 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <returns>The recording availability and status for for the requested program</returns>
         /// 
-        [Route("list"), HttpPost]
+        [Route("get"), HttpPost]
         [ApiAuthorize]
-        public KalturaRecording List(long epgID)
+        public KalturaRecording Get(long epgID)
         {
             KalturaRecording response = null;
 
