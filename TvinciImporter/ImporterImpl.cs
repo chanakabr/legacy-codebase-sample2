@@ -5245,7 +5245,9 @@ namespace TvinciImporter
                                         default:
                                         break;
                                     }
-                                    isUpdateIndexSucceeded = wsCatalog.UpdateIndex(arrMediaIds, nParentGroupID, actionCatalog);
+                                    isUpdateIndexSucceeded = wsCatalog.UpdateIndex(
+                                        arrMediaIds.Select(i => (long)i).ToArray(), 
+                                        nParentGroupID, actionCatalog);
 
                                     string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
                                     log.DebugFormat("Update index {0} in catalog '{1}'", sInfo, sEndPointAddress);
@@ -5327,7 +5329,9 @@ namespace TvinciImporter
                                             break;
                                         }
 
-                                        isUpdateChannelIndexSucceeded = wsCatalog.UpdateChannelIndex(arrChannelIds, nParentGroupID, actionCatalog);
+                                        isUpdateChannelIndexSucceeded = wsCatalog.UpdateChannelIndex(
+                                            arrChannelIds.Select(i => (long)i).ToArray(), 
+                                            nParentGroupID, actionCatalog);
 
                                         string sInfo = isUpdateChannelIndexSucceeded == true ? "succeeded" : "not succeeded";
                                         log.DebugFormat("Update channel index {0} in catalog '{1}'", sInfo, sEndPointAddress);
@@ -5500,7 +5504,9 @@ namespace TvinciImporter
                                                 break;
                                         }
 
-                                        isUpdateIndexSucceeded = wsCatalog.UpdateEpgIndex(arrEPGIds, nParentGroupID, actionCatalog);
+                                        isUpdateIndexSucceeded = wsCatalog.UpdateEpgIndex(
+                                            arrEPGIds.Select(i => (long)i).ToArray(), 
+                                            nParentGroupID, actionCatalog);
 
                                         string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
                                         log.DebugFormat("Update index {0} in catalog '{1}'", sInfo, sEndPointAddress);
@@ -5593,7 +5599,9 @@ namespace TvinciImporter
                                                 break;
                                         }
 
-                                        isUpdateIndexSucceeded = wsCatalog.UpdateEpgChannelIndex(arrEPGIds, nParentGroupID, actionCatalog);
+                                        isUpdateIndexSucceeded = wsCatalog.UpdateEpgChannelIndex(
+                                            arrEPGIds.Select(i => (long)i).ToArray(),
+                                            nParentGroupID, actionCatalog);
 
                                         string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
                                         log.DebugFormat("Update index {0} in catalog '{1}'", sInfo, sEndPointAddress);
