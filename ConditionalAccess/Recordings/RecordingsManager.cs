@@ -124,7 +124,7 @@ namespace Recordings
 
         #endregion
 
-        public Recording CheckFinishedRecordingStatus(int groupId, long recordingId)
+        public Recording GetRecordingStatus(int groupId, long recordingId)
         {
             Recording result = null;
 
