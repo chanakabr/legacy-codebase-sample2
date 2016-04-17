@@ -19,20 +19,20 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// </remarks>
-        /// <returns>The recording options for The program time shifted tv settings that apply for the partner</returns>
+        /// <returns>The recording availability and status for for the requested program</returns>
         /// 
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public List<KalturaRecording> List(long[] epgIDs)
+        public KalturaRecording List(long epgID)
         {
-            List<KalturaRecording> response = null;
+            KalturaRecording response = null;
 
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
                 // call client                
-                response = ClientsManager.ConditionalAccessClient().QueryRecords(groupId, userId, epgIDs);
+                response = ClientsManager.ConditionalAccessClient().QueryRecord(groupId, userId, epgID);
             }
             catch (ClientException ex)
             {
@@ -46,11 +46,11 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// </remarks>
-        /// <returns>The recording options for The program time shifted tv settings that apply for the partner</returns>
+        /// <returns>IThe recording ID and status for options for the requested program</returns>
         /// 
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        public KalturaRecording Add(int epgID)
+        public KalturaRecording Add(long epgID)
         {
             KalturaRecording response = null;
 

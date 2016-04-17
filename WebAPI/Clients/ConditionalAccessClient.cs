@@ -1112,7 +1112,7 @@ namespace WebAPI.Clients
             return adapter;
         }
 
-        internal List<KalturaRecording> QueryRecords(int groupdID, string userID, long[] epgIDs)
+        internal KalturaRecording QueryRecord(int groupdID, string userID, long epgID)
         {
             List<KalturaRecording> recordings = null;
             RecordingResponse response = null;
@@ -1124,6 +1124,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
+                    long[] epgIDs = new long[1] { epgID };
                     // fire request
                     response = ConditionalAccess.QueryRecords(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, epgIDs);
                 }
@@ -1149,7 +1150,7 @@ namespace WebAPI.Clients
             // convert response
             recordings = Mapper.Map<List<WebAPI.Models.ConditionalAccess.KalturaRecording>>(response.Recordings);
 
-            return recordings;
+            return recordings[0];
         }
 
         internal KalturaRecording Record(int groupdID, string userID, long epgID)
