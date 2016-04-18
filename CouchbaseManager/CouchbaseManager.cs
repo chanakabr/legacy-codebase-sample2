@@ -666,7 +666,7 @@ namespace CouchbaseManager
             return result;
         }
 
-        public bool SetUnlock<T>(string key, T value, uint expiration = 0, ulong casUnlock = 0)
+        public bool Set<T>(string key, T value, bool unlock, uint expiration = 0, ulong cas = 0)
         {
             bool result = false;
 
@@ -709,8 +709,8 @@ namespace CouchbaseManager
                             }
                         }
 
-                        if (casUnlock > 0)
-                            bucket.Unlock(key, casUnlock);
+                        if (unlock && cas > 0)
+                            bucket.Unlock(key, cas);
                     }
                 }
             }
@@ -806,7 +806,7 @@ namespace CouchbaseManager
             return result;
         }
 
-        public T GetWithLock<T>(string key, out ulong cas, out Couchbase.IO.ResponseStatus status)
+        public T Get<T>(string key, bool withLock, out ulong cas, out Couchbase.IO.ResponseStatus status)
         {
             T result = default(T);
             cas = 0;
@@ -823,7 +823,10 @@ namespace CouchbaseManager
                         string action = string.Format("Action: GetWithLock bucket: {0} key: {1}", bucketName, key);
                         using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                         {
-                            getResult = bucket.GetWithLock<T>(key, TimeSpan.FromSeconds(GET_LOCK_TS_SECONDS));
+                            if (withLock)
+                                getResult = bucket.GetWithLock<T>(key, TimeSpan.FromSeconds(GET_LOCK_TS_SECONDS));
+                            else
+                                getResult = bucket.Get<T>(key);
                         }
 
                         if (getResult != null)
@@ -851,7 +854,6 @@ namespace CouchbaseManager
 
             return result;
         }
-
 
         public bool Remove(string key)
         {
