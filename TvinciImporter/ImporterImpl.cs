@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.DRM;
+using ApiObjects.Notification;
 using DAL;
 using KLogMonitor;
 using Newtonsoft.Json;
@@ -5140,6 +5141,35 @@ namespace TvinciImporter
                 return false;
             }
             return bUpdate;
+        }
+
+        static public ApiObjects.Response.Status SetFollowTemplate(int groupID, ref FollowTemplate followTemplate)
+        {
+            FollowTemplateResponse response = null;
+            try
+            {
+                //Call Notifications WCF service
+                string sWSURL = GetConfigVal("NotificationService");
+                Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
+                if (!string.IsNullOrEmpty(sWSURL))
+                    service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
+
+                string sIP = "1.1.1.1";
+                string sWSUserName = "";
+                string sWSPass = "";
+                int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupID);
+                TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "", "notifications", sIP, ref sWSUserName, ref sWSPass);
+                response = service.SetFollowTemplate(sWSUserName, sWSPass, followTemplate);
+                if (response != null && response.Status.Code == (int)ApiObjects.Response.eResponseStatus.OK)
+                {
+                    followTemplate = response.FollowTemplate;
+                }
+                return response.Status;
+            }
+            catch (Exception ex)
+            {
+                return new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
+            }
         }
 
 

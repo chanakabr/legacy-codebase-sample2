@@ -1047,7 +1047,7 @@ namespace DAL
             FollowTemplate result = new FollowTemplate();
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertFollowTemplate");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("SetFollowTemplate");
                 sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@message", followTemplate.Message);
@@ -1073,7 +1073,7 @@ namespace DAL
 
         }
 
-        public static FollowTemplate GetFollowTemplate(int groupId)
+        public static FollowTemplate GetFollowTemplate(int groupId, eOTTAssetTypes assetType)
         {
             FollowTemplate result = new FollowTemplate();
             try
@@ -1081,6 +1081,7 @@ namespace DAL
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetFollowTemplate");
                 sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
                 sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@assetType", (int)assetType);
 
                 DataSet ds = sp.ExecuteDataSet();
 
