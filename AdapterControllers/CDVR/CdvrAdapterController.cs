@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using TVinciShared;
+using ApiObjects.TimeShiftedTv;
 
 namespace AdapterControllers.CDVR
 {
@@ -199,7 +200,7 @@ namespace AdapterControllers.CDVR
                         recordResult = new RecordResult()
                                 {
                                     Links = adapterResponse.Recording.Links.Select(result =>
-                                        new RecordingLink()
+                                        new ApiObjects.TimeShiftedTv.RecordingLink()
                                         {
                                             DeviceType = result.DeviceType,
                                             Url = result.Url
@@ -252,7 +253,7 @@ namespace AdapterControllers.CDVR
                 log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, recordingId = {2}",
                     partnerId, adapter.ID, recordingId);
 
-                var adapterResponse = new RecordingResponse();
+                var adapterResponse = new AdapterControllers.CdvrAdapterService.RecordingResponse();
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -300,7 +301,7 @@ namespace AdapterControllers.CDVR
                         recordResult = new RecordResult()
                         {
                             Links = adapterResponse.Recording.Links.Select(result =>
-                                new RecordingLink()
+                                new ApiObjects.TimeShiftedTv.RecordingLink()
                                 {
                                     DeviceType = result.DeviceType,
                                     Url = result.Url
@@ -353,7 +354,7 @@ namespace AdapterControllers.CDVR
                 log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, recordingId = {2}",
                     partnerId, adapter.ID, recordingId);
 
-                var adapterResponse = new RecordingResponse();
+                var adapterResponse = new AdapterControllers.CdvrAdapterService.RecordingResponse();
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -401,7 +402,7 @@ namespace AdapterControllers.CDVR
                         recordResult = new RecordResult()
                         {
                             Links = adapterResponse.Recording.Links.Select(result =>
-                                new RecordingLink()
+                                new ApiObjects.TimeShiftedTv.RecordingLink()
                                 {
                                     DeviceType = result.DeviceType,
                                     Url = result.Url
@@ -454,7 +455,7 @@ namespace AdapterControllers.CDVR
                 log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, recordingId = {2}",
                     partnerId, adapter.ID, recordingId);
 
-                var adapterResponse = new RecordingResponse();
+                var adapterResponse = new AdapterControllers.CdvrAdapterService.RecordingResponse();
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -502,7 +503,7 @@ namespace AdapterControllers.CDVR
                         recordResult = new RecordResult()
                         {
                             Links = adapterResponse.Recording.Links.Select(result =>
-                                new RecordingLink()
+                                new ApiObjects.TimeShiftedTv.RecordingLink()
                                 {
                                     DeviceType = result.DeviceType,
                                     Url = result.Url
@@ -556,7 +557,7 @@ namespace AdapterControllers.CDVR
                 log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, recordingId = {2}",
                     partnerId, adapter.ID, recordingId);
 
-                var adapterResponse = new RecordingResponse();
+                var adapterResponse = new AdapterControllers.CdvrAdapterService.RecordingResponse();
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -604,7 +605,7 @@ namespace AdapterControllers.CDVR
                         recordResult = new RecordResult()
                         {
                             Links = adapterResponse.Recording.Links.Select(result =>
-                                new RecordingLink()
+                                new ApiObjects.TimeShiftedTv.RecordingLink()
                                 {
                                     DeviceType = result.DeviceType,
                                     Url = result.Url
@@ -657,7 +658,7 @@ namespace AdapterControllers.CDVR
                 log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, recordingId = {2}",
                     partnerId, adapter.ID, recordingId);
 
-                var adapterResponse = new RecordingResponse();
+                var adapterResponse = new AdapterControllers.CdvrAdapterService.RecordingResponse();
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -705,7 +706,7 @@ namespace AdapterControllers.CDVR
                         recordResult = new RecordResult()
                         {
                             Links = adapterResponse.Recording.Links.Select(result =>
-                                new RecordingLink()
+                                new ApiObjects.TimeShiftedTv.RecordingLink()
                                 {
                                     DeviceType = result.DeviceType,
                                     Url = result.Url
@@ -758,7 +759,7 @@ namespace AdapterControllers.CDVR
             return result;
         }
 
-        private void LogAdapterResponse(RecordingResponse adapterResponse, string action)
+        private void LogAdapterResponse(AdapterControllers.CdvrAdapterService.RecordingResponse adapterResponse, string action)
         {
             string logMessage = string.Empty;
 
