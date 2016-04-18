@@ -67,6 +67,11 @@ namespace ElasticsearchTasksCommon
             return string.Format("{0}_{1}", nGroupID, DateTime.UtcNow.ToString("yyyyMMddHHmmss"));
         }
 
+        public static string GetNewRecordingIndexStr(int nGroupID)
+        {
+            return string.Format("{0}_recording_{1}", nGroupID, DateTime.UtcNow.ToString("yyyyMMddHHmmss"));
+        }
+
         public static string GetTanslationType(string sType, LanguageObj oLanguage)
         {
             if (oLanguage.IsDefault)

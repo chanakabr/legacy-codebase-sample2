@@ -84,8 +84,6 @@ namespace ElasticSearchHandler.Updaters
             return result;
         }
 
-        
-
         #endregion
 
         protected bool UpdateEpg(List<int> epgIds)
@@ -163,7 +161,7 @@ namespace ElasticSearchHandler.Updaters
                                 {
                                     docID = GetDocumentId(epg),
                                     index = alias,
-                                    type = EPG,
+                                    type = GetDocumentType(),
                                     Operation = eOperation.index,
                                     document = serializedEpg
                                 });
@@ -208,6 +206,16 @@ namespace ElasticSearchHandler.Updaters
             return epg.EpgID;
         }
 
+        protected virtual string GetDocumentType()
+        {
+            return EPG;
+        }
+
+        protected virtual ulong GetDocumentId(int epgId)
+        {
+            return (ulong)epgId;
+        }
+
         protected virtual string SerializeEPG(EpgCB epg)
         {
             return esSerializer.SerializeEpgObject(epg);
@@ -226,9 +234,9 @@ namespace ElasticSearchHandler.Updaters
                 {
                     bulkRequests.Add(new ESBulkRequestObj<int>()
                     {
-                        docID = epgId,
+                        docID = (int)GetDocumentId(epgId),
                         index = alias,
-                        type = EPG,
+                        type = GetDocumentType(),
                         Operation = eOperation.delete
                     });
                 }
