@@ -2626,5 +2626,32 @@ namespace DAL
 
             return recordings;
         }
+
+        public static bool InsertRecordingLinks(List<RecordingLink> links, int groupId, long recordingId)
+        {
+            bool result = false;
+
+            DataTable linksTable = new DataTable("recordingLinks");
+            
+            linksTable.Columns.Add("BRAND_ID", typeof(int));
+            linksTable.Columns.Add("URL", typeof(string));
+
+            foreach (RecordingLink item in links)
+            {
+                DataRow row = linksTable.NewRow();
+                row["BRAND_ID"] = item.DeviceTypeBrand;
+                row["URL"] = item.Url;
+                linksTable.Rows.Add(row);
+            }
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Insert_RecordingLinks");
+            storedProcedure.AddDataTableParameter("@RecordingLinks", linksTable);
+            storedProcedure.AddParameter("GROUP_ID", groupId);
+            storedProcedure.AddParameter("RECORDING_ID", recordingId);
+
+            result = storedProcedure.ExecuteReturnValue<bool>();
+
+            return result;
+        }
     }
 }

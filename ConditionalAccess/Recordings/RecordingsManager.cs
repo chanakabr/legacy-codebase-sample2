@@ -94,23 +94,28 @@ namespace Recordings
                 // TODO: Validate adapter response
                 //
 
-                recording.ExternalRecordingId = adapterResponse.RecordingId;
+                if (adapterResponse.FailReason == 0)
+                {
+                    recording.ExternalRecordingId = adapterResponse.RecordingId;
 
-                // Insert recording information to database
-                recording = ConditionalAccessDAL.InsertRecording(recording, groupId);
+                    // Insert recording information to database
+                    recording = ConditionalAccessDAL.InsertRecording(recording, groupId);
 
-                // Schedule a message tocheck status 5 minutes after recording of program is supposed to be over
-                var queue = new GenericCeleryQueue();
-                var message = new RecordingTaskData(groupId, eRecordingTask.GetStatusAfterProgramEnded, 
-                    // add 5 minutes here
-                    endDate.AddMinutes(1),
-                    programId,
-                    recording.RecordingID);
+                    ConditionalAccessDAL.InsertRecordingLinks(adapterResponse.Links, groupId, recording.RecordingID);
 
-                queue.Enqueue(message, string.Format(SCHEDULED_TASKS_ROUTING_KEY, groupId));
+                        // Schedule a message tocheck status 5 minutes after recording of program is supposed to be over
+                    var queue = new GenericCeleryQueue();
+                    var message = new RecordingTaskData(groupId, eRecordingTask.GetStatusAfterProgramEnded,
+                        // add 5 minutes here
+                        endDate.AddMinutes(1),
+                        programId,
+                        recording.RecordingID);
 
-                // We're OK
-                recording.Status = new Status((int)eResponseStatus.OK);
+                    queue.Enqueue(message, string.Format(SCHEDULED_TASKS_ROUTING_KEY, groupId));
+
+                    // We're OK
+                    recording.Status = new Status((int)eResponseStatus.OK);
+                }
             }
 
             return recording;
