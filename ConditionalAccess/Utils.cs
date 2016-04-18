@@ -4256,5 +4256,25 @@ namespace ConditionalAccess
             return res;
         }
 
+        internal static List<int> GetGroupEnforcedServices(int groupID)
+        {
+            List<int> services;
+            string key = string.Format("GroupEnforcedServices_{0}", groupID);
+            if (!ConditionalAccessCache.GetItem<List<int>>(key, out services))
+            {
+                log.DebugFormat("Failed getting GroupEnforcedServices from cache, key: {0}", key);
+                services = Tvinci.Core.DAL.CatalogDAL.GetGroupServices(groupID);
+                if (services == null)
+                {
+                    log.ErrorFormat("Failed CatalogDAL.GetGroupServices for groupID: {0}", groupID);
+                }
+                else if (!ConditionalAccessCache.AddItem(key, services))
+                {
+                    log.ErrorFormat("Failed inserting GroupEnforcedServices to cache, key: {0}", key);
+                }                
+            }
+
+            return services;
+        }
     }
 }

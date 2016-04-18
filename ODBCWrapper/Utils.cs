@@ -872,11 +872,17 @@ namespace ODBCWrapper
             //selectQuery += "select " + sFieldName + " from " + sTable + " where ";
             selectQuery += "SELECT * FROM " + tableName + " WHERE ";
 
-            foreach (var value in values)
+            for (int i = 0; i < values.Count; i++)
             {
+                var value = values[i];
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM(value.Key, "=", value.Value);
-            }
 
+                if (i < values.Count - 1)
+                {
+                    selectQuery += " AND ";
+                }
+            }
+            
             if (selectQuery.Execute("query", true) != null)
             {
                 var table = selectQuery.Table("query");

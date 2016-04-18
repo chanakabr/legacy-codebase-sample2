@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Tvinci.Core.DAL;
 using TVinciShared;
 
 namespace Recordings
@@ -74,12 +75,26 @@ namespace Recordings
                 recording.EpgStartDate = startDate;
                 recording.EpgEndDate = endDate;
                 recording.RecordingStatus = TstvRecordingStatus.Scheduled;
+                recording.ChannelId = epgChannelID;
 
-                // TODO: Call Adapter to schedule recording,
-                // 
-                string externalRecordingId = string.Empty;
+                int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
 
-                recording.ExternalRecordingId = externalRecordingId;
+                var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
+
+                // Call Adapter to schedule recording,
+
+                // Initialize parameters for adapter controller
+                long startTimeSeconds = ODBCWrapper.Utils.DateTimeToUnixTimestamp(startDate);
+                long durationSeconds = (long)(endDate - startDate).TotalSeconds;
+                string externalChannelId = CatalogDAL.GetEPGChannelCDVRId(groupId, epgChannelID);
+
+                var adapterResponse = adapterController.Record(groupId, startTimeSeconds, durationSeconds, externalChannelId, adapterId);
+
+                //
+                // TODO: Validate adapter response
+                //
+
+                recording.ExternalRecordingId = adapterResponse.RecordingId;
 
                 // Insert recording information to database
                 recording = ConditionalAccessDAL.InsertRecording(recording, groupId);
@@ -110,7 +125,7 @@ namespace Recordings
 
         #endregion
 
-        public Recording CheckFinishedRecordingStatus(int groupId, long recordingId)
+        public Recording GetRecordingStatus(int groupId, long recordingId)
         {
             Recording result = null;
 
@@ -126,6 +141,8 @@ namespace Recordings
                     // Only if the difference is less than 5 minutes we continue
                     if (timeSpan.TotalMinutes < 5)
                     {
+                        int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
+
                         // TODO: Call Adapter to check status of recording,
                         // 
                         // TODO: Update recording object according to response from adapter

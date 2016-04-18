@@ -14,11 +14,13 @@ namespace ApiObjects.TimeShiftedTv
 
         public long RecordingID { get; set; }
 
-        public long EpgID { get; set; }        
+        public long EpgID { get; set; }
+
+        public string ChannelId { get; set; }
 
         public TstvRecordingStatus RecordingStatus { get; set; }
 
-        public string ExternalRecordingId { get; set; }
+        public string ExternalRecordingId { get; set; }        
 
         public DateTime EpgStartDate { get; set; }
 
@@ -37,6 +39,7 @@ namespace ApiObjects.TimeShiftedTv
             sb.Append(string.Format("Status Code: {0}, Status Message: {1} ", Status.Code, Status.Message));
             sb.Append(string.Format("RecordingID: {0}, ", RecordingID));
             sb.Append(string.Format("EpgID: {0}, ", EpgID));
+            sb.Append(string.Format("ChannelId: {0}, ", string.IsNullOrEmpty(ChannelId) ? "" : ChannelId));
             sb.Append(string.Format("RecordingStatus: {0}, ", RecordingStatus));            
             sb.Append(string.Format("ExternalRecordingId: {0}, ", string.IsNullOrEmpty(ExternalRecordingId) ? "" : ExternalRecordingId));
             sb.Append(string.Format("StartDate: {0}, ", EpgStartDate != null ? EpgStartDate.ToString() : ""));
