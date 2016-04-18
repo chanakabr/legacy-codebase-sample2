@@ -2551,11 +2551,11 @@ namespace DAL
                     {
                         Status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, ApiObjects.Response.eResponseStatus.OK.ToString()),
                         EpgID = epgID,
-                        RecordingID = ODBCWrapper.Utils.ExtractValue<long>(dr, "recording_id"),
-                        RecordingStatus = (TstvRecordingStatus)ODBCWrapper.Utils.ExtractInteger(dr, "RECORDING_STATUS"),
-                        ExternalRecordingId = ODBCWrapper.Utils.ExtractString(dr, "EXTERNAL_RECORDING_ID"),
-                        EpgStartDate = ODBCWrapper.Utils.ExtractDateTime(dr, "START_DATE"),
-                        EpgEndDate = ODBCWrapper.Utils.ExtractDateTime(dr, "END_DATE")
+                        RecordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "RECORDING_ID"),
+                        RecordingStatus = (TstvRecordingStatus)ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORDING_STATUS"),
+                        ExternalRecordingId = ODBCWrapper.Utils.GetSafeStr(dr, "EXTERNAL_RECORDING_ID"),
+                        EpgStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "START_DATE"),
+                        EpgEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE")
                     };
                 }
             }
@@ -2652,6 +2652,37 @@ namespace DAL
             result = storedProcedure.ExecuteReturnValue<bool>();
 
             return result;
+        }
+
+        public static List<Recording> GetDomainRecordingsByEpgIDs(int groupID, long domainID, List<long> epgIDs)
+        {
+            List<Recording> recordings = null;
+            ODBCWrapper.StoredProcedure spGetDomainExistingRecordingID = new ODBCWrapper.StoredProcedure("GetDomainRecordingsByEpgIDs");
+            spGetDomainExistingRecordingID.SetConnectionKey("CONNECTION_STRING");
+            spGetDomainExistingRecordingID.AddParameter("@GroupID", groupID);
+            spGetDomainExistingRecordingID.AddParameter("@DomainID", domainID);
+            spGetDomainExistingRecordingID.AddIDListParameter("@EpgIDs", epgIDs, "ID");            
+
+            DataTable dt = spGetDomainExistingRecordingID.Execute();
+            if (dt != null && dt.Rows != null)
+            {
+                recordings = new List<Recording>();
+                foreach (DataRow dr in dt.Rows)
+                {
+                    recordings.Add(new Recording()
+                    {
+                        Status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, ApiObjects.Response.eResponseStatus.OK.ToString()),
+                        EpgID = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_ID"),
+                        RecordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "RECORDING_ID"),
+                        RecordingStatus = (TstvRecordingStatus)ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORDING_STATUS"),
+                        ExternalRecordingId = ODBCWrapper.Utils.GetSafeStr(dr, "EXTERNAL_RECORDING_ID"),
+                        EpgStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "START_DATE"),
+                        EpgEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE")
+                    });
+                }
+            }
+
+            return recordings;
         }
     }
 }
