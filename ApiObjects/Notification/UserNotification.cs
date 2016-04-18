@@ -17,6 +17,8 @@ namespace ApiObjects.Notification
         public List<UserDevice> Userdevices { get; set; }
         public List<Announcement> Announcements { get; set; }
 
+        public UserNotificationSettings Settings { get; set; }
+
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public ulong cas{ get; set; }
     }
