@@ -2646,8 +2646,8 @@ namespace DAL
 
             ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Insert_RecordingLinks");
             storedProcedure.AddDataTableParameter("@RecordingLinks", linksTable);
-            storedProcedure.AddParameter("GROUP_ID", groupId);
-            storedProcedure.AddParameter("RECORDING_ID", recordingId);
+            storedProcedure.AddParameter("GroupId", groupId);
+            storedProcedure.AddParameter("RecordingId", recordingId);
 
             result = storedProcedure.ExecuteReturnValue<bool>();
 
