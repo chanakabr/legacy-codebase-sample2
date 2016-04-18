@@ -1047,7 +1047,7 @@ namespace DAL
             FollowTemplate result = new FollowTemplate();
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertFollowTemplate");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("SetFollowTemplate");
                 sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@message", followTemplate.Message);
