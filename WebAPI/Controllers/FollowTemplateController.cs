@@ -2,6 +2,7 @@
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Models.General;
 using WebAPI.Models.Notification;
 using WebAPI.Utils;
 
@@ -40,15 +41,13 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// TBD
-        /// </summary>
-        /// <remarks>
         /// 
-        /// </remarks>
+        /// </summary>
+        /// <param name="asset_Type"></param>
         /// <returns></returns>
         [Route("Get"), HttpPost]
         [ApiAuthorize]
-        public KalturaFollowTemplate Get()
+        public KalturaFollowTemplate Get(KalturaOTTAssetType asset_Type)
         {
             KalturaFollowTemplate response = null;
 
@@ -57,7 +56,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.NotificationClient().GetFollowTemplate(groupId);
+                response = ClientsManager.NotificationClient().GetFollowTemplate(groupId, asset_Type);
             }
             catch (ClientException ex)
             {

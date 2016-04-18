@@ -2023,10 +2023,10 @@ namespace WebAPI.Notifications {
         System.Threading.Tasks.Task<WebAPI.Notifications.FollowTemplateResponse> SetFollowTemplateAsync(string sWSUserName, string sWSPassword, WebAPI.Notifications.FollowTemplate followTemplate);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetFollowTemplate", ReplyAction="http://tempuri.org/INotificationService/GetFollowTemplateResponse")]
-        WebAPI.Notifications.FollowTemplateResponse GetFollowTemplate(string sWSUserName, string sWSPassword);
+        WebAPI.Notifications.FollowTemplateResponse GetFollowTemplate(string sWSUserName, string sWSPassword, WebAPI.Notifications.eOTTAssetTypes assetTypes);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetFollowTemplate", ReplyAction="http://tempuri.org/INotificationService/GetFollowTemplateResponse")]
-        System.Threading.Tasks.Task<WebAPI.Notifications.FollowTemplateResponse> GetFollowTemplateAsync(string sWSUserName, string sWSPassword);
+        System.Threading.Tasks.Task<WebAPI.Notifications.FollowTemplateResponse> GetFollowTemplateAsync(string sWSUserName, string sWSPassword, WebAPI.Notifications.eOTTAssetTypes assetTypes);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetUserFollows", ReplyAction="http://tempuri.org/INotificationService/GetUserFollowsResponse")]
         WebAPI.Notifications.GetUserFollowsResponse GetUserFollows(string sWSUserName, string sWSPassword, int userId, int pageSize, int pageIndex);
@@ -2250,12 +2250,12 @@ namespace WebAPI.Notifications {
             return base.Channel.SetFollowTemplateAsync(sWSUserName, sWSPassword, followTemplate);
         }
         
-        public WebAPI.Notifications.FollowTemplateResponse GetFollowTemplate(string sWSUserName, string sWSPassword) {
-            return base.Channel.GetFollowTemplate(sWSUserName, sWSPassword);
+        public WebAPI.Notifications.FollowTemplateResponse GetFollowTemplate(string sWSUserName, string sWSPassword, WebAPI.Notifications.eOTTAssetTypes assetTypes) {
+            return base.Channel.GetFollowTemplate(sWSUserName, sWSPassword, assetTypes);
         }
         
-        public System.Threading.Tasks.Task<WebAPI.Notifications.FollowTemplateResponse> GetFollowTemplateAsync(string sWSUserName, string sWSPassword) {
-            return base.Channel.GetFollowTemplateAsync(sWSUserName, sWSPassword);
+        public System.Threading.Tasks.Task<WebAPI.Notifications.FollowTemplateResponse> GetFollowTemplateAsync(string sWSUserName, string sWSPassword, WebAPI.Notifications.eOTTAssetTypes assetTypes) {
+            return base.Channel.GetFollowTemplateAsync(sWSUserName, sWSPassword, assetTypes);
         }
         
         public WebAPI.Notifications.GetUserFollowsResponse GetUserFollows(string sWSUserName, string sWSPassword, int userId, int pageSize, int pageIndex) {

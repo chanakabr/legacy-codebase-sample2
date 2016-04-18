@@ -7,9 +7,11 @@ using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Models.General;
 using WebAPI.Models.Notification;
 using WebAPI.Models.Notifications;
 using WebAPI.Notifications;
+using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
 
 namespace WebAPI.Clients
@@ -622,7 +624,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaFollowTemplate GetFollowTemplate(int groupId)
+        internal KalturaFollowTemplate GetFollowTemplate(int groupId, KalturaOTTAssetType asset_Type)
         {
             FollowTemplateResponse response = null;
             KalturaFollowTemplate result = null;
@@ -633,7 +635,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.GetFollowTemplate(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password);
+                    response = Notification.GetFollowTemplate(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, NotificationMapping.ConvertOTTAssetType(asset_Type));
                 }
             }
             catch (Exception ex)

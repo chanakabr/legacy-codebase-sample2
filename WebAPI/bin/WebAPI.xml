@@ -300,13 +300,11 @@
             </remarks>
             <returns></returns>
         </member>
-        <member name="M:WebAPI.Controllers.FollowTemplateController.Get">
+        <member name="M:WebAPI.Controllers.FollowTemplateController.Get(WebAPI.Models.General.KalturaOTTAssetType)">
             <summary>
-            TBD
-            </summary>
-            <remarks>
             
-            </remarks>
+            </summary>
+            <param name="asset_Type"></param>
             <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.FollowTvSeriesController.List(System.Nullable{WebAPI.Models.Catalog.KalturaOrder},WebAPI.Models.General.KalturaFilterPager)">
