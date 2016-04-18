@@ -552,6 +552,113 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="Record">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userID" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="epgID" type="s:long" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="RecordResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="RecordResult" type="tns:Recording" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="Recording">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="1" maxOccurs="1" name="RecordingID" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="EpgID" type="s:long" />
+          <s:element minOccurs="0" maxOccurs="1" name="ChannelId" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="RecordingStatus" type="tns:TstvRecordingStatus" />
+          <s:element minOccurs="0" maxOccurs="1" name="ExternalRecordingId" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="EpgStartDate" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="EpgEndDate" type="s:dateTime" />
+        </s:sequence>
+      </s:complexType>
+      <s:simpleType name="TstvRecordingStatus">
+        <s:restriction base="s:string">
+          <s:enumeration value="OK" />
+          <s:enumeration value="Failed" />
+          <s:enumeration value="Scheduled" />
+          <s:enumeration value="Recording" />
+          <s:enumeration value="Recorded" />
+          <s:enumeration value="Canceled" />
+          <s:enumeration value="DoesNotExist" />
+          <s:enumeration value="Deleted" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="QueryRecords">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="epgIDs" type="tns:ArrayOfLong" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfLong">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="long" type="s:long" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="QueryRecordsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="QueryRecordsResult" type="tns:RecordingResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="RecordingResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="Recordings" type="tns:ArrayOfRecording" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfRecording">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="Recording" nillable="true" type="tns:Recording" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="QueryRecord">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userID" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="epgID" type="s:long" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="QueryRecordResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="QueryRecordResult" type="tns:Recording" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetRecordingStatus">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="recordingId" type="s:long" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetRecordingStatusResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetRecordingStatusResult" type="tns:Recording" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="GetUserPermittedItems">
         <s:complexType>
           <s:sequence>
@@ -2644,6 +2751,23 @@
           <s:element minOccurs="0" maxOccurs="1" name="assetID" type="s:string" />
         </s:sequence>
       </s:complexType>
+      <s:complexType name="LicensedLinkNPVRCommand">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:BaseNPVRCommand">
+            <s:sequence>
+              <s:element minOccurs="1" maxOccurs="1" name="startTime" type="s:dateTime" />
+              <s:element minOccurs="1" maxOccurs="1" name="format" type="s:int" />
+              <s:element minOccurs="1" maxOccurs="1" name="mediaFileID" type="s:int" />
+              <s:element minOccurs="0" maxOccurs="1" name="basicLink" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="userIP" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="referrer" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="countryCd" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="langCd" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="couponCode" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
       <s:complexType name="ProtectNPVRCommand">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseNPVRCommand">
@@ -2673,7 +2797,7 @@
           <s:extension base="tns:BaseNPVRCommand" />
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="RecordNPVRCommand">
+      <s:complexType name="DeleteNPVRCommand">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseNPVRCommand" />
         </s:complexContent>
@@ -2683,31 +2807,14 @@
           <s:extension base="tns:BaseNPVRCommand" />
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="DeleteNPVRCommand">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:BaseNPVRCommand" />
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="RetrieveQuotaNPVRCommand">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseNPVRCommand" />
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="LicensedLinkNPVRCommand">
+      <s:complexType name="RecordNPVRCommand">
         <s:complexContent mixed="false">
-          <s:extension base="tns:BaseNPVRCommand">
-            <s:sequence>
-              <s:element minOccurs="1" maxOccurs="1" name="startTime" type="s:dateTime" />
-              <s:element minOccurs="1" maxOccurs="1" name="format" type="s:int" />
-              <s:element minOccurs="1" maxOccurs="1" name="mediaFileID" type="s:int" />
-              <s:element minOccurs="0" maxOccurs="1" name="basicLink" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="userIP" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="referrer" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="countryCd" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="langCd" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="couponCode" type="s:string" />
-            </s:sequence>
-          </s:extension>
+          <s:extension base="tns:BaseNPVRCommand" />
         </s:complexContent>
       </s:complexType>
       <s:element name="GetNPVRResponseResponse">
@@ -2723,20 +2830,25 @@
           <s:element minOccurs="0" maxOccurs="1" name="msg" type="s:string" />
         </s:sequence>
       </s:complexType>
-      <s:complexType name="LicensedLinkNPVRResponse">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:NPVRResponse">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="mainUrl" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="RecordResponse">
         <s:complexContent mixed="false">
           <s:extension base="tns:NPVRResponse">
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="recordingID" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="CancelDeleteResponse">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:NPVRResponse" />
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="LicensedLinkNPVRResponse">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:NPVRResponse">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="mainUrl" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -2749,11 +2861,6 @@
               <s:element minOccurs="1" maxOccurs="1" name="occupiedQuota" type="s:long" />
             </s:sequence>
           </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="CancelDeleteResponse">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:NPVRResponse" />
         </s:complexContent>
       </s:complexType>
       <s:element name="GetDomainServices">
@@ -2917,6 +3024,8 @@
       <s:element name="PurchaseSessionIdResponse" nillable="true" type="tns:PurchaseSessionIdResponse" />
       <s:element name="CDVRAdapterResponseList" nillable="true" type="tns:CDVRAdapterResponseList" />
       <s:element name="CDVRAdapterResponse" nillable="true" type="tns:CDVRAdapterResponse" />
+      <s:element name="Recording" nillable="true" type="tns:Recording" />
+      <s:element name="RecordingResponse" nillable="true" type="tns:RecordingResponse" />
       <s:element name="ArrayOfPermittedMediaContainer" nillable="true" type="tns:ArrayOfPermittedMediaContainer" />
       <s:element name="PermittedMediaContainerResponse" nillable="true" type="tns:PermittedMediaContainerResponse" />
       <s:element name="UserCAStatus" type="tns:UserCAStatus" />
@@ -3310,6 +3419,30 @@
   </wsdl:message>
   <wsdl:message name="SetCDVRAdapterSoapOut">
     <wsdl:part name="parameters" element="tns:SetCDVRAdapterResponse" />
+  </wsdl:message>
+  <wsdl:message name="RecordSoapIn">
+    <wsdl:part name="parameters" element="tns:Record" />
+  </wsdl:message>
+  <wsdl:message name="RecordSoapOut">
+    <wsdl:part name="parameters" element="tns:RecordResponse" />
+  </wsdl:message>
+  <wsdl:message name="QueryRecordsSoapIn">
+    <wsdl:part name="parameters" element="tns:QueryRecords" />
+  </wsdl:message>
+  <wsdl:message name="QueryRecordsSoapOut">
+    <wsdl:part name="parameters" element="tns:QueryRecordsResponse" />
+  </wsdl:message>
+  <wsdl:message name="QueryRecordSoapIn">
+    <wsdl:part name="parameters" element="tns:QueryRecord" />
+  </wsdl:message>
+  <wsdl:message name="QueryRecordSoapOut">
+    <wsdl:part name="parameters" element="tns:QueryRecordResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetRecordingStatusSoapIn">
+    <wsdl:part name="parameters" element="tns:GetRecordingStatus" />
+  </wsdl:message>
+  <wsdl:message name="GetRecordingStatusSoapOut">
+    <wsdl:part name="parameters" element="tns:GetRecordingStatusResponse" />
   </wsdl:message>
   <wsdl:message name="GetUserPermittedItemsSoapIn">
     <wsdl:part name="parameters" element="tns:GetUserPermittedItems" />
@@ -3976,6 +4109,41 @@
   </wsdl:message>
   <wsdl:message name="GenerateCDVRSharedSecretHttpPostOut">
     <wsdl:part name="Body" element="tns:CDVRAdapterResponse" />
+  </wsdl:message>
+  <wsdl:message name="RecordHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userID" type="s:string" />
+    <wsdl:part name="epgID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="RecordHttpPostOut">
+    <wsdl:part name="Body" element="tns:Recording" />
+  </wsdl:message>
+  <wsdl:message name="QueryRecordsHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userID" type="s:string" />
+    <wsdl:part name="epgIDs" type="s3:StringArray" />
+  </wsdl:message>
+  <wsdl:message name="QueryRecordsHttpPostOut">
+    <wsdl:part name="Body" element="tns:RecordingResponse" />
+  </wsdl:message>
+  <wsdl:message name="QueryRecordHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userID" type="s:string" />
+    <wsdl:part name="epgID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="QueryRecordHttpPostOut">
+    <wsdl:part name="Body" element="tns:Recording" />
+  </wsdl:message>
+  <wsdl:message name="GetRecordingStatusHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="recordingId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetRecordingStatusHttpPostOut">
+    <wsdl:part name="Body" element="tns:Recording" />
   </wsdl:message>
   <wsdl:message name="GetUserPermittedItemsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -5116,6 +5284,22 @@
       <wsdl:input message="tns:SetCDVRAdapterSoapIn" />
       <wsdl:output message="tns:SetCDVRAdapterSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="Record">
+      <wsdl:input message="tns:RecordSoapIn" />
+      <wsdl:output message="tns:RecordSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="QueryRecords">
+      <wsdl:input message="tns:QueryRecordsSoapIn" />
+      <wsdl:output message="tns:QueryRecordsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="QueryRecord">
+      <wsdl:input message="tns:QueryRecordSoapIn" />
+      <wsdl:output message="tns:QueryRecordSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetRecordingStatus">
+      <wsdl:input message="tns:GetRecordingStatusSoapIn" />
+      <wsdl:output message="tns:GetRecordingStatusSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <wsdl:input message="tns:GetUserPermittedItemsSoapIn" />
       <wsdl:output message="tns:GetUserPermittedItemsSoapOut" />
@@ -5513,6 +5697,22 @@
     <wsdl:operation name="GenerateCDVRSharedSecret">
       <wsdl:input message="tns:GenerateCDVRSharedSecretHttpPostIn" />
       <wsdl:output message="tns:GenerateCDVRSharedSecretHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Record">
+      <wsdl:input message="tns:RecordHttpPostIn" />
+      <wsdl:output message="tns:RecordHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="QueryRecords">
+      <wsdl:input message="tns:QueryRecordsHttpPostIn" />
+      <wsdl:output message="tns:QueryRecordsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="QueryRecord">
+      <wsdl:input message="tns:QueryRecordHttpPostIn" />
+      <wsdl:output message="tns:QueryRecordHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetRecordingStatus">
+      <wsdl:input message="tns:GetRecordingStatusHttpPostIn" />
+      <wsdl:output message="tns:GetRecordingStatusHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <wsdl:input message="tns:GetUserPermittedItemsHttpPostIn" />
@@ -5974,6 +6174,42 @@
     </wsdl:operation>
     <wsdl:operation name="SetCDVRAdapter">
       <soap:operation soapAction="http://ca.tvinci.com/SetCDVRAdapter" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Record">
+      <soap:operation soapAction="http://ca.tvinci.com/Record" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="QueryRecords">
+      <soap:operation soapAction="http://ca.tvinci.com/QueryRecords" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="QueryRecord">
+      <soap:operation soapAction="http://ca.tvinci.com/QueryRecord" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRecordingStatus">
+      <soap:operation soapAction="http://ca.tvinci.com/GetRecordingStatus" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -6902,6 +7138,42 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="Record">
+      <soap12:operation soapAction="http://ca.tvinci.com/Record" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="QueryRecords">
+      <soap12:operation soapAction="http://ca.tvinci.com/QueryRecords" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="QueryRecord">
+      <soap12:operation soapAction="http://ca.tvinci.com/QueryRecord" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRecordingStatus">
+      <soap12:operation soapAction="http://ca.tvinci.com/GetRecordingStatus" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <soap12:operation soapAction="http://ca.tvinci.com/GetUserPermittedItems" style="document" />
       <wsdl:input>
@@ -7789,6 +8061,42 @@
     </wsdl:operation>
     <wsdl:operation name="GenerateCDVRSharedSecret">
       <http:operation location="/GenerateCDVRSharedSecret" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Record">
+      <http:operation location="/Record" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="QueryRecords">
+      <http:operation location="/QueryRecords" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="QueryRecord">
+      <http:operation location="/QueryRecord" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRecordingStatus">
+      <http:operation location="/GetRecordingStatus" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>

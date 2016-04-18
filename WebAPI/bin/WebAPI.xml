@@ -331,6 +331,24 @@
             <param name="follow_data"></param>
             <returns></returns>
         </member>
+        <member name="M:WebAPI.Controllers.RecordingController.Get(System.Int64)">
+            <summary>
+            Query record options for a program
+            </summary>
+            <remarks>
+            </remarks>
+            <returns>The recording availability and status for for the requested program</returns>
+            
+        </member>
+        <member name="M:WebAPI.Controllers.RecordingController.Add(System.Int64)">
+            <summary>
+            Issue a record request for a program
+            </summary>
+            <remarks>
+            </remarks>
+            <returns>IThe recording ID and status for options for the requested program</returns>
+            
+        </member>
         <member name="M:WebAPI.Controllers.LicensedUrlController.Get(WebAPI.Models.Catalog.KalturaAssetType,System.Int32,System.String,System.String,System.Nullable{System.Int64},System.Nullable{WebAPI.Models.ConditionalAccess.KalturaStreamType})">
             <summary>
             Get the URL for playing an asset - EPG or media (not available for recording for now).
@@ -2473,6 +2491,21 @@
         <member name="P:WebAPI.Models.Catalog.KalturaAssetBookmarks.Bookmarks">
             <summary>
             List of bookmarks
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecording.RecordingId">
+            <summary>
+            Kaltura unique ID representing the recording identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecording.RecordingStatus">
+            <summary>
+            Recording state: Scheduled/Recording/Recorded/Canceled/Failed/DoesNotExists/Deleted
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecording.EpgID">
+            <summary>
+            Kaltura unique ID representing the program identifier
             </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaLicensedUrl.MainUrl">
@@ -12688,6 +12721,42 @@
         <member name="M:WebAPI.ConditionalAccess.module.SetCDVRAdapterAsync(System.String,System.String,WebAPI.ConditionalAccess.CDVRAdapter,System.Object)">
             <remarks/>
         </member>
+        <member name="M:WebAPI.ConditionalAccess.module.Record(System.String,System.String,System.String,System.Int64)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.RecordAsync(System.String,System.String,System.String,System.Int64)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.RecordAsync(System.String,System.String,System.String,System.Int64,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.QueryRecords(System.String,System.String,System.String,System.Int64[])">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.QueryRecordsAsync(System.String,System.String,System.String,System.Int64[])">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.QueryRecordsAsync(System.String,System.String,System.String,System.Int64[],System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.QueryRecord(System.String,System.String,System.String,System.Int64)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.QueryRecordAsync(System.String,System.String,System.String,System.Int64)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.QueryRecordAsync(System.String,System.String,System.String,System.Int64,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.GetRecordingStatus(System.String,System.String,System.Int64)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.GetRecordingStatusAsync(System.String,System.String,System.Int64)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.GetRecordingStatusAsync(System.String,System.String,System.Int64,System.Object)">
+            <remarks/>
+        </member>
         <member name="M:WebAPI.ConditionalAccess.module.GetUserPermittedItems(System.String,System.String,System.String)">
             <remarks/>
         </member>
@@ -13513,6 +13582,18 @@
         <member name="E:WebAPI.ConditionalAccess.module.SetCDVRAdapterCompleted">
             <remarks/>
         </member>
+        <member name="E:WebAPI.ConditionalAccess.module.RecordCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.ConditionalAccess.module.QueryRecordsCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.ConditionalAccess.module.QueryRecordCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.ConditionalAccess.module.GetRecordingStatusCompleted">
+            <remarks/>
+        </member>
         <member name="E:WebAPI.ConditionalAccess.module.GetUserPermittedItemsCompleted">
             <remarks/>
         </member>
@@ -13840,9 +13921,6 @@
         <member name="P:WebAPI.ConditionalAccess.NPVRResponse.msg">
             <remarks/>
         </member>
-        <member name="T:WebAPI.ConditionalAccess.CancelDeleteResponse">
-            <remarks/>
-        </member>
         <member name="T:WebAPI.ConditionalAccess.QuotaResponse">
             <remarks/>
         </member>
@@ -13852,16 +13930,19 @@
         <member name="P:WebAPI.ConditionalAccess.QuotaResponse.occupiedQuota">
             <remarks/>
         </member>
-        <member name="T:WebAPI.ConditionalAccess.RecordResponse">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.ConditionalAccess.RecordResponse.recordingID">
-            <remarks/>
-        </member>
         <member name="T:WebAPI.ConditionalAccess.LicensedLinkNPVRResponse">
             <remarks/>
         </member>
         <member name="P:WebAPI.ConditionalAccess.LicensedLinkNPVRResponse.mainUrl">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.CancelDeleteResponse">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.RecordResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.RecordResponse.recordingID">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.BaseNPVRCommand">
@@ -13883,6 +13964,36 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.ConditionalAccess.BaseNPVRCommand.assetID">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.RecordNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.RetrieveQuotaNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.CancelNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.DeleteNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.CancelSeriesNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.RecordSeriesByProgramIdNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.RecordSeriesByNameNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.DeleteSeriesNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.ProtectNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.ProtectNPVRCommand.isProtect">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.LicensedLinkNPVRCommand">
@@ -13913,36 +14024,6 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.ConditionalAccess.LicensedLinkNPVRCommand.couponCode">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.RetrieveQuotaNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.DeleteNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.CancelNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.RecordNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.CancelSeriesNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.RecordSeriesByProgramIdNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.RecordSeriesByNameNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.DeleteSeriesNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.ProtectNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.ConditionalAccess.ProtectNPVRCommand.isProtect">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.EntitlementResponse">
@@ -15115,6 +15196,69 @@
         <member name="P:WebAPI.ConditionalAccess.PermittedMediaContainer.PPVCode">
             <remarks/>
         </member>
+        <member name="T:WebAPI.ConditionalAccess.RecordingResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.RecordingResponse.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.RecordingResponse.Recordings">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.Recording">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.Recording.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.Recording.RecordingID">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.Recording.EpgID">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.Recording.ChannelId">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.Recording.RecordingStatus">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.Recording.ExternalRecordingId">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.Recording.EpgStartDate">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.Recording.EpgEndDate">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.TstvRecordingStatus">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.TstvRecordingStatus.OK">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.TstvRecordingStatus.Failed">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.TstvRecordingStatus.Scheduled">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.TstvRecordingStatus.Recording">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.TstvRecordingStatus.Recorded">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.TstvRecordingStatus.Canceled">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.TstvRecordingStatus.DoesNotExist">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.TstvRecordingStatus.Deleted">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.ConditionalAccess.CDVRAdapterResponse">
             <remarks/>
         </member>
@@ -15527,6 +15671,42 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.ConditionalAccess.SetCDVRAdapterCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.RecordCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.RecordCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.RecordCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.QueryRecordsCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.QueryRecordsCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.QueryRecordsCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.QueryRecordCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.QueryRecordCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.QueryRecordCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.GetRecordingStatusCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.GetRecordingStatusCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.GetRecordingStatusCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.GetUserPermittedItemsCompletedEventHandler">
