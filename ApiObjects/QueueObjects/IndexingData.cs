@@ -13,7 +13,11 @@ namespace ApiObjects.MediaIndexingObjects
         #region Properties
 
         [DataMember]
-        public List<int> Ids { get; set; }
+        public List<long> Ids
+        {
+            get;
+            set;
+        }
         [DataMember]
         public eObjectType ObjectType { get; set; }
         [DataMember]
@@ -33,7 +37,7 @@ namespace ApiObjects.MediaIndexingObjects
         public IndexingData()
         { }
 
-        public IndexingData(List<int> lIds, int nGroupId, eObjectType eUpdateObj, eAction eAction)
+        public IndexingData(List<long> lIds, int nGroupId, eObjectType eUpdateObj, eAction eAction)
         {
             this.GroupId = nGroupId;
             this.Ids = lIds;
@@ -50,7 +54,7 @@ namespace ApiObjects.MediaIndexingObjects
 
         #endregion
 
-        public IndexingData(List<int> lIds, int nGroupId, eObjectType eUpdateObj, eAction eAction, long date)
+        public IndexingData(List<long> lIds, int nGroupId, eObjectType eUpdateObj, eAction eAction, long date)
             : this(lIds, nGroupId, eUpdateObj, eAction)
         {
             this.Date = date;

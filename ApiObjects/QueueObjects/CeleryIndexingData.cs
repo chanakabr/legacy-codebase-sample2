@@ -17,7 +17,7 @@ namespace ApiObjects
 
         #region Data Members
 
-        private List<int> assetIds;
+        private List<long> assetIds;
         private eObjectType assetType;
         private eAction action;
         private DateTime date;
@@ -32,7 +32,7 @@ namespace ApiObjects
         /// <param name="asset_type"></param>
         /// <param name="action"></param>
         /// <param name="date"></param>
-        public CeleryIndexingData(int groupId, List<int> assetIds = null,
+        public CeleryIndexingData(int groupId, List<long> assetIds = null,
             eObjectType assetType = eObjectType.Unknown, eAction action = eAction.On, DateTime date = default(DateTime))
             : base(
                 // id = guid

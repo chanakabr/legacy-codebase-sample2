@@ -2284,27 +2284,34 @@ namespace Catalog
         }
 
         #region UPDATE
-        public static bool UpdateIndex(List<int> lMediaIds, int nGroupId, eAction eAction)
+        public static bool UpdateIndex(List<long> lMediaIds, int nGroupId, eAction eAction)
         {
             return Update(lMediaIds, nGroupId, eObjectType.Media, eAction);
         }
 
-        public static bool UpdateEpgIndex(List<int> lEpgIds, int nGroupId, eAction eAction)
+        public static bool UpdateEpgIndex(List<long> lEpgIds, int nGroupId, eAction eAction)
         {
             return UpdateEpg(lEpgIds, nGroupId, eObjectType.EPG, eAction);
         }
 
-        public static bool UpdateEpgChannelIndex(List<int> ids, int groupId, eAction action)
+        public static bool UpdateEpgChannelIndex(List<long> ids, int groupId, eAction action)
         {
             return UpdateEpg(ids, groupId, eObjectType.EpgChannel, action);
         }
 
-        public static bool UpdateChannelIndex(List<int> lChannelIds, int nGroupId, eAction eAction)
+        public static bool UpdateChannelIndex(List<long> lChannelIds, int nGroupId, eAction eAction)
         {
             return Update(lChannelIds, nGroupId, eObjectType.Channel, eAction);
         }
 
         private static bool Update(List<int> ids, int groupId, eObjectType updatedObjectType, eAction action)
+        {
+            var longIds = ids.Select(i => (long)i).ToList();
+
+            return Update(longIds, groupId, updatedObjectType, action);
+        }
+
+        private static bool Update(List<long> ids, int groupId, eObjectType updatedObjectType, eAction action)
         {
             bool isUpdateIndexSucceeded = false;
 
@@ -2336,7 +2343,7 @@ namespace Catalog
             return isUpdateIndexSucceeded;
         }
 
-        private static bool UpdateEpg(List<int> ids, int groupId, eObjectType objectType, eAction action)
+        private static bool UpdateEpg(List<long> ids, int groupId, eObjectType objectType, eAction action)
         {
             bool isUpdateIndexSucceeded = false;
 
@@ -3911,7 +3918,6 @@ namespace Catalog
         internal static bool GetMediaMarkHitInitialData(string sSiteGuid, string userIP, int mediaID, int mediaFileID, ref int countryID,
             ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID, ref int billingTypeID, ref int fileDuration)
         {
-            bool res = false;         
 
             if (!TVinciShared.WS_Utils.GetTcmBoolValue("CATALOG_HIT_CACHE"))
             {                
@@ -3947,38 +3953,34 @@ namespace Catalog
             }
             #endregion
 
-            if (bIP && bMedia) // both values in cache 
+            if (!bIP) // try getting countryID from ES, if it fails get countryID from DB
             {
-                res = true;
-            }
-            else if (!bIP) // try getting countryID from ES, if it fails get countryID from DB
-            {                                
                 countryID = ElasticSearch.Utilities.IpToCountry.GetCountryByIp(userIP);
                 //getting from ES failed
                 if (countryID == 0)
                 {
                     long ipVal = 0;
                     ipVal = ParseIPOutOfString(userIP);
-                    if (ipVal > 0)
-                    {
-                        CatalogDAL.Get_IPCountryCode(ipVal, ref countryID);                            
-                        catalogCache.Set(ipKey, countryID, cacheTime);
-                        res = true;
-                    }
+                    CatalogDAL.Get_IPCountryCode(ipVal, ref countryID);
+                }
+                if (countryID > 0)
+                {
+                    catalogCache.Set(ipKey, countryID, cacheTime);
+                    bIP = true;
                 }
             }
-            else if (!bMedia)
+
+            if (!bMedia)
             {
-                res = false;
                 if (CatalogDAL.GetMediaPlayData(mediaID, mediaFileID, ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID, ref fileDuration))
                 {
                     InitMediaMarkHitDataToCache(ownerGroupID, cdnID, qualityID, formatID, mediaTypeID, billingTypeID, fileDuration, ref lMedia);
                     catalogCache.Set(m_mf_Key, lMedia, cacheTime);
-                    res = true;
+                    bMedia = true;
                 }
-            }        
+            }
 
-            return res;
+            return bIP && bMedia;
         }
 
         private static void InitMediaMarkHitDataFromCache(ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID, ref int billingTypeID, ref int fileDuration, List<KeyValuePair<string, int>> lMedia)
@@ -6415,9 +6417,10 @@ namespace Catalog
             }
         }
 
-
-        
-      
+        public static bool UpdateRecordingsIndex(List<long> recordingsIds, int groupId, eAction action)
+        {
+            return Catalog.Update(recordingsIds, groupId, eObjectType.Recordning, action);
+        }
     }
 }
 

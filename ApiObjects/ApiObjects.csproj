@@ -164,6 +164,7 @@
     <Compile Include="QueueObjects\ImageUploadData.cs" />
     <Compile Include="QueueObjects\ExportTaskData.cs" />
     <Compile Include="QueueObjects\MessageAnnouncementData.cs" />
+    <Compile Include="QueueObjects\RecordingTaskData.cs" />
     <Compile Include="QueueObjects\UserNotificationData.cs" />
     <Compile Include="RecommendationEngine\RecommendationEngineResponse.cs" />
     <Compile Include="RecommendationEngine\RecommendationEngineResponseList.cs" />
@@ -338,6 +339,8 @@
     <Compile Include="TagRequestObject.cs" />
     <Compile Include="TagResponseObject.cs" />
     <Compile Include="HouseholdBillingRequest.cs" />
+    <Compile Include="TimeShiftedTv\Recording.cs" />
+    <Compile Include="TimeShiftedTv\RecordingResponse.cs" />
     <Compile Include="TimeShiftedTv\TimeShiftedTvPartnerSettings.cs" />
     <Compile Include="TimeShiftedTv\TimeShiftedTvPartnerSettingsResponse.cs" />
     <Compile Include="UserComment.cs" />

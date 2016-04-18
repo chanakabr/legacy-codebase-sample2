@@ -98,7 +98,13 @@
     <Compile Include="BaseCampaignActionImpl.cs" />
     <Compile Include="PersonalEnrichments\AssetItemPriceResponse.cs" />
     <Compile Include="PersonalEnrichments\AssetItemPrices.cs" />
+    <Compile Include="Recordings\RecordingsManager.cs" />
     <Compile Include="Service References\CDVRAdapterService\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\WS_Catalog\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
@@ -162,11 +168,6 @@
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
-    <Compile Include="Service References\WS_Catalog\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
     <Compile Include="SocialInviteCampaignImpl.cs" />
     <Compile Include="Implementations\TvinciConditionalAccess.cs" />
@@ -237,64 +238,52 @@
     <None Include="Service References\CDVRAdapterService\Service3.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\ConditionalAccess.WS_Catalog.BaseResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\WS_Catalog\ConditionalAccess.WS_Catalog.EpgProgramResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\WS_Catalog\ConditionalAccess.WS_Catalog.MediaResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\WS_Catalog\ConditionalAccess.WS_Catalog.Response.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\WS_Catalog\Service15.xsd">
+    <None Include="Service References\WS_Catalog\Service16.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service151.xsd">
+    <None Include="Service References\WS_Catalog\Service161.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service1510.xsd">
+    <None Include="Service References\WS_Catalog\Service1610.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service1511.xsd">
+    <None Include="Service References\WS_Catalog\Service1611.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service1512.xsd">
+    <None Include="Service References\WS_Catalog\Service1612.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service1513.xsd">
+    <None Include="Service References\WS_Catalog\Service1613.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service1514.xsd">
+    <None Include="Service References\WS_Catalog\Service1614.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service1515.xsd">
+    <None Include="Service References\WS_Catalog\Service1615.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service152.xsd">
+    <None Include="Service References\WS_Catalog\Service162.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service153.xsd">
+    <None Include="Service References\WS_Catalog\Service163.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service154.xsd">
+    <None Include="Service References\WS_Catalog\Service164.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service155.xsd">
+    <None Include="Service References\WS_Catalog\Service165.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service156.xsd">
+    <None Include="Service References\WS_Catalog\Service166.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service157.xsd">
+    <None Include="Service References\WS_Catalog\Service167.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service158.xsd">
+    <None Include="Service References\WS_Catalog\Service168.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service159.xsd">
+    <None Include="Service References\WS_Catalog\Service169.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\WS_Catalog\Service2.wsdl" />
@@ -821,6 +810,10 @@
       <Project>{add7636b-71db-494d-9dbd-4af9538d3edf}</Project>
       <Name>CDNTokenizers</Name>
     </ProjectReference>
+    <ProjectReference Include="..\AdapterControllers\AdapterControllers.csproj">
+      <Project>{a1fbded5-52fe-4b67-9aab-e71cc366d5cd}</Project>
+      <Name>AdapterControllers</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AkamaiTokenGenerator\AkamaiTokenGenerator.csproj">
       <Project>{4e22204a-9560-4e78-8805-efed0d0eec9d}</Project>
       <Name>AkamaiTokenGenerator</Name>
@@ -934,21 +927,6 @@
     <WCFMetadataStorage Include="Service References\WS_Catalog\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\WS_Catalog\configuration91.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\WS_Catalog\configuration.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\WS_Catalog\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\WS_Catalog\Service1.disco" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Service References\CDVRAdapterService\Service.disco" />
   </ItemGroup>
   <ItemGroup>
@@ -962,6 +940,22 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\WS_Catalog\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\WS_Catalog\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\WS_Catalog\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\WS_Catalog\Service1.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

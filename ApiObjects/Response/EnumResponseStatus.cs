@@ -103,6 +103,11 @@ namespace ApiObjects.Response
         InvalidCustomDataIdentifier = 3030,
         InvalidFileType = 3031,
         NotEntitled = 3032,
+        AccountCdvrNotEnabled = 3033,
+        AccountCatchUpNotEnabled = 3034,
+        ProgramCdvrNotEnabled = 3035,
+        ProgramCatchUpNotEnabled = 3036,
+        CatchUpBufferLimitation = 3037,        
 
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,
@@ -252,7 +257,7 @@ namespace ApiObjects.Response
         AdapterNotExists = 10000,
         AdapterIdentifierRequired = 10001,
         AdapterIsRequired = 10002,
-        NoAdapterToInsert = 1000,
+        NoAdapterToInsert = 10003,
 
     }
 }
