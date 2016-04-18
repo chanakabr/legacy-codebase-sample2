@@ -1,4 +1,5 @@
-﻿using AdapterControllers.CdvrAdapterService;
+﻿using AdapterControllers.cdvrAdap;
+//using AdapterControllers.CdvrAdapterService;
 using ApiObjects;
 using ApiObjects.Response;
 using CachingHelpers;
@@ -8,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
 using TVinciShared;
@@ -83,8 +85,15 @@ namespace AdapterControllers.CDVR
             bool result = false;
             try
             {
-                CdvrAdapterService.IService client = new CdvrAdapterService.ServiceClient();
-               
+                string cdvrAdapterUrl = "http://localhost/cdvradp/service.svc";//TVinciShared.WS_Utils.GetTcmConfigValue("cdvrAdapterUrl");
+                cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient();
+                client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
+
+               //
+               // CdvrAdapterService. client = new CdvrAdapterService.ServiceClient();
+                //client.Endpoint.Address = new EndpointAddress(cdvrAdapterUrl); 
+               // client.
+                
                 //set unixTimestamp
                 long timeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
                 //set signature
@@ -92,11 +101,11 @@ namespace AdapterControllers.CDVR
                     partnerId, timeStamp);
 
                 //call Adapter 
-                List<AdapterControllers.CdvrAdapterService.KeyValue> keyValue = new List<AdapterControllers.CdvrAdapterService.KeyValue>();
-                CdvrAdapterService.AdapterStatus adapterStatus = null;
+                List<AdapterControllers.cdvrAdap.KeyValue> keyValue = new List<AdapterControllers.cdvrAdap.KeyValue>();
+                cdvrAdap.AdapterStatus adapterStatus = null;
                 if (adapter.Settings != null)
                 {
-                    keyValue = adapter.Settings.Select(setting => new AdapterControllers.CdvrAdapterService.KeyValue()
+                    keyValue = adapter.Settings.Select(setting => new AdapterControllers.cdvrAdap.KeyValue()
                     {
                         Key = setting.key,
                         Value = setting.value
@@ -137,7 +146,9 @@ namespace AdapterControllers.CDVR
                 throw new KalturaException("Cdvr adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
 
-            CdvrAdapterService.ServiceClient client = new CdvrAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl);            
+            string cdvrAdapterUrl = TVinciShared.WS_Utils.GetTcmConfigValue("cdvrAdapterUrl");
+            cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient(string.Empty, cdvrAdapterUrl);
+            client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
 
             //set unixTimestamp
             long timeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
@@ -150,7 +161,7 @@ namespace AdapterControllers.CDVR
                 log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, startTimeSeconds = {2}, durationSeconds = {3}, channelId = {4}",
                     partnerId, adapter.ID, startTimeSeconds, durationSeconds, channelId);
 
-                CdvrAdapterService.RecordingResponse adapterResponse = new CdvrAdapterService.RecordingResponse();
+                cdvrAdap.RecordingResponse adapterResponse = new cdvrAdap.RecordingResponse();
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -239,7 +250,9 @@ namespace AdapterControllers.CDVR
                 throw new KalturaException("Cdvr adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
 
-            CdvrAdapterService.ServiceClient client = new CdvrAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl);
+            string cdvrAdapterUrl = TVinciShared.WS_Utils.GetTcmConfigValue("cdvrAdapterUrl");
+            cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient("", cdvrAdapterUrl);
+            client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
 
             //set unixTimestamp
             long timeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
@@ -339,8 +352,9 @@ namespace AdapterControllers.CDVR
             {
                 throw new KalturaException("Cdvr adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
-
-            CdvrAdapterService.ServiceClient client = new CdvrAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl);
+            string cdvrAdapterUrl = TVinciShared.WS_Utils.GetTcmConfigValue("cdvrAdapterUrl");
+            cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient(string.Empty, cdvrAdapterUrl);
+            client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
 
             //set unixTimestamp
             long timeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
@@ -441,7 +455,9 @@ namespace AdapterControllers.CDVR
                 throw new KalturaException("Cdvr adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
 
-            CdvrAdapterService.ServiceClient client = new CdvrAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl);
+            string cdvrAdapterUrl = TVinciShared.WS_Utils.GetTcmConfigValue("cdvrAdapterUrl");
+            cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient(string.Empty, cdvrAdapterUrl);
+            client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
 
             //set unixTimestamp
             long timeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
@@ -543,7 +559,9 @@ namespace AdapterControllers.CDVR
                 throw new KalturaException("Cdvr adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
 
-            CdvrAdapterService.ServiceClient client = new CdvrAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl);
+            string cdvrAdapterUrl = TVinciShared.WS_Utils.GetTcmConfigValue("cdvrAdapterUrl");
+            cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient("", cdvrAdapterUrl);
+            client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
 
             //set unixTimestamp
             long timeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
@@ -644,7 +662,9 @@ namespace AdapterControllers.CDVR
                 throw new KalturaException("Cdvr adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
 
-            CdvrAdapterService.ServiceClient client = new CdvrAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl);
+            string cdvrAdapterUrl = TVinciShared.WS_Utils.GetTcmConfigValue("cdvrAdapterUrl");
+            cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient(string.Empty, cdvrAdapterUrl);
+            client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
 
             //set unixTimestamp
             long timeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);

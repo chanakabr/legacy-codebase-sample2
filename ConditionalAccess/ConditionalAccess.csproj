@@ -810,6 +810,10 @@
       <Project>{add7636b-71db-494d-9dbd-4af9538d3edf}</Project>
       <Name>CDNTokenizers</Name>
     </ProjectReference>
+    <ProjectReference Include="..\AdapterControllers\AdapterControllers.csproj">
+      <Project>{a1fbded5-52fe-4b67-9aab-e71cc366d5cd}</Project>
+      <Name>AdapterControllers</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AkamaiTokenGenerator\AkamaiTokenGenerator.csproj">
       <Project>{4e22204a-9560-4e78-8805-efed0d0eec9d}</Project>
       <Name>AkamaiTokenGenerator</Name>
