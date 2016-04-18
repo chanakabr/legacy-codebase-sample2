@@ -6,6 +6,5 @@ namespace ApiObjects.Notification
     {
         public Status Status { get; set; }
         public FollowTemplate FollowTemplate { get; set; }
-
     }
 }

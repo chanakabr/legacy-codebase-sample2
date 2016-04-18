@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 // associated with an assembly.
 //
 [assembly: AssemblyTitle("")]
-[assembly: AssemblyDescription("2016-03-16 07:40:48 | Hostname:IL-SUNNYS-RND | Published by:Sunny Simantov")]
+[assembly: AssemblyDescription("2016-04-11 13:59:59 | Hostname:IL-ANATG-RND | Published by:Anat Grossberg")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("")]
@@ -26,8 +26,8 @@ using System.Runtime.CompilerServices;
 // You can specify all the values or you can default the Revision and Build Numbers 
 // by using the '*' as shown below:
 
-[assembly: AssemblyVersion("3.4.583.*")]
-[assembly: AssemblyInformationalVersion("3.4-583-gced9dd8-dirty")]
+[assembly: AssemblyVersion("3.8.31.*")]
+[assembly: AssemblyInformationalVersion("3.8-31-gcc678f9")]
 
 //
 // In order to sign your assembly you must specify a key to use. Refer to the 
