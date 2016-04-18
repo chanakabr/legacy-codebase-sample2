@@ -713,6 +713,16 @@ namespace ElasticSearch.Common
         {
             StringBuilder sRecord = new StringBuilder();
             sRecord.Append("{ ");
+
+            SerializeEPGBody(oEpg, sRecord);
+
+            sRecord.Append(" }");
+
+            return sRecord.ToString();
+        }
+
+        private static void SerializeEPGBody(EpgCB oEpg, StringBuilder sRecord)
+        {
             string name = oEpg.Name;
             string description = oEpg.Description;
 
@@ -795,11 +805,20 @@ namespace ElasticSearch.Common
 
             #endregion
 
-            sRecord.Append(" }");
-
-            return sRecord.ToString();
         }
 
+        public string SerializeRecordingObject(EpgCB oEpg, long recordingId)
+        {
+            StringBuilder builder = new StringBuilder();
+            
+            builder.Append("{ ");
+            builder.AppendFormat("\"recording_id\": {0},", recordingId);
 
+            SerializeEPGBody(oEpg, builder);
+
+            builder.Append(" }");
+
+            return builder.ToString();
+        }
     }
 }
