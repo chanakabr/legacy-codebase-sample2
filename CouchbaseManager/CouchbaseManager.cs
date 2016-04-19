@@ -682,8 +682,7 @@ namespace CouchbaseManager
                         string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
                         using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                         {
-                            string serializedValue = ObjectToJson(value);
-                            insertResult = bucket.Upsert<string>(key, serializedValue, expiration);
+                            insertResult = bucket.Upsert<T>(key, value, expiration);
                         }
 
                         if (insertResult != null)
@@ -703,8 +702,7 @@ namespace CouchbaseManager
 
                                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                                 {
-                                    string serializedValue = ObjectToJson(value);
-                                    insertResult = bucket.Upsert<string>(key, serializedValue, expiration);
+                                    insertResult = bucket.Upsert<T>(key, value, expiration);
                                 }
                             }
                         }
