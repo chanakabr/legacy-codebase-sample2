@@ -66,7 +66,7 @@ namespace ElasticSearchHandler.IndexBuilders
                 this.EndDate = DateTime.UtcNow.Date.AddDays(7);
             }
 
-            string groupAlias = ElasticSearchTaskUtils.GetEpgGroupAliasStr(groupId);
+            string groupAlias = GetAlias();
             string newIndexName = GetNewIndexName();
 
             List<string> analyzers;
