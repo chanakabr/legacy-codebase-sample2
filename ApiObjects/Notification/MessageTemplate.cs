@@ -1,7 +1,7 @@
 ﻿
 namespace ApiObjects.Notification
 {
-    public class FollowTemplate
+    public class MessageTemplate
     {
         public int Id { get; set; }
         public string Message { get; set; }
@@ -15,7 +15,7 @@ namespace ApiObjects.Notification
                 return string.Empty;
             }
 
-            return string.Format("FollowTemplate: Id: {0}, message: {1}, DateFormat: {2}, AssetType: {3}",
+            return string.Format("MessageTemplate: Id: {0}, message: {1}, DateFormat: {2}, AssetType: {3}",
                 Id, Message, DateFormat, AssetType.ToString());
         }
     }
