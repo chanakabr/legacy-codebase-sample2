@@ -261,7 +261,7 @@ namespace AdapterControllers.CDVR
                 log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, recordingId = {2}",
                     partnerId, adapter.ID, recordingId);
 
-                var adapterResponse = new AdapterControllers.CdvrAdapterService.RecordingResponse();
+                var adapterResponse = new AdapterControllers.cdvrAdap.RecordingResponse();
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -363,7 +363,7 @@ namespace AdapterControllers.CDVR
                 log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, recordingId = {2}",
                     partnerId, adapter.ID, recordingId);
 
-                var adapterResponse = new AdapterControllers.CdvrAdapterService.RecordingResponse();
+                var adapterResponse = new AdapterControllers.cdvrAdap.RecordingResponse();
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -466,7 +466,7 @@ namespace AdapterControllers.CDVR
                 log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, recordingId = {2}",
                     partnerId, adapter.ID, recordingId);
 
-                var adapterResponse = new AdapterControllers.CdvrAdapterService.RecordingResponse();
+                var adapterResponse = new AdapterControllers.cdvrAdap.RecordingResponse();
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -570,7 +570,7 @@ namespace AdapterControllers.CDVR
                 log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, recordingId = {2}",
                     partnerId, adapter.ID, recordingId);
 
-                var adapterResponse = new AdapterControllers.CdvrAdapterService.RecordingResponse();
+                var adapterResponse = new AdapterControllers.cdvrAdap.RecordingResponse();
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -673,7 +673,7 @@ namespace AdapterControllers.CDVR
                 log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, recordingId = {2}",
                     partnerId, adapter.ID, recordingId);
 
-                var adapterResponse = new AdapterControllers.CdvrAdapterService.RecordingResponse();
+                var adapterResponse = new AdapterControllers.cdvrAdap.RecordingResponse();
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -774,7 +774,7 @@ namespace AdapterControllers.CDVR
             return result;
         }
 
-        private void LogAdapterResponse(AdapterControllers.CdvrAdapterService.RecordingResponse adapterResponse, string action)
+        private void LogAdapterResponse(AdapterControllers.cdvrAdap.RecordingResponse adapterResponse, string action)
         {
             string logMessage = string.Empty;
 
