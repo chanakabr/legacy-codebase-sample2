@@ -44,6 +44,8 @@ namespace EpgBL
 
         public abstract void RemoveGroupPrograms(List<int> lprogramIDs);
 
-        public abstract void RemoveGroupPrograms(List<string> docIds); 
+        public abstract void RemoveGroupPrograms(List<string> docIds);
+
+        public abstract void RemoveGroupPrograms(DateTime? fromDate, DateTime? toDate, int channelID);
     }
 }

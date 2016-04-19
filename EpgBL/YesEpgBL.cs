@@ -179,6 +179,9 @@ namespace EpgBL
         {
         }
 
+        public override void RemoveGroupPrograms(DateTime? fromDate, DateTime? toDate, int channelID)
+        {
+        }
         public override EpgCB GetEpgCB(ulong nProgramID)
         {
             return null;

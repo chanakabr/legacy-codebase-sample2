@@ -201,9 +201,7 @@ namespace Tvinci.Core.DAL
 
             return ds;
         }
-
-
-
+        
         public static DataTable GetParentGroupIdByGroupId(int nGroupId)
         {
             DataTable data = null;
@@ -632,6 +630,45 @@ namespace Tvinci.Core.DAL
                 log.ErrorFormat("Failed UpdateEPGMultiPic, ex {0}", ex);
             }
             return res;
+        }
+
+        public static DataSet Get_EpgProgramsDetailsByChannelIds(int groupId, int epgChannelID, DateTime fromDate, DateTime toDate)
+        {
+            StoredProcedure storedProcedured = new StoredProcedure("Get_EpgProgramsDetailsByChannelIds");
+            storedProcedured.SetConnectionKey("MAIN_CONNECTION_STRING");
+            storedProcedured.AddParameter("@groupID", groupId);
+            storedProcedured.AddIDListParameter<int>("@epgChannelIDs", new List<int>() { epgChannelID }, "Id");
+            storedProcedured.AddParameter("@startDate", fromDate);
+            storedProcedured.AddParameter("@endDate", toDate);
+
+            DataSet dataSet = storedProcedured.ExecuteDataSet();
+            return dataSet;
+        }
+
+        public static List<long> GetEpgIds(int epgChannelID, int groupId, DateTime fromDate, DateTime toDate)
+        {
+            List<long> list = null;
+            try
+            {
+                
+                StoredProcedure sp = new StoredProcedure("Get_EpgIds");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+                sp.AddParameter("@epgChannelID", epgChannelID);
+                sp.AddParameter("@groupID", groupId);
+                sp.AddParameter("@fromDate", fromDate);
+                sp.AddParameter("@toDate", toDate);
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    list = ds.Tables[0].AsEnumerable().Select(x => (long)(x["id"])).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            return list;
         }
     }
 }
