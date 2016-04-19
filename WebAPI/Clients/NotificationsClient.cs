@@ -678,9 +678,18 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
-            if (response.Status.Code == (int)StatusCode.OK)
-                result = AutoMapper.Mapper.Map<KalturaFollowTemplate>(response.FollowTemplate);
-            
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            result = AutoMapper.Mapper.Map<KalturaFollowTemplate>(response.FollowTemplate);
+
             return result;
         }
     }

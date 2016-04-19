@@ -13,14 +13,6 @@ namespace WebAPI.Models.Notification
     public class KalturaFollowTemplate : KalturaOTTObject
     {
         /// <summary>
-        ///Template identifier 
-        /// </summary>
-        [DataMember(Name = "id")]
-        [JsonProperty(PropertyName = "id")]
-        [XmlElement(ElementName = "id")]
-        public int Id { get; set; }
-
-        /// <summary>
         ///The actual message with placeholders to be presented to the user
         /// </summary>
         [DataMember(Name = "message")]
