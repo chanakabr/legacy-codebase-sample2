@@ -56,11 +56,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RecommendationAdapterController.cs" />
     <Compile Include="RecommendationResult.cs" />
-    <Compile Include="Service References\CdvrAdapterService\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Compile>
     <Compile Include="Service References\cdvrAdap\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -96,19 +91,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="Service References\CdvrAdapterService\Service.wsdl" />
-    <None Include="Service References\CdvrAdapterService\Service.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\CdvrAdapterService\Service1.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\CdvrAdapterService\Service2.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\CdvrAdapterService\Service3.xsd">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Service References\cdvrAdap\AdapterControllers.cdvrAdap.AdapterStatus.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
@@ -168,7 +150,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <WCFMetadataStorage Include="Service References\CdvrAdapterService\" />
     <WCFMetadataStorage Include="Service References\cdvrAdap\" />
     <WCFMetadataStorage Include="Service References\RecommendationEngineAdapter\" />
   </ItemGroup>
@@ -189,21 +170,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\RecommendationEngineAdapter\Service.disco" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\CdvrAdapterService\Service.disco" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\CdvrAdapterService\configuration91.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\CdvrAdapterService\configuration.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\CdvrAdapterService\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\cdvrAdap\Service.disco" />

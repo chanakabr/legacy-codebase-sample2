@@ -86,7 +86,7 @@ namespace AdapterControllers.CDVR
             try
             {
                 string cdvrAdapterUrl = TVinciShared.WS_Utils.GetTcmConfigValue("cdvrAdapterUrl");
-                cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient(string.Empty, cdvrAdapterUrl);
+                cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient();
                 client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);            
                 
                 //set unixTimestamp
@@ -142,7 +142,7 @@ namespace AdapterControllers.CDVR
             }
 
             string cdvrAdapterUrl = TVinciShared.WS_Utils.GetTcmConfigValue("cdvrAdapterUrl");
-            cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient(string.Empty, cdvrAdapterUrl);
+            cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient();
             client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
 
             //set unixTimestamp
@@ -246,7 +246,7 @@ namespace AdapterControllers.CDVR
             }
 
             string cdvrAdapterUrl = TVinciShared.WS_Utils.GetTcmConfigValue("cdvrAdapterUrl");
-            cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient(string.Empty, cdvrAdapterUrl);
+            cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient();
             client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
 
             //set unixTimestamp
@@ -348,7 +348,7 @@ namespace AdapterControllers.CDVR
                 throw new KalturaException("Cdvr adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
             string cdvrAdapterUrl = TVinciShared.WS_Utils.GetTcmConfigValue("cdvrAdapterUrl");
-            cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient(string.Empty, cdvrAdapterUrl);
+            cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient();
             client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
 
             //set unixTimestamp
@@ -451,7 +451,7 @@ namespace AdapterControllers.CDVR
             }
 
             string cdvrAdapterUrl = TVinciShared.WS_Utils.GetTcmConfigValue("cdvrAdapterUrl");
-            cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient(string.Empty, cdvrAdapterUrl);
+            cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient();
             client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
 
             //set unixTimestamp
@@ -555,7 +555,7 @@ namespace AdapterControllers.CDVR
             }
 
             string cdvrAdapterUrl = TVinciShared.WS_Utils.GetTcmConfigValue("cdvrAdapterUrl");
-            cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient(string.Empty, cdvrAdapterUrl);
+            cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient();
             client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
 
             //set unixTimestamp
@@ -658,7 +658,7 @@ namespace AdapterControllers.CDVR
             }
 
             string cdvrAdapterUrl = TVinciShared.WS_Utils.GetTcmConfigValue("cdvrAdapterUrl");
-            cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient(string.Empty, cdvrAdapterUrl);
+            cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient();
             client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
 
             //set unixTimestamp
