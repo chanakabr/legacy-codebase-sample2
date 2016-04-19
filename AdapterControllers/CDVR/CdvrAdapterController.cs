@@ -86,7 +86,7 @@ namespace AdapterControllers.CDVR
             bool result = false;
             try
             {
-                string cdvrAdapterUrl = TVinciShared.WS_Utils.GetTcmConfigValue("cdvrAdapterUrl");
+                string cdvrAdapterUrl = adapter.AdapterUrl;
                 cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient();
                 client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);            
                 
@@ -142,7 +142,7 @@ namespace AdapterControllers.CDVR
                 throw new KalturaException("Cdvr adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
 
-            string cdvrAdapterUrl = TVinciShared.WS_Utils.GetTcmConfigValue("cdvrAdapterUrl");
+            string cdvrAdapterUrl = adapter.AdapterUrl;
             cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient();
             client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
 
@@ -246,7 +246,7 @@ namespace AdapterControllers.CDVR
                 throw new KalturaException("Cdvr adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
 
-            string cdvrAdapterUrl = TVinciShared.WS_Utils.GetTcmConfigValue("cdvrAdapterUrl");
+            string cdvrAdapterUrl = adapter.AdapterUrl;
             cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient();
             client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
 
@@ -348,7 +348,7 @@ namespace AdapterControllers.CDVR
             {
                 throw new KalturaException("Cdvr adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
-            string cdvrAdapterUrl = TVinciShared.WS_Utils.GetTcmConfigValue("cdvrAdapterUrl");
+            string cdvrAdapterUrl = adapter.AdapterUrl;
             cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient();
             client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
 
@@ -451,7 +451,7 @@ namespace AdapterControllers.CDVR
                 throw new KalturaException("Cdvr adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
 
-            string cdvrAdapterUrl = TVinciShared.WS_Utils.GetTcmConfigValue("cdvrAdapterUrl");
+            string cdvrAdapterUrl = adapter.AdapterUrl;
             cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient();
             client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
 
@@ -555,7 +555,7 @@ namespace AdapterControllers.CDVR
                 throw new KalturaException("Cdvr adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
 
-            string cdvrAdapterUrl = TVinciShared.WS_Utils.GetTcmConfigValue("cdvrAdapterUrl");
+            string cdvrAdapterUrl = adapter.AdapterUrl;
             cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient();
             client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
 
@@ -658,7 +658,7 @@ namespace AdapterControllers.CDVR
                 throw new KalturaException("Cdvr adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
 
-            string cdvrAdapterUrl = TVinciShared.WS_Utils.GetTcmConfigValue("cdvrAdapterUrl");
+            string cdvrAdapterUrl = adapter.AdapterUrl;
             cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient();
             client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
 
