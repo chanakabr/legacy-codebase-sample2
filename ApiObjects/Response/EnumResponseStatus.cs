@@ -234,7 +234,7 @@ namespace ApiObjects.Response
         FailCreateAnnouncement = 8011,
         UserNotFollowing = 8012,
         UserAlreadyFollowing = 8013,
-        PlaceholdersIsInvalid = 8014,
+        InvalidPlaceholders= 8014,
         DatetimeFormatIsInvalid = 8015,
         FollowTemplateNotFound = 8016,
 
