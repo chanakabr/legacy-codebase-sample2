@@ -29,6 +29,16 @@ namespace WebAPI.Controllers
 
             try
             {
+                if (string.IsNullOrEmpty(follow_template.Message))
+                {
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "message is empty");
+                }
+
+                if (string.IsNullOrEmpty(follow_template.DateFormat))
+                {
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "date_format is empty");
+                }
+
                 // call client
                 response = ClientsManager.NotificationClient().SetFollowTemplate(groupId, follow_template);
             }
