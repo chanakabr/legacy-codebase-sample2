@@ -7,6 +7,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using KLogMonitor;
 using TVinciShared;
+using ca_ws;
 
 public partial class adm_cdvr_adapter_new : System.Web.UI.Page
 {
@@ -49,27 +50,27 @@ public partial class adm_cdvr_adapter_new : System.Web.UI.Page
                     else
                     {
                         Int32 nID = DBManipulator.DoTheWork("CA_CONNECTION_STRING");
-
-                        //// set adapter configuration
-                        //apiWS.API api = new apiWS.API();
-
-                        //string sIP = "1.1.1.1";
-                        //string sWSUserName = "";
-                        //string sWSPass = "";
-                        //TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "SetOSSAdapterConfiguration", "api", sIP, ref sWSUserName, ref sWSPass);
-                        //string sWSURL = GetWSURL("api_ws");
-                        //if (sWSURL != "")
-                        //    api.Url = sWSURL;
-                        //try
-                        //{
-                        //    apiWS.Status status = api.SetOSSAdapterConfiguration(sWSUserName, sWSPass, nID);
-                        //    log.Debug("SetOSSAdapterConfiguration - " + string.Format("oss adapter id:{0}, status:{1}", nID, status.Code));
-                        //}
-                        //catch (Exception ex)
-                        //{
-                        //    log.Error("Exception - " + string.Format("oss adapter id :{0}, ex msg:{1}, ex st: {2} ", nID, ex.Message, ex.StackTrace), ex);
-                        //}
-
+                        if (nID > 0)
+                        {
+                            // set adapter configuration 
+                            string sIP = "1.1.1.1";
+                            string sWSUserName = "";
+                            string sWSPass = "";
+                            TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "", "conditionalaccess", sIP, ref sWSUserName, ref sWSPass);
+                            ca_ws.module cas = new ca_ws.module();
+                            string sWSURL = GetWSURL("conditionalaccess_ws");
+                            if (sWSURL != "")
+                                cas.Url = sWSURL;
+                            try
+                            {
+                                CDVRAdapterResponse status = cas.SendCDVRAdapterConfiguration(sWSUserName, sWSPass, nID);
+                                log.Debug("SetOSSAdapterConfiguration - " + string.Format("oss adapter id:{0}, status:{1}", nID, status.Status != null ? status.Status.Code: 1));
+                            }
+                            catch (Exception ex)
+                            {
+                                log.Error("Exception - " + string.Format("cdvr adapter id :{0}, ex msg:{1}, ex st: {2} ", nID, ex.Message, ex.StackTrace), ex);
+                            }
+                        }
                         return;
                     }
                 }
