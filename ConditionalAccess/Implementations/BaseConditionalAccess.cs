@@ -17265,16 +17265,21 @@ namespace ConditionalAccess
                 //check External Identifier uniqueness 
                 CDVRAdapter responseAdpater = DAL.ConditionalAccessDAL.GetCDVRAdapterByExternalId(m_nGroupID, adapter.ExternalIdentifier);
 
-                if (responseAdpater == null)
-                {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
-                    return response;
-                }
-
-                if (responseAdpater.ID > 0 && responseAdpater.ID != responseAdpater.ID)
+                if (responseAdpater != null && responseAdpater.ID > 0 && responseAdpater.ID != responseAdpater.ID)
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExternalIdentifierMustBeUnique, ERROR_EXT_ID_ALREADY_IN_USE);
                     return response;
+                }
+
+                if (responseAdpater == null)
+                {
+                    //check adapter exists 
+                    responseAdpater = DAL.ConditionalAccessDAL.GetCDVRAdapter(m_nGroupID, adapter.ID);
+                    if (responseAdpater == null)
+                    {
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
+                        return response;
+                    }
                 }
 
                 response.Adapter = DAL.ConditionalAccessDAL.SetCDVRAdapter(m_nGroupID, adapter);
