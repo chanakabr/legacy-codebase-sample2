@@ -71,6 +71,7 @@ namespace Recordings
             if (recording == null)
             {
                 recording = new Recording();
+                recording.Status = null;
                 recording.EpgID = programId;
                 recording.EpgStartDate = startDate;
                 recording.EpgEndDate = endDate;
@@ -88,33 +89,66 @@ namespace Recordings
                 long durationSeconds = (long)(endDate - startDate).TotalSeconds;
                 string externalChannelId = CatalogDAL.GetEPGChannelCDVRId(groupId, epgChannelID);
 
-                var adapterResponse = adapterController.Record(groupId, startTimeSeconds, durationSeconds, externalChannelId, adapterId);
+                RecordResult adapterResponse = null;
+                try
+                {
+                    adapterResponse = adapterController.Record(groupId, startTimeSeconds, durationSeconds, externalChannelId, adapterId);
+                }
+                catch (KalturaException ex)
+                {
+                    recording.Status = new Status((int)ex.Data["StatusCode"], ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    recording.Status = new Status((int)eResponseStatus.AdapterAppFailure, "Adapter controller excpetion: " + ex.Message);
+                }
 
+                if (recording.Status != null)
+                {
+                    return recording;
+                }
+
+                if (adapterResponse == null)
+                {
+                    recording.Status = new Status((int)eResponseStatus.Error, "Adapter controller returned null response.");
+                }
                 //
                 // TODO: Validate adapter response
                 //
-
-                if (adapterResponse.FailReason == 0)
+                else if (adapterResponse.FailReason != 0)
                 {
-                    recording.ExternalRecordingId = adapterResponse.RecordingId;
+                    string message = string.Format("Adapter failed for reason: {0}. Provider code = {1}, provider message = {2}",
+                        adapterResponse.FailReason, adapterResponse.ProviderStatusCode, adapterResponse.ProviderStatusMessage);
+                    recording.Status = new Status((int)eResponseStatus.AdapterAppFailure, message);
+                }
+                else
+                {
+                    try
+                    {
+                        recording.ExternalRecordingId = adapterResponse.RecordingId;
 
-                    // Insert recording information to database
-                    recording = ConditionalAccessDAL.InsertRecording(recording, groupId);
+                        // Insert recording information to database
+                        recording = ConditionalAccessDAL.InsertRecording(recording, groupId);
 
-                    ConditionalAccessDAL.InsertRecordingLinks(adapterResponse.Links, groupId, recording.RecordingID);
+                        ConditionalAccessDAL.InsertRecordingLinks(adapterResponse.Links, groupId, recording.RecordingID);
 
                         // Schedule a message tocheck status 5 minutes after recording of program is supposed to be over
-                    var queue = new GenericCeleryQueue();
-                    var message = new RecordingTaskData(groupId, eRecordingTask.GetStatusAfterProgramEnded,
-                        // add 5 minutes here
-                        endDate.AddMinutes(1),
-                        programId,
-                        recording.RecordingID);
+                        var queue = new GenericCeleryQueue();
+                        var message = new RecordingTaskData(groupId, eRecordingTask.GetStatusAfterProgramEnded,
+                            // add 5 minutes here
+                            endDate.AddMinutes(1),
+                            programId,
+                            recording.RecordingID);
 
-                    queue.Enqueue(message, string.Format(SCHEDULED_TASKS_ROUTING_KEY, groupId));
+                        queue.Enqueue(message, string.Format(SCHEDULED_TASKS_ROUTING_KEY, groupId));
 
-                    // We're OK
-                    recording.Status = new Status((int)eResponseStatus.OK);
+                        // We're OK
+                        recording.Status = new Status((int)eResponseStatus.OK);
+                    }
+                    catch (Exception ex)
+                    {
+                        recording.Status = new Status((int)eResponseStatus.Error, "Failed inserting recording to database and queue.");
+                    }
                 }
             }
 
