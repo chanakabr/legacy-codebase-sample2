@@ -5143,9 +5143,9 @@ namespace TvinciImporter
             return bUpdate;
         }
 
-        static public ApiObjects.Response.Status SetFollowTemplate(int groupID, ref FollowTemplate followTemplate)
+        static public ApiObjects.Response.Status SetMessageTemplate(int groupID, ref ApiObjects.Notification.MessageTemplate messageTemplate)
         {
-            FollowTemplateResponse response = null;
+            TvinciImporter.Notification_WCF.MessageTemplateResponse response = null;
             try
             {
                 //Call Notifications WCF service
@@ -5159,10 +5159,24 @@ namespace TvinciImporter
                 string sWSPass = "";
                 int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupID);
                 TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "", "notifications", sIP, ref sWSUserName, ref sWSPass);
-                response = service.SetFollowTemplate(sWSUserName, sWSPass, followTemplate);
+
+                Notification_WCF.MessageTemplate wcfMessageTemplate = new Notification_WCF.MessageTemplate()
+                {
+                    AssetType = messageTemplate.AssetType,
+                    Message = messageTemplate.Message,
+                    Id = messageTemplate.Id,
+                    DateFormat = messageTemplate.DateFormat
+                };
+
+                response = service.SetMessageTemplate(sWSUserName, sWSPass, wcfMessageTemplate);
                 if (response != null && response.Status.Code == (int)ApiObjects.Response.eResponseStatus.OK)
                 {
-                    followTemplate = response.FollowTemplate;
+                    messageTemplate = new ApiObjects.Notification.MessageTemplate() {
+                        Id = response.MessageTemplate.Id,
+                        Message = response.MessageTemplate.Message,
+                        DateFormat = response.MessageTemplate.DateFormat,
+                        AssetType = response.MessageTemplate.AssetType,
+                    };
                 }
                 return response.Status;
             }

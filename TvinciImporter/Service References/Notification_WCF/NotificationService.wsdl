@@ -138,17 +138,17 @@
   <wsdl:message name="INotificationService_GetAllMessageAnnouncements_OutputMessage">
     <wsdl:part name="parameters" element="tns:GetAllMessageAnnouncementsResponse" />
   </wsdl:message>
-  <wsdl:message name="INotificationService_SetFollowTemplate_InputMessage">
-    <wsdl:part name="parameters" element="tns:SetFollowTemplate" />
+  <wsdl:message name="INotificationService_SetMessageTemplate_InputMessage">
+    <wsdl:part name="parameters" element="tns:SetMessageTemplate" />
   </wsdl:message>
-  <wsdl:message name="INotificationService_SetFollowTemplate_OutputMessage">
-    <wsdl:part name="parameters" element="tns:SetFollowTemplateResponse" />
+  <wsdl:message name="INotificationService_SetMessageTemplate_OutputMessage">
+    <wsdl:part name="parameters" element="tns:SetMessageTemplateResponse" />
   </wsdl:message>
-  <wsdl:message name="INotificationService_GetFollowTemplate_InputMessage">
-    <wsdl:part name="parameters" element="tns:GetFollowTemplate" />
+  <wsdl:message name="INotificationService_GetMessageTemplate_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetMessageTemplate" />
   </wsdl:message>
-  <wsdl:message name="INotificationService_GetFollowTemplate_OutputMessage">
-    <wsdl:part name="parameters" element="tns:GetFollowTemplateResponse" />
+  <wsdl:message name="INotificationService_GetMessageTemplate_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetMessageTemplateResponse" />
   </wsdl:message>
   <wsdl:message name="INotificationService_GetUserFollows_InputMessage">
     <wsdl:part name="parameters" element="tns:GetUserFollows" />
@@ -253,13 +253,13 @@
       <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/GetAllMessageAnnouncements" message="tns:INotificationService_GetAllMessageAnnouncements_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/GetAllMessageAnnouncementsResponse" message="tns:INotificationService_GetAllMessageAnnouncements_OutputMessage" />
     </wsdl:operation>
-    <wsdl:operation name="SetFollowTemplate">
-      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/SetFollowTemplate" message="tns:INotificationService_SetFollowTemplate_InputMessage" />
-      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/SetFollowTemplateResponse" message="tns:INotificationService_SetFollowTemplate_OutputMessage" />
+    <wsdl:operation name="SetMessageTemplate">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/SetMessageTemplate" message="tns:INotificationService_SetMessageTemplate_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/SetMessageTemplateResponse" message="tns:INotificationService_SetMessageTemplate_OutputMessage" />
     </wsdl:operation>
-    <wsdl:operation name="GetFollowTemplate">
-      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/GetFollowTemplate" message="tns:INotificationService_GetFollowTemplate_InputMessage" />
-      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/GetFollowTemplateResponse" message="tns:INotificationService_GetFollowTemplate_OutputMessage" />
+    <wsdl:operation name="GetMessageTemplate">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/GetMessageTemplate" message="tns:INotificationService_GetMessageTemplate_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/GetMessageTemplateResponse" message="tns:INotificationService_GetMessageTemplate_OutputMessage" />
     </wsdl:operation>
     <wsdl:operation name="GetUserFollows">
       <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/GetUserFollows" message="tns:INotificationService_GetUserFollows_InputMessage" />
@@ -465,8 +465,8 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="SetFollowTemplate">
-      <soap:operation soapAction="http://tempuri.org/INotificationService/SetFollowTemplate" style="document" />
+    <wsdl:operation name="SetMessageTemplate">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/SetMessageTemplate" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -474,8 +474,8 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="GetFollowTemplate">
-      <soap:operation soapAction="http://tempuri.org/INotificationService/GetFollowTemplate" style="document" />
+    <wsdl:operation name="GetMessageTemplate">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/GetMessageTemplate" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
