@@ -130,7 +130,10 @@ namespace Recordings
                         // Insert recording information to database
                         recording = ConditionalAccessDAL.InsertRecording(recording, groupId);
 
-                        ConditionalAccessDAL.InsertRecordingLinks(adapterResponse.Links, groupId, recording.RecordingID);
+                        if (adapterResponse.Links != null)
+                        {
+                            ConditionalAccessDAL.InsertRecordingLinks(adapterResponse.Links, groupId, recording.RecordingID);
+                        }
 
                         // Schedule a message tocheck status 5 minutes after recording of program is supposed to be over
                         var queue = new GenericCeleryQueue();

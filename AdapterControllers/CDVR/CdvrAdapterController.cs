@@ -203,20 +203,7 @@ namespace AdapterControllers.CDVR
                     }
                     else if (adapterResponse.Recording != null)
                     {
-                        recordResult = new RecordResult()
-                                {
-                                    Links = adapterResponse.Recording.Links.Select(result =>
-                                        new ApiObjects.TimeShiftedTv.RecordingLink()
-                                        {
-                                            DeviceType = result.DeviceType,
-                                            Url = result.Url
-                                        }).ToList(),
-                                    RecordingId = adapterResponse.Recording.RecordingId,
-                                    RecordingState = adapterResponse.Recording.RecordingState,
-                                    FailReason = adapterResponse.Recording.FailReason,
-                                    ProviderStatusCode = adapterResponse.Recording.ProviderStatusCode,
-                                    ProviderStatusMessage = adapterResponse.Recording.ProviderStatusMessage
-                                };
+                        recordResult = CreateRecordResult(adapterResponse);
                     }
                 }
             }
@@ -306,20 +293,7 @@ namespace AdapterControllers.CDVR
                     }
                     else if (adapterResponse.Recording != null)
                     {
-                        recordResult = new RecordResult()
-                        {
-                            Links = adapterResponse.Recording.Links.Select(result =>
-                                new ApiObjects.TimeShiftedTv.RecordingLink()
-                                {
-                                    DeviceType = result.DeviceType,
-                                    Url = result.Url
-                                }).ToList(),
-                            RecordingId = adapterResponse.Recording.RecordingId,
-                            RecordingState = adapterResponse.Recording.RecordingState,
-                            FailReason = adapterResponse.Recording.FailReason,
-                            ProviderStatusCode = adapterResponse.Recording.ProviderStatusCode,
-                            ProviderStatusMessage = adapterResponse.Recording.ProviderStatusMessage 
-                        };
+                        recordResult = CreateRecordResult(adapterResponse);
                     }
                 }
             }
@@ -408,20 +382,7 @@ namespace AdapterControllers.CDVR
                     }
                     else if (adapterResponse.Recording != null)
                     {
-                        recordResult = new RecordResult()
-                        {
-                            Links = adapterResponse.Recording.Links.Select(result =>
-                                new ApiObjects.TimeShiftedTv.RecordingLink()
-                                {
-                                    DeviceType = result.DeviceType,
-                                    Url = result.Url
-                                }).ToList(),
-                            RecordingId = adapterResponse.Recording.RecordingId,
-                            RecordingState = adapterResponse.Recording.RecordingState,
-                            FailReason = adapterResponse.Recording.FailReason,
-                            ProviderStatusCode = adapterResponse.Recording.ProviderStatusCode,
-                            ProviderStatusMessage = adapterResponse.Recording.ProviderStatusMessage
-                        };
+                        recordResult = CreateRecordResult(adapterResponse);
                     }
                 }
             }
@@ -511,20 +472,7 @@ namespace AdapterControllers.CDVR
                     }
                     else if (adapterResponse.Recording != null)
                     {
-                        recordResult = new RecordResult()
-                        {
-                            Links = adapterResponse.Recording.Links.Select(result =>
-                                new ApiObjects.TimeShiftedTv.RecordingLink()
-                                {
-                                    DeviceType = result.DeviceType,
-                                    Url = result.Url
-                                }).ToList(),
-                            RecordingId = adapterResponse.Recording.RecordingId,
-                            RecordingState = adapterResponse.Recording.RecordingState,
-                            FailReason = adapterResponse.Recording.FailReason,
-                            ProviderStatusCode = adapterResponse.Recording.ProviderStatusCode,
-                            ProviderStatusMessage = adapterResponse.Recording.ProviderStatusMessage
-                        };
+                        recordResult = CreateRecordResult(adapterResponse);
                     }
                 }
             }
@@ -615,20 +563,7 @@ namespace AdapterControllers.CDVR
                     }
                     else if (adapterResponse.Recording != null)
                     {
-                        recordResult = new RecordResult()
-                        {
-                            Links = adapterResponse.Recording.Links.Select(result =>
-                                new ApiObjects.TimeShiftedTv.RecordingLink()
-                                {
-                                    DeviceType = result.DeviceType,
-                                    Url = result.Url
-                                }).ToList(),
-                            RecordingId = adapterResponse.Recording.RecordingId,
-                            RecordingState = adapterResponse.Recording.RecordingState,
-                            FailReason = adapterResponse.Recording.FailReason,
-                            ProviderStatusCode = adapterResponse.Recording.ProviderStatusCode,
-                            ProviderStatusMessage = adapterResponse.Recording.ProviderStatusMessage
-                        };
+                        recordResult = CreateRecordResult(adapterResponse);
                     }
                 }
             }
@@ -718,20 +653,7 @@ namespace AdapterControllers.CDVR
                     }
                     else if (adapterResponse.Recording != null)
                     {
-                        recordResult = new RecordResult()
-                        {
-                            Links = adapterResponse.Recording.Links.Select(result =>
-                                new ApiObjects.TimeShiftedTv.RecordingLink()
-                                {
-                                    DeviceType = result.DeviceType,
-                                    Url = result.Url
-                                }).ToList(),
-                            RecordingId = adapterResponse.Recording.RecordingId,
-                            RecordingState = adapterResponse.Recording.RecordingState,
-                            FailReason = adapterResponse.Recording.FailReason,
-                            ProviderStatusCode = adapterResponse.Recording.ProviderStatusCode,
-                            ProviderStatusMessage = adapterResponse.Recording.ProviderStatusMessage
-                        };
+                        recordResult = CreateRecordResult(adapterResponse);
                     }
                 }
             }
@@ -748,6 +670,33 @@ namespace AdapterControllers.CDVR
         #endregion
 
         #region Private Method
+        
+        private static RecordResult CreateRecordResult(cdvrAdap.RecordingResponse adapterResponse)
+        {
+            List<ApiObjects.TimeShiftedTv.RecordingLink> links = new List<ApiObjects.TimeShiftedTv.RecordingLink>();
+
+            if (adapterResponse.Recording.Links != null)
+            {
+                links = adapterResponse.Recording.Links.Select(result =>
+                        new ApiObjects.TimeShiftedTv.RecordingLink()
+                        {
+                            DeviceType = result.DeviceType,
+                            Url = result.Url
+                        }).ToList();
+            }
+
+            RecordResult recordResult = new RecordResult()
+            {
+                Links = links,
+                RecordingId = adapterResponse.Recording.RecordingId,
+                RecordingState = adapterResponse.Recording.RecordingState,
+                FailReason = adapterResponse.Recording.FailReason,
+                ProviderStatusCode = adapterResponse.Recording.ProviderStatusCode,
+                ProviderStatusMessage = adapterResponse.Recording.ProviderStatusMessage
+            };
+            return recordResult;
+        }
+
         private bool configurationSynchronizer_SynchronizedAct(Dictionary<string, object> parameters)
         {
             bool result = false;
@@ -795,7 +744,7 @@ namespace AdapterControllers.CDVR
             }
             else
             {
-                logMessage = string.Format("Cdvr Adapter RecordingId = {1}, RecordingState = {2}",                  
+                logMessage = string.Format("Cdvr Adapter RecordingId = {0}, RecordingState = {1}",                  
                   adapterResponse.Recording.RecordingId,
                     adapterResponse.Recording.RecordingState
                     );
