@@ -96,7 +96,7 @@ namespace ApiObjects
         [EnumMember]
         EpgChannel,
         [EnumMember]
-        Recordning
+        Recording
     }
 
     [Serializable]

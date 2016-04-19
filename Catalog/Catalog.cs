@@ -6419,7 +6419,7 @@ namespace Catalog
 
         public static bool UpdateRecordingsIndex(List<long> recordingsIds, int groupId, eAction action)
         {
-            return Catalog.Update(recordingsIds, groupId, eObjectType.Recordning, action);
+            return Catalog.Update(recordingsIds, groupId, eObjectType.Recording, action);
         }
     }
 }
