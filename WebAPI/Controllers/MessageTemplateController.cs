@@ -8,39 +8,39 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/FollowTemplate/action")]
-    public class FollowTemplateController : ApiController
+    [RoutePrefix("_service/MessageTemplate/action")]
+    public class MessageTemplateController : ApiController
     {
         /// <summary>
-        /// Set follow template for follow notification 
+        /// Set message template for message notification 
         /// </summary>
-        /// <param name="follow_template">The actual message with placeholders to be presented to the user</param>       
+        /// <param name="message_template">The actual message with placeholders to be presented to the user</param>       
         /// <returns></returns>
         /// <remarks>
-        /// Possible status codes: Invalid place-holders = 8014, Date time format is invalid  = 8015
+        /// Possible status codes: Invalid place-holders = 8014
         /// </remarks>
         [Route("set"), HttpPost]
         [ApiAuthorize]
-        public KalturaFollowTemplate Set(KalturaFollowTemplate follow_template)
+        public KalturaMessageTemplate Set(KalturaMessageTemplate message_template)
         {
-            KalturaFollowTemplate response = null;
+            KalturaMessageTemplate response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
-                if (string.IsNullOrEmpty(follow_template.Message))
+                if (string.IsNullOrEmpty(message_template.Message))
                 {
                     throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "message is empty");
                 }
 
-                if (string.IsNullOrEmpty(follow_template.DateFormat))
+                if (string.IsNullOrEmpty(message_template.DateFormat))
                 {
                     throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "date_format is empty");
                 }
 
                 // call client
-                response = ClientsManager.NotificationClient().SetFollowTemplate(groupId, follow_template);
+                response = ClientsManager.NotificationClient().SetMessageTemplate(groupId, message_template);
             }
             catch (ClientException ex)
             {
@@ -51,25 +51,25 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        ///  Get follow template
+        ///  Get message template
         /// </summary>
         /// <param name="asset_Type">possible values: Asset type – Series</param>
         /// <returns></returns>     
         /// <remarks>
-        /// Possible status codes: Follow template not found = 8016
+        /// Possible status codes: message template not found = 8016
         /// </remarks>
         [Route("get"), HttpPost]
         [ApiAuthorize]
-        public KalturaFollowTemplate Get(KalturaOTTAssetType asset_Type)
+        public KalturaMessageTemplate Get(KalturaOTTAssetType asset_Type)
         {
-            KalturaFollowTemplate response = null;
+            KalturaMessageTemplate response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
                 // call client
-                response = ClientsManager.NotificationClient().GetFollowTemplate(groupId, asset_Type);
+                response = ClientsManager.NotificationClient().GetMessageTemplate(groupId, asset_Type);
             }
             catch (ClientException ex)
             {

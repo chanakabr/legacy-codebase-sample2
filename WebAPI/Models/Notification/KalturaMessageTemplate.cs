@@ -10,7 +10,7 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Notification
 {
     [Serializable]
-    public class KalturaFollowTemplate : KalturaOTTObject
+    public class KalturaMessageTemplate : KalturaOTTObject
     {
         /// <summary>
         ///The actual message with placeholders to be presented to the user

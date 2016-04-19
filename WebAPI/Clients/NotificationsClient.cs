@@ -487,21 +487,21 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaFollowTemplate InsertFollowTemplate(int groupId, KalturaFollowTemplate followTemplate)
+        internal KalturaMessageTemplate InsertFollowTemplate(int groupId, KalturaMessageTemplate followTemplate)
         {
-            FollowTemplateResponse response = null;
-            KalturaFollowTemplate result = null;
+            MessageTemplateResponse response = null;
+            KalturaMessageTemplate result = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
             try
             {
-                FollowTemplate apiFollowTemplate = null;
-                apiFollowTemplate = AutoMapper.Mapper.Map<FollowTemplate>(followTemplate);
+                MessageTemplate apiFollowTemplate = null;
+                apiFollowTemplate = AutoMapper.Mapper.Map<MessageTemplate>(followTemplate);
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.SetFollowTemplate(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, apiFollowTemplate);
+                    response = Notification.SetMessageTemplate(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, apiFollowTemplate);
                 }
             }
             catch (Exception ex)
@@ -514,7 +514,7 @@ namespace WebAPI.Clients
                 // Bad response received from WS
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
-            result = AutoMapper.Mapper.Map<KalturaFollowTemplate>(response.FollowTemplate);
+            result = AutoMapper.Mapper.Map<KalturaMessageTemplate>(response.MessageTemplate);
             return result;
         }
 
@@ -624,10 +624,10 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaFollowTemplate GetFollowTemplate(int groupId, KalturaOTTAssetType asset_Type)
+        internal KalturaMessageTemplate GetMessageTemplate(int groupId, KalturaOTTAssetType asset_Type)
         {
-            FollowTemplateResponse response = null;
-            KalturaFollowTemplate result = null;
+            MessageTemplateResponse response = null;
+            KalturaMessageTemplate result = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -635,12 +635,12 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.GetFollowTemplate(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, NotificationMapping.ConvertOTTAssetType(asset_Type));
+                    response = Notification.GetMessageTemplate(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, NotificationMapping.ConvertOTTAssetType(asset_Type));
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while InsertFollowTemplate.  groupID: {0}, exception: {1}", groupId, ex);
+                log.ErrorFormat("Error while GetMessageTemplate.  groupID: {0}, exception: {1}", groupId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -650,31 +650,30 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            result = AutoMapper.Mapper.Map<KalturaFollowTemplate>(response.FollowTemplate);
+            result = AutoMapper.Mapper.Map<KalturaMessageTemplate>(response.MessageTemplate);
             return result;
         }
 
-
-        internal KalturaFollowTemplate SetFollowTemplate(int groupId, KalturaFollowTemplate followTemplate)
+        internal KalturaMessageTemplate SetMessageTemplate(int groupId, KalturaMessageTemplate messageTemplate)
         {
-            FollowTemplateResponse response = null;
-            KalturaFollowTemplate result = null;
+            MessageTemplateResponse response = null;
+            KalturaMessageTemplate result = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
             try
             {
-                FollowTemplate apiFollowTemplate = null;
-                apiFollowTemplate = AutoMapper.Mapper.Map<FollowTemplate>(followTemplate);
+                MessageTemplate apiFollowTemplate = null;
+                apiFollowTemplate = AutoMapper.Mapper.Map<MessageTemplate>(messageTemplate);
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.SetFollowTemplate(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, apiFollowTemplate);
+                    response = Notification.SetMessageTemplate(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, apiFollowTemplate);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while SetFollowTemplate.  groupID: {0}, exception: {1}", groupId, ex);
+                log.ErrorFormat("Error while SetMessageTemplate.  groupID: {0}, exception: {1}", groupId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -688,7 +687,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.Status.Code, response.Status.Message);
             }
 
-            result = AutoMapper.Mapper.Map<KalturaFollowTemplate>(response.FollowTemplate);
+            result = AutoMapper.Mapper.Map<KalturaMessageTemplate>(response.MessageTemplate);
 
             return result;
         }
