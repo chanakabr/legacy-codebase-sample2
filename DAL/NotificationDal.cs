@@ -1044,7 +1044,7 @@ namespace DAL
 
         public static FollowTemplate SetFollowTemplate(int groupId, FollowTemplate followTemplate)
         {
-            FollowTemplate result = new FollowTemplate();
+            FollowTemplate result = null;
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("SetFollowTemplate");
@@ -1060,7 +1060,7 @@ namespace DAL
                 {
                     if (ds.Tables[0].Rows.Count > 0)
                     {
-                        result = CreateFollowTemplate(result, ds.Tables[0].Rows[0]);
+                        result = CreateFollowTemplate(ds.Tables[0].Rows[0]);
                     }
                 }
             }
@@ -1075,7 +1075,7 @@ namespace DAL
 
         public static FollowTemplate GetFollowTemplate(int groupId, eOTTAssetTypes assetType)
         {
-            FollowTemplate result = new FollowTemplate();
+            FollowTemplate result =null;
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetFollowTemplate");
@@ -1089,7 +1089,7 @@ namespace DAL
                 {
                     if (ds.Tables[0].Rows.Count > 0)
                     {
-                        result = CreateFollowTemplate(result, ds.Tables[0].Rows[0]);
+                        result = CreateFollowTemplate(ds.Tables[0].Rows[0]);
                     }
                 }
             }
@@ -1102,8 +1102,10 @@ namespace DAL
 
         }
 
-        private static FollowTemplate CreateFollowTemplate(FollowTemplate result, DataRow row)
+        private static FollowTemplate CreateFollowTemplate(DataRow row)
         {
+            FollowTemplate result = new FollowTemplate();
+
             int assetType = ODBCWrapper.Utils.GetIntSafeVal(row, "ASSET_TYPE");
 
             result = new FollowTemplate()
