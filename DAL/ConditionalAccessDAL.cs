@@ -2682,7 +2682,7 @@ namespace DAL
             List<Recording> recordings = new List<Recording>();
 
             ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_All_Recordings_By_Recording_Status");
-            storedProcedure.SetConnectionKey("CONNECTION_STRING");
+            storedProcedure.SetConnectionKey("CA_CONNECTION_STRING");
 
             storedProcedure.AddParameter("@GroupId", groupId);
             storedProcedure.AddIDListParameter<int>("@RecordingStatuses", statuses.Select(s => (int)s).ToList(), "ID");

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="9e9b42c0-007f-4a5d-aaec-435f8008b4e5" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="08b411db-2eb9-4922-9f58-529e95216b8d" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
   <ClientOptions>
     <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
     <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
@@ -24,12 +24,12 @@
     <MetadataSource Address="http://localhost/cdvradp/service.svc" Protocol="http" SourceId="1" />
   </MetadataSources>
   <Metadata>
-    <MetadataFile FileName="Service.disco" MetadataType="Disco" ID="8636c786-f9ae-4f3f-b605-1dbae1bcfbae" SourceId="1" SourceUrl="http://localhost/CdvrAdp/Service.svc?disco" />
-    <MetadataFile FileName="Service.wsdl" MetadataType="Wsdl" ID="d9eea250-36c8-4dcc-a59e-0861e4e958d3" SourceId="1" SourceUrl="http://localhost/CdvrAdp/Service.svc?wsdl" />
-    <MetadataFile FileName="Service.xsd" MetadataType="Schema" ID="089b254a-8d81-48be-af6e-80aa1516108f" SourceId="1" SourceUrl="http://localhost/CdvrAdp/Service.svc?xsd=xsd2" />
-    <MetadataFile FileName="Service1.xsd" MetadataType="Schema" ID="736a447a-b7e6-429c-b8a0-ce568a5b9357" SourceId="1" SourceUrl="http://localhost/CdvrAdp/Service.svc?xsd=xsd3" />
-    <MetadataFile FileName="Service2.xsd" MetadataType="Schema" ID="d8c8f075-5de4-4167-b3ba-6ef0778ca1a8" SourceId="1" SourceUrl="http://localhost/CdvrAdp/Service.svc?xsd=xsd0" />
-    <MetadataFile FileName="Service3.xsd" MetadataType="Schema" ID="2570edc0-21a0-4614-bea7-e1c6fec80592" SourceId="1" SourceUrl="http://localhost/CdvrAdp/Service.svc?xsd=xsd1" />
+    <MetadataFile FileName="Service.disco" MetadataType="Disco" ID="7ff466e8-70aa-4086-b22d-ecec501093d9" SourceId="1" SourceUrl="http://localhost/CdvrAdp/Service.svc?disco" />
+    <MetadataFile FileName="Service.wsdl" MetadataType="Wsdl" ID="e230a3de-0a75-4d7b-9b28-a61ce4c7f60f" SourceId="1" SourceUrl="http://localhost/CdvrAdp/Service.svc?wsdl" />
+    <MetadataFile FileName="Service.xsd" MetadataType="Schema" ID="ba24f809-05ec-4ec4-b9e7-2e2705be5c38" SourceId="1" SourceUrl="http://localhost/CdvrAdp/Service.svc?xsd=xsd2" />
+    <MetadataFile FileName="Service1.xsd" MetadataType="Schema" ID="bef0573f-67f3-43f3-b633-e1a66edbde7a" SourceId="1" SourceUrl="http://localhost/CdvrAdp/Service.svc?xsd=xsd3" />
+    <MetadataFile FileName="Service2.xsd" MetadataType="Schema" ID="1386077b-5359-4401-bf6b-268542cb960c" SourceId="1" SourceUrl="http://localhost/CdvrAdp/Service.svc?xsd=xsd0" />
+    <MetadataFile FileName="Service3.xsd" MetadataType="Schema" ID="094028f0-96d6-4999-befc-316161800929" SourceId="1" SourceUrl="http://localhost/CdvrAdp/Service.svc?xsd=xsd1" />
   </Metadata>
   <Extensions>
     <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
