@@ -10,7 +10,7 @@ using TVinciShared;
 
 public partial class adm_series_template : System.Web.UI.Page
 {
-    protected FollowTemplate followTemplate;
+    protected MessageTemplate messageTemplate;
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected string m_sLangMenu;
@@ -35,10 +35,10 @@ public partial class adm_series_template : System.Web.UI.Page
 
                 ApiObjects.Response.Status result = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
-                followTemplate = GetPageData();
-                if (followTemplate != null)
+                messageTemplate = GetPageData();
+                if (messageTemplate != null)
                 {
-                    ImporterImpl.SetFollowTemplate(groupId, ref followTemplate);
+                    ImporterImpl.SetMessageTemplate(groupId, ref messageTemplate);
                 }
             }
         }
@@ -91,7 +91,7 @@ public partial class adm_series_template : System.Web.UI.Page
             }
 
             string sBack = "adm_series_template.aspx?search_save=1";
-            DBRecordWebEditor theRecord = new DBRecordWebEditor("follow_templates", "adm_table_pager", sBack, "", "ID", t, sBack, "");
+            DBRecordWebEditor theRecord = new DBRecordWebEditor("message_templates", "adm_table_pager", sBack, "", "ID", t, sBack, "");
             theRecord.SetConnectionKey("notifications_connection");
 
             DataRecordLongTextField dr_message = new DataRecordLongTextField("ltr", true, 60, 4);
@@ -115,7 +115,7 @@ public partial class adm_series_template : System.Web.UI.Page
         {
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery.SetConnectionKey("notifications_connection");
-            selectQuery += "select ID, Message, date_format from follow_templates where status=1 and asset_type=0 and";
+            selectQuery += "select ID, Message, date_format from message_templates where status=1 and asset_type=0 and";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupID);
             if (selectQuery.Execute("query", true) != null)
             {
@@ -167,11 +167,11 @@ public partial class adm_series_template : System.Web.UI.Page
         return res;
     }
 
-    private FollowTemplate GetPageData()
+    private MessageTemplate GetPageData()
     {
         NameValueCollection nvc = Request.Form;
 
-        FollowTemplate followTemplate = new FollowTemplate() { AssetType = eOTTAssetTypes.Series };
+        MessageTemplate followTemplate = new MessageTemplate() { AssetType = eOTTAssetTypes.Series };
 
         if (!string.IsNullOrEmpty(nvc["0_val"]))
         {
