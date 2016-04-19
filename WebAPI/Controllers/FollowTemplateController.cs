@@ -58,7 +58,7 @@ namespace WebAPI.Controllers
         /// <remarks>
         /// Possible status codes: Follow template not found = 8016
         /// </remarks>
-        [Route("Get"), HttpPost]
+        [Route("get"), HttpPost]
         [ApiAuthorize]
         public KalturaFollowTemplate Get(KalturaOTTAssetType asset_Type)
         {
