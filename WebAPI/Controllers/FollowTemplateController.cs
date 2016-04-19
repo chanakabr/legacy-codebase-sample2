@@ -12,13 +12,13 @@ namespace WebAPI.Controllers
     public class FollowTemplateController : ApiController
     {
         /// <summary>
-        /// TBD
+        /// Set follow template for follow notification 
         /// </summary>
-        /// <param name="follow_template">TBD</param>
-        /// <remarks>
-        /// 
-        /// </remarks>
+        /// <param name="follow_template">The actual message with placeholders to be presented to the user</param>       
         /// <returns></returns>
+        /// <remarks>
+        /// Possible status codes: Invalid place-holders = 8014, Date time format is invalid  = 8015
+        /// </remarks>
         [Route("set"), HttpPost]
         [ApiAuthorize]
         public KalturaFollowTemplate Set(KalturaFollowTemplate follow_template)
@@ -41,10 +41,13 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// 
+        ///  Get follow template
         /// </summary>
-        /// <param name="asset_Type"></param>
-        /// <returns></returns>
+        /// <param name="asset_Type">possible values: Asset type – Series</param>
+        /// <returns></returns>     
+        /// <remarks>
+        /// Possible status codes: Follow template not found = 8016
+        /// </remarks>
         [Route("Get"), HttpPost]
         [ApiAuthorize]
         public KalturaFollowTemplate Get(KalturaOTTAssetType asset_Type)
