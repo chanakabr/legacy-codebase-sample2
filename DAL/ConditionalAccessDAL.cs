@@ -2672,13 +2672,20 @@ namespace DAL
 
         public static List<Recording> GetAllRecordingsByStatus(int groupId, TstvRecordingStatus status)
         {
+            return GetAllRecordingsByStatuses(groupId,
+                new List<TstvRecordingStatus>() { status });
+        }
+
+
+        public static List<Recording> GetAllRecordingsByStatuses(int groupId, List<TstvRecordingStatus> statuses)
+        {
             List<Recording> recordings = new List<Recording>();
 
             ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_All_Recordings_By_Recording_Status");
             storedProcedure.SetConnectionKey("CONNECTION_STRING");
 
             storedProcedure.AddParameter("@GroupId", groupId);
-            storedProcedure.AddParameter("@RecordingStatus", (int)status);
+            storedProcedure.AddIDListParameter<int>("@RecordingStatuses", statuses.Select(s => (int)s).ToList(), "ID");
 
             DataSet dataSet = storedProcedure.ExecuteDataSet();
 
