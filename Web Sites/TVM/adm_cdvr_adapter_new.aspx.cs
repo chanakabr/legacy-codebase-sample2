@@ -60,7 +60,7 @@ public partial class adm_cdvr_adapter_new : System.Web.UI.Page
                             ca_ws.module cas = new ca_ws.module();
                             string sWSURL = GetWSURL("conditionalaccess_ws");
                             if (sWSURL != "")
-                                cas.Url = "http://localhost/ws_cas/module.asmx";//sWSURL;
+                                cas.Url = sWSURL;
                             try
                             {
                                 CDVRAdapterResponse status = cas.SendCDVRAdapterConfiguration(sWSUserName, sWSPass, nID);
