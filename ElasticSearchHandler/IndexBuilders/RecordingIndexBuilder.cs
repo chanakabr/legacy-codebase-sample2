@@ -67,6 +67,17 @@ namespace ElasticSearchHandler.IndexBuilders
             this.AddEPGsToIndex(newIndexName, RECORDING, epgDictionary);
         }
 
+        /// <summary>
+        /// Do nothing when it comes to recordings
+        /// </summary>
+        /// <param name="groupManager"></param>
+        /// <param name="group"></param>
+        /// <param name="newIndexName"></param>
+        protected override void InsertChannelsQueries(GroupsCacheManager.GroupManager groupManager, GroupsCacheManager.Group group, string newIndexName)
+        {
+            
+        }
+
         protected override string GetAlias()
         {
             return ElasticsearchTasksCommon.Utils.GetRecordingGroupAliasStr(this.groupId);

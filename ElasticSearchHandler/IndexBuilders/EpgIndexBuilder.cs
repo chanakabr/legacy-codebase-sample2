@@ -141,10 +141,48 @@ namespace ElasticSearchHandler.IndexBuilders
 
             #region insert channel queries
 
+            InsertChannelsQueries(groupManager, group, newIndexName);
+
+            #endregion
+
+            #region Switch Index
+
+            log.DebugFormat("Finished populating epg index = {0}", newIndexName);
+
+            string originalIndex = GetAlias();
+            bool indexExists = api.IndexExists(originalIndex);
+
+            if (this.SwitchIndexAlias || !indexExists)
+            {
+                List<string> oldIndices = api.GetAliases(groupAlias);
+
+                success = api.SwitchIndex(newIndexName, groupAlias, oldIndices, null);
+
+                if (!success)
+                {
+                    log.ErrorFormat("Failed switching index for new index name = {0}, group alias = {1}", newIndexName, groupAlias);
+                }
+
+                if (this.DeleteOldIndices && success && oldIndices.Count > 0)
+                {
+                    api.DeleteIndices(oldIndices);
+                }
+            }
+
+            #endregion
+
+            return success;
+        }
+
+        #endregion
+
+        #region Private and protected Methods
+
+        protected virtual void InsertChannelsQueries(GroupManager groupManager, Group group, string newIndexName)
+        {
             if (group.channelIDs != null)
             {
                 log.Info(string.Format("Start indexing channels. total channels={0}", group.channelIDs.Count));
-
 
                 List<KeyValuePair<int, string>> channelRequests = new List<KeyValuePair<int, string>>();
                 try
@@ -194,41 +232,7 @@ namespace ElasticSearchHandler.IndexBuilders
                     log.Error(string.Format("Caught exception while indexing channels. Ex={0};Stack={1}", ex.Message, ex.StackTrace));
                 }
             }
-
-            #endregion
-
-            #region Switch Index
-
-            log.DebugFormat("Finished populating epg index = {0}", newIndexName);
-
-            string originalIndex = GetAlias();
-            bool indexExists = api.IndexExists(originalIndex);
-
-            if (this.SwitchIndexAlias || !indexExists)
-            {
-                List<string> oldIndices = api.GetAliases(groupAlias);
-
-                success = api.SwitchIndex(newIndexName, groupAlias, oldIndices, null);
-
-                if (!success)
-                {
-                    log.ErrorFormat("Failed switching index for new index name = {0}, group alias = {1}", newIndexName, groupAlias);
-                }
-
-                if (this.DeleteOldIndices && success && oldIndices.Count > 0)
-                {
-                    api.DeleteIndices(oldIndices);
-                }
-            }
-
-            #endregion
-
-            return success;
         }
-
-        #endregion
-
-        #region Private and protected Methods
 
         protected virtual string GetIndexType(ApiObjects.LanguageObj language)
         {
