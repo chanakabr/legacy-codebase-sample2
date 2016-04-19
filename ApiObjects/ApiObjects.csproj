@@ -122,6 +122,7 @@
     <Compile Include="Notification\NotificationSettingsResponse.cs" />
     <Compile Include="Notification\UserDevice.cs" />
     <Compile Include="Notification\UserNotification.cs" />
+    <Compile Include="Notification\UserNotificationSettings.cs" />
     <Compile Include="PersonalEnrichments\AssetFiles.cs" />
     <Compile Include="Billing\HouseholdPaymentGatewayResponse.cs" />
     <Compile Include="Billing\HouseholdPaymentGateway.cs" />
@@ -341,6 +342,7 @@
     <Compile Include="HouseholdBillingRequest.cs" />
     <Compile Include="TimeShiftedTv\Recording.cs" />
     <Compile Include="TimeShiftedTv\RecordingResponse.cs" />
+    <Compile Include="TimeShiftedTv\RecordResult.cs" />
     <Compile Include="TimeShiftedTv\TimeShiftedTvPartnerSettings.cs" />
     <Compile Include="TimeShiftedTv\TimeShiftedTvPartnerSettingsResponse.cs" />
     <Compile Include="UserComment.cs" />

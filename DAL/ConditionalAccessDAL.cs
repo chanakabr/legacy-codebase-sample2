@@ -2551,11 +2551,11 @@ namespace DAL
                     {
                         Status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, ApiObjects.Response.eResponseStatus.OK.ToString()),
                         EpgID = epgID,
-                        RecordingID = ODBCWrapper.Utils.ExtractValue<long>(dr, "recording_id"),
-                        RecordingStatus = (TstvRecordingStatus)ODBCWrapper.Utils.ExtractInteger(dr, "RECORDING_STATUS"),
-                        ExternalRecordingId = ODBCWrapper.Utils.ExtractString(dr, "EXTERNAL_RECORDING_ID"),
-                        EpgStartDate = ODBCWrapper.Utils.ExtractDateTime(dr, "START_DATE"),
-                        EpgEndDate = ODBCWrapper.Utils.ExtractDateTime(dr, "END_DATE")
+                        RecordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "RECORDING_ID"),
+                        RecordingStatus = (TstvRecordingStatus)ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORDING_STATUS"),
+                        ExternalRecordingId = ODBCWrapper.Utils.GetSafeStr(dr, "EXTERNAL_RECORDING_ID"),
+                        EpgStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "START_DATE"),
+                        EpgEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE")
                     };
                 }
             }
@@ -2600,27 +2600,125 @@ namespace DAL
         public static List<Recording> GetRecordings(int groupId, List<long> recordingIds)
         {
             List<Recording> recordings = new List<Recording>();
+
             ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_Recordings");
             storedProcedure.SetConnectionKey("CONNECTION_STRING");
             storedProcedure.AddIDListParameter<long>("@RecordingIds", recordingIds, "Id");
-            storedProcedure.AddParameter("@groupId", groupId);
+            storedProcedure.AddParameter("@GroupId", groupId);
 
             DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+            recordings = BuildRecordingsFromDataSet(dataSet);
+
+            return recordings;
+        }
+
+        private static List<Recording> BuildRecordingsFromDataSet(DataSet dataSet)
+        {
+            List<Recording> recordings = new List<Recording>();
 
             if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0 &&
                 dataSet.Tables[0] != null && dataSet.Tables[0].Rows != null)
             {
                 foreach (DataRow row in dataSet.Tables[0].Rows)
                 {
-                    Recording recording = new Recording();
-                    recording.EpgID = ODBCWrapper.Utils.ExtractValue<long>(row, "EPG_PROGRAM_ID");
-                    recording.RecordingID = ODBCWrapper.Utils.ExtractValue<long>(row, "ID");
-                    recording.RecordingStatus = (TstvRecordingStatus)ODBCWrapper.Utils.ExtractInteger(row, "RECORDING_STATUS");
-                    recording.ExternalRecordingId = ODBCWrapper.Utils.ExtractString(row, "EXTERNAL_RECORDING_ID");
-                    recording.EpgStartDate = ODBCWrapper.Utils.ExtractDateTime(row, "START_DATE");
-                    recording.EpgEndDate = ODBCWrapper.Utils.ExtractDateTime(row, "END_DATE");
+                    Recording recording = BuildRecordingFromRow(row);
 
                     recordings.Add(recording);
+                }
+            }
+
+            return recordings;
+        }
+
+        private static Recording BuildRecordingFromRow(DataRow row)
+        {
+            Recording recording = new Recording();
+            recording.EpgID = ODBCWrapper.Utils.ExtractValue<long>(row, "EPG_PROGRAM_ID");
+            recording.RecordingID = ODBCWrapper.Utils.ExtractValue<long>(row, "ID");
+            recording.RecordingStatus = (TstvRecordingStatus)ODBCWrapper.Utils.ExtractInteger(row, "RECORDING_STATUS");
+            recording.ExternalRecordingId = ODBCWrapper.Utils.ExtractString(row, "EXTERNAL_RECORDING_ID");
+            recording.EpgStartDate = ODBCWrapper.Utils.ExtractDateTime(row, "START_DATE");
+            recording.EpgEndDate = ODBCWrapper.Utils.ExtractDateTime(row, "END_DATE");
+            return recording;
+        }
+
+        public static bool InsertRecordingLinks(List<RecordingLink> links, int groupId, long recordingId)
+        {
+            bool result = false;
+
+            DataTable linksTable = new DataTable("recordingLinks");
+            
+            linksTable.Columns.Add("BRAND_ID", typeof(int));
+            linksTable.Columns.Add("URL", typeof(string));
+
+            foreach (RecordingLink item in links)
+            {
+                DataRow row = linksTable.NewRow();
+                row["BRAND_ID"] = item.DeviceTypeBrand;
+                row["URL"] = item.Url;
+                linksTable.Rows.Add(row);
+            }
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Insert_RecordingLinks");
+            storedProcedure.AddDataTableParameter("@RecordingLinks", linksTable);
+            storedProcedure.AddParameter("GroupId", groupId);
+            storedProcedure.AddParameter("RecordingId", recordingId);
+
+            result = storedProcedure.ExecuteReturnValue<bool>();
+
+            return result;
+        }
+
+        public static List<Recording> GetAllRecordingsByStatus(int groupId, TstvRecordingStatus status)
+        {
+            return GetAllRecordingsByStatuses(groupId,
+                new List<TstvRecordingStatus>() { status });
+        }
+
+
+        public static List<Recording> GetAllRecordingsByStatuses(int groupId, List<TstvRecordingStatus> statuses)
+        {
+            List<Recording> recordings = new List<Recording>();
+
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_All_Recordings_By_Recording_Status");
+            storedProcedure.SetConnectionKey("CONNECTION_STRING");
+
+            storedProcedure.AddParameter("@GroupId", groupId);
+            storedProcedure.AddIDListParameter<int>("@RecordingStatuses", statuses.Select(s => (int)s).ToList(), "ID");
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+            recordings = BuildRecordingsFromDataSet(dataSet);
+
+            return recordings;
+        }
+
+        public static List<Recording> GetDomainRecordingsByEpgIDs(int groupID, long domainID, List<long> epgIDs)
+        {
+            List<Recording> recordings = null;
+            ODBCWrapper.StoredProcedure spGetDomainExistingRecordingID = new ODBCWrapper.StoredProcedure("GetDomainRecordingsByEpgIDs");
+            spGetDomainExistingRecordingID.SetConnectionKey("CONNECTION_STRING");
+            spGetDomainExistingRecordingID.AddParameter("@GroupID", groupID);
+            spGetDomainExistingRecordingID.AddParameter("@DomainID", domainID);
+            spGetDomainExistingRecordingID.AddIDListParameter("@EpgIDs", epgIDs, "ID");
+
+            DataTable dt = spGetDomainExistingRecordingID.Execute();
+            if (dt != null && dt.Rows != null)
+            {
+                recordings = new List<Recording>();
+                foreach (DataRow dr in dt.Rows)
+                {
+                    recordings.Add(new Recording()
+                    {
+                        Status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, ApiObjects.Response.eResponseStatus.OK.ToString()),
+                        EpgID = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_ID"),
+                        RecordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "RECORDING_ID"),
+                        RecordingStatus = (TstvRecordingStatus)ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORDING_STATUS"),
+                        ExternalRecordingId = ODBCWrapper.Utils.GetSafeStr(dr, "EXTERNAL_RECORDING_ID"),
+                        EpgStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "START_DATE"),
+                        EpgEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE")
+                    });
                 }
             }
 

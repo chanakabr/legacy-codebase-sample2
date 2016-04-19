@@ -17073,10 +17073,10 @@ namespace ConditionalAccess
 
                 if (!IsServiceAllowed(m_nGroupID, (int)domainID, eService.NPVR))
                 {
-                    log.DebugFormat("Premium Service not allowed, DomainID: {0}, UserID: {1}", domainID, userID);
+                    log.DebugFormat("Premium Service not allowed, DomainID: {0}, UserID: {1}, Service: {2}", domainID, userID, eService.NPVR.ToString());
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ServiceNotAllowed, eResponseStatus.ServiceNotAllowed.ToString());
                     return response;
-                }                
+                }
 
                 List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(m_nGroupID, epgIDs);
                 if (epgs == null || epgs.Count == 0)
@@ -17089,7 +17089,7 @@ namespace ConditionalAccess
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());                
 
                 foreach (EPGChannelProgrammeObject epg in epgs)
-                {                                        
+                {
                     response.Recordings.Add(QueryEpgRecord(accountSettings, epg, domainID, userID));
                 }
             }

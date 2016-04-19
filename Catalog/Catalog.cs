@@ -5579,8 +5579,8 @@ namespace Catalog
 
             #region Media Types, Permitted Watch Rules, Language
 
-
-            definitions.mediaTypes = request.m_nMediaTypes;
+            // BEO-1338: Related media types is from the Media Search Request object - it knows the best!
+            definitions.mediaTypes = mediaSearchRequest.m_nMediaTypes;
 
             if (group.m_sPermittedWatchRules != null && group.m_sPermittedWatchRules.Count > 0)
             {
@@ -6419,7 +6419,7 @@ namespace Catalog
 
         public static bool UpdateRecordingsIndex(List<long> recordingsIds, int groupId, eAction action)
         {
-            return Catalog.Update(recordingsIds, groupId, eObjectType.Recordning, action);
+            return Catalog.Update(recordingsIds, groupId, eObjectType.Recording, action);
         }
     }
 }

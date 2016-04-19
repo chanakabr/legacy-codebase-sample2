@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace ApiObjects.Notification
 {
@@ -21,5 +22,8 @@ namespace ApiObjects.Notification
         public string SubscriptionExternalIdentifier { get; set; }
 
         public List<AnnouncementSubscription> SubscribedAnnouncements { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public ulong cas { get; set; }
     }
 }

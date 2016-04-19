@@ -842,139 +842,6 @@ namespace DAL
             DataSet ds = sp.ExecuteDataSet();
         }
 
-        public static DeviceNotificationData GetDeviceNotificationData(int groupId, string udid)
-        {
-            DeviceNotificationData deviceData = null;
-            try
-            {
-                deviceData = cbManager.Get<DeviceNotificationData>(GetDeviceDataKey(groupId, udid));
-                if (deviceData == null)
-                    log.DebugFormat("Device data wasn't found. GID: {0}, UDID: {1}", groupId, udid);
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while trying to get device notification. gid: {0}, udid: {1}, ex: {2}", groupId, udid, ex);
-            }
-
-            return deviceData;
-        }
-
-        public static bool SetDeviceNotificationData(int groupId, string udid, DeviceNotificationData newDeviceNotificationData)
-        {
-            bool result = false;
-            try
-            {
-                int numOfTries = 0;
-                while (!result && numOfTries < NUM_OF_INSERT_TRIES)
-                {
-                    result = cbManager.Set(GetDeviceDataKey(groupId, udid), newDeviceNotificationData);
-                    if (!result)
-                    {
-                        numOfTries++;
-                        log.ErrorFormat("Error while trying to set device notification number of tries: {0}/{1}. gid: {2}, udid: {3}, data: {4}",
-                            numOfTries,
-                            NUM_OF_INSERT_TRIES,
-                            groupId,
-                            udid,
-                            JsonConvert.SerializeObject(newDeviceNotificationData));
-                        Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
-                    }
-                    else
-                    {
-                        // log success on retry
-                        if (numOfTries > 0)
-                        {
-                            numOfTries++;
-                            log.DebugFormat("successfully set device notification. number of tries: {0}/{1}. object {2}",
-                            numOfTries,
-                            NUM_OF_INSERT_TRIES,
-                            JsonConvert.SerializeObject(newDeviceNotificationData));
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while trying to set device notification. gid: {0}, udid: {1}, ex: {2}", groupId, udid, ex);
-            }
-            return result;
-        }
-
-        public static UserNotification GetUserNotificationData(int groupId, int userId)
-        {
-            UserNotification userNotification = null;
-            try
-            {
-                userNotification = cbManager.Get<UserNotification>(GetUserNotificationKey(groupId, userId));
-                if (userNotification == null)
-                    log.DebugFormat("User notification data wasn't found. GID: {0}, UID: {1}", groupId, userId);
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while trying to get user notification. GID: {0}, user ID: {1}, ex: {2}", groupId, userId, ex);
-            }
-
-            return userNotification;
-        }
-
-        public static bool SetUserNotificationData(int groupId, int userId, UserNotification userNotification)
-        {
-            bool result = false;
-            try
-            {
-                int numOfTries = 0;
-                while (!result && numOfTries < NUM_OF_INSERT_TRIES)
-                {
-                    result = cbManager.Set(GetUserNotificationKey(groupId, userId), userNotification);
-                    if (!result)
-                    {
-                        numOfTries++;
-                        log.ErrorFormat("Error while set user notification data. number of tries: {0}/{1}. GID: {2}, user ID: {3}. data: {4}",
-                             numOfTries,
-                            NUM_OF_INSERT_TRIES,
-                            groupId,
-                            userId,
-                            JsonConvert.SerializeObject(userNotification));
-                        Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
-                    }
-                    else
-                    {
-                        // log success on retry
-                        if (numOfTries > 0)
-                        {
-                            numOfTries++;
-                            log.DebugFormat("successfully set user notification data. number of tries: {0}/{1}. object {2}",
-                            numOfTries,
-                            NUM_OF_INSERT_TRIES,
-                            JsonConvert.SerializeObject(userNotification));
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while set user notification data. gid: {0}, user ID: {1}, ex: {2}", groupId, userId, ex);
-            }
-
-            return result;
-        }
-
-        public static bool RemoveUserNotificationData(int groupId, int userId)
-        {
-            bool result = false;
-            try
-            {
-                result = cbManager.Remove(GetUserNotificationKey(groupId, userId));
-                if (!result)
-                    log.ErrorFormat("Error while removing user notification data. GID: {0}, user ID: {1}.", groupId, userId);
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while set user notification data. gid: {0}, user ID: {1}, ex: {2}", groupId, userId, ex);
-            }
-            return result;
-        }
-
         public static string Get_AnnouncementExternalIdByRecipients(int groupId, int recipients)
         {
             string ret = string.Empty;
@@ -1177,10 +1044,10 @@ namespace DAL
 
         public static FollowTemplate SetFollowTemplate(int groupId, FollowTemplate followTemplate)
         {
-            FollowTemplate result = new FollowTemplate();
+            FollowTemplate result = null;
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertFollowTemplate");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("SetFollowTemplate");
                 sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@message", followTemplate.Message);
@@ -1193,7 +1060,7 @@ namespace DAL
                 {
                     if (ds.Tables[0].Rows.Count > 0)
                     {
-                        result = CreateFollowTemplate(result, ds.Tables[0].Rows[0]);
+                        result = CreateFollowTemplate(ds.Tables[0].Rows[0]);
                     }
                 }
             }
@@ -1206,14 +1073,15 @@ namespace DAL
 
         }
 
-        public static FollowTemplate GetFollowTemplate(int groupId)
+        public static FollowTemplate GetFollowTemplate(int groupId, eOTTAssetTypes assetType)
         {
-            FollowTemplate result = new FollowTemplate();
+            FollowTemplate result =null;
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetFollowTemplate");
                 sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
                 sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@assetType", (int)assetType);
 
                 DataSet ds = sp.ExecuteDataSet();
 
@@ -1221,7 +1089,7 @@ namespace DAL
                 {
                     if (ds.Tables[0].Rows.Count > 0)
                     {
-                        result = CreateFollowTemplate(result, ds.Tables[0].Rows[0]);
+                        result = CreateFollowTemplate(ds.Tables[0].Rows[0]);
                     }
                 }
             }
@@ -1234,8 +1102,10 @@ namespace DAL
 
         }
 
-        private static FollowTemplate CreateFollowTemplate(FollowTemplate result, DataRow row)
+        private static FollowTemplate CreateFollowTemplate(DataRow row)
         {
+            FollowTemplate result = new FollowTemplate();
+
             int assetType = ODBCWrapper.Utils.GetIntSafeVal(row, "ASSET_TYPE");
 
             result = new FollowTemplate()
@@ -1248,6 +1118,233 @@ namespace DAL
             return result;
         }
 
+        public static DeviceNotificationData GetDeviceNotificationData(int groupId, string udid, bool withLock = false)
+        {
+            DeviceNotificationData deviceData = null;
+            Couchbase.IO.ResponseStatus status = Couchbase.IO.ResponseStatus.None;
+            ulong cas = 0;
 
+            try
+            {
+                bool result = false;
+                int numOfTries = 0;
+                while (!result && numOfTries < NUM_OF_INSERT_TRIES)
+                {
+                    if (withLock)
+                        deviceData = cbManager.Get<DeviceNotificationData>(GetDeviceDataKey(groupId, udid), true, out cas, out status);
+                    else
+                        deviceData = cbManager.Get<DeviceNotificationData>(GetDeviceDataKey(groupId, udid), out status);
+
+                    if (deviceData == null)
+                    {
+                        if (status == Couchbase.IO.ResponseStatus.KeyNotFound)
+                        {
+                            // key doesn't exist - don't try again
+                            log.DebugFormat("device notification data with lock wasn't found. key: {0}", GetDeviceDataKey(groupId, udid));
+                            result = true;
+                        }
+                        else
+                        {
+                            numOfTries++;
+                            log.ErrorFormat("Error while getting device notification data with lock. number of tries: {0}/{1}. key: {2}",
+                                numOfTries,
+                                NUM_OF_INSERT_TRIES,
+                                GetDeviceDataKey(groupId, udid));
+
+                            Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
+                        }
+                    }
+                    else
+                    {
+                        result = true;
+                        deviceData.cas = cas;
+
+                        // log success on retry
+                        if (numOfTries > 0)
+                        {
+                            numOfTries++;
+                            log.DebugFormat("successfully received device notification data with lock. number of tries: {0}/{1}. key {2}",
+                            numOfTries,
+                            NUM_OF_INSERT_TRIES,
+                            GetDeviceDataKey(groupId, udid));
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to get device notification with lock. key: {0}, ex: {1}", GetDeviceDataKey(groupId, udid), ex);
+            }
+
+            return deviceData;
+        }
+
+        public static bool SetDeviceNotificationData(int groupId, string udid, DeviceNotificationData newDeviceNotificationData, bool unlock = false)
+        {
+            bool result = false;
+            try
+            {
+                int numOfTries = 0;
+                while (!result && numOfTries < NUM_OF_INSERT_TRIES)
+                {
+                    if (unlock)
+                        result = cbManager.Set(GetDeviceDataKey(groupId, udid), newDeviceNotificationData, true, 0, newDeviceNotificationData.cas);
+                    else
+                        result = cbManager.Set(GetDeviceDataKey(groupId, udid), newDeviceNotificationData);
+
+                    if (!result)
+                    {
+                        numOfTries++;
+                        log.ErrorFormat("Error while trying to set device notification number of tries: {0}/{1}. GID: {2}, UDID: {3}, data: {4}",
+                            numOfTries,
+                            NUM_OF_INSERT_TRIES,
+                            groupId,
+                            udid,
+                            JsonConvert.SerializeObject(newDeviceNotificationData));
+                        Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
+                    }
+                    else
+                    {
+                        // log success on retry
+                        if (numOfTries > 0)
+                        {
+                            numOfTries++;
+                            log.DebugFormat("successfully set device notification. number of tries: {0}/{1}. object {2}",
+                            numOfTries,
+                            NUM_OF_INSERT_TRIES,
+                            JsonConvert.SerializeObject(newDeviceNotificationData));
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to set device notification. GID: {0}, UDID: {1}, ex: {2}", groupId, udid, ex);
+            }
+            return result;
+        }
+
+        public static UserNotification GetUserNotificationData(int groupId, int userId, bool withLock = false)
+        {
+            UserNotification userNotification = null;
+            Couchbase.IO.ResponseStatus status = Couchbase.IO.ResponseStatus.None;
+            ulong cas = 0;
+
+            try
+            {
+                bool result = false;
+                int numOfTries = 0;
+                while (!result && numOfTries < NUM_OF_INSERT_TRIES)
+                {
+                    if (withLock)
+                        userNotification = cbManager.Get<UserNotification>(GetUserNotificationKey(groupId, userId), true, out cas, out status);
+                    else
+                        userNotification = cbManager.Get<UserNotification>(GetUserNotificationKey(groupId, userId), out status);
+
+                    if (userNotification == null)
+                    {
+                        if (status == Couchbase.IO.ResponseStatus.KeyNotFound)
+                        {
+                            // key doesn't exist - don't try again
+                            log.DebugFormat("user notification data wasn't found. key: {0}", GetUserNotificationKey(groupId, userId));
+                            result = true;
+                        }
+                        else
+                        {
+                            numOfTries++;
+                            log.ErrorFormat("Error while getting user notification data. number of tries: {0}/{1}. key: {2}",
+                                numOfTries,
+                                NUM_OF_INSERT_TRIES,
+                                GetUserNotificationKey(groupId, userId));
+
+                            Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
+                        }
+                    }
+                    else
+                    {
+                        result = true;
+                        userNotification.cas = cas;
+
+                        // log success on retry
+                        if (numOfTries > 0)
+                        {
+                            numOfTries++;
+                            log.DebugFormat("successfully received user notification data. number of tries: {0}/{1}. key {2}",
+                            numOfTries,
+                            NUM_OF_INSERT_TRIES,
+                            GetUserNotificationKey(groupId, userId));
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to get user notification. key: {0}, ex: {1}", GetUserNotificationKey(groupId, userId), ex);
+            }
+
+            return userNotification;
+        }
+
+        public static bool SetUserNotificationData(int groupId, int userId, UserNotification userNotification, bool unlock = false)
+        {
+            bool result = false;
+            try
+            {
+                int numOfTries = 0;
+                while (!result && numOfTries < NUM_OF_INSERT_TRIES)
+                {
+                    if (unlock)
+                        result = cbManager.Set(GetUserNotificationKey(groupId, userId), userNotification, true, 0, userNotification.cas);
+                    else
+                        result = cbManager.Set(GetUserNotificationKey(groupId, userId), userNotification);
+
+                    if (!result)
+                    {
+                        numOfTries++;
+                        log.ErrorFormat("Error while setting user notification data. number of tries: {0}/{1}. GID: {2}, user ID: {3}. data: {4}",
+                             numOfTries,
+                            NUM_OF_INSERT_TRIES,
+                            groupId,
+                            userId,
+                            JsonConvert.SerializeObject(userNotification));
+                        Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
+                    }
+                    else
+                    {
+                        // log success on retry
+                        if (numOfTries > 0)
+                        {
+                            numOfTries++;
+                            log.DebugFormat("successfully set user notification data. number of tries: {0}/{1}. object {2}",
+                            numOfTries,
+                            NUM_OF_INSERT_TRIES,
+                            JsonConvert.SerializeObject(userNotification));
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while setting user notification data (unlock). GID: {0}, user ID: {1}, ex: {2}", groupId, userId, ex);
+            }
+
+            return result;
+        }
+
+        public static bool RemoveUserNotificationData(int groupId, int userId)
+        {
+            bool result = false;
+            try
+            {
+                result = cbManager.Remove(GetUserNotificationKey(groupId, userId));
+                if (!result)
+                    log.ErrorFormat("Error while removing user notification data. GID: {0}, user ID: {1}.", groupId, userId);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while set user notification data. gid: {0}, user ID: {1}, ex: {2}", groupId, userId, ex);
+            }
+            return result;
+        }
     }
 }
