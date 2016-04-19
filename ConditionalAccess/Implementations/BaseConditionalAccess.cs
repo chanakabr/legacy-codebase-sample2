@@ -17301,30 +17301,99 @@ namespace ConditionalAccess
         public RecordingIDsResponse GetDomainRecordingIDsByRecordingStatuses(string userID, long domainID, List<int> recordingStatuses)
         {
             RecordingIDsResponse response = new RecordingIDsResponse();
-            if (recordingStatuses == null || recordingStatuses.Count == 0)
+            try
             {
-                log.DebugFormat("RecordingStatuses is null, DomainID: {0}, UserID: {1}", domainID, userID);
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingStatusNotSent, eResponseStatus.RecordingStatusNotSent.ToString());
-                return response;
+                if (recordingStatuses == null || recordingStatuses.Count == 0)
+                {
+                    log.DebugFormat("RecordingStatuses is null, DomainID: {0}, UserID: {1}", domainID, userID);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingStatusNotSent, eResponseStatus.RecordingStatusNotSent.ToString());
+                    return response;
+                }
+
+                ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userID, ref domainID);
+                if (validationStatus.Code != (int)eResponseStatus.OK)
+                {
+                    log.DebugFormat("User or Domain not valid, DomainID: {0}, UserID: {1}, recordingStatuses: {2}", domainID, userID, recordingStatuses);
+                    response.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
+                    return response;
+                }
+
+                List<long> recordingIDs = ConditionalAccessDAL.GetDomainRecordingIDsByRecordingStatuses(m_nGroupID, domainID, recordingStatuses);
+                if (recordingIDs == null)
+                {
+                    log.DebugFormat("Failed GetDomainRecordingIDsByRecordingStatuses, recordingIDs is null, DomainID: {0}, UserID: {1}, recordingStatuses: {2}", domainID, userID, recordingStatuses);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    return response;
+                }
+
+                response.RecordingIDs = recordingIDs;
             }
 
-            ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userID, ref domainID);
-            if (validationStatus.Code != (int)eResponseStatus.OK)
+            catch (Exception ex)
             {
-                log.DebugFormat("User or Domain not valid, DomainID: {0}, UserID: {1}, recordingStatuses: {2}", domainID, userID, recordingStatuses);
-                response.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
-                return response;
+                StringBuilder sb = new StringBuilder("Exception at GetDomainRecordingIDsByRecordingStatuses. ");
+                sb.Append(String.Concat("userID: ", userID));
+                sb.Append(String.Concat("domainID: ", domainID));                
+                sb.Append(", RecordingStatuses: ");
+                foreach (int recordingStatus in recordingStatuses)
+                {
+                    sb.Append(String.Concat(recordingStatus, ", "));
+                }
+                sb.Append(String.Concat("Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(", Stack Trace: ", ex.StackTrace));
+
+                log.Error(sb.ToString(), ex);
+            }
+            return response;
+        }
+
+        public RecordingResponse GetRecordingsByIDs(List<long> recordingIDs)
+        {
+            RecordingResponse response = new RecordingResponse();
+            try
+            {
+                if (recordingIDs == null || recordingIDs.Count == 0)
+                {
+                    log.DebugFormat("No recordingIDs were sent");
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    return response;
+                }
+
+                List<Recording> recordings = ConditionalAccessDAL.GetRecordings(m_nGroupID, recordingIDs);
+                if (recordings == null || recordings.Count == 0)
+                {
+                    log.DebugFormat("No recordingIDs were returned from ConditionalAccessDAL.GetRecordings");
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    return response;
+                }
+
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                response.Recordings = recordings;
             }
 
-            List<long> recordingIDs = ConditionalAccessDAL.GetDomainRecordingIDsByRecordingStatuses(m_nGroupID, domainID, recordingStatuses);
-            if (recordingIDs == null)
+            catch (Exception ex)
             {
-                log.DebugFormat("Failed GetDomainRecordingIDsByRecordingStatuses, recordingIDs is null, DomainID: {0}, UserID: {1}, recordingStatuses: {2}", domainID, userID, recordingStatuses);
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                return response;
+                StringBuilder sb = new StringBuilder("Exception at GetRecordingsByIDs. ");                
+                sb.Append("RecordingIDs: ");
+                if (recordingIDs != null)
+                {
+                    foreach (long recordingID in recordingIDs)
+                    {
+                        sb.Append(String.Concat(recordingID, ", "));
+                    }
+                }
+                else
+                {
+                    sb.Append("Null, ");
+                }
+                sb.Append(String.Concat("Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(", Stack Trace: ", ex.StackTrace));
+
+                log.Error(sb.ToString(), ex);
             }
 
-            response.RecordingIDs = recordingIDs;
             return response;
         }
     }
