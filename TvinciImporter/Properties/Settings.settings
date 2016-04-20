@@ -8,5 +8,8 @@
     <Setting Name="TvinciImporter_Lucene_WCF_Service" Type="(Web Service URL)" Scope="Application">
       <Value Profile="(Default)">http://localhost/LuceneWCF/Service.svc</Value>
     </Setting>
+    <Setting Name="TvinciImporter_WS_CAS1_module" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">http://localhost:82/ws_cas/module.asmx</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
