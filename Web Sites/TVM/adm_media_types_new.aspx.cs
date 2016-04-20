@@ -128,6 +128,12 @@ public partial class adm_media_types_new : System.Web.UI.Page
         associationTagField.Initialize("Association tag", "adm_table_header_nbg", "FormInput", "ASSOCIATION_TAG", false);
         theRecord.AddRecord(associationTagField);
 
+        DataRecordDropDownField assetTypeDropDown = new DataRecordDropDownField("lu_OTT_Asset_Types", "NAME", "id", "", null, 60,true);
+        assetTypeDropDown.Initialize("Asset type", "adm_table_header_nbg", "FormInput", "ASSET_TYPE",false);
+        assetTypeDropDown.SetNoSelectStr("---");
+        theRecord.AddRecord(assetTypeDropDown);
+        
+
         //bool bVisible = PageUtils.IsTvinciUser();
         //if (bVisible == true)
         //{
