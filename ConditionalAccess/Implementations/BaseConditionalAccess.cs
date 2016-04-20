@@ -17194,11 +17194,7 @@ namespace ConditionalAccess
                                 response = new Recording() { EpgID = epg.EPG_ID, ChannelId = epg.EPG_CHANNEL_ID };
                             }
                         }
-                        else
-                        {
-                            log.DebugFormat("GetDomainExistingRecording Recording object not as expected, DomainID: {0}, UserID: {1}, Recording: {2}", domainID, userID, response.ToString());
-                            response = new Recording() { EpgID = epg.EPG_ID, ChannelId = epg.EPG_CHANNEL_ID };
-                        }
+
                     }
                     else
                     {
