@@ -17480,9 +17480,72 @@ namespace ConditionalAccess
             return response;
         }
 
-        public ApiObjects.Response.Status UpdateRecording(int groupID, List<long> epgs, eAction action)
+        public ApiObjects.Response.Status UpdateRecording(int groupID, List<long> epgIds, eAction action)
         {
-            throw new NotImplementedException();
+            ApiObjects.Response.Status status = null;
+
+            // Nothing to do
+            if (epgIds == null || epgIds.Count == 0)
+            {
+                return new ApiObjects.Response.Status((int)eResponseStatus.OK);;
+            }
+
+            // Get EPG objects from Catalog, by their IDs
+            List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(groupID, epgIds);
+
+            // Simple validation
+            if (epgs == null || epgs.Count == 0)
+            {
+                log.DebugFormat("Failed Getting EPGs from Catalog, EpgIDs: {0}", string.Join(",", epgIds));
+                status = new ApiObjects.Response.Status((int)eResponseStatus.InvalidAssetId, eResponseStatus.InvalidAssetId.ToString());
+            }
+            else
+            {
+                foreach (var epg in epgs)
+                {
+                    DateTime startDate;
+                    DateTime endDate;
+
+                    // Parse start date
+                    if (!DateTime.TryParseExact(epg.START_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out startDate))
+                    {
+                        log.ErrorFormat("Failed parsing EPG start date, epgID: {0}, startDate: {1}", epg.EPG_ID, epg.START_DATE);
+                    }
+                    else
+                    {
+                        // Parse end date
+                        if (!DateTime.TryParseExact(epg.END_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out endDate))
+                        {
+                            log.ErrorFormat("Failed parsing EPG end date, epgID: {0}, endDate: {1}", epg.EPG_ID, epg.START_DATE);
+                        }
+                        else
+                        {
+                            var currentStatus = RecordingsManager.Instance.UpdateRecording(groupID, epg.EPG_ID, startDate, endDate);
+
+                            if (status == null)
+                            {
+                                // If we failed with one (and it is the first) - save it so we would later return it
+                                if (currentStatus == null)
+                                {
+                                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Recording manager failed to update recording");
+                                }
+                                else if (currentStatus.Code != (int)eResponseStatus.Error)
+                                {
+                                    status = currentStatus;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // If we finished foreach and there is no status - everything is ok
+                if (status == null)
+                {
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.OK);
+                }
+            }
+
+            return status;
         }
     }
 }
