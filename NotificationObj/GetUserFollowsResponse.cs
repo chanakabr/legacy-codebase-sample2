@@ -9,7 +9,7 @@ namespace NotificationObj
     public class GetUserFollowsResponse
     {
         public ApiObjects.Response.Status Status;
-        public List<FollowData> Follows;
+        public List<FollowDataBase> Follows;
         public int TotalCount;
     }
 }

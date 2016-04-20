@@ -863,7 +863,7 @@ namespace DAL
             return ret;
         }
 
-        public static int Insert_Announcement(int groupId, string announcementName, string externalAnnouncementId, int messageType, int announcementRecipientsType)
+        public static int Insert_Announcement(int groupId, string announcementName, string externalAnnouncementId, int messageType, int announcementRecipientsType, string followPhrase = null)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("Insert_Announcement");
             spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -874,6 +874,7 @@ namespace DAL
             spInsert.AddParameter("@recipient_type", announcementRecipientsType);
             spInsert.AddParameter("@status", 1);
             spInsert.AddParameter("@created_at", DateTime.UtcNow);
+            spInsert.AddParameter("@follow_phrase", followPhrase);
 
             int newTransactionID = spInsert.ExecuteReturnValue<int>();
             return newTransactionID;
