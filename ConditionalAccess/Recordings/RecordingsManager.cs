@@ -75,7 +75,6 @@ namespace Recordings
                 recording.EpgID = programId;
                 recording.EpgStartDate = startDate;
                 recording.EpgEndDate = endDate;
-                recording.RecordingStatus = TstvRecordingStatus.Scheduled;
                 recording.ChannelId = epgChannelID;
 
                 int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
@@ -126,6 +125,7 @@ namespace Recordings
                     try
                     {
                         recording.ExternalRecordingId = adapterResponse.RecordingId;
+                        recording.RecordingStatus = adapterResponse.RecordingState;
 
                         // Insert recording information to database
                         recording = ConditionalAccessDAL.InsertRecording(recording, groupId);

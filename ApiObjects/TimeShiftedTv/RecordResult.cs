@@ -9,7 +9,7 @@ namespace ApiObjects.TimeShiftedTv
     public class RecordResult
     {
         public string RecordingId { get; set; } 
-        public int RecordingState { get; set; }     
+        public TstvRecordingStatus RecordingState { get; set; }     
         public List<RecordingLink> Links { get; set; }// not return form WS
         
         public int FailReason { get; set; }

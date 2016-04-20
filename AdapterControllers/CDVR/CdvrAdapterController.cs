@@ -689,7 +689,7 @@ namespace AdapterControllers.CDVR
             {
                 Links = links,
                 RecordingId = adapterResponse.Recording.RecordingId,
-                RecordingState = adapterResponse.Recording.RecordingState,
+                RecordingState = (TstvRecordingStatus)adapterResponse.Recording.RecordingState,
                 FailReason = adapterResponse.Recording.FailReason,
                 ProviderStatusCode = adapterResponse.Recording.ProviderStatusCode,
                 ProviderStatusMessage = adapterResponse.Recording.ProviderStatusMessage
