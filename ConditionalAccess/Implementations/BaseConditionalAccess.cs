@@ -16707,6 +16707,14 @@ namespace ConditionalAccess
                     response = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
                 }
 
+                string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                string[] keys = new string[1] 
+                    { 
+                        string.Format("{0}_cdvr_adapter_{1}", version, adapterId)
+                    };
+
+                QueueUtils.UpdateCache(m_nGroupID, CouchbaseManager.eCouchbaseBucket.CACHE.ToString(), keys);
+
             }
             catch (Exception ex)
             {
@@ -16767,6 +16775,15 @@ namespace ConditionalAccess
                     {
                         log.ErrorFormat("InsertCDVRAdapter - SendConfigurationToAdapter failed : adapterID = {0}", response.Adapter.ID);
                     }
+
+                    // remove adapter from cache
+                    string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                    string[] keys = new string[1] 
+                    { 
+                        string.Format("{0}_cdvr_adapter_{1}", version, adapter.ID)
+                    };
+
+                    QueueUtils.UpdateCache(m_nGroupID, CouchbaseManager.eCouchbaseBucket.CACHE.ToString(), keys);
                 }
                 else
                 {
@@ -16809,6 +16826,21 @@ namespace ConditionalAccess
                 if (response.Adapter != null && response.Adapter.ID > 0)
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+                    bool isSendSucceeded = SendConfigurationToAdapter(m_nGroupID, response.Adapter);
+                    if (!isSendSucceeded)
+                    {
+                        log.DebugFormat("SetCDVRAdapter - SendConfigurationToAdapter failed : AdapterID = {0}", adapter.ID);
+                    }
+
+                    // remove adapter from cache
+                    string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                    string[] keys = new string[1] 
+                    { 
+                        string.Format("{0}_cdvr_adapter_{1}", version,adapterId)
+                    };
+
+                    QueueUtils.UpdateCache(m_nGroupID, CouchbaseManager.eCouchbaseBucket.CACHE.ToString(), keys);
                 }
                 else
                 {
@@ -17145,7 +17177,7 @@ namespace ConditionalAccess
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramCatchUpNotEnabled, eResponseStatus.ProgramCatchUpNotEnabled.ToString());
                         return response;
                     }
-                    if (epg.CHANNEL_CATCH_UP_BUFFER == 0 && epgStartDate.AddHours(epg.CHANNEL_CATCH_UP_BUFFER) < DateTime.UtcNow)
+                    if (epg.CHANNEL_CATCH_UP_BUFFER == 0 && epgStartDate.AddMinutes(epg.CHANNEL_CATCH_UP_BUFFER) < DateTime.UtcNow)
                     {
                         log.DebugFormat("CatchUp Buffer not in range for EPG, epgID: {0}, domainID: {1}, userID {2}", epg.EPG_ID, domainID, userID);
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.CatchUpBufferLimitation, eResponseStatus.CatchUpBufferLimitation.ToString());
@@ -17464,6 +17496,15 @@ namespace ConditionalAccess
                     {
                         log.DebugFormat("SetCDVRAdapter - SendConfigurationToAdapter failed : AdapterID = {0}", adapter.ID);
                     }
+
+                    // remove adapter from cache
+                    string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                    string[] keys = new string[1] 
+                    { 
+                        string.Format("{0}_cdvr_adapter_{1}", version, adapter.ID)
+                    };
+
+                    QueueUtils.UpdateCache(m_nGroupID, CouchbaseManager.eCouchbaseBucket.CACHE.ToString(), keys);
                 }
                 else
                 {
