@@ -5488,9 +5488,11 @@ namespace TvinciImporter
             return res;
         }
 
-        public static bool UpdateEpgIndex(List<ulong> lepgIds, int nGroupId, eAction eAction)
+        public static bool UpdateEpg(List<ulong> epgIds, int groupId, eAction action)
         {
             bool isUpdateIndexSucceeded = false;
+
+            #region Update EPG Index (Catalog)
 
             string sUseElasticSearch = GetConfigVal("indexer");  /// Indexer - ES / Lucene
             if (!string.IsNullOrEmpty(sUseElasticSearch) && sUseElasticSearch.Equals("ES")) //ES
@@ -5499,19 +5501,19 @@ namespace TvinciImporter
 
                 try
                 {
-                    int nParentGroupID = DAL.UtilsDal.GetParentGroupID(nGroupId);
+                    int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);
                     wsCatalog = GetWCFSvc("WS_Catalog");
-                    if (lepgIds != null && lepgIds.Count > 0 && nParentGroupID > 0)
+                    if (epgIds != null && epgIds.Count > 0 && nParentGroupID > 0)
                     {
                         string sWSURL = GetCatalogUrl(nParentGroupID);
 
                         if (!string.IsNullOrEmpty(sWSURL))
                         {
                             string[] arrAddresses = sWSURL.Split(';');
-                            int[] arrEPGIds = new int[lepgIds.Count];
+                            int[] arrEPGIds = new int[epgIds.Count];
                             int nArrayIndex = 0;
 
-                            foreach (ulong item in lepgIds)
+                            foreach (ulong item in epgIds)
                             {
                                 arrEPGIds[nArrayIndex] = int.Parse(item.ToString());
                                 nArrayIndex++;
@@ -5527,7 +5529,7 @@ namespace TvinciImporter
                                     {
                                         WSCatalog.eAction actionCatalog = WSCatalog.eAction.On;
 
-                                        switch (eAction)
+                                        switch (action)
                                         {
                                             case eAction.Off:
                                                 actionCatalog = WSCatalog.eAction.Off;
@@ -5578,6 +5580,12 @@ namespace TvinciImporter
                     }
                 }
             }
+
+            #endregion
+
+            #region Update Recordings (CAS)
+
+            #endregion
 
             return isUpdateIndexSucceeded;
         }
