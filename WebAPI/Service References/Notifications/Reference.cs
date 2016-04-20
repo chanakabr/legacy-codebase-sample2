@@ -1610,7 +1610,10 @@ namespace WebAPI.Notifications {
     public enum eOTTAssetTypes : int {
         
         [System.Runtime.Serialization.EnumMemberAttribute()]
-        Series = 0,
+        None = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Series = 1,
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
