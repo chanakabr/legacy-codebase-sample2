@@ -250,7 +250,8 @@ namespace ApiObjects
 
     public enum eOTTAssetTypes
     {
-        Series= 0
+        None = 0,
+        Series= 1
     }
 
     public enum eAssetTypes
