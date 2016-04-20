@@ -61,7 +61,7 @@ public partial class adm_cdvr_adapter : System.Web.UI.Page
     {
         Int32 groupID = LoginManager.GetLoginGroupID();
 
-        theTable += "select id, name, group_id, is_active, status, adapter_url as 'adapter url'";
+        theTable += "select id, name, group_id, is_active, status, adapter_url as 'adapter url', dynamic_links_support as 'dynamic links support'";
         theTable += ",external_identifier as 'external id'";
         theTable += "from cdvr_adapters ";
         theTable += "where";

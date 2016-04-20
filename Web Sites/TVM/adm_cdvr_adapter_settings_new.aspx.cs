@@ -39,25 +39,34 @@ public partial class adm_cdvr_adapter_settings_new : System.Web.UI.Page
 
                 if (Session["cdvr_adapter_id"] != null && !string.IsNullOrEmpty(Session["cdvr_adapter_id"].ToString()) && int.TryParse(Session["cdvr_adapter_id"].ToString(), out cdvrAdapterId))
                 {
-                    //// set adapter configuration
-                    //apiWS.API api = new apiWS.API();
+                    // set adapter configuration
+                    apiWS.API api = new apiWS.API();
 
-                    //string sIP = "1.1.1.1";
-                    //string sWSUserName = "";
-                    //string sWSPass = "";
-                    //TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "SetCDVRAdapterConfiguration", "api", sIP, ref sWSUserName, ref sWSPass);
-                    //string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
-                    //if (!string.IsNullOrEmpty(sWSURL))
-                    //    api.Url = sWSURL;
-                    //try
-                    //{
-                    //    apiWS.Status status = api.SetOSSAdapterConfiguration(sWSUserName, sWSPass, cdvrAdapterId);
-                    //    log.Debug("SetOSSAdapterConfiguration - " + string.Format("oass adapter id:{0}, status:{1}", cdvrAdapterId, status.Code));
-                    //}
-                    //catch (Exception ex)
-                    //{
-                    //    log.Debug("Exception - " + string.Format("oass adapter id:{0}, ex msg:{1}, ex st: {2} ", cdvrAdapterId, ex.Message, ex.StackTrace), ex);
-                    //}
+                    string sIP = "1.1.1.1";
+                    string sWSUserName = "";
+                    string sWSPass = "";
+                    TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "SetCDVRAdapterConfiguration", "api", sIP, ref sWSUserName, ref sWSPass);
+                    string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
+                    if (!string.IsNullOrEmpty(sWSURL))
+                        api.Url = sWSURL;
+                    try
+                    {
+                        apiWS.Status status = api.SetOSSAdapterConfiguration(sWSUserName, sWSPass, cdvrAdapterId);
+                        log.Debug("SetOSSAdapterConfiguration - " + string.Format("oass adapter id:{0}, status:{1}", cdvrAdapterId, status.Code));
+
+                        // remove adapter from cache
+                        string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                        string[] keys = new string[1] 
+                                { 
+                                    string.Format("{0}_cdvr_adapter_{1}", version, cdvrAdapterId)
+                                };
+
+                        QueueUtils.UpdateCache(LoginManager.GetLoginGroupID(), CouchbaseManager.eCouchbaseBucket.CACHE.ToString(), keys);
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Debug("Exception - " + string.Format("oass adapter id:{0}, ex msg:{1}, ex st: {2} ", cdvrAdapterId, ex.Message, ex.StackTrace), ex);
+                    }
                 }
 
                 return;

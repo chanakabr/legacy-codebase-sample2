@@ -32,17 +32,17 @@ public partial class adm_cdvr_adapter_new : System.Web.UI.Page
 
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString().Trim() == "1")
             {
-                int pgid = 0;
+                int adapterId = 0;
                 // Validate uniqe external id
                 if (Session["cdvr_adapter_id"] != null && Session["cdvr_adapter_id"].ToString() != "" && int.Parse(Session["cdvr_adapter_id"].ToString()) != 0)
                 {
-                    int.TryParse(Session["cdvr_adapter_id"].ToString(), out pgid);
+                    int.TryParse(Session["cdvr_adapter_id"].ToString(), out adapterId);
                 }
 
                 System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;
                 if (coll != null && coll.Count > 2 && !string.IsNullOrEmpty(coll["1_val"]))
                 {
-                    if (IsExternalIDExists(coll["1_val"], pgid))
+                    if (IsExternalIDExists(coll["1_val"], adapterId))
                     {
                         Session["error_msg"] = "External Id must be unique";
                         flag = true;
@@ -65,6 +65,15 @@ public partial class adm_cdvr_adapter_new : System.Web.UI.Page
                             {
                                 CDVRAdapterResponse status = cas.SendCDVRAdapterConfiguration(sWSUserName, sWSPass, nID);
                                 log.Debug("SetOSSAdapterConfiguration - " + string.Format("oss adapter id:{0}, status:{1}", nID, status.Status != null ? status.Status.Code: 1));
+
+                                // remove adapter from cache
+                                string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                                string[] keys = new string[1] 
+                                { 
+                                    string.Format("{0}_cdvr_adapter_{1}", version, nID)
+                                };
+
+                                QueueUtils.UpdateCache(LoginManager.GetLoginGroupID(), CouchbaseManager.eCouchbaseBucket.CACHE.ToString(), keys);
                             }
                             catch (Exception ex)
                             {
@@ -138,6 +147,10 @@ public partial class adm_cdvr_adapter_new : System.Web.UI.Page
         DataRecordShortTextField dr_shared_secret = new DataRecordShortTextField("ltr", false, 60, 128);
         dr_shared_secret.Initialize("Shared Secret", "adm_table_header_nbg", "FormInput", "shared_secret", false);
         theRecord.AddRecord(dr_shared_secret);
+
+        DataRecordCheckBoxField dr_dynamicLinksSupport = new DataRecordCheckBoxField(true);
+        dr_dynamicLinksSupport.Initialize("Dynamic Links Support", "adm_table_header_nbg", "FormInput", "dynamic_links_support", true);
+        theRecord.AddRecord(dr_dynamicLinksSupport);
 
         if (t == null)
         {
