@@ -4395,5 +4395,30 @@ namespace Tvinci.Core.DAL
 
             return cdvrId;
         }
+
+        public static eOTTAssetTypes GetMediaFollowAssetType(int groupId, int mediaId)
+        {
+            eOTTAssetTypes assetType = eOTTAssetTypes.None;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MediaAssetTypeByMediaId");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@mediaId", mediaId);
+                sp.AddParameter("@groupId", groupId);
+
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    assetType = (eOTTAssetTypes)Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ASSET_TYPE");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while getting asset type by media Id. GID: {0}, mediaId: {1}, ex: {2}", groupId, mediaId, ex);
+            }
+
+            return assetType;
+        }
     }
 }
