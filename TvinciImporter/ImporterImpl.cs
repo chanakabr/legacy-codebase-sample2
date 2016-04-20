@@ -5488,7 +5488,7 @@ namespace TvinciImporter
             return res;
         }
 
-        public static bool UpdateEpg(List<ulong> epgIds, int groupId, ApiObjects.eAction action)
+        public static bool UpdateEpg(List<ulong> epgIds, int groupId, ApiObjects.eAction action, bool datesUpdates = true)
         {
             bool isUpdateIndexSucceeded = false;
 
@@ -5591,7 +5591,11 @@ namespace TvinciImporter
 
                 #region Update Recordings (CAS)
 
-                UpdateRecordingsOfEPGs(epgIds, groupId, action);
+                // Update recordings only if we know that the dates have changed
+                if (datesUpdates)
+                {
+                    UpdateRecordingsOfEPGs(epgIds, groupId, action);
+                }
 
                 #endregion
             }

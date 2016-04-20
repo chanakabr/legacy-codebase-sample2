@@ -2514,7 +2514,7 @@ namespace DAL
             return recording;
         }
 
-        public static bool UpdateRecording(Recording recording, int groupId)
+        public static bool UpdateRecording(Recording recording, int groupId, int status, int isActive)
         {
             bool result = false;
 
@@ -2525,6 +2525,8 @@ namespace DAL
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("EXTERNAL_RECORDING_ID", "=", recording.ExternalRecordingId);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("RECORDING_STATUS", "=", (int)recording.RecordingStatus);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", recording.EpgStartDate);
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", status);
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", isActive);
 
             updateQuery += "where";
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", recording.RecordingID);
