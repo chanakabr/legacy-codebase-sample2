@@ -10,13 +10,11 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Notification
 {
     [Serializable]
-    public class KalturaFollowTemplate : KalturaOTTObject
+    public class KalturaMessageTemplate : KalturaOTTObject
     {
-        [DataMember(Name = "id")]
-        [JsonProperty(PropertyName = "id")]
-        [XmlElement(ElementName = "id")]
-        public int Id { get; set; }
-
+        /// <summary>
+        ///The actual message with placeholders to be presented to the user
+        /// </summary>
         [DataMember(Name = "message")]
         [JsonProperty(PropertyName = "message")]
         [XmlElement(ElementName = "message")]
@@ -27,6 +25,10 @@ namespace WebAPI.Models.Notification
         [XmlElement(ElementName = "Date_Format")]
         public string DateFormat { get; set; }
 
+        /// <summary>
+        /// OTT asset type
+        /// Possible values: Series
+        /// </summary>
         [DataMember(Name = "asset_type")]
         [JsonProperty(PropertyName = "asset_type")]
         [XmlElement(ElementName = "asset_type")]

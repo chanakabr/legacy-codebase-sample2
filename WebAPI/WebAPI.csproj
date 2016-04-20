@@ -462,7 +462,7 @@
     <Content Include="Service References\Notifications\WebAPI.Notifications.GetUserFollowsResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
-    <Content Include="Service References\Notifications\WebAPI.Notifications.FollowTemplateResponse.datasource">
+    <Content Include="Service References\Notifications\WebAPI.Notifications.MessageTemplateResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
     <None Include="Web References\Api\api.disco" />
@@ -996,7 +996,7 @@
     <Compile Include="Controllers\AppTokenController.cs" />
     <Compile Include="Controllers\AssetController.cs" />
     <Compile Include="Controllers\CDVRAdapterProfileController.cs" />
-    <Compile Include="Controllers\FollowTemplateController.cs" />
+    <Compile Include="Controllers\MessageTemplateController.cs" />
     <Compile Include="Controllers\FollowTvSeriesController.cs" />
     <Compile Include="Controllers\RecordingController.cs" />
     <Compile Include="Controllers\LicensedUrlController.cs" />
@@ -1158,7 +1158,7 @@
     <Compile Include="Models\Notification\KalturaAnnouncement.cs" />
     <Compile Include="Models\Notification\KalturaAnnouncementRecipientsType.cs" />
     <Compile Include="Models\Notification\KalturaAnnouncementStatus.cs" />
-    <Compile Include="Models\Notification\KalturaFollowTemplate.cs" />
+    <Compile Include="Models\Notification\KalturaMessageTemplate.cs" />
     <Compile Include="Models\Notification\KalturaFollowData.cs" />
     <Compile Include="Models\Notification\KalturaFollowType.cs" />
     <Compile Include="Models\Notification\KalturaListFollowDataResponse.cs" />
