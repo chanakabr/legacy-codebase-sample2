@@ -354,7 +354,7 @@ namespace EpgFeeder
             bool result = false;
             try
             {
-                result = ImporterImpl.UpdateEpgIndex(epgIDs, groupID, action);
+                result = ImporterImpl.UpdateEpg(epgIDs, groupID, action);
                 return result;
             }
             catch (Exception ex)

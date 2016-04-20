@@ -158,7 +158,7 @@ public partial class adm_utils : System.Web.UI.Page
 
                 //Update from ElasticSearch
                 bool result = false;
-                result = ImporterImpl.UpdateEpgIndex(new List<ulong>() { epgCB.EpgID }, nParentGroupID, ApiObjects.eAction.Update);
+                result = ImporterImpl.UpdateEpg(new List<ulong>() { epgCB.EpgID }, nParentGroupID, ApiObjects.eAction.Update);
 
                 sRet = "activation_" + sFieldName.ToString() + "_" + sIndexVal + "~~|~~";
                 if (res && epgCB.isActive)

@@ -119,7 +119,7 @@ public partial class adm_generic_remove : System.Web.UI.Page
                         {
                             oEpgBL.RemoveEpg(uID);
                             //Delete from ElasticSearch                            
-                            if (!ImporterImpl.UpdateEpgIndex(new List<ulong>() { epgCB.EpgID }, nGroupID, ApiObjects.eAction.Delete))
+                            if (!ImporterImpl.UpdateEpg(new List<ulong>() { epgCB.EpgID }, nGroupID, ApiObjects.eAction.Delete))
                             {
                                 log.Error(string.Format("Failed updating index for epgID: {0}, groupID: {1}", epgCB.EpgID, nGroupID));
                             }
@@ -129,7 +129,7 @@ public partial class adm_generic_remove : System.Web.UI.Page
                             epgCB.Status = 4;
                             bool res = oEpgBL.UpdateEpg(epgCB);
                             //Update from ElasticSearch                            
-                            if (!ImporterImpl.UpdateEpgIndex(new List<ulong>() { epgCB.EpgID }, nGroupID, ApiObjects.eAction.Update))
+                            if (!ImporterImpl.UpdateEpg(new List<ulong>() { epgCB.EpgID }, nGroupID, ApiObjects.eAction.Update))
                             {
                                 log.Error(string.Format("Failed updating index for epgID: {0}, groupID: {1}", epgCB.EpgID, nGroupID));
                             }

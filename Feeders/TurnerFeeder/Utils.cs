@@ -571,7 +571,7 @@ namespace TurnerFeeder
             bool result = false;
             try
             {
-                result = ImporterImpl.UpdateEpgIndex(epgIDs, nGroupID, action);
+                result = ImporterImpl.UpdateEpg(epgIDs, nGroupID, action);
                 return result;
             }
             catch (Exception ex)

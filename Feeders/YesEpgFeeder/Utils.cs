@@ -197,7 +197,7 @@ namespace YesEpgFeeder
             bool result = false;
             try
             {
-                result = ImporterImpl.UpdateEpgIndex(ulProgram, ParentGroupID, eAction);
+                result = ImporterImpl.UpdateEpg(ulProgram, ParentGroupID, eAction);
                 return result;
             }
             catch (Exception ex)
