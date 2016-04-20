@@ -135,10 +135,10 @@ namespace Recordings
                             ConditionalAccessDAL.InsertRecordingLinks(adapterResponse.Links, groupId, recording.RecordingID);
                         }
 
-                        // Schedule a message tocheck status 5 minutes after recording of program is supposed to be over
+                        // Schedule a message tocheck status 1 minute after recording of program is supposed to be over
                         var queue = new GenericCeleryQueue();
                         var message = new RecordingTaskData(groupId, eRecordingTask.GetStatusAfterProgramEnded,
-                            // add 5 minutes here
+                            // add 1 minutes here
                             endDate.AddMinutes(1),
                             programId,
                             recording.RecordingID);
@@ -167,8 +167,6 @@ namespace Recordings
 
         public Recording GetRecordingStatus(int groupId, long recordingId)
         {
-            Recording result = null;
-
             Recording currentRecording = ConditionalAccessDAL.GetRecordingByRecordingId(recordingId);
 
             if (currentRecording != null)
@@ -183,9 +181,42 @@ namespace Recordings
                     {
                         int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
 
-                        // TODO: Call Adapter to check status of recording,
-                        // 
-                        // TODO: Update recording object according to response from adapter
+                        var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
+
+                        RecordResult adapterResponse = null;
+                        try
+                        {
+                            adapterResponse = adapterController.GetRecordingStatus(groupId, currentRecording.ExternalRecordingId, adapterId);
+                        }
+                        catch (KalturaException ex)
+                        {
+                            currentRecording.Status = new Status((int)ex.Data["StatusCode"], ex.Message);
+                        }
+                        catch (Exception ex)
+                        {
+                            currentRecording.Status = new Status((int)eResponseStatus.AdapterAppFailure, "Adapter controller excpetion: " + ex.Message);
+                        }
+
+                        if (currentRecording.Status != null)
+                        {
+                            return currentRecording;
+                        }
+
+                        if (adapterResponse == null)
+                        {
+                            currentRecording.Status = new Status((int)eResponseStatus.Error, "Adapter controller returned null response.");
+                        }
+                        //
+                        // TODO: Validate adapter response
+                        //
+                        else if (adapterResponse.FailReason != 0)
+                        {
+                            string message = string.Format("Adapter failed for reason: {0}. Provider code = {1}, provider message = {2}",
+                                adapterResponse.FailReason, adapterResponse.ProviderStatusCode, adapterResponse.ProviderStatusMessage);
+                            currentRecording.Status = new Status((int)eResponseStatus.AdapterAppFailure, message);
+                        }
+
+                        currentRecording.RecordingStatus = adapterResponse.RecordingState;
 
                         ConditionalAccessDAL.UpdateRecording(currentRecording, groupId);
 
@@ -207,7 +238,7 @@ namespace Recordings
                 }
             }
 
-            return result;
+            return currentRecording;
         }
 
         public Status UpdateRecording(int groupId, long programId, DateTime startDate, DateTime endDate)
@@ -277,10 +308,10 @@ namespace Recordings
                             return new Status((int)eResponseStatus.Error, "Failed update recording");
                         }
 
-                        // Schedule a message to check status 5 minutes after recording of program is supposed to be over
+                        // Schedule a message tocheck status 1 minute after recording of program is supposed to be over
                         var queue = new GenericCeleryQueue();
                         var message = new RecordingTaskData(groupId, eRecordingTask.GetStatusAfterProgramEnded,
-                            // add 5 minutes here
+                            // add 1 minutes here
                             endDate.AddMinutes(1),
                             programId,
                             recording.RecordingID);
