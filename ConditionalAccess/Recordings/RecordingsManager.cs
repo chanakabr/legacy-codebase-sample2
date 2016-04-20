@@ -158,10 +158,73 @@ namespace Recordings
             return recording;
         }
 
-        public Status CancelRecord(int groupId, long programId, DateTime startDate, DateTime endDate, string siteGuid, int domainId)
+        public Status CancelRecording(int groupId, long programId)
         {
             Status status = new Status();
+            Recording recording = ConditionalAccessDAL.GetRecordingByProgramId(programId);
 
+            // If there is no recording for this program - create one. This is the first, hurray!
+            if (recording != null)
+            {
+                int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
+
+                var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
+
+                // Call Adapter to cancel recording schedule
+
+                RecordResult adapterResponse = null;
+                try
+                {
+                    adapterResponse = adapterController.CancelRecording(groupId, recording.ExternalRecordingId, adapterId);
+                }
+                catch (KalturaException ex)
+                {
+                    recording.Status = new Status((int)ex.Data["StatusCode"], ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    recording.Status = new Status((int)eResponseStatus.AdapterAppFailure, "Adapter controller excpetion: " + ex.Message);
+                }
+
+                if (recording.Status != null)
+                {
+                    return recording.Status;
+                }
+
+                if (adapterResponse == null)
+                {
+                    status = new Status((int)eResponseStatus.Error, "Adapter controller returned null response.");
+                }
+                //
+                // TODO: Validate adapter response
+                //
+                else if (adapterResponse.FailReason != 0)
+                {
+                    string message = string.Format("Adapter failed for reason: {0}. Provider code = {1}, provider message = {2}",
+                        adapterResponse.FailReason, adapterResponse.ProviderStatusCode, adapterResponse.ProviderStatusMessage);
+                    status = new Status((int)eResponseStatus.AdapterAppFailure, message);
+                }
+                else
+                {
+                    try
+                    {
+                        // Insert recording information to database
+                        bool updateResult = ConditionalAccessDAL.UpdateRecording(recording, groupId, 2, 0);
+
+                        if (!updateResult)
+                        {
+                            return new Status((int)eResponseStatus.Error, "Failed update recording");
+                        }
+
+                        // We're OK
+                        status = new Status((int)eResponseStatus.OK);
+                    }
+                    catch (Exception ex)
+                    {
+                        status = new Status((int)eResponseStatus.Error, "Failed inserting recording to database and queue.");
+                    }
+                }
+            }
             return status;
         }
 
@@ -187,7 +250,7 @@ namespace Recordings
                         // 
                         // TODO: Update recording object according to response from adapter
 
-                        ConditionalAccessDAL.UpdateRecording(currentRecording, groupId);
+                        ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1);
 
                         // After we know that recording was succesful,
                         // we index data so it is available on search
@@ -270,7 +333,7 @@ namespace Recordings
                     try
                     {
                         // Insert recording information to database
-                        bool updateResult = ConditionalAccessDAL.UpdateRecording(recording, groupId);
+                        bool updateResult = ConditionalAccessDAL.UpdateRecording(recording, groupId, 1, 1);
 
                         if (!updateResult)
                         {
