@@ -2,10 +2,9 @@
 
 namespace ApiObjects.Notification
 {
-    public class FollowTemplateResponse
+    public class MessageTemplateResponse
     {
         public Status Status { get; set; }
-        public FollowTemplate FollowTemplate { get; set; }
-
+        public MessageTemplate MessageTemplate { get; set; }
     }
 }

@@ -233,6 +233,7 @@
     <None Include="obj\Release\build.force" />
     <None Include="obj\Release\DesignTimeResolveAssemblyReferencesInput.cache" />
     <None Include="obj\Release\ResolveAssemblyReference.cache" />
+    <None Include="Properties\DataSources\ApiObjects.Notification.FollowTemplateResponse.datasource" />
     <None Include="Properties\DataSources\ApiObjects.Notification.NotificationPartnerSettingsResponse.datasource" />
     <None Include="Properties\DataSources\ApiObjects.Notification.NotificationSettingsResponse.datasource" />
     <None Include="Properties\DataSources\ApiObjects.Response.Status.datasource" />
@@ -269,6 +270,12 @@
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
     <None Include="Service References\Notification_WCF\TvinciImporter.Notification_WCF.GetAllMessageAnnouncementsResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\Notification_WCF\TvinciImporter.Notification_WCF.GetUserFollowsResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\Notification_WCF\TvinciImporter.Notification_WCF.MessageTemplateResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
     <None Include="Service References\Notification_WCF\TvinciImporter.Notification_WCF.NotificationMessage.datasource">

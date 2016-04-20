@@ -899,7 +899,7 @@ namespace TvinciImporter.Notification_WCF {
         private long StartTimeField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private TvinciImporter.Notification_WCF.eAnnouncementStatus StatusField;
+        private ApiObjects.eAnnouncementStatus StatusField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string TimezoneField;
@@ -993,7 +993,7 @@ namespace TvinciImporter.Notification_WCF {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public TvinciImporter.Notification_WCF.eAnnouncementStatus Status {
+        public ApiObjects.eAnnouncementStatus Status {
             get {
                 return this.StatusField;
             }
@@ -1026,23 +1026,6 @@ namespace TvinciImporter.Notification_WCF {
                 propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
             }
         }
-    }
-    
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="eAnnouncementStatus", Namespace="http://schemas.datacontract.org/2004/07/NotificationObj")]
-    public enum eAnnouncementStatus : int {
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        NotSent = 0,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Sending = 1,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Sent = 2,
-        
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Aborted = 3,
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -1116,6 +1099,9 @@ namespace TvinciImporter.Notification_WCF {
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private ApiObjects.Response.Status StatusField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private TvinciImporter.Notification_WCF.MessageAnnouncement[] messageAnnouncementsField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -1128,6 +1114,19 @@ namespace TvinciImporter.Notification_WCF {
             }
             set {
                 this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public ApiObjects.Response.Status Status {
+            get {
+                return this.StatusField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.StatusField, value) != true)) {
+                    this.StatusField = value;
+                    this.RaisePropertyChanged("Status");
+                }
             }
         }
         
@@ -1165,6 +1164,370 @@ namespace TvinciImporter.Notification_WCF {
                 propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
             }
         }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="MessageTemplate", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification")]
+    [System.SerializableAttribute()]
+    public partial class MessageTemplate : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private ApiObjects.eOTTAssetTypes AssetTypeField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string DateFormatField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int IdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string MessageField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public ApiObjects.eOTTAssetTypes AssetType {
+            get {
+                return this.AssetTypeField;
+            }
+            set {
+                if ((this.AssetTypeField.Equals(value) != true)) {
+                    this.AssetTypeField = value;
+                    this.RaisePropertyChanged("AssetType");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string DateFormat {
+            get {
+                return this.DateFormatField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.DateFormatField, value) != true)) {
+                    this.DateFormatField = value;
+                    this.RaisePropertyChanged("DateFormat");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int Id {
+            get {
+                return this.IdField;
+            }
+            set {
+                if ((this.IdField.Equals(value) != true)) {
+                    this.IdField = value;
+                    this.RaisePropertyChanged("Id");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Message {
+            get {
+                return this.MessageField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.MessageField, value) != true)) {
+                    this.MessageField = value;
+                    this.RaisePropertyChanged("Message");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="MessageTemplateResponse", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification")]
+    [System.SerializableAttribute()]
+    public partial class MessageTemplateResponse : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private TvinciImporter.Notification_WCF.MessageTemplate MessageTemplateField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private ApiObjects.Response.Status StatusField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public TvinciImporter.Notification_WCF.MessageTemplate MessageTemplate {
+            get {
+                return this.MessageTemplateField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.MessageTemplateField, value) != true)) {
+                    this.MessageTemplateField = value;
+                    this.RaisePropertyChanged("MessageTemplate");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public ApiObjects.Response.Status Status {
+            get {
+                return this.StatusField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.StatusField, value) != true)) {
+                    this.StatusField = value;
+                    this.RaisePropertyChanged("Status");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="GetUserFollowsResponse", Namespace="http://schemas.datacontract.org/2004/07/NotificationObj")]
+    [System.SerializableAttribute()]
+    public partial class GetUserFollowsResponse : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private TvinciImporter.Notification_WCF.FollowData[] FollowsField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private ApiObjects.Response.Status StatusField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int TotalCountField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public TvinciImporter.Notification_WCF.FollowData[] Follows {
+            get {
+                return this.FollowsField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.FollowsField, value) != true)) {
+                    this.FollowsField = value;
+                    this.RaisePropertyChanged("Follows");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public ApiObjects.Response.Status Status {
+            get {
+                return this.StatusField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.StatusField, value) != true)) {
+                    this.StatusField = value;
+                    this.RaisePropertyChanged("Status");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int TotalCount {
+            get {
+                return this.TotalCountField;
+            }
+            set {
+                if ((this.TotalCountField.Equals(value) != true)) {
+                    this.TotalCountField = value;
+                    this.RaisePropertyChanged("TotalCount");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="FollowData", Namespace="http://schemas.datacontract.org/2004/07/NotificationObj")]
+    [System.SerializableAttribute()]
+    public partial class FollowData : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private long AnnouncementIdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string FollowPhraseField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int StatusField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private long TimestampField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string TitleField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private TvinciImporter.Notification_WCF.FollowType TypeField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public long AnnouncementId {
+            get {
+                return this.AnnouncementIdField;
+            }
+            set {
+                if ((this.AnnouncementIdField.Equals(value) != true)) {
+                    this.AnnouncementIdField = value;
+                    this.RaisePropertyChanged("AnnouncementId");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string FollowPhrase {
+            get {
+                return this.FollowPhraseField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.FollowPhraseField, value) != true)) {
+                    this.FollowPhraseField = value;
+                    this.RaisePropertyChanged("FollowPhrase");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int Status {
+            get {
+                return this.StatusField;
+            }
+            set {
+                if ((this.StatusField.Equals(value) != true)) {
+                    this.StatusField = value;
+                    this.RaisePropertyChanged("Status");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public long Timestamp {
+            get {
+                return this.TimestampField;
+            }
+            set {
+                if ((this.TimestampField.Equals(value) != true)) {
+                    this.TimestampField = value;
+                    this.RaisePropertyChanged("Timestamp");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Title {
+            get {
+                return this.TitleField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.TitleField, value) != true)) {
+                    this.TitleField = value;
+                    this.RaisePropertyChanged("Title");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public TvinciImporter.Notification_WCF.FollowType Type {
+            get {
+                return this.TypeField;
+            }
+            set {
+                if ((this.TypeField.Equals(value) != true)) {
+                    this.TypeField = value;
+                    this.RaisePropertyChanged("Type");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="FollowType", Namespace="http://schemas.datacontract.org/2004/07/NotificationObj")]
+    public enum FollowType : int {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        TV_Series_VOD = 0,
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -1235,8 +1598,20 @@ namespace TvinciImporter.Notification_WCF {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetAllMessageAnnouncements", ReplyAction="http://tempuri.org/INotificationService/GetAllMessageAnnouncementsResponse")]
         TvinciImporter.Notification_WCF.GetAllMessageAnnouncementsResponse GetAllMessageAnnouncements(string sWSUserName, string sWSPassword, int pageSize, int pageIndex);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SetPush", ReplyAction="http://tempuri.org/INotificationService/SetPushResponse")]
-        ApiObjects.Response.Status SetPush(string sWSUserName, string sWSPassword, ApiObjects.eUserMessageAction userAction, int userId, string udid, string pushToken);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SetMessageTemplate", ReplyAction="http://tempuri.org/INotificationService/SetMessageTemplateResponse")]
+        TvinciImporter.Notification_WCF.MessageTemplateResponse SetMessageTemplate(string sWSUserName, string sWSPassword, TvinciImporter.Notification_WCF.MessageTemplate followTemplate);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetMessageTemplate", ReplyAction="http://tempuri.org/INotificationService/GetMessageTemplateResponse")]
+        TvinciImporter.Notification_WCF.MessageTemplateResponse GetMessageTemplate(string sWSUserName, string sWSPassword, ApiObjects.eOTTAssetTypes assetTypes);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetUserFollows", ReplyAction="http://tempuri.org/INotificationService/GetUserFollowsResponse")]
+        TvinciImporter.Notification_WCF.GetUserFollowsResponse GetUserFollows(string sWSUserName, string sWSPassword, int userId, int pageSize, int pageIndex);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/Unfollow", ReplyAction="http://tempuri.org/INotificationService/UnfollowResponse")]
+        ApiObjects.Response.Status Unfollow(string sWSUserName, string sWSPassword, int userId, long announcementId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/Follow", ReplyAction="http://tempuri.org/INotificationService/FollowResponse")]
+        ApiObjects.Response.Status Follow(string sWSUserName, string sWSPassword, int userId, TvinciImporter.Notification_WCF.FollowData followData);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -1350,8 +1725,24 @@ namespace TvinciImporter.Notification_WCF {
             return base.Channel.GetAllMessageAnnouncements(sWSUserName, sWSPassword, pageSize, pageIndex);
         }
         
-        public ApiObjects.Response.Status SetPush(string sWSUserName, string sWSPassword, ApiObjects.eUserMessageAction userAction, int userId, string udid, string pushToken) {
-            return base.Channel.SetPush(sWSUserName, sWSPassword, userAction, userId, udid, pushToken);
+        public TvinciImporter.Notification_WCF.MessageTemplateResponse SetMessageTemplate(string sWSUserName, string sWSPassword, TvinciImporter.Notification_WCF.MessageTemplate followTemplate) {
+            return base.Channel.SetMessageTemplate(sWSUserName, sWSPassword, followTemplate);
+        }
+        
+        public TvinciImporter.Notification_WCF.MessageTemplateResponse GetMessageTemplate(string sWSUserName, string sWSPassword, ApiObjects.eOTTAssetTypes assetTypes) {
+            return base.Channel.GetMessageTemplate(sWSUserName, sWSPassword, assetTypes);
+        }
+        
+        public TvinciImporter.Notification_WCF.GetUserFollowsResponse GetUserFollows(string sWSUserName, string sWSPassword, int userId, int pageSize, int pageIndex) {
+            return base.Channel.GetUserFollows(sWSUserName, sWSPassword, userId, pageSize, pageIndex);
+        }
+        
+        public ApiObjects.Response.Status Unfollow(string sWSUserName, string sWSPassword, int userId, long announcementId) {
+            return base.Channel.Unfollow(sWSUserName, sWSPassword, userId, announcementId);
+        }
+        
+        public ApiObjects.Response.Status Follow(string sWSUserName, string sWSPassword, int userId, TvinciImporter.Notification_WCF.FollowData followData) {
+            return base.Channel.Follow(sWSUserName, sWSPassword, userId, followData);
         }
     }
 }

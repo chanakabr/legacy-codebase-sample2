@@ -96,7 +96,7 @@ namespace ApiObjects
         [EnumMember]
         EpgChannel,
         [EnumMember]
-        Recordning
+        Recording
     }
 
     [Serializable]
@@ -568,6 +568,13 @@ namespace ApiObjects
         NoConfigurationFound = 3
     }
 
+    public enum eFollowSeriesPlaceHolders
+    {
+        MediaName= 0,
+        SeriesName = 1,
+        CatalaogStartDate = 2,
+        StartDate = 3
+    }
     public enum TstvRecordingStatus
     {
         OK = 0,
@@ -583,6 +590,5 @@ namespace ApiObjects
     public enum eRecordingTask
     {
         GetStatusAfterProgramEnded = 1,
-    }
-   
+    }   
 }

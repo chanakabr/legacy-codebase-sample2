@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace ApiObjects.Notification
 {
@@ -15,5 +16,10 @@ namespace ApiObjects.Notification
         }
         public List<UserDevice> Userdevices { get; set; }
         public List<Announcement> Announcements { get; set; }
+
+        public UserNotificationSettings Settings { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public ulong cas{ get; set; }
     }
 }

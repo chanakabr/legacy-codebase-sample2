@@ -40,7 +40,7 @@ namespace CouchbaseManager
         //public const string COUCHBASE_CONFIG = "couchbaseClients/couchbase";
         public const string COUCHBASE_CONFIG = "couchbaseClients/";
         private const string TCM_KEY_FORMAT = "cb_{0}.{1}";
-        private const double GET_LOCK_TS_SECONDS = 2;
+        private const double GET_LOCK_TS_SECONDS = 5;
 
         /// <summary>
         /// Defines duration of a month in seconds, see http://docs.couchbase.com/developer/dev-guide-3.0/doc-expiration.html
@@ -666,7 +666,7 @@ namespace CouchbaseManager
             return result;
         }
 
-        public bool SetUnlock<T>(string key, T value, uint expiration = 0, ulong casUnlock = 0)
+        public bool Set<T>(string key, T value, bool unlock, uint expiration = 0, ulong cas = 0)
         {
             bool result = false;
 
@@ -682,8 +682,7 @@ namespace CouchbaseManager
                         string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
                         using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                         {
-                            string serializedValue = ObjectToJson(value);
-                            insertResult = bucket.Upsert<string>(key, serializedValue, expiration);
+                            insertResult = bucket.Upsert<T>(key, value, expiration);
                         }
 
                         if (insertResult != null)
@@ -703,14 +702,13 @@ namespace CouchbaseManager
 
                                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                                 {
-                                    string serializedValue = ObjectToJson(value);
-                                    insertResult = bucket.Upsert<string>(key, serializedValue, expiration);
+                                    insertResult = bucket.Upsert<T>(key, value, expiration);
                                 }
                             }
                         }
 
-                        if (casUnlock > 0)
-                            bucket.Unlock(key, casUnlock);
+                        if (unlock && cas > 0)
+                            bucket.Unlock(key, cas);
                     }
                 }
             }
@@ -806,7 +804,7 @@ namespace CouchbaseManager
             return result;
         }
 
-        public T GetWithLock<T>(string key, out ulong cas, out Couchbase.IO.ResponseStatus status)
+        public T Get<T>(string key, bool withLock, out ulong cas, out Couchbase.IO.ResponseStatus status)
         {
             T result = default(T);
             cas = 0;
@@ -823,7 +821,10 @@ namespace CouchbaseManager
                         string action = string.Format("Action: GetWithLock bucket: {0} key: {1}", bucketName, key);
                         using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                         {
-                            getResult = bucket.GetWithLock<T>(key, TimeSpan.FromSeconds(GET_LOCK_TS_SECONDS));
+                            if (withLock)
+                                getResult = bucket.GetWithLock<T>(key, TimeSpan.FromSeconds(GET_LOCK_TS_SECONDS));
+                            else
+                                getResult = bucket.Get<T>(key);
                         }
 
                         if (getResult != null)
@@ -851,7 +852,6 @@ namespace CouchbaseManager
 
             return result;
         }
-
 
         public bool Remove(string key)
         {

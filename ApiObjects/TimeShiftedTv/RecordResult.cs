@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AdapterControllers.CDVR
+namespace ApiObjects.TimeShiftedTv
 {
     public class RecordResult
     {
@@ -20,7 +20,12 @@ namespace AdapterControllers.CDVR
     public class RecordingLink
     {
         public string DeviceType { get; set; }
-     
+        public int DeviceTypeBrand
+        {
+            get;
+            set;
+        }
+
         public string Url { get; set; }
     }
 }
