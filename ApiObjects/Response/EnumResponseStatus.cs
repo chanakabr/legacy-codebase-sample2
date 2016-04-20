@@ -237,7 +237,7 @@ namespace ApiObjects.Response
         UserAlreadyFollowing = 8013,
         InvalidPlaceholders= 8014,
         DatetimeFormatIsInvalid = 8015,
-        FollowTemplateNotFound = 8016,
+        MessageTemplateNotFound = 8016,
 
         //Pricing 9000-9999
         InvalidPriceCode = 9000,

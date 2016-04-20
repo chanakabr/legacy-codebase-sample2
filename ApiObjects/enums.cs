@@ -571,7 +571,7 @@ namespace ApiObjects
     public enum eFollowSeriesPlaceHolders
     {
         MediaName= 0,
-        MetaTag = 1,
+        SeriesName = 1,
         CatalaogStartDate = 2,
         StartDate = 3
     }
