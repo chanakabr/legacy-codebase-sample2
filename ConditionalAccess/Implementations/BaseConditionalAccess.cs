@@ -17484,7 +17484,7 @@ namespace ConditionalAccess
             return response;
         }
 
-        public ApiObjects.Response.Status UpdateRecording(int groupID, long epgId)
+        public ApiObjects.Response.Status UpdateRecording(int groupID, List<long> epgs, eAction action)
         {
             throw new NotImplementedException();
         }
