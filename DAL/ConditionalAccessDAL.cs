@@ -2482,6 +2482,8 @@ namespace DAL
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", recording.EpgStartDate);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CREATE_DATE", "=", DateTime.UtcNow);
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
 
             var executeResult = insertQuery.ExecuteAndGetId();
             insertQuery.Finish();
@@ -2512,7 +2514,7 @@ namespace DAL
             return recording;
         }
 
-        public static bool UpdateRecording(Recording recording, int groupId)
+        public static bool UpdateRecording(Recording recording, int groupId, int status, int isActive)
         {
             bool result = false;
 
@@ -2523,6 +2525,8 @@ namespace DAL
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("EXTERNAL_RECORDING_ID", "=", recording.ExternalRecordingId);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("RECORDING_STATUS", "=", (int)recording.RecordingStatus);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", recording.EpgStartDate);
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", status);
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", isActive);
 
             updateQuery += "where";
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", recording.RecordingID);

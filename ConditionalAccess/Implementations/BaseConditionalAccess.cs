@@ -17226,11 +17226,7 @@ namespace ConditionalAccess
                                 response = new Recording() { EpgID = epg.EPG_ID, ChannelId = epg.EPG_CHANNEL_ID };
                             }
                         }
-                        else
-                        {
-                            log.DebugFormat("GetDomainExistingRecording Recording object not as expected, DomainID: {0}, UserID: {1}, Recording: {2}", domainID, userID, response.ToString());
-                            response = new Recording() { EpgID = epg.EPG_ID, ChannelId = epg.EPG_CHANNEL_ID };
-                        }
+
                     }
                     else
                     {
@@ -17525,9 +17521,103 @@ namespace ConditionalAccess
             return response;
         }
 
-        public ApiObjects.Response.Status UpdateRecording(int groupID, List<long> epgs, eAction action)
+        public ApiObjects.Response.Status UpdateRecording(int groupID, List<long> epgIds, eAction action)
         {
-            throw new NotImplementedException();
+            ApiObjects.Response.Status status = null;
+
+            // Nothing to do
+            if (epgIds == null || epgIds.Count == 0)
+            {
+                return new ApiObjects.Response.Status((int)eResponseStatus.OK);;
+            }
+
+            // In case an EPG was deleted - recording should be canceled as well
+            if (action == eAction.Off || action == eAction.Delete)
+            {
+                foreach (var id in epgIds)
+                {
+                    var currentStatus = RecordingsManager.Instance.CancelRecording(groupID, id);
+
+                    // If something went wrong, use the first status that failed
+                    if (status == null)
+                    {
+                        if (currentStatus == null)
+                        {
+                            status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Cancel recording did not return a status object");
+                        }
+                        else if (currentStatus.Code != (int)eResponseStatus.OK)
+                        {
+                            status = currentStatus;
+                        }
+                    }
+                }
+
+                // If we got here and have no status - we are OK
+                if (status == null)
+                {
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.OK);
+                }
+            }
+            // In case of update/turning on
+            else if (action == eAction.On || action == eAction.Update)
+            {
+                // Get EPG objects from Catalog, by their IDs
+                List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(groupID, epgIds);
+
+                // Simple validation
+                if (epgs == null || epgs.Count == 0)
+                {
+                    log.DebugFormat("Failed Getting EPGs from Catalog, EpgIDs: {0}", string.Join(",", epgIds));
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.InvalidAssetId, eResponseStatus.InvalidAssetId.ToString());
+                }
+                else
+                {
+                    foreach (var epg in epgs)
+                    {
+                        DateTime startDate;
+                        DateTime endDate;
+
+                        // Parse start date
+                        if (!DateTime.TryParseExact(epg.START_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out startDate))
+                        {
+                            log.ErrorFormat("Failed parsing EPG start date, epgID: {0}, startDate: {1}", epg.EPG_ID, epg.START_DATE);
+                        }
+                        else
+                        {
+                            // Parse end date
+                            if (!DateTime.TryParseExact(epg.END_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out endDate))
+                            {
+                                log.ErrorFormat("Failed parsing EPG end date, epgID: {0}, endDate: {1}", epg.EPG_ID, epg.START_DATE);
+                            }
+                            else
+                            {
+                                var currentStatus = RecordingsManager.Instance.UpdateRecording(groupID, epg.EPG_ID, startDate, endDate);
+
+                                if (status == null)
+                                {
+                                    // If we failed with one (and it is the first) - save it so we would later return it
+                                    if (currentStatus == null)
+                                    {
+                                        status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Recording manager failed to update recording");
+                                    }
+                                    else if (currentStatus.Code != (int)eResponseStatus.Error)
+                                    {
+                                        status = currentStatus;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // If we finished foreach and there is no status - everything is ok
+                    if (status == null)
+                    {
+                        status = new ApiObjects.Response.Status((int)eResponseStatus.OK);
+                    }
+                }
+            }
+
+            return status;
         }
     }
 }
