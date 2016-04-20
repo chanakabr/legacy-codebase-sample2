@@ -775,6 +775,15 @@
     <Content Include="Web References\ConditionalAccess\UserPurhcasedAssetsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\ConditionalAccess\Recording2.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\ConditionalAccess\RecordingIDsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\ConditionalAccess\RecordingResponse2.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\Domains\module.disco" />
     <Content Include="Web References\Pricing\Campaign.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -1099,6 +1108,8 @@
     <Compile Include="Models\Catalog\PersonalEnrichments\KalturaPersonalAssetWith.cs" />
     <Compile Include="Models\Catalog\KalturaAssetsBookmarksResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaRecording.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaRecordingInfoFilter.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaRecordingListResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaRecordingStatus.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaStreamType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaLicensedUrl.cs" />

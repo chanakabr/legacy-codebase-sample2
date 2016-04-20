@@ -1192,5 +1192,46 @@ namespace WebAPI.Clients
             return recording;
         }
 
+        internal List<KalturaRecordingInfo> GetRecordings(int groupdID, string userID, long domainID, WebAPI.Models.ConditionalAccess.KalturaRecordingInfoFilter.KalturaCutWith cutWith,
+                                                            List<WebAPI.Models.General.KalturaStringValue> recordingStatuses, string ksqlFilter )
+        {
+            List<KalturaRecordingInfo> recordings = null;
+            RecordingIDsResponse response = null;
+
+            // get group ID
+            Group group = GroupsManager.GetGroup(groupdID);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    response = ConditionalAccess.GetDomainRecordingIDsByRecordingStatuses(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, domainID, null);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            //// convert response
+            //recordings = Mapper.Map<List<WebAPI.Models.ConditionalAccess.KalturaRecording>>(response);
+
+            return recordings;
+        }
+
     }
 }
