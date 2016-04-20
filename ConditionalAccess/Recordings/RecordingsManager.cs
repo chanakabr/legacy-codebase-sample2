@@ -258,7 +258,7 @@ namespace Recordings
                 recording.EpgStartDate = startDate;
                 recording.EpgEndDate = endDate;
 
-                // Call Adapter to schedule recording,
+                // Call Adapter to update recording schedule
 
                 // Initialize parameters for adapter controller
                 long startTimeSeconds = ODBCWrapper.Utils.DateTimeToUnixTimestamp(startDate);
