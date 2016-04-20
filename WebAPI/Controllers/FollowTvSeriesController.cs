@@ -50,11 +50,11 @@ namespace WebAPI.Controllers
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="announcement_id"></param>
+        /// <param name="asset_id"></param>
         /// <returns></returns>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        public bool Delete(long announcement_id)
+        public bool Delete(int asset_id)
         {
             bool response = false;
 
@@ -64,7 +64,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.NotificationClient().DeleteUserTvSeriesFollow(groupId, userID, announcement_id);
+                response = ClientsManager.NotificationClient().DeleteUserTvSeriesFollow(groupId, userID, asset_id);
             }
             catch (ClientException ex)
             {
@@ -77,11 +77,11 @@ namespace WebAPI.Controllers
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="follow_data"></param>
+        /// <param name="asset_id"></param>
         /// <returns></returns>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        public bool Add(KalturaFollowData follow_data)
+        public bool Add(int asset_id)
         {
             bool response = false;
 
@@ -91,7 +91,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.NotificationClient().AddUserTvSeriesFollow(groupId, userID, follow_data);
+                response = ClientsManager.NotificationClient().AddUserTvSeriesFollow(groupId, userID, asset_id);
             }
             catch (ClientException ex)
             {

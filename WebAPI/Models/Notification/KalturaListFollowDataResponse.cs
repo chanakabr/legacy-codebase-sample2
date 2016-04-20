@@ -23,6 +23,6 @@ namespace WebAPI.Models.Notification
         [JsonProperty("objects")]
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
-        public List<KalturaFollowData> FollowDataList { get; set; }
+        public List<KalturaFollowDataBase> FollowDataList { get; set; }
     }
 }

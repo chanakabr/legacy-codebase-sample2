@@ -7,6 +7,7 @@ using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Models.Catalog;
 using WebAPI.Models.Notification;
 using WebAPI.Models.Notifications;
 using WebAPI.Notifications;
@@ -518,7 +519,7 @@ namespace WebAPI.Clients
 
         internal KalturaListFollowDataResponse GetUserTvSeriesFollows(int groupId, string userID, int pageSize, int pageIndex)
         {
-            List<KalturaFollowData> result = null;
+            List<KalturaFollowDataBase> result = null;
             GetUserFollowsResponse response = null;
             KalturaListFollowDataResponse ret;
 
@@ -547,13 +548,13 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            result = Mapper.Map<List<KalturaFollowData>>(response.Follows);
+            result = Mapper.Map<List<KalturaFollowDataBase>>(response.Follows);
 
             ret = new KalturaListFollowDataResponse() { FollowDataList = result, TotalCount = response.TotalCount };
             return ret;
         }
 
-        internal bool DeleteUserTvSeriesFollow(int groupId, string userID, long announcementId)
+        internal bool DeleteUserTvSeriesFollow(int groupId, string userID, int asset_id)
         {
             Status response = null;
 
@@ -568,7 +569,9 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.Unfollow(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, announcementId);
+                    FollowDataTvSeries followData = new FollowDataTvSeries();
+                    followData.AssetId = asset_id;
+                    response = Notification.Unfollow(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, followData);
                 }
             }
             catch (Exception ex)
@@ -585,10 +588,12 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal bool AddUserTvSeriesFollow(int groupId, string userID, KalturaFollowData followData)
+        internal bool AddUserTvSeriesFollow(int groupId, string userID, int asset_id)
         {
             Status response = null;
-            FollowData followDataNotification = null;
+            FollowDataTvSeries followDataNotification = null;
+            KalturaFollowDataTvSeries followData = new KalturaFollowDataTvSeries();
+            followData.AssetId = asset_id;
 
             Group group = GroupsManager.GetGroup(groupId);
             int userId = 0;
@@ -597,9 +602,18 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.UserIDInvalid, "Invalid Username");
             }
 
-            followData.Type = KalturaFollowType.Tv_Series;
+            // get asset name
+            var mediaInfoResponse = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), KSUtils.ExtractKSPayload().UDID, null,
+                                0, 0, new List<int>() { followData.AssetId }, new List<KalturaCatalogWith>());
+
+            if (mediaInfoResponse == null || mediaInfoResponse.Objects == null || mediaInfoResponse.Objects.Count == 0)
+                throw new NotFoundException();
+
+            
             followData.Status = 1;
-            followDataNotification = Mapper.Map<FollowData>(followData);
+            followData.Title = string.Format("{0}_{1}", mediaInfoResponse.Objects[0].Name,groupId);
+
+            followDataNotification = Mapper.Map<FollowDataTvSeries>(followData);
 
             try
             {
