@@ -1,4 +1,5 @@
-﻿using AdapterControllers.CdvrAdapterService;
+﻿using AdapterControllers.cdvrAdap;
+//using AdapterControllers.CdvrAdapterService;
 using ApiObjects;
 using ApiObjects.Response;
 using CachingHelpers;
@@ -8,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
 using TVinciShared;
@@ -84,8 +86,10 @@ namespace AdapterControllers.CDVR
             bool result = false;
             try
             {
-                CdvrAdapterService.IService client = new CdvrAdapterService.ServiceClient();
-               
+                string cdvrAdapterUrl = adapter.AdapterUrl;
+                cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient();
+                client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);            
+                
                 //set unixTimestamp
                 long timeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
                 //set signature
@@ -93,17 +97,17 @@ namespace AdapterControllers.CDVR
                     partnerId, timeStamp);
 
                 //call Adapter 
-                List<AdapterControllers.CdvrAdapterService.KeyValue> keyValue = new List<AdapterControllers.CdvrAdapterService.KeyValue>();
-                CdvrAdapterService.AdapterStatus adapterStatus = null;
+                List<AdapterControllers.cdvrAdap.KeyValue> keyValue = new List<AdapterControllers.cdvrAdap.KeyValue>();
+                cdvrAdap.AdapterStatus adapterStatus = null;
                 if (adapter.Settings != null)
                 {
-                    keyValue = adapter.Settings.Select(setting => new AdapterControllers.CdvrAdapterService.KeyValue()
+                    keyValue = adapter.Settings.Select(setting => new AdapterControllers.cdvrAdap.KeyValue()
                     {
                         Key = setting.key,
                         Value = setting.value
                     }).ToList();
                 }
-                    client.SetConfiguration(adapter.ID, keyValue, partnerId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                adapterStatus = client.SetConfiguration(adapter.ID, keyValue, partnerId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
 
                 if (adapterStatus != null)
                     log.DebugFormat("Cdvr Adapter Send Configuration Result = {0}", adapterStatus);
@@ -138,7 +142,9 @@ namespace AdapterControllers.CDVR
                 throw new KalturaException("Cdvr adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
 
-            CdvrAdapterService.ServiceClient client = new CdvrAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl);            
+            string cdvrAdapterUrl = adapter.AdapterUrl;
+            cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient();
+            client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
 
             //set unixTimestamp
             long timeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
@@ -151,7 +157,7 @@ namespace AdapterControllers.CDVR
                 log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, startTimeSeconds = {2}, durationSeconds = {3}, channelId = {4}",
                     partnerId, adapter.ID, startTimeSeconds, durationSeconds, channelId);
 
-                CdvrAdapterService.RecordingResponse adapterResponse = new CdvrAdapterService.RecordingResponse();
+                cdvrAdap.RecordingResponse adapterResponse = new cdvrAdap.RecordingResponse();
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -197,20 +203,7 @@ namespace AdapterControllers.CDVR
                     }
                     else if (adapterResponse.Recording != null)
                     {
-                        recordResult = new RecordResult()
-                                {
-                                    Links = adapterResponse.Recording.Links.Select(result =>
-                                        new ApiObjects.TimeShiftedTv.RecordingLink()
-                                        {
-                                            DeviceType = result.DeviceType,
-                                            Url = result.Url
-                                        }).ToList(),
-                                    RecordingId = adapterResponse.Recording.RecordingId,
-                                    RecordingState = adapterResponse.Recording.RecordingState,
-                                    FailReason = adapterResponse.Recording.FailReason,
-                                    ProviderStatusCode = adapterResponse.Recording.ProviderStatusCode,
-                                    ProviderStatusMessage = adapterResponse.Recording.ProviderStatusMessage
-                                };
+                        recordResult = CreateRecordResult(adapterResponse);
                     }
                 }
             }
@@ -240,7 +233,9 @@ namespace AdapterControllers.CDVR
                 throw new KalturaException("Cdvr adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
 
-            CdvrAdapterService.ServiceClient client = new CdvrAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl);
+            string cdvrAdapterUrl = adapter.AdapterUrl;
+            cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient();
+            client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
 
             //set unixTimestamp
             long timeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
@@ -253,7 +248,7 @@ namespace AdapterControllers.CDVR
                 log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, recordingId = {2}",
                     partnerId, adapter.ID, recordingId);
 
-                var adapterResponse = new AdapterControllers.CdvrAdapterService.RecordingResponse();
+                var adapterResponse = new AdapterControllers.cdvrAdap.RecordingResponse();
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -298,20 +293,7 @@ namespace AdapterControllers.CDVR
                     }
                     else if (adapterResponse.Recording != null)
                     {
-                        recordResult = new RecordResult()
-                        {
-                            Links = adapterResponse.Recording.Links.Select(result =>
-                                new ApiObjects.TimeShiftedTv.RecordingLink()
-                                {
-                                    DeviceType = result.DeviceType,
-                                    Url = result.Url
-                                }).ToList(),
-                            RecordingId = adapterResponse.Recording.RecordingId,
-                            RecordingState = adapterResponse.Recording.RecordingState,
-                            FailReason = adapterResponse.Recording.FailReason,
-                            ProviderStatusCode = adapterResponse.Recording.ProviderStatusCode,
-                            ProviderStatusMessage = adapterResponse.Recording.ProviderStatusMessage 
-                        };
+                        recordResult = CreateRecordResult(adapterResponse);
                     }
                 }
             }
@@ -340,8 +322,9 @@ namespace AdapterControllers.CDVR
             {
                 throw new KalturaException("Cdvr adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
-
-            CdvrAdapterService.ServiceClient client = new CdvrAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl);
+            string cdvrAdapterUrl = adapter.AdapterUrl;
+            cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient();
+            client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
 
             //set unixTimestamp
             long timeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
@@ -354,7 +337,7 @@ namespace AdapterControllers.CDVR
                 log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, recordingId = {2}",
                     partnerId, adapter.ID, recordingId);
 
-                var adapterResponse = new AdapterControllers.CdvrAdapterService.RecordingResponse();
+                var adapterResponse = new AdapterControllers.cdvrAdap.RecordingResponse();
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -399,20 +382,7 @@ namespace AdapterControllers.CDVR
                     }
                     else if (adapterResponse.Recording != null)
                     {
-                        recordResult = new RecordResult()
-                        {
-                            Links = adapterResponse.Recording.Links.Select(result =>
-                                new ApiObjects.TimeShiftedTv.RecordingLink()
-                                {
-                                    DeviceType = result.DeviceType,
-                                    Url = result.Url
-                                }).ToList(),
-                            RecordingId = adapterResponse.Recording.RecordingId,
-                            RecordingState = adapterResponse.Recording.RecordingState,
-                            FailReason = adapterResponse.Recording.FailReason,
-                            ProviderStatusCode = adapterResponse.Recording.ProviderStatusCode,
-                            ProviderStatusMessage = adapterResponse.Recording.ProviderStatusMessage
-                        };
+                        recordResult = CreateRecordResult(adapterResponse);
                     }
                 }
             }
@@ -442,7 +412,9 @@ namespace AdapterControllers.CDVR
                 throw new KalturaException("Cdvr adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
 
-            CdvrAdapterService.ServiceClient client = new CdvrAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl);
+            string cdvrAdapterUrl = adapter.AdapterUrl;
+            cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient();
+            client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
 
             //set unixTimestamp
             long timeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
@@ -455,7 +427,7 @@ namespace AdapterControllers.CDVR
                 log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, recordingId = {2}",
                     partnerId, adapter.ID, recordingId);
 
-                var adapterResponse = new AdapterControllers.CdvrAdapterService.RecordingResponse();
+                var adapterResponse = new AdapterControllers.cdvrAdap.RecordingResponse();
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -500,20 +472,7 @@ namespace AdapterControllers.CDVR
                     }
                     else if (adapterResponse.Recording != null)
                     {
-                        recordResult = new RecordResult()
-                        {
-                            Links = adapterResponse.Recording.Links.Select(result =>
-                                new ApiObjects.TimeShiftedTv.RecordingLink()
-                                {
-                                    DeviceType = result.DeviceType,
-                                    Url = result.Url
-                                }).ToList(),
-                            RecordingId = adapterResponse.Recording.RecordingId,
-                            RecordingState = adapterResponse.Recording.RecordingState,
-                            FailReason = adapterResponse.Recording.FailReason,
-                            ProviderStatusCode = adapterResponse.Recording.ProviderStatusCode,
-                            ProviderStatusMessage = adapterResponse.Recording.ProviderStatusMessage
-                        };
+                        recordResult = CreateRecordResult(adapterResponse);
                     }
                 }
             }
@@ -544,7 +503,9 @@ namespace AdapterControllers.CDVR
                 throw new KalturaException("Cdvr adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
 
-            CdvrAdapterService.ServiceClient client = new CdvrAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl);
+            string cdvrAdapterUrl = adapter.AdapterUrl;
+            cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient();
+            client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
 
             //set unixTimestamp
             long timeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
@@ -557,7 +518,7 @@ namespace AdapterControllers.CDVR
                 log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, recordingId = {2}",
                     partnerId, adapter.ID, recordingId);
 
-                var adapterResponse = new AdapterControllers.CdvrAdapterService.RecordingResponse();
+                var adapterResponse = new AdapterControllers.cdvrAdap.RecordingResponse();
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -602,20 +563,7 @@ namespace AdapterControllers.CDVR
                     }
                     else if (adapterResponse.Recording != null)
                     {
-                        recordResult = new RecordResult()
-                        {
-                            Links = adapterResponse.Recording.Links.Select(result =>
-                                new ApiObjects.TimeShiftedTv.RecordingLink()
-                                {
-                                    DeviceType = result.DeviceType,
-                                    Url = result.Url
-                                }).ToList(),
-                            RecordingId = adapterResponse.Recording.RecordingId,
-                            RecordingState = adapterResponse.Recording.RecordingState,
-                            FailReason = adapterResponse.Recording.FailReason,
-                            ProviderStatusCode = adapterResponse.Recording.ProviderStatusCode,
-                            ProviderStatusMessage = adapterResponse.Recording.ProviderStatusMessage
-                        };
+                        recordResult = CreateRecordResult(adapterResponse);
                     }
                 }
             }
@@ -645,7 +593,9 @@ namespace AdapterControllers.CDVR
                 throw new KalturaException("Cdvr adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
 
-            CdvrAdapterService.ServiceClient client = new CdvrAdapterService.ServiceClient(string.Empty, adapter.AdapterUrl);
+            string cdvrAdapterUrl = adapter.AdapterUrl;
+            cdvrAdap.ServiceClient client = new cdvrAdap.ServiceClient();
+            client.Endpoint.Address = new System.ServiceModel.EndpointAddress(cdvrAdapterUrl);
 
             //set unixTimestamp
             long timeStamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
@@ -658,7 +608,7 @@ namespace AdapterControllers.CDVR
                 log.DebugFormat("Sending request to cdvr adapter. partnerId ID = {0}, adapterID = {1}, recordingId = {2}",
                     partnerId, adapter.ID, recordingId);
 
-                var adapterResponse = new AdapterControllers.CdvrAdapterService.RecordingResponse();
+                var adapterResponse = new AdapterControllers.cdvrAdap.RecordingResponse();
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -703,20 +653,7 @@ namespace AdapterControllers.CDVR
                     }
                     else if (adapterResponse.Recording != null)
                     {
-                        recordResult = new RecordResult()
-                        {
-                            Links = adapterResponse.Recording.Links.Select(result =>
-                                new ApiObjects.TimeShiftedTv.RecordingLink()
-                                {
-                                    DeviceType = result.DeviceType,
-                                    Url = result.Url
-                                }).ToList(),
-                            RecordingId = adapterResponse.Recording.RecordingId,
-                            RecordingState = adapterResponse.Recording.RecordingState,
-                            FailReason = adapterResponse.Recording.FailReason,
-                            ProviderStatusCode = adapterResponse.Recording.ProviderStatusCode,
-                            ProviderStatusMessage = adapterResponse.Recording.ProviderStatusMessage
-                        };
+                        recordResult = CreateRecordResult(adapterResponse);
                     }
                 }
             }
@@ -733,6 +670,33 @@ namespace AdapterControllers.CDVR
         #endregion
 
         #region Private Method
+        
+        private static RecordResult CreateRecordResult(cdvrAdap.RecordingResponse adapterResponse)
+        {
+            List<ApiObjects.TimeShiftedTv.RecordingLink> links = new List<ApiObjects.TimeShiftedTv.RecordingLink>();
+
+            if (adapterResponse.Recording.Links != null)
+            {
+                links = adapterResponse.Recording.Links.Select(result =>
+                        new ApiObjects.TimeShiftedTv.RecordingLink()
+                        {
+                            DeviceType = result.DeviceType,
+                            Url = result.Url
+                        }).ToList();
+            }
+
+            RecordResult recordResult = new RecordResult()
+            {
+                Links = links,
+                RecordingId = adapterResponse.Recording.RecordingId,
+                RecordingState = adapterResponse.Recording.RecordingState,
+                FailReason = adapterResponse.Recording.FailReason,
+                ProviderStatusCode = adapterResponse.Recording.ProviderStatusCode,
+                ProviderStatusMessage = adapterResponse.Recording.ProviderStatusMessage
+            };
+            return recordResult;
+        }
+
         private bool configurationSynchronizer_SynchronizedAct(Dictionary<string, object> parameters)
         {
             bool result = false;
@@ -759,7 +723,7 @@ namespace AdapterControllers.CDVR
             return result;
         }
 
-        private void LogAdapterResponse(AdapterControllers.CdvrAdapterService.RecordingResponse adapterResponse, string action)
+        private void LogAdapterResponse(AdapterControllers.cdvrAdap.RecordingResponse adapterResponse, string action)
         {
             string logMessage = string.Empty;
 
@@ -780,7 +744,7 @@ namespace AdapterControllers.CDVR
             }
             else
             {
-                logMessage = string.Format("Cdvr Adapter RecordingId = {1}, RecordingState = {2}",                  
+                logMessage = string.Format("Cdvr Adapter RecordingId = {0}, RecordingState = {1}",                  
                   adapterResponse.Recording.RecordingId,
                     adapterResponse.Recording.RecordingState
                     );

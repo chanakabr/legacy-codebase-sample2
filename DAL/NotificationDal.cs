@@ -1043,17 +1043,17 @@ namespace DAL
             return result;
         }
 
-        public static FollowTemplate SetFollowTemplate(int groupId, FollowTemplate followTemplate)
+        public static MessageTemplate SetMessageTemplate(int groupId, MessageTemplate messageTemplate)
         {
-            FollowTemplate result = null;
+            MessageTemplate result = null;
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("SetFollowTemplate");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("SetMessageTemplate");
                 sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
                 sp.AddParameter("@groupId", groupId);
-                sp.AddParameter("@message", followTemplate.Message);
-                sp.AddParameter("@dateFormat", followTemplate.DateFormat);
-                sp.AddParameter("@assetType", (int)followTemplate.AssetType);
+                sp.AddParameter("@message", messageTemplate.Message);
+                sp.AddParameter("@dateFormat", messageTemplate.DateFormat);
+                sp.AddParameter("@assetType", (int)messageTemplate.AssetType);
 
                 DataSet ds = sp.ExecuteDataSet();
 
@@ -1061,25 +1061,25 @@ namespace DAL
                 {
                     if (ds.Tables[0].Rows.Count > 0)
                     {
-                        result = CreateFollowTemplate(ds.Tables[0].Rows[0]);
+                        result = CreateMessageTemplate(ds.Tables[0].Rows[0]);
                     }
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error at AddFollowTemplate. groupId: {0}, followTemplate: {1} . Error {2}", groupId, followTemplate.ToString(), ex);
+                log.ErrorFormat("Error at SetMessageTemplate. groupId: {0}, messageTemplate: {1} . Error {2}", groupId, messageTemplate.ToString(), ex);
             }
 
             return result;
 
         }
 
-        public static FollowTemplate GetFollowTemplate(int groupId, eOTTAssetTypes assetType)
+        public static MessageTemplate GetMessageTemplate(int groupId, eOTTAssetTypes assetType)
         {
-            FollowTemplate result =null;
+            MessageTemplate result =null;
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetFollowTemplate");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageTemplate");
                 sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@assetType", (int)assetType);
@@ -1090,26 +1090,26 @@ namespace DAL
                 {
                     if (ds.Tables[0].Rows.Count > 0)
                     {
-                        result = CreateFollowTemplate(ds.Tables[0].Rows[0]);
+                        result = CreateMessageTemplate(ds.Tables[0].Rows[0]);
                     }
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error at GetFollowTemplate. groupId: {0}. Error {1}", groupId, ex);
+                log.ErrorFormat("Error at GetMessageTemplate. groupId: {0}. Error {1}", groupId, ex);
             }
 
             return result;
 
         }
 
-        private static FollowTemplate CreateFollowTemplate(DataRow row)
+        private static MessageTemplate CreateMessageTemplate(DataRow row)
         {
-            FollowTemplate result = new FollowTemplate();
+            MessageTemplate result = new MessageTemplate();
 
             int assetType = ODBCWrapper.Utils.GetIntSafeVal(row, "ASSET_TYPE");
 
-            result = new FollowTemplate()
+            result = new MessageTemplate()
             {
                 Id = ODBCWrapper.Utils.GetIntSafeVal(row, "ID"),
                 Message = ODBCWrapper.Utils.GetSafeStr(row, "MESSAGE"),
