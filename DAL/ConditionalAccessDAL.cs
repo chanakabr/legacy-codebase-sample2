@@ -2482,6 +2482,8 @@ namespace DAL
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", recording.EpgStartDate);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CREATE_DATE", "=", DateTime.UtcNow);
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
 
             var executeResult = insertQuery.ExecuteAndGetId();
             insertQuery.Finish();
