@@ -649,19 +649,6 @@ namespace DAL
                 return null;
         }
 
-        public static bool UpdateNotificationSettings(int groupID, string userId, bool? push_notification_enabled)
-        {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_NotificationSettings");
-            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
-            sp.AddParameter("@groupID", groupID);
-            sp.AddParameter("@userId", userId);
-            if (push_notification_enabled != null)
-            {
-                sp.AddParameter("@push_notification_enabled", push_notification_enabled);
-            }
-            return sp.ExecuteReturnValue<bool>();
-        }
-
         public static DataRow GetNotificationSettings(int groupID, int userID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_NotificationSettings");
@@ -1076,7 +1063,7 @@ namespace DAL
 
         public static MessageTemplate GetMessageTemplate(int groupId, eOTTAssetTypes assetType)
         {
-            MessageTemplate result =null;
+            MessageTemplate result = null;
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageTemplate");
@@ -1345,6 +1332,91 @@ namespace DAL
             {
                 log.ErrorFormat("Error while set user notification data. gid: {0}, user ID: {1}, ex: {2}", groupId, userId, ex);
             }
+            return result;
+        }
+
+        public static bool UpdateNotificationSettings(int groupID, string userId, bool? enablePush, bool? enableMail, bool? enableInbox)
+        {
+            bool result = false;
+            UserNotification userNotification = null;
+            Couchbase.IO.ResponseStatus status = Couchbase.IO.ResponseStatus.None;
+            ulong cas = 0;
+
+            try
+            {
+                int numOfTries = 0;
+                string cbKey = GetUserNotificationKey(groupID, Convert.ToInt32(userId));
+
+                while (!result && numOfTries < NUM_OF_INSERT_TRIES)
+                {
+                    userNotification = cbManager.Get<UserNotification>(cbKey, false, out cas, out status);
+                    if (userNotification == null)
+                    {
+                        if (status == Couchbase.IO.ResponseStatus.KeyNotFound)
+                        {
+                            // key doesn't exist - don't try again
+                            log.DebugFormat("user notification data wasn't found. key: {0}", cbKey);
+
+                            return true;
+                        }
+                        else
+                        {
+                            // error retrieving document
+                            numOfTries++;
+                            log.ErrorFormat("Error getting user notification document while trying to update user notification settings. number of tries: {0}/{1}. key: {2}",
+                                numOfTries,
+                                NUM_OF_INSERT_TRIES,
+                                cbKey);
+
+                            Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
+                        }
+                    }
+                    else
+                    {
+                        // document retrieved - update it
+                        if (enableInbox != null)
+                            userNotification.Settings.EnableInbox = (bool)enableInbox;
+
+                        if (enableMail != null)
+                            userNotification.Settings.EnableMail = (bool)enableMail;
+
+                        if (enablePush != null)
+                            userNotification.Settings.EnablePush = (bool)enablePush;
+
+                        // insert document to CB
+                        if (cbManager.Set<UserNotification>(cbKey, userNotification, false, 0, cas))
+                        {
+                            result = true;
+                            userNotification.cas = cas;
+
+                            // log success on retry
+                            if (numOfTries > 0)
+                            {
+                                numOfTries++;
+                                log.DebugFormat("successfully updated user notification settings. number of tries: {0}/{1}. key {2}",
+                                numOfTries,
+                                NUM_OF_INSERT_TRIES,
+                                cbKey);
+                            }
+                        }
+                        else
+                        {
+                            numOfTries++;
+                            log.ErrorFormat("Error while updating user notification settings. number of tries: {0}/{1}. key: {2}",
+                                numOfTries,
+                                NUM_OF_INSERT_TRIES,
+                                cbKey);
+
+                            Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to update user notification settings. key: {0}, ex: {1}", GetUserNotificationKey(groupID, Convert.ToInt32(userId)), ex);
+            }
+
             return result;
         }
     }

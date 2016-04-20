@@ -13,13 +13,13 @@ namespace ApiObjects.Notification
         {
             this.Userdevices = new List<UserDevice>();
             this.Announcements = new List<Announcement>();
+            this.Settings = new UserNotificationSettings() { EnableInbox = true, EnableMail = true, EnablePush = true };
         }
         public List<UserDevice> Userdevices { get; set; }
         public List<Announcement> Announcements { get; set; }
-
         public UserNotificationSettings Settings { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public ulong cas{ get; set; }
+        public ulong cas { get; set; }
     }
 }
