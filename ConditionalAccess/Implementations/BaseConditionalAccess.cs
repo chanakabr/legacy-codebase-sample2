@@ -17081,7 +17081,7 @@ namespace ConditionalAccess
                 List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(m_nGroupID, epgIDs);
                 if (epgs == null || epgs.Count == 0)
                 {
-                    log.DebugFormat("Failed Getting EPGs from Catalog, DomainID: {0}, UserID: {1}, EpgIDs: {2}", domainID, userID, epgIDs.ToString());
+                    log.DebugFormat("Failed Getting EPGs from Catalog, DomainID: {0}, UserID: {1}, EpgIDs: {2}", domainID, userID, string.Join(",", epgIDs));
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.InvalidAssetId, eResponseStatus.InvalidAssetId.ToString());
                     return response;
                 }
