@@ -872,10 +872,10 @@ namespace ElasticSearch.Searcher
             // Queried filter
             filteredQueryBuilder.Append(" \"query\": { \"filtered\": {");
 
-
+            bool shouldSearchRecordings = false;
             bool shouldSearchEpg = false;
             bool shouldSearchMedia = false;
-
+            
             QueryFilter filterPart = new QueryFilter();
             BaseFilterCompositeType filterParent = new FilterCompositeType(CutWith.AND);
 
@@ -891,11 +891,20 @@ namespace ElasticSearch.Searcher
                 Value = "media"
             };
 
+            ESPrefix recordingsPrefixTerm = new ESPrefix()
+            {
+                Key = "_type",
+                Value = "recording"
+            };
+
             FilterCompositeType mediaFilter = new FilterCompositeType(CutWith.AND);
             mediaFilter.AddChild(mediaPrefixTerm);
 
             FilterCompositeType epgFilter = new FilterCompositeType(CutWith.AND);
             epgFilter.AddChild(epgPrefixTerm);
+
+            FilterCompositeType recordingsFilter = new FilterCompositeType(CutWith.AND);
+            recordingsFilter.AddChild(recordingsPrefixTerm);
 
             ESTerms mediaIdsTerm = new ESTerms(true)
             {
@@ -903,6 +912,11 @@ namespace ElasticSearch.Searcher
             };
 
             ESTerms epgIdsTerm = new ESTerms(true)
+            {
+                Key = "_id"
+            };
+
+            ESTerms recordingIdsTerm = new ESTerms(true)
             {
                 Key = "_id"
             };
@@ -921,7 +935,11 @@ namespace ElasticSearch.Searcher
                         break;
                     }
                     case ApiObjects.eAssetTypes.NPVR:
-                    break;
+                    {
+                        recordingIdsTerm.Value.Add(item.Value);
+                        shouldSearchRecordings = true;
+                        break;
+                    }
                     case ApiObjects.eAssetTypes.MEDIA:
                     {
                         mediaIdsTerm.Value.Add(item.Value);
@@ -946,6 +964,12 @@ namespace ElasticSearch.Searcher
             {
                 mediaFilter.AddChild(mediaIdsTerm);
                 unifiedFilter.AddChild(mediaFilter);
+            }
+
+            if (shouldSearchRecordings)
+            {
+                recordingsFilter.AddChild(recordingIdsTerm);
+                unifiedFilter.AddChild(recordingsFilter);
             }
 
             filterParent.AddChild(unifiedFilter);
@@ -1000,6 +1024,7 @@ namespace ElasticSearch.Searcher
 
             bool shouldSearchEpg = false;
             bool shouldSearchMedia = true;
+            bool shouldSearchRecordings = false;
 
             foreach (var definition in definitions)
             {
@@ -1012,23 +1037,38 @@ namespace ElasticSearch.Searcher
                 {
                     shouldSearchMedia = true;
                 }
+
+                if (definition.shouldSearchRecordings)
+                {
+                    shouldSearchRecordings = true;
+                }
+            }
+
+            StringBuilder builder = new StringBuilder();
+
+            if (shouldSearchMedia)
+            {
+                builder.Append(groupId);
+                builder.Append(',');
             }
 
             if (shouldSearchEpg)
             {
-                if (shouldSearchMedia)
-                {
-                    indexes = string.Format("{0},{0}_epg", groupId);
-                }
-                else
-                {
-                    indexes = string.Format("{0}_epg", groupId);
-                }
+                builder.AppendFormat("{0}_epg,", groupId);
             }
-            else
+
+            if (shouldSearchRecordings)
             {
-                indexes = groupId.ToString();
+                builder.AppendFormat("{0}_recording,", groupId);
             }
+
+            // remove last ,
+            if (builder.Length > 0)
+            {
+                builder.Remove(builder.Length - 1, 1);
+            }
+
+            indexes = builder.ToString();
 
             return indexes;
         }
@@ -1037,8 +1077,11 @@ namespace ElasticSearch.Searcher
         {
             string types = string.Empty;
 
+            StringBuilder builder = new StringBuilder();
+
             string media = "media";
             string epg = "epg";
+            string recording = "recording";
 
             // If language isn't default
             if (definitions.langauge != null &&
@@ -1046,42 +1089,46 @@ namespace ElasticSearch.Searcher
             {
                 if (definitions.shouldSearchMedia)
                 {
-                    // If both
-                    if (definitions.shouldSearchEpg)
-                    {
-                        types = string.Format("{0}_{2},{1}_{2}", media, epg, definitions.langauge.Code);
-                    }
-                    // if only media
-                    else
-                    {
-                        types = string.Format("{0}_{1}", media, definitions.langauge.Code);
-                    }
+                    builder.AppendFormat("{0}_{1},", media, definitions.langauge.Code);
                 }
-                // If only epg
-                else if (definitions.shouldSearchEpg)
+
+                if (definitions.shouldSearchEpg)
                 {
-                    types = string.Format("{0}_{1}", epg, definitions.langauge.Code);
+                    builder.AppendFormat("{0}_{1},", epg, definitions.langauge.Code);
+                }
+
+                if (definitions.shouldSearchRecordings)
+                {
+                    builder.AppendFormat("{0}_{1},", recording, definitions.langauge.Code);
+                }
+
+                // remove last ,
+                if (builder.Length > 0)
+                {
+                    builder.Remove(builder.Length - 1, 1);
                 }
             }
             else
             {
                 if (definitions.shouldSearchMedia)
                 {
-                    // If both
-                    if (definitions.shouldSearchEpg)
-                    {
-                        types = string.Format("{0},{1}", media, epg);
-                    }
-                    // if only media
-                    else
-                    {
-                        types = media;
-                    }
+                    builder.AppendFormat("{0},", media);
                 }
-                // If only epg
-                else if (definitions.shouldSearchEpg)
+
+                if (definitions.shouldSearchEpg)
                 {
-                    types = epg;
+                    builder.AppendFormat("{0},");
+                }
+
+                if (definitions.shouldSearchRecordings)
+                {
+                    builder.AppendFormat("{0},");
+                }
+
+                // remove last ,
+                if (builder.Length > 0)
+                {
+                    builder.Remove(builder.Length - 1, 1);
                 }
             }
              
@@ -1092,82 +1139,64 @@ namespace ElasticSearch.Searcher
         {
             string media = "media";
             string epg = "epg";
+            string recording = "recording";
 
             HashSet<string> typesList = new HashSet<string>();
-            StringBuilder typesString = new StringBuilder();
+            StringBuilder finalBuilder = new StringBuilder();
 
             foreach (var definition in definitions)
             {
-                string currentType = string.Empty;
-
                 // If language isn't default
                 if (definition.langauge != null &&
                     !definition.langauge.IsDefault)
                 {
                     if (definition.shouldSearchMedia)
                     {
-                        // If both
-                        if (definition.shouldSearchEpg)
-                        {
-                            currentType = string.Format("{0}_{2},{1}_{2}", media, epg, definition.langauge.Code);
-                        }
-                        // if only media
-                        else
-                        {
-                            currentType = string.Format("{0}_{1}", media, definition.langauge.Code);
-                        }
+                        typesList.Add(string.Format("{0}_{1}", media, definition.langauge.Code));
                     }
-                    // If only epg
-                    else if (definition.shouldSearchEpg)
+
+                    if (definition.shouldSearchEpg)
                     {
-                        currentType = string.Format("{0}_{1}", epg, definition.langauge.Code);
+                        typesList.Add(string.Format("{0}_{1}", epg, definition.langauge.Code));
+                    }
+
+                    if (definition.shouldSearchRecordings)
+                    {
+                        typesList.Add(string.Format("{0}_{1}", recording, definition.langauge.Code));
                     }
                 }
                 else
                 {
                     if (definition.shouldSearchMedia)
                     {
-                        // If both
-                        if (definition.shouldSearchEpg)
-                        {
-                            currentType = string.Format("{0},{1}", media, epg);
-                        }
-                        // if only media
-                        else
-                        {
-                            currentType = media;
-                        }
+                        typesList.Add(media);
                     }
-                    // If only epg
-                    else if (definition.shouldSearchEpg)
+
+                    if (definition.shouldSearchEpg)
                     {
-                        currentType = epg;
+                        typesList.Add(epg);
+                    }
+
+                    if (definition.shouldSearchRecordings)
+                    {
+                        typesList.Add(recording);                        
                     }
                 }
+            }
 
-                // Split by ',' so we can see if any of the new types are included or not
-                string[] currentTypes = currentType.Split(',');
-
-                foreach (var type in currentTypes)
-                {
-                    // append new types if they don't exist yet
-                    if (!typesList.Contains(currentType))
-                    {
-                        typesString.Append(currentType);
-                        typesString.Append(',');
-
-                        typesList.Add(type);
-                    }
-                }
+            foreach (var type in typesList)
+            {
+                finalBuilder.Append(type);
+                finalBuilder.Append(',');
             }
 
             // Remove last ','
-            if (typesString.Length > 0)
+            if (finalBuilder.Length > 0)
             {
-                typesString.Remove(typesString.Length - 1, 1);
+                finalBuilder.Remove(finalBuilder.Length - 1, 1);
             }
 
-            return typesString.ToString();
+            return finalBuilder.ToString();
         }
 
         /// <summary>

@@ -1924,7 +1924,6 @@ namespace Catalog
 
             string requestBody = new ESUnifiedQueryBuilder(null, groupId).BuildMultiSearchQueryString(unifiedSearchDefinitions);
 
-
             if (!string.IsNullOrEmpty(requestBody))
             {
                 int httpStatus = 0;
