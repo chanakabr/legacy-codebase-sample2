@@ -1126,12 +1126,12 @@ namespace ElasticSearch.Searcher
 
                 if (definitions.shouldSearchEpg)
                 {
-                    builder.AppendFormat("{0},");
+                    builder.AppendFormat("{0},", epg);
                 }
 
                 if (definitions.shouldSearchRecordings)
                 {
-                    builder.AppendFormat("{0},");
+                    builder.AppendFormat("{0},", recording);
                 }
 
                 // remove last ,
