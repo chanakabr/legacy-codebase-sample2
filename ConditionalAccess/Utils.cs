@@ -4314,7 +4314,7 @@ namespace ConditionalAccess
                 }
                 client.Endpoint.Address = new System.ServiceModel.EndpointAddress(sCatalogUrl);
                 WS_Catalog.UnifiedSearchResponse response = client.GetResponse(request) as WS_Catalog.UnifiedSearchResponse;
-                if (response != null && response.m_nTotalItems > 0 && response.searchResults != null && response.searchResults.Length > 0)
+                if (response != null && response.status.Code == (int)eResponseStatus.OK && response.m_nTotalItems > 0 && response.searchResults != null && response.searchResults.Length > 0)
                 {                    
                     foreach (UnifiedSearchResult recordingID in response.searchResults)
                     {
