@@ -49,6 +49,9 @@ namespace Catalog.Request
         [DataMember]
         public string requestId;
 
+        [DataMember]
+        public List<KeyValuePair<eAssetTypes, long>> specificAssets;
+
         #endregion
 
         #region Ctor

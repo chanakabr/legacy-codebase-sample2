@@ -12,6 +12,13 @@ namespace ApiObjects.SearchObjects
     [Serializable]
     public class UnifiedSearchDefinitions : BaseSearchObject
     {
+        #region Consts
+
+        public const int EPG_ASSET_TYPE = 0;
+        public const int RECORDING_ASSET_TYPE = 1;
+
+        #endregion
+
         #region Data Members
 
         public int pageIndex
@@ -153,6 +160,13 @@ namespace ApiObjects.SearchObjects
         [JsonProperty()]
         [DataMember]
         public bool shouldSearchMedia;
+
+        /// <summary>
+        /// Are recordings  relevant to this search or not
+        /// </summary>
+        [JsonProperty()]
+        [DataMember]
+        public bool shouldSearchRecordings;
 
         /// <summary>
         /// Fields that will show in the result in addition to the basic, default return fields
