@@ -938,6 +938,11 @@ namespace Catalog
                                     assetIdField = "fields.epg_id";
                                     break;
                                 }
+                                case eAssetTypes.NPVR:
+                                {
+                                    assetIdField = "fields.recording_id";
+                                    break;
+                                }
                                 default:
                                 {
                                     break;
