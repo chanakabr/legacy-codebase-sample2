@@ -33,6 +33,12 @@ namespace ElasticSearch.Searcher
             Value = "media"
         };
 
+        protected static readonly ESPrefix recordingPrefixTerm = new ESPrefix()
+        {
+            Key = "_type",
+            Value = "recording"
+        };
+
         #endregion
 
         #region Data Members
@@ -139,14 +145,26 @@ namespace ElasticSearch.Searcher
             this.ReturnFields = DEFAULT_RETURN_FIELDS.ToList();
             this.ReturnFields.AddRange(this.SearchDefinitions.extraReturnFields.Select(field => string.Format("\"{0}\"", field)));
 
+            string epg_id_field = "\"epg_id\"";
+
             if (this.SearchDefinitions.shouldSearchEpg)
             {
-                this.ReturnFields.Add("\"epg_id\"");
+                this.ReturnFields.Add(epg_id_field);
             }
 
             if (this.SearchDefinitions.shouldSearchMedia)
             {
                 this.ReturnFields.Add("\"media_id\"");
+            }
+
+            if (this.SearchDefinitions.shouldSearchRecordings)
+            {
+                if (!this.ReturnFields.Contains(epg_id_field))
+                {
+                    this.ReturnFields.Add(epg_id_field);
+                }
+
+                this.ReturnFields.Add("\"recording_id\"");
             }
 
             // This is a query-filter.
@@ -250,7 +268,8 @@ namespace ElasticSearch.Searcher
             //          unified = OR
             //              [
             //                  epg, 
-            //                  media
+            //                  media,
+            //                  recording
             //              ]
             //      ]
 
@@ -260,10 +279,12 @@ namespace ElasticSearch.Searcher
             FilterCompositeType epgFilter = new FilterCompositeType(CutWith.AND);
             epgFilter.AddChild(epgPrefixTerm);
 
-            // Filters which are relevant to both types
-            FilterCompositeType globalFilter = new FilterCompositeType(CutWith.AND);
+            FilterCompositeType recordingFilter = new FilterCompositeType(CutWith.AND);
+            recordingFilter.AddChild(recordingPrefixTerm);
 
-            // Or between media and epg
+            #region Initialize unified filter for the three types
+
+            // Or between media and epg and recording
             FilterCompositeType unifiedFilter = new FilterCompositeType(CutWith.OR);
 
             if (this.SearchDefinitions.shouldSearchEpg)
@@ -275,6 +296,16 @@ namespace ElasticSearch.Searcher
             {
                 unifiedFilter.AddChild(mediaFilter);
             }
+
+            if (this.SearchDefinitions.shouldSearchRecordings)
+            {
+                unifiedFilter.AddChild(recordingPrefixTerm);
+            }
+
+            #endregion
+
+            // Filters which are relevant to all three types
+            FilterCompositeType globalFilter = new FilterCompositeType(CutWith.AND);
 
             ESTerm groupTerm = new ESTerm(true)
             {
@@ -318,7 +349,10 @@ namespace ElasticSearch.Searcher
                             break;
                         }
                         case ApiObjects.eAssetTypes.NPVR:
-                        break;
+                        {
+                            recordingFilter.AddChild(idsTerm);
+                            break;
+                        }
                         case ApiObjects.eAssetTypes.MEDIA:
                         {
                             mediaFilter.AddChild(idsTerm);
@@ -354,7 +388,10 @@ namespace ElasticSearch.Searcher
                             break;
                         }
                         case ApiObjects.eAssetTypes.NPVR:
-                        break;
+                        {
+                            recordingFilter.AddChild(idsTerm);
+                            break;
+                        }
                         case ApiObjects.eAssetTypes.MEDIA:
                         {
                             mediaFilter.AddChild(idsTerm);
@@ -670,6 +707,12 @@ namespace ElasticSearch.Searcher
                 }
 
                 #endregion
+            }
+
+            // Recordings specific filters
+            if (this.SearchDefinitions.shouldSearchRecordings)
+            {
+                // ? nothing for now?
             }
 
             #region Phrase Tree
