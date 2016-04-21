@@ -6,13 +6,18 @@ using System.Threading.Tasks;
 
 namespace NotificationObj
 {
-    public class FollowData
+    public class FollowDataBase
     {
         public long AnnouncementId;
         public int Status;
-        public FollowType Type;
         public string Title;
         public long Timestamp;
-        public string FollowPhrase;
+        protected string _followPhrase;
+
+        public virtual string FollowPhrase
+        {
+            get { return _followPhrase; }
+            set { _followPhrase = value; }
+        }        
     }
 }
