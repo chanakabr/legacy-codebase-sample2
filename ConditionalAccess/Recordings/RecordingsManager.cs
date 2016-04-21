@@ -310,83 +310,98 @@ namespace Recordings
 
             Recording recording = ConditionalAccessDAL.GetRecordingByProgramId(programId);
 
-            // If there is no recording for this program - create one. This is the first, hurray!
-            if (recording != null)
+            // If there is no recording - error?
+            if (recording == null)
             {
-                int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
-
-                var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
-
-                // Update recording
-                recording.EpgStartDate = startDate;
-                recording.EpgEndDate = endDate;
-
-                // Call Adapter to update recording schedule
-
-                // Initialize parameters for adapter controller
-                long startTimeSeconds = ODBCWrapper.Utils.DateTimeToUnixTimestamp(startDate);
-                long durationSeconds = (long)(endDate - startDate).TotalSeconds;
-
-                RecordResult adapterResponse = null;
-                try
+                status = new Status((int)eResponseStatus.Error, string.Format("No recording for program {0}", programId));
+            }
+            else
+            {
+                // If no change was made to program schedule - do nothing
+                if (recording.EpgStartDate == startDate &&
+                    recording.EpgEndDate == endDate)
                 {
-                    adapterResponse = adapterController.UpdateRecordingSchedule(groupId, recording.ExternalRecordingId, adapterId, startTimeSeconds, durationSeconds);
-                }
-                catch (KalturaException ex)
-                {
-                    recording.Status = new Status((int)ex.Data["StatusCode"], ex.Message);
-                }
-                catch (Exception ex)
-                {
-                    recording.Status = new Status((int)eResponseStatus.AdapterAppFailure, "Adapter controller excpetion: " + ex.Message);
-                }
-
-                if (recording.Status != null)
-                {
-                    return recording.Status;
-                }
-
-                if (adapterResponse == null)
-                {
-                    status = new Status((int)eResponseStatus.Error, "Adapter controller returned null response.");
-                }
-                //
-                // TODO: Validate adapter response
-                //
-                else if (adapterResponse.FailReason != 0)
-                {
-                    string message = string.Format("Adapter failed for reason: {0}. Provider code = {1}, provider message = {2}",
-                        adapterResponse.FailReason, adapterResponse.ProviderStatusCode, adapterResponse.ProviderStatusMessage);
-                    status = new Status((int)eResponseStatus.AdapterAppFailure, message);
+                    // We're OK
+                    status = new Status((int)eResponseStatus.OK);
                 }
                 else
                 {
+                    // Update recording
+                    recording.EpgStartDate = startDate;
+                    recording.EpgEndDate = endDate;
+
+                    int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
+
+                    var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
+
+                    // Call Adapter to update recording schedule
+
+                    // Initialize parameters for adapter controller
+                    long startTimeSeconds = ODBCWrapper.Utils.DateTimeToUnixTimestamp(startDate);
+                    long durationSeconds = (long)(endDate - startDate).TotalSeconds;
+
+                    RecordResult adapterResponse = null;
                     try
                     {
-                        // Insert recording information to database
-                        bool updateResult = ConditionalAccessDAL.UpdateRecording(recording, groupId, 1, 1);
-
-                        if (!updateResult)
-                        {
-                            return new Status((int)eResponseStatus.Error, "Failed update recording");
-                        }
-
-                        // Schedule a message tocheck status 1 minute after recording of program is supposed to be over
-                        var queue = new GenericCeleryQueue();
-                        var message = new RecordingTaskData(groupId, eRecordingTask.GetStatusAfterProgramEnded,
-                            // add 1 minutes here
-                            endDate.AddMinutes(1),
-                            programId,
-                            recording.RecordingID);
-
-                        queue.Enqueue(message, string.Format(SCHEDULED_TASKS_ROUTING_KEY, groupId));
-
-                        // We're OK
-                        status = new Status((int)eResponseStatus.OK);
+                        adapterResponse = adapterController.UpdateRecordingSchedule(
+                            groupId, recording.ExternalRecordingId, adapterId, startTimeSeconds, durationSeconds);
+                    }
+                    catch (KalturaException ex)
+                    {
+                        recording.Status = new Status((int)ex.Data["StatusCode"], ex.Message);
                     }
                     catch (Exception ex)
                     {
-                        status = new Status((int)eResponseStatus.Error, "Failed inserting recording to database and queue.");
+                        recording.Status = new Status((int)eResponseStatus.AdapterAppFailure, "Adapter controller excpetion: " + ex.Message);
+                    }
+
+                    if (recording.Status != null)
+                    {
+                        return recording.Status;
+                    }
+
+                    if (adapterResponse == null)
+                    {
+                        status = new Status((int)eResponseStatus.Error, "Adapter controller returned null response.");
+                    }
+                    //
+                    // TODO: Validate adapter response
+                    //
+                    else if (adapterResponse.FailReason != 0)
+                    {
+                        string message = string.Format("Adapter failed for reason: {0}. Provider code = {1}, provider message = {2}",
+                            adapterResponse.FailReason, adapterResponse.ProviderStatusCode, adapterResponse.ProviderStatusMessage);
+                        status = new Status((int)eResponseStatus.AdapterAppFailure, message);
+                    }
+                    else
+                    {
+                        try
+                        {
+                            // Insert recording information to database
+                            bool updateResult = ConditionalAccessDAL.UpdateRecording(recording, groupId, 1, 1);
+
+                            if (!updateResult)
+                            {
+                                return new Status((int)eResponseStatus.Error, "Failed update recording");
+                            }
+
+                            // Schedule a message tocheck status 1 minute after recording of program is supposed to be over
+                            var queue = new GenericCeleryQueue();
+                            var message = new RecordingTaskData(groupId, eRecordingTask.GetStatusAfterProgramEnded,
+                                // add 1 minutes here
+                                endDate.AddMinutes(1),
+                                programId,
+                                recording.RecordingID);
+
+                            queue.Enqueue(message, string.Format(SCHEDULED_TASKS_ROUTING_KEY, groupId));
+
+                            // We're OK
+                            status = new Status((int)eResponseStatus.OK);
+                        }
+                        catch (Exception ex)
+                        {
+                            status = new Status((int)eResponseStatus.Error, "Failed inserting recording to database and queue.");
+                        }
                     }
                 }
             }
