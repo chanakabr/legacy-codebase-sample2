@@ -2680,7 +2680,6 @@ namespace DAL
                 new List<TstvRecordingStatus>() { status });
         }
 
-
         public static List<Recording> GetAllRecordingsByStatuses(int groupId, List<TstvRecordingStatus> statuses)
         {
             List<Recording> recordings = new List<Recording>();
@@ -2698,7 +2697,7 @@ namespace DAL
             return recordings;
         }
 
-        public static List<long> GetDomainRecordingIDsByRecordingStatuses(int groupID, long domainID, List<int> recordingStatuses)
+        public static List<long> GetDomainRecordingIDsByRecordingStatuses(int groupID, long domainID, List<int> recordingStatuses, int pageIndex, int pageSize)
         {
             List<long> recordingIDs = null;
             ODBCWrapper.StoredProcedure spGetDomainExistingRecordingID = new ODBCWrapper.StoredProcedure("GetDomainRecordingIDsByRecordingStatuses");

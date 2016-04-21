@@ -17326,7 +17326,7 @@ namespace ConditionalAccess
             return response;
         }
 
-        public RecordingIDsResponse GetDomainRecordingIDsByRecordingStatuses(string userID, long domainID, List<int> recordingStatuses)
+        public RecordingIDsResponse SerachDomainRecordingIDs(string userID, long domainID, List<int> recordingStatuses, string filter, int pageIndex, int pageSize, string orderBy, string requestID)
         {
             RecordingIDsResponse response = new RecordingIDsResponse();
             try
@@ -17346,12 +17346,27 @@ namespace ConditionalAccess
                     return response;
                 }
 
-                List<long> recordingIDs = ConditionalAccessDAL.GetDomainRecordingIDsByRecordingStatuses(m_nGroupID, domainID, recordingStatuses);
+                List<long> recordingIDs = ConditionalAccessDAL.GetDomainRecordingIDsByRecordingStatuses(m_nGroupID, domainID, recordingStatuses, pageIndex, pageSize);
                 if (recordingIDs == null)
                 {
-                    log.DebugFormat("Failed GetDomainRecordingIDsByRecordingStatuses, recordingIDs is null, DomainID: {0}, UserID: {1}, recordingStatuses: {2}", domainID, userID, recordingStatuses);
+                    log.DebugFormat("Failed GetDomainRecordingIDsByRecordingStatuses, recordingIDs is null, DomainID: {0}, UserID: {1}, pageIndex: {2}, pageSize: {3}, ", domainID, userID, pageIndex, pageSize);
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     return response;
+                }
+
+                if (recordingIDs.Count > 0)
+                {
+                    /************************************************
+                     set order by according to order by input param
+                     ************************************************/
+                    ApiObjects.SearchObjects.OrderObj orderByObj = new ApiObjects.SearchObjects.OrderObj();
+                    recordingIDs = Utils.SearchDomainRecordingIDsByFilter(m_nGroupID, userID, domainID, recordingIDs, filter, pageIndex, pageSize, orderByObj, requestID);
+                    if (recordingIDs == null)
+                    {
+                        log.DebugFormat("Failed SearchDomainRecordingIDsByFilter, recordingIDs is null, DomainID: {0}, UserID: {1}, pageIndex: {2}, pageSize: {3}, filter: {4}", domainID, userID, pageIndex, pageSize, filter);
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                        return response;
+                    }
                 }
 
                 response.RecordingIDs = recordingIDs;

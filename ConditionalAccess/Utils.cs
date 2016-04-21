@@ -4276,5 +4276,72 @@ namespace ConditionalAccess
 
             return services;
         }
+
+        internal static List<long> SearchDomainRecordingIDsByFilter(int groupID, string userID, long domainID, List<long> recordingIds, string filter,
+                                                                    int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy, string requestID)
+        {
+            WS_Catalog.IserviceClient client = null;
+            List<long> filteredRecordingIDs = null;
+
+            try
+            {
+                WS_Catalog.UnifiedSearchRequest request = new WS_Catalog.UnifiedSearchRequest();
+                request.m_nGroupID = groupID;
+                request.m_sSiteGuid = userID;
+                request.domainId = (int)domainID;
+                request.m_nPageIndex = pageIndex;
+                request.m_nPageSize = pageSize;
+                request.assetTypes = new int[1] { 1 };
+                request.filterQuery = filter;
+                request.order = orderBy;
+                request.requestId = requestID;
+                KeyValuePair<eAssetTypes,long>[] recordingAssets = new KeyValuePair<eAssetTypes,long>[recordingIds.Count];
+                for (int i=0; i < recordingIds.Count; i++)
+                {
+                    recordingAssets[i] = new KeyValuePair<eAssetTypes,long>(eAssetTypes.NPVR, recordingIds[i]);
+                }
+                request.specificAssets = recordingAssets;                
+                request.m_oFilter = new WS_Catalog.Filter()
+                {
+                    m_bOnlyActiveMedia = true
+                };
+                FillCatalogSignature(request);
+                client = new WS_Catalog.IserviceClient();
+                string sCatalogUrl = GetWSURL("WS_Catalog");
+                if (string.IsNullOrEmpty(sCatalogUrl))
+                {
+                    return filteredRecordingIDs;
+                }
+                client.Endpoint.Address = new System.ServiceModel.EndpointAddress(sCatalogUrl);
+                WS_Catalog.UnifiedSearchResponse response = client.GetResponse(request) as WS_Catalog.UnifiedSearchResponse;
+                if (response != null && response.m_nTotalItems > 0 && response.searchResults != null && response.searchResults.Length > 0)
+                {                    
+                    foreach (UnifiedSearchResult recordingID in response.searchResults)
+                    {
+                        // no need to check epg status since catalog returns only active epg's
+                        long searchRecordingID;
+                        if (recordingID.AssetType == eAssetTypes.NPVR && long.TryParse(recordingID.AssetId, out searchRecordingID) && searchRecordingID > 0 )
+                        {
+                            filteredRecordingIDs.Add(searchRecordingID);
+                        }
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error("Failed UnifiedSearchRequest Request To Catalog", ex);
+            }
+
+            finally
+            {
+                if (client != null)
+                {
+                    client.Close();
+                }
+            }
+
+            return filteredRecordingIDs;
+        }
     }
 }
