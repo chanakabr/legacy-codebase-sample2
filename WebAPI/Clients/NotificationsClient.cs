@@ -613,6 +613,11 @@ namespace WebAPI.Clients
             var mediaInfoResponse = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), KSUtils.ExtractKSPayload().UDID, null,
                                             0, 0, new List<int>() { followData.AssetId }, new List<KalturaCatalogWith>());
             
+            if (mediaInfoResponse == null || mediaInfoResponse.Objects == null || mediaInfoResponse.Objects.Count == 0)
+            {
+                throw new ClientException((int)StatusCode.NotFound, "asset not found");
+            }
+
             followData.Status = 1;
             followData.Title = string.Format("{0}_{1}", mediaInfoResponse.Objects[0].Name, groupId);
 
