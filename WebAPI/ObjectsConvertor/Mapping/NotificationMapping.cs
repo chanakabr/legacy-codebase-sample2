@@ -39,14 +39,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertAnnouncementStatusType(src.Status)));
 
             //FollowTemplate to KalturaFollowTemplate
-            Mapper.CreateMap<FollowTemplate, KalturaFollowTemplate>()
+            Mapper.CreateMap<MessageTemplate, KalturaFollowTemplate>()
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                  .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
                  .ForMember(dest => dest.DateFormat, opt => opt.MapFrom(src => src.DateFormat))
                  .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertOTTAssetType(src.AssetType)));
 
             //KalturaFollowTemplate TO FollowTemplate
-            Mapper.CreateMap<KalturaFollowTemplate, FollowTemplate>()
+            Mapper.CreateMap<KalturaFollowTemplate, MessageTemplate>()
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                  .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
                  .ForMember(dest => dest.DateFormat, opt => opt.MapFrom(src => src.DateFormat))

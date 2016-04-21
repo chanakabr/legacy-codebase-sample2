@@ -1677,6 +1677,20 @@ namespace WebAPI.Notifications {
         }
     }
     
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="OrderDir", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects")]
+    public enum OrderDir : int {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        ASC = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        DESC = 1,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        NONE = 2,
+    }
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="GetUserFollowsResponse", Namespace="http://schemas.datacontract.org/2004/07/NotificationObj")]
@@ -2032,10 +2046,10 @@ namespace WebAPI.Notifications {
         System.Threading.Tasks.Task<WebAPI.Notifications.MessageTemplateResponse> GetMessageTemplateAsync(string sWSUserName, string sWSPassword, WebAPI.Notifications.eOTTAssetTypes assetTypes);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetUserFollows", ReplyAction="http://tempuri.org/INotificationService/GetUserFollowsResponse")]
-        WebAPI.Notifications.GetUserFollowsResponse GetUserFollows(string sWSUserName, string sWSPassword, int userId, int pageSize, int pageIndex);
+        WebAPI.Notifications.GetUserFollowsResponse GetUserFollows(string sWSUserName, string sWSPassword, int userId, int pageSize, int pageIndex, WebAPI.Notifications.OrderDir order);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetUserFollows", ReplyAction="http://tempuri.org/INotificationService/GetUserFollowsResponse")]
-        System.Threading.Tasks.Task<WebAPI.Notifications.GetUserFollowsResponse> GetUserFollowsAsync(string sWSUserName, string sWSPassword, int userId, int pageSize, int pageIndex);
+        System.Threading.Tasks.Task<WebAPI.Notifications.GetUserFollowsResponse> GetUserFollowsAsync(string sWSUserName, string sWSPassword, int userId, int pageSize, int pageIndex, WebAPI.Notifications.OrderDir order);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/Unfollow", ReplyAction="http://tempuri.org/INotificationService/UnfollowResponse")]
         WebAPI.Notifications.Status Unfollow(string sWSUserName, string sWSPassword, int userId, WebAPI.Notifications.FollowDataBase followData);
@@ -2261,12 +2275,12 @@ namespace WebAPI.Notifications {
             return base.Channel.GetMessageTemplateAsync(sWSUserName, sWSPassword, assetTypes);
         }
         
-        public WebAPI.Notifications.GetUserFollowsResponse GetUserFollows(string sWSUserName, string sWSPassword, int userId, int pageSize, int pageIndex) {
-            return base.Channel.GetUserFollows(sWSUserName, sWSPassword, userId, pageSize, pageIndex);
+        public WebAPI.Notifications.GetUserFollowsResponse GetUserFollows(string sWSUserName, string sWSPassword, int userId, int pageSize, int pageIndex, WebAPI.Notifications.OrderDir order) {
+            return base.Channel.GetUserFollows(sWSUserName, sWSPassword, userId, pageSize, pageIndex, order);
         }
         
-        public System.Threading.Tasks.Task<WebAPI.Notifications.GetUserFollowsResponse> GetUserFollowsAsync(string sWSUserName, string sWSPassword, int userId, int pageSize, int pageIndex) {
-            return base.Channel.GetUserFollowsAsync(sWSUserName, sWSPassword, userId, pageSize, pageIndex);
+        public System.Threading.Tasks.Task<WebAPI.Notifications.GetUserFollowsResponse> GetUserFollowsAsync(string sWSUserName, string sWSPassword, int userId, int pageSize, int pageIndex, WebAPI.Notifications.OrderDir order) {
+            return base.Channel.GetUserFollowsAsync(sWSUserName, sWSPassword, userId, pageSize, pageIndex, order);
         }
         
         public WebAPI.Notifications.Status Unfollow(string sWSUserName, string sWSPassword, int userId, WebAPI.Notifications.FollowDataBase followData) {

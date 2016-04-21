@@ -37,7 +37,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.NotificationClient().GetUserTvSeriesFollows(groupId, userID, pager.PageSize, pager.PageIndex);
+                response = ClientsManager.NotificationClient().GetUserTvSeriesFollows(groupId, userID, pager.PageSize, pager.PageIndex, order_by);
             }
             catch (ClientException ex)
             {
