@@ -13,7 +13,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/homeNetwork/action")]
+    [RoutePrefix("_service/followTvSeries/action")]
     public class FollowTvSeriesController : ApiController
     {
         /// <summary>

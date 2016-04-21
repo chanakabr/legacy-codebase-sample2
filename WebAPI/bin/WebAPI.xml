@@ -290,24 +290,25 @@
             </remarks>
             <param name="adapter_id">C-DVR adapter identifier</param>
         </member>
-        <member name="M:WebAPI.Controllers.FollowTemplateController.Set(WebAPI.Models.Notification.KalturaFollowTemplate)">
+        <member name="M:WebAPI.Controllers.MessageTemplateController.Set(WebAPI.Models.Notification.KalturaMessageTemplate)">
             <summary>
-            TBD
+            Set message template for message notification 
             </summary>
-            <param name="follow_template">TBD</param>
-            <remarks>
-            
-            </remarks>
+            <param name="message_template">The actual message with placeholders to be presented to the user</param>       
             <returns></returns>
+            <remarks>
+            Possible status codes: Invalid place-holders = 8014, Date time format is invalid  = 8015
+            </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.FollowTemplateController.Get">
+        <member name="M:WebAPI.Controllers.MessageTemplateController.Get(WebAPI.Models.General.KalturaOTTAssetType)">
             <summary>
-            TBD
+             Get message template
             </summary>
+            <param name="asset_Type">possible values: Asset type – Series</param>
+            <returns></returns>     
             <remarks>
-            
+            Possible status codes: message template not found = 8016
             </remarks>
-            <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.FollowTvSeriesController.List(System.Nullable{WebAPI.Models.Catalog.KalturaOrder},WebAPI.Models.General.KalturaFilterPager)">
             <summary>
@@ -346,7 +347,7 @@
             </summary>
             <remarks>
             </remarks>
-            <returns>IThe recording ID and status for options for the requested program</returns>
+            <returns>The recording ID and status for options for the requested program</returns>
             
         </member>
         <member name="M:WebAPI.Controllers.LicensedUrlController.Get(WebAPI.Models.Catalog.KalturaAssetType,System.Int32,System.String,System.String,System.Nullable{System.Int64},System.Nullable{WebAPI.Models.ConditionalAccess.KalturaStreamType})">
@@ -3061,6 +3062,17 @@
         <member name="F:WebAPI.Models.Catalog.KalturaPlayerAssetData.currentBitRate">
             <summary>
             Current Bitrate
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaMessageTemplate.Message">
+             <summary>
+            The actual message with placeholders to be presented to the user
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaMessageTemplate.AssetType">
+            <summary>
+            OTT asset type
+            Possible values: Series
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaFollowData.AnnouncementId">

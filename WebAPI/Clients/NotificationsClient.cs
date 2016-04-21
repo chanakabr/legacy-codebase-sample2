@@ -7,10 +7,11 @@ using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using WebAPI.Models.Catalog;
+using WebAPI.Models.General;
 using WebAPI.Models.Notification;
 using WebAPI.Models.Notifications;
 using WebAPI.Notifications;
+using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
 
 namespace WebAPI.Clients
@@ -486,10 +487,10 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaFollowTemplate InsertFollowTemplate(int groupId, KalturaFollowTemplate followTemplate)
+        internal KalturaMessageTemplate InsertFollowTemplate(int groupId, KalturaMessageTemplate followTemplate)
         {
             MessageTemplateResponse response = null;
-            KalturaFollowTemplate result = null;
+            KalturaMessageTemplate result = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -513,24 +514,16 @@ namespace WebAPI.Clients
                 // Bad response received from WS
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
-            result = AutoMapper.Mapper.Map<KalturaFollowTemplate>(response.MessageTemplate);
+            result = AutoMapper.Mapper.Map<KalturaMessageTemplate>(response.MessageTemplate);
             return result;
         }
 
-        internal KalturaListFollowDataResponse GetUserTvSeriesFollows(int groupId, string userID, int pageSize, int pageIndex, KalturaOrder? orderBy)
+        internal KalturaListFollowDataResponse GetUserTvSeriesFollows(int groupId, string userID, int pageSize, int pageIndex)
         {
-            List<KalturaFollowDataBase> result = null;
+            List<KalturaFollowData> result = null;
             GetUserFollowsResponse response = null;
             KalturaListFollowDataResponse ret;
-            
-            
-            // Create catalog order object
-            OrderDir order = OrderDir.DESC;
-            if (orderBy != null && orderBy.Value == KalturaOrder.oldest_first)
-            {
-                order = OrderDir.ASC;
-            }
-            
+
             Group group = GroupsManager.GetGroup(groupId);
             int userId = 0;
             if (!int.TryParse(userID, out userId))
@@ -542,7 +535,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.GetUserFollows(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, pageSize, pageIndex, order);
+                    response = Notification.GetUserFollows(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, pageSize, pageIndex);
                 }
             }
             catch (Exception ex)
@@ -556,13 +549,13 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            result = Mapper.Map<List<KalturaFollowDataBase>>(response.Follows);
+            result = Mapper.Map<List<KalturaFollowData>>(response.Follows);
 
             ret = new KalturaListFollowDataResponse() { FollowDataList = result, TotalCount = response.TotalCount };
             return ret;
         }
 
-        internal bool DeleteUserTvSeriesFollow(int groupId, string userID, int asset_id)
+        internal bool DeleteUserTvSeriesFollow(int groupId, string userID, long announcementId)
         {
             Status response = null;
 
@@ -577,9 +570,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    FollowDataTvSeries followData = new FollowDataTvSeries();
-                    followData.AssetId = asset_id;
-                    response = Notification.Unfollow(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, followData);
+                    response = Notification.Unfollow(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, announcementId);
                 }
             }
             catch (Exception ex)
@@ -596,12 +587,10 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal bool AddUserTvSeriesFollow(int groupId, string userID, int asset_id)
+        internal bool AddUserTvSeriesFollow(int groupId, string userID, KalturaFollowData followData)
         {
             Status response = null;
-            FollowDataTvSeries followDataNotification = null;
-            KalturaFollowDataTvSeries followData = new KalturaFollowDataTvSeries();
-            followData.AssetId = asset_id;
+            FollowData followDataNotification = null;
 
             Group group = GroupsManager.GetGroup(groupId);
             int userId = 0;
@@ -610,18 +599,9 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.UserIDInvalid, "Invalid Username");
             }
 
-            // get asset name
-            var mediaInfoResponse = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), KSUtils.ExtractKSPayload().UDID, null,
-                                0, 0, new List<int>() { followData.AssetId }, new List<KalturaCatalogWith>());
-
-            if (mediaInfoResponse == null || mediaInfoResponse.Objects == null || mediaInfoResponse.Objects.Count == 0)
-                throw new NotFoundException();
-
-            
+            followData.Type = KalturaFollowType.Tv_Series;
             followData.Status = 1;
-            followData.Title = string.Format("{0}_{1}", mediaInfoResponse.Objects[0].Name,groupId);
-
-            followDataNotification = Mapper.Map<FollowDataTvSeries>(followData);
+            followDataNotification = Mapper.Map<FollowData>(followData);
 
             try
             {
@@ -644,10 +624,10 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaFollowTemplate GetFollowTemplate(int groupId)
+        internal KalturaMessageTemplate GetMessageTemplate(int groupId, KalturaOTTAssetType asset_Type)
         {
             MessageTemplateResponse response = null;
-            KalturaFollowTemplate result = null;
+            KalturaMessageTemplate result = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -655,12 +635,12 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    //response = Notification.GetMessageTemplate(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password);
+                    response = Notification.GetMessageTemplate(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, NotificationMapping.ConvertOTTAssetType(asset_Type));
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while InsertFollowTemplate.  groupID: {0}, exception: {1}", groupId, ex);
+                log.ErrorFormat("Error while GetMessageTemplate.  groupID: {0}, exception: {1}", groupId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -670,22 +650,21 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            result = AutoMapper.Mapper.Map<KalturaFollowTemplate>(response.MessageTemplate);
+            result = AutoMapper.Mapper.Map<KalturaMessageTemplate>(response.MessageTemplate);
             return result;
         }
 
-
-        internal KalturaFollowTemplate SetFollowTemplate(int groupId, KalturaFollowTemplate followTemplate)
+        internal KalturaMessageTemplate SetMessageTemplate(int groupId, KalturaMessageTemplate messageTemplate)
         {
             MessageTemplateResponse response = null;
-            KalturaFollowTemplate result = null;
+            KalturaMessageTemplate result = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
             try
             {
                 MessageTemplate apiFollowTemplate = null;
-                apiFollowTemplate = AutoMapper.Mapper.Map<MessageTemplate>(followTemplate);
+                apiFollowTemplate = AutoMapper.Mapper.Map<MessageTemplate>(messageTemplate);
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -694,13 +673,22 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while SetFollowTemplate.  groupID: {0}, exception: {1}", groupId, ex);
+                log.ErrorFormat("Error while SetMessageTemplate.  groupID: {0}, exception: {1}", groupId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
-            if (response.Status.Code == (int)StatusCode.OK)
-                result = AutoMapper.Mapper.Map<KalturaFollowTemplate>(response.MessageTemplate);
-            
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            result = AutoMapper.Mapper.Map<KalturaMessageTemplate>(response.MessageTemplate);
+
             return result;
         }
     }

@@ -46,7 +46,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// </remarks>
-        /// <returns>IThe recording ID and status for options for the requested program</returns>
+        /// <returns>The recording ID and status for options for the requested program</returns>
         /// 
         [Route("add"), HttpPost]
         [ApiAuthorize]
