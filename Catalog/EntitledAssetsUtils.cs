@@ -195,6 +195,7 @@ namespace Catalog
                 definitions.permittedWatchRules = originalDefinitions.permittedWatchRules;
                 definitions.shouldSearchMedia = true;
                 definitions.shouldSearchEpg = false;
+                definitions.shouldSearchRecordings = false;
                 definitions.userTypeID = originalDefinitions.userTypeID;
 
                 // Most important part - tell the definitions to search only entitled assets and only of linear channels

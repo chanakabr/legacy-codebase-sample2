@@ -91,6 +91,7 @@ namespace Catalog
                 {
                     definitions.shouldSearchEpg = true;
                     definitions.shouldSearchMedia = true;
+                    definitions.shouldSearchRecordings = true;
                 }
                 else
                 {

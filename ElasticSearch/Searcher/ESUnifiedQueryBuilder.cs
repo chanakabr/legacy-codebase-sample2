@@ -992,22 +992,31 @@ namespace ElasticSearch.Searcher
         public static string GetIndexes(UnifiedSearchDefinitions definitions, int groupId)
         {
             string indexes = string.Empty;
+            StringBuilder builder = new StringBuilder();
+
+            if (definitions.shouldSearchMedia)
+            {
+                builder.Append(groupId);
+                builder.Append(',');
+            }
 
             if (definitions.shouldSearchEpg)
             {
-                if (definitions.shouldSearchMedia)
-                {
-                    indexes = string.Format("{0},{0}_epg", groupId);
-                }
-                else
-                {
-                    indexes = string.Format("{0}_epg", groupId);
-                }
+                builder.AppendFormat("{0}_epg,", groupId);
             }
-            else
+
+            if (definitions.shouldSearchRecordings)
             {
-                indexes = groupId.ToString();
+                builder.AppendFormat("{0}_recording,", groupId);
             }
+
+            // remove last ,
+            if (builder.Length > 0)
+            {
+                builder.Remove(builder.Length - 1, 1);
+            }
+
+            indexes = builder.ToString();
 
             return indexes;
         }
@@ -1210,6 +1219,7 @@ namespace ElasticSearch.Searcher
 
             this.ReturnFields.Add("\"epg_id\"");
             this.ReturnFields.Add("\"media_id\"");
+            this.ReturnFields.Add("\"recording_id\"");
 
             // This is a query-filter.
             // First comes query
