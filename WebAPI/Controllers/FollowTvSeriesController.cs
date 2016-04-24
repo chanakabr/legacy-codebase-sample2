@@ -17,7 +17,8 @@ namespace WebAPI.Controllers
     public class FollowTvSeriesController : ApiController
     {
         /// <summary>
-        /// 
+        /// List user's tv series follows.
+        /// <remarks>Possible status codes:</remarks>
         /// </summary>
         /// <param name="order_by"></param>
         /// <param name="pager"></param>
@@ -48,7 +49,8 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// 
+        /// Delete a user's tv series follow.
+        /// <remarks>Possible status codes: UserNotFollowing = 8012, NotFound = 500007, InvalidAssetId = 4024, AnnouncementNotFound = 8006</remarks>
         /// </summary>
         /// <param name="asset_id"></param>
         /// <returns></returns>
@@ -75,7 +77,8 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// 
+        /// Add a user's tv series follow.
+        /// <remarks>Possible status codes: UserAlreadyFollowing = 8013, NotFound = 500007, InvalidAssetId = 4024</remarks>
         /// </summary>
         /// <param name="asset_id"></param>
         /// <returns></returns>
