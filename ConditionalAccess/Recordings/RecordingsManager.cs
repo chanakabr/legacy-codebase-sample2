@@ -135,6 +135,16 @@ namespace Recordings
                             ConditionalAccessDAL.InsertRecordingLinks(adapterResponse.Links, groupId, recording.RecordingID);
                         }
 
+                        // After we know that schedule was succesful,
+                        // we index data so it is available on search
+                        if (recording.RecordingStatus == TstvRecordingStatus.OK ||
+                            recording.RecordingStatus == TstvRecordingStatus.Recorded ||
+                            recording.RecordingStatus == TstvRecordingStatus.Recording ||
+                            recording.RecordingStatus == TstvRecordingStatus.Scheduled)
+                        {
+                            UpdateIndex(groupId, recording.RecordingID);
+                        }
+
                         // Schedule a message tocheck status 1 minute after recording of program is supposed to be over
                         var queue = new GenericCeleryQueue();
                         var message = new RecordingTaskData(groupId, eRecordingTask.GetStatusAfterProgramEnded,
@@ -285,17 +295,12 @@ namespace Recordings
 
                         // After we know that recording was succesful,
                         // we index data so it is available on search
-                        if (currentRecording.RecordingStatus == TstvRecordingStatus.Recorded)
+                        if (currentRecording.RecordingStatus == TstvRecordingStatus.OK ||
+                            currentRecording.RecordingStatus == TstvRecordingStatus.Recorded ||
+                            currentRecording.RecordingStatus == TstvRecordingStatus.Recording ||
+                            currentRecording.RecordingStatus == TstvRecordingStatus.Scheduled)
                         {
-                            using (ConditionalAccess.WS_Catalog.IserviceClient catalog = new ConditionalAccess.WS_Catalog.IserviceClient())
-                            {
-                                catalog.Endpoint.Address = new System.ServiceModel.EndpointAddress(WS_Utils.GetTcmConfigValue("WS_Catalog"));
-
-                                long[] objectIds = new long[]{
-                                    recordingId
-                                };
-                                catalog.UpdateRecordingsIndex(objectIds, groupId, eAction.On);
-                            }
+                            UpdateIndex(groupId, recordingId);
                         }
                     }
                 }
@@ -411,5 +416,21 @@ namespace Recordings
 
         #endregion
 
+        #region Private Methods
+
+        private static void UpdateIndex(int groupId, long recordingId)
+        {
+            using (ConditionalAccess.WS_Catalog.IserviceClient catalog = new ConditionalAccess.WS_Catalog.IserviceClient())
+            {
+                catalog.Endpoint.Address = new System.ServiceModel.EndpointAddress(WS_Utils.GetTcmConfigValue("WS_Catalog"));
+
+                long[] objectIds = new long[]{
+                                    recordingId
+                                };
+                catalog.UpdateRecordingsIndex(objectIds, groupId, eAction.Update);
+            }
+        }
+
+        #endregion
     }
 }
