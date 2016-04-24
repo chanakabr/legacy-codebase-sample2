@@ -5499,93 +5499,8 @@ namespace TvinciImporter
 
             try
             {
-                int parentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);
-
                 #region Update EPG Index (Catalog)
-
-                string sUseElasticSearch = GetConfigVal("indexer");  /// Indexer - ES / Lucene
-                if (!string.IsNullOrEmpty(sUseElasticSearch) && sUseElasticSearch.Equals("ES")) //ES
-                {
-                    WSCatalog.IserviceClient wsCatalog = null;
-
-                    try
-                    {
-                        wsCatalog = GetWCFSvc("WS_Catalog");
-
-                        string sWSURL = GetCatalogUrl(parentGroupID);
-
-                        if (!string.IsNullOrEmpty(sWSURL))
-                        {
-                            string[] arrAddresses = sWSURL.Split(';');
-                            int[] arrEPGIds = new int[epgIds.Count];
-                            int nArrayIndex = 0;
-
-                            foreach (ulong item in epgIds)
-                            {
-                                arrEPGIds[nArrayIndex] = int.Parse(item.ToString());
-                                nArrayIndex++;
-                            }
-
-                            foreach (string sEndPointAddress in arrAddresses)
-                            {
-                                try
-                                {
-                                    wsCatalog = GetCatalogClient(sEndPointAddress);
-
-                                    if (wsCatalog != null)
-                                    {
-                                        WSCatalog.eAction actionCatalog = WSCatalog.eAction.On;
-
-                                        switch (action)
-                                        {
-                                            case eAction.Off:
-                                            actionCatalog = WSCatalog.eAction.Off;
-                                            break;
-                                            case eAction.On:
-                                            actionCatalog = WSCatalog.eAction.On;
-                                            break;
-                                            case eAction.Update:
-                                            actionCatalog = WSCatalog.eAction.Update;
-                                            break;
-                                            case eAction.Delete:
-                                            actionCatalog = WSCatalog.eAction.Delete;
-                                            break;
-                                            case eAction.Rebuild:
-                                            actionCatalog = WSCatalog.eAction.Rebuild;
-                                            break;
-                                            default:
-                                            break;
-                                        }
-
-                                        isUpdateIndexSucceeded = wsCatalog.UpdateEpgIndex(
-                                            arrEPGIds,
-                                            parentGroupID, actionCatalog);
-
-                                        string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
-                                        log.DebugFormat("Update index {0} in catalog '{1}'", sInfo, sEndPointAddress);
-
-                                        wsCatalog.Close();
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    log.ErrorFormat("Couldn't update catalog '{0}' due to the following error: {1}", sEndPointAddress, ex.Message);
-                                }
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        log.Error("process failed", ex);
-                    }
-                    finally
-                    {
-                        if (wsCatalog != null)
-                        {
-                            wsCatalog.Close();
-                        }
-                    }
-                }
+                isUpdateIndexSucceeded = UpdateEPGIndex(epgIds, groupId, action);
 
                 #endregion
 
@@ -5604,6 +5519,98 @@ namespace TvinciImporter
                 log.Error("ImporterImpl - Update EPG failed, ex = {0}", ex);
             }
 
+            return isUpdateIndexSucceeded;
+        }
+
+        public static bool UpdateEPGIndex(List<ulong> epgIds, int groupId, ApiObjects.eAction action)
+        {
+            bool isUpdateIndexSucceeded = false;
+
+            int parentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);
+
+            string sUseElasticSearch = GetConfigVal("indexer");  /// Indexer - ES / Lucene
+            if (!string.IsNullOrEmpty(sUseElasticSearch) && sUseElasticSearch.Equals("ES")) //ES
+            {
+                WSCatalog.IserviceClient wsCatalog = null;
+
+                try
+                {
+                    wsCatalog = GetWCFSvc("WS_Catalog");
+
+                    string sWSURL = GetCatalogUrl(parentGroupID);
+
+                    if (!string.IsNullOrEmpty(sWSURL))
+                    {
+                        string[] arrAddresses = sWSURL.Split(';');
+                        int[] arrEPGIds = new int[epgIds.Count];
+                        int nArrayIndex = 0;
+
+                        foreach (ulong item in epgIds)
+                        {
+                            arrEPGIds[nArrayIndex] = int.Parse(item.ToString());
+                            nArrayIndex++;
+                        }
+
+                        foreach (string sEndPointAddress in arrAddresses)
+                        {
+                            try
+                            {
+                                wsCatalog = GetCatalogClient(sEndPointAddress);
+
+                                if (wsCatalog != null)
+                                {
+                                    WSCatalog.eAction actionCatalog = WSCatalog.eAction.On;
+
+                                    switch (action)
+                                    {
+                                        case eAction.Off:
+                                        actionCatalog = WSCatalog.eAction.Off;
+                                        break;
+                                        case eAction.On:
+                                        actionCatalog = WSCatalog.eAction.On;
+                                        break;
+                                        case eAction.Update:
+                                        actionCatalog = WSCatalog.eAction.Update;
+                                        break;
+                                        case eAction.Delete:
+                                        actionCatalog = WSCatalog.eAction.Delete;
+                                        break;
+                                        case eAction.Rebuild:
+                                        actionCatalog = WSCatalog.eAction.Rebuild;
+                                        break;
+                                        default:
+                                        break;
+                                    }
+
+                                    isUpdateIndexSucceeded = wsCatalog.UpdateEpgIndex(
+                                        arrEPGIds,
+                                        parentGroupID, actionCatalog);
+
+                                    string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
+                                    log.DebugFormat("Update index {0} in catalog '{1}'", sInfo, sEndPointAddress);
+
+                                    wsCatalog.Close();
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                log.ErrorFormat("Couldn't update catalog '{0}' due to the following error: {1}", sEndPointAddress, ex.Message);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error("process failed", ex);
+                }
+                finally
+                {
+                    if (wsCatalog != null)
+                    {
+                        wsCatalog.Close();
+                    }
+                }
+            }
             return isUpdateIndexSucceeded;
         }
 
@@ -5660,7 +5667,6 @@ namespace TvinciImporter
                 log.Error("ImporterImpl - Update recording failed on Conditional Access, ex = {0}", ex);
             }
         }
-
 
         public static bool UpdateEpgChannelIndex(List<ulong> epgChannels, int groupID, eAction eAction)
         {
