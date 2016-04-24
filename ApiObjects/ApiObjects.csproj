@@ -341,9 +341,10 @@
     <Compile Include="TagResponseObject.cs" />
     <Compile Include="HouseholdBillingRequest.cs" />
     <Compile Include="TimeShiftedTv\Recording.cs" />
-    <Compile Include="TimeShiftedTv\RecordingIDsResponse.cs" />
     <Compile Include="TimeShiftedTv\RecordingResponse.cs" />
+    <Compile Include="TimeShiftedTv\SearchRecordingResponse.cs" />
     <Compile Include="TimeShiftedTv\RecordResult.cs" />
+    <Compile Include="TimeShiftedTv\SearchRecording.cs" />
     <Compile Include="TimeShiftedTv\TimeShiftedTvPartnerSettings.cs" />
     <Compile Include="TimeShiftedTv\TimeShiftedTvPartnerSettingsResponse.cs" />
     <Compile Include="UserComment.cs" />
