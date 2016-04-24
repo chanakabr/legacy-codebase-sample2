@@ -85,6 +85,13 @@ namespace ApiObjects
         [JsonConverter(typeof(EpgTimeConverter))]
         public DateTime SearchEndDate { get; set; }
 
+        [JsonProperty("is_recorded", Required = Required.AllowNull, NullValueHandling = NullValueHandling.Ignore)]
+        public int IsRecorded
+        {
+            get;
+            set;
+        }
+
         public EpgCB()
         {
             EpgID = 0;

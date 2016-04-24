@@ -2,6 +2,7 @@
 using ApiObjects.Response;
 using ApiObjects.TimeShiftedTv;
 using DAL;
+using EpgBL;
 using KLogMonitor;
 using QueueWrapper;
 using System;
@@ -135,6 +136,19 @@ namespace Recordings
                             ConditionalAccessDAL.InsertRecordingLinks(adapterResponse.Links, groupId, recording.RecordingID);
                         }
 
+                        // Update Couchbase that the EPG is recorded
+                        #region Update CB
+
+                        TvinciEpgBL epgBLTvinci = new TvinciEpgBL(groupId);  //assuming this is a Kaltura user - the TVM does not support editing of yes Epg
+
+                        EpgCB epg = epgBLTvinci.GetEpgCB((ulong)programId);
+
+                        epg.IsRecorded = Convert.ToInt32(true);
+
+                        epgBLTvinci.UpdateEpg(epg);
+
+                        #endregion
+                        
                         // After we know that schedule was succesful,
                         // we index data so it is available on search
                         if (recording.RecordingStatus == TstvRecordingStatus.OK ||

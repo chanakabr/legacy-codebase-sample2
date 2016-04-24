@@ -51,7 +51,8 @@ namespace ApiObjects
         public int ENABLE_CATCH_UP;
         public long CHANNEL_CATCH_UP_BUFFER;
         public int ENABLE_START_OVER;
-        public int ENABLE_TRICK_PLAY;       
+        public int ENABLE_TRICK_PLAY;
+        public int IS_RECORDED;
 
         public void Initialize(long nEPG_ID, string nEPG_CHANNEL_ID, string nEPG_IDENTIFIER, string nNAME, string nDESCRIPTION, string nSTART_DATE, string nEND_DATE, string nPIC_URL, 
             string nSTATUS, string nIS_ACTIVE, string nGROUP_ID, string nUPDATER_ID, string nUPDATE_DATE, string nPUBLISH_DATE, string nCREATE_DATE, List<EPGDictionary> nEPG_TAGS, 
@@ -89,7 +90,8 @@ namespace ApiObjects
 
         public void Initialize(long nEPG_ID, string nEPG_CHANNEL_ID, string nEPG_IDENTIFIER, string nNAME, string nDESCRIPTION, string nSTART_DATE, string nEND_DATE, string nPIC_URL,
            string nSTATUS, string nIS_ACTIVE, string nGROUP_ID, string nUPDATER_ID, string nUPDATE_DATE, string nPUBLISH_DATE, string nCREATE_DATE, List<EPGDictionary> nEPG_TAGS,
-           List<EPGDictionary> nEPG_META, string nmedia_id, int nLikeCounter, List<EpgPicture> epgPictures, int ENABLE_CDVR, int ENABLE_CATCH_UP, int ENABLE_START_OVER, int ENABLE_TRICK_PLAY)
+           List<EPGDictionary> nEPG_META, string nmedia_id, int nLikeCounter, List<EpgPicture> epgPictures, int ENABLE_CDVR, int ENABLE_CATCH_UP, int ENABLE_START_OVER, int ENABLE_TRICK_PLAY,
+            int IS_RECORDED)
         {
             Initialize(nEPG_ID, nEPG_CHANNEL_ID, nEPG_IDENTIFIER, nNAME, nDESCRIPTION, nSTART_DATE, nEND_DATE, nPIC_URL, nSTATUS, nIS_ACTIVE, nGROUP_ID, nUPDATER_ID, nUPDATE_DATE,
                 nPUBLISH_DATE, nCREATE_DATE, nEPG_TAGS, nEPG_META, nmedia_id, nLikeCounter, epgPictures);
@@ -98,6 +100,7 @@ namespace ApiObjects
             this.ENABLE_CDVR = ENABLE_CDVR;
             this.ENABLE_START_OVER = ENABLE_START_OVER;
             this.ENABLE_TRICK_PLAY = ENABLE_TRICK_PLAY;
+            this.IS_RECORDED = IS_RECORDED;
         }
 
         public class EPGChannelProgrammeObjectStartDateComparer : IComparer<EPGChannelProgrammeObject>
