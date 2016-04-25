@@ -1168,160 +1168,6 @@ namespace TvinciImporter.Notification_WCF {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="MessageTemplate", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification")]
-    [System.SerializableAttribute()]
-    public partial class MessageTemplate : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
-        [System.NonSerializedAttribute()]
-        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private ApiObjects.eOTTAssetTypes AssetTypeField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string DateFormatField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int IdField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string MessageField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
-                return this.extensionDataField;
-            }
-            set {
-                this.extensionDataField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public ApiObjects.eOTTAssetTypes AssetType {
-            get {
-                return this.AssetTypeField;
-            }
-            set {
-                if ((this.AssetTypeField.Equals(value) != true)) {
-                    this.AssetTypeField = value;
-                    this.RaisePropertyChanged("AssetType");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string DateFormat {
-            get {
-                return this.DateFormatField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.DateFormatField, value) != true)) {
-                    this.DateFormatField = value;
-                    this.RaisePropertyChanged("DateFormat");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int Id {
-            get {
-                return this.IdField;
-            }
-            set {
-                if ((this.IdField.Equals(value) != true)) {
-                    this.IdField = value;
-                    this.RaisePropertyChanged("Id");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string Message {
-            get {
-                return this.MessageField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.MessageField, value) != true)) {
-                    this.MessageField = value;
-                    this.RaisePropertyChanged("Message");
-                }
-            }
-        }
-        
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
-            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
-                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="MessageTemplateResponse", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification")]
-    [System.SerializableAttribute()]
-    public partial class MessageTemplateResponse : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
-        [System.NonSerializedAttribute()]
-        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private TvinciImporter.Notification_WCF.MessageTemplate MessageTemplateField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private ApiObjects.Response.Status StatusField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
-                return this.extensionDataField;
-            }
-            set {
-                this.extensionDataField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public TvinciImporter.Notification_WCF.MessageTemplate MessageTemplate {
-            get {
-                return this.MessageTemplateField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.MessageTemplateField, value) != true)) {
-                    this.MessageTemplateField = value;
-                    this.RaisePropertyChanged("MessageTemplate");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public ApiObjects.Response.Status Status {
-            get {
-                return this.StatusField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.StatusField, value) != true)) {
-                    this.StatusField = value;
-                    this.RaisePropertyChanged("Status");
-                }
-            }
-        }
-        
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
-            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
-                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="GetUserFollowsResponse", Namespace="http://schemas.datacontract.org/2004/07/NotificationObj")]
     [System.SerializableAttribute()]
     public partial class GetUserFollowsResponse : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
@@ -1330,7 +1176,7 @@ namespace TvinciImporter.Notification_WCF {
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private TvinciImporter.Notification_WCF.FollowData[] FollowsField;
+        private TvinciImporter.Notification_WCF.FollowDataBase[] FollowsField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private ApiObjects.Response.Status StatusField;
@@ -1349,7 +1195,7 @@ namespace TvinciImporter.Notification_WCF {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public TvinciImporter.Notification_WCF.FollowData[] Follows {
+        public TvinciImporter.Notification_WCF.FollowDataBase[] Follows {
             get {
                 return this.FollowsField;
             }
@@ -1399,9 +1245,10 @@ namespace TvinciImporter.Notification_WCF {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="FollowData", Namespace="http://schemas.datacontract.org/2004/07/NotificationObj")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="FollowDataBase", Namespace="http://schemas.datacontract.org/2004/07/NotificationObj")]
     [System.SerializableAttribute()]
-    public partial class FollowData : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TvinciImporter.Notification_WCF.FollowDataTvSeries))]
+    public partial class FollowDataBase : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
         
         [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
@@ -1420,9 +1267,6 @@ namespace TvinciImporter.Notification_WCF {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string TitleField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private TvinciImporter.Notification_WCF.FollowType TypeField;
         
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
@@ -1499,19 +1343,6 @@ namespace TvinciImporter.Notification_WCF {
             }
         }
         
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public TvinciImporter.Notification_WCF.FollowType Type {
-            get {
-                return this.TypeField;
-            }
-            set {
-                if ((this.TypeField.Equals(value) != true)) {
-                    this.TypeField = value;
-                    this.RaisePropertyChanged("Type");
-                }
-            }
-        }
-        
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
         
         protected void RaisePropertyChanged(string propertyName) {
@@ -1522,12 +1353,27 @@ namespace TvinciImporter.Notification_WCF {
         }
     }
     
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="FollowType", Namespace="http://schemas.datacontract.org/2004/07/NotificationObj")]
-    public enum FollowType : int {
+    [System.Runtime.Serialization.DataContractAttribute(Name="FollowDataTvSeries", Namespace="http://schemas.datacontract.org/2004/07/NotificationObj")]
+    [System.SerializableAttribute()]
+    public partial class FollowDataTvSeries : TvinciImporter.Notification_WCF.FollowDataBase {
         
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        TV_Series_VOD = 0,
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int AssetIdField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int AssetId {
+            get {
+                return this.AssetIdField;
+            }
+            set {
+                if ((this.AssetIdField.Equals(value) != true)) {
+                    this.AssetIdField = value;
+                    this.RaisePropertyChanged("AssetId");
+                }
+            }
+        }
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -1599,19 +1445,19 @@ namespace TvinciImporter.Notification_WCF {
         TvinciImporter.Notification_WCF.GetAllMessageAnnouncementsResponse GetAllMessageAnnouncements(string sWSUserName, string sWSPassword, int pageSize, int pageIndex);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SetMessageTemplate", ReplyAction="http://tempuri.org/INotificationService/SetMessageTemplateResponse")]
-        TvinciImporter.Notification_WCF.MessageTemplateResponse SetMessageTemplate(string sWSUserName, string sWSPassword, TvinciImporter.Notification_WCF.MessageTemplate followTemplate);
+        ApiObjects.Notification.MessageTemplateResponse SetMessageTemplate(string sWSUserName, string sWSPassword, ApiObjects.Notification.MessageTemplate followTemplate);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetMessageTemplate", ReplyAction="http://tempuri.org/INotificationService/GetMessageTemplateResponse")]
-        TvinciImporter.Notification_WCF.MessageTemplateResponse GetMessageTemplate(string sWSUserName, string sWSPassword, ApiObjects.eOTTAssetTypes assetTypes);
+        ApiObjects.Notification.MessageTemplateResponse GetMessageTemplate(string sWSUserName, string sWSPassword, ApiObjects.eOTTAssetTypes assetTypes);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetUserFollows", ReplyAction="http://tempuri.org/INotificationService/GetUserFollowsResponse")]
-        TvinciImporter.Notification_WCF.GetUserFollowsResponse GetUserFollows(string sWSUserName, string sWSPassword, int userId, int pageSize, int pageIndex);
+        TvinciImporter.Notification_WCF.GetUserFollowsResponse GetUserFollows(string sWSUserName, string sWSPassword, int userId, int pageSize, int pageIndex, ApiObjects.SearchObjects.OrderDir order);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/Unfollow", ReplyAction="http://tempuri.org/INotificationService/UnfollowResponse")]
-        ApiObjects.Response.Status Unfollow(string sWSUserName, string sWSPassword, int userId, long announcementId);
+        ApiObjects.Response.Status Unfollow(string sWSUserName, string sWSPassword, int userId, TvinciImporter.Notification_WCF.FollowDataBase followData);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/Follow", ReplyAction="http://tempuri.org/INotificationService/FollowResponse")]
-        ApiObjects.Response.Status Follow(string sWSUserName, string sWSPassword, int userId, TvinciImporter.Notification_WCF.FollowData followData);
+        ApiObjects.Response.Status Follow(string sWSUserName, string sWSPassword, int userId, TvinciImporter.Notification_WCF.FollowDataBase followData);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -1725,23 +1571,23 @@ namespace TvinciImporter.Notification_WCF {
             return base.Channel.GetAllMessageAnnouncements(sWSUserName, sWSPassword, pageSize, pageIndex);
         }
         
-        public TvinciImporter.Notification_WCF.MessageTemplateResponse SetMessageTemplate(string sWSUserName, string sWSPassword, TvinciImporter.Notification_WCF.MessageTemplate followTemplate) {
+        public ApiObjects.Notification.MessageTemplateResponse SetMessageTemplate(string sWSUserName, string sWSPassword, ApiObjects.Notification.MessageTemplate followTemplate) {
             return base.Channel.SetMessageTemplate(sWSUserName, sWSPassword, followTemplate);
         }
         
-        public TvinciImporter.Notification_WCF.MessageTemplateResponse GetMessageTemplate(string sWSUserName, string sWSPassword, ApiObjects.eOTTAssetTypes assetTypes) {
+        public ApiObjects.Notification.MessageTemplateResponse GetMessageTemplate(string sWSUserName, string sWSPassword, ApiObjects.eOTTAssetTypes assetTypes) {
             return base.Channel.GetMessageTemplate(sWSUserName, sWSPassword, assetTypes);
         }
         
-        public TvinciImporter.Notification_WCF.GetUserFollowsResponse GetUserFollows(string sWSUserName, string sWSPassword, int userId, int pageSize, int pageIndex) {
-            return base.Channel.GetUserFollows(sWSUserName, sWSPassword, userId, pageSize, pageIndex);
+        public TvinciImporter.Notification_WCF.GetUserFollowsResponse GetUserFollows(string sWSUserName, string sWSPassword, int userId, int pageSize, int pageIndex, ApiObjects.SearchObjects.OrderDir order) {
+            return base.Channel.GetUserFollows(sWSUserName, sWSPassword, userId, pageSize, pageIndex, order);
         }
         
-        public ApiObjects.Response.Status Unfollow(string sWSUserName, string sWSPassword, int userId, long announcementId) {
-            return base.Channel.Unfollow(sWSUserName, sWSPassword, userId, announcementId);
+        public ApiObjects.Response.Status Unfollow(string sWSUserName, string sWSPassword, int userId, TvinciImporter.Notification_WCF.FollowDataBase followData) {
+            return base.Channel.Unfollow(sWSUserName, sWSPassword, userId, followData);
         }
         
-        public ApiObjects.Response.Status Follow(string sWSUserName, string sWSPassword, int userId, TvinciImporter.Notification_WCF.FollowData followData) {
+        public ApiObjects.Response.Status Follow(string sWSUserName, string sWSPassword, int userId, TvinciImporter.Notification_WCF.FollowDataBase followData) {
             return base.Channel.Follow(sWSUserName, sWSPassword, userId, followData);
         }
     }

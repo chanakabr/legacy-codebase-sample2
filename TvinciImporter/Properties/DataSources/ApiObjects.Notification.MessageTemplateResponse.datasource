@@ -6,5 +6,5 @@
     cause the file to be unrecognizable by the program.
 -->
 <GenericObjectDataSource DisplayName="MessageTemplateResponse" Version="1.0" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
-   <TypeInfo>TvinciImporter.Notification_WCF.MessageTemplateResponse, Service References.Notification_WCF.Reference.cs, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null</TypeInfo>
+   <TypeInfo>ApiObjects.Notification.MessageTemplateResponse, ApiObjects, Version=3.4.118.18997, Culture=neutral, PublicKeyToken=null</TypeInfo>
 </GenericObjectDataSource>

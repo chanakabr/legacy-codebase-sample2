@@ -6,19 +6,12 @@ using System.Threading.Tasks;
 
 namespace ApiObjects.Notification
 {
-    public class UserNotificationSettings
+    public class UserFollowSettings
     {
         public bool EnablePush { get; set; }
 
         public bool EnableInbox { get; set; }
 
         public bool EnableMail { get; set; }
-
-        public UserFollowSettings FollowSettings { get; set; }
-
-        public UserNotificationSettings()
-        {
-            FollowSettings = new UserFollowSettings();
-        }
     }
 }
