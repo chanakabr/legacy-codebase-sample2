@@ -1522,6 +1522,9 @@ namespace WebAPI.Notifications {
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string ActionField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private WebAPI.Notifications.eOTTAssetTypes AssetTypeField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -1533,6 +1536,12 @@ namespace WebAPI.Notifications {
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string MessageField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string SoundField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string URLField;
+        
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
             get {
@@ -1540,6 +1549,19 @@ namespace WebAPI.Notifications {
             }
             set {
                 this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Action {
+            get {
+                return this.ActionField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.ActionField, value) != true)) {
+                    this.ActionField = value;
+                    this.RaisePropertyChanged("Action");
+                }
             }
         }
         
@@ -1591,6 +1613,32 @@ namespace WebAPI.Notifications {
                 if ((object.ReferenceEquals(this.MessageField, value) != true)) {
                     this.MessageField = value;
                     this.RaisePropertyChanged("Message");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Sound {
+            get {
+                return this.SoundField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.SoundField, value) != true)) {
+                    this.SoundField = value;
+                    this.RaisePropertyChanged("Sound");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string URL {
+            get {
+                return this.URLField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.URLField, value) != true)) {
+                    this.URLField = value;
+                    this.RaisePropertyChanged("URL");
                 }
             }
         }
