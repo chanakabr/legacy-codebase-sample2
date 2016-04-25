@@ -72,7 +72,7 @@ namespace WebAPI.ConditionalAccess {
         
         private System.Threading.SendOrPostCallback GetRecordingStatusOperationCompleted;
         
-        private System.Threading.SendOrPostCallback SearchDomainRecordingIDsOperationCompleted;
+        private System.Threading.SendOrPostCallback SearchDomainRecordingsOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetRecordingsByIDsOperationCompleted;
         
@@ -352,7 +352,7 @@ namespace WebAPI.ConditionalAccess {
         public event GetRecordingStatusCompletedEventHandler GetRecordingStatusCompleted;
         
         /// <remarks/>
-        public event SearchDomainRecordingIDsCompletedEventHandler SearchDomainRecordingIDsCompleted;
+        public event SearchDomainRecordingsCompletedEventHandler SearchDomainRecordingsCompleted;
         
         /// <remarks/>
         public event GetRecordingsByIDsCompletedEventHandler GetRecordingsByIDsCompleted;
@@ -1474,9 +1474,9 @@ namespace WebAPI.ConditionalAccess {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/SearchDomainRecordingIDs", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public SearchRecordingResponse SearchDomainRecordingIDs(string sWSUserName, string sWSPassword, string userID, long domainID, TstvRecordingStatus[] recordingStatuses, string filter, int pageIndex, int pageSize, OrderObj orderBy, string requestID) {
-            object[] results = this.Invoke("SearchDomainRecordingIDs", new object[] {
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/SearchDomainRecordings", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public SearchRecordingResponse SearchDomainRecordings(string sWSUserName, string sWSPassword, string userID, long domainID, TstvRecordingStatus[] recordingStatuses, string filter, int pageIndex, int pageSize, OrderObj orderBy, string requestID) {
+            object[] results = this.Invoke("SearchDomainRecordings", new object[] {
                         sWSUserName,
                         sWSPassword,
                         userID,
@@ -1491,16 +1491,16 @@ namespace WebAPI.ConditionalAccess {
         }
         
         /// <remarks/>
-        public void SearchDomainRecordingIDsAsync(string sWSUserName, string sWSPassword, string userID, long domainID, TstvRecordingStatus[] recordingStatuses, string filter, int pageIndex, int pageSize, OrderObj orderBy, string requestID) {
-            this.SearchDomainRecordingIDsAsync(sWSUserName, sWSPassword, userID, domainID, recordingStatuses, filter, pageIndex, pageSize, orderBy, requestID, null);
+        public void SearchDomainRecordingsAsync(string sWSUserName, string sWSPassword, string userID, long domainID, TstvRecordingStatus[] recordingStatuses, string filter, int pageIndex, int pageSize, OrderObj orderBy, string requestID) {
+            this.SearchDomainRecordingsAsync(sWSUserName, sWSPassword, userID, domainID, recordingStatuses, filter, pageIndex, pageSize, orderBy, requestID, null);
         }
         
         /// <remarks/>
-        public void SearchDomainRecordingIDsAsync(string sWSUserName, string sWSPassword, string userID, long domainID, TstvRecordingStatus[] recordingStatuses, string filter, int pageIndex, int pageSize, OrderObj orderBy, string requestID, object userState) {
-            if ((this.SearchDomainRecordingIDsOperationCompleted == null)) {
-                this.SearchDomainRecordingIDsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSearchDomainRecordingIDsOperationCompleted);
+        public void SearchDomainRecordingsAsync(string sWSUserName, string sWSPassword, string userID, long domainID, TstvRecordingStatus[] recordingStatuses, string filter, int pageIndex, int pageSize, OrderObj orderBy, string requestID, object userState) {
+            if ((this.SearchDomainRecordingsOperationCompleted == null)) {
+                this.SearchDomainRecordingsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSearchDomainRecordingsOperationCompleted);
             }
-            this.InvokeAsync("SearchDomainRecordingIDs", new object[] {
+            this.InvokeAsync("SearchDomainRecordings", new object[] {
                         sWSUserName,
                         sWSPassword,
                         userID,
@@ -1510,13 +1510,13 @@ namespace WebAPI.ConditionalAccess {
                         pageIndex,
                         pageSize,
                         orderBy,
-                        requestID}, this.SearchDomainRecordingIDsOperationCompleted, userState);
+                        requestID}, this.SearchDomainRecordingsOperationCompleted, userState);
         }
         
-        private void OnSearchDomainRecordingIDsOperationCompleted(object arg) {
-            if ((this.SearchDomainRecordingIDsCompleted != null)) {
+        private void OnSearchDomainRecordingsOperationCompleted(object arg) {
+            if ((this.SearchDomainRecordingsCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.SearchDomainRecordingIDsCompleted(this, new SearchDomainRecordingIDsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+                this.SearchDomainRecordingsCompleted(this, new SearchDomainRecordingsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -11687,17 +11687,17 @@ namespace WebAPI.ConditionalAccess {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void SearchDomainRecordingIDsCompletedEventHandler(object sender, SearchDomainRecordingIDsCompletedEventArgs e);
+    public delegate void SearchDomainRecordingsCompletedEventHandler(object sender, SearchDomainRecordingsCompletedEventArgs e);
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class SearchDomainRecordingIDsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+    public partial class SearchDomainRecordingsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
         
         private object[] results;
         
-        internal SearchDomainRecordingIDsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+        internal SearchDomainRecordingsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }

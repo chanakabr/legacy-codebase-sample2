@@ -675,7 +675,7 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="SearchDomainRecordingIDs">
+      <s:element name="SearchDomainRecordings">
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
@@ -729,10 +729,10 @@
           <s:enumeration value="NONE" />
         </s:restriction>
       </s:simpleType>
-      <s:element name="SearchDomainRecordingIDsResponse">
+      <s:element name="SearchDomainRecordingsResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="SearchDomainRecordingIDsResult" type="tns:SearchRecordingResponse" />
+            <s:element minOccurs="0" maxOccurs="1" name="SearchDomainRecordingsResult" type="tns:SearchRecordingResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -3590,11 +3590,11 @@
   <wsdl:message name="GetRecordingStatusSoapOut">
     <wsdl:part name="parameters" element="tns:GetRecordingStatusResponse" />
   </wsdl:message>
-  <wsdl:message name="SearchDomainRecordingIDsSoapIn">
-    <wsdl:part name="parameters" element="tns:SearchDomainRecordingIDs" />
+  <wsdl:message name="SearchDomainRecordingsSoapIn">
+    <wsdl:part name="parameters" element="tns:SearchDomainRecordings" />
   </wsdl:message>
-  <wsdl:message name="SearchDomainRecordingIDsSoapOut">
-    <wsdl:part name="parameters" element="tns:SearchDomainRecordingIDsResponse" />
+  <wsdl:message name="SearchDomainRecordingsSoapOut">
+    <wsdl:part name="parameters" element="tns:SearchDomainRecordingsResponse" />
   </wsdl:message>
   <wsdl:message name="GetRecordingsByIDsSoapIn">
     <wsdl:part name="parameters" element="tns:GetRecordingsByIDs" />
@@ -5484,9 +5484,9 @@
       <wsdl:input message="tns:GetRecordingStatusSoapIn" />
       <wsdl:output message="tns:GetRecordingStatusSoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="SearchDomainRecordingIDs">
-      <wsdl:input message="tns:SearchDomainRecordingIDsSoapIn" />
-      <wsdl:output message="tns:SearchDomainRecordingIDsSoapOut" />
+    <wsdl:operation name="SearchDomainRecordings">
+      <wsdl:input message="tns:SearchDomainRecordingsSoapIn" />
+      <wsdl:output message="tns:SearchDomainRecordingsSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="GetRecordingsByIDs">
       <wsdl:input message="tns:GetRecordingsByIDsSoapIn" />
@@ -6430,8 +6430,8 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="SearchDomainRecordingIDs">
-      <soap:operation soapAction="http://ca.tvinci.com/SearchDomainRecordingIDs" style="document" />
+    <wsdl:operation name="SearchDomainRecordings">
+      <soap:operation soapAction="http://ca.tvinci.com/SearchDomainRecordings" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -7423,8 +7423,8 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="SearchDomainRecordingIDs">
-      <soap12:operation soapAction="http://ca.tvinci.com/SearchDomainRecordingIDs" style="document" />
+    <wsdl:operation name="SearchDomainRecordings">
+      <soap12:operation soapAction="http://ca.tvinci.com/SearchDomainRecordings" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>

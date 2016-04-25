@@ -1227,7 +1227,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = ConditionalAccess.SearchDomainRecordingIDs(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, domainID, convertedRecordingStatuses.ToArray(),
+                    response = ConditionalAccess.SearchDomainRecordings(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, domainID, convertedRecordingStatuses.ToArray(),
                                                                           ksqlFilter, pageIndex, pageSize.Value, order, requestID);
                 }
             }
