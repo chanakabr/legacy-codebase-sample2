@@ -1092,5 +1092,58 @@ namespace WebAPI.Clients
 
             return true;
         }
+
+        internal List<KalturaSlimAsset> GetAssetsFollowing(string userID, int groupId, List<KalturaPersonalAssetRequest> assets, List<string> followPhrases)
+        {
+            List<KalturaSlimAsset> result = new List<KalturaSlimAsset>();
+
+            // Create our own filter - only search in title
+            string filter = "(or";
+            followPhrases.ForEach(x => filter += string.Format(" {0}", x));
+            filter += ")";
+
+            // get group configuration 
+            Group group = GroupsManager.GetGroup(groupId);
+
+            // build request
+            UnifiedSearchRequest request = new UnifiedSearchRequest()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_oFilter = new Filter()
+                {
+                    m_bOnlyActiveMedia = group.GetOnlyActiveAssets
+                },
+                m_sUserIP = Utils.Utils.GetClientIP(),
+                m_nGroupID = groupId,
+                filterQuery = filter,
+                specificAssets = assets.Select(asset => new KeyValuePairOfeAssetTypeslongHVR2FNfI(){ key = eAssetTypes.MEDIA, value = asset.Id }).ToList()
+                //assetTypes = assetTypes,
+            };
+
+            // fire unified search request
+            UnifiedSearchResponse searchResponse = new UnifiedSearchResponse();
+            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(CatalogClientModule, request, out searchResponse, true, null))
+            {
+                // general error
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (searchResponse.status.Code != (int)StatusCode.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(searchResponse.status.Code, searchResponse.status.Message);
+            }
+
+            if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
+            {
+                foreach (var searchRes in searchResponse.searchResults)
+                {
+                    result.Add(Mapper.Map<KalturaSlimAsset>(searchRes));
+                }
+            }
+
+            return result;
+        }
     }
 }

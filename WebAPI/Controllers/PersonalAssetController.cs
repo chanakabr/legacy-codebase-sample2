@@ -87,6 +87,7 @@ namespace WebAPI.Controllers
 
                 KalturaAssetsBookmarksResponse bookmarksResponse = null;
                 List<KalturaAssetPrice> pricingsResponse = null;
+                List<KalturaSlimAsset> followingAssets = null;
 
                 // Perform the two calls asynchronously and then merge their two results
 
@@ -144,6 +145,30 @@ namespace WebAPI.Controllers
                     #endregion
                 }
 
+                if (withTypes.Contains(KalturaPersonalAssetWith.following))
+                {
+                    #region Following
+
+                    var task = Task.Factory.StartNew(() =>
+                    {
+                        HttpContext.Current = ctx;
+                       
+                        // get all phrases.
+                        List<string> phrases;
+                        var resp = ClientsManager.NotificationClient().GetUserTvSeriesFollows(groupId, userID, 1000, 0, null);
+                        if (resp != null && resp.FollowDataList != null && resp.FollowDataList.Count > 0)
+                        {
+                            phrases = resp.FollowDataList.Select(x => x.FollowPhrase).ToList();
+                            
+                            // Call catalog
+                            followingAssets = ClientsManager.CatalogClient().GetAssetsFollowing(userID, groupId, assets, phrases);
+                        }
+                    });
+
+                    taskList.Add(task);
+
+                    #endregion
+                }
                 Task.WaitAll(taskList.ToArray());
 
                 // According to catalog response, update final response's objects
@@ -174,6 +199,22 @@ namespace WebAPI.Controllers
                         if (assetIdToPersonalAsset.TryGetValue(key, out personalAsset))
                         {
                             personalAsset.Files = pricing.FilePrices;
+                        }
+                    }
+                }
+
+                // According to unified search response, update final response's objects
+                if (followingAssets != null && followingAssets.Count > 0)
+                {
+                    foreach (var asset in followingAssets)
+                    {
+                        string key = string.Format("{0}.{1}", asset.Type.ToString().ToLower(), asset.Id);
+
+                        KalturaPersonalAsset personalAsset;
+
+                        if (assetIdToPersonalAsset.TryGetValue(key, out personalAsset))
+                        {
+                            personalAsset.Following = true;
                         }
                     }
                 }
