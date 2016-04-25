@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using Newtonsoft.Json;
 
@@ -9,11 +10,25 @@ namespace ApiObjects.Notification
     // key: user_notification_<GID>_<USER_ID>
     public class UserNotification
     {
-        public UserNotification()
+        public int UserId { get; set; }
+
+        public UserNotification(int userId)
         {
+            this.UserId = userId;
             this.Userdevices = new List<UserDevice>();
             this.Announcements = new List<Announcement>();
-            this.Settings = new UserNotificationSettings() { EnableInbox = true, EnableMail = true, EnablePush = true };
+            this.Settings = new UserNotificationSettings()
+            {
+                EnableInbox = true,
+                EnableMail = true,
+                EnablePush = true,
+                FollowSettings = new UserFollowSettings()
+                {
+                    EnableInbox = true,
+                    EnableMail = true,
+                    EnablePush = true
+                }
+            };
         }
         public List<UserDevice> Userdevices { get; set; }
         public List<Announcement> Announcements { get; set; }
