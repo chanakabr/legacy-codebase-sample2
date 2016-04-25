@@ -139,13 +139,7 @@ namespace Recordings
                         // Update Couchbase that the EPG is recorded
                         #region Update CB
 
-                        TvinciEpgBL epgBLTvinci = new TvinciEpgBL(groupId);  //assuming this is a Kaltura user - the TVM does not support editing of yes Epg
-
-                        EpgCB epg = epgBLTvinci.GetEpgCB((ulong)programId);
-
-                        epg.IsRecorded = Convert.ToInt32(true);
-
-                        epgBLTvinci.UpdateEpg(epg);
+                        UpdateCouchbaseIsRecorded(groupId, programId, true);
 
                         #endregion
                         
@@ -239,6 +233,8 @@ namespace Recordings
                         {
                             return new Status((int)eResponseStatus.Error, "Failed update recording");
                         }
+
+                        UpdateCouchbaseIsRecorded(groupId, recording.EpgID, false);
 
                         // We're OK
                         status = new Status((int)eResponseStatus.OK);
@@ -443,6 +439,17 @@ namespace Recordings
                                 };
                 catalog.UpdateRecordingsIndex(objectIds, groupId, eAction.Update);
             }
+        }
+
+        private static void UpdateCouchbaseIsRecorded(int groupId, long programId, bool isRecorded)
+        {
+            TvinciEpgBL epgBLTvinci = new TvinciEpgBL(groupId);
+
+            EpgCB epg = epgBLTvinci.GetEpgCB((ulong)programId);
+
+            epg.IsRecorded = Convert.ToInt32(isRecorded);
+
+            epgBLTvinci.UpdateEpg(epg);
         }
 
         #endregion
