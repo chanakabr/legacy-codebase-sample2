@@ -2700,7 +2700,7 @@ namespace DAL
         public static List<Recording> GetDomainRecordingsByRecordingStatuses(int groupID, long domainID, List<TstvRecordingStatus> recordingStatuses, int pageIndex, int pageSize)
         {
             List<Recording> recordings = null;
-            ODBCWrapper.StoredProcedure spGetDomainExistingRecordingID = new ODBCWrapper.StoredProcedure("GetDomainRecordingIDsByRecordingStatuses");
+            ODBCWrapper.StoredProcedure spGetDomainExistingRecordingID = new ODBCWrapper.StoredProcedure("GetDomainRecordingsByRecordingStatuses");
             spGetDomainExistingRecordingID.SetConnectionKey("CONNECTION_STRING");
             spGetDomainExistingRecordingID.AddParameter("@GroupID", groupID);
             spGetDomainExistingRecordingID.AddParameter("@DomainID", domainID);

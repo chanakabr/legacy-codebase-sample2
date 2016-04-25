@@ -23,6 +23,9 @@ namespace ApiObjects.TimeShiftedTv
             this.EpgID = recording.EpgID;
             this.RecordingID = recording.RecordingID;
             this.RecordingStatus = recording.RecordingStatus;
+            this.ExternalRecordingId = recording.ExternalRecordingId;
+            this.EpgStartDate = recording.EpgStartDate;
+            this.EpgEndDate = recording.EpgEndDate;
         }
 
         public override string ToString()
