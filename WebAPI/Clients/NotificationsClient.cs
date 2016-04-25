@@ -572,12 +572,23 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.UserIDInvalid, "Invalid Username");
             }
 
+            // get asset name
+            var mediaInfoResponse = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), KSUtils.ExtractKSPayload().UDID, null,
+                                            0, 0, new List<int>() { asset_id }, new List<KalturaCatalogWith>());
+
+            if (mediaInfoResponse == null || mediaInfoResponse.Objects == null || mediaInfoResponse.Objects.Count == 0)
+            {
+                throw new ClientException((int)StatusCode.NotFound, "asset not found");
+            }
+
+            FollowDataTvSeries followData = new FollowDataTvSeries();
+            followData.AssetId = asset_id;
+            followData.Title = mediaInfoResponse.Objects[0].Name;
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    FollowDataTvSeries followData = new FollowDataTvSeries();
-                    followData.AssetId = asset_id;
+                {                    
                     response = Notification.Unfollow(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, followData);
                 }
             }
@@ -621,6 +632,7 @@ namespace WebAPI.Clients
             followData.Status = 1;
             followData.Title = mediaInfoResponse.Objects[0].Name;
             followDataNotification = Mapper.Map<FollowDataTvSeries>(followData);
+            followDataNotification.Type = mediaInfoResponse.Objects[0].Type;
 
             try
             {

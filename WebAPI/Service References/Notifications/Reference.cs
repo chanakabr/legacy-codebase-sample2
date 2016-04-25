@@ -1844,6 +1844,9 @@ namespace WebAPI.Notifications {
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string TitleField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int TypeField;
+        
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
             get {
@@ -1928,6 +1931,19 @@ namespace WebAPI.Notifications {
                 if ((object.ReferenceEquals(this.TitleField, value) != true)) {
                     this.TitleField = value;
                     this.RaisePropertyChanged("Title");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int Type {
+            get {
+                return this.TypeField;
+            }
+            set {
+                if ((this.TypeField.Equals(value) != true)) {
+                    this.TypeField = value;
+                    this.RaisePropertyChanged("Type");
                 }
             }
         }
