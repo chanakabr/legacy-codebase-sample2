@@ -1110,7 +1110,9 @@
     <Compile Include="Models\ConditionalAccess\KalturaRecording.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaRecordingInfoFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaRecordingListResponse.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaRecordingOrder.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaRecordingStatus.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaRecordingType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaStreamType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaLicensedUrl.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaBillingAction.cs" />

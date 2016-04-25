@@ -675,29 +675,87 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="GetDomainRecordingIDsByRecordingStatuses">
+      <s:element name="SearchDomainRecordingIDs">
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="userID" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="domainID" type="s:long" />
-            <s:element minOccurs="0" maxOccurs="1" name="recordingStatuses" type="tns:ArrayOfInt" />
+            <s:element minOccurs="0" maxOccurs="1" name="recordingStatuses" type="tns:ArrayOfTstvRecordingStatus" />
+            <s:element minOccurs="0" maxOccurs="1" name="filter" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="pageIndex" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="pageSize" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="orderBy" type="tns:OrderObj" />
+            <s:element minOccurs="0" maxOccurs="1" name="requestID" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="GetDomainRecordingIDsByRecordingStatusesResponse">
+      <s:complexType name="ArrayOfTstvRecordingStatus">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="TstvRecordingStatus" type="tns:TstvRecordingStatus" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="OrderObj">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="m_eOrderBy" type="tns:OrderBy" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_eOrderDir" type="tns:OrderDir" />
+          <s:element minOccurs="1" maxOccurs="1" name="lu_min_period_id" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sOrderValue" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_bIsSlidingWindowField" type="s:boolean" />
+        </s:sequence>
+      </s:complexType>
+      <s:simpleType name="OrderBy">
+        <s:restriction base="s:string">
+          <s:enumeration value="ID" />
+          <s:enumeration value="VIEWS" />
+          <s:enumeration value="RATING" />
+          <s:enumeration value="VOTES_COUNT" />
+          <s:enumeration value="LIKE_COUNTER" />
+          <s:enumeration value="START_DATE" />
+          <s:enumeration value="NAME" />
+          <s:enumeration value="CREATE_DATE" />
+          <s:enumeration value="META" />
+          <s:enumeration value="RANDOM" />
+          <s:enumeration value="RELATED" />
+          <s:enumeration value="NONE" />
+          <s:enumeration value="RECOMMENDATION" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="OrderDir">
+        <s:restriction base="s:string">
+          <s:enumeration value="ASC" />
+          <s:enumeration value="DESC" />
+          <s:enumeration value="NONE" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="SearchDomainRecordingIDsResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetDomainRecordingIDsByRecordingStatusesResult" type="tns:RecordingIDsResponse" />
+            <s:element minOccurs="0" maxOccurs="1" name="SearchDomainRecordingIDsResult" type="tns:SearchRecordingResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:complexType name="RecordingIDsResponse">
+      <s:complexType name="SearchRecordingResponse">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
-          <s:element minOccurs="0" maxOccurs="1" name="RecordingIDs" type="tns:ArrayOfLong" />
+          <s:element minOccurs="0" maxOccurs="1" name="SearchRecordings" type="tns:ArrayOfSearchRecording" />
+          <s:element minOccurs="1" maxOccurs="1" name="TotalItems" type="s:int" />
         </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfSearchRecording">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="SearchRecording" nillable="true" type="tns:SearchRecording" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="SearchRecording">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:Recording">
+            <s:sequence>
+              <s:element minOccurs="1" maxOccurs="1" name="UpdateDate" type="s:dateTime" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
       </s:complexType>
       <s:element name="GetRecordingsByIDs">
         <s:complexType>
@@ -3108,7 +3166,6 @@
       <s:element name="CDVRAdapterResponse" nillable="true" type="tns:CDVRAdapterResponse" />
       <s:element name="Recording" nillable="true" type="tns:Recording" />
       <s:element name="RecordingResponse" nillable="true" type="tns:RecordingResponse" />
-      <s:element name="RecordingIDsResponse" nillable="true" type="tns:RecordingIDsResponse" />
       <s:element name="ArrayOfPermittedMediaContainer" nillable="true" type="tns:ArrayOfPermittedMediaContainer" />
       <s:element name="PermittedMediaContainerResponse" nillable="true" type="tns:PermittedMediaContainerResponse" />
       <s:element name="UserCAStatus" type="tns:UserCAStatus" />
@@ -3533,11 +3590,11 @@
   <wsdl:message name="GetRecordingStatusSoapOut">
     <wsdl:part name="parameters" element="tns:GetRecordingStatusResponse" />
   </wsdl:message>
-  <wsdl:message name="GetDomainRecordingIDsByRecordingStatusesSoapIn">
-    <wsdl:part name="parameters" element="tns:GetDomainRecordingIDsByRecordingStatuses" />
+  <wsdl:message name="SearchDomainRecordingIDsSoapIn">
+    <wsdl:part name="parameters" element="tns:SearchDomainRecordingIDs" />
   </wsdl:message>
-  <wsdl:message name="GetDomainRecordingIDsByRecordingStatusesSoapOut">
-    <wsdl:part name="parameters" element="tns:GetDomainRecordingIDsByRecordingStatusesResponse" />
+  <wsdl:message name="SearchDomainRecordingIDsSoapOut">
+    <wsdl:part name="parameters" element="tns:SearchDomainRecordingIDsResponse" />
   </wsdl:message>
   <wsdl:message name="GetRecordingsByIDsSoapIn">
     <wsdl:part name="parameters" element="tns:GetRecordingsByIDs" />
@@ -4259,16 +4316,6 @@
   </wsdl:message>
   <wsdl:message name="GetRecordingStatusHttpPostOut">
     <wsdl:part name="Body" element="tns:Recording" />
-  </wsdl:message>
-  <wsdl:message name="GetDomainRecordingIDsByRecordingStatusesHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="userID" type="s:string" />
-    <wsdl:part name="domainID" type="s:string" />
-    <wsdl:part name="recordingStatuses" type="s3:StringArray" />
-  </wsdl:message>
-  <wsdl:message name="GetDomainRecordingIDsByRecordingStatusesHttpPostOut">
-    <wsdl:part name="Body" element="tns:RecordingIDsResponse" />
   </wsdl:message>
   <wsdl:message name="GetRecordingsByIDsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -5437,9 +5484,9 @@
       <wsdl:input message="tns:GetRecordingStatusSoapIn" />
       <wsdl:output message="tns:GetRecordingStatusSoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="GetDomainRecordingIDsByRecordingStatuses">
-      <wsdl:input message="tns:GetDomainRecordingIDsByRecordingStatusesSoapIn" />
-      <wsdl:output message="tns:GetDomainRecordingIDsByRecordingStatusesSoapOut" />
+    <wsdl:operation name="SearchDomainRecordingIDs">
+      <wsdl:input message="tns:SearchDomainRecordingIDsSoapIn" />
+      <wsdl:output message="tns:SearchDomainRecordingIDsSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="GetRecordingsByIDs">
       <wsdl:input message="tns:GetRecordingsByIDsSoapIn" />
@@ -5866,10 +5913,6 @@
     <wsdl:operation name="GetRecordingStatus">
       <wsdl:input message="tns:GetRecordingStatusHttpPostIn" />
       <wsdl:output message="tns:GetRecordingStatusHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetDomainRecordingIDsByRecordingStatuses">
-      <wsdl:input message="tns:GetDomainRecordingIDsByRecordingStatusesHttpPostIn" />
-      <wsdl:output message="tns:GetDomainRecordingIDsByRecordingStatusesHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="GetRecordingsByIDs">
       <wsdl:input message="tns:GetRecordingsByIDsHttpPostIn" />
@@ -6387,8 +6430,8 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="GetDomainRecordingIDsByRecordingStatuses">
-      <soap:operation soapAction="http://ca.tvinci.com/GetDomainRecordingIDsByRecordingStatuses" style="document" />
+    <wsdl:operation name="SearchDomainRecordingIDs">
+      <soap:operation soapAction="http://ca.tvinci.com/SearchDomainRecordingIDs" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -7380,8 +7423,8 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="GetDomainRecordingIDsByRecordingStatuses">
-      <soap12:operation soapAction="http://ca.tvinci.com/GetDomainRecordingIDsByRecordingStatuses" style="document" />
+    <wsdl:operation name="SearchDomainRecordingIDs">
+      <soap12:operation soapAction="http://ca.tvinci.com/SearchDomainRecordingIDs" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -8339,15 +8382,6 @@
     </wsdl:operation>
     <wsdl:operation name="GetRecordingStatus">
       <http:operation location="/GetRecordingStatus" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetDomainRecordingIDsByRecordingStatuses">
-      <http:operation location="/GetDomainRecordingIDsByRecordingStatuses" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>

@@ -16,14 +16,6 @@ namespace WebAPI.Models.ConditionalAccess
     [Serializable]
     public class KalturaRecordingInfoFilter : KalturaOTTObject
     {
-        /// <summary>
-        /// Filtering condition
-        /// </summary>
-        public enum KalturaCutWith
-        {
-            or = 0,
-            and = 1
-        }
 
         /// <summary>
         /// Recording Statuses
@@ -32,7 +24,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty(PropertyName = "recording_statuses")]
         [XmlArray(ElementName = "recording_statuses", IsNullable = true)]
         [XmlArrayItem(ElementName = "recording_statuses")]
-        public List<KalturaStringValue> RecordingStatuses { get; set; }
+        public List<KalturaRecordingStatusHolder> RecordingStatuses { get; set; }
 
         /// <summary>
         /// KSQL expression
@@ -40,6 +32,6 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "filter_expression")]
         [JsonProperty("filter_expression")]
         [XmlElement(ElementName = "filter_expression")]
-        public string filter_expression { get; set; }        
+        public string filter_expression { get; set; }
     }
 }

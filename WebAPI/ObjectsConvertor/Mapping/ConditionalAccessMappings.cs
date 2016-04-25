@@ -9,6 +9,7 @@ using WebAPI.Utils;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
+using WebAPI.ConditionalAccess;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -291,6 +292,44 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown recordingStatus type");
             }
+            return result;
+        }
+
+        public static OrderObj ConvertOrderToOrderObj(KalturaRecordingOrder order)
+        {
+            OrderObj result = new OrderObj();
+
+            switch (order)
+            {
+                case KalturaRecordingOrder.a_to_z:
+                    result.m_eOrderBy = OrderBy.NAME;
+                    result.m_eOrderDir = OrderDir.ASC;
+                    break;
+                case KalturaRecordingOrder.z_to_a:
+                    result.m_eOrderBy = OrderBy.NAME;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case KalturaRecordingOrder.newest:
+                    result.m_eOrderBy = OrderBy.START_DATE;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case KalturaRecordingOrder.oldest_first:
+                    result.m_eOrderBy = OrderBy.START_DATE;
+                    result.m_eOrderDir = OrderDir.ASC;
+                    break;
+            }
+            return result;
+        }
+
+        public static List<WebAPI.Catalog.BaseObject> ConvertSearchRecordings(SearchRecording[] searchRecordings)
+        {
+            List<WebAPI.Catalog.BaseObject> result = new List<Catalog.BaseObject>();
+            foreach (SearchRecording recording in searchRecordings)
+            {
+                WebAPI.Catalog.BaseObject baseObject = new Catalog.BaseObject() { AssetId = recording.EpgID.ToString(), AssetType = Catalog.eAssetTypes.NPVR, m_dUpdateDate = recording.UpdateDate };
+                result.Add(baseObject);
+            }
+
             return result;
         }
 

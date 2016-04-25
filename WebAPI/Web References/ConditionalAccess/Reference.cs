@@ -72,7 +72,7 @@ namespace WebAPI.ConditionalAccess {
         
         private System.Threading.SendOrPostCallback GetRecordingStatusOperationCompleted;
         
-        private System.Threading.SendOrPostCallback GetDomainRecordingIDsByRecordingStatusesOperationCompleted;
+        private System.Threading.SendOrPostCallback SearchDomainRecordingIDsOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetRecordingsByIDsOperationCompleted;
         
@@ -352,7 +352,7 @@ namespace WebAPI.ConditionalAccess {
         public event GetRecordingStatusCompletedEventHandler GetRecordingStatusCompleted;
         
         /// <remarks/>
-        public event GetDomainRecordingIDsByRecordingStatusesCompletedEventHandler GetDomainRecordingIDsByRecordingStatusesCompleted;
+        public event SearchDomainRecordingIDsCompletedEventHandler SearchDomainRecordingIDsCompleted;
         
         /// <remarks/>
         public event GetRecordingsByIDsCompletedEventHandler GetRecordingsByIDsCompleted;
@@ -1474,39 +1474,49 @@ namespace WebAPI.ConditionalAccess {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetDomainRecordingIDsByRecordingStatuses", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public RecordingIDsResponse GetDomainRecordingIDsByRecordingStatuses(string sWSUserName, string sWSPassword, string userID, long domainID, int[] recordingStatuses) {
-            object[] results = this.Invoke("GetDomainRecordingIDsByRecordingStatuses", new object[] {
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/SearchDomainRecordingIDs", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public SearchRecordingResponse SearchDomainRecordingIDs(string sWSUserName, string sWSPassword, string userID, long domainID, TstvRecordingStatus[] recordingStatuses, string filter, int pageIndex, int pageSize, OrderObj orderBy, string requestID) {
+            object[] results = this.Invoke("SearchDomainRecordingIDs", new object[] {
                         sWSUserName,
                         sWSPassword,
                         userID,
                         domainID,
-                        recordingStatuses});
-            return ((RecordingIDsResponse)(results[0]));
+                        recordingStatuses,
+                        filter,
+                        pageIndex,
+                        pageSize,
+                        orderBy,
+                        requestID});
+            return ((SearchRecordingResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void GetDomainRecordingIDsByRecordingStatusesAsync(string sWSUserName, string sWSPassword, string userID, long domainID, int[] recordingStatuses) {
-            this.GetDomainRecordingIDsByRecordingStatusesAsync(sWSUserName, sWSPassword, userID, domainID, recordingStatuses, null);
+        public void SearchDomainRecordingIDsAsync(string sWSUserName, string sWSPassword, string userID, long domainID, TstvRecordingStatus[] recordingStatuses, string filter, int pageIndex, int pageSize, OrderObj orderBy, string requestID) {
+            this.SearchDomainRecordingIDsAsync(sWSUserName, sWSPassword, userID, domainID, recordingStatuses, filter, pageIndex, pageSize, orderBy, requestID, null);
         }
         
         /// <remarks/>
-        public void GetDomainRecordingIDsByRecordingStatusesAsync(string sWSUserName, string sWSPassword, string userID, long domainID, int[] recordingStatuses, object userState) {
-            if ((this.GetDomainRecordingIDsByRecordingStatusesOperationCompleted == null)) {
-                this.GetDomainRecordingIDsByRecordingStatusesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetDomainRecordingIDsByRecordingStatusesOperationCompleted);
+        public void SearchDomainRecordingIDsAsync(string sWSUserName, string sWSPassword, string userID, long domainID, TstvRecordingStatus[] recordingStatuses, string filter, int pageIndex, int pageSize, OrderObj orderBy, string requestID, object userState) {
+            if ((this.SearchDomainRecordingIDsOperationCompleted == null)) {
+                this.SearchDomainRecordingIDsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSearchDomainRecordingIDsOperationCompleted);
             }
-            this.InvokeAsync("GetDomainRecordingIDsByRecordingStatuses", new object[] {
+            this.InvokeAsync("SearchDomainRecordingIDs", new object[] {
                         sWSUserName,
                         sWSPassword,
                         userID,
                         domainID,
-                        recordingStatuses}, this.GetDomainRecordingIDsByRecordingStatusesOperationCompleted, userState);
+                        recordingStatuses,
+                        filter,
+                        pageIndex,
+                        pageSize,
+                        orderBy,
+                        requestID}, this.SearchDomainRecordingIDsOperationCompleted, userState);
         }
         
-        private void OnGetDomainRecordingIDsByRecordingStatusesOperationCompleted(object arg) {
-            if ((this.GetDomainRecordingIDsByRecordingStatusesCompleted != null)) {
+        private void OnSearchDomainRecordingIDsOperationCompleted(object arg) {
+            if ((this.SearchDomainRecordingIDsCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.GetDomainRecordingIDsByRecordingStatusesCompleted(this, new GetDomainRecordingIDsByRecordingStatusesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+                this.SearchDomainRecordingIDsCompleted(this, new SearchDomainRecordingIDsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -9923,11 +9933,13 @@ namespace WebAPI.ConditionalAccess {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class RecordingIDsResponse {
+    public partial class SearchRecordingResponse {
         
         private Status statusField;
         
-        private long[] recordingIDsField;
+        private SearchRecording[] searchRecordingsField;
+        
+        private int totalItemsField;
         
         /// <remarks/>
         public Status Status {
@@ -9940,12 +9952,22 @@ namespace WebAPI.ConditionalAccess {
         }
         
         /// <remarks/>
-        public long[] RecordingIDs {
+        public SearchRecording[] SearchRecordings {
             get {
-                return this.recordingIDsField;
+                return this.searchRecordingsField;
             }
             set {
-                this.recordingIDsField = value;
+                this.searchRecordingsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int TotalItems {
+            get {
+                return this.totalItemsField;
+            }
+            set {
+                this.totalItemsField = value;
             }
         }
     }
@@ -9956,34 +9978,23 @@ namespace WebAPI.ConditionalAccess {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class RecordingResponse {
+    public partial class SearchRecording : Recording {
         
-        private Status statusField;
-        
-        private Recording[] recordingsField;
+        private System.DateTime updateDateField;
         
         /// <remarks/>
-        public Status Status {
+        public System.DateTime UpdateDate {
             get {
-                return this.statusField;
+                return this.updateDateField;
             }
             set {
-                this.statusField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public Recording[] Recordings {
-            get {
-                return this.recordingsField;
-            }
-            set {
-                this.recordingsField = value;
+                this.updateDateField = value;
             }
         }
     }
     
     /// <remarks/>
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(SearchRecording))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -10117,6 +10128,170 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         Deleted,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class OrderObj {
+        
+        private OrderBy m_eOrderByField;
+        
+        private OrderDir m_eOrderDirField;
+        
+        private int lu_min_period_idField;
+        
+        private string m_sOrderValueField;
+        
+        private bool m_bIsSlidingWindowFieldField;
+        
+        /// <remarks/>
+        public OrderBy m_eOrderBy {
+            get {
+                return this.m_eOrderByField;
+            }
+            set {
+                this.m_eOrderByField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public OrderDir m_eOrderDir {
+            get {
+                return this.m_eOrderDirField;
+            }
+            set {
+                this.m_eOrderDirField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int lu_min_period_id {
+            get {
+                return this.lu_min_period_idField;
+            }
+            set {
+                this.lu_min_period_idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sOrderValue {
+            get {
+                return this.m_sOrderValueField;
+            }
+            set {
+                this.m_sOrderValueField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool m_bIsSlidingWindowField {
+            get {
+                return this.m_bIsSlidingWindowFieldField;
+            }
+            set {
+                this.m_bIsSlidingWindowFieldField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public enum OrderBy {
+        
+        /// <remarks/>
+        ID,
+        
+        /// <remarks/>
+        VIEWS,
+        
+        /// <remarks/>
+        RATING,
+        
+        /// <remarks/>
+        VOTES_COUNT,
+        
+        /// <remarks/>
+        LIKE_COUNTER,
+        
+        /// <remarks/>
+        START_DATE,
+        
+        /// <remarks/>
+        NAME,
+        
+        /// <remarks/>
+        CREATE_DATE,
+        
+        /// <remarks/>
+        META,
+        
+        /// <remarks/>
+        RANDOM,
+        
+        /// <remarks/>
+        RELATED,
+        
+        /// <remarks/>
+        NONE,
+        
+        /// <remarks/>
+        RECOMMENDATION,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public enum OrderDir {
+        
+        /// <remarks/>
+        ASC,
+        
+        /// <remarks/>
+        DESC,
+        
+        /// <remarks/>
+        NONE,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class RecordingResponse {
+        
+        private Status statusField;
+        
+        private Recording[] recordingsField;
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Recording[] Recordings {
+            get {
+                return this.recordingsField;
+            }
+            set {
+                this.recordingsField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -11512,26 +11687,26 @@ namespace WebAPI.ConditionalAccess {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void GetDomainRecordingIDsByRecordingStatusesCompletedEventHandler(object sender, GetDomainRecordingIDsByRecordingStatusesCompletedEventArgs e);
+    public delegate void SearchDomainRecordingIDsCompletedEventHandler(object sender, SearchDomainRecordingIDsCompletedEventArgs e);
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class GetDomainRecordingIDsByRecordingStatusesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+    public partial class SearchDomainRecordingIDsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
         
         private object[] results;
         
-        internal GetDomainRecordingIDsByRecordingStatusesCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+        internal SearchDomainRecordingIDsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }
         
         /// <remarks/>
-        public RecordingIDsResponse Result {
+        public SearchRecordingResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((RecordingIDsResponse)(this.results[0]));
+                return ((SearchRecordingResponse)(this.results[0]));
             }
         }
     }

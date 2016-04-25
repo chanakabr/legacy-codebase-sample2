@@ -55,7 +55,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "recording_type")]
         [JsonProperty("recording_type")]
         [XmlElement(ElementName = "recording_type")]
-        public KalturaRecordingStatus RecordingType { get; set; }
+        public KalturaRecordingType RecordingType { get; set; }
 
         /// <summary>
         /// The date when the record is no longer available
@@ -66,12 +66,12 @@ namespace WebAPI.Models.ConditionalAccess
         public long LastAvailabilityDate { get; set; }
 
         /// <summary>
-        /// Media Asset
+        /// Asset
         /// </summary>
-        [DataMember(Name = "media_asset")]
-        [JsonProperty("media_asset")]
-        [XmlElement(ElementName = "media_asset", IsNullable = true)]
-        public KalturaAssetInfo MediaAsset { get; set; }
+        [DataMember(Name = "asset")]
+        [JsonProperty("asset")]
+        [XmlElement(ElementName = "asset", IsNullable = true)]
+        public KalturaAssetInfo Asset { get; set; }
 
 
     }

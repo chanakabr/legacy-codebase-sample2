@@ -1,7 +1,11 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Web;
+using System.Xml.Serialization;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
 {
@@ -16,4 +20,15 @@ namespace WebAPI.Models.ConditionalAccess
         does_not_exists = 5,
         deleted = 6
     }
+
+    /// <summary>
+    /// Holder object for Catalog With enum
+    /// </summary>    
+    public class KalturaRecordingStatusHolder : KalturaOTTObject
+    {
+        [DataMember(Name = "status")]
+        [JsonProperty("status")]
+        [XmlElement("status")]
+        public KalturaRecordingStatus status { get; set; }
+    }    
 }

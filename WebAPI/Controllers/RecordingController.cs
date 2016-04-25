@@ -79,7 +79,8 @@ namespace WebAPI.Controllers
         /// 
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaRecordingListResponse List(KalturaRecordingInfoFilter filter, List<KalturaCatalogWithHolder> with = null, KalturaOrder? order_by = null, KalturaFilterPager pager = null)
+        public KalturaRecordingListResponse List(KalturaRecordingInfoFilter filter, List<KalturaCatalogWithHolder> with = null,
+                                                 KalturaRecordingOrder? order_by = null, KalturaFilterPager pager = null, string request_id = null)
         {
             KalturaRecordingListResponse response = null;
 
@@ -90,23 +91,26 @@ namespace WebAPI.Controllers
                 long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
                 if (pager == null)
-                    pager = new KalturaFilterPager();
+                {
+                    pager = new KalturaFilterPager();                    
+                }
 
                 if (with == null)
                     with = new List<KalturaCatalogWithHolder>();
 
                 if (filter == null)
                 {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter cannot be null");
-                }
+                    filter = new KalturaRecordingInfoFilter();
+                }                
 
-                if (filter.RecordingStatuses == null || filter.RecordingStatuses.Count == 0)
+                if (!string.IsNullOrEmpty(filter.filter_expression) && filter.filter_expression.Length > 1024)
                 {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter recording_statuses cannot be empty");
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter too long");
                 }
 
                 // call client                
-                response.Objects = ClientsManager.ConditionalAccessClient().GetRecordings(groupId, userId, domainId, KalturaRecordingInfoFilter.KalturaCutWith.and, filter.RecordingStatuses, filter.filter_expression);
+                response = ClientsManager.ConditionalAccessClient().SearchRecordings(groupId, userId, domainId, filter.RecordingStatuses.Select(x => x.status).ToList(), filter.filter_expression, pager.PageIndex,
+                                                                                             pager.PageSize, order_by, with.Select(x => x.type).ToList(), request_id);
             }
             catch (ClientException ex)
             {

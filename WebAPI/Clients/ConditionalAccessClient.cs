@@ -11,7 +11,9 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
+using WebAPI.Models.General;
 using WebAPI.Models.Pricing;
+using WebAPI.ObjectsConvertor;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
 
@@ -1192,13 +1194,32 @@ namespace WebAPI.Clients
             return recording;
         }
 
-        internal List<KalturaRecordingInfo> GetRecordings(int groupdID, string userID, long domainID, WebAPI.Models.ConditionalAccess.KalturaRecordingInfoFilter.KalturaCutWith cutWith,
-                                                            List<WebAPI.Models.General.KalturaStringValue> recordingStatuses, string ksqlFilter )
+        internal KalturaRecordingListResponse SearchRecordings(int groupdID, string userID, long domainID, List<KalturaRecordingStatus> recordingStatuses, string ksqlFilter, int pageIndex,
+                                                          int? pageSize, KalturaRecordingOrder? orderBy, List<KalturaCatalogWith> with, string requestID)
         {
-            List<KalturaRecordingInfo> recordings = null;
-            RecordingIDsResponse response = null;
+            KalturaRecordingListResponse result = null;
+            SearchRecordingResponse response = null;
 
-            // get group ID
+            // Create catalog order object
+            OrderObj order = new OrderObj();
+            if (orderBy == null)
+            {
+                order.m_eOrderBy = OrderBy.NAME;
+                order.m_eOrderDir = OrderDir.ASC;
+            }
+            else
+            {
+                order = ConditionalAccessMappings.ConvertOrderToOrderObj(orderBy.Value);
+            }
+
+            if (recordingStatuses == null || recordingStatuses.Count == 0)
+            {
+                recordingStatuses = new List<KalturaRecordingStatus>() { KalturaRecordingStatus.scheduled, KalturaRecordingStatus.recording, KalturaRecordingStatus.recorded };
+            }
+
+            List<WebAPI.ConditionalAccess.TstvRecordingStatus> convertedRecordingStatuses = recordingStatuses.Select(x => ConditionalAccessMappings.ConvertKalturaRecordingStatus(x)).ToList();            
+
+            // get group configuration
             Group group = GroupsManager.GetGroup(groupdID);
 
             try
@@ -1206,7 +1227,8 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = ConditionalAccess.GetDomainRecordingIDsByRecordingStatuses(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, domainID, null);
+                    response = ConditionalAccess.SearchDomainRecordingIDs(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, domainID, convertedRecordingStatuses.ToArray(),
+                                                                          ksqlFilter, pageIndex, pageSize.Value, order, requestID);
                 }
             }
             catch (Exception ex)
@@ -1227,10 +1249,39 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            //// convert response
-            //recordings = Mapper.Map<List<WebAPI.Models.ConditionalAccess.KalturaRecording>>(response);
+            result = new KalturaRecordingListResponse() { Objects = new List<KalturaRecordingInfo>(), TotalCount = 0 };
+            if (response.SearchRecordings != null && response.SearchRecordings.Length > 0)
+            {                
+                // get base objects list
+                List<WebAPI.Catalog.BaseObject> assetsBaseDataList = ConditionalAccessMappings.ConvertSearchRecordings(response.SearchRecordings);
+                List<KalturaIAssetable> assetsInfo = ClientsManager.CatalogClient().GetAssetsInfo(groupdID, (int)domainID, userID, pageIndex, pageSize.Value, group.UseStartDate,
+                                                                                                    group.GetOnlyActiveAssets, assetsBaseDataList, with);
+                // build AssetInfoWrapper response
+                if (assetsInfo != null)
+                {
+                    SearchRecording searchRecording = new SearchRecording();
+                    foreach (var assetInfo in assetsInfo)
+                    {
+                        searchRecording = response.SearchRecordings.FirstOrDefault(x => x.EpgID == ((KalturaAssetInfo)assetInfo).Id);
 
-            return recordings;
+                        if (searchRecording != null)
+                        {
+                            result.Objects.Add(new KalturaRecordingInfo()
+                            {                                
+                                Asset = (KalturaAssetInfo)assetInfo,
+                                RecordingId = searchRecording.RecordingID,
+                                RecordingStatus = ConditionalAccessMappings.ConvertTstvRecordingStatus(searchRecording.RecordingStatus),
+                                RecordingType = KalturaRecordingType.single,
+                                LastAvailabilityDate = 0
+                            });
+                        }
+                    }                    
+                }
+
+                result.TotalCount = response.TotalItems;
+            }
+
+            return result;
         }
 
     }
