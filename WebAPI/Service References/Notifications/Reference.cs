@@ -1785,6 +1785,9 @@ namespace WebAPI.Notifications {
         private string FollowPhraseField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string FollowReferenceField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int StatusField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -1825,6 +1828,19 @@ namespace WebAPI.Notifications {
                 if ((object.ReferenceEquals(this.FollowPhraseField, value) != true)) {
                     this.FollowPhraseField = value;
                     this.RaisePropertyChanged("FollowPhrase");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string FollowReference {
+            get {
+                return this.FollowReferenceField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.FollowReferenceField, value) != true)) {
+                    this.FollowReferenceField = value;
+                    this.RaisePropertyChanged("FollowReference");
                 }
             }
         }
