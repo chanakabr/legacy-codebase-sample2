@@ -1041,6 +1041,9 @@ namespace DAL
                 sp.AddParameter("@message", messageTemplate.Message);
                 sp.AddParameter("@dateFormat", messageTemplate.DateFormat);
                 sp.AddParameter("@assetType", (int)messageTemplate.AssetType);
+                sp.AddParameter("@sound", messageTemplate.Sound);
+                sp.AddParameter("@action", messageTemplate.Action);
+                sp.AddParameter("@url", messageTemplate.URL);
 
                 DataSet ds = sp.ExecuteDataSet();
 
@@ -1101,6 +1104,9 @@ namespace DAL
                 Id = ODBCWrapper.Utils.GetIntSafeVal(row, "ID"),
                 Message = ODBCWrapper.Utils.GetSafeStr(row, "MESSAGE"),
                 DateFormat = ODBCWrapper.Utils.GetSafeStr(row, "DATE_FORMAT"),
+                Sound = ODBCWrapper.Utils.GetSafeStr(row, "SOUND"),
+                Action = ODBCWrapper.Utils.GetSafeStr(row, "ACTION"),
+                URL = ODBCWrapper.Utils.GetSafeStr(row, "URL"),
                 AssetType = Enum.IsDefined(typeof(eOTTAssetTypes), assetType) ? (eOTTAssetTypes)assetType : eOTTAssetTypes.Series
             };
             return result;

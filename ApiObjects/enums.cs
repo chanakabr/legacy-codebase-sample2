@@ -574,7 +574,8 @@ namespace ApiObjects
         MediaName= 0,
         SeriesName = 1,
         CatalaogStartDate = 2,
-        StartDate = 3
+        StartDate = 3,
+        MediaId = 4,
     }
     public enum TstvRecordingStatus
     {
