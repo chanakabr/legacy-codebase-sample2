@@ -1435,7 +1435,7 @@ namespace DAL
             try
             {
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");                
                 selectQuery += string.Format("SELECT ASSET_TYPE FROM [media_types] WHERE Id = {0} AND group_Id = {1}", mediaTypeId, groupId);
 
                 if (selectQuery.Execute("query", true) != null && selectQuery.Table("query").DefaultView.Count > 0)
