@@ -78,7 +78,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
                  .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.Timestamp))
                  .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
-                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId));
+                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
+                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0));
         }
 
         public static KalturaAnnouncementRecipientsType ConvertRecipientsType(eAnnouncementRecipientsType recipients)
