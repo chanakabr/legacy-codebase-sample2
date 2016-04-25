@@ -850,7 +850,7 @@ namespace DAL
             return ret;
         }
 
-        public static int Insert_Announcement(int groupId, string announcementName, string externalAnnouncementId, int messageType, int announcementRecipientsType, string followPhrase = null)
+        public static int Insert_Announcement(int groupId, string announcementName, string externalAnnouncementId, int messageType, int announcementRecipientsType, string followPhrase = null, string followReference = null)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("Insert_Announcement");
             spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -862,6 +862,7 @@ namespace DAL
             spInsert.AddParameter("@status", 1);
             spInsert.AddParameter("@created_at", DateTime.UtcNow);
             spInsert.AddParameter("@follow_phrase", followPhrase);
+            spInsert.AddParameter("@follow_reference", followReference);
 
             int newTransactionID = spInsert.ExecuteReturnValue<int>();
             return newTransactionID;
@@ -1015,6 +1016,7 @@ namespace DAL
                             ExternalId = ODBCWrapper.Utils.GetSafeStr(row, "external_id"),
                             Name = ODBCWrapper.Utils.GetSafeStr(row, "name"),
                             FollowPhrase = ODBCWrapper.Utils.GetSafeStr(row, "follow_phrase"),
+                            FollowReference = ODBCWrapper.Utils.GetSafeStr(row, "follow_reference"),
                             RecipientsType = Enum.IsDefined(typeof(eAnnouncementRecipientsType), recipientType) ? (eAnnouncementRecipientsType)recipientType : eAnnouncementRecipientsType.All
                         };
 
