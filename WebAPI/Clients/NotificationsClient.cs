@@ -619,7 +619,7 @@ namespace WebAPI.Clients
             }
 
             followData.Status = 1;
-            followData.Title = string.Format("{0}_{1}", mediaInfoResponse.Objects[0].Name, groupId);
+            followData.Title = mediaInfoResponse.Objects[0].Name;
 
             followDataNotification = Mapper.Map <FollowDataTvSeries>(followData);
 
