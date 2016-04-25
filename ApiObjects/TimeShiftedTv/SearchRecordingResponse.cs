@@ -14,6 +14,8 @@ namespace ApiObjects.TimeShiftedTv
 
         public List<SearchRecording> SearchRecordings { get; set; }
 
+        public int TotalItems { get; set; }
+
         public SearchRecordingResponse()
         {
             Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());

@@ -17369,6 +17369,7 @@ namespace ConditionalAccess
                     }
 
                     response.SearchRecordings = searchRecordings;
+                    response.TotalItems = searchRecordings.Count;
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
                 }

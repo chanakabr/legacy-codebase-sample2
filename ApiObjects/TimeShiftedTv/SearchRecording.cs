@@ -9,7 +9,7 @@ namespace ApiObjects.TimeShiftedTv
     public class SearchRecording : Recording
     {
 
-        public DateTime UpdateDate { get; set; }
+        public DateTime UpdateDate { get; set; }        
 
         public SearchRecording()
             : base()
