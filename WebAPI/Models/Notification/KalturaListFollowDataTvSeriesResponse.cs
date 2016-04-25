@@ -14,7 +14,7 @@ namespace WebAPI.Models.Notification
     /// </summary>
     [DataContract(Name = "KalturaListFollowDataResponse", Namespace = "")]
     [XmlRoot("KalturaListFollowDataResponse")]
-    public class KalturaListFollowDataResponse : KalturaListResponse
+    public class KalturaListFollowDataTvSeriesResponse : KalturaListResponse
     {
         /// <summary>
         /// Follow data list
@@ -23,6 +23,6 @@ namespace WebAPI.Models.Notification
         [JsonProperty("objects")]
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
-        public List<KalturaFollowDataBase> FollowDataList { get; set; }
+        public List<KalturaFollowDataTvSeries> FollowDataList { get; set; }
     }
 }

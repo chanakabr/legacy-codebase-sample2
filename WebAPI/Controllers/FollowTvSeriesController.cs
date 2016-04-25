@@ -25,9 +25,9 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaListFollowDataResponse List(KalturaOrder? order_by = null, KalturaFilterPager pager = null)
+        public KalturaListFollowDataTvSeriesResponse List(KalturaOrder? order_by = null, KalturaFilterPager pager = null)
         {
-            KalturaListFollowDataResponse response = null;
+            KalturaListFollowDataTvSeriesResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 

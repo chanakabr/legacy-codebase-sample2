@@ -50,30 +50,25 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.DateFormat, opt => opt.MapFrom(src => src.DateFormat))
                  .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertOTTAssetType(src.AssetType)));
 
-            Mapper.CreateMap<FollowDataBase, KalturaFollowDataBase>()
+            Mapper.CreateMap<FollowDataBase, KalturaFollowDataTvSeries>()
+                 .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.AnnouncementId))
+                 .ForMember(dest => dest.FollowPhrase, opt => opt.MapFrom(src => src.FollowPhrase))
+                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => ParseInt(src.FollowReference)))
+                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+                 .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.Timestamp))
+                 .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title));
+
+            Mapper.CreateMap<KalturaFollowDataTvSeries, FollowDataBase>()
                  .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.AnnouncementId))
                  .ForMember(dest => dest.FollowPhrase, opt => opt.MapFrom(src => src.FollowPhrase))
                  .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
                  .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.Timestamp))
                  .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title));
-
-            Mapper.CreateMap<KalturaFollowDataBase, FollowDataBase>()
-                 .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.AnnouncementId))
-                 .ForMember(dest => dest.FollowPhrase, opt => opt.MapFrom(src => src.FollowPhrase))
-                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
-                 .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.Timestamp))
-                 .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title));
-
-            Mapper.CreateMap<FollowDataTvSeries, KalturaFollowDataBase>()
-                 .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.AnnouncementId))
-                 .ForMember(dest => dest.FollowPhrase, opt => opt.MapFrom(src => src.FollowPhrase))
-                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
-                 .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.Timestamp))
-                 .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title));
-
+            
             Mapper.CreateMap<KalturaFollowDataTvSeries, FollowDataTvSeries>()
                  .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.AnnouncementId))
                  .ForMember(dest => dest.FollowPhrase, opt => opt.MapFrom(src => src.FollowPhrase))
+                 .ForMember(dest => dest.FollowReference, opt => opt.MapFrom(src => src.AssetId.ToString()))
                  .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
                  .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.Timestamp))
                  .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
@@ -158,6 +153,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
 
             return result;
+        }
+
+        private static int ParseInt(string input)
+        {
+            int ret = 0;
+            int.TryParse(input, out ret);
+
+            return ret;
         }
     }
 }
