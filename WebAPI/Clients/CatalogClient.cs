@@ -1145,5 +1145,26 @@ namespace WebAPI.Clients
 
             return result;
         }
+
+        public List<KalturaIAssetable> GetAssetsInfo(int groupdID, int domainID, string siteGuid, int pageIndex, int pageSize, bool shouldUseStartDate, bool shouldGetOnlyActiveMedia, List<BaseObject> assetsBaseData, List<KalturaCatalogWith> with)
+        {
+            List<KalturaIAssetable> assetsInfo = new List<KalturaIAssetable>();
+            // build request
+            WebAPI.Catalog.BaseRequest request = new Catalog.BaseRequest()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_nGroupID = groupdID,
+                domainId = domainID,
+                m_sSiteGuid = siteGuid,
+                m_nPageIndex = pageIndex,
+                m_nPageSize = pageSize,
+                m_oFilter = new Catalog.Filter() { m_bUseStartDate = shouldUseStartDate, m_bOnlyActiveMedia = shouldGetOnlyActiveMedia }
+            };
+            // get assets from catalog/cache                                
+            assetsInfo = CatalogUtils.GetAssets(CatalogClientModule, assetsBaseData, request, CacheDuration, with, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
+
+            return assetsInfo;
+        }
     }
 }
