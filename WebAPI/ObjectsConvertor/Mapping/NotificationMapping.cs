@@ -50,21 +50,34 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.DateFormat, opt => opt.MapFrom(src => src.DateFormat))
                  .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertOTTAssetType(src.AssetType)));
 
-            Mapper.CreateMap<FollowData, KalturaFollowData>()
+            Mapper.CreateMap<FollowDataBase, KalturaFollowDataBase>()
                  .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.AnnouncementId))
                  .ForMember(dest => dest.FollowPhrase, opt => opt.MapFrom(src => src.FollowPhrase))
                  .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
                  .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.Timestamp))
-                 .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
-                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type));
+                 .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title));
 
-            Mapper.CreateMap<KalturaFollowData, FollowData>()
+            Mapper.CreateMap<KalturaFollowDataBase, FollowDataBase>()
+                 .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.AnnouncementId))
+                 .ForMember(dest => dest.FollowPhrase, opt => opt.MapFrom(src => src.FollowPhrase))
+                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+                 .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.Timestamp))
+                 .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title));
+
+            Mapper.CreateMap<FollowDataTvSeries, KalturaFollowDataBase>()
+                 .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.AnnouncementId))
+                 .ForMember(dest => dest.FollowPhrase, opt => opt.MapFrom(src => src.FollowPhrase))
+                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+                 .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.Timestamp))
+                 .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title));
+
+            Mapper.CreateMap<KalturaFollowDataTvSeries, FollowDataTvSeries>()
                  .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.AnnouncementId))
                  .ForMember(dest => dest.FollowPhrase, opt => opt.MapFrom(src => src.FollowPhrase))
                  .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
                  .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.Timestamp))
                  .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
-                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type));
+                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId));
         }
 
         public static KalturaAnnouncementRecipientsType ConvertRecipientsType(eAnnouncementRecipientsType recipients)

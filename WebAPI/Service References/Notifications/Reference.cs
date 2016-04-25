@@ -1677,6 +1677,20 @@ namespace WebAPI.Notifications {
         }
     }
     
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="OrderDir", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects")]
+    public enum OrderDir : int {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        ASC = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        DESC = 1,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        NONE = 2,
+    }
+    
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="GetUserFollowsResponse", Namespace="http://schemas.datacontract.org/2004/07/NotificationObj")]
@@ -1687,7 +1701,7 @@ namespace WebAPI.Notifications {
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Collections.Generic.List<WebAPI.Notifications.FollowData> FollowsField;
+        private System.Collections.Generic.List<WebAPI.Notifications.FollowDataBase> FollowsField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private WebAPI.Notifications.Status StatusField;
@@ -1706,7 +1720,7 @@ namespace WebAPI.Notifications {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Collections.Generic.List<WebAPI.Notifications.FollowData> Follows {
+        public System.Collections.Generic.List<WebAPI.Notifications.FollowDataBase> Follows {
             get {
                 return this.FollowsField;
             }
@@ -1756,9 +1770,10 @@ namespace WebAPI.Notifications {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="FollowData", Namespace="http://schemas.datacontract.org/2004/07/NotificationObj")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="FollowDataBase", Namespace="http://schemas.datacontract.org/2004/07/NotificationObj")]
     [System.SerializableAttribute()]
-    public partial class FollowData : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(WebAPI.Notifications.FollowDataTvSeries))]
+    public partial class FollowDataBase : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
         
         [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
@@ -1777,9 +1792,6 @@ namespace WebAPI.Notifications {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string TitleField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private WebAPI.Notifications.FollowType TypeField;
         
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
@@ -1856,19 +1868,6 @@ namespace WebAPI.Notifications {
             }
         }
         
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public WebAPI.Notifications.FollowType Type {
-            get {
-                return this.TypeField;
-            }
-            set {
-                if ((this.TypeField.Equals(value) != true)) {
-                    this.TypeField = value;
-                    this.RaisePropertyChanged("Type");
-                }
-            }
-        }
-        
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
         
         protected void RaisePropertyChanged(string propertyName) {
@@ -1879,12 +1878,27 @@ namespace WebAPI.Notifications {
         }
     }
     
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="FollowType", Namespace="http://schemas.datacontract.org/2004/07/NotificationObj")]
-    public enum FollowType : int {
+    [System.Runtime.Serialization.DataContractAttribute(Name="FollowDataTvSeries", Namespace="http://schemas.datacontract.org/2004/07/NotificationObj")]
+    [System.SerializableAttribute()]
+    public partial class FollowDataTvSeries : WebAPI.Notifications.FollowDataBase {
         
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        TV_Series_VOD = 0,
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int AssetIdField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int AssetId {
+            get {
+                return this.AssetIdField;
+            }
+            set {
+                if ((this.AssetIdField.Equals(value) != true)) {
+                    this.AssetIdField = value;
+                    this.RaisePropertyChanged("AssetId");
+                }
+            }
+        }
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -2032,22 +2046,22 @@ namespace WebAPI.Notifications {
         System.Threading.Tasks.Task<WebAPI.Notifications.MessageTemplateResponse> GetMessageTemplateAsync(string sWSUserName, string sWSPassword, WebAPI.Notifications.eOTTAssetTypes assetTypes);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetUserFollows", ReplyAction="http://tempuri.org/INotificationService/GetUserFollowsResponse")]
-        WebAPI.Notifications.GetUserFollowsResponse GetUserFollows(string sWSUserName, string sWSPassword, int userId, int pageSize, int pageIndex);
+        WebAPI.Notifications.GetUserFollowsResponse GetUserFollows(string sWSUserName, string sWSPassword, int userId, int pageSize, int pageIndex, WebAPI.Notifications.OrderDir order);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetUserFollows", ReplyAction="http://tempuri.org/INotificationService/GetUserFollowsResponse")]
-        System.Threading.Tasks.Task<WebAPI.Notifications.GetUserFollowsResponse> GetUserFollowsAsync(string sWSUserName, string sWSPassword, int userId, int pageSize, int pageIndex);
+        System.Threading.Tasks.Task<WebAPI.Notifications.GetUserFollowsResponse> GetUserFollowsAsync(string sWSUserName, string sWSPassword, int userId, int pageSize, int pageIndex, WebAPI.Notifications.OrderDir order);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/Unfollow", ReplyAction="http://tempuri.org/INotificationService/UnfollowResponse")]
-        WebAPI.Notifications.Status Unfollow(string sWSUserName, string sWSPassword, int userId, long announcementId);
+        WebAPI.Notifications.Status Unfollow(string sWSUserName, string sWSPassword, int userId, WebAPI.Notifications.FollowDataBase followData);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/Unfollow", ReplyAction="http://tempuri.org/INotificationService/UnfollowResponse")]
-        System.Threading.Tasks.Task<WebAPI.Notifications.Status> UnfollowAsync(string sWSUserName, string sWSPassword, int userId, long announcementId);
+        System.Threading.Tasks.Task<WebAPI.Notifications.Status> UnfollowAsync(string sWSUserName, string sWSPassword, int userId, WebAPI.Notifications.FollowDataBase followData);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/Follow", ReplyAction="http://tempuri.org/INotificationService/FollowResponse")]
-        WebAPI.Notifications.Status Follow(string sWSUserName, string sWSPassword, int userId, WebAPI.Notifications.FollowData followData);
+        WebAPI.Notifications.Status Follow(string sWSUserName, string sWSPassword, int userId, WebAPI.Notifications.FollowDataBase followData);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/Follow", ReplyAction="http://tempuri.org/INotificationService/FollowResponse")]
-        System.Threading.Tasks.Task<WebAPI.Notifications.Status> FollowAsync(string sWSUserName, string sWSPassword, int userId, WebAPI.Notifications.FollowData followData);
+        System.Threading.Tasks.Task<WebAPI.Notifications.Status> FollowAsync(string sWSUserName, string sWSPassword, int userId, WebAPI.Notifications.FollowDataBase followData);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -2261,27 +2275,27 @@ namespace WebAPI.Notifications {
             return base.Channel.GetMessageTemplateAsync(sWSUserName, sWSPassword, assetTypes);
         }
         
-        public WebAPI.Notifications.GetUserFollowsResponse GetUserFollows(string sWSUserName, string sWSPassword, int userId, int pageSize, int pageIndex) {
-            return base.Channel.GetUserFollows(sWSUserName, sWSPassword, userId, pageSize, pageIndex);
+        public WebAPI.Notifications.GetUserFollowsResponse GetUserFollows(string sWSUserName, string sWSPassword, int userId, int pageSize, int pageIndex, WebAPI.Notifications.OrderDir order) {
+            return base.Channel.GetUserFollows(sWSUserName, sWSPassword, userId, pageSize, pageIndex, order);
         }
         
-        public System.Threading.Tasks.Task<WebAPI.Notifications.GetUserFollowsResponse> GetUserFollowsAsync(string sWSUserName, string sWSPassword, int userId, int pageSize, int pageIndex) {
-            return base.Channel.GetUserFollowsAsync(sWSUserName, sWSPassword, userId, pageSize, pageIndex);
+        public System.Threading.Tasks.Task<WebAPI.Notifications.GetUserFollowsResponse> GetUserFollowsAsync(string sWSUserName, string sWSPassword, int userId, int pageSize, int pageIndex, WebAPI.Notifications.OrderDir order) {
+            return base.Channel.GetUserFollowsAsync(sWSUserName, sWSPassword, userId, pageSize, pageIndex, order);
         }
         
-        public WebAPI.Notifications.Status Unfollow(string sWSUserName, string sWSPassword, int userId, long announcementId) {
-            return base.Channel.Unfollow(sWSUserName, sWSPassword, userId, announcementId);
+        public WebAPI.Notifications.Status Unfollow(string sWSUserName, string sWSPassword, int userId, WebAPI.Notifications.FollowDataBase followData) {
+            return base.Channel.Unfollow(sWSUserName, sWSPassword, userId, followData);
         }
         
-        public System.Threading.Tasks.Task<WebAPI.Notifications.Status> UnfollowAsync(string sWSUserName, string sWSPassword, int userId, long announcementId) {
-            return base.Channel.UnfollowAsync(sWSUserName, sWSPassword, userId, announcementId);
+        public System.Threading.Tasks.Task<WebAPI.Notifications.Status> UnfollowAsync(string sWSUserName, string sWSPassword, int userId, WebAPI.Notifications.FollowDataBase followData) {
+            return base.Channel.UnfollowAsync(sWSUserName, sWSPassword, userId, followData);
         }
         
-        public WebAPI.Notifications.Status Follow(string sWSUserName, string sWSPassword, int userId, WebAPI.Notifications.FollowData followData) {
+        public WebAPI.Notifications.Status Follow(string sWSUserName, string sWSPassword, int userId, WebAPI.Notifications.FollowDataBase followData) {
             return base.Channel.Follow(sWSUserName, sWSPassword, userId, followData);
         }
         
-        public System.Threading.Tasks.Task<WebAPI.Notifications.Status> FollowAsync(string sWSUserName, string sWSPassword, int userId, WebAPI.Notifications.FollowData followData) {
+        public System.Threading.Tasks.Task<WebAPI.Notifications.Status> FollowAsync(string sWSUserName, string sWSPassword, int userId, WebAPI.Notifications.FollowDataBase followData) {
             return base.Channel.FollowAsync(sWSUserName, sWSPassword, userId, followData);
         }
     }

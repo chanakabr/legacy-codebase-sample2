@@ -10,7 +10,7 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Notification
 {
     [Serializable]
-    public class KalturaFollowData : KalturaOTTObject
+    public class KalturaFollowDataBase : KalturaOTTObject
     {
         /// <summary>
         /// Announcement Id
@@ -27,14 +27,6 @@ namespace WebAPI.Models.Notification
         [JsonProperty(PropertyName = "status")]
         [XmlElement(ElementName = "status")]
         public int Status { get; set; }
-
-        /// <summary>
-        /// Type
-        /// </summary>
-        [DataMember(Name = "type")]
-        [JsonProperty(PropertyName = "type")]
-        [XmlElement(ElementName = "type")]
-        public KalturaFollowType Type { get; set; }
 
         /// <summary>
         /// Title
