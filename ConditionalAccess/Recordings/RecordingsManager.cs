@@ -117,9 +117,7 @@ namespace Recordings
                 //
                 else if (adapterResponse.FailReason != 0)
                 {
-                    string message = string.Format("Adapter failed for reason: {0}. Provider code = {1}, provider message = {2}",
-                        adapterResponse.FailReason, adapterResponse.ProviderStatusCode, adapterResponse.ProviderStatusMessage);
-                    recording.Status = new Status((int)eResponseStatus.AdapterAppFailure, message);
+                    recording.Status = CreateFailStatus(adapterResponse);
                 }
                 else
                 {
@@ -215,9 +213,7 @@ namespace Recordings
                 //
                 else if (adapterResponse.FailReason != 0)
                 {
-                    string message = string.Format("Adapter failed for reason: {0}. Provider code = {1}, provider message = {2}",
-                        adapterResponse.FailReason, adapterResponse.ProviderStatusCode, adapterResponse.ProviderStatusMessage);
-                    status = new Status((int)eResponseStatus.AdapterAppFailure, message);
+                    status = CreateFailStatus(adapterResponse);
                 }
                 else
                 {
@@ -291,9 +287,7 @@ namespace Recordings
                         //
                         else if (adapterResponse.FailReason != 0)
                         {
-                            string message = string.Format("Adapter failed for reason: {0}. Provider code = {1}, provider message = {2}",
-                                adapterResponse.FailReason, adapterResponse.ProviderStatusCode, adapterResponse.ProviderStatusMessage);
-                            currentRecording.Status = new Status((int)eResponseStatus.AdapterAppFailure, message);
+                            currentRecording.Status = CreateFailStatus(adapterResponse);
                         }
 
                         currentRecording.RecordingStatus = adapterResponse.RecordingState;
@@ -387,9 +381,7 @@ namespace Recordings
                     //
                     else if (adapterResponse.FailReason != 0)
                     {
-                        string message = string.Format("Adapter failed for reason: {0}. Provider code = {1}, provider message = {2}",
-                            adapterResponse.FailReason, adapterResponse.ProviderStatusCode, adapterResponse.ProviderStatusMessage);
-                        status = new Status((int)eResponseStatus.AdapterAppFailure, message);
+                       status  = CreateFailStatus(adapterResponse);
                     }
                     else
                     {
@@ -462,6 +454,14 @@ namespace Recordings
                 recordingId);
 
             queue.Enqueue(message, string.Format(SCHEDULED_TASKS_ROUTING_KEY, groupId));
+        }
+
+        private static Status CreateFailStatus(RecordResult adapterResponse)
+        {
+            string message = string.Format("Adapter failed for reason: {0}. Provider code = {1}, provider message = {2}, fail reason = {3}",
+                adapterResponse.FailReason, adapterResponse.ProviderStatusCode, adapterResponse.ProviderStatusMessage, adapterResponse.FailReason);
+            Status failStatus = new Status((int)eResponseStatus.CdvrAdapterProviderFail, message);
+            return failStatus;
         }
 
         #endregion
