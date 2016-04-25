@@ -1039,6 +1039,7 @@
     <Compile Include="Exceptions\NotFoundException.cs" />
     <Compile Include="Filters\VoidActionFilter.cs" />
     <Compile Include="Managers\AuthorizationManager.cs" />
+    <Compile Include="Managers\SchemaManager.cs" />
     <Compile Include="Managers\Models\ApiToken.cs" />
     <Compile Include="Managers\Models\AppToken.cs" />
     <Compile Include="Managers\Models\KSUtils.cs" />
