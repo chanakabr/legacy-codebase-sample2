@@ -1160,9 +1160,10 @@
     <Compile Include="Models\Notification\KalturaAnnouncement.cs" />
     <Compile Include="Models\Notification\KalturaAnnouncementRecipientsType.cs" />
     <Compile Include="Models\Notification\KalturaAnnouncementStatus.cs" />
-    <Compile Include="Models\Notification\KalturaFollowDataTvSeries.cs" />    
-    <Compile Include="Models\Notification\KalturaMessageTemplate.cs" />    <Compile Include="Models\Notification\KalturaFollowDataBase.cs" />
-    <Compile Include="Models\Notification\KalturaListFollowDataResponse.cs" />
+    <Compile Include="Models\Notification\KalturaFollowDataTvSeries.cs" />
+    <Compile Include="Models\Notification\KalturaMessageTemplate.cs" />
+    <Compile Include="Models\Notification\KalturaFollowDataBase.cs" />
+    <Compile Include="Models\Notification\KalturaListFollowDataTvSeriesResponse.cs" />
     <Compile Include="Models\Notification\KalturaMessageAnnouncementListResponse.cs" />
     <Compile Include="Models\Notification\KalturaNotificationSettings.cs" />
     <Compile Include="Models\Notification\KalturaPartnerNotificationSettings.cs" />

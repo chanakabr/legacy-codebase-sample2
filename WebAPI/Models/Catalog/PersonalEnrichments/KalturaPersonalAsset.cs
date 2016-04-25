@@ -74,5 +74,17 @@ namespace WebAPI.Models.Catalog
             get;
             set;
         }
+
+        /// <summary>
+        /// Is followed by user. 
+        /// </summary>
+        [DataMember(Name = "following")]
+        [JsonProperty(PropertyName = "following")]
+        [XmlElement(ElementName = "following")]
+        public bool Following
+        {
+            get;
+            set;
+        }
     }
 }

@@ -519,11 +519,11 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaListFollowDataResponse GetUserTvSeriesFollows(int groupId, string userID, int pageSize, int pageIndex, KalturaOrder? orderBy)
+        internal KalturaListFollowDataTvSeriesResponse GetUserTvSeriesFollows(int groupId, string userID, int pageSize, int pageIndex, KalturaOrder? orderBy)
         {
-            List<KalturaFollowDataBase> result = null;
+            List<KalturaFollowDataTvSeries> result = null;
             GetUserFollowsResponse response = null;
-            KalturaListFollowDataResponse ret;
+            KalturaListFollowDataTvSeriesResponse ret;
 
             // create order object
             OrderDir order = OrderDir.DESC;
@@ -555,9 +555,9 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            result = Mapper.Map<List<KalturaFollowDataBase>>(response.Follows);
+            result = Mapper.Map<List<KalturaFollowDataTvSeries>>(response.Follows);
 
-            ret = new KalturaListFollowDataResponse() { FollowDataList = result, TotalCount = response.TotalCount };
+            ret = new KalturaListFollowDataTvSeriesResponse() { FollowDataList = result, TotalCount = response.TotalCount };
             return ret;
         }
 
@@ -620,8 +620,7 @@ namespace WebAPI.Clients
 
             followData.Status = 1;
             followData.Title = mediaInfoResponse.Objects[0].Name;
-
-            followDataNotification = Mapper.Map <FollowDataTvSeries>(followData);
+            followDataNotification = Mapper.Map<FollowDataTvSeries>(followData);
 
             try
             {

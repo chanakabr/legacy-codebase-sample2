@@ -1093,25 +1093,57 @@ namespace WebAPI.Clients
             return true;
         }
 
-        public List<KalturaIAssetable> GetAssetsInfo(int groupdID, int domainID, string siteGuid, int pageIndex, int pageSize, bool shouldUseStartDate, bool shouldGetOnlyActiveMedia, List<BaseObject> assetsBaseData, List<KalturaCatalogWith> with)
+        internal List<KalturaSlimAsset> GetAssetsFollowing(string userID, int groupId, List<KalturaPersonalAssetRequest> assets, List<string> followPhrases)
         {
-            List<KalturaIAssetable> assetsInfo = new List<KalturaIAssetable>();
+            List<KalturaSlimAsset> result = new List<KalturaSlimAsset>();
+
+            // Create our own filter - only search in title
+            string filter = "(or";
+            followPhrases.ForEach(x => filter += string.Format(" {0}", x));
+            filter += ")";
+
+            // get group configuration 
+            Group group = GroupsManager.GetGroup(groupId);
+
             // build request
-            WebAPI.Catalog.BaseRequest request = new Catalog.BaseRequest()
+            UnifiedSearchRequest request = new UnifiedSearchRequest()
             {
                 m_sSignature = Signature,
                 m_sSignString = SignString,
-                m_nGroupID = groupdID,
-                domainId = domainID,
-                m_sSiteGuid = siteGuid,
-                m_nPageIndex = pageIndex,
-                m_nPageSize = pageSize,
-                m_oFilter = new Catalog.Filter() { m_bUseStartDate = shouldUseStartDate, m_bOnlyActiveMedia = shouldGetOnlyActiveMedia }
+                m_oFilter = new Filter()
+                {
+                    m_bOnlyActiveMedia = group.GetOnlyActiveAssets
+                },
+                m_sUserIP = Utils.Utils.GetClientIP(),
+                m_nGroupID = groupId,
+                filterQuery = filter,
+                specificAssets = assets.Select(asset => new KeyValuePairOfeAssetTypeslongHVR2FNfI(){ key = eAssetTypes.MEDIA, value = asset.Id }).ToList()
+                //assetTypes = assetTypes,
             };
-            // get assets from catalog/cache                                
-            assetsInfo = CatalogUtils.GetAssets(CatalogClientModule, assetsBaseData, request, CacheDuration, with, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
 
-            return assetsInfo;
+            // fire unified search request
+            UnifiedSearchResponse searchResponse = new UnifiedSearchResponse();
+            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(CatalogClientModule, request, out searchResponse, true, null))
+            {
+                // general error
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (searchResponse.status.Code != (int)StatusCode.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(searchResponse.status.Code, searchResponse.status.Message);
+            }
+
+            if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
+            {
+                foreach (var searchRes in searchResponse.searchResults)
+                {
+                    result.Add(Mapper.Map<KalturaSlimAsset>(searchRes));
+                }
+            }
+
+            return result;
         }
     }
 }
