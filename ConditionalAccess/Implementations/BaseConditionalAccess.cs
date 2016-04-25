@@ -17326,7 +17326,7 @@ namespace ConditionalAccess
             return response;
         }
 
-        public SearchRecordingResponse SerachDomainRecordingIDs(string userID, long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses, string filter, int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy, string requestID)
+        public SearchRecordingResponse SerachDomainRecordings(string userID, long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses, string filter, int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy, string requestID)
         {
             SearchRecordingResponse response = new SearchRecordingResponse();
             try
@@ -17356,10 +17356,7 @@ namespace ConditionalAccess
                 }
 
                 if (recordings.Count > 0)
-                {
-                    /************************************************
-                     set order by according to order by input param
-                     ************************************************/                                   
+                {                                
                     searchRecordings = Utils.SearchDomainRecordingIDsByFilter(m_nGroupID, userID, domainID, recordings, filter, pageIndex, pageSize, orderBy, requestID);
                     if (searchRecordings == null)
                     {
@@ -17378,7 +17375,7 @@ namespace ConditionalAccess
 
             catch (Exception ex)
             {
-                StringBuilder sb = new StringBuilder("Exception at GetDomainRecordingIDsByRecordingStatuses. ");
+                StringBuilder sb = new StringBuilder("Exception at SerachDomainRecordings. ");
                 sb.Append(String.Concat("userID: ", userID));
                 sb.Append(String.Concat("domainID: ", domainID));                
                 sb.Append(", RecordingStatuses: ");
