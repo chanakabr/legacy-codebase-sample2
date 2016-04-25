@@ -1427,5 +1427,32 @@ namespace DAL
 
             return result;
         }
+
+        public static eOTTAssetTypes GetOttAssetTypByMediaType(int groupId, int mediaTypeId)
+        {
+            eOTTAssetTypes assetType = eOTTAssetTypes.None;
+
+            try
+            {
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery += string.Format("SELECT ASSET_TYPE FROM [media_types] WHERE Id = {0} AND group_Id = {1}", mediaTypeId, groupId);
+
+                if (selectQuery.Execute("query", true) != null && selectQuery.Table("query").DefaultView.Count > 0)
+                {
+                    var assetTypeId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0], "ASSET_TYPE");
+                    assetType = (eOTTAssetTypes)assetTypeId;
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+            }
+
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while getting asset type by media Id. GID: {0}, mediaTypeId: {1}, ex: {2}", groupId, mediaTypeId, ex);
+            }
+
+            return assetType;
+        }
     }
 }
