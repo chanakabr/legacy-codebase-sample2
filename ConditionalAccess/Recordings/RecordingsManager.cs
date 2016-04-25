@@ -154,14 +154,11 @@ namespace Recordings
                         }
 
                         // Schedule a message tocheck status 1 minute after recording of program is supposed to be over
-                        var queue = new GenericCeleryQueue();
-                        var message = new RecordingTaskData(groupId, eRecordingTask.GetStatusAfterProgramEnded,
-                            // add 1 minutes here
-                            endDate.AddMinutes(1),
-                            programId,
-                            recording.RecordingID);
 
-                        queue.Enqueue(message, string.Format(SCHEDULED_TASKS_ROUTING_KEY, groupId));
+                        DateTime checkTime = endDate.AddMinutes(1);
+                        eRecordingTask task = eRecordingTask.GetStatusAfterProgramEnded;
+
+                        EnqueueMessage(groupId, programId, recording.RecordingID, checkTime, task);
 
                         // We're OK
                         recording.Status = new Status((int)eResponseStatus.OK);
@@ -332,6 +329,11 @@ namespace Recordings
             }
             else
             {
+                long recordingId = recording.RecordingID;
+
+                // First of all - if EPG was updated, update the recording index, nevermind what was the change
+                UpdateIndex(groupId, recordingId);
+
                 // If no change was made to program schedule - do nothing
                 if (recording.EpgStartDate == startDate &&
                     recording.EpgEndDate == endDate)
@@ -341,7 +343,7 @@ namespace Recordings
                 }
                 else
                 {
-                    // Update recording
+                    // Update recording data
                     recording.EpgStartDate = startDate;
                     recording.EpgEndDate = endDate;
 
@@ -356,6 +358,7 @@ namespace Recordings
                     long durationSeconds = (long)(endDate - startDate).TotalSeconds;
 
                     RecordResult adapterResponse = null;
+
                     try
                     {
                         adapterResponse = adapterController.UpdateRecordingSchedule(
@@ -401,14 +404,11 @@ namespace Recordings
                             }
 
                             // Schedule a message tocheck status 1 minute after recording of program is supposed to be over
-                            var queue = new GenericCeleryQueue();
-                            var message = new RecordingTaskData(groupId, eRecordingTask.GetStatusAfterProgramEnded,
-                                // add 1 minutes here
-                                endDate.AddMinutes(1),
-                                programId,
-                                recording.RecordingID);
 
-                            queue.Enqueue(message, string.Format(SCHEDULED_TASKS_ROUTING_KEY, groupId));
+                            DateTime checkTime = endDate.AddMinutes(1);
+                            eRecordingTask task = eRecordingTask.GetStatusAfterProgramEnded;
+
+                            EnqueueMessage(groupId, programId, recordingId, checkTime, task);
 
                             // We're OK
                             status = new Status((int)eResponseStatus.OK);
@@ -450,6 +450,18 @@ namespace Recordings
             epg.IsRecorded = Convert.ToInt32(isRecorded);
 
             epgBLTvinci.UpdateEpg(epg);
+        }
+
+        private static void EnqueueMessage(int groupId, long programId, long recordingId, DateTime checkTime, eRecordingTask task)
+        {
+            var queue = new GenericCeleryQueue();
+            var message = new RecordingTaskData(groupId, task,
+                // add 1 minutes here
+                checkTime,
+                programId,
+                recordingId);
+
+            queue.Enqueue(message, string.Format(SCHEDULED_TASKS_ROUTING_KEY, groupId));
         }
 
         #endregion

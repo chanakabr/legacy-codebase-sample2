@@ -1140,7 +1140,9 @@ namespace ElasticSearch.Searcher
                     builder.Remove(builder.Length - 1, 1);
                 }
             }
-             
+
+            types = builder.ToString();
+
             return types;
         }
 
