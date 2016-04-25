@@ -3,7 +3,6 @@ using ApiObjects.Notification;
 using ApiObjects.Response;
 using System;
 using System.Collections.Specialized;
-using System.Data;
 using TvinciImporter;
 using TvinciImporter.WSCatalog;
 using TVinciShared;
@@ -102,6 +101,18 @@ public partial class adm_series_template : System.Web.UI.Page
             dr_dateFormat.Initialize("Date format", "adm_table_header_nbg", "FormInput", "date_format", true);
             theRecord.AddRecord(dr_dateFormat);
 
+            DataRecordShortTextField dr_sound = new DataRecordShortTextField("ltr", true, 60, 256);
+            dr_sound.Initialize("Sound", "adm_table_header_nbg", "FormInput", "sound", false);
+            theRecord.AddRecord(dr_sound);
+
+            DataRecordShortTextField dr_action = new DataRecordShortTextField("ltr", true, 60, 256);
+            dr_action.Initialize("Action", "adm_table_header_nbg", "FormInput", "action", false);
+            theRecord.AddRecord(dr_action);
+
+            DataRecordShortTextField dr_url = new DataRecordShortTextField("ltr", true, 60, 256);
+            dr_url.Initialize("URL", "adm_table_header_nbg", "FormInput", "url", false);
+            theRecord.AddRecord(dr_url);
+
             sTable = theRecord.GetTableHTML("adm_series_template.aspx?submited=1");
         }
         return sTable;
@@ -115,7 +126,7 @@ public partial class adm_series_template : System.Web.UI.Page
         {
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery.SetConnectionKey("notifications_connection");
-            selectQuery += "select ID, Message, date_format from message_templates where status=1 and asset_type=0 and";
+            selectQuery += "select ID, Message, date_format from message_templates where status=1 and asset_type=1 and";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupID);
             if (selectQuery.Execute("query", true) != null)
             {
@@ -181,6 +192,21 @@ public partial class adm_series_template : System.Web.UI.Page
         if (!string.IsNullOrEmpty(nvc["1_val"]))
         {
             followTemplate.DateFormat = nvc["1_val"];
+        }
+
+        if (!string.IsNullOrEmpty(nvc["2_val"]))
+        {
+            followTemplate.Sound = nvc["2_val"];
+        }
+
+        if (!string.IsNullOrEmpty(nvc["3_val"]))
+        {
+            followTemplate.Action = nvc["3_val"];
+        }
+
+        if (!string.IsNullOrEmpty(nvc["4_val"]))
+        {
+            followTemplate.URL = nvc["4_val"];
         }
 
         return followTemplate;
