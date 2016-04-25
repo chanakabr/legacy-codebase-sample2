@@ -23,7 +23,7 @@ namespace NotificationObj
 
         private string GetFollowPhrase()
         {
-            return string.Format("(media_id={0})", AssetId);
+            return string.Format("tags.series name=='{0}'", AssetId);
         }
     }
 }
