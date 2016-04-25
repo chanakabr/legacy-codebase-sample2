@@ -42,12 +42,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<MessageTemplate, KalturaMessageTemplate>()
                  .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
                  .ForMember(dest => dest.DateFormat, opt => opt.MapFrom(src => src.DateFormat))
+                 .ForMember(dest => dest.Sound, opt => opt.MapFrom(src => src.Sound))
+                 .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action))
+                 .ForMember(dest => dest.URL, opt => opt.MapFrom(src => src.URL))
                  .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertOTTAssetType(src.AssetType)));
 
             //KalturaMessageTemplate TO MessageTemplate
             Mapper.CreateMap<KalturaMessageTemplate, MessageTemplate>()
                  .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
                  .ForMember(dest => dest.DateFormat, opt => opt.MapFrom(src => src.DateFormat))
+                 .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action))
+                 .ForMember(dest => dest.Sound, opt => opt.MapFrom(src => src.Sound))
+                 .ForMember(dest => dest.URL, opt => opt.MapFrom(src => src.URL))
                  .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertOTTAssetType(src.AssetType)));
 
             Mapper.CreateMap<FollowDataBase, KalturaFollowDataBase>()
