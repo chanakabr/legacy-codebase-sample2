@@ -17,7 +17,7 @@ namespace WebAPI.Controllers
         /// <param name="message_template">The actual message with placeholders to be presented to the user</param>       
         /// <returns></returns>
         /// <remarks>
-        /// Possible status codes: Invalid place-holders = 8014
+        /// Possible status codes: message place holders invalid = 8014, url placeholders invalid = 8017
         /// </remarks>
         [Route("set"), HttpPost]
         [ApiAuthorize]
