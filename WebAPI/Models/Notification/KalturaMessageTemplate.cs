@@ -20,9 +20,9 @@ namespace WebAPI.Models.Notification
         [XmlElement(ElementName = "message")]
         public string Message { get; set; }
 
-        [DataMember(Name = "Date_Format")]
-        [JsonProperty(PropertyName = "Date_Format")]
-        [XmlElement(ElementName = "Date_Format")]
+        [DataMember(Name = "date_format")]
+        [JsonProperty(PropertyName = "date_format")]
+        [XmlElement(ElementName = "date_format")]
         public string DateFormat { get; set; }
 
         /// <summary>
@@ -32,6 +32,21 @@ namespace WebAPI.Models.Notification
         [DataMember(Name = "asset_type")]
         [JsonProperty(PropertyName = "asset_type")]
         [XmlElement(ElementName = "asset_type")]
-        public KalturaOTTAssetType AssetType { get; set; }        
+        public KalturaOTTAssetType AssetType { get; set; }
+
+        [DataMember(Name = "sound")]
+        [JsonProperty(PropertyName = "sound")]
+        [XmlElement(ElementName = "sound")]
+        public string Sound { get; set; }
+
+        [DataMember(Name = "action")]
+        [JsonProperty(PropertyName = "action")]
+        [XmlElement(ElementName = "action")]
+        public string Action { get; set; }
+
+        [DataMember(Name = "url")]
+        [JsonProperty(PropertyName = "url")]
+        [XmlElement(ElementName = "url")]
+        public string URL { get; set; }
     }
 }
