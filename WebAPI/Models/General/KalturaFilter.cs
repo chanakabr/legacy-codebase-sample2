@@ -8,7 +8,7 @@ namespace WebAPI.Models.General
     /// <summary>
     /// Base filter
     /// </summary>
-    public class KalturaBaseFilter : KalturaOTTObject
+    public class KalturaFilter : KalturaOTTObject
     {
 
     }

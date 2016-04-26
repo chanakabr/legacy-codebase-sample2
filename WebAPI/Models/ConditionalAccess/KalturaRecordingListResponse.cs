@@ -23,24 +23,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty(PropertyName = "objects")]
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem("item")]
-        public List<KalturaRecordingAsset> Objects { get; set; }
-
-    }
-
-        /// <summary>
-    /// Recording Info
-    /// </summary>
-    [Serializable]
-    public class KalturaRecordingAsset : KalturaRecording
-    {
-        /// <summary>
-        /// Asset
-        /// </summary>
-        [DataMember(Name = "asset")]
-        [JsonProperty("asset")]
-        [XmlElement(ElementName = "asset", IsNullable = true)]
-        public KalturaAssetInfo Asset { get; set; }
-
+        public List<KalturaRecording> Objects { get; set; }
 
     }
 

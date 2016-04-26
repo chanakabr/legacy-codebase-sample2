@@ -1108,7 +1108,7 @@
     <Compile Include="Models\Catalog\PersonalEnrichments\KalturaPersonalAssetWith.cs" />
     <Compile Include="Models\Catalog\KalturaAssetsBookmarksResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaRecording.cs" />
-    <Compile Include="Models\ConditionalAccess\KalturaRecordingInfoFilter.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaRecordingFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaRecordingListResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaRecordingOrder.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaRecordingStatus.cs" />
@@ -1124,6 +1124,7 @@
     <Compile Include="Models\Domains\KalturaHouseholdFrequencyType.cs" />
     <Compile Include="Models\Domains\KalturaHouseholdLimitations.cs" />
     <Compile Include="Models\Domains\KalturaDevicePin.cs" />
+    <Compile Include="Models\General\KalturaFilter.cs" />
     <Compile Include="Models\General\KalturaOTTAssetType.cs" />
     <Compile Include="Models\General\KalturaApiActionPermissionItem.cs" />
     <Compile Include="Models\General\KalturaAppToken.cs" />
@@ -1150,6 +1151,7 @@
     <Compile Include="Models\API\KalturaPermission.cs" />
     <Compile Include="Models\API\KalturaPermissionItem.cs" />
     <Compile Include="Models\General\KalturaRequestConfiguration.cs" />
+    <Compile Include="Models\General\KalturaRequestFilter.cs" />
     <Compile Include="Models\General\KalturaSessionType.cs" />
     <Compile Include="Models\General\KalturaIntegerValue.cs" />
     <Compile Include="Models\General\KalturaStringValue.cs" />

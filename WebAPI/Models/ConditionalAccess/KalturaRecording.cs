@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
@@ -51,6 +52,14 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("last_availability_date")]
         [XmlElement(ElementName = "last_availability_date")]
         public long LastAvailabilityDate { get; set; }
+
+        /// <summary>
+        /// Asset
+        /// </summary>
+        [DataMember(Name = "asset")]
+        [JsonProperty("asset")]
+        [XmlElement(ElementName = "asset", IsNullable = true)]
+        public KalturaAssetInfo Asset { get; set; }
     }
 
 }

@@ -17,15 +17,39 @@ namespace WebAPI.Controllers
     public class RecordingController : ApiController
     {
         /// <summary>
+        /// Returns the recording model
+        /// </summary>
+        /// <remarks>
+        /// </remarks>        
+        [Route("get"), HttpPost]
+        [ApiAuthorize]
+        public KalturaRecording Get(long id)
+        {
+            KalturaRecording response = null;
+
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                // call client                
+                response = ClientsManager.ConditionalAccessClient().GetRecording(groupId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return response;
+        }
+
+        /// <summary>
         /// Query record options for a program
         /// </summary>
         /// <remarks>
         /// </remarks>
         /// <returns>The recording availability and status for for the requested program</returns>
         /// 
-        [Route("get"), HttpPost]
+        [Route("getContext"), HttpPost]
         [ApiAuthorize]
-        public KalturaRecording Get(KalturaRecording recording)
+        public KalturaRecording GetContext(long asset_id)
         {
             KalturaRecording response = null;
 
@@ -34,7 +58,7 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
                 // call client                
-                response = ClientsManager.ConditionalAccessClient().QueryRecord(groupId, userId, recording.EpgID);
+                response = ClientsManager.ConditionalAccessClient().QueryRecord(groupId, userId, asset_id);
             }
             catch (ClientException ex)
             {
@@ -99,19 +123,14 @@ namespace WebAPI.Controllers
                     filter = new KalturaRecordingFilter();
                 }
 
-                if (filter.with == null)
-                {
-                    filter.with = new List<KalturaCatalogWithHolder>();
-                }
-
                 if (!string.IsNullOrEmpty(filter.filter_expression) && filter.filter_expression.Length > 1024)
                 {
                     throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter too long");
                 }
 
                 // call client                
-                response = ClientsManager.ConditionalAccessClient().SearchRecordings(groupId, userId, domainId, filter.RecordingStatuses.Select(x => x.status).ToList(), filter.filter_expression, pager.PageIndex,
-                                                                                             pager.PageSize, filter.order_by, filter.with.Select(x => x.type).ToList(), filter.request_id);
+                response = ClientsManager.ConditionalAccessClient().SearchRecordings(groupId, userId, domainId, filter.RecordingStatuses.Select(x => x.status).ToList(),
+                                                                                     filter.filter_expression, pager.PageIndex, pager.PageSize, filter.order_by, filter.request_id);
             }
             catch (ClientException ex)
             {
