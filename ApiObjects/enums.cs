@@ -592,5 +592,11 @@ namespace ApiObjects
     public enum eRecordingTask
     {
         GetStatusAfterProgramEnded = 1,
-    }   
+    }
+
+    public enum RecordingType
+    {
+        Single = 0,
+        Series = 1,
+    }
 }

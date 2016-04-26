@@ -4335,7 +4335,8 @@ namespace ConditionalAccess
                         if (recordings.ContainsKey(pair.Key))
                         {
                             Recording recording = recordings[pair.Key];
-                            SearchRecording searchRecording = new SearchRecording(recording) { UpdateDate = pair.Value };                                
+                            SearchRecording searchRecording = new SearchRecording(recording) { UpdateDate = pair.Value };
+                            filteredRecordings.Add(searchRecording);
                         }
                     }
                 }
