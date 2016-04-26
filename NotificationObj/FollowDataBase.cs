@@ -12,6 +12,8 @@ namespace NotificationObj
         public int Status;
         public string Title;
         public long Timestamp;
+        public string FollowReference;
+        public int Type;
         protected string _followPhrase;
 
         public virtual string FollowPhrase

@@ -10,6 +10,7 @@
       <xsd:import schemaLocation="http://localhost/ws_notification/NotificationService.svc?xsd=xsd5" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" />
       <xsd:import schemaLocation="http://localhost/ws_notification/NotificationService.svc?xsd=xsd6" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Response" />
       <xsd:import schemaLocation="http://localhost/ws_notification/NotificationService.svc?xsd=xsd7" namespace="http://schemas.datacontract.org/2004/07/ApiObjects" />
+      <xsd:import schemaLocation="http://localhost/ws_notification/NotificationService.svc?xsd=xsd8" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" />
     </xsd:schema>
   </wsdl:types>
   <wsdl:message name="INotificationService_AddNotificationRequest_InputMessage">

@@ -850,7 +850,7 @@ namespace DAL
             return ret;
         }
 
-        public static int Insert_Announcement(int groupId, string announcementName, string externalAnnouncementId, int messageType, int announcementRecipientsType, string followPhrase = null)
+        public static int Insert_Announcement(int groupId, string announcementName, string externalAnnouncementId, int messageType, int announcementRecipientsType, string followPhrase = null, string followReference = null)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("Insert_Announcement");
             spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -862,6 +862,7 @@ namespace DAL
             spInsert.AddParameter("@status", 1);
             spInsert.AddParameter("@created_at", DateTime.UtcNow);
             spInsert.AddParameter("@follow_phrase", followPhrase);
+            spInsert.AddParameter("@follow_reference", followReference);
 
             int newTransactionID = spInsert.ExecuteReturnValue<int>();
             return newTransactionID;
@@ -1015,6 +1016,7 @@ namespace DAL
                             ExternalId = ODBCWrapper.Utils.GetSafeStr(row, "external_id"),
                             Name = ODBCWrapper.Utils.GetSafeStr(row, "name"),
                             FollowPhrase = ODBCWrapper.Utils.GetSafeStr(row, "follow_phrase"),
+                            FollowReference = ODBCWrapper.Utils.GetSafeStr(row, "follow_reference"),
                             RecipientsType = Enum.IsDefined(typeof(eAnnouncementRecipientsType), recipientType) ? (eAnnouncementRecipientsType)recipientType : eAnnouncementRecipientsType.All
                         };
 
@@ -1041,6 +1043,9 @@ namespace DAL
                 sp.AddParameter("@message", messageTemplate.Message);
                 sp.AddParameter("@dateFormat", messageTemplate.DateFormat);
                 sp.AddParameter("@assetType", (int)messageTemplate.AssetType);
+                sp.AddParameter("@sound", messageTemplate.Sound);
+                sp.AddParameter("@action", messageTemplate.Action);
+                sp.AddParameter("@url", messageTemplate.URL);
 
                 DataSet ds = sp.ExecuteDataSet();
 
@@ -1101,6 +1106,9 @@ namespace DAL
                 Id = ODBCWrapper.Utils.GetIntSafeVal(row, "ID"),
                 Message = ODBCWrapper.Utils.GetSafeStr(row, "MESSAGE"),
                 DateFormat = ODBCWrapper.Utils.GetSafeStr(row, "DATE_FORMAT"),
+                Sound = ODBCWrapper.Utils.GetSafeStr(row, "SOUND"),
+                Action = ODBCWrapper.Utils.GetSafeStr(row, "ACTION"),
+                URL = ODBCWrapper.Utils.GetSafeStr(row, "URL"),
                 AssetType = Enum.IsDefined(typeof(eOTTAssetTypes), assetType) ? (eOTTAssetTypes)assetType : eOTTAssetTypes.Series
             };
             return result;
@@ -1418,6 +1426,33 @@ namespace DAL
             }
 
             return result;
+        }
+
+        public static eOTTAssetTypes GetOttAssetTypByMediaType(int mediaTypeId)
+        {
+            eOTTAssetTypes assetType = eOTTAssetTypes.None;
+
+            try
+            {
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");                
+                selectQuery += string.Format("SELECT ASSET_TYPE FROM [media_types] WHERE Id = {0}", mediaTypeId);
+
+                if (selectQuery.Execute("query", true) != null && selectQuery.Table("query").DefaultView.Count > 0)
+                {
+                    var assetTypeId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0], "ASSET_TYPE");
+                    assetType = (eOTTAssetTypes)assetTypeId;
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+            }
+
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while getting asset type by media Id. mediaTypeId: {0}, ex: {1}", mediaTypeId, ex);
+            }
+
+            return assetType;
         }
     }
 }
