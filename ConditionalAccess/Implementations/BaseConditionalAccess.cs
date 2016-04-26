@@ -17334,7 +17334,7 @@ namespace ConditionalAccess
                 if (recordingStatuses == null || recordingStatuses.Count == 0)
                 {
                     log.DebugFormat("RecordingStatuses is null, DomainID: {0}, UserID: {1}", domainID, userID);
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingStatusNotSent, eResponseStatus.RecordingStatusNotSent.ToString());
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     return response;
                 }
 
