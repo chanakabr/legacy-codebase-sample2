@@ -1,9 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using Newtonsoft.Json;
 
 namespace ApiObjects.Notification
 {
@@ -12,29 +8,21 @@ namespace ApiObjects.Notification
     {
         public int UserId { get; set; }
 
+        public List<UserDevice> Userdevices { get; set; }
+
+        public List<Announcement> Announcements { get; set; }
+
+        public UserNotificationSettings Settings { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public ulong cas { get; set; }
+
         public UserNotification(int userId)
         {
             this.UserId = userId;
             this.Userdevices = new List<UserDevice>();
             this.Announcements = new List<Announcement>();
-            this.Settings = new UserNotificationSettings()
-            {
-                EnableInbox = true,
-                EnableMail = true,
-                EnablePush = true,
-                FollowSettings = new UserFollowSettings()
-                {
-                    EnableInbox = true,
-                    EnableMail = true,
-                    EnablePush = true
-                }
-            };
+            this.Settings = new UserNotificationSettings();
         }
-        public List<UserDevice> Userdevices { get; set; }
-        public List<Announcement> Announcements { get; set; }
-        public UserNotificationSettings Settings { get; set; }
-
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public ulong cas { get; set; }
     }
 }
