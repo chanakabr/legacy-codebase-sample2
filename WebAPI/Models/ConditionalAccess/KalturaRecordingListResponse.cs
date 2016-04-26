@@ -23,7 +23,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty(PropertyName = "objects")]
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem("item")]
-        public List<KalturaRecordingInfo> Objects { get; set; }
+        public List<KalturaRecordingAsset> Objects { get; set; }
 
     }
 
@@ -31,40 +31,8 @@ namespace WebAPI.Models.ConditionalAccess
     /// Recording Info
     /// </summary>
     [Serializable]
-    public class KalturaRecordingInfo : KalturaOTTObject
+    public class KalturaRecordingAsset : KalturaRecording
     {
-        /// <summary>
-        /// Kaltura unique ID representing the recording identifier
-        /// </summary>
-        [DataMember(Name = "recording_id")]
-        [JsonProperty("recording_id")]
-        [XmlElement(ElementName = "recording_id")]
-        public long RecordingId { get; set; }
-
-        /// <summary>
-        /// Recording state: Scheduled/Recording/Recorded/Canceled/Failed/DoesNotExists/Deleted
-        /// </summary>
-        [DataMember(Name = "recording_state")]
-        [JsonProperty("recording_state")]
-        [XmlElement(ElementName = "recording_state")]
-        public KalturaRecordingStatus RecordingStatus { get; set; }
-
-        /// <summary>
-        /// Recording Type: Single/Series
-        /// </summary>
-        [DataMember(Name = "recording_type")]
-        [JsonProperty("recording_type")]
-        [XmlElement(ElementName = "recording_type")]
-        public KalturaRecordingType RecordingType { get; set; }
-
-        /// <summary>
-        /// The date when the record is no longer available
-        /// </summary>
-        [DataMember(Name = "last_availability_date")]
-        [JsonProperty("last_availability_date")]
-        [XmlElement(ElementName = "last_availability_date")]
-        public long LastAvailabilityDate { get; set; }
-
         /// <summary>
         /// Asset
         /// </summary>

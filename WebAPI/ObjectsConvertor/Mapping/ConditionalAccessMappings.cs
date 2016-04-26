@@ -221,13 +221,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<KalturaRecording, WebAPI.ConditionalAccess.Recording>()
                .ForMember(dest => dest.EpgID, opt => opt.MapFrom(src => src.EpgID))
                .ForMember(dest => dest.RecordingID, opt => opt.MapFrom(src => src.RecordingId))
-               .ForMember(dest => dest.RecordingStatus, opt => opt.MapFrom(src => ConvertKalturaRecordingStatus(src.RecordingStatus)));
+               .ForMember(dest => dest.RecordingStatus, opt => opt.MapFrom(src => ConvertKalturaRecordingStatus(src.RecordingStatus)))
+               .ForMember(dest => dest.LastAvailabilityDate, opt => opt.MapFrom(src => src.LastAvailabilityDate))
+               .ForMember(dest => dest.RecordingType, opt => opt.MapFrom(src => ConvertKalturaRecordingType(src.RecordingType)));
 
             // Recording to KalturaRecording
             Mapper.CreateMap<WebAPI.ConditionalAccess.Recording, KalturaRecording>()
                .ForMember(dest => dest.EpgID, opt => opt.MapFrom(src => src.EpgID))
                .ForMember(dest => dest.RecordingId, opt => opt.MapFrom(src => src.RecordingID))
-               .ForMember(dest => dest.RecordingStatus, opt => opt.MapFrom(src => ConvertTstvRecordingStatus(src.RecordingStatus)));
+               .ForMember(dest => dest.RecordingStatus, opt => opt.MapFrom(src => ConvertTstvRecordingStatus(src.RecordingStatus)))
+               .ForMember(dest => dest.LastAvailabilityDate, opt => opt.MapFrom(src => src.LastAvailabilityDate))
+               .ForMember(dest => dest.RecordingType, opt => opt.MapFrom(src => ConvertRecordingType(src.RecordingType)));
         }
 
         //
@@ -291,6 +295,40 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown recordingStatus type");
+            }
+            return result;
+        }
+
+        public static WebAPI.ConditionalAccess.RecordingType ConvertKalturaRecordingType(KalturaRecordingType recordingType)
+        {
+            WebAPI.ConditionalAccess.RecordingType result;
+            switch (recordingType)
+            {
+                case KalturaRecordingType.single:
+                    result = WebAPI.ConditionalAccess.RecordingType.Single;
+                    break;
+                case KalturaRecordingType.series:
+                    result = WebAPI.ConditionalAccess.RecordingType.Series;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown recordingType type");
+            }
+            return result;
+        }
+
+        public static KalturaRecordingType ConvertRecordingType(WebAPI.ConditionalAccess.RecordingType recordingType)
+        {
+            KalturaRecordingType result;
+            switch (recordingType)
+            {
+                case WebAPI.ConditionalAccess.RecordingType.Single:
+                    result = KalturaRecordingType.single;
+                    break;
+                case WebAPI.ConditionalAccess.RecordingType.Series:
+                    result = KalturaRecordingType.series;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown recordingType type");
             }
             return result;
         }

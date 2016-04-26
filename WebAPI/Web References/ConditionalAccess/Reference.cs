@@ -10018,6 +10018,10 @@ namespace WebAPI.ConditionalAccess {
         
         private System.DateTime epgEndDateField;
         
+        private RecordingType recordingTypeField;
+        
+        private System.DateTime lastAvailabilityDateField;
+        
         /// <remarks/>
         public Status Status {
             get {
@@ -10097,6 +10101,26 @@ namespace WebAPI.ConditionalAccess {
                 this.epgEndDateField = value;
             }
         }
+        
+        /// <remarks/>
+        public RecordingType RecordingType {
+            get {
+                return this.recordingTypeField;
+            }
+            set {
+                this.recordingTypeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime LastAvailabilityDate {
+            get {
+                return this.lastAvailabilityDateField;
+            }
+            set {
+                this.lastAvailabilityDateField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -10128,6 +10152,19 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         Deleted,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public enum RecordingType {
+        
+        /// <remarks/>
+        Single,
+        
+        /// <remarks/>
+        Series,
     }
     
     /// <remarks/>

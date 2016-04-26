@@ -25,7 +25,7 @@ namespace WebAPI.Controllers
         /// 
         [Route("get"), HttpPost]
         [ApiAuthorize]
-        public KalturaRecording Get(long epg_id)
+        public KalturaRecording Get(KalturaRecording recording)
         {
             KalturaRecording response = null;
 
@@ -34,7 +34,7 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
                 // call client                
-                response = ClientsManager.ConditionalAccessClient().QueryRecord(groupId, userId, epg_id);
+                response = ClientsManager.ConditionalAccessClient().QueryRecord(groupId, userId, recording.EpgID);
             }
             catch (ClientException ex)
             {
@@ -52,7 +52,7 @@ namespace WebAPI.Controllers
         /// 
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        public KalturaRecording Add(long epg_id)
+        public KalturaRecording Add(KalturaRecording recording)
         {
             KalturaRecording response = null;
 
@@ -61,7 +61,7 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
                 // call client                
-                response = ClientsManager.ConditionalAccessClient().Record(groupId, userId, epg_id);
+                response = ClientsManager.ConditionalAccessClient().Record(groupId, userId, recording.EpgID);
             }
             catch (ClientException ex)
             {
@@ -79,7 +79,7 @@ namespace WebAPI.Controllers
         /// 
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaRecordingListResponse List(KalturaRecordingInfoFilter filter, List<KalturaCatalogWithHolder> with = null,
+        public KalturaRecordingListResponse List(KalturaRecordingFilter filter, List<KalturaCatalogWithHolder> with = null,
                                                  KalturaRecordingOrder? order_by = null, KalturaFilterPager pager = null, string request_id = null)
         {
             KalturaRecordingListResponse response = null;
@@ -100,7 +100,7 @@ namespace WebAPI.Controllers
 
                 if (filter == null)
                 {
-                    filter = new KalturaRecordingInfoFilter();
+                    filter = new KalturaRecordingFilter();
                 }                
 
                 if (!string.IsNullOrEmpty(filter.filter_expression) && filter.filter_expression.Length > 1024)

@@ -595,6 +595,8 @@
           <s:element minOccurs="0" maxOccurs="1" name="ExternalRecordingId" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="EpgStartDate" type="s:dateTime" />
           <s:element minOccurs="1" maxOccurs="1" name="EpgEndDate" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="RecordingType" type="tns:RecordingType" />
+          <s:element minOccurs="1" maxOccurs="1" name="LastAvailabilityDate" type="s:dateTime" />
         </s:sequence>
       </s:complexType>
       <s:simpleType name="TstvRecordingStatus">
@@ -607,6 +609,12 @@
           <s:enumeration value="Canceled" />
           <s:enumeration value="DoesNotExist" />
           <s:enumeration value="Deleted" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="RecordingType">
+        <s:restriction base="s:string">
+          <s:enumeration value="Single" />
+          <s:enumeration value="Series" />
         </s:restriction>
       </s:simpleType>
       <s:element name="QueryRecords">

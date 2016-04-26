@@ -21,7 +21,7 @@ namespace WebAPI.Models.ConditionalAccess
         public long RecordingId { get; set; }
 
         /// <summary>
-        /// Recording state: Scheduled/Recording/Recorded/Canceled/Failed/DoesNotExists/Deleted
+        /// Recording state: scheduled/recording/recorded/canceled/failed/does_not_exists/deleted
         /// </summary>
         [DataMember(Name = "recording_state")]
         [JsonProperty("recording_state")]
@@ -35,6 +35,22 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("epg_id")]
         [XmlElement(ElementName = "epg_id")]
         public long EpgID { get; set; }
+
+        /// <summary>
+        /// Recording Type: single/series
+        /// </summary>
+        [DataMember(Name = "recording_type")]
+        [JsonProperty("recording_type")]
+        [XmlElement(ElementName = "recording_type")]
+        public KalturaRecordingType RecordingType { get; set; }
+
+        /// <summary>
+        /// The date when the record is no longer available
+        /// </summary>
+        [DataMember(Name = "last_availability_date")]
+        [JsonProperty("last_availability_date")]
+        [XmlElement(ElementName = "last_availability_date")]
+        public long LastAvailabilityDate { get; set; }
     }
 
 }

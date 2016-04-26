@@ -1249,7 +1249,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            result = new KalturaRecordingListResponse() { Objects = new List<KalturaRecordingInfo>(), TotalCount = 0 };
+            result = new KalturaRecordingListResponse() { Objects = new List<KalturaRecordingAsset>(), TotalCount = 0 };
             if (response.SearchRecordings != null && response.SearchRecordings.Length > 0)
             {                
                 // get base objects list
@@ -1266,7 +1266,7 @@ namespace WebAPI.Clients
 
                         if (searchRecording != null)
                         {
-                            result.Objects.Add(new KalturaRecordingInfo()
+                            result.Objects.Add(new KalturaRecordingAsset()
                             {                                
                                 Asset = (KalturaAssetInfo)assetInfo,
                                 RecordingId = searchRecording.RecordingID,

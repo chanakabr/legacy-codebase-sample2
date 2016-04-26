@@ -14,7 +14,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// Filtering assets
     /// </summary>
     [Serializable]
-    public class KalturaRecordingInfoFilter : KalturaOTTObject
+    public class KalturaRecordingFilter : KalturaOTTObject
     {
 
         /// <summary>
