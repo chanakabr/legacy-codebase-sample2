@@ -19,7 +19,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "is_renewable")]
         [JsonProperty("is_renewable")]
         [XmlElement(ElementName = "is_renewable")]
-        public bool IsRenewable { get; set; }
+        public bool? IsRenewable { get; set; }
 
         /// <summary>
         /// Defines the number of times the module will be renewed (for the life_cycle period)
@@ -27,7 +27,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "renewals_number")]
         [JsonProperty("renewals_number")]
         [XmlElement(ElementName = "renewals_number")]
-        public int RenewalsNumber { get; set; }
+        public int? RenewalsNumber { get; set; }
 
         /// <summary>
         /// Unique identifier associated with this object's price 
@@ -35,7 +35,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "price_id")]
         [JsonProperty("price_id")]
         [XmlElement(ElementName = "price_id")]
-        public int PriceId { get; set; }
+        public int? PriceId { get; set; }
 
         /// <summary>
         /// The discount module identifier of the price plan
@@ -43,6 +43,6 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "discount_id")]
         [JsonProperty("discount_id")]
         [XmlElement(ElementName = "discount_id")]
-        public long DiscountId { get; set; }
+        public long? DiscountId { get; set; }
     }
 }

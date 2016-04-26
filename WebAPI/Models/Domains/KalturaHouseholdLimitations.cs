@@ -20,7 +20,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
         /// <summary>
         /// Household limitation module name
@@ -36,7 +36,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "concurrent_limit")]
         [JsonProperty("concurrent_limit")]
         [XmlElement(ElementName = "concurrent_limit")]
-        public int ConcurrentLimit { get; set; }
+        public int? ConcurrentLimit { get; set; }
 
         /// <summary>
         ///  Max number of devices allowed for the household
@@ -44,7 +44,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "device_limit")]
         [JsonProperty("device_limit")]
         [XmlElement(ElementName = "device_limit")]
-        public int DeviceLimit { get; set; }
+        public int? DeviceLimit { get; set; }
 
         /// <summary>
         /// Allowed device change frequency code
@@ -52,7 +52,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "device_frequency")]
         [JsonProperty("device_frequency")]
         [XmlElement(ElementName = "device_frequency")]
-        public int DeviceFrequency { get; set; }
+        public int? DeviceFrequency { get; set; }
 
         /// <summary>
         /// Allowed device change frequency description
@@ -68,7 +68,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "user_frequency")]
         [JsonProperty("user_frequency")]
         [XmlElement(ElementName = "user_frequency")]
-        public int UserFrequency { get; set; }
+        public int? UserFrequency { get; set; }
 
         /// <summary>
         /// Allowed user change frequency description
@@ -84,7 +84,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "npvr_quota_in_seconds")]
         [JsonProperty("npvr_quota_in_seconds")]
         [XmlElement(ElementName = "npvr_quota_in_seconds")]
-        public int NpvrQuotaInSeconds { get; set; }
+        public int? NpvrQuotaInSeconds { get; set; }
 
         /// <summary>
         /// Max number of users allowed for the household
@@ -92,7 +92,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "users_limit")]
         [JsonProperty("users_limit")]
         [XmlElement(ElementName = "users_limit")]
-        public int UsersLimit { get; set; }
+        public int? UsersLimit { get; set; }
 
         /// <summary>
         /// Device families limitations

@@ -20,7 +20,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
         /// <summary>
         /// recommendation engine name
@@ -36,7 +36,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "is_active")]
         [JsonProperty("is_active")]
         [XmlElement(ElementName = "is_active")]
-        public bool IsActive { get; set; }
+        public bool? IsActive { get; set; }
 
         /// <summary>
         /// recommendation engine adapter URL
@@ -69,5 +69,10 @@ namespace WebAPI.Models.API
         [JsonProperty("shared_secret")]
         [XmlElement(ElementName = "shared_secret")]
         public string SharedSecret { get; set; }
+
+        internal int getId()
+        {
+            return Id.HasValue ? (int)Id : 0;
+        }
     }
 }

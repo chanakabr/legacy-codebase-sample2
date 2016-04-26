@@ -53,19 +53,19 @@ namespace WebAPI.Managers
                             // if the dictionary already contains the action, try to append the role and /or the users group
                             if (dictionary.ContainsKey(serviceActionPair))
                             {
-                                if (!dictionary[serviceActionPair].ContainsKey(role.Id))
+                                if (!dictionary[serviceActionPair].ContainsKey(role.getId()))
                                 {
-                                    dictionary[serviceActionPair].Add(role.Id, usersGroup);
+                                    dictionary[serviceActionPair].Add(role.getId(), usersGroup);
                                 }
                                 else
                                 {
-                                    dictionary[serviceActionPair][role.Id] = string.Format("{0};{1}", usersGroup, dictionary[serviceActionPair][role.Id]);
+                                    dictionary[serviceActionPair][role.getId()] = string.Format("{0};{1}", usersGroup, dictionary[serviceActionPair][role.getId()]);
                                 }
                             }
                             // add the action to the dictionary
                             else
                             {
-                                dictionary.Add(serviceActionPair, new Dictionary<long, string>() { { role.Id, usersGroup } });
+                                dictionary.Add(serviceActionPair, new Dictionary<long, string>() { { role.getId(), usersGroup } });
                             }
                         }
                     }

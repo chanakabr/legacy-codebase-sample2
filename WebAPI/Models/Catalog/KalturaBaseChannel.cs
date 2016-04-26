@@ -20,7 +20,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "id")]
         [JsonProperty(PropertyName = "id")]
         [XmlElement(ElementName = "id")]
-        public long Id { get; set; }
+        public long? Id { get; set; }
 
         /// <summary>
         /// Channel name

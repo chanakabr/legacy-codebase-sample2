@@ -41,7 +41,7 @@ namespace WebAPI.Controllers
                 {
                     case KalturaEntityReferenceBy.user:
                     {
-                        response = ClientsManager.ConditionalAccessClient().GetUserTransactionHistory(groupId, userID, filter.PageIndex, filter.PageSize);
+                        response = ClientsManager.ConditionalAccessClient().GetUserTransactionHistory(groupId, userID, filter.getPageIndex(), filter.getPageSize());
                         break;
                     }
                     case KalturaEntityReferenceBy.household:
@@ -60,7 +60,7 @@ namespace WebAPI.Controllers
                         }
 
                         response = ClientsManager.ConditionalAccessClient().GetDomainBillingHistory(
-                            groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), startDate, endDate, filter.PageIndex, filter.PageSize);
+                            groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), startDate, endDate, filter.getPageIndex(), filter.getPageSize());
                         break;
                     }
                     default:

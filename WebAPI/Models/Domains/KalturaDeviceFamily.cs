@@ -20,7 +20,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
-        public long Id { get; set; }
+        public long? Id { get; set; }
 
         /// <summary>
         /// Device family name
@@ -36,7 +36,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "device_limit")]
         [JsonProperty("device_limit")]
         [XmlElement(ElementName = "device_limit")]
-        public int DeviceLimit { get; set; }
+        public int? DeviceLimit { get; set; }
 
         /// <summary>
         /// Max number of streams allowed for this family
@@ -44,7 +44,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "concurrent_limit")]
         [JsonProperty("concurrent_limit")]
         [XmlElement(ElementName = "concurrent_limit")]
-        public int ConcurrentLimit { get; set; }
+        public int? ConcurrentLimit { get; set; }
     }
 
 
@@ -74,6 +74,6 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "frequency")]
         [JsonProperty("frequency")]
         [XmlElement(ElementName = "frequency")]
-        public int Frequency { get; set; }
+        public int? Frequency { get; set; }
     }
 }

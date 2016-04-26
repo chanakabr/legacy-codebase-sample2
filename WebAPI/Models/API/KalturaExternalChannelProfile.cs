@@ -20,7 +20,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
         /// <summary>
         /// External channel name
@@ -36,7 +36,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "is_active")]
         [JsonProperty("is_active")]
         [XmlElement(ElementName = "is_active")]
-        public bool IsActive { get; set; }
+        public bool? IsActive { get; set; }
 
         /// <summary>
         /// External channel external identifier
@@ -60,7 +60,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "recommendation_engine_id")]
         [JsonProperty("recommendation_engine_id")]
         [XmlElement(ElementName = "recommendation_engine_id")]
-        public int RecommendationEngineId { get; set; }
+        public int? RecommendationEngineId { get; set; }
 
         /// <summary>
         /// Enrichments

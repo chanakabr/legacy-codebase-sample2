@@ -1305,7 +1305,7 @@
         </member>
         <member name="T:WebAPI.ApiSchema">
             <summary>
-            XXX: SHOULD BE REFACTORED SOMETIME TO USE XMLDOCUMENT...
+            Prints out the API XML schema
             </summary>
         </member>
         <member name="M:WebAPI.Controllers.SocialController.GetByToken(System.Int32,System.String,WebAPI.Models.Social.KalturaSocialNetwork)">

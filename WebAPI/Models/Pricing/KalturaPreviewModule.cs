@@ -20,7 +20,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
-        public long Id { get; set; }
+        public long? Id { get; set; }
 
         /// <summary>
         /// Preview module name
@@ -36,7 +36,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "life_cycle")]
         [JsonProperty("life_cycle")]
         [XmlElement(ElementName = "life_cycle")]
-        public int LifeCycle { get; set; }
+        public int? LifeCycle { get; set; }
 
         /// <summary>
         /// The time you can't buy the item to which the preview module is assigned to again
@@ -44,7 +44,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "non_renewable_period")]
         [JsonProperty("non_renewable_period")]
         [XmlElement(ElementName = "non_renewable_period")]
-        public int NonRenewablePeriod { get; set; }
+        public int? NonRenewablePeriod { get; set; }
 
         
     }

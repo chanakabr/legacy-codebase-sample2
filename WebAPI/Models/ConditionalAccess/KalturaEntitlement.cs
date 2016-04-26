@@ -37,7 +37,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "current_uses")]
         [JsonProperty("current_uses")]
         [XmlElement(ElementName = "current_uses")]
-        public int CurrentUses { get; set; }
+        public int? CurrentUses { get; set; }
 
         /// <summary>
         ///The end date of the entitlement
@@ -45,7 +45,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "end_date")]
         [JsonProperty("end_date")]
         [XmlElement(ElementName = "end_date")]
-        public long EndDate { get; set; }
+        public long? EndDate { get; set; }
 
         /// <summary>
         ///Current date
@@ -53,7 +53,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "current_date")]
         [JsonProperty("current_date")]
         [XmlElement(ElementName = "current_date")]
-        public long CurrentDate { get; set; }
+        public long? CurrentDate { get; set; }
 
         /// <summary>
         ///The last date the item was viewed
@@ -61,7 +61,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "last_view_date")]
         [JsonProperty("last_view_date")]
         [XmlElement(ElementName = "last_view_date")]
-        public long LastViewDate { get; set; }
+        public long? LastViewDate { get; set; }
 
         /// <summary>
         ///Purchase date
@@ -69,7 +69,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "purchase_date")]
         [JsonProperty("purchase_date")]
         [XmlElement(ElementName = "purchase_date")]
-        public long PurchaseDate { get; set; }
+        public long? PurchaseDate { get; set; }
 
         /// <summary>
         ///Purchase identifier (for subscriptions and collections only)
@@ -77,7 +77,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "purchase_id")]
         [JsonProperty("purchase_id")]
         [XmlElement(ElementName = "purchase_id")]
-        public int PurchaseId { get; set; }
+        public int? PurchaseId { get; set; }
 
         /// <summary>
         ///Payment Method
@@ -109,7 +109,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "is_cancelation_window_enabled")]
         [JsonProperty("is_cancelation_window_enabled")]
         [XmlElement(ElementName = "is_cancelation_window_enabled")]
-        public bool IsCancelationWindowEnabled { get; set; }
+        public bool? IsCancelationWindowEnabled { get; set; }
 
         /// <summary>
         ///The maximum number of uses available for this item (only for subscription and PPV)
@@ -117,7 +117,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "max_uses")]
         [JsonProperty("max_uses")]
         [XmlElement(ElementName = "max_uses")]
-        public int MaxUses { get; set; }
+        public int? MaxUses { get; set; }
 
         /// <summary>
         ///The date of the next renewal (only for subscription)
@@ -125,7 +125,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "next_renewal_date")]
         [JsonProperty("next_renewal_date")]
         [XmlElement(ElementName = "next_renewal_date")]
-        public long NextRenewalDate { get; set; }
+        public long? NextRenewalDate { get; set; }
 
         /// <summary>
         ///Indicates whether the subscription is renewable in this purchase (only for subscription)
@@ -133,7 +133,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "is_renewable_for_purchase")]
         [JsonProperty("is_renewable_for_purchase")]
         [XmlElement(ElementName = "is_renewable_for_purchase")]
-        public bool IsRenewableForPurchase { get; set; }
+        public bool? IsRenewableForPurchase { get; set; }
 
         /// <summary>
         ///Indicates whether a subscription is renewable (only for subscription)
@@ -141,7 +141,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "is_renewable")]
         [JsonProperty("is_renewable")]
         [XmlElement(ElementName = "is_renewable")]
-        public bool IsRenewable { get; set; }
+        public bool? IsRenewable { get; set; }
 
         /// <summary>
         ///Media file identifier (only for PPV)
@@ -149,7 +149,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "media_file_id")]
         [JsonProperty("media_file_id")]
         [XmlElement(ElementName = "media_file_id")]
-        public int MediaFileId { get; set; }
+        public int? MediaFileId { get; set; }
 
         /// <summary>
         ///Media identifier (only for PPV)
@@ -157,7 +157,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "media_id")]
         [JsonProperty("media_id")]
         [XmlElement(ElementName = "media_id")]
-        public int MediaId { get; set; }
+        public int? MediaId { get; set; }
 
         /// <summary>
         /// Indicates whether the user is currently in his grace period entitlement
@@ -165,7 +165,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "is_in_grace_period")]
         [JsonProperty("is_in_grace_period")]
         [XmlElement(ElementName = "is_in_grace_period")]
-        public bool IsInGracePeriod { get; set; }
+        public bool? IsInGracePeriod { get; set; }
 
     }
 }

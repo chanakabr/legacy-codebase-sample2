@@ -21,7 +21,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
-        public long Id { get; set; }
+        public long? Id { get; set; }
 
         /// <summary>
         /// Household name
@@ -53,7 +53,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "household_limitations_id")]
         [JsonProperty("household_limitations_id")]
         [XmlElement(ElementName = "household_limitations_id")]
-        public int HouseholdLimitationsId { get; set; }
+        public int? HouseholdLimitationsId { get; set; }
 
         /// <summary>
         /// The max number of the devices that can be added to the household
@@ -61,7 +61,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "devices_limit")]
         [JsonProperty("devices_limit")]
         [XmlElement(ElementName = "devices_limit")]
-        public int DevicesLimit { get; set; }
+        public int? DevicesLimit { get; set; }
 
         /// <summary>
         /// The max number of the users that can be added to the household
@@ -69,7 +69,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "users_limit")]
         [JsonProperty("users_limit")]
         [XmlElement(ElementName = "users_limit")]
-        public int UsersLimit { get; set; }
+        public int? UsersLimit { get; set; }
 
         /// <summary>
         /// The max number of concurrent streams in the household
@@ -77,7 +77,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "concurrent_limit")]
         [JsonProperty("concurrent_limit")]
         [XmlElement(ElementName = "concurrent_limit")]
-        public int ConcurrentLimit { get; set; }
+        public int? ConcurrentLimit { get; set; }
 
         /// <summary>
         /// List of users identifiers 
@@ -121,7 +121,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "region_id")]
         [JsonProperty("region_id")]
         [XmlElement(ElementName = "region_id")]
-        public int RegionId { get; set; }
+        public int? RegionId { get; set; }
 
         /// <summary>
         /// Household state
@@ -137,7 +137,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "is_frequency_enabled")]
         [JsonProperty("is_frequency_enabled")]
         [XmlElement(ElementName = "is_frequency_enabled")]
-        public bool IsFrequencyEnabled { get; set; }
+        public bool? IsFrequencyEnabled { get; set; }
 
         /// <summary>
         /// The next time a device is allowed to be removed from the household (epoch)
@@ -145,7 +145,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "frequency_next_device_action")]
         [JsonProperty("frequency_next_device_action")]
         [XmlElement(ElementName = "frequency_next_device_action")]
-        public long FrequencyNextDeviceAction { get; set; }
+        public long? FrequencyNextDeviceAction { get; set; }
 
         /// <summary>
         /// The next time a user is allowed to be removed from the household (epoch)
@@ -153,7 +153,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "frequency_next_user_action")]
         [JsonProperty("frequency_next_user_action")]
         [XmlElement(ElementName = "frequency_next_user_action")]
-        public long FrequencyNextUserAction { get; set; }
+        public long? FrequencyNextUserAction { get; set; }
 
         /// <summary>
         /// Household restriction
@@ -171,5 +171,10 @@ namespace WebAPI.Models.Domains
         [XmlArray(ElementName = "device_families", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaDeviceFamily> DeviceFamilies { get; set; }
+
+        internal long getId()
+        {
+            return Id.HasValue ? (long)Id : 0;
+        }
     }
 }

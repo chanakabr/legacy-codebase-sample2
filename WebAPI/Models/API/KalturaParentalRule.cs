@@ -21,7 +21,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
-        public long id { get; set; }
+        public long? id { get; set; }
 
         /// <summary>
         /// Rule display name
@@ -45,7 +45,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "order")]
         [JsonProperty("order")]
         [XmlElement(ElementName = "order")]
-        public int order { get; set; }
+        public int? order { get; set; }
 
         /// <summary>
         /// Media asset tag ID to in which to look for corresponding trigger values
@@ -53,7 +53,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "media_tag")]
         [JsonProperty("media_tag")]
         [XmlElement(ElementName = "media_tag")]
-        public int mediaTagTypeId { get; set; }
+        public int? mediaTagTypeId { get; set; }
 
         /// <summary>
         /// EPG asset tag ID to in which to look for corresponding trigger values
@@ -61,7 +61,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "epg_tag")]
         [JsonProperty("epg_tag")]
         [XmlElement(ElementName = "epg_tag")]
-        public int epgTagTypeId { get; set; }
+        public int? epgTagTypeId { get; set; }
 
         /// <summary>
         /// Content that correspond to this rule is not available for guests
@@ -69,7 +69,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "block_anonymous_access")]
         [JsonProperty("block_anonymous_access")]
         [XmlElement(ElementName = "block_anonymous_access")]
-        public bool blockAnonymousAccess { get; set; }
+        public bool? blockAnonymousAccess { get; set; }
 
         /// <summary>
         /// Rule type – Movies, TV series or both
@@ -103,7 +103,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "is_default")]
         [JsonProperty("is_default")]
         [XmlElement(ElementName = "is_default")]
-        public bool isDefault { get; set; }
+        public bool? isDefault { get; set; }
 
         /// <summary>
         /// Where was this rule defined account, household or user

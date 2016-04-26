@@ -15,7 +15,7 @@ namespace WebAPI.Models.General
     public class KalturaFilterPager : KalturaOTTObject
     {
         private static int maxPageSize;
-        private const int DEFAULT_MAX_PAGE_SIZE = 50;
+        private const int DEFAULT_PAGE_SIZE = 30;
         private int pageSize;
         private int pageIndex;
 
@@ -26,7 +26,7 @@ namespace WebAPI.Models.General
         [DataMember(Name = "pageSize")]
         [JsonProperty(PropertyName = "pageSize")]
         [XmlElement(ElementName = "pageSize")]
-        public int PageSize
+        public int? PageSize
         {
             get 
             {
@@ -35,6 +35,12 @@ namespace WebAPI.Models.General
 
             set
             {
+                if (!value.HasValue)
+                {
+                    pageIndex = DEFAULT_PAGE_SIZE;
+                    return;
+                }
+
                 if (value > KalturaFilterPager.maxPageSize)
                 {
                     pageSize = KalturaFilterPager.maxPageSize;
@@ -45,7 +51,7 @@ namespace WebAPI.Models.General
                 }
                 else
                 {
-                    pageSize = value;
+                    pageSize = (int)value;
                 }
             }
         }
@@ -56,7 +62,7 @@ namespace WebAPI.Models.General
         [DataMember(Name = "pageIndex")]
         [JsonProperty(PropertyName = "pageIndex")]
         [XmlElement(ElementName = "pageIndex")]
-        public int PageIndex
+        public int? PageIndex
         {
             get
             {
@@ -65,11 +71,17 @@ namespace WebAPI.Models.General
 
             set
             {
+                if (!value.HasValue)
+                {
+                    pageIndex = 1;
+                    return;
+                }
+                
                 if (value < 0)
                 {
                     throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.InvalidPaging, "page index cannot be < 0");
                 }
-                pageIndex = value;
+                pageIndex = (int)value;
             }
         }
 
@@ -80,8 +92,18 @@ namespace WebAPI.Models.General
                 KalturaFilterPager.maxPageSize = TCMClient.Settings.Instance.GetValue<int>("max_page_size");
 
                 if (KalturaFilterPager.maxPageSize == 0)
-                    KalturaFilterPager.maxPageSize = DEFAULT_MAX_PAGE_SIZE;
+                    KalturaFilterPager.maxPageSize = DEFAULT_PAGE_SIZE;
             }
+        }
+
+        internal int getPageIndex()
+        {
+            return pageIndex;
+        }
+
+        internal int getPageSize()
+        {
+            return pageSize;
         }
     }
 }

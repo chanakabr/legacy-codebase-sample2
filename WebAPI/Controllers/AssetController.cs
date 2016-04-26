@@ -286,7 +286,7 @@ namespace WebAPI.Controllers
             {
                 // call client
                 response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language,
-                pager.PageIndex, pager.PageSize, filter, order_by, filter_types.Select(x => x.value).ToList(), 
+                pager.getPageIndex(), pager.PageSize, filter, order_by, filter_types.Select(x => x.value).ToList(), 
                 request_id,
                 with.Select(x => x.type).ToList());
             }
@@ -385,7 +385,7 @@ namespace WebAPI.Controllers
                 string udid = KSUtils.ExtractKSPayload().UDID;
 
                 response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
-                    language, pager.PageIndex, pager.PageSize, media_id, filter, filter_types.Select(x => x.value).ToList(), with.Select(x => x.type).ToList());
+                    language, pager.getPageIndex(), pager.PageSize, media_id, filter, filter_types.Select(x => x.value).ToList(), with.Select(x => x.type).ToList());
             }
             catch (ClientException ex)
             {
@@ -437,7 +437,7 @@ namespace WebAPI.Controllers
                 string userID = KS.GetFromRequest().UserId;
 
                 response = ClientsManager.CatalogClient().GetRelatedMediaExternal(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
-                    language, pager.PageIndex, pager.PageSize, asset_id, filter_type_ids.Select(x => x.value).ToList(), utc_offset, with.Select(x => x.type).ToList(), free_param);
+                    language, pager.getPageIndex(), pager.PageSize, asset_id, filter_type_ids.Select(x => x.value).ToList(), utc_offset, with.Select(x => x.type).ToList(), free_param);
             }
             catch (ClientException ex)
             {
@@ -485,7 +485,7 @@ namespace WebAPI.Controllers
                 string userID = KS.GetFromRequest().UserId;
 
                 response = ClientsManager.CatalogClient().GetSearchMediaExternal(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
-                    language, pager.PageIndex, pager.PageSize, query, filter_type_ids.Select(x => x.value).ToList(), utc_offset, with.Select(x => x.type).ToList());
+                    language, pager.getPageIndex(), pager.PageSize, query, filter_type_ids.Select(x => x.value).ToList(), utc_offset, with.Select(x => x.type).ToList());
             }
             catch (ClientException ex)
             {
@@ -539,7 +539,7 @@ namespace WebAPI.Controllers
 
                 var withList = with.Select(x => x.type).ToList();
                 response = ClientsManager.CatalogClient().GetChannelAssets(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
-                    pager.PageIndex, pager.PageSize, withList, id, order_by, filter_query);
+                    pager.getPageIndex(), pager.PageSize, withList, id, order_by, filter_query);
             }
             catch (ClientException ex)
             {
@@ -609,7 +609,7 @@ namespace WebAPI.Controllers
                 string deviceType = System.Web.HttpContext.Current.Request.UserAgent;
 
                 response = ClientsManager.CatalogClient().GetExternalChannelAssets(groupId, id.ToString(), userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid,
-                    language, pager.PageIndex, pager.PageSize, order_by, convertedWith, deviceType, utc_offset, free_param);
+                    language, pager.getPageIndex(), pager.PageSize, order_by, convertedWith, deviceType, utc_offset, free_param);
             }
             catch (ClientException ex)
             {

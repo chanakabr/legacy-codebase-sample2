@@ -17,7 +17,7 @@ namespace WebAPI.Models.Billing
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
         /// <summary>
         /// Payment method name
@@ -33,7 +33,7 @@ namespace WebAPI.Models.Billing
         [DataMember(Name = "allow_multi_instance")]
         [JsonProperty("allow_multi_instance")]
         [XmlElement(ElementName = "allow_multi_instance")]
-        public bool AllowMultiInstance { get; set; }
+        public bool? AllowMultiInstance { get; set; }
 
         /// <summary>
         /// Payment method name

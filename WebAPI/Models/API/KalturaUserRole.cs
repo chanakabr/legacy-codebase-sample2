@@ -17,7 +17,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
-        public long Id { get; set; }
+        public long? Id { get; set; }
 
         /// <summary>
         /// User role name
@@ -35,5 +35,10 @@ namespace WebAPI.Models.API
         [XmlArray(ElementName = "permissions", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaPermission> Permissions { get; set; }
+
+        internal long getId()
+        {
+            return Id.HasValue ? (long)Id : 0;
+        }
     }
 }

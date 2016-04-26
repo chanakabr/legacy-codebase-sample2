@@ -20,6 +20,6 @@ namespace WebAPI.Models.General
         [DataMember(Name = "totalCount")]
         [JsonProperty(PropertyName = "totalCount")]
         [XmlElement(ElementName = "totalCount")]
-        public int TotalCount { get; set; }
+        public int? TotalCount { get; set; }
     }
 }

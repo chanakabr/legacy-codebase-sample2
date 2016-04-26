@@ -170,7 +170,7 @@ namespace WebAPI.Controllers
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
-                response = ClientsManager.NotificationClient().GetAllAnnouncements(groupId, pager.PageSize, pager.PageIndex);
+                response = ClientsManager.NotificationClient().GetAllAnnouncements(groupId, pager.getPageSize(), pager.getPageIndex());
             }
 
             catch (ClientException ex)

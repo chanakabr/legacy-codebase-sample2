@@ -21,7 +21,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
-        public int Id
+        public int? Id
         {
             get;
             set;
@@ -57,7 +57,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "is_active")]
         [JsonProperty("is_active")]
         [XmlElement(ElementName = "is_active")]
-        public bool IsActive
+        public bool? IsActive
         {
             get;
             set;

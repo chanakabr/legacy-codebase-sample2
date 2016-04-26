@@ -50,7 +50,7 @@ namespace WebAPI.Controllers
                 {
                     // call client
                     subscriptionPrices = ClientsManager.ConditionalAccessClient().GetSubscriptionsPrices(groupId, filter.SubscriptionsIds.Select(x => x.value), KS.GetFromRequest().UserId, coupon_code,
-                        udid, language, filter.ShouldGetOnlyLowest);
+                        udid, language, filter.getShouldGetOnlyLowest());
                     productPrices.AddRange(subscriptionPrices);
                 }
 
@@ -58,7 +58,7 @@ namespace WebAPI.Controllers
                 {
                     // call client
                     ppvPrices = ClientsManager.ConditionalAccessClient().GetItemsPrices(groupId, filter.FilesIds.Select(x => x.value).ToList(), KS.GetFromRequest().UserId, coupon_code,
-                        udid, language, filter.ShouldGetOnlyLowest);
+                        udid, language, filter.getShouldGetOnlyLowest());
                     productPrices.AddRange(ppvPrices);
                 }
             }

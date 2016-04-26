@@ -44,6 +44,11 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "is_active")]
         [JsonProperty("is_active")]
         [XmlElement(ElementName = "is_active")]
-        public bool IsActive { get; set; }
+        public bool? IsActive { get; set; }
+
+        internal bool getIsActive()
+        {
+            return IsActive.HasValue ? (bool)IsActive : true;
+        }
     }
 }

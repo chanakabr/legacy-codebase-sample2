@@ -35,7 +35,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "id")]
         [JsonProperty(PropertyName = "id")]
         [XmlElement(ElementName = "id")]
-        public long Id { get; set; }
+        public long? Id { get; set; }
 
         /// <summary>
         /// Identifies the asset type (EPG, Movie, TV Series, etc). 
@@ -44,7 +44,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "type")]
         [JsonProperty(PropertyName = "type")]
         [XmlElement(ElementName = "type")]
-        public int Type { get; set; }
+        public int? Type { get; set; }
 
         /// <summary>
         /// Asset name

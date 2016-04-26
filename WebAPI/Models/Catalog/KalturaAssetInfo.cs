@@ -58,7 +58,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "start_date")]
         [JsonProperty(PropertyName = "start_date")]
         [XmlElement(ElementName = "start_date")]
-        public long StartDate { get; set; }
+        public long? StartDate { get; set; }
 
         /// <summary>
         /// Date and time represented as epoch. For VOD – till when the asset be available in the catalog. For EPG/Linear – program end time and date
@@ -66,7 +66,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "end_date")]
         [JsonProperty(PropertyName = "end_date")]
         [XmlElement(ElementName = "end_date")]
-        public long EndDate { get; set; }
+        public long? EndDate { get; set; }
 
         /// <summary>
         /// A collection of additional key value pairs that are available per asset type. Possible keys: 

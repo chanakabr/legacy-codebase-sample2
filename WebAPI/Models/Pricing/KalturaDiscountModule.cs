@@ -20,7 +20,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "percent")]
         [JsonProperty("percent")]
         [XmlElement(ElementName = "percent")]
-        public double Percent { get; set; }
+        public double? Percent { get; set; }
 
         /// <summary>
         /// The first date the discount is available
@@ -28,7 +28,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "start_date")]
         [JsonProperty("start_date")]
         [XmlElement(ElementName = "start_date")]
-        public long StartDate { get; set; }
+        public long? StartDate { get; set; }
 
         /// <summary>
         /// The last date the discount is available
@@ -36,6 +36,6 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "end_date")]
         [JsonProperty("end_date")]
         [XmlElement(ElementName = "end_date")]
-        public long EndDate { get; set; }
+        public long? EndDate { get; set; }
     }
 }

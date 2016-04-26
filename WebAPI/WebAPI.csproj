@@ -1044,6 +1044,11 @@
     <Compile Include="Managers\Models\AppToken.cs" />
     <Compile Include="Managers\Models\KSUtils.cs" />
     <Compile Include="Managers\RolesManager.cs" />
+    <Compile Include="Managers\Schema\ValidationException.cs" />
+    <Compile Include="Managers\Schema\TopologicalSorter.cs" />
+    <Compile Include="Managers\Schema\Field.cs" />
+    <Compile Include="Managers\Schema\Schema.cs" />
+    <Compile Include="Managers\Schema\ValidationType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaCDVRAdapterProfile.cs" />
     <Compile Include="Models\API\KalturaPermissionsFilter.cs" />
     <Compile Include="Models\API\KalturaExportFilter.cs" />
@@ -1502,7 +1507,7 @@
     <PreBuildEvent>if $(ConfigurationName) == Release ( cd $(ProjectDir) &amp; bash.exe DLLVersioning.sh $(ProjectDir))</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>$(SolutionDir)Validator\bin\$(ConfigurationName)\Validator.exe $(TargetPath)</PostBuildEvent>
+    <PostBuildEvent>$(SolutionDir)Validator\bin\$(ConfigurationName)\Validator.exe</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

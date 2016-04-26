@@ -44,7 +44,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "brand_id")]
         [JsonProperty("brand_id")]
         [XmlElement(ElementName = "brand_id")]
-        public int BrandId { get; set; }
+        public int? BrandId { get; set; }
 
         /// <summary>
         /// Device activation date (epoch)
@@ -52,7 +52,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "activated_on")]
         [JsonProperty("activated_on")]
         [XmlElement(ElementName = "activated_on")]
-        public long ActivatedOn { get; set; }
+        public long? ActivatedOn { get; set; }
 
         /// <summary>
         /// Device state

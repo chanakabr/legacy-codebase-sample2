@@ -26,7 +26,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "channel_id")]
         [JsonProperty(PropertyName = "channel_id")]
         [XmlElement(ElementName = "channel_id")]
-        public int ChannelID { get; set; }
+        public int? ChannelID { get; set; }
 
     }
 }

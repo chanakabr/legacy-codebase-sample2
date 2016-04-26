@@ -2096,7 +2096,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = Api.AddPermission(group.ApiCredentials.Username, group.ApiCredentials.Password, permission.Name, 
-                        permission.PermissionItems != null ? permission.PermissionItems.Select(p => p.Id).ToArray() : null, type, usersGroup, 0);
+                        permission.PermissionItems != null ? permission.PermissionItems.Select(p => p.getId()).ToArray() : null, type, usersGroup, 0);
                 }
             }
             catch (Exception ex)

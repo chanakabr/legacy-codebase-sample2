@@ -213,12 +213,12 @@ namespace WebAPI.Controllers
                 {
                     case KalturaEntityReferenceBy.user:
                         {
-                            response = ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, KS.GetFromRequest().UserId, filter.EntitlementType, true, pager.PageSize, pager.PageIndex);
+                            response = ClientsManager.ConditionalAccessClient().GetUserEntitlements(groupId, KS.GetFromRequest().UserId, filter.EntitlementType, true, pager.getPageSize(), pager.getPageIndex());
                         }
                         break;
                     case KalturaEntityReferenceBy.household:
                         {
-                            response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), filter.EntitlementType, true, pager.PageSize, pager.PageIndex);
+                            response = ClientsManager.ConditionalAccessClient().GetDomainEntitlements(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), filter.EntitlementType, true, pager.getPageSize(), pager.getPageIndex());
                         }
                         break;
                     default:

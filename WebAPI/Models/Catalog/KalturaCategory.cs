@@ -20,7 +20,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "id")]
         [JsonProperty(PropertyName = "id")]
         [XmlElement(ElementName = "id")]
-        public long Id { get; set; }
+        public long? Id { get; set; }
 
         /// <summary>
         /// Category name
@@ -36,7 +36,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "parent_category_id")]
         [JsonProperty(PropertyName = "parent_category_id")]
         [XmlElement(ElementName = "parent_category_id")]
-        public long ParentCategoryId { get; set; }
+        public long? ParentCategoryId { get; set; }
 
         /// <summary>
         /// Child categories 

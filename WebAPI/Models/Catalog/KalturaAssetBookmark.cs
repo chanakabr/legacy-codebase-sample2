@@ -30,7 +30,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "position")]
         [JsonProperty("position")]
         [XmlElement(ElementName = "position")]
-        public int Position { get; set; }
+        public int? Position { get; set; }
 
         /// <summary>
         ///Indicates who is the owner of this position
@@ -46,7 +46,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "finished_watching")]
         [JsonProperty("finished_watching")]
         [XmlElement(ElementName = "finished_watching")]
-        public bool IsFinishedWatching { get; set; }
+        public bool? IsFinishedWatching { get; set; }
 
     }
 }

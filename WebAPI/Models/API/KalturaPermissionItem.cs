@@ -17,7 +17,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
-        public long Id { get; set; }
+        public long? Id { get; set; }
 
         /// <summary>
         /// Permission item name
@@ -26,5 +26,10 @@ namespace WebAPI.Models.API
         [JsonProperty("name")]
         [XmlElement(ElementName = "name")]
         public string Name { get; set; }
+
+        internal long getId()
+        {
+            return Id.HasValue ? (long)Id : 0;
+        }
     }
 }

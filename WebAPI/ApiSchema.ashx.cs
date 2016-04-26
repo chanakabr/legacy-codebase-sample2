@@ -11,7 +11,7 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using System.Xml;
 using WebAPI.ClientManagers.Client;
-using WebAPI.Managers;
+using WebAPI.Managers.Schema;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
 
@@ -22,6 +22,14 @@ namespace WebAPI
     /// </summary>
     public class ApiSchema : IHttpHandler
     {
+        public bool IsReusable
+        {
+            get
+            {
+                return false;
+            }
+        }
+
         public void ProcessRequest(HttpContext context)
         {
             context.Response.ContentType = "text/xml";

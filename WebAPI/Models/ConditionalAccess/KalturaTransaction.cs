@@ -54,7 +54,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "fail_reason_code")]
         [JsonProperty("fail_reason_code")]
         [XmlElement(ElementName = "fail_reason_code")]
-        public int FailReasonCode { get; set; }
+        public int? FailReasonCode { get; set; }
 
         /// <summary>
         /// Entitlement creation date
@@ -62,6 +62,6 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "created_at")]
         [JsonProperty("created_at")]
         [XmlElement(ElementName = "created_at")]
-        public int CreatedAt { get; set; }
+        public int? CreatedAt { get; set; }
     }
 }

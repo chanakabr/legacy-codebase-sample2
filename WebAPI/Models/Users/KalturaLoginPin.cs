@@ -28,7 +28,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "expiration_time")]
         [JsonProperty(PropertyName = "expiration_time")]
         [XmlElement(ElementName = "expiration_time")]
-        public long ExpirationTime { get; set; }
+        public long? ExpirationTime { get; set; }
 
         /// <summary>
         /// User Identifier

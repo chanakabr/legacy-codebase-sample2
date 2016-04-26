@@ -248,12 +248,12 @@ namespace WebAPI.Clients
 
             MessageAnnouncement messageAnnouncement = new MessageAnnouncement()
             {
-                Enabled = announcement.Enabled,
+                Enabled = announcement.getEnabled(),
                 Message = announcement.Message,
-                MessageAnnouncementId = announcement.Id,
+                MessageAnnouncementId = announcement.getId(),
                 Name = announcement.Name,
                 Recipients = recipients,
-                StartTime = announcement.StartTime,
+                StartTime = announcement.getStartTime(),
                 Status = status,
                 Timezone = announcement.Timezone
             };
@@ -321,12 +321,12 @@ namespace WebAPI.Clients
 
             MessageAnnouncement messageAnnouncement = new MessageAnnouncement()
             {
-                Enabled = announcement.Enabled,
+                Enabled = announcement.getEnabled(),
                 Message = announcement.Message,
-                MessageAnnouncementId = announcement.Id,
+                MessageAnnouncementId = announcement.getId(),
                 Name = announcement.Name,
                 Recipients = recipients,
-                StartTime = announcement.StartTime,
+                StartTime = announcement.getStartTime(),
                 Status = status,
                 Timezone = announcement.Timezone
             };

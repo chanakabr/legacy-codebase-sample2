@@ -29,7 +29,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "is_subscription_only")]
         [JsonProperty("is_subscription_only")]
         [XmlElement(ElementName = "is_subscription_only")]
-        public bool IsSubscriptionOnly { get; set; }
+        public bool? IsSubscriptionOnly { get; set; }
 
         /// <summary>
         /// The calculated price of the item after discounts (as part of a purchased subscription by the user or by using a coupon) 
@@ -102,7 +102,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "purchased_media_file_id")]
         [JsonProperty("purchased_media_file_id")]
         [XmlElement(ElementName = "purchased_media_file_id")]
-        public int PurchasedMediaFileId { get; set; }
+        public int? PurchasedMediaFileId { get; set; }
 
         /// <summary>
         /// Related media files identifiers (different types)
@@ -119,7 +119,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "start_date")]
         [JsonProperty("start_date")]
         [XmlElement(ElementName = "start_date")]
-        public long StartDate { get; set; }
+        public long? StartDate { get; set; }
 
         /// <summary>
         /// If the item already purchased - until when the user can watch the item
@@ -127,7 +127,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "end_date")]
         [JsonProperty("end_date")]
         [XmlElement(ElementName = "end_date")]
-        public long EndDate { get; set; }
+        public long? EndDate { get; set; }
 
         /// <summary>
         /// Discount end date
@@ -135,7 +135,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "discount_end_date")]
         [JsonProperty("discount_end_date")]
         [XmlElement(ElementName = "discount_end_date")]
-        public long DiscountEndDate { get; set; }
+        public long? DiscountEndDate { get; set; }
 
         /// <summary>
         /// If the item already purchased and played - the name of the device on which it was first played 
@@ -151,7 +151,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "is_in_cancelation_period")]
         [JsonProperty("is_in_cancelation_period")]
         [XmlElement(ElementName = "is_in_cancelation_period")]
-        public bool IsInCancelationPeriod { get; set; }
+        public bool? IsInCancelationPeriod { get; set; }
 
         /// <summary>
         /// The PPV product code

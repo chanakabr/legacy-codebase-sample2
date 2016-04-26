@@ -117,7 +117,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().SetRecommendationEngine(groupId, recommendation_engine.Id, recommendation_engine);
+                response = ClientsManager.ApiClient().SetRecommendationEngine(groupId, recommendation_engine.getId(), recommendation_engine);
             }
             catch (ClientException ex)
             {

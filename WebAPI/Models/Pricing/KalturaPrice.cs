@@ -21,7 +21,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "amount")]
         [JsonProperty("amount")]
         [XmlElement(ElementName = "amount")]
-        public double Amount { get; set; }
+        public double? Amount { get; set; }
 
         /// <summary>
         ///Currency

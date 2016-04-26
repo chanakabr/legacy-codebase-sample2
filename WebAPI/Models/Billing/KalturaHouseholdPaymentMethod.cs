@@ -17,7 +17,7 @@ namespace WebAPI.Models.Billing
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
         /// <summary>
         /// Payment method details
@@ -33,6 +33,6 @@ namespace WebAPI.Models.Billing
         [DataMember(Name = "selected")]
         [JsonProperty("selected")]
         [XmlElement(ElementName = "selected")]
-        public bool Selected { get; set; }
+        public bool? Selected { get; set; }
     }
 }

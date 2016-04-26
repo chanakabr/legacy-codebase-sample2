@@ -20,7 +20,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
-        public long Id { get; set; }
+        public long? Id { get; set; }
 
         /// <summary>
         /// Alias for the task used to solicit an export using API
@@ -70,7 +70,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "frequency")]
         [JsonProperty("frequency")]
         [XmlElement(ElementName = "frequency")]
-        public long Frequency { get; set; }
+        public long? Frequency { get; set; }
 
         /// <summary>
         /// The URL for sending a notification when the task's export process is done
@@ -96,5 +96,15 @@ namespace WebAPI.Models.API
         [JsonProperty("is_active")]
         [XmlElement(ElementName = "is_active", IsNullable = true)]
         public bool? IsActive { get; set; }
+
+        internal long getFrequency()
+        {
+            return Frequency.HasValue ? (long)Frequency : 0;
+        }
+
+        internal long getId()
+        {
+            return Id.HasValue ? (long)Id : 0;
+        }
     }
 }

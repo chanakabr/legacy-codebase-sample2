@@ -39,7 +39,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().AddBulkExportTask(groupId, task.Alias, task.Name, task.DataType, task.Filter, task.ExportType, task.Frequency, task.NotificationUrl,
+                response = ClientsManager.ApiClient().AddBulkExportTask(groupId, task.Alias, task.Name, task.DataType, task.Filter, task.ExportType, task.getFrequency(), task.NotificationUrl,
                     task.VodTypes != null ? task.VodTypes.Select(vt => vt.value).ToList() : null, task.IsActive != null ? task.IsActive.Value : true);
             }
             catch (ClientException ex)
@@ -74,7 +74,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.ApiClient().UpdateBulkExportTask(groupId, task.Id, task.Alias, task.Name, task.DataType, task.Filter, task.ExportType, task.Frequency, task.NotificationUrl, 
+                response = ClientsManager.ApiClient().UpdateBulkExportTask(groupId, task.getId(), task.Alias, task.Name, task.DataType, task.Filter, task.ExportType, task.getFrequency(), task.NotificationUrl, 
                     task.VodTypes != null ? task.VodTypes.Select(vt => vt.value).ToList() : null, task.IsActive);
             }
             catch (ClientException ex)
