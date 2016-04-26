@@ -15,7 +15,7 @@ namespace ApiObjects.TimeShiftedTv
         public bool? IsTrickPlayEnabled { get; set; }
         public long? CatchUpBufferLength { get; set; }
         public long? TrickPlayBufferLength { get; set; }
-        public long? RecordingScheduleWindowBuffer { get; set; }
+        public long? RecordingScheduleWindow { get; set; }
 
 
         public TimeShiftedTvPartnerSettings()
@@ -31,7 +31,7 @@ namespace ApiObjects.TimeShiftedTv
             this.IsTrickPlayEnabled = isTrickPlayEnabled;
             this.CatchUpBufferLength = catchUpBufferLength;
             this.TrickPlayBufferLength = trickPlayBufferLength;
-            this.RecordingScheduleWindowBuffer = recordingScheduleWindowBuffer;
+            this.RecordingScheduleWindow = recordingScheduleWindowBuffer;
         }
 
         public override string ToString()
@@ -43,7 +43,7 @@ namespace ApiObjects.TimeShiftedTv
             sb.Append(string.Format("IsTrickPlayEnabled: {0}, ", IsTrickPlayEnabled.HasValue ? IsTrickPlayEnabled.Value.ToString() : "Null"));
             sb.Append(string.Format("CatchUpBufferLength: {0}, ", CatchUpBufferLength.HasValue ? CatchUpBufferLength.Value.ToString() : "Null"));
             sb.Append(string.Format("TrickPlayBufferLength: {0}, ", TrickPlayBufferLength.HasValue ? TrickPlayBufferLength.Value.ToString() : "Null"));
-            sb.Append(string.Format("RecordingScheduleWindowBuffer: {0}, ", RecordingScheduleWindowBuffer.HasValue ? RecordingScheduleWindowBuffer.Value.ToString() : "Null"));
+            sb.Append(string.Format("RecordingScheduleWindowBuffer: {0}, ", RecordingScheduleWindow.HasValue ? RecordingScheduleWindow.Value.ToString() : "Null"));
                         
             return sb.ToString();
         }

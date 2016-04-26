@@ -17165,9 +17165,9 @@ namespace ConditionalAccess
                 }
 
                 // validate recording schedule window
-                if (accountSettings.RecordingScheduleWindowBuffer.HasValue && epgStartDate.AddMinutes(accountSettings.RecordingScheduleWindowBuffer.Value) >= DateTime.UtcNow)
+                if (accountSettings.RecordingScheduleWindow.HasValue && epgStartDate.AddMinutes(accountSettings.RecordingScheduleWindow.Value) >= DateTime.UtcNow)
                 {
-                    log.DebugFormat("account CatchUp not enabled, epgID: {0}, domainID: {1}, userID {2}", epg.EPG_ID, domainID, userID);
+                    log.DebugFormat("Program not in recording schedule window, epgID: {0}, domainID: {1}, userID {2}", epg.EPG_ID, domainID, userID);
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramNotInRecordingScheduleWindow, eResponseStatus.ProgramNotInRecordingScheduleWindow.ToString());
                     return response;
                 }
