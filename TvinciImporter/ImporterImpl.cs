@@ -5145,7 +5145,7 @@ namespace TvinciImporter
 
         static public ApiObjects.Response.Status SetMessageTemplate(int groupID, ref ApiObjects.Notification.MessageTemplate messageTemplate)
         {
-            TvinciImporter.Notification_WCF.MessageTemplateResponse response = null;
+            MessageTemplateResponse response = null;
             try
             {
                 //Call Notifications WCF service
@@ -5160,10 +5160,13 @@ namespace TvinciImporter
                 int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupID);
                 TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "", "notifications", sIP, ref sWSUserName, ref sWSPass);
 
-                Notification_WCF.MessageTemplate wcfMessageTemplate = new Notification_WCF.MessageTemplate()
+                MessageTemplate wcfMessageTemplate = new MessageTemplate()
                 {
                     AssetType = messageTemplate.AssetType,
                     Message = messageTemplate.Message,
+                    Sound    = messageTemplate.Sound,
+                    Action = messageTemplate.Action,
+                    URL = messageTemplate.URL,
                     Id = messageTemplate.Id,
                     DateFormat = messageTemplate.DateFormat
                 };

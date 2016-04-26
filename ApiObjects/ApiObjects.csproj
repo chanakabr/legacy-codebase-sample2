@@ -118,9 +118,9 @@
     <Compile Include="Notification\MessageTemplateResponse.cs" />
     <Compile Include="Notification\NotificationPartnerSettings.cs" />
     <Compile Include="Notification\NotificationPartnerSettingsResponse.cs" />
-    <Compile Include="Notification\NotificationSettings.cs" />
     <Compile Include="Notification\NotificationSettingsResponse.cs" />
     <Compile Include="Notification\UserDevice.cs" />
+    <Compile Include="Notification\UserFollowSettings.cs" />
     <Compile Include="Notification\UserNotification.cs" />
     <Compile Include="Notification\UserNotificationSettings.cs" />
     <Compile Include="PersonalEnrichments\AssetFiles.cs" />
@@ -341,9 +341,10 @@
     <Compile Include="TagResponseObject.cs" />
     <Compile Include="HouseholdBillingRequest.cs" />
     <Compile Include="TimeShiftedTv\Recording.cs" />
-    <Compile Include="TimeShiftedTv\RecordingIDsResponse.cs" />
     <Compile Include="TimeShiftedTv\RecordingResponse.cs" />
+    <Compile Include="TimeShiftedTv\SearchRecordingResponse.cs" />
     <Compile Include="TimeShiftedTv\RecordResult.cs" />
+    <Compile Include="TimeShiftedTv\SearchRecording.cs" />
     <Compile Include="TimeShiftedTv\TimeShiftedTvPartnerSettings.cs" />
     <Compile Include="TimeShiftedTv\TimeShiftedTvPartnerSettingsResponse.cs" />
     <Compile Include="UserComment.cs" />

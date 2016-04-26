@@ -4278,11 +4278,11 @@ namespace ConditionalAccess
             return services;
         }
 
-        internal static List<long> SearchDomainRecordingIDsByFilter(int groupID, string userID, long domainID, List<long> recordingIds, string filter,
+        internal static List<SearchRecording> SearchDomainRecordingIDsByFilter(int groupID, string userID, long domainID, List<Recording> recordings, string filter,
                                                                     int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy, string requestID)
         {
             WS_Catalog.IserviceClient client = null;
-            List<long> filteredRecordingIDs = null;
+            List<SearchRecording> filteredRecordings = null;
 
             try
             {
@@ -4296,10 +4296,10 @@ namespace ConditionalAccess
                 request.filterQuery = filter;
                 request.order = orderBy;
                 request.requestId = requestID;
-                KeyValuePair<eAssetTypes,long>[] recordingAssets = new KeyValuePair<eAssetTypes,long>[recordingIds.Count];
-                for (int i=0; i < recordingIds.Count; i++)
+                KeyValuePair<eAssetTypes, long>[] recordingAssets = new KeyValuePair<eAssetTypes, long>[recordings.Count];
+                for (int i = 0; i < recordings.Count; i++)
                 {
-                    recordingAssets[i] = new KeyValuePair<eAssetTypes,long>(eAssetTypes.NPVR, recordingIds[i]);
+                    recordingAssets[i] = new KeyValuePair<eAssetTypes, long>(eAssetTypes.NPVR, recordings[i].RecordingID);
                 }
                 request.specificAssets = recordingAssets;                
                 request.m_oFilter = new WS_Catalog.Filter()
@@ -4311,19 +4311,35 @@ namespace ConditionalAccess
                 string sCatalogUrl = GetWSURL("WS_Catalog");
                 if (string.IsNullOrEmpty(sCatalogUrl))
                 {
-                    return filteredRecordingIDs;
+                    return filteredRecordings;
                 }
                 client.Endpoint.Address = new System.ServiceModel.EndpointAddress(sCatalogUrl);
                 WS_Catalog.UnifiedSearchResponse response = client.GetResponse(request) as WS_Catalog.UnifiedSearchResponse;
                 if (response != null && response.status.Code == (int)eResponseStatus.OK && response.m_nTotalItems > 0 && response.searchResults != null && response.searchResults.Length > 0)
-                {                    
-                    foreach (UnifiedSearchResult recordingID in response.searchResults)
+                {
+                    filteredRecordings = new List<SearchRecording>();
+                    Dictionary<long, DateTime> searchRecordingsResult = new Dictionary<long, DateTime>();
+                    foreach (UnifiedSearchResult unifiedSearchResult in response.searchResults)
                     {
                         // no need to check epg status since catalog returns only active epg's
                         long searchRecordingID;
-                        if (recordingID.AssetType == eAssetTypes.NPVR && long.TryParse(recordingID.AssetId, out searchRecordingID) && searchRecordingID > 0 )
+                        if (unifiedSearchResult.AssetType == eAssetTypes.NPVR && long.TryParse(unifiedSearchResult.AssetId, out searchRecordingID)
+                                && searchRecordingID > 0 && !searchRecordingsResult.ContainsKey(searchRecordingID))
                         {
-                            filteredRecordingIDs.Add(searchRecordingID);
+                            searchRecordingsResult.Add(searchRecordingID, unifiedSearchResult.m_dUpdateDate);                            
+                        }                       
+                    }
+
+                    if (searchRecordingsResult != null && searchRecordingsResult.Count > 0)
+                    {
+                        foreach (KeyValuePair<long, DateTime> pair in searchRecordingsResult)
+                        {
+                            Recording recording = recordings.Single(x => x.RecordingID == pair.Key);
+                            if (recording != null)
+                            {
+                                SearchRecording searchRecording = new SearchRecording(recording) { UpdateDate = pair.Value };
+                                filteredRecordings.Add(searchRecording);
+                            }
                         }
                     }
                 }
@@ -4342,7 +4358,7 @@ namespace ConditionalAccess
                 }
             }
 
-            return filteredRecordingIDs;
+            return filteredRecordings;
         }
     }
 }

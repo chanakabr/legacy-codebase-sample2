@@ -539,7 +539,9 @@ namespace ApiObjects
         AnonymousPushRegistration = 2,
         IdentifyPushRegistration = 3,
         DeleteUser = 4,
-        ChangeUsers = 5
+        ChangeUsers = 5,
+        EnableUserNotifications = 6,
+        DisableUserNotifications = 7
     }
 
     public enum eAnnouncementStatus
@@ -574,7 +576,8 @@ namespace ApiObjects
         MediaName= 0,
         SeriesName = 1,
         CatalaogStartDate = 2,
-        StartDate = 3
+        StartDate = 3,
+        MediaId = 4,
     }
     public enum TstvRecordingStatus
     {

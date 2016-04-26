@@ -7,16 +7,8 @@ namespace ApiObjects.Notification
         public string Message { get; set; }
         public string DateFormat { get; set; }
         public eOTTAssetTypes AssetType { get; set; }
-
-        public override string ToString()
-        {
-            if (this == null)
-            {
-                return string.Empty;
-            }
-
-            return string.Format("MessageTemplate: Id: {0}, message: {1}, DateFormat: {2}, AssetType: {3}",
-                Id, Message, DateFormat, AssetType.ToString());
-        }
+        public string Sound { get; set; }
+        public string Action { get; set; }
+        public string URL { get; set; }
     }
 }

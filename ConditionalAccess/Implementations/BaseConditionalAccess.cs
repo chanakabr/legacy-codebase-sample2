@@ -17335,9 +17335,9 @@ namespace ConditionalAccess
             return response;
         }
 
-        public RecordingIDsResponse SerachDomainRecordingIDs(string userID, long domainID, List<int> recordingStatuses, string filter, int pageIndex, int pageSize, string orderBy, string requestID)
+        public SearchRecordingResponse SerachDomainRecordings(string userID, long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses, string filter, int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy, string requestID)
         {
-            RecordingIDsResponse response = new RecordingIDsResponse();
+            SearchRecordingResponse response = new SearchRecordingResponse();
             try
             {
                 if (recordingStatuses == null || recordingStatuses.Count == 0)
@@ -17355,35 +17355,36 @@ namespace ConditionalAccess
                     return response;
                 }
 
-                List<long> recordingIDs = ConditionalAccessDAL.GetDomainRecordingIDsByRecordingStatuses(m_nGroupID, domainID, recordingStatuses, pageIndex, pageSize);
-                if (recordingIDs == null)
+                List<Recording> recordings = ConditionalAccessDAL.GetDomainRecordingsByRecordingStatuses(m_nGroupID, domainID, recordingStatuses, pageIndex, pageSize);
+                List<SearchRecording> searchRecordings = null;
+                if (recordings == null)
                 {
                     log.DebugFormat("Failed GetDomainRecordingIDsByRecordingStatuses, recordingIDs is null, DomainID: {0}, UserID: {1}, pageIndex: {2}, pageSize: {3}, ", domainID, userID, pageIndex, pageSize);
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     return response;
                 }
 
-                if (recordingIDs.Count > 0)
-                {
-                    /************************************************
-                     set order by according to order by input param
-                     ************************************************/
-                    ApiObjects.SearchObjects.OrderObj orderByObj = new ApiObjects.SearchObjects.OrderObj();
-                    recordingIDs = Utils.SearchDomainRecordingIDsByFilter(m_nGroupID, userID, domainID, recordingIDs, filter, pageIndex, pageSize, orderByObj, requestID);
-                    if (recordingIDs == null)
+                if (recordings.Count > 0)
+                {                                
+                    searchRecordings = Utils.SearchDomainRecordingIDsByFilter(m_nGroupID, userID, domainID, recordings, filter, pageIndex, pageSize, orderBy, requestID);
+                    if (searchRecordings == null)
                     {
                         log.DebugFormat("Failed SearchDomainRecordingIDsByFilter, recordingIDs is null, DomainID: {0}, UserID: {1}, pageIndex: {2}, pageSize: {3}, filter: {4}", domainID, userID, pageIndex, pageSize, filter);
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                         return response;
                     }
-                }
 
-                response.RecordingIDs = recordingIDs;
+                    response.SearchRecordings = searchRecordings;
+                    response.TotalItems = searchRecordings.Count;
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+                }
+                
             }
 
             catch (Exception ex)
             {
-                StringBuilder sb = new StringBuilder("Exception at GetDomainRecordingIDsByRecordingStatuses. ");
+                StringBuilder sb = new StringBuilder("Exception at SerachDomainRecordings. ");
                 sb.Append(String.Concat("userID: ", userID));
                 sb.Append(String.Concat("domainID: ", domainID));                
                 sb.Append(", RecordingStatuses: ");
