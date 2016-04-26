@@ -77,6 +77,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="Properties\DataSources\ApiObjects.Notification.MessageTemplateResponse.datasource" />
     <None Include="Properties\DataSources\ApiObjects.Notification.NotificationPartnerSettingsResponse.datasource" />
     <None Include="Properties\DataSources\ApiObjects.Notification.NotificationSettingsResponse.datasource" />
     <None Include="Properties\DataSources\ApiObjects.Response.Status.datasource" />
@@ -86,40 +87,15 @@
     <None Include="Service References\ws_notifications\InitiateNotificationActionHandler.ws_notifications.GetAllMessageAnnouncementsResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\ws_notifications\InitiateNotificationActionHandler.ws_notifications.NotificationMessage.datasource">
+    <None Include="Service References\ws_notifications\InitiateNotificationActionHandler.ws_notifications.GetUserFollowsResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\ws_notifications\NotificationService.wsdl" />
-    <None Include="Service References\ws_notifications\NotificationService.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\ws_notifications\NotificationService1.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\ws_notifications\NotificationService2.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\ws_notifications\NotificationService3.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\ws_notifications\NotificationService4.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\ws_notifications\NotificationService5.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\ws_notifications\NotificationService6.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\ws_notifications\NotificationService7.xsd">
-      <SubType>Designer</SubType>
+    <None Include="Service References\ws_notifications\InitiateNotificationActionHandler.ws_notifications.NotificationMessage.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
   </ItemGroup>
   <ItemGroup>
     <WCFMetadataStorage Include="Service References\ws_notifications\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\ws_notifications\NotificationService.disco" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\ws_notifications\configuration91.svcinfo" />
@@ -128,10 +104,41 @@
     <None Include="Service References\ws_notifications\configuration.svcinfo" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Service References\ws_notifications\NotificationService1.wsdl" />
+    <None Include="Service References\ws_notifications\NotificationService8.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ws_notifications\NotificationService81.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ws_notifications\NotificationService82.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ws_notifications\NotificationService83.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ws_notifications\NotificationService84.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ws_notifications\NotificationService85.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ws_notifications\NotificationService86.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ws_notifications\NotificationService87.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ws_notifications\NotificationService88.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\ws_notifications\Reference.svcmap">
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\ws_notifications\NotificationService1.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

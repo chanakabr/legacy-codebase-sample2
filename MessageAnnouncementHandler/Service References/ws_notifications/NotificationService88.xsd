@@ -9,13 +9,31 @@
     </xs:restriction>
   </xs:simpleType>
   <xs:element name="eAnnouncementRecipientsType" nillable="true" type="tns:eAnnouncementRecipientsType" />
+  <xs:simpleType name="eAnnouncementStatus">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="NotSent" />
+      <xs:enumeration value="Sending" />
+      <xs:enumeration value="Sent" />
+      <xs:enumeration value="Aborted" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="eAnnouncementStatus" nillable="true" type="tns:eAnnouncementStatus" />
   <xs:simpleType name="eUserMessageAction">
     <xs:restriction base="xs:string">
       <xs:enumeration value="Login" />
       <xs:enumeration value="Logout" />
       <xs:enumeration value="AnonymousPushRegistration" />
       <xs:enumeration value="IdentifyPushRegistration" />
+      <xs:enumeration value="DeleteUser" />
+      <xs:enumeration value="ChangeUsers" />
     </xs:restriction>
   </xs:simpleType>
   <xs:element name="eUserMessageAction" nillable="true" type="tns:eUserMessageAction" />
+  <xs:simpleType name="eOTTAssetTypes">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="None" />
+      <xs:enumeration value="Series" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="eOTTAssetTypes" nillable="true" type="tns:eOTTAssetTypes" />
 </xs:schema>

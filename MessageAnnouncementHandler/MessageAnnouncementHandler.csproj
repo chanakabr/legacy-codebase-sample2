@@ -98,31 +98,6 @@
     <None Include="Service References\ws_notifications\MessageAnnouncementHandler.ws_notifications.Status.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\ws_notifications\NotificationService.wsdl" />
-    <None Include="Service References\ws_notifications\NotificationService.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\ws_notifications\NotificationService1.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\ws_notifications\NotificationService2.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\ws_notifications\NotificationService3.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\ws_notifications\NotificationService4.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\ws_notifications\NotificationService5.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\ws_notifications\NotificationService6.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\ws_notifications\NotificationService7.xsd">
-      <SubType>Designer</SubType>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\TvmCore\ApiObjects\ApiObjects.csproj">
@@ -156,19 +131,47 @@
     <WCFMetadataStorage Include="Service References\ws_notifications\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\ws_notifications\NotificationService.disco" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Service References\ws_notifications\configuration91.svcinfo" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\ws_notifications\configuration.svcinfo" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Service References\ws_notifications\NotificationService1.wsdl" />
+    <None Include="Service References\ws_notifications\NotificationService8.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ws_notifications\NotificationService81.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ws_notifications\NotificationService82.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ws_notifications\NotificationService83.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ws_notifications\NotificationService84.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ws_notifications\NotificationService85.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ws_notifications\NotificationService86.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ws_notifications\NotificationService87.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ws_notifications\NotificationService88.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\ws_notifications\Reference.svcmap">
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\ws_notifications\NotificationService1.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

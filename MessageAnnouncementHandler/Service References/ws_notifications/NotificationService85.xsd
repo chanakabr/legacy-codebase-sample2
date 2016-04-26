@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:tns="http://tempuri.org/" elementFormDefault="qualified" targetNamespace="http://tempuri.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:import schemaLocation="http://localhost:81/ws_notification/NotificationService.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/NotificationObj" />
-  <xs:import schemaLocation="http://localhost:81/ws_notification/NotificationService.svc?xsd=xsd3" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
-  <xs:import schemaLocation="http://localhost:81/ws_notification/NotificationService.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/NotificationInterface" />
-  <xs:import schemaLocation="http://localhost:81/ws_notification/NotificationService.svc?xsd=xsd5" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" />
-  <xs:import schemaLocation="http://localhost:81/ws_notification/NotificationService.svc?xsd=xsd6" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Response" />
-  <xs:import schemaLocation="http://localhost:81/ws_notification/NotificationService.svc?xsd=xsd7" namespace="http://schemas.datacontract.org/2004/07/ApiObjects" />
+  <xs:import schemaLocation="http://localhost/ws_notification/NotificationService.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/NotificationObj" />
+  <xs:import schemaLocation="http://localhost/ws_notification/NotificationService.svc?xsd=xsd3" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+  <xs:import schemaLocation="http://localhost/ws_notification/NotificationService.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/NotificationInterface" />
+  <xs:import schemaLocation="http://localhost/ws_notification/NotificationService.svc?xsd=xsd5" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" />
+  <xs:import schemaLocation="http://localhost/ws_notification/NotificationService.svc?xsd=xsd6" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Response" />
+  <xs:import schemaLocation="http://localhost/ws_notification/NotificationService.svc?xsd=xsd7" namespace="http://schemas.datacontract.org/2004/07/ApiObjects" />
+  <xs:import schemaLocation="http://localhost/ws_notification/NotificationService.svc?xsd=xsd8" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" />
   <xs:element name="AddNotificationRequest">
     <xs:complexType>
       <xs:sequence>
@@ -199,7 +200,7 @@
         <xs:element minOccurs="0" name="sWSUserName" nillable="true" type="xs:string" />
         <xs:element minOccurs="0" name="sWSPassword" nillable="true" type="xs:string" />
         <xs:element minOccurs="0" name="userId" nillable="true" type="xs:string" />
-        <xs:element xmlns:q15="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" minOccurs="0" name="settings" nillable="true" type="q15:NotificationSettings" />
+        <xs:element xmlns:q15="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" minOccurs="0" name="settings" nillable="true" type="q15:UserNotificationSettings" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -356,6 +357,91 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element xmlns:q26="http://schemas.datacontract.org/2004/07/NotificationObj" minOccurs="0" name="GetAllMessageAnnouncementsResult" nillable="true" type="q26:GetAllMessageAnnouncementsResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SetMessageTemplate">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="sWSUserName" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="sWSPassword" nillable="true" type="xs:string" />
+        <xs:element xmlns:q27="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" minOccurs="0" name="followTemplate" nillable="true" type="q27:MessageTemplate" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SetMessageTemplateResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q28="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" minOccurs="0" name="SetMessageTemplateResult" nillable="true" type="q28:MessageTemplateResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetMessageTemplate">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="sWSUserName" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="sWSPassword" nillable="true" type="xs:string" />
+        <xs:element xmlns:q29="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="assetTypes" type="q29:eOTTAssetTypes" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetMessageTemplateResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q30="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" minOccurs="0" name="GetMessageTemplateResult" nillable="true" type="q30:MessageTemplateResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetUserFollows">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="sWSUserName" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="sWSPassword" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="userId" type="xs:int" />
+        <xs:element minOccurs="0" name="pageSize" type="xs:int" />
+        <xs:element minOccurs="0" name="pageIndex" type="xs:int" />
+        <xs:element xmlns:q31="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" minOccurs="0" name="order" type="q31:OrderDir" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetUserFollowsResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q32="http://schemas.datacontract.org/2004/07/NotificationObj" minOccurs="0" name="GetUserFollowsResult" nillable="true" type="q32:GetUserFollowsResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Unfollow">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="sWSUserName" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="sWSPassword" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="userId" type="xs:int" />
+        <xs:element xmlns:q33="http://schemas.datacontract.org/2004/07/NotificationObj" minOccurs="0" name="followData" nillable="true" type="q33:FollowDataBase" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UnfollowResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q34="http://schemas.datacontract.org/2004/07/ApiObjects.Response" minOccurs="0" name="UnfollowResult" nillable="true" type="q34:Status" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Follow">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="sWSUserName" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="sWSPassword" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="userId" type="xs:int" />
+        <xs:element xmlns:q35="http://schemas.datacontract.org/2004/07/NotificationObj" minOccurs="0" name="followData" nillable="true" type="q35:FollowDataBase" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="FollowResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q36="http://schemas.datacontract.org/2004/07/ApiObjects.Response" minOccurs="0" name="FollowResult" nillable="true" type="q36:Status" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
