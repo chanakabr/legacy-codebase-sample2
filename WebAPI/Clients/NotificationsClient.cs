@@ -178,8 +178,6 @@ namespace WebAPI.Clients
                 Group group = GroupsManager.GetGroup(groupId);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-
-
                     response = Notification.UpdateNotificationSettings(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, settingsObj);
                 }
             }
