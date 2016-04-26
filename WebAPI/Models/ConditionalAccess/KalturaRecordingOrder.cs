@@ -8,12 +8,12 @@ namespace WebAPI.Models.ConditionalAccess
 
     public enum KalturaRecordingOrder
     {
-        a_to_z,
+        title_asc,
 
-        z_to_a,
+        title_desc,
 
-        newest,
+        start_date_asc,
 
-        oldest_first
+        start_date_desc
     }
 }

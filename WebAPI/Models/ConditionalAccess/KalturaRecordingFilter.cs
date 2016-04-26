@@ -14,7 +14,7 @@ namespace WebAPI.Models.ConditionalAccess
     /// Filtering assets
     /// </summary>
     [Serializable]
-    public class KalturaRecordingFilter : KalturaOTTObject
+    public class KalturaRecordingFilter : KalturaBaseFilter
     {
 
         /// <summary>
@@ -31,7 +31,33 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "filter_expression")]
         [JsonProperty("filter_expression")]
-        [XmlElement(ElementName = "filter_expression")]
+        [XmlElement(ElementName = "filter_expression", IsNullable = true)]
         public string filter_expression { get; set; }
+
+        /// <summary>
+        /// with
+        /// </summary>
+        [DataMember(Name = "with")]
+        [JsonProperty(PropertyName = "with")]
+        [XmlArray(ElementName = "with", IsNullable = true)]
+        [XmlArrayItem(ElementName = "with")]
+        public List<KalturaCatalogWithHolder> with { get; set; }
+
+        /// <summary>
+        /// request ID
+        /// </summary>
+        [DataMember(Name = "request_id")]
+        [JsonProperty("request_id")]
+        [XmlElement(ElementName = "request_id", IsNullable = true)]
+        public string request_id { get; set; }
+
+        /// <summary>
+        /// order by
+        /// </summary>
+        [DataMember(Name = "order_by")]
+        [JsonProperty("order_by")]
+        [XmlElement(ElementName = "order_by", IsNullable = true)]
+        public KalturaRecordingOrder? order_by { get; set; }
+        
     }
 }

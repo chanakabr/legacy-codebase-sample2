@@ -79,8 +79,7 @@ namespace WebAPI.Controllers
         /// 
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaRecordingListResponse List(KalturaRecordingFilter filter, List<KalturaCatalogWithHolder> with = null,
-                                                 KalturaRecordingOrder? order_by = null, KalturaFilterPager pager = null, string request_id = null)
+        public KalturaRecordingListResponse List(KalturaRecordingFilter filter, KalturaFilterPager pager = null)
         {
             KalturaRecordingListResponse response = null;
 
@@ -95,13 +94,15 @@ namespace WebAPI.Controllers
                     pager = new KalturaFilterPager();                    
                 }
 
-                if (with == null)
-                    with = new List<KalturaCatalogWithHolder>();
-
                 if (filter == null)
                 {
                     filter = new KalturaRecordingFilter();
-                }                
+                }
+
+                if (filter.with == null)
+                {
+                    filter.with = new List<KalturaCatalogWithHolder>();
+                }
 
                 if (!string.IsNullOrEmpty(filter.filter_expression) && filter.filter_expression.Length > 1024)
                 {
@@ -110,7 +111,7 @@ namespace WebAPI.Controllers
 
                 // call client                
                 response = ClientsManager.ConditionalAccessClient().SearchRecordings(groupId, userId, domainId, filter.RecordingStatuses.Select(x => x.status).ToList(), filter.filter_expression, pager.PageIndex,
-                                                                                             pager.PageSize, order_by, with.Select(x => x.type).ToList(), request_id);
+                                                                                             pager.PageSize, filter.order_by, filter.with.Select(x => x.type).ToList(), filter.request_id);
             }
             catch (ClientException ex)
             {

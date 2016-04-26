@@ -17,7 +17,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "recording_id")]
         [JsonProperty("recording_id")]
-        [XmlElement(ElementName = "recording_id")]
+        [XmlElement(ElementName = "recording_id", IsNullable = true)]
         public long RecordingId { get; set; }
 
         /// <summary>

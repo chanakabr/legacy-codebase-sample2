@@ -339,19 +339,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             switch (order)
             {
-                case KalturaRecordingOrder.a_to_z:
+                case KalturaRecordingOrder.title_asc:
                     result.m_eOrderBy = OrderBy.NAME;
                     result.m_eOrderDir = OrderDir.ASC;
                     break;
-                case KalturaRecordingOrder.z_to_a:
+                case KalturaRecordingOrder.title_desc:
                     result.m_eOrderBy = OrderBy.NAME;
                     result.m_eOrderDir = OrderDir.DESC;
                     break;
-                case KalturaRecordingOrder.newest:
+                case KalturaRecordingOrder.start_date_asc:
                     result.m_eOrderBy = OrderBy.START_DATE;
                     result.m_eOrderDir = OrderDir.DESC;
                     break;
-                case KalturaRecordingOrder.oldest_first:
+                case KalturaRecordingOrder.start_date_desc:
                     result.m_eOrderBy = OrderBy.START_DATE;
                     result.m_eOrderDir = OrderDir.ASC;
                     break;
