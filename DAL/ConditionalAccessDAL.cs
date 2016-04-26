@@ -2697,9 +2697,9 @@ namespace DAL
             return recordings;
         }
 
-        public static List<Recording> GetDomainRecordingsByRecordingStatuses(int groupID, long domainID, List<TstvRecordingStatus> recordingStatuses, int pageIndex, int pageSize)
+        public static Dictionary<long, Recording> GetDomainRecordingsByRecordingStatuses(int groupID, long domainID, List<TstvRecordingStatus> recordingStatuses, int pageIndex, int pageSize)
         {
-            List<Recording> recordings = null;
+            Dictionary<long, Recording> recordings = null;
             ODBCWrapper.StoredProcedure spGetDomainExistingRecordingID = new ODBCWrapper.StoredProcedure("GetDomainRecordingsByRecordingStatuses");
             spGetDomainExistingRecordingID.SetConnectionKey("CONNECTION_STRING");
             spGetDomainExistingRecordingID.AddParameter("@GroupID", groupID);
@@ -2709,14 +2709,15 @@ namespace DAL
             DataTable dt = spGetDomainExistingRecordingID.Execute();
             if (dt != null && dt.Rows != null)
             {
-                recordings = new List<Recording>();
+                recordings = new Dictionary<long, Recording>();
                 foreach (DataRow dr in dt.Rows)
                 {
-                    recordings.Add(new Recording()
+                    long recordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "RECORDING_ID");
+                    recordings.Add(recordingID, new Recording()
                     {
                         Status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, ApiObjects.Response.eResponseStatus.OK.ToString()),
                         EpgID = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_ID"),
-                        RecordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "RECORDING_ID"),
+                        RecordingID = recordingID,
                         RecordingStatus = (TstvRecordingStatus)ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORDING_STATUS"),
                         ExternalRecordingId = ODBCWrapper.Utils.GetSafeStr(dr, "EXTERNAL_RECORDING_ID"),
                         EpgStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "START_DATE"),

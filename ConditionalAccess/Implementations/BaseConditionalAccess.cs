@@ -17346,7 +17346,7 @@ namespace ConditionalAccess
                     return response;
                 }
 
-                List<Recording> recordings = ConditionalAccessDAL.GetDomainRecordingsByRecordingStatuses(m_nGroupID, domainID, recordingStatuses, pageIndex, pageSize);
+                Dictionary<long, Recording> recordings = ConditionalAccessDAL.GetDomainRecordingsByRecordingStatuses(m_nGroupID, domainID, recordingStatuses, pageIndex, pageSize);
                 List<SearchRecording> searchRecordings = null;
                 if (recordings == null)
                 {
