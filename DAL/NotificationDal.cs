@@ -1343,7 +1343,7 @@ namespace DAL
             return result;
         }
 
-        public static bool UpdateNotificationSettings(int groupID, string userId, bool? enablePush, bool? enableMail, bool? enableInbox)
+        public static bool UpdateUserNotificationSettings(int groupID, string userId, UserNotificationSettings settings)
         {
             bool result = false;
             UserNotification userNotification = null;
@@ -1381,15 +1381,8 @@ namespace DAL
                     }
                     else
                     {
-                        // document retrieved - update it
-                        if (enableInbox != null)
-                            userNotification.Settings.EnableInbox = (bool)enableInbox;
-
-                        if (enableMail != null)
-                            userNotification.Settings.EnableMail = (bool)enableMail;
-
-                        if (enablePush != null)
-                            userNotification.Settings.EnablePush = (bool)enablePush;
+                        // document retrieved - update it    
+                        UpdateUserNotification(settings, ref userNotification);
 
                         // insert document to CB
                         if (cbManager.Set<UserNotification>(cbKey, userNotification, false, 0, cas))
@@ -1428,6 +1421,30 @@ namespace DAL
             return result;
         }
 
+        private static void UpdateUserNotification(UserNotificationSettings settings, ref UserNotification userNotification)
+        {
+            if (settings.EnableInbox.HasValue)
+                userNotification.Settings.EnableInbox = settings.EnableInbox.Value;
+
+            if (settings.EnableMail.HasValue)
+                userNotification.Settings.EnableMail = settings.EnableMail.Value;
+
+            if (settings.EnablePush.HasValue)
+                userNotification.Settings.EnablePush = settings.EnablePush.Value;
+
+            if (settings.FollowSettings != null)
+            {
+                if (settings.FollowSettings.EnableInbox.HasValue)
+                    userNotification.Settings.FollowSettings.EnableInbox = settings.FollowSettings.EnableInbox.Value;
+
+                if (settings.FollowSettings.EnableMail.HasValue)
+                    userNotification.Settings.FollowSettings.EnableMail = settings.FollowSettings.EnableMail.Value;
+
+                if (settings.FollowSettings.EnablePush.HasValue)
+                    userNotification.Settings.FollowSettings.EnablePush = settings.FollowSettings.EnablePush.Value;
+            }
+        }
+
         public static eOTTAssetTypes GetOttAssetTypByMediaType(int mediaTypeId)
         {
             eOTTAssetTypes assetType = eOTTAssetTypes.None;
@@ -1435,7 +1452,7 @@ namespace DAL
             try
             {
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");                
+                selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
                 selectQuery += string.Format("SELECT ASSET_TYPE FROM [media_types] WHERE Id = {0}", mediaTypeId);
 
                 if (selectQuery.Execute("query", true) != null && selectQuery.Table("query").DefaultView.Count > 0)

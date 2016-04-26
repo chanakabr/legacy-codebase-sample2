@@ -873,6 +873,83 @@ namespace TvinciImporter.Notification_WCF {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="UserFollowSettings", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification")]
+    [System.SerializableAttribute()]
+    public partial class UserFollowSettings : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Nullable<bool> EnableInboxField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Nullable<bool> EnableMailField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Nullable<bool> EnablePushField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Nullable<bool> EnableInbox {
+            get {
+                return this.EnableInboxField;
+            }
+            set {
+                if ((this.EnableInboxField.Equals(value) != true)) {
+                    this.EnableInboxField = value;
+                    this.RaisePropertyChanged("EnableInbox");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Nullable<bool> EnableMail {
+            get {
+                return this.EnableMailField;
+            }
+            set {
+                if ((this.EnableMailField.Equals(value) != true)) {
+                    this.EnableMailField = value;
+                    this.RaisePropertyChanged("EnableMail");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Nullable<bool> EnablePush {
+            get {
+                return this.EnablePushField;
+            }
+            set {
+                if ((this.EnablePushField.Equals(value) != true)) {
+                    this.EnablePushField = value;
+                    this.RaisePropertyChanged("EnablePush");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="MessageAnnouncement", Namespace="http://schemas.datacontract.org/2004/07/NotificationObj")]
     [System.SerializableAttribute()]
     public partial class MessageAnnouncement : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
@@ -1260,6 +1337,9 @@ namespace TvinciImporter.Notification_WCF {
         private string FollowPhraseField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string FollowReferenceField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int StatusField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -1267,6 +1347,9 @@ namespace TvinciImporter.Notification_WCF {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string TitleField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int TypeField;
         
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
@@ -1300,6 +1383,19 @@ namespace TvinciImporter.Notification_WCF {
                 if ((object.ReferenceEquals(this.FollowPhraseField, value) != true)) {
                     this.FollowPhraseField = value;
                     this.RaisePropertyChanged("FollowPhrase");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string FollowReference {
+            get {
+                return this.FollowReferenceField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.FollowReferenceField, value) != true)) {
+                    this.FollowReferenceField = value;
+                    this.RaisePropertyChanged("FollowReference");
                 }
             }
         }
@@ -1339,6 +1435,19 @@ namespace TvinciImporter.Notification_WCF {
                 if ((object.ReferenceEquals(this.TitleField, value) != true)) {
                     this.TitleField = value;
                     this.RaisePropertyChanged("Title");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int Type {
+            get {
+                return this.TypeField;
+            }
+            set {
+                if ((this.TypeField.Equals(value) != true)) {
+                    this.TypeField = value;
+                    this.RaisePropertyChanged("Type");
                 }
             }
         }
@@ -1415,7 +1524,7 @@ namespace TvinciImporter.Notification_WCF {
         ApiObjects.Notification.NotificationPartnerSettingsResponse GetNotificationPartnerSettings(string sWSUserName, string sWSPassword);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateNotificationSettings", ReplyAction="http://tempuri.org/INotificationService/UpdateNotificationSettingsResponse")]
-        ApiObjects.Response.Status UpdateNotificationSettings(string sWSUserName, string sWSPassword, string userId, ApiObjects.Notification.NotificationSettings settings);
+        ApiObjects.Response.Status UpdateNotificationSettings(string sWSUserName, string sWSPassword, string userId, ApiObjects.Notification.UserNotificationSettings settings);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetNotificationSettings", ReplyAction="http://tempuri.org/INotificationService/GetNotificationSettingsResponse")]
         ApiObjects.Notification.NotificationSettingsResponse GetNotificationSettings(string sWSUserName, string sWSPassword, int userId);
@@ -1531,7 +1640,7 @@ namespace TvinciImporter.Notification_WCF {
             return base.Channel.GetNotificationPartnerSettings(sWSUserName, sWSPassword);
         }
         
-        public ApiObjects.Response.Status UpdateNotificationSettings(string sWSUserName, string sWSPassword, string userId, ApiObjects.Notification.NotificationSettings settings) {
+        public ApiObjects.Response.Status UpdateNotificationSettings(string sWSUserName, string sWSPassword, string userId, ApiObjects.Notification.UserNotificationSettings settings) {
             return base.Channel.UpdateNotificationSettings(sWSUserName, sWSPassword, userId, settings);
         }
         
