@@ -17163,6 +17163,15 @@ namespace ConditionalAccess
                     log.ErrorFormat("Failed parsing EPG start date, epgID: {0}, domainID: {1}, userID {2}, startDate: {3}", epg.EPG_ID, domainID, userID, epg.START_DATE);
                     return response;
                 }
+
+                // validate recording schedule window
+                if (accountSettings.RecordingScheduleWindowBuffer.HasValue && epgStartDate.AddMinutes(accountSettings.RecordingScheduleWindowBuffer.Value) >= DateTime.UtcNow)
+                {
+                    log.DebugFormat("account CatchUp not enabled, epgID: {0}, domainID: {1}, userID {2}", epg.EPG_ID, domainID, userID);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramNotInRecordingScheduleWindow, eResponseStatus.ProgramNotInRecordingScheduleWindow.ToString());
+                    return response;
+                }
+
                 if (epgStartDate < DateTime.UtcNow)
                 {
                     if (!accountSettings.IsCatchUpEnabled.HasValue || !accountSettings.IsCatchUpEnabled.Value)
