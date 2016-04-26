@@ -559,6 +559,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="IsTrickPlayEnabled" nillable="true" type="s:boolean" />
           <s:element minOccurs="1" maxOccurs="1" name="CatchUpBufferLength" nillable="true" type="s:long" />
           <s:element minOccurs="1" maxOccurs="1" name="TrickPlayBufferLength" nillable="true" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="RecordingScheduleWindowBuffer" nillable="true" type="s:long" />
         </s:sequence>
       </s:complexType>
       <s:element name="UpdateTimeShiftedTvPartnerSettings">
@@ -2693,6 +2694,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="CHANNEL_CATCH_UP_BUFFER" type="s:long" />
           <s:element minOccurs="1" maxOccurs="1" name="ENABLE_START_OVER" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="ENABLE_TRICK_PLAY" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="IS_RECORDED" type="s:int" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="ArrayOfEPGDictionary">
