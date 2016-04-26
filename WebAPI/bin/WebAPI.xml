@@ -297,7 +297,7 @@
             <param name="message_template">The actual message with placeholders to be presented to the user</param>       
             <returns></returns>
             <remarks>
-            Possible status codes: Invalid place-holders = 8014
+            Possible status codes: message place holders invalid = 8014, url placeholders invalid = 8017
             </remarks>
         </member>
         <member name="M:WebAPI.Controllers.MessageTemplateController.Get(WebAPI.Models.General.KalturaOTTAssetType)">
@@ -2322,6 +2322,11 @@
             Identifies the asset type (EPG, Media, etc). 
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaPersonalAsset.Following">
+            <summary>
+            Is followed by user. 
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Catalog.KalturaSlimAsset">
             <summary>
             Slim Asset Details
@@ -3108,12 +3113,12 @@
             Possible values: Series
             </summary>
         </member>
-        <member name="T:WebAPI.Models.Notification.KalturaListFollowDataResponse">
+        <member name="T:WebAPI.Models.Notification.KalturaListFollowDataTvSeriesResponse">
             <summary>
             List of message follow data.
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notification.KalturaListFollowDataResponse.FollowDataList">
+        <member name="P:WebAPI.Models.Notification.KalturaListFollowDataTvSeriesResponse.FollowDataList">
             <summary>
             Follow data list
             </summary>
@@ -3131,6 +3136,11 @@
         <member name="P:WebAPI.Models.Notification.KalturaNotificationSettings.PushNotificationEnabled">
             <summary>
             push notification enabled
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationSettings.PushFollowEnabled">
+            <summary>
+            push follow enabled
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaPartnerNotificationSettings.PushNotificationEnabled">

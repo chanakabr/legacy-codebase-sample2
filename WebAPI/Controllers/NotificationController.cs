@@ -33,6 +33,10 @@ namespace WebAPI.Controllers
 
             try
             {
+                // validate push token
+                if (string.IsNullOrWhiteSpace(push_token))
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "push token cannot be empty");
+
                 response = ClientsManager.NotificationClient().SetPush(groupId, userId, udid, push_token);
             }
             catch (ClientException ex)
