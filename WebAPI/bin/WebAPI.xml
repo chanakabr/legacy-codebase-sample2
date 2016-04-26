@@ -3138,6 +3138,11 @@
             push notification enabled
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationSettings.PushFollowEnabled">
+            <summary>
+            push follow enabled
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Notification.KalturaPartnerNotificationSettings.PushNotificationEnabled">
             <summary>
             push notification enabled
