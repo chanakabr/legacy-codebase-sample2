@@ -22,11 +22,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.push_notification_enabled, opt => opt.MapFrom(src => src.PushNotificationEnabled))
                  .ForMember(dest => dest.push_system_announcements_enabled, opt => opt.MapFrom(src => src.PushSystemAnnouncementsEnabled));
 
-            Mapper.CreateMap<NotificationSettings, KalturaNotificationSettings>()
-                 .ForMember(dest => dest.PushNotificationEnabled, opt => opt.MapFrom(src => src.push_notification_enabled));
+            Mapper.CreateMap<UserNotificationSettings, KalturaNotificationSettings>()
+                 .ForMember(dest => dest.PushNotificationEnabled, opt => opt.MapFrom(src => src.EnablePush))
+                 .ForMember(dest => dest.PushFollowEnabled, opt => opt.MapFrom(src => GetFollowSettingsEnablePush(src)));
 
-            Mapper.CreateMap<KalturaNotificationSettings, NotificationSettings>()
-                 .ForMember(dest => dest.push_notification_enabled, opt => opt.MapFrom(src => src.PushNotificationEnabled));
+            Mapper.CreateMap<KalturaNotificationSettings, UserNotificationSettings>()
+                 .ForMember(dest => dest.EnablePush, opt => opt.MapFrom(src => src.PushNotificationEnabled));
 
             Mapper.CreateMap<MessageAnnouncement, KalturaAnnouncement>()
                  .ForMember(dest => dest.Enabled, opt => opt.MapFrom(src => src.Enabled))
@@ -80,6 +81,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
                  .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
                  .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0));
+        }
+
+        private static bool? GetFollowSettingsEnablePush(UserNotificationSettings userFollowSettings)
+        {
+            return userFollowSettings.FollowSettings.EnablePush;
         }
 
         public static KalturaAnnouncementRecipientsType ConvertRecipientsType(eAnnouncementRecipientsType recipients)
