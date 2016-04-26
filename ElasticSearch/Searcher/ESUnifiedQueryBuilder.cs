@@ -299,7 +299,7 @@ namespace ElasticSearch.Searcher
 
             if (this.SearchDefinitions.shouldSearchRecordings)
             {
-                unifiedFilter.AddChild(recordingPrefixTerm);
+                unifiedFilter.AddChild(recordingFilter);
             }
 
             #endregion
