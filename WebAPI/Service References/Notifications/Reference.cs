@@ -1056,15 +1056,24 @@ namespace WebAPI.Notifications {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="NotificationSettings", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="UserNotificationSettings", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification")]
     [System.SerializableAttribute()]
-    public partial class NotificationSettings : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+    public partial class UserNotificationSettings : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
         
         [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Nullable<bool> push_notification_enabledField;
+        private System.Nullable<bool> EnableInboxField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Nullable<bool> EnableMailField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Nullable<bool> EnablePushField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private WebAPI.Notifications.UserFollowSettings FollowSettingsField;
         
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
@@ -1077,14 +1086,130 @@ namespace WebAPI.Notifications {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Nullable<bool> push_notification_enabled {
+        public System.Nullable<bool> EnableInbox {
             get {
-                return this.push_notification_enabledField;
+                return this.EnableInboxField;
             }
             set {
-                if ((this.push_notification_enabledField.Equals(value) != true)) {
-                    this.push_notification_enabledField = value;
-                    this.RaisePropertyChanged("push_notification_enabled");
+                if ((this.EnableInboxField.Equals(value) != true)) {
+                    this.EnableInboxField = value;
+                    this.RaisePropertyChanged("EnableInbox");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Nullable<bool> EnableMail {
+            get {
+                return this.EnableMailField;
+            }
+            set {
+                if ((this.EnableMailField.Equals(value) != true)) {
+                    this.EnableMailField = value;
+                    this.RaisePropertyChanged("EnableMail");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Nullable<bool> EnablePush {
+            get {
+                return this.EnablePushField;
+            }
+            set {
+                if ((this.EnablePushField.Equals(value) != true)) {
+                    this.EnablePushField = value;
+                    this.RaisePropertyChanged("EnablePush");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public WebAPI.Notifications.UserFollowSettings FollowSettings {
+            get {
+                return this.FollowSettingsField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.FollowSettingsField, value) != true)) {
+                    this.FollowSettingsField = value;
+                    this.RaisePropertyChanged("FollowSettings");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="UserFollowSettings", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification")]
+    [System.SerializableAttribute()]
+    public partial class UserFollowSettings : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Nullable<bool> EnableInboxField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Nullable<bool> EnableMailField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Nullable<bool> EnablePushField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Nullable<bool> EnableInbox {
+            get {
+                return this.EnableInboxField;
+            }
+            set {
+                if ((this.EnableInboxField.Equals(value) != true)) {
+                    this.EnableInboxField = value;
+                    this.RaisePropertyChanged("EnableInbox");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Nullable<bool> EnableMail {
+            get {
+                return this.EnableMailField;
+            }
+            set {
+                if ((this.EnableMailField.Equals(value) != true)) {
+                    this.EnableMailField = value;
+                    this.RaisePropertyChanged("EnableMail");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Nullable<bool> EnablePush {
+            get {
+                return this.EnablePushField;
+            }
+            set {
+                if ((this.EnablePushField.Equals(value) != true)) {
+                    this.EnablePushField = value;
+                    this.RaisePropertyChanged("EnablePush");
                 }
             }
         }
@@ -1112,7 +1237,7 @@ namespace WebAPI.Notifications {
         private WebAPI.Notifications.Status StatusField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private WebAPI.Notifications.NotificationSettings settingsField;
+        private WebAPI.Notifications.UserNotificationSettings settingsField;
         
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
@@ -1138,7 +1263,7 @@ namespace WebAPI.Notifications {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public WebAPI.Notifications.NotificationSettings settings {
+        public WebAPI.Notifications.UserNotificationSettings settings {
             get {
                 return this.settingsField;
             }
@@ -2054,10 +2179,10 @@ namespace WebAPI.Notifications {
         System.Threading.Tasks.Task<WebAPI.Notifications.NotificationPartnerSettingsResponse> GetNotificationPartnerSettingsAsync(string sWSUserName, string sWSPassword);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateNotificationSettings", ReplyAction="http://tempuri.org/INotificationService/UpdateNotificationSettingsResponse")]
-        WebAPI.Notifications.Status UpdateNotificationSettings(string sWSUserName, string sWSPassword, string userId, WebAPI.Notifications.NotificationSettings settings);
+        WebAPI.Notifications.Status UpdateNotificationSettings(string sWSUserName, string sWSPassword, string userId, WebAPI.Notifications.UserNotificationSettings settings);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateNotificationSettings", ReplyAction="http://tempuri.org/INotificationService/UpdateNotificationSettingsResponse")]
-        System.Threading.Tasks.Task<WebAPI.Notifications.Status> UpdateNotificationSettingsAsync(string sWSUserName, string sWSPassword, string userId, WebAPI.Notifications.NotificationSettings settings);
+        System.Threading.Tasks.Task<WebAPI.Notifications.Status> UpdateNotificationSettingsAsync(string sWSUserName, string sWSPassword, string userId, WebAPI.Notifications.UserNotificationSettings settings);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetNotificationSettings", ReplyAction="http://tempuri.org/INotificationService/GetNotificationSettingsResponse")]
         WebAPI.Notifications.NotificationSettingsResponse GetNotificationSettings(string sWSUserName, string sWSPassword, int userId);
@@ -2259,11 +2384,11 @@ namespace WebAPI.Notifications {
             return base.Channel.GetNotificationPartnerSettingsAsync(sWSUserName, sWSPassword);
         }
         
-        public WebAPI.Notifications.Status UpdateNotificationSettings(string sWSUserName, string sWSPassword, string userId, WebAPI.Notifications.NotificationSettings settings) {
+        public WebAPI.Notifications.Status UpdateNotificationSettings(string sWSUserName, string sWSPassword, string userId, WebAPI.Notifications.UserNotificationSettings settings) {
             return base.Channel.UpdateNotificationSettings(sWSUserName, sWSPassword, userId, settings);
         }
         
-        public System.Threading.Tasks.Task<WebAPI.Notifications.Status> UpdateNotificationSettingsAsync(string sWSUserName, string sWSPassword, string userId, WebAPI.Notifications.NotificationSettings settings) {
+        public System.Threading.Tasks.Task<WebAPI.Notifications.Status> UpdateNotificationSettingsAsync(string sWSUserName, string sWSPassword, string userId, WebAPI.Notifications.UserNotificationSettings settings) {
             return base.Channel.UpdateNotificationSettingsAsync(sWSUserName, sWSPassword, userId, settings);
         }
         

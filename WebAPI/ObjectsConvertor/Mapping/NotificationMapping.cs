@@ -22,11 +22,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.push_notification_enabled, opt => opt.MapFrom(src => src.PushNotificationEnabled))
                  .ForMember(dest => dest.push_system_announcements_enabled, opt => opt.MapFrom(src => src.PushSystemAnnouncementsEnabled));
 
-            Mapper.CreateMap<NotificationSettings, KalturaNotificationSettings>()
-                 .ForMember(dest => dest.PushNotificationEnabled, opt => opt.MapFrom(src => src.push_notification_enabled));
+            Mapper.CreateMap<UserFollowSettings, KalturaNotificationSettings>()
+                 .ForMember(dest => dest.PushNotificationEnabled, opt => opt.MapFrom(src => src.EnablePush));
 
-            Mapper.CreateMap<KalturaNotificationSettings, NotificationSettings>()
-                 .ForMember(dest => dest.push_notification_enabled, opt => opt.MapFrom(src => src.PushNotificationEnabled));
+            Mapper.CreateMap<KalturaNotificationSettings, UserFollowSettings>()
+                 .ForMember(dest => dest.EnablePush, opt => opt.MapFrom(src => src.PushNotificationEnabled));
 
             Mapper.CreateMap<MessageAnnouncement, KalturaAnnouncement>()
                  .ForMember(dest => dest.Enabled, opt => opt.MapFrom(src => src.Enabled))
