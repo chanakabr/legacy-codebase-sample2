@@ -13100,7 +13100,7 @@ namespace WebAPI.Api {
         
         private System.Nullable<long> trickPlayBufferLengthField;
         
-        private System.Nullable<long> recordingScheduleWindowBufferField;
+        private System.Nullable<long> recordingScheduleWindowField;
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
@@ -13170,12 +13170,12 @@ namespace WebAPI.Api {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
-        public System.Nullable<long> RecordingScheduleWindowBuffer {
+        public System.Nullable<long> RecordingScheduleWindow {
             get {
-                return this.recordingScheduleWindowBufferField;
+                return this.recordingScheduleWindowField;
             }
             set {
-                this.recordingScheduleWindowBufferField = value;
+                this.recordingScheduleWindowField = value;
             }
         }
     }
