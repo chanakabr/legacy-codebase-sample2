@@ -775,13 +775,13 @@
     <Content Include="Web References\ConditionalAccess\UserPurhcasedAssetsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\ConditionalAccess\Recording2.datasource">
+    <Content Include="Web References\ConditionalAccess\Recording.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\ConditionalAccess\RecordingIDsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\ConditionalAccess\RecordingResponse2.datasource">
+    <Content Include="Web References\ConditionalAccess\RecordingResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <None Include="Web References\Domains\module.disco" />
