@@ -778,9 +778,6 @@
     <Content Include="Web References\ConditionalAccess\Recording.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
-    <Content Include="Web References\ConditionalAccess\RecordingIDsResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
     <Content Include="Web References\ConditionalAccess\RecordingResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
