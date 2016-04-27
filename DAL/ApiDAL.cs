@@ -3361,7 +3361,7 @@ namespace DAL
         }
 
         public static bool UpdateTimeShiftedTvPartnerSettings(int groupID, bool? isCatchupAllowed, bool? isCdvrEnabled, bool? isStartOverEnabled, bool? isTrickPlayEnabled,
-                                                                long? catchUpBufferLength, long? trickPlayBufferLength)
+                                                                long? catchUpBufferLength, long? trickPlayBufferLength, long? recordingScheduleWindowBuffer)
         {
             bool isUpdated = false;
             try
@@ -3374,7 +3374,8 @@ namespace DAL
                 spUpdateTimeShiftedTvPartnerSettings.AddParameter("@AllowStartOver", isStartOverEnabled);
                 spUpdateTimeShiftedTvPartnerSettings.AddParameter("@AllowTrickPlay", isTrickPlayEnabled);
                 spUpdateTimeShiftedTvPartnerSettings.AddParameter("@CatchUpBuffer", catchUpBufferLength);
-                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@TrickPlayBuffer", trickPlayBufferLength);                
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@TrickPlayBuffer", trickPlayBufferLength);
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@RecordingScheduleWindowBuffer", recordingScheduleWindowBuffer);
 
                 isUpdated = spUpdateTimeShiftedTvPartnerSettings.ExecuteReturnValue<bool>();
             }
