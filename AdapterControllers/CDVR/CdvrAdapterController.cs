@@ -14,6 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TVinciShared;
 using ApiObjects.TimeShiftedTv;
+using System.Web;
 
 namespace AdapterControllers.CDVR
 {
@@ -161,8 +162,15 @@ namespace AdapterControllers.CDVR
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    //call Adapter Record
-                    adapterResponse = client.Record(startTimeSeconds, durationSeconds, channelId, adapter.ID, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                    try
+                    {
+                        //call Adapter Record
+                        adapterResponse = client.Record(startTimeSeconds, durationSeconds, channelId, adapter.ID, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                    }
+                    catch (Exception ex)
+                    {
+                        ReportCDVRAdapterError(adapterId, cdvrAdapterUrl, ex, "Record", "C-DVR adapter");
+                    }
                 }
 
                 LogAdapterResponse(adapterResponse, "Record");
@@ -737,22 +745,44 @@ namespace AdapterControllers.CDVR
             }
             else if (adapterResponse.Recording == null)
             {
-                logMessage = string.Format("Cdvr Adapter {0} Result Status: Message = {1}, Code = {2}",
+                logMessage = string.Format("Cdvr Adapter {0} Result Status: Message = {1}, Code = {2}. Recording is null",
                                  action != null ? action : string.Empty,                                                                                                                // {0}
                                  adapterResponse != null && adapterResponse.Status != null && adapterResponse.Status.Message != null ? adapterResponse.Status.Message : string.Empty,   // {1}
                                  adapterResponse != null && adapterResponse.Status != null ? adapterResponse.Status.Code : -1);                                                         // {2}
             }
             else
             {
-                logMessage = string.Format("Cdvr Adapter RecordingId = {0}, RecordingState = {1}",                  
-                  adapterResponse.Recording.RecordingId,
-                    adapterResponse.Recording.RecordingState
-                    );
+                logMessage = string.Format("Cdvr Adapter {0} Result Status: Message = {1}, Code = {2}. Recording: RecordingId = {3}, RecordingState = {4}",
+                    // {0}
+                    action != null ? action : string.Empty,
+                    // {1}
+                    adapterResponse != null && adapterResponse.Status != null && adapterResponse.Status.Message != null ? adapterResponse.Status.Message : string.Empty,
+                    // {2}
+                    adapterResponse != null && adapterResponse.Status != null ? adapterResponse.Status.Code : -1,                                                         
+                    //{3}
+                    adapterResponse.Recording.RecordingId, 
+                    // {4}
+                    adapterResponse.Recording.RecordingState);
             }
 
             log.Debug(logMessage);
         }
-        
+
+        private static void ReportCDVRAdapterError(int adapterId, string cdvrAdapterUrl, Exception ex, string adapterApi, string topic)
+        {
+            var previousTopic = HttpContext.Current.Items[Constants.TOPIC];
+            HttpContext.Current.Items[Constants.TOPIC] = topic;
+
+            log.ErrorFormat("Failed communicating with adapter. Adapter identifier: {0}, Adapter URL: {1}, Adapter Api: {2}. Error: {3}",
+                adapterId,
+                cdvrAdapterUrl,
+                adapterApi,
+                ex);
+            HttpContext.Current.Items[Constants.TOPIC] = previousTopic;
+
+            throw ex;
+        }
+
         #endregion
     }
 }
