@@ -26,8 +26,10 @@ namespace NotificationObj
         public eAnnouncementRecipientsType Recipients { get; set; }
         [DataMember]
         public int MessageAnnouncementId { get; set; }
+        [DataMember]
+        public int AnnouncementId { get; set; }
 
-        public MessageAnnouncement(string name, string msg, bool enabled, long startTime, string timezone, eAnnouncementRecipientsType recipients, eAnnouncementStatus status = eAnnouncementStatus.NotSent)
+        public MessageAnnouncement(string name, string msg, bool enabled, long startTime, string timezone, eAnnouncementRecipientsType recipients, eAnnouncementStatus status = eAnnouncementStatus.NotSent, int announcementId = 0)
         {
             Name = name;
             Message = msg;
@@ -36,11 +38,12 @@ namespace NotificationObj
             Timezone = timezone;
             Recipients = recipients;
             Status = status;
+            AnnouncementId = announcementId;
         }
 
         public override string ToString()
         {
-            return string.Format("MessageAnnouncement: Name: {0}, Messagel {1}, StartTime: {2}, TimeZone: {3} Status: {4}, Recipients {5} Enabled {6}", Name, Message, StartTime, Timezone, Status, Recipients, Enabled);
+            return string.Format("MessageAnnouncement: Name: {0}, Messagel {1}, StartTime: {2}, TimeZone: {3} Status: {4}, Recipients {5}, Enabled {6}, AnnouncementId: {7}", Name, Message, StartTime, Timezone, Status, Recipients, Enabled, AnnouncementId);
         }
     }
 }
