@@ -16,7 +16,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/epgChannel/action")]
-    public class EPGChannelController : ApiController
+    public class EpgChannelController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 

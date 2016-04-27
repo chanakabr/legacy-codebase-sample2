@@ -12,7 +12,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/ExternalChannelProfile/action")]
+    [RoutePrefix("_service/externalChannelProfile/action")]
     public class ExternalChannelProfileController : ApiController
     {
         /// <summary>

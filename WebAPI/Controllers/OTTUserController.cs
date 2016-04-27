@@ -22,8 +22,8 @@ namespace WebAPI.Controllers
     /// <summary>
     /// 
     /// </summary>
-    [RoutePrefix("_service/OTTUser/action")]
-    public class OTTUserController : ApiController
+    [RoutePrefix("_service/ottUser/action")]
+    public class OttUserController : ApiController
     {
         /// <summary>
         /// Returns tokens (KS and refresh token) for anonymous access

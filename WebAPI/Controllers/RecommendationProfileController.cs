@@ -8,7 +8,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/RecommendationProfile/action")]
+    [RoutePrefix("_service/recommendationProfile/action")]
     public class RecommendationProfileController : ApiController
     {
         /// <summary>

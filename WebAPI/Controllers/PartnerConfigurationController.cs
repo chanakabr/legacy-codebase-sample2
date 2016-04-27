@@ -14,7 +14,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/PartnerConfiguration/action")]
+    [RoutePrefix("_service/partnerConfiguration/action")]
     public class PartnerConfigurationController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());

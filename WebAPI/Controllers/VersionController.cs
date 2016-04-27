@@ -15,7 +15,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("api_v3/version")]
+    [RoutePrefix("_service/version/action")]
     public class VersionController : ApiController
     {
         /// <summary>

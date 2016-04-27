@@ -1,19 +1,13 @@
 ﻿using KLogMonitor;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Xml;
 using System.Linq;
 using WebAPI.Models.General;
-using WebAPI.ClientManagers.Client;
-using WebAPI.Managers.Models;
 using System.Runtime.Serialization;
 using System.Web.Http;
-using System.Web.Http.Description;
-using System.Web;
-using System.Xml.Serialization;
+using System.Xml;
 
 namespace WebAPI.Managers.Schema
 {
@@ -21,28 +15,94 @@ namespace WebAPI.Managers.Schema
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
+        private static XmlDocument GetProjectXml()
+        {
+            string filename = Assembly.GetExecutingAssembly().CodeBase;
+            const string prefix = "file:///";
+
+            if (filename.StartsWith(prefix))
+            {
+                FileInfo dll = new FileInfo(filename.Substring(prefix.Length));
+                var projectDir = dll.Directory.Parent.Parent.Parent;
+
+                StreamReader streamReader;
+
+                try
+                {
+                    streamReader = new StreamReader(projectDir.FullName + @"\WebAPI\WebAPI.csproj");
+                }
+                catch (FileNotFoundException exception)
+                {
+                    throw new Exception("XML documentation not present (make sure it is turned on in project properties when building)", exception);
+                }
+
+                XmlDocument projectXml = new XmlDocument();
+                projectXml.Load(streamReader);
+
+                return projectXml;
+            }
+            else
+            {
+                throw new Exception("Could not ascertain assembly filename", null);
+            }
+        }
+
+        private static Dictionary<string, string> map;
+        private static Dictionary<string, string> getFilesMap()
+        {
+            if (map != null)
+                return map;
+
+            map = new Dictionary<string, string>();
+            XmlDocument xml = GetProjectXml();
+
+            string xPath = "//*[local-name()='Compile']";
+            var compileNodes = xml.SelectNodes(xPath);
+            if (compileNodes != null && compileNodes.Count > 0)
+            {
+                foreach (XmlNode compileNode in compileNodes)
+                {
+                    string path = compileNode.Attributes["Include"].Value;
+                    string type = path.Substring(path.LastIndexOf(@"\") + 1).Replace(".cs", "");
+                    if(!map.ContainsKey(type))
+                        map.Add(type, path);
+                }
+            }
+
+            return map;
+        }
+
+        private static string getFilePath(Type type)
+        {
+            Dictionary<string, string> map = getFilesMap();
+            if (map.ContainsKey(type.Name))
+                return map[type.Name];
+
+            return "";
+        }
+
         public static void Generate(Stream stream)
         {
-            var writer = new Schema(stream);
+            Schema writer = new Schema(stream);
             writer.write();
         }
 
-        public static bool Validate(bool strict)
+        public static bool Validate()
         {
-            var validator = new Schema();
-            return validator.validate(strict);
+            Schema validator = new Schema(true);
+            return validator.validate();
         }
 
         public static bool Validate(Type type, bool strict)
         {
-            bool valid = true;
-
             if (type.IsSubclassOf(typeof(ApiController)))
-                return ValidateController(type, strict) && valid;
+                return ValidateService(type, strict);
+
+            bool valid = true;
 
             if (!type.Name.StartsWith("Kaltura"))
             {
-                Console.WriteLine(string.Format("Type {0} doesn't have Kaltura prefix", type.Name));
+                logError("Error", type, string.Format("Type {0} doesn't have Kaltura prefix", type.Name));
                 valid = false;
             }
 
@@ -68,48 +128,41 @@ namespace WebAPI.Managers.Schema
             return false;
         }
 
+        private static string getApiName(PropertyInfo property)
+        {
+            DataMemberAttribute dataMember = property.GetCustomAttribute<DataMemberAttribute>();
+            if (dataMember == null)
+                return null;
+
+            return dataMember.Name;
+        }
+
         private static bool ValidateProperty(PropertyInfo property, bool strict)
         {
             bool valid = true;
 
-            if (property.PropertyType.IsPrimitive && !hasValidationException(property, ValidationType.NULLABLE))
-            {
-                Console.WriteLine(string.Format("Property {0}.{1} ({2}) must be nullable", property.ReflectedType.Name, property.Name, property.PropertyType.Name));
-                valid = false;
-            }
-
             if (property.Name.Contains('_'))
             {
-                Console.WriteLine(string.Format("Property {0}.{1} ({2}) name may not contain underscores", property.ReflectedType.Name, property.Name, property.PropertyType.Name));
+                logError("Warning", property.DeclaringType, string.Format("Property {0}.{1} ({2}) name may not contain underscores", property.ReflectedType.Name, property.Name, property.PropertyType.Name));
                 if (strict)
                     valid = false;
             }
 
-            if (property.PropertyType == typeof(DateTime))
+            string apiName = getApiName(property);
+            if (apiName == null)
             {
-                Console.WriteLine(string.Format("Property {0}.{1} is DateTime, use long instead", property.ReflectedType.Name, property.Name, property.PropertyType.Name));
+                logError("Error", property.DeclaringType, string.Format("Data member attribute is not defined for property {0}.{1} ({2})", property.ReflectedType.Name, property.Name, property.PropertyType.Name));
                 valid = false;
             }
-
-            if (property.PropertyType.IsArray)
+            else if (apiName.Contains('_'))
             {
-                Type valueType = property.PropertyType.GetElementType();
-                if (!valueType.IsSubclassOf(typeof(KalturaOTTObject)))
-                {
-                    Console.WriteLine(string.Format("Property {0}.{1} array must contain KalturaOTTObject objects (or something that extends it)", property.ReflectedType.Name, property.Name, property.PropertyType.Name));
+                logError("Warning", property.DeclaringType, string.Format("Property {0}.{1} ({2}) data member name may not contain underscores", property.ReflectedType.Name, property.Name, property.PropertyType.Name));
+                if (strict)
                     valid = false;
-                }
             }
 
-            if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(Dictionary<,>))
-            {
-                Type valueType = property.PropertyType.GetGenericArguments()[1];
-                if (!valueType.IsSubclassOf(typeof(KalturaOTTObject)))
-                {
-                    Console.WriteLine(string.Format("Property {0}.{1} array must contain KalturaOTTObject objects (or something that extends it)", property.ReflectedType.Name, property.Name, property.PropertyType.Name));
-                    valid = false;
-                }
-            }
+            string description = string.Format("Property {0}.{1} ({2})", property.ReflectedType.Name, property.Name, property.PropertyType.Name);
+            valid = ValidateAttribute(property.DeclaringType, property.PropertyType, description, strict) && valid;
 
             return valid;
         }
@@ -119,19 +172,24 @@ namespace WebAPI.Managers.Schema
             return true;
         }
 
+        private static void logError(string category, Type type, string message)
+        {
+            Console.WriteLine(string.Format("{0}: {1}: {2}", getFilePath(type), category, message));
+        }
+
         private static bool ValidateObject(Type type, bool strict)
         {
             bool valid = true;
 
             if (type.Name.EndsWith("ListResponse") && type != typeof(KalturaListResponse) && !type.IsSubclassOf(typeof(KalturaListResponse)))
             {
-                Console.WriteLine(string.Format("List response {0} must inherit KalturaListResponse", type.Name));
+                logError("Error", type, string.Format("List response {0} must inherit KalturaListResponse", type.Name));
                 valid = false;
             }
 
             if (type.IsSubclassOf(typeof(KalturaFilterPager)))
             {
-                Console.WriteLine(string.Format("Object {0} should not inherit KalturaFilterPager", type.Name));
+                logError("Warning", type, string.Format("Object {0} should not inherit KalturaFilterPager", type.Name));
                 if (strict)
                     valid = false;
             }
@@ -143,13 +201,28 @@ namespace WebAPI.Managers.Schema
 
             //if (type.Name.EndsWith("Filter") && !type.IsSubclassOf(typeof(KalturaFilter)))
             //{
-            //    Console.WriteLine(string.Format("Filter {0} must inherit KalturaListResponse", type.Name));
+            //    logError("Error", type, string.Format("Filter {0} must inherit KalturaListResponse", type.Name));
             //    valid = false;
             //}
 
             foreach (PropertyInfo property in type.GetProperties())
             {
-                valid = ValidateProperty(property, strict) && valid;
+                if (property.DeclaringType == type)
+                    valid = ValidateProperty(property, strict) && valid;
+            }
+
+            return valid;
+        }
+
+        private static bool ValidateEnumValue(Type type, string name, string value, bool strict)
+        {
+            bool valid = true;
+
+            if (name.ToUpper() != name)
+            {
+                logError("Warning", type, string.Format("Enum value {0}.{1} should be upper case", type.Name, name));
+                if (strict)
+                    valid = false;
             }
 
             return valid;
@@ -157,27 +230,141 @@ namespace WebAPI.Managers.Schema
 
         private static bool ValidateEnum(Type type, bool strict)
         {
+            bool valid = true;
+
+            bool isIntEnum = type.GetCustomAttribute<KalturaIntEnumAttribute>() != null;
+
+            foreach (var enumValue in Enum.GetValues(type))
+            {
+                string value = isIntEnum ? ((int)Enum.Parse(type, enumValue.ToString())).ToString() : enumValue.ToString();
+                valid = ValidateEnumValue(type, enumValue.ToString(), value, strict) && valid;
+            }
+
             return true;
         }
 
-        private static bool ValidateController(Type type, bool strict)
+        private static bool ValidateService(Type controller, bool strict)
         {
-            return true;
+            bool valid = true;
+            string serviceId = getServiceId(controller);
+
+            RoutePrefixAttribute routePrefix = controller.GetCustomAttribute<RoutePrefixAttribute>();
+            string expectedRoutePrefix = String.Format("_service/{0}/action", serviceId);
+            if (routePrefix.Prefix != expectedRoutePrefix)
+            {
+                logError("Error", controller, string.Format("Wrong route prefix [{0}] for controller {1}, expected [{2}]", routePrefix.Prefix, controller.Name, expectedRoutePrefix));
+                valid = false;
+            }
+
+            var methods = controller.GetMethods().OrderBy(method => method.Name);
+            foreach (MethodInfo method in methods)
+            {
+                if (!method.IsPublic || method.DeclaringType.Namespace != "WebAPI.Controllers")
+                    continue;
+
+                valid = Validate(method, strict) && valid;
+            };
+
+            return valid;
         }
 
-        internal static bool Validate(MethodInfo method, bool strict)
+        private static bool ValidateAttribute(Type declaringClass, Type attribute, string description, bool strict)
         {
             bool valid = true;
 
-            var controller = method.ReflectedType;
-            var serviceId = getServiceId(controller);
-            var actionId = FirstCharacterToLower(method.Name);
-
-            var attr = method.GetCustomAttribute<RouteAttribute>(false);
-            if (attr == null)
+            if (attribute == typeof(DateTime))
             {
-                Console.WriteLine(string.Format("Action {0}.{1} has no routing attribute", serviceId, actionId));
+                logError("Error", declaringClass, string.Format("{0} is DateTime, use long instead", description));
                 valid = false;
+            }
+            else if (attribute.IsArray)
+            {
+                Type valueType = attribute.GetElementType();
+                if (!valueType.IsSubclassOf(typeof(KalturaOTTObject)))
+                {
+                    logError("Error", declaringClass, string.Format("{0} array must contain KalturaOTTObject objects (or something that extends it)", description));
+                    valid = false;
+                }
+            }
+            else if (attribute.IsGenericType && (attribute.GetGenericTypeDefinition() == typeof(Dictionary<,>) || attribute.GetGenericTypeDefinition() == typeof(SerializableDictionary<,>)))
+            {
+                Type keyType = attribute.GetGenericArguments()[0];
+                if (keyType != typeof(string))
+                {
+                    logError("Error", declaringClass, string.Format("{0} map key must be a string", description));
+                    valid = false;
+                }
+
+                Type valueType = attribute.GetGenericArguments()[1];
+                if (!valueType.IsSubclassOf(typeof(KalturaOTTObject)))
+                {
+                    logError("Error", declaringClass, string.Format("{0} map must contain KalturaOTTObject objects (or something that extends it)", description));
+                    valid = false;
+                }
+            }
+            else if (attribute.IsGenericType && attribute.GetGenericTypeDefinition() == typeof(List<>))
+            {
+                Type valueType = attribute.GetGenericArguments()[0];
+                if (!valueType.IsSubclassOf(typeof(KalturaOTTObject)))
+                {
+                    logError("Warning", declaringClass, string.Format("{0} list must contain KalturaOTTObject objects (or something that extends it)", description));
+                    if (strict)
+                        valid = false;
+                }
+            }
+            else if (attribute.IsGenericType && attribute.GetGenericTypeDefinition() != typeof(Nullable<>))
+            {
+                logError("Error", declaringClass, string.Format("{0} unexpected type", description));
+                valid = false;
+            }
+            else if (attribute.IsClass && attribute != typeof(string) && !attribute.IsSubclassOf(typeof(KalturaOTTObject)))
+            {
+                logError("Error", declaringClass, string.Format("{0} object must inherit from KalturaOTTObject (or something that extends it)", description));
+                valid = false;
+            }
+
+            return valid;
+        }
+
+        private static bool ValidateParameter(MethodInfo action, ParameterInfo param, bool strict)
+        {
+            bool valid = true;
+
+            RouteAttribute route = action.GetCustomAttribute<RouteAttribute>(false);
+            Type controller = action.ReflectedType;
+            string serviceId = SchemaManager.getServiceId(controller);
+            string actionId = route.Template;
+
+            if (param.Name.Contains('_'))
+            {
+                logError("Warning", controller, string.Format("Parameter {0} in method {1}.{2} ({3}) may not contain underscores", param.Name, serviceId, actionId, controller.Name));
+                if (strict)
+                    valid = false;
+            }
+
+            string description = string.Format("Parameter {0} in method {1}.{2} ({3})", param.Name, serviceId, actionId, controller.Name);
+            valid = ValidateAttribute(controller, param.ParameterType, description, strict) && valid;
+
+            return valid;
+        }
+
+        internal static bool Validate(MethodInfo action, bool strict)
+        {
+            bool valid = true;
+
+            RouteAttribute route = action.GetCustomAttribute<RouteAttribute>(false);
+            Type controller = action.ReflectedType;
+            string serviceId = SchemaManager.getServiceId(controller);
+
+            if (route == null)
+            {
+                logError("Error", controller, string.Format("Action {0}.{1} ({2}) has no routing attribute", serviceId, action.Name, controller.Name));
+                valid = false;
+            }
+
+            foreach (var param in action.GetParameters())
+            {
+                valid = ValidateParameter(action, param, strict) && valid;
             }
 
             return valid;

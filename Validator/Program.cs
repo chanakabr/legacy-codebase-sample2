@@ -13,8 +13,7 @@ namespace Validator
     {
         static void Main(string[] args)
         {
-            bool strict = args.Length > 1 && args[1].ToLower() == "true";
-            bool valid = SchemaManager.Validate(strict);
+            bool valid = SchemaManager.Validate();
             Console.Read();
 
             if (valid)

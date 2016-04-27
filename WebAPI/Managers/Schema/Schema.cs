@@ -27,15 +27,20 @@ namespace WebAPI.Managers.Schema
         private XmlWriter writer;
 
         private List<Type> enums = new List<Type>();
-        private List<Type> types;
+        private List<Type> types = new List<Type>();
         private IEnumerable<Type> controllers;
 
-        public Schema()
+        public Schema(bool loadAll)
         {
             this.assembly = Assembly.GetExecutingAssembly();
             this.assemblyXml = GetAssemblyXml(assembly);
 
-            Load();
+            Load(loadAll);
+        }
+
+        public Schema() : this(false)
+        {
+
         }
 
         public Schema(Stream stream) : this()
@@ -52,55 +57,106 @@ namespace WebAPI.Managers.Schema
             writer = XmlWriter.Create(stream, settings);
         }
 
-        private void Load()
+        private void Load(bool loadAll)
         {
             controllers = assembly.GetTypes().Where(myType => myType.IsClass && myType.IsSubclassOf(typeof(ApiController)));
-            List<Type> allTypes = assembly.GetTypes().Where(myType => myType.IsClass && myType.IsSubclassOf(typeof(KalturaOTTObject))).ToList();
+
+            foreach (Type controller in controllers)
+            {
+                var apiExplorerSettings = controller.GetCustomAttribute<ApiExplorerSettingsAttribute>(false);
+                if (apiExplorerSettings != null && apiExplorerSettings.IgnoreApi)
+                    continue;
+
+                if (!loadAll && !SchemaManager.Validate(controller, false))
+                    continue;
+
+                var methods = controller.GetMethods();
+                foreach (var method in methods)
+                {
+                    if (!method.IsPublic || method.DeclaringType.Namespace != "WebAPI.Controllers")
+                        continue;
+
+                    //Read only HTTP POST as we will have duplicates otherwise
+                    var explorerAttr = method.GetCustomAttributes<ApiExplorerSettingsAttribute>(false);
+                    if (explorerAttr.Count() > 0 && explorerAttr.First().IgnoreApi)
+                        continue;
+
+                    if (!loadAll && !SchemaManager.Validate(method, false))
+                        continue;
+
+                    foreach (var param in method.GetParameters())
+                    {
+                        LoadType(param.ParameterType, loadAll);
+                    }
+                };
+            }
 
             List<Field> fields = new List<Field>();
-            foreach (Type type in allTypes)
+            foreach (Type type in types)
             {   
                 fields.Add(new Field(type));
-                LoadEnums(type);
             }
 
             int[] sortedFields = Sort(fields);
 
-            types = new List<Type>();
+            List<Type> sortedTypes = new List<Type>();
             for (int i = 0; i < sortedFields.Length; i++)
             {
                 var field = fields[sortedFields[i]];
-                types.Insert(0, allTypes.Where(myType => myType.Name == field.Name).First());
+                sortedTypes.Insert(0, types.Where(myType => myType.Name == field.Name).First());
             }
-
-            foreach (Type controller in controllers)
-            {
-                var methods = controller.GetMethods().OrderBy(z => z.Name);
-                foreach (var method in methods)
-                {
-                    foreach (var param in method.GetParameters())
-                    {
-                        LoadEnums(param.ParameterType);
-                    }
-                };
-            }
+            types = sortedTypes;
         }
 
-        private void LoadEnums(Type type)
+        private void LoadType(Type type, bool loadAll)
         {
             if (type.IsEnum && !enums.Contains(type))
             {
-                enums.Add(type);
+                if (loadAll || SchemaManager.Validate(type, false))
+                    enums.Add(type);
                 return;
             }
 
-            if (type.IsSubclassOf(typeof(KalturaOTTObject)))
+            if (type == typeof(KalturaOTTObject))
             {
-                List<PropertyInfo> properties = type.GetProperties().ToList();
-                foreach (var property in properties)
-                {
-                    LoadEnums(property.PropertyType);
-                }
+                LoadTypeProperties(type, loadAll);
+                return;
+            }
+
+            if (type.IsSubclassOf(typeof(KalturaOTTObject)) && !types.Contains(type) && (loadAll || SchemaManager.Validate(type, false)))
+            {
+                types.Add(type);
+                LoadType(type.BaseType, loadAll);
+
+                var subClasses = assembly.GetTypes().Where(myType => myType.IsSubclassOf(type));
+                foreach (Type subClass in subClasses)
+                    LoadType(subClass, loadAll);
+
+                LoadTypeProperties(type, loadAll);
+                return;
+            }
+
+            if (type.IsArray)
+            {
+                LoadType(type.GetElementType(), loadAll);
+            }
+            else if (type.IsGenericType && (type.GetGenericTypeDefinition() == typeof(Dictionary<,>) || type.GetGenericTypeDefinition() == typeof(SerializableDictionary<,>)))
+            {
+                LoadType(type.GetGenericArguments()[1], loadAll);
+            }
+            else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
+            {
+                LoadType(type.GetGenericArguments()[0], loadAll);
+            }
+        }
+
+        private void LoadTypeProperties(Type type, bool loadAll)
+        {
+            List<PropertyInfo> properties = type.GetProperties().ToList();
+            foreach (var property in properties)
+            {
+                if (property.DeclaringType == type)
+                    LoadType(property.PropertyType, loadAll);
             }
         }
 
@@ -133,12 +189,14 @@ namespace WebAPI.Managers.Schema
             }
         }
 
-        internal bool validate(bool strict)
+        internal bool validate()
         {
+            bool valid = true;
+
             foreach (Type type in enums.OrderBy(myType => myType.Name))
             {
-                if (!SchemaManager.Validate(type, true))
-                    return false;
+                if (!SchemaManager.Validate(type, false))
+                    valid = false;
             }
 
             foreach (Type type in types)
@@ -147,8 +205,8 @@ namespace WebAPI.Managers.Schema
                 if (type == typeof(KalturaOTTObject))
                     continue;
 
-                if (!SchemaManager.Validate(type, strict))
-                    return false;
+                if (!SchemaManager.Validate(type, false))
+                    valid = false;
             }
 
             foreach (Type controller in controllers.OrderBy(controller => controller.Name))
@@ -158,11 +216,11 @@ namespace WebAPI.Managers.Schema
                 if (controllerAttr != null && controllerAttr.IgnoreApi)
                     continue;
 
-                if (!SchemaManager.Validate(controller, true))
-                    return false;
+                if (!SchemaManager.Validate(controller, false))
+                    valid = false;
             }
 
-            return true;
+            return valid;
         }
 
         internal void write()
@@ -216,10 +274,6 @@ namespace WebAPI.Managers.Schema
             writer.WriteStartElement("classes");
             foreach (Type type in types)
             {
-                //Skip master base class
-                if (type == typeof(KalturaOTTObject))
-                    continue;
-
                 if (!SchemaManager.Validate(type, true))
                     continue;
 
@@ -232,11 +286,6 @@ namespace WebAPI.Managers.Schema
             writer.WriteStartElement("services");
             foreach (Type controller in controllers.OrderBy(controller => controller.Name))
             {
-                var controllerAttr = controller.GetCustomAttribute<ApiExplorerSettingsAttribute>(false);
-
-                if (controllerAttr != null && controllerAttr.IgnoreApi)
-                    continue;
-
                 if (!SchemaManager.Validate(controller, true))
                     continue;
 
@@ -328,6 +377,9 @@ namespace WebAPI.Managers.Schema
             var methods = controller.GetMethods().OrderBy(method => method.Name);
             foreach (var method in methods)
             {
+                if (!method.IsPublic || method.DeclaringType.Namespace != "WebAPI.Controllers")
+                    continue;
+
                 //Read only HTTP POST as we will have duplicates otherwise
                 var explorerAttr = method.GetCustomAttributes<ApiExplorerSettingsAttribute>(false);
                 if (explorerAttr.Count() > 0 && explorerAttr.First().IgnoreApi)
@@ -342,25 +394,26 @@ namespace WebAPI.Managers.Schema
             writer.WriteEndElement(); // service
         }
 
-        private void writeAction(MethodInfo method)
+        private void writeAction(MethodInfo action)
         {
-            var controller = method.ReflectedType;
-            var serviceId = SchemaManager.getServiceId(controller);
-            var actionId = SchemaManager.FirstCharacterToLower(method.Name);
-            var attr = method.GetCustomAttribute<RouteAttribute>(false);
-            var routePrefix = assembly.GetType("WebAPI.Controllers.ServiceController").GetCustomAttribute<RoutePrefixAttribute>().Prefix;
+            RouteAttribute route = action.GetCustomAttribute<RouteAttribute>(false);
+            Type controller = action.ReflectedType;
+            string serviceId = SchemaManager.getServiceId(controller);
+            string actionId = route.Template;
+
+            // string routePrefix = assembly.GetType("WebAPI.Controllers.ServiceController").GetCustomAttribute<RoutePrefixAttribute>().Prefix;
             
             writer.WriteStartElement("action");
-            writer.WriteAttributeString("name", method.Name);
+            writer.WriteAttributeString("name", actionId);
             writer.WriteAttributeString("enableInMultiRequest", "0");
             writer.WriteAttributeString("supportedRequestFormats", "json");
             writer.WriteAttributeString("supportedResponseFormats", "json,xml");
-            writer.WriteAttributeString("description", getDescription(method));
-            writer.WriteAttributeString("path", string.Format("/{0}/{1}/{2}", routePrefix, serviceId, actionId));
-            if (method.GetCustomAttribute<ObsoleteAttribute>() != null)
+            writer.WriteAttributeString("description", getDescription(action));
+            // writer.WriteAttributeString("path", string.Format("/{0}/{1}/{2}", routePrefix, serviceId, actionId));
+            if (action.GetCustomAttribute<ObsoleteAttribute>() != null)
                 writer.WriteAttributeString("deprecated", "1");
 
-            foreach (var param in method.GetParameters())
+            foreach (var param in action.GetParameters())
             {
                 writer.WriteStartElement("param");
                 writer.WriteAttributeString("name", param.Name);
@@ -369,13 +422,13 @@ namespace WebAPI.Managers.Schema
                 if (param.IsOptional)
                     writer.WriteAttributeString("default", param.DefaultValue == null ? "null" : param.DefaultValue.ToString());
 
-                writer.WriteAttributeString("description", getDescription(method, param));
+                writer.WriteAttributeString("description", getDescription(action, param));
                 writer.WriteAttributeString("optional", param.IsOptional ? "1" : "0");
                 writer.WriteEndElement(); // param
             }
 
             writer.WriteStartElement("result");
-            appendType(method.ReturnType);
+            appendType(action.ReturnType);
             writer.WriteEndElement(); // result
 
             writer.WriteEndElement(); // action
