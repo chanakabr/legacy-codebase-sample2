@@ -17326,9 +17326,9 @@ namespace ConditionalAccess
             return response;
         }
 
-        public SearchRecordingResponse SerachDomainRecordings(string userID, long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses, string filter, int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy, string requestID)
+        public RecordingResponse SerachDomainRecordings(string userID, long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses, string filter, int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy, string requestID)
         {
-            SearchRecordingResponse response = new SearchRecordingResponse();
+            RecordingResponse response = new RecordingResponse();
             try
             {
                 if (recordingStatuses == null || recordingStatuses.Count == 0)
@@ -17347,7 +17347,7 @@ namespace ConditionalAccess
                 }
 
                 Dictionary<long, Recording> recordings = ConditionalAccessDAL.GetDomainRecordingsByRecordingStatuses(m_nGroupID, domainID, recordingStatuses, pageIndex, pageSize);
-                List<SearchRecording> searchRecordings = null;
+                List<Recording> searchRecordings = null;
                 if (recordings == null)
                 {
                     log.DebugFormat("Failed GetDomainRecordingIDsByRecordingStatuses, recordingIDs is null, DomainID: {0}, UserID: {1}, pageIndex: {2}, pageSize: {3}, ", domainID, userID, pageIndex, pageSize);
@@ -17365,7 +17365,7 @@ namespace ConditionalAccess
                         return response;
                     }
 
-                    response.SearchRecordings = searchRecordings;
+                    response.Recordings = searchRecordings;
                     response.TotalItems = searchRecordings.Count;
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 

@@ -4277,11 +4277,11 @@ namespace ConditionalAccess
             return services;
         }
 
-        internal static List<SearchRecording> SearchDomainRecordingIDsByFilter(int groupID, string userID, long domainID, Dictionary<long, Recording> recordings, string filter,
+        internal static List<Recording> SearchDomainRecordingIDsByFilter(int groupID, string userID, long domainID, Dictionary<long, Recording> recordings, string filter,
                                                                     int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy, string requestID)
         {
             WS_Catalog.IserviceClient client = null;
-            List<SearchRecording> filteredRecordings = null;
+            List<Recording> filteredRecordings = null;
 
             try
             {
@@ -4317,7 +4317,7 @@ namespace ConditionalAccess
                 WS_Catalog.UnifiedSearchResponse response = client.GetResponse(request) as WS_Catalog.UnifiedSearchResponse;
                 if (response != null && response.status.Code == (int)eResponseStatus.OK && response.m_nTotalItems > 0 && response.searchResults != null && response.searchResults.Length > 0)
                 {
-                    filteredRecordings = new List<SearchRecording>();
+                    filteredRecordings = new List<Recording>();
                     Dictionary<long, DateTime> searchRecordingsResult = new Dictionary<long, DateTime>();
                     foreach (UnifiedSearchResult unifiedSearchResult in response.searchResults)
                     {
@@ -4335,8 +4335,8 @@ namespace ConditionalAccess
                         if (recordings.ContainsKey(pair.Key))
                         {
                             Recording recording = recordings[pair.Key];
-                            SearchRecording searchRecording = new SearchRecording(recording) { UpdateDate = pair.Value };
-                            filteredRecordings.Add(searchRecording);
+                            recording.EpgUpdateDate = pair.Value;
+                            filteredRecordings.Add(recording);
                         }
                     }
                 }

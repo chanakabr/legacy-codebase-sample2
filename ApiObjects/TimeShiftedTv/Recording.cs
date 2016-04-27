@@ -26,9 +26,11 @@ namespace ApiObjects.TimeShiftedTv
 
         public DateTime EpgEndDate { get; set; }
 
+        public DateTime EpgUpdateDate { get; set; }
+
         public RecordingType RecordingType { get; set; }
 
-        public DateTime LastAvailabilityDate { get; set; }
+        public DateTime LastAvailabilityDate { get; set; }        
 
         public Recording()
         {
