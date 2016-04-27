@@ -298,7 +298,7 @@ namespace Users.Cache
                     sDomains.Add(sKey);
                 }
 
-                dTempRes = this.cache.GetValues(sDomains);
+                dTempRes = this.cache.GetValues(sDomains, true);
                 if (dTempRes == null)
                     return null;
                 Dictionary<int, Domain> dRes = new Dictionary<int, Domain>();
@@ -306,7 +306,7 @@ namespace Users.Cache
                 {
                     string domainKey = obj.Key.Replace(sDomainKeyCache, "");
                     int domainID = int.Parse(domainKey);
-                    Domain oDomain = JsonToObject<Domain>(obj.Value.ToString());
+                    Domain oDomain = (Domain)obj.Value;
                     dRes.Add(domainID, oDomain);
                 }
                 return dRes;

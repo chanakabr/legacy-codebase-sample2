@@ -22,7 +22,7 @@ namespace CachingProvider
         
         T Get<T>(string sKey) where T : class;
 
-        IDictionary<string, object> GetValues(List<string> keys);
+        IDictionary<string, object> GetValues(List<string> keys, bool asJson = false);
 
 
         bool SetJson<T>(string sKey, T obj, double dCacheTT);
