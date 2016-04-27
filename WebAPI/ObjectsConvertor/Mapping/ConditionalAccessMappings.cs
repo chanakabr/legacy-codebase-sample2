@@ -222,7 +222,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.EpgID, opt => opt.MapFrom(src => src.EpgID))
                .ForMember(dest => dest.RecordingID, opt => opt.MapFrom(src => src.RecordingId))
                .ForMember(dest => dest.RecordingStatus, opt => opt.MapFrom(src => ConvertKalturaRecordingStatus(src.RecordingStatus)))
-               .ForMember(dest => dest.LastAvailabilityDate, opt => opt.MapFrom(src => src.LastAvailabilityDate))
+               .ForMember(dest => dest.LastAvailabilityDate, opt => opt.MapFrom(src => SerializationUtils.ConvertFromUnixTimestamp(src.LastAvailabilityDate)))
                .ForMember(dest => dest.RecordingType, opt => opt.MapFrom(src => ConvertKalturaRecordingType(src.RecordingType)));
 
             // Recording to KalturaRecording
@@ -230,7 +230,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.EpgID, opt => opt.MapFrom(src => src.EpgID))
                .ForMember(dest => dest.RecordingId, opt => opt.MapFrom(src => src.RecordingID))
                .ForMember(dest => dest.RecordingStatus, opt => opt.MapFrom(src => ConvertTstvRecordingStatus(src.RecordingStatus)))
-               .ForMember(dest => dest.LastAvailabilityDate, opt => opt.MapFrom(src => src.LastAvailabilityDate))
+               .ForMember(dest => dest.LastAvailabilityDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.LastAvailabilityDate)))
                .ForMember(dest => dest.RecordingType, opt => opt.MapFrom(src => ConvertRecordingType(src.RecordingType)));
         }
 
