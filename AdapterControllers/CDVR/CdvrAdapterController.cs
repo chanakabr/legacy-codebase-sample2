@@ -122,6 +122,7 @@ namespace AdapterControllers.CDVR
             }
             catch (Exception ex)
             {
+                ReportCDVRAdapterError(adapter.ID, adapter.AdapterUrl, ex, "SetConfiguration", false);
                 log.ErrorFormat("Failed ex = {0}, adapter id = {1}", ex, adapter != null ? adapter.ID : 0);
             }
             return result;
@@ -169,11 +170,12 @@ namespace AdapterControllers.CDVR
                     }
                     catch (Exception ex)
                     {
-                        ReportCDVRAdapterError(adapterId, cdvrAdapterUrl, ex, "Record", "C-DVR adapter");
+                        ReportCDVRAdapterError(adapterId, cdvrAdapterUrl, ex, "Record");
                     }
                 }
 
-                LogAdapterResponse(adapterResponse, "Record");
+                LogAdapterResponse(adapterResponse, "Record", adapterId,
+                    string.Format("startTimeSeconds = {0}, durationSeconds = {1}, channelId = {2}", startTimeSeconds, durationSeconds, channelId));
 
                 if (adapterResponse != null && adapterResponse.Status != null &&
                     adapterResponse.Status.Code == STATUS_NO_CONFIGURATION_FOUND)
@@ -193,11 +195,19 @@ namespace AdapterControllers.CDVR
 
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                     {
-                        //call Adapter Record - after it is configured
-                        adapterResponse = client.Record(startTimeSeconds, durationSeconds, channelId, adapter.ID, timeStamp,Utils.GetSignature(adapter.SharedSecret, signature));
+                        try
+                        {
+                            //call Adapter Record - after it is configured
+                            adapterResponse = client.Record(startTimeSeconds, durationSeconds, channelId, adapter.ID, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                        }
+                        catch (Exception ex)
+                        {
+                            ReportCDVRAdapterError(adapterId, cdvrAdapterUrl, ex, "Record");
+                        }
                     }
 
-                    LogAdapterResponse(adapterResponse, "Record");
+                    LogAdapterResponse(adapterResponse, "Record", adapterId,
+                        string.Format("startTimeSeconds = {0}, durationSeconds = {1}, channelId = {2}", startTimeSeconds, durationSeconds, channelId));
 
                     #endregion
                 }
@@ -260,11 +270,19 @@ namespace AdapterControllers.CDVR
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    //call Adapter GetRecordingStatus
-                    adapterResponse = client.GetRecordingStatus(recordingId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                    try
+                    {
+                        //call Adapter GetRecordingStatus
+                        adapterResponse = client.GetRecordingStatus(recordingId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                    }
+                    catch (Exception ex)
+                    {
+                        ReportCDVRAdapterError(adapterId, cdvrAdapterUrl, ex, "GetRecordingStatus");
+                    }
                 }
 
-                LogAdapterResponse(adapterResponse, "GetRecordingStatus");
+                LogAdapterResponse(adapterResponse, "GetRecordingStatus", adapterId,
+                    string.Format("recordingId = {0}", recordingId));
 
                 if (adapterResponse != null && adapterResponse.Status != null && adapterResponse.Status.Code == STATUS_NO_CONFIGURATION_FOUND)
                 {
@@ -284,10 +302,18 @@ namespace AdapterControllers.CDVR
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                     {
                         //call Adapter GetRecordingStatus - after it is configured
-                        adapterResponse = client.GetRecordingStatus(recordingId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                        try
+                        {
+                            adapterResponse = client.GetRecordingStatus(recordingId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                        }
+                        catch (Exception ex)
+                        {
+                            ReportCDVRAdapterError(adapterId, cdvrAdapterUrl, ex, "GetRecordingStatus");
+                        }
                     }
 
-                    LogAdapterResponse(adapterResponse, "GetRecordingStatus");
+                    LogAdapterResponse(adapterResponse, "GetRecordingStatus", adapterId,
+                    string.Format("recordingId = {0}", recordingId));
 
                     #endregion
                 }
@@ -350,10 +376,20 @@ namespace AdapterControllers.CDVR
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     //call Adapter UpdateRecordingSchedule
-                    adapterResponse = client.UpdateRecordingSchedule(recordingId, adapterId, startDateSeconds, durationSeconds, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                    try
+                    {
+                        adapterResponse = 
+                            client.UpdateRecordingSchedule(recordingId, adapterId, startDateSeconds, durationSeconds, 
+                            timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                    }
+                    catch (Exception ex)
+                    {
+                        ReportCDVRAdapterError(adapterId, cdvrAdapterUrl, ex, "UpdateRecordingSchedule");
+                    }
                 }
 
-                LogAdapterResponse(adapterResponse, "UpdateRecordingSchedule");
+                LogAdapterResponse(adapterResponse, "UpdateRecordingSchedule", adapterId,
+                    string.Format("recordingId = {0}, startDateSeconds = {1}, durationSeconds = {2}", recordingId, startDateSeconds, durationSeconds));
 
                 if (adapterResponse != null && adapterResponse.Status != null && adapterResponse.Status.Code == STATUS_NO_CONFIGURATION_FOUND)
                 {
@@ -373,10 +409,20 @@ namespace AdapterControllers.CDVR
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                     {
                         //call Adapter UpdateRecordingSchedule - after it is configured
-                        adapterResponse = client.UpdateRecordingSchedule(recordingId, adapterId, startDateSeconds, durationSeconds, timeStamp,Utils.GetSignature(adapter.SharedSecret, signature));
+                        try
+                        {
+                            adapterResponse =
+                                client.UpdateRecordingSchedule(recordingId, adapterId, startDateSeconds, durationSeconds,
+                                timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                        }
+                        catch (Exception ex)
+                        {
+                            ReportCDVRAdapterError(adapterId, cdvrAdapterUrl, ex, "UpdateRecordingSchedule");
+                        }
                     }
 
-                    LogAdapterResponse(adapterResponse, "UpdateRecordingSchedule");
+                    LogAdapterResponse(adapterResponse, "UpdateRecordingSchedule", adapterId,
+                    string.Format("recordingId = {0}, startDateSeconds = {1}, durationSeconds = {2}", recordingId, startDateSeconds, durationSeconds));
 
                     #endregion
                 }
@@ -440,10 +486,18 @@ namespace AdapterControllers.CDVR
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     //call Adapter CancelRecording
-                    adapterResponse = client.CancelRecording(recordingId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                    try
+                    {
+                        adapterResponse = client.CancelRecording(recordingId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                    }
+                    catch (Exception ex)
+                    {
+                        ReportCDVRAdapterError(adapterId, cdvrAdapterUrl, ex, "CancelRecording");
+                    }
                 }
 
-                LogAdapterResponse(adapterResponse, "CancelRecording");
+                LogAdapterResponse(adapterResponse, "CancelRecording", adapterId,
+                    string.Format("recordingId = {0}", recordingId));
 
                 if (adapterResponse != null && adapterResponse.Status != null && adapterResponse.Status.Code == STATUS_NO_CONFIGURATION_FOUND)
                 {
@@ -463,10 +517,18 @@ namespace AdapterControllers.CDVR
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                     {
                         //call Adapter CancelRecording - after it is configured
-                        adapterResponse = client.CancelRecording(recordingId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                        try
+                        {
+                            adapterResponse = client.CancelRecording(recordingId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                        }
+                        catch (Exception ex)
+                        {
+                            ReportCDVRAdapterError(adapterId, cdvrAdapterUrl, ex, "CancelRecording");
+                        }
                     }
 
-                    LogAdapterResponse(adapterResponse, "CancelRecording");
+                    LogAdapterResponse(adapterResponse, "CancelRecording", adapterId,
+                    string.Format("recordingId = {0}", recordingId));
 
                     #endregion
                 }
@@ -531,10 +593,18 @@ namespace AdapterControllers.CDVR
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     //call Adapter DeleteRecording
-                    adapterResponse = client.DeleteRecording(recordingId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                    try
+                    {
+                        adapterResponse = client.DeleteRecording(recordingId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                    }
+                    catch (Exception ex)
+                    {
+                        ReportCDVRAdapterError(adapterId, cdvrAdapterUrl, ex, "DeleteRecording");
+                    }
                 }
 
-                LogAdapterResponse(adapterResponse, "DeleteRecording");
+                LogAdapterResponse(adapterResponse, "DeleteRecording", adapterId,
+                    string.Format("recordingId = {0}", recordingId));
 
                 if (adapterResponse != null && adapterResponse.Status != null && adapterResponse.Status.Code == STATUS_NO_CONFIGURATION_FOUND)
                 {
@@ -554,10 +624,18 @@ namespace AdapterControllers.CDVR
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                     {
                         //call Adapter - DeleteRecording after it is configured
-                        adapterResponse = client.DeleteRecording(recordingId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                        try
+                        {
+                            adapterResponse = client.DeleteRecording(recordingId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                        }
+                        catch (Exception ex)
+                        {
+                            ReportCDVRAdapterError(adapterId, cdvrAdapterUrl, ex, "DeleteRecording");
+                        }
                     }
 
-                    LogAdapterResponse(adapterResponse, "DeleteRecording");
+                    LogAdapterResponse(adapterResponse, "DeleteRecording", adapterId,
+                    string.Format("recordingId = {0}", recordingId));
 
                     #endregion
                 }
@@ -621,10 +699,18 @@ namespace AdapterControllers.CDVR
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     //call Adapter GetRecordingLinks
-                    adapterResponse = client.GetRecordingLinks(recordingId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                    try
+                    {
+                        adapterResponse = client.GetRecordingLinks(recordingId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                    }
+                    catch (Exception ex)
+                    {
+                        ReportCDVRAdapterError(adapterId, cdvrAdapterUrl, ex, "GetRecordingLinks");
+                    }
                 }
 
-                LogAdapterResponse(adapterResponse, "GetRecordingLinks");
+                LogAdapterResponse(adapterResponse, "GetRecordingLinks", adapterId,
+                    string.Format("recordingId = {0}", recordingId));
 
                 if (adapterResponse != null && adapterResponse.Status != null && adapterResponse.Status.Code == STATUS_NO_CONFIGURATION_FOUND)
                 {
@@ -644,10 +730,18 @@ namespace AdapterControllers.CDVR
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                     {
                         //call Adapter GetRecordingLinks - after it is configured
-                        adapterResponse = client.GetRecordingLinks(recordingId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                        try
+                        {
+                            adapterResponse = client.GetRecordingLinks(recordingId, adapterId, timeStamp, Utils.GetSignature(adapter.SharedSecret, signature));
+                        }
+                        catch (Exception ex)
+                        {
+                            ReportCDVRAdapterError(adapterId, cdvrAdapterUrl, ex, "GetRecordingLinks");
+                        }
                     }
 
-                    LogAdapterResponse(adapterResponse, "GetRecordingLinks");
+                    LogAdapterResponse(adapterResponse, "GetRecordingLinks", adapterId,
+                        string.Format("recordingId = {0}", recordingId));
 
                     #endregion
                 }
@@ -731,7 +825,8 @@ namespace AdapterControllers.CDVR
             return result;
         }
 
-        private void LogAdapterResponse(AdapterControllers.cdvrAdap.RecordingResponse adapterResponse, string action)
+        private void LogAdapterResponse(AdapterControllers.cdvrAdap.RecordingResponse adapterResponse, string action, 
+            int adapterId, string inputParameters)
         {
             string logMessage = string.Empty;
 
@@ -743,44 +838,80 @@ namespace AdapterControllers.CDVR
             {
                 logMessage = string.Format("Cdvr Adapter {0} Result's status is null", action != null ? action : string.Empty);
             }
-            else if (adapterResponse.Recording == null)
-            {
-                logMessage = string.Format("Cdvr Adapter {0} Result Status: Message = {1}, Code = {2}. Recording is null",
-                                 action != null ? action : string.Empty,                                                                                                                // {0}
-                                 adapterResponse != null && adapterResponse.Status != null && adapterResponse.Status.Message != null ? adapterResponse.Status.Message : string.Empty,   // {1}
-                                 adapterResponse != null && adapterResponse.Status != null ? adapterResponse.Status.Code : -1);                                                         // {2}
-            }
             else
             {
-                logMessage = string.Format("Cdvr Adapter {0} Result Status: Message = {1}, Code = {2}. Recording: RecordingId = {3}, RecordingState = {4}",
-                    // {0}
-                    action != null ? action : string.Empty,
-                    // {1}
-                    adapterResponse != null && adapterResponse.Status != null && adapterResponse.Status.Message != null ? adapterResponse.Status.Message : string.Empty,
-                    // {2}
-                    adapterResponse != null && adapterResponse.Status != null ? adapterResponse.Status.Code : -1,                                                         
-                    //{3}
-                    adapterResponse.Recording.RecordingId, 
-                    // {4}
-                    adapterResponse.Recording.RecordingState);
+                if (adapterResponse.Recording == null)
+                {
+                    logMessage = string.Format("Cdvr Adapter {0} Result Status: Message = {1}, Code = {2}. Recording is null",
+                                     action != null ? action : string.Empty,                                                                                                                // {0}
+                                     adapterResponse != null && adapterResponse.Status != null && adapterResponse.Status.Message != null ? adapterResponse.Status.Message : string.Empty,   // {1}
+                                     adapterResponse != null && adapterResponse.Status != null ? adapterResponse.Status.Code : -1);                                                         // {2}
+                }
+                else
+                {
+                    logMessage = string.Format("Cdvr Adapter {0} Result Status: Message = {1}, Code = {2}. Recording: RecordingId = {3}, RecordingState = {4}",
+                        // {0}
+                        action != null ? action : string.Empty,
+                        // {1}
+                        adapterResponse != null && adapterResponse.Status != null && adapterResponse.Status.Message != null ? adapterResponse.Status.Message : string.Empty,
+                        // {2}
+                        adapterResponse != null && adapterResponse.Status != null ? adapterResponse.Status.Code : -1,
+                        //{3}
+                        adapterResponse.Recording.RecordingId,
+                        // {4}
+                        adapterResponse.Recording.RecordingState);
+
+                    // if Status code is not 0 OR fail reason is not 0 OR
+                    // provider status code is not 0 (and not empty...)
+                    if ((adapterResponse.Status.Code != 0) || 
+                        (adapterResponse.Recording.FailReason != 0) ||
+                        (!string.IsNullOrEmpty(adapterResponse.Recording.ProviderStatusCode) &&
+                        adapterResponse.Recording.ProviderStatusCode != "0"))
+                    {
+                        ReportCDVRProviderFailure(adapterId, action, inputParameters,
+                            adapterResponse.Status.Code, adapterResponse.Recording.ProviderStatusCode, adapterResponse.Recording.ProviderStatusMessage,
+                            adapterResponse.Recording.FailReason);
+                    }
+                }
             }
 
             log.Debug(logMessage);
         }
 
-        private static void ReportCDVRAdapterError(int adapterId, string cdvrAdapterUrl, Exception ex, string adapterApi, string topic)
+        private static void ReportCDVRAdapterError(int adapterId, string url, Exception ex, string action, bool throwException = true)
         {
             var previousTopic = HttpContext.Current.Items[Constants.TOPIC];
-            HttpContext.Current.Items[Constants.TOPIC] = topic;
+            HttpContext.Current.Items[Constants.TOPIC] = "C-DVR adapter";
 
             log.ErrorFormat("Failed communicating with adapter. Adapter identifier: {0}, Adapter URL: {1}, Adapter Api: {2}. Error: {3}",
                 adapterId,
-                cdvrAdapterUrl,
-                adapterApi,
+                url,
+                action,
                 ex);
             HttpContext.Current.Items[Constants.TOPIC] = previousTopic;
 
-            throw ex;
+            if (throwException)
+            {
+                throw ex;
+            }
+        }
+
+        private static void ReportCDVRProviderFailure(int adapterId, string action, string inputParameters, int errorCode, string providerCode,
+            string providerMessage, int failReason)
+        {
+            var previousTopic = HttpContext.Current.Items[Constants.TOPIC];
+            HttpContext.Current.Items[Constants.TOPIC] = "C-DVR provider";
+
+            log.ErrorFormat("Adapter was accessed successfully, but returned an error. " +
+                "Adapter identifier: {0}, Adapter Api: {1}. Input parameters: {2}. Error code: {3}, Provider Code: {4}, Provider Message: {5}, Fail Reason: {6}",
+                adapterId,
+                action,
+                inputParameters,
+                errorCode,
+                providerCode,
+                providerMessage,
+                failReason);
+            HttpContext.Current.Items[Constants.TOPIC] = previousTopic;
         }
 
         #endregion
