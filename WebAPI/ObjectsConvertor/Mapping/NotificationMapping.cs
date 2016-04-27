@@ -24,10 +24,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             Mapper.CreateMap<UserNotificationSettings, KalturaNotificationSettings>()
                  .ForMember(dest => dest.PushNotificationEnabled, opt => opt.MapFrom(src => src.EnablePush))
-                 .ForMember(dest => dest.PushFollowEnabled, opt => opt.MapFrom(src => GetFollowSettingsEnablePush(src)));
+                 .ForMember(dest => dest.PushFollowEnabled, opt => opt.MapFrom(src => src.FollowSettings.EnablePush));
+
+            Mapper.CreateMap<bool?, UserFollowSettings>()
+               .ForMember(dest => dest.EnablePush, opt => opt.MapFrom(src => src));
 
             Mapper.CreateMap<KalturaNotificationSettings, UserNotificationSettings>()
-                 .ForMember(dest => dest.EnablePush, opt => opt.MapFrom(src => src.PushNotificationEnabled));
+                 .ForMember(dest => dest.EnablePush, opt => opt.MapFrom(src => src.PushNotificationEnabled))
+                 .ForMember(dest =>  dest.FollowSettings, opt => opt.MapFrom(src => src.PushFollowEnabled));
+
+
 
             Mapper.CreateMap<MessageAnnouncement, KalturaAnnouncement>()
                  .ForMember(dest => dest.Enabled, opt => opt.MapFrom(src => src.Enabled))
