@@ -364,7 +364,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             List<WebAPI.Catalog.BaseObject> result = new List<Catalog.BaseObject>();
             foreach (Recording recording in recordings)
             {
-                WebAPI.Catalog.BaseObject baseObject = new Catalog.BaseObject() { AssetId = recording.EpgID.ToString(), AssetType = Catalog.eAssetTypes.NPVR, m_dUpdateDate = recording.EpgUpdateDate };
+                WebAPI.Catalog.BaseObject baseObject = new Catalog.BaseObject() { AssetId = recording.EpgID.ToString(), AssetType = Catalog.eAssetTypes.EPG, m_dUpdateDate = recording.EpgUpdateDate };
                 result.Add(baseObject);
             }
 
