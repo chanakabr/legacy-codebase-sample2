@@ -59,5 +59,13 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "trick_play_buffer_length", IsNullable = true)]
         public long? TrickPlayBufferLength { get; set; }
 
+        /// <summary>
+        /// Recording schedule window. Indicates how long (in minutes) after the program starts it is allowed to schedule the recording
+        /// </summary>
+        [DataMember(Name = "recording_schedule_window")]
+        [JsonProperty("recording_schedule_window")]
+        [XmlElement(ElementName = "recording_schedule_window", IsNullable = true)]
+        public long? RecordingScheduleWindow { get; set; }
+
     }
 }

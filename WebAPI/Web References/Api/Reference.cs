@@ -8098,6 +8098,8 @@ namespace WebAPI.Api {
         
         private int eNABLE_TRICK_PLAYField;
         
+        private int iS_RECORDEDField;
+        
         /// <remarks/>
         public long EPG_ID {
             get {
@@ -8357,6 +8359,16 @@ namespace WebAPI.Api {
             }
             set {
                 this.eNABLE_TRICK_PLAYField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int IS_RECORDED {
+            get {
+                return this.iS_RECORDEDField;
+            }
+            set {
+                this.iS_RECORDEDField = value;
             }
         }
     }
@@ -13088,6 +13100,8 @@ namespace WebAPI.Api {
         
         private System.Nullable<long> trickPlayBufferLengthField;
         
+        private System.Nullable<long> recordingScheduleWindowField;
+        
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
         public System.Nullable<bool> IsCatchUpEnabled {
@@ -13151,6 +13165,17 @@ namespace WebAPI.Api {
             }
             set {
                 this.trickPlayBufferLengthField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<long> RecordingScheduleWindow {
+            get {
+                return this.recordingScheduleWindowField;
+            }
+            set {
+                this.recordingScheduleWindowField = value;
             }
         }
     }
