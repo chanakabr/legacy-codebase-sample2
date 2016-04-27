@@ -17,10 +17,11 @@ namespace WebAPI.Controllers
     public class RecordingController : ApiController
     {
         /// <summary>
-        /// Returns the recording model
+        /// Returns recording object by internal identifier
         /// </summary>
-        /// <remarks>
-        /// </remarks>        
+        /// <param name="id">Recording identifier</param>
+        /// <returns></returns>
+        /// <remarks>Possible status codes: BadRequest = 500003, RecordingNotFound = 3040</remarks>     
         [Route("get"), HttpPost]
         [ApiAuthorize]
         public KalturaRecording Get(long id)
@@ -43,13 +44,14 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Query record options for a program
         /// </summary>
-        /// <remarks>
-        /// </remarks>
-        /// <returns>The recording availability and status for for the requested program</returns>
-        /// 
+        /// <param name="assetId">Internal identifier of the asset</param>
+        /// <returns></returns>
+        /// <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024,
+        /// ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, AccountCatchUpNotEnabled = 3034, ProgramCdvrNotEnabled = 3035,
+        /// ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, ProgramNotInRecordingScheduleWindow = 3039, InvalidAssetId = 4024</remarks>
         [Route("getContext"), HttpPost]
         [ApiAuthorize]
-        public KalturaRecording GetContext(long asset_id)
+        public KalturaRecording GetContext(long assetId)
         {
             KalturaRecording response = null;
 
@@ -58,7 +60,7 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
                 // call client                
-                response = ClientsManager.ConditionalAccessClient().QueryRecord(groupId, userId, asset_id);
+                response = ClientsManager.ConditionalAccessClient().QueryRecord(groupId, userId, assetId);
             }
             catch (ClientException ex)
             {
@@ -70,10 +72,12 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Issue a record request for a program
         /// </summary>
-        /// <remarks>
-        /// </remarks>
-        /// <returns>The recording ID and status for options for the requested program</returns>
-        /// 
+        /// <param name="recording">Recording Object</param>
+        /// <returns></returns>
+        /// <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
+        /// UserWithNoDomain = 2024, ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, AccountCatchUpNotEnabled = 3034,
+        /// ProgramCdvrNotEnabled = 3035, ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, CdvrAdapterProviderFail = 3038,
+        /// ProgramNotInRecordingScheduleWindow = 3039, InvalidAssetId = 4024</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
         public KalturaRecording Add(KalturaRecording recording)
@@ -97,10 +101,10 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Return a list of recordings for the household with optional filter by status and KSQL.
         /// </summary>
-        /// <remarks>
-        /// </remarks>
-        /// <returns>the</returns>
-        /// 
+        /// <param name="filter">Filter parameters for filtering out the result</param>
+        /// <param name="pager">Page size and index</param>
+        /// <returns></returns>
+        /// <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024</remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
         public KalturaRecordingListResponse List(KalturaRecordingFilter filter, KalturaFilterPager pager = null)

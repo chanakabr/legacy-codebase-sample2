@@ -1156,7 +1156,7 @@ namespace WebAPI.Clients
             
             if (response.Recordings != null && response.Recordings.Length > 0)
             {
-                List<KalturaCatalogWith> with = new List<KalturaCatalogWith>() { KalturaCatalogWith.images, KalturaCatalogWith.files };
+                List<KalturaCatalogWith> with = new List<KalturaCatalogWith>() { KalturaCatalogWith.images };
                 // get base objects list
                 List<WebAPI.Catalog.BaseObject> assetsBaseDataList = ConditionalAccessMappings.ConvertRecordings(response.Recordings);
                 List<KalturaIAssetable> assetsInfo = ClientsManager.CatalogClient().GetAssetsInfo(groupID, 0, string.Empty, 0, 10, group.UseStartDate,
@@ -1215,7 +1215,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            List<KalturaCatalogWith> with = new List<KalturaCatalogWith>() { KalturaCatalogWith.images, KalturaCatalogWith.files };
+            List<KalturaCatalogWith> with = new List<KalturaCatalogWith>() { KalturaCatalogWith.images };
             // get base objects list
             List<WebAPI.Catalog.BaseObject> assetsBaseDataList = ConditionalAccessMappings.ConvertRecordings(new Recording[] { response });
             List<KalturaIAssetable> assetsInfo = ClientsManager.CatalogClient().GetAssetsInfo(groupID, 0, string.Empty, 0, 10, group.UseStartDate,
@@ -1268,7 +1268,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            List<KalturaCatalogWith> with = new List<KalturaCatalogWith>() { KalturaCatalogWith.images, KalturaCatalogWith.files };
+            List<KalturaCatalogWith> with = new List<KalturaCatalogWith>() { KalturaCatalogWith.images };
             // get base objects list
             List<WebAPI.Catalog.BaseObject> assetsBaseDataList = ConditionalAccessMappings.ConvertRecordings(new Recording[] { response });
             List<KalturaIAssetable> assetsInfo = ClientsManager.CatalogClient().GetAssetsInfo(groupID, 0, string.Empty, 0, 10, group.UseStartDate,
@@ -1345,7 +1345,7 @@ namespace WebAPI.Clients
             result = new KalturaRecordingListResponse() { Objects = new List<KalturaRecording>(), TotalCount = 0 };
             if (response.Recordings != null && response.Recordings.Length > 0)
             {
-                List<KalturaCatalogWith> with = new List<KalturaCatalogWith>() { KalturaCatalogWith.images, KalturaCatalogWith.files };
+                List<KalturaCatalogWith> with = new List<KalturaCatalogWith>() { KalturaCatalogWith.images };
                 // get base objects list
                 List<WebAPI.Catalog.BaseObject> assetsBaseDataList = ConditionalAccessMappings.ConvertRecordings(response.Recordings);
                 List<KalturaIAssetable> assetsInfo = ClientsManager.CatalogClient().GetAssetsInfo(groupID, (int)domainID, userID, pageIndex, pageSize.Value, group.UseStartDate,

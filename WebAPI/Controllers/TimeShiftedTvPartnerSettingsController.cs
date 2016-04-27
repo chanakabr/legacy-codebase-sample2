@@ -14,13 +14,12 @@ namespace WebAPI.Controllers
     [RoutePrefix("_service/TimeShiftedTvPartnerSettings/action")]
     public class TimeShiftedTvPartnerSettingsController : ApiController
     {
+
         /// <summary>
         /// Retrieve the account’s time-shifted TV settings (catch-up and C-DVR, Trick-play, Start-over)
         /// </summary>
-        /// <remarks>
-        /// </remarks>
-        /// <returns>The time shifted tv settings that apply for the partner</returns>
-        /// 
+        /// <returns></returns>
+        /// <remarks>Possible status codes: BadRequest = 500003, TimeShiftedTvPartnerSettingsNotFound = 5022</remarks>   
         [Route("get"), HttpPost]
         [ApiAuthorize]
         public KalturaTimeShiftedTvPartnerSettings Get()
@@ -43,12 +42,9 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Configure the account’s time-shifted TV settings (catch-up and C-DVR, Trick-play, Start-over)
-        /// </summary>    
-        /// 
-        /// <remarks>        
-        /// </remarks>
-        /// <returns>The time shifted tv settings that apply for the partner</returns>
-        /// 
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks>Possible status codes: BadRequest = 500003, TimeShiftedTvPartnerSettingsNotSent = 5023, TimeShiftedTvPartnerSettingsNegativeBufferSent = 5024</remarks>   
         [Route("update"), HttpPost]
         [ApiAuthorize]
         public bool Update(KalturaTimeShiftedTvPartnerSettings settings)
