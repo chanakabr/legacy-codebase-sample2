@@ -17408,7 +17408,7 @@ namespace ConditionalAccess
                 if (recordings == null || recordings.Count == 0)
                 {
                     log.DebugFormat("No recordingIDs were returned from ConditionalAccessDAL.GetRecordings");
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingNotFound, eResponseStatus.RecordingNotFound.ToString());
                     return response;
                 }
 

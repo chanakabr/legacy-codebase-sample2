@@ -110,6 +110,7 @@ namespace ApiObjects.Response
         CatchUpBufferLimitation = 3037,        
         CdvrAdapterProviderFail = 3038,
         ProgramNotInRecordingScheduleWindow = 3039,
+        RecordingNotFound = 3040,
 
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,
