@@ -1153,21 +1153,41 @@ namespace WebAPI.Clients
                 // internal web service exception
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
-
-            Recording requestedRecording = response.Recordings[0];
-            // convert response
-            recording = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaRecording>(requestedRecording);
+            
+            if (response.Recordings != null && response.Recordings.Length > 0)
+            {
+                List<KalturaCatalogWith> with = new List<KalturaCatalogWith>() { KalturaCatalogWith.images, KalturaCatalogWith.files };
+                // get base objects list
+                List<WebAPI.Catalog.BaseObject> assetsBaseDataList = ConditionalAccessMappings.ConvertRecordings(response.Recordings);
+                List<KalturaIAssetable> assetsInfo = ClientsManager.CatalogClient().GetAssetsInfo(groupID, 0, string.Empty, 0, 10, group.UseStartDate,
+                                                                                                    group.GetOnlyActiveAssets, assetsBaseDataList, with);
+                // build AssetInfoWrapper response
+                if (assetsInfo != null && assetsInfo.Count > 0)
+                {
+                    Recording requestedRecording = new Recording();
+                    var assetInfo = assetsInfo[0];
+                    requestedRecording = response.Recordings.FirstOrDefault(x => x.EpgID == ((KalturaAssetInfo)assetInfo).Id);
+                    if (requestedRecording != null)
+                    {
+                        // convert response
+                        recording = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaRecording>(requestedRecording);
+                        recording.Asset = (KalturaAssetInfo)assetInfo;
+                        recording.RecordingType = KalturaRecordingType.single;
+                        recording.LastAvailabilityDate = 0;                    
+                    }
+                }                
+            }
 
             return recording;
         }
 
-        internal KalturaRecording QueryRecord(int groupdID, string userID, long epgID)
+        internal KalturaRecording QueryRecord(int groupID, string userID, long epgID)
         {
             KalturaRecording recording = null;
             Recording response = null;           
 
             // get group ID
-            Group group = GroupsManager.GetGroup(groupdID);
+            Group group = GroupsManager.GetGroup(groupID);
 
             try
             {
@@ -1194,20 +1214,33 @@ namespace WebAPI.Clients
                 // internal web service exception
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
-            
-            // convert response
-            recording = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaRecording>(response);
+
+            List<KalturaCatalogWith> with = new List<KalturaCatalogWith>() { KalturaCatalogWith.images, KalturaCatalogWith.files };
+            // get base objects list
+            List<WebAPI.Catalog.BaseObject> assetsBaseDataList = ConditionalAccessMappings.ConvertRecordings(new Recording[] { response });
+            List<KalturaIAssetable> assetsInfo = ClientsManager.CatalogClient().GetAssetsInfo(groupID, 0, string.Empty, 0, 10, group.UseStartDate,
+                                                                                                group.GetOnlyActiveAssets, assetsBaseDataList, with);
+            // build AssetInfoWrapper response
+            if (assetsInfo != null && assetsInfo.Count > 0)
+            {                
+                var assetInfo = assetsInfo[0];
+                // convert response
+                recording = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaRecording>(response);
+                recording.Asset = (KalturaAssetInfo)assetInfo;
+                recording.RecordingType = KalturaRecordingType.single;
+                recording.LastAvailabilityDate = 0;
+            }
 
             return recording;
         }
 
-        internal KalturaRecording Record(int groupdID, string userID, long epgID)
+        internal KalturaRecording Record(int groupID, string userID, long epgID)
         {
             KalturaRecording recording = null;
             Recording response = null;
 
             // get group ID
-            Group group = GroupsManager.GetGroup(groupdID);
+            Group group = GroupsManager.GetGroup(groupID);
 
             try
             {
@@ -1235,13 +1268,26 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            // convert response
-            recording = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaRecording>(response);
+            List<KalturaCatalogWith> with = new List<KalturaCatalogWith>() { KalturaCatalogWith.images, KalturaCatalogWith.files };
+            // get base objects list
+            List<WebAPI.Catalog.BaseObject> assetsBaseDataList = ConditionalAccessMappings.ConvertRecordings(new Recording[] { response });
+            List<KalturaIAssetable> assetsInfo = ClientsManager.CatalogClient().GetAssetsInfo(groupID, 0, string.Empty, 0, 10, group.UseStartDate,
+                                                                                                group.GetOnlyActiveAssets, assetsBaseDataList, with);
+            // build AssetInfoWrapper response
+            if (assetsInfo != null && assetsInfo.Count > 0)
+            {
+                var assetInfo = assetsInfo[0];
+                // convert response
+                recording = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaRecording>(response);
+                recording.Asset = (KalturaAssetInfo)assetInfo;
+                recording.RecordingType = KalturaRecordingType.single;
+                recording.LastAvailabilityDate = 0;
+            }
 
             return recording;
         }
 
-        internal KalturaRecordingListResponse SearchRecordings(int groupdID, string userID, long domainID, List<KalturaRecordingStatus> recordingStatuses, string ksqlFilter,
+        internal KalturaRecordingListResponse SearchRecordings(int groupID, string userID, long domainID, List<KalturaRecordingStatus> recordingStatuses, string ksqlFilter,
                                                                 int pageIndex, int? pageSize, KalturaRecordingOrder? orderBy, string requestID)
         {
             KalturaRecordingListResponse result = null;
@@ -1267,7 +1313,7 @@ namespace WebAPI.Clients
             List<WebAPI.ConditionalAccess.TstvRecordingStatus> convertedRecordingStatuses = recordingStatuses.Select(x => ConditionalAccessMappings.ConvertKalturaRecordingStatus(x)).ToList();            
 
             // get group configuration
-            Group group = GroupsManager.GetGroup(groupdID);
+            Group group = GroupsManager.GetGroup(groupID);
 
             try
             {
@@ -1302,23 +1348,23 @@ namespace WebAPI.Clients
                 List<KalturaCatalogWith> with = new List<KalturaCatalogWith>() { KalturaCatalogWith.images, KalturaCatalogWith.files };
                 // get base objects list
                 List<WebAPI.Catalog.BaseObject> assetsBaseDataList = ConditionalAccessMappings.ConvertRecordings(response.Recordings);
-                List<KalturaIAssetable> assetsInfo = ClientsManager.CatalogClient().GetAssetsInfo(groupdID, (int)domainID, userID, pageIndex, pageSize.Value, group.UseStartDate,
+                List<KalturaIAssetable> assetsInfo = ClientsManager.CatalogClient().GetAssetsInfo(groupID, (int)domainID, userID, pageIndex, pageSize.Value, group.UseStartDate,
                                                                                                     group.GetOnlyActiveAssets, assetsBaseDataList, with);
                 // build AssetInfoWrapper response
                 if (assetsInfo != null)
                 {
-                    Recording searchRecording = new Recording();
+                    Recording recording = new Recording();
                     foreach (var assetInfo in assetsInfo)
                     {
-                        searchRecording = response.Recordings.FirstOrDefault(x => x.EpgID == ((KalturaAssetInfo)assetInfo).Id);
+                        recording = response.Recordings.FirstOrDefault(x => x.EpgID == ((KalturaAssetInfo)assetInfo).Id);
 
-                        if (searchRecording != null)
+                        if (recording != null)
                         {
                             result.Objects.Add(new KalturaRecording()
                             {                                
                                 Asset = (KalturaAssetInfo)assetInfo,
-                                RecordingId = searchRecording.RecordingID,
-                                RecordingStatus = ConditionalAccessMappings.ConvertTstvRecordingStatus(searchRecording.RecordingStatus),
+                                RecordingId = recording.RecordingID,
+                                RecordingStatus = ConditionalAccessMappings.ConvertTstvRecordingStatus(recording.RecordingStatus),
                                 RecordingType = KalturaRecordingType.single,
                                 LastAvailabilityDate = 0
                             });
