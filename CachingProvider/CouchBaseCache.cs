@@ -147,11 +147,11 @@ namespace CachingProvider
             return result;
         }
 
-        public override IDictionary<string, object> GetValues(List<string> keys)
+        public override IDictionary<string, object> GetValues(List<string> keys, bool asJson = false)
         {
             IDictionary<string, object> result = new Dictionary<string, object>();
 
-            var innerResult = new CouchbaseManager.CouchbaseManager(bucket).GetValues<T>(keys, false);
+            var innerResult = new CouchbaseManager.CouchbaseManager(bucket).GetValues<T>(keys, asJson);
 
             if (innerResult != null)
             {

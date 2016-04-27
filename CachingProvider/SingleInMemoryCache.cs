@@ -226,7 +226,7 @@ namespace CachingProvider
         }
 
 
-        public IDictionary<string, object> GetValues(List<string> keys)
+        public IDictionary<string, object> GetValues(List<string> keys, bool asJson = false)
         {
             IDictionary<string, object> iDict = null;
             try
