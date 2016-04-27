@@ -246,7 +246,7 @@ namespace CachingProvider
             return (inMemorySet && couchBaseSet);
         }
 
-        public override IDictionary<string, object> GetValues(List<string> keys)
+        public override IDictionary<string, object> GetValues(List<string> keys, bool asJson = false)
         {
             IDictionary<string, object> result = new Dictionary<string, object>();
 
@@ -280,7 +280,7 @@ namespace CachingProvider
             else
             {
                 // If not, get missing keys from couchbase
-                IDictionary<string, object> dictionaryCouchbase = this.couchbaseCache.GetValues(missingKeys);
+                IDictionary<string, object> dictionaryCouchbase = this.couchbaseCache.GetValues(missingKeys, asJson);
 
                 if (dictionaryCouchbase != null)
                 {
