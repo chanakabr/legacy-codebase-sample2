@@ -257,6 +257,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.StartOverEnabled, opt => opt.MapFrom(src => src.IsStartOverEnabled))
                 .ForMember(dest => dest.TrickPlayEnabled, opt => opt.MapFrom(src => src.IsTrickPlayEnabled))
                 .ForMember(dest => dest.CatchUpBufferLength, opt => opt.MapFrom(src => src.CatchUpBufferLength))
+                .ForMember(dest => dest.TrickPlayBufferLength, opt => opt.MapFrom(src => src.CatchUpBufferLength))
                 .ForMember(dest => dest.RecordingScheduleWindow, opt => opt.MapFrom(src => src.RecordingScheduleWindow));
 
             //KalturaTimeShiftedTvPartnerSettings to TimeShiftedTvPartnerSettings
