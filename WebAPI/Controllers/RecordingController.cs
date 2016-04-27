@@ -123,14 +123,14 @@ namespace WebAPI.Controllers
                     filter = new KalturaRecordingFilter();
                 }
 
-                if (!string.IsNullOrEmpty(filter.filter_expression) && filter.filter_expression.Length > 1024)
+                if (!string.IsNullOrEmpty(filter.FilterExpression) && filter.FilterExpression.Length > 1024)
                 {
                     throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter too long");
                 }
 
                 // call client                
                 response = ClientsManager.ConditionalAccessClient().SearchRecordings(groupId, userId, domainId, filter.RecordingStatuses.Select(x => x.status).ToList(),
-                                                                                     filter.filter_expression, pager.PageIndex, pager.PageSize, filter.order_by, filter.request_id);
+                                                                                     filter.FilterExpression, pager.PageIndex, pager.PageSize, filter.OrderBy, filter.RequestId);
             }
             catch (ClientException ex)
             {

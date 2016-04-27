@@ -20,27 +20,27 @@ namespace WebAPI.Models.ConditionalAccess
         /// <summary>
         /// Recording Statuses
         /// </summary>
-        [DataMember(Name = "recording_statuses")]
-        [JsonProperty(PropertyName = "recording_statuses")]
-        [XmlArray(ElementName = "recording_statuses", IsNullable = true)]
-        [XmlArrayItem(ElementName = "recording_statuses")]
+        [DataMember(Name = "recordingStatuses")]
+        [JsonProperty(PropertyName = "recordingStatuses")]
+        [XmlArray(ElementName = "recordingStatuses", IsNullable = true)]
+        [XmlArrayItem(ElementName = "recordingStatuses")]
         public List<KalturaRecordingStatusHolder> RecordingStatuses { get; set; }
 
         /// <summary>
         /// KSQL expression
         /// </summary>
-        [DataMember(Name = "filter_expression")]
-        [JsonProperty("filter_expression")]
-        [XmlElement(ElementName = "filter_expression", IsNullable = true)]
-        public string filter_expression { get; set; }
+        [DataMember(Name = "filterExpression")]
+        [JsonProperty("filterExpression")]
+        [XmlElement(ElementName = "filterExpression", IsNullable = true)]
+        public string FilterExpression { get; set; }
 
         /// <summary>
         /// order by
         /// </summary>
-        [DataMember(Name = "order_by")]
-        [JsonProperty("order_by")]
-        [XmlElement(ElementName = "order_by", IsNullable = true)]
-        public KalturaRecordingOrder? order_by { get; set; }
+        [DataMember(Name = "orderBy")]
+        [JsonProperty("orderBy")]
+        [XmlElement(ElementName = "orderBy", IsNullable = true)]
+        public KalturaRecordingOrder? OrderBy { get; set; }
         
     }
 }

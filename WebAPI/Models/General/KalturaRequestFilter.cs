@@ -17,10 +17,10 @@ namespace WebAPI.Models.General
         /// <summary>
         /// request ID
         /// </summary>
-        [DataMember(Name = "request_id")]
-        [JsonProperty("request_id")]
-        [XmlElement(ElementName = "request_id", IsNullable = true)]
-        public string request_id { get; set; }
+        [DataMember(Name = "requestId")]
+        [JsonProperty("requestId")]
+        [XmlElement(ElementName = "requestId", IsNullable = true)]
+        public string RequestId { get; set; }
 
     }
 }
