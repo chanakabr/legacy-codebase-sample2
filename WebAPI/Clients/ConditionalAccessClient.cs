@@ -1245,7 +1245,7 @@ namespace WebAPI.Clients
                                                                 int pageIndex, int? pageSize, KalturaRecordingOrder? orderBy, string requestID)
         {
             KalturaRecordingListResponse result = null;
-            SearchRecordingResponse response = null;
+            RecordingResponse response = null;
 
             // Create catalog order object
             OrderObj order = new OrderObj();
@@ -1297,20 +1297,20 @@ namespace WebAPI.Clients
             }
 
             result = new KalturaRecordingListResponse() { Objects = new List<KalturaRecording>(), TotalCount = 0 };
-            if (response.SearchRecordings != null && response.SearchRecordings.Length > 0)
+            if (response.Recordings != null && response.Recordings.Length > 0)
             {
                 List<KalturaCatalogWith> with = new List<KalturaCatalogWith>() { KalturaCatalogWith.images, KalturaCatalogWith.files };
                 // get base objects list
-                List<WebAPI.Catalog.BaseObject> assetsBaseDataList = ConditionalAccessMappings.ConvertSearchRecordings(response.SearchRecordings);
+                List<WebAPI.Catalog.BaseObject> assetsBaseDataList = ConditionalAccessMappings.ConvertRecordings(response.Recordings);
                 List<KalturaIAssetable> assetsInfo = ClientsManager.CatalogClient().GetAssetsInfo(groupdID, (int)domainID, userID, pageIndex, pageSize.Value, group.UseStartDate,
                                                                                                     group.GetOnlyActiveAssets, assetsBaseDataList, with);
                 // build AssetInfoWrapper response
                 if (assetsInfo != null)
                 {
-                    SearchRecording searchRecording = new SearchRecording();
+                    Recording searchRecording = new Recording();
                     foreach (var assetInfo in assetsInfo)
                     {
-                        searchRecording = response.SearchRecordings.FirstOrDefault(x => x.EpgID == ((KalturaAssetInfo)assetInfo).Id);
+                        searchRecording = response.Recordings.FirstOrDefault(x => x.EpgID == ((KalturaAssetInfo)assetInfo).Id);
 
                         if (searchRecording != null)
                         {

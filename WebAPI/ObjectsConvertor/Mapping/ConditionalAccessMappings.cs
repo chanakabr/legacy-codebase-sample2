@@ -359,12 +359,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        public static List<WebAPI.Catalog.BaseObject> ConvertSearchRecordings(SearchRecording[] searchRecordings)
+        public static List<WebAPI.Catalog.BaseObject> ConvertRecordings(Recording[] recordings)
         {
             List<WebAPI.Catalog.BaseObject> result = new List<Catalog.BaseObject>();
-            foreach (SearchRecording recording in searchRecordings)
+            foreach (Recording recording in recordings)
             {
-                WebAPI.Catalog.BaseObject baseObject = new Catalog.BaseObject() { AssetId = recording.EpgID.ToString(), AssetType = Catalog.eAssetTypes.NPVR, m_dUpdateDate = recording.UpdateDate };
+                WebAPI.Catalog.BaseObject baseObject = new Catalog.BaseObject() { AssetId = recording.EpgID.ToString(), AssetType = Catalog.eAssetTypes.NPVR, m_dUpdateDate = recording.EpgUpdateDate };
                 result.Add(baseObject);
             }
 

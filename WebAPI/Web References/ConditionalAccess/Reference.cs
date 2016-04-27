@@ -1475,7 +1475,7 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/SearchDomainRecordings", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public SearchRecordingResponse SearchDomainRecordings(string sWSUserName, string sWSPassword, string userID, long domainID, TstvRecordingStatus[] recordingStatuses, string filter, int pageIndex, int pageSize, OrderObj orderBy, string requestID) {
+        public RecordingResponse SearchDomainRecordings(string sWSUserName, string sWSPassword, string userID, long domainID, TstvRecordingStatus[] recordingStatuses, string filter, int pageIndex, int pageSize, OrderObj orderBy, string requestID) {
             object[] results = this.Invoke("SearchDomainRecordings", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -1487,7 +1487,7 @@ namespace WebAPI.ConditionalAccess {
                         pageSize,
                         orderBy,
                         requestID});
-            return ((SearchRecordingResponse)(results[0]));
+            return ((RecordingResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -9933,246 +9933,6 @@ namespace WebAPI.ConditionalAccess {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class SearchRecordingResponse {
-        
-        private Status statusField;
-        
-        private SearchRecording[] searchRecordingsField;
-        
-        private int totalItemsField;
-        
-        /// <remarks/>
-        public Status Status {
-            get {
-                return this.statusField;
-            }
-            set {
-                this.statusField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public SearchRecording[] SearchRecordings {
-            get {
-                return this.searchRecordingsField;
-            }
-            set {
-                this.searchRecordingsField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int TotalItems {
-            get {
-                return this.totalItemsField;
-            }
-            set {
-                this.totalItemsField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class SearchRecording : Recording {
-        
-        private System.DateTime updateDateField;
-        
-        /// <remarks/>
-        public System.DateTime UpdateDate {
-            get {
-                return this.updateDateField;
-            }
-            set {
-                this.updateDateField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(SearchRecording))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public partial class Recording {
-        
-        private Status statusField;
-        
-        private long recordingIDField;
-        
-        private long epgIDField;
-        
-        private string channelIdField;
-        
-        private TstvRecordingStatus recordingStatusField;
-        
-        private string externalRecordingIdField;
-        
-        private System.DateTime epgStartDateField;
-        
-        private System.DateTime epgEndDateField;
-        
-        private RecordingType recordingTypeField;
-        
-        private System.DateTime lastAvailabilityDateField;
-        
-        /// <remarks/>
-        public Status Status {
-            get {
-                return this.statusField;
-            }
-            set {
-                this.statusField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public long RecordingID {
-            get {
-                return this.recordingIDField;
-            }
-            set {
-                this.recordingIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public long EpgID {
-            get {
-                return this.epgIDField;
-            }
-            set {
-                this.epgIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string ChannelId {
-            get {
-                return this.channelIdField;
-            }
-            set {
-                this.channelIdField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public TstvRecordingStatus RecordingStatus {
-            get {
-                return this.recordingStatusField;
-            }
-            set {
-                this.recordingStatusField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string ExternalRecordingId {
-            get {
-                return this.externalRecordingIdField;
-            }
-            set {
-                this.externalRecordingIdField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime EpgStartDate {
-            get {
-                return this.epgStartDateField;
-            }
-            set {
-                this.epgStartDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime EpgEndDate {
-            get {
-                return this.epgEndDateField;
-            }
-            set {
-                this.epgEndDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public RecordingType RecordingType {
-            get {
-                return this.recordingTypeField;
-            }
-            set {
-                this.recordingTypeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime LastAvailabilityDate {
-            get {
-                return this.lastAvailabilityDateField;
-            }
-            set {
-                this.lastAvailabilityDateField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public enum TstvRecordingStatus {
-        
-        /// <remarks/>
-        OK,
-        
-        /// <remarks/>
-        Failed,
-        
-        /// <remarks/>
-        Scheduled,
-        
-        /// <remarks/>
-        Recording,
-        
-        /// <remarks/>
-        Recorded,
-        
-        /// <remarks/>
-        Canceled,
-        
-        /// <remarks/>
-        DoesNotExist,
-        
-        /// <remarks/>
-        Deleted,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
-    public enum RecordingType {
-        
-        /// <remarks/>
-        Single,
-        
-        /// <remarks/>
-        Series,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
     public partial class OrderObj {
         
         private OrderBy m_eOrderByField;
@@ -10310,6 +10070,8 @@ namespace WebAPI.ConditionalAccess {
         
         private Recording[] recordingsField;
         
+        private int totalItemsField;
+        
         /// <remarks/>
         public Status Status {
             get {
@@ -10329,6 +10091,201 @@ namespace WebAPI.ConditionalAccess {
                 this.recordingsField = value;
             }
         }
+        
+        /// <remarks/>
+        public int TotalItems {
+            get {
+                return this.totalItemsField;
+            }
+            set {
+                this.totalItemsField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public partial class Recording {
+        
+        private Status statusField;
+        
+        private long recordingIDField;
+        
+        private long epgIDField;
+        
+        private string channelIdField;
+        
+        private TstvRecordingStatus recordingStatusField;
+        
+        private string externalRecordingIdField;
+        
+        private System.DateTime epgStartDateField;
+        
+        private System.DateTime epgEndDateField;
+        
+        private System.DateTime epgUpdateDateField;
+        
+        private RecordingType recordingTypeField;
+        
+        private System.DateTime lastAvailabilityDateField;
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long RecordingID {
+            get {
+                return this.recordingIDField;
+            }
+            set {
+                this.recordingIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long EpgID {
+            get {
+                return this.epgIDField;
+            }
+            set {
+                this.epgIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string ChannelId {
+            get {
+                return this.channelIdField;
+            }
+            set {
+                this.channelIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public TstvRecordingStatus RecordingStatus {
+            get {
+                return this.recordingStatusField;
+            }
+            set {
+                this.recordingStatusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string ExternalRecordingId {
+            get {
+                return this.externalRecordingIdField;
+            }
+            set {
+                this.externalRecordingIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime EpgStartDate {
+            get {
+                return this.epgStartDateField;
+            }
+            set {
+                this.epgStartDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime EpgEndDate {
+            get {
+                return this.epgEndDateField;
+            }
+            set {
+                this.epgEndDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime EpgUpdateDate {
+            get {
+                return this.epgUpdateDateField;
+            }
+            set {
+                this.epgUpdateDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public RecordingType RecordingType {
+            get {
+                return this.recordingTypeField;
+            }
+            set {
+                this.recordingTypeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public System.DateTime LastAvailabilityDate {
+            get {
+                return this.lastAvailabilityDateField;
+            }
+            set {
+                this.lastAvailabilityDateField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public enum TstvRecordingStatus {
+        
+        /// <remarks/>
+        OK,
+        
+        /// <remarks/>
+        Failed,
+        
+        /// <remarks/>
+        Scheduled,
+        
+        /// <remarks/>
+        Recording,
+        
+        /// <remarks/>
+        Recorded,
+        
+        /// <remarks/>
+        Canceled,
+        
+        /// <remarks/>
+        DoesNotExist,
+        
+        /// <remarks/>
+        Deleted,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ca.tvinci.com/")]
+    public enum RecordingType {
+        
+        /// <remarks/>
+        Single,
+        
+        /// <remarks/>
+        Series,
     }
     
     /// <remarks/>
@@ -11740,10 +11697,10 @@ namespace WebAPI.ConditionalAccess {
         }
         
         /// <remarks/>
-        public SearchRecordingResponse Result {
+        public RecordingResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((SearchRecordingResponse)(this.results[0]));
+                return ((RecordingResponse)(this.results[0]));
             }
         }
     }
