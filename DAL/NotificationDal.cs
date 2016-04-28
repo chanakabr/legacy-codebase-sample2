@@ -1361,19 +1361,20 @@ namespace DAL
             }
             return result;
         }
-        
-        public static bool UpdateUserNotificationSettings(int groupID, string userId, UserNotificationSettings settings, ref bool isDocumentExist)
+
+        public static bool UpdateUserNotificationSettings(int groupID, int userId, UserNotificationSettings settings, ref bool isDocumentExist)
         {
             bool result = false;
             UserNotification userNotification = null;
             ResponseStatus status = ResponseStatus.None;
             isDocumentExist = true;
             ulong cas = 0;
+            string cbKey = string.Empty;
 
             try
             {
                 int numOfTries = 0;
-                string cbKey = GetUserNotificationKey(groupID, Convert.ToInt32(userId));
+                cbKey = GetUserNotificationKey(groupID, userId);
 
                 while (!result && numOfTries < NUM_OF_INSERT_TRIES)
                 {
@@ -1384,8 +1385,8 @@ namespace DAL
                         {
                             isDocumentExist = false;
                             // key doesn't exist - don't try again
-                            log.DebugFormat("user notification data wasn't found. key: {0}", cbKey);                            
-                            break;                            
+                            log.DebugFormat("user notification data wasn't found. key: {0}", cbKey);
+                            break;
                         }
                         else
                         {
@@ -1435,7 +1436,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while trying to update user notification settings. key: {0}, ex: {1}", GetUserNotificationKey(groupID, Convert.ToInt32(userId)), ex);
+                log.ErrorFormat("Error while trying to update user notification settings. key: {0}, ex: {1}", cbKey, ex);
             }
 
             return result;
