@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.Notification;
+using Couchbase.IO;
 using CouchbaseManager;
 using KLogMonitor;
 using Newtonsoft.Json;
@@ -1342,12 +1343,13 @@ namespace DAL
             }
             return result;
         }
-
-        public static bool UpdateUserNotificationSettings(int groupID, string userId, UserNotificationSettings settings)
+        
+        public static bool UpdateUserNotificationSettings(int groupID, string userId, UserNotificationSettings settings, ref bool isDocumentExist)
         {
             bool result = false;
             UserNotification userNotification = null;
-            Couchbase.IO.ResponseStatus status = Couchbase.IO.ResponseStatus.None;
+            ResponseStatus status = ResponseStatus.None;
+            isDocumentExist = true;
             ulong cas = 0;
 
             try
@@ -1362,10 +1364,10 @@ namespace DAL
                     {
                         if (status == Couchbase.IO.ResponseStatus.KeyNotFound)
                         {
+                            isDocumentExist = false;
                             // key doesn't exist - don't try again
-                            log.DebugFormat("user notification data wasn't found. key: {0}", cbKey);
-
-                            return true;
+                            log.DebugFormat("user notification data wasn't found. key: {0}", cbKey);                            
+                            break;                            
                         }
                         else
                         {
