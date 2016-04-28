@@ -532,7 +532,7 @@ namespace WebAPI.Clients
             int userId = 0;
             if (!int.TryParse(userID, out userId))
             {
-                throw new ClientException((int)StatusCode.UserIDInvalid, "Invalid Username");
+                throw new ClientException((int)StatusCode.UserIDInvalid, "Invalid UID");
             }
 
             try
