@@ -30,11 +30,10 @@ namespace WebAPI.Controllers
             KalturaListFollowDataTvSeriesResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
+            string userID = KS.GetFromRequest().UserId;
 
             if (pager == null)
                 pager = new KalturaFilterPager();
-
-            string userID = KS.GetFromRequest().UserId;
 
             try
             {
@@ -61,8 +60,10 @@ namespace WebAPI.Controllers
             bool response = false;
 
             int groupId = KS.GetFromRequest().GroupId;
-
             string userID = KS.GetFromRequest().UserId;
+
+            if (asset_id <= 0)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal asset ID");
 
             try
             {
@@ -89,8 +90,10 @@ namespace WebAPI.Controllers
             bool response = false;
 
             int groupId = KS.GetFromRequest().GroupId;
-
             string userID = KS.GetFromRequest().UserId;
+
+            if (asset_id <= 0)
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal asset ID");
 
             try
             {
