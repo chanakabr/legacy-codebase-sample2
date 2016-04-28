@@ -574,7 +574,9 @@ namespace WebAPI.Clients
             var mediaInfoResponse = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), KSUtils.ExtractKSPayload().UDID, null,
                                             0, 0, new List<int>() { asset_id }, new List<KalturaCatalogWith>());
 
-            if (mediaInfoResponse == null || mediaInfoResponse.Objects == null || mediaInfoResponse.Objects.Count == 0)
+            if (mediaInfoResponse == null ||
+                mediaInfoResponse.Objects == null ||
+                mediaInfoResponse.Objects.Count == 0)
             {
                 throw new ClientException((int)StatusCode.NotFound, "asset not found");
             }
@@ -586,7 +588,7 @@ namespace WebAPI.Clients
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {                    
+                {
                     response = Notification.Unfollow(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, followData);
                 }
             }
@@ -621,7 +623,7 @@ namespace WebAPI.Clients
             // get asset name
             var mediaInfoResponse = ClientsManager.CatalogClient().GetMediaByIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), KSUtils.ExtractKSPayload().UDID, null,
                                             0, 0, new List<int>() { followData.AssetId }, new List<KalturaCatalogWith>());
-            
+
             if (mediaInfoResponse == null || mediaInfoResponse.Objects == null || mediaInfoResponse.Objects.Count == 0)
             {
                 throw new ClientException((int)StatusCode.NotFound, "asset not found");
