@@ -26,11 +26,19 @@ namespace ApiObjects.TimeShiftedTv
 
         public DateTime EpgEndDate { get; set; }
 
+        public DateTime EpgUpdateDate { get; set; }
+
+        public RecordingType RecordingType { get; set; }
+
+        public DateTime LastAvailabilityDate { get; set; }        
+
         public Recording()
         {
             Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             this.RecordingID = 0;
             this.RecordingStatus = TstvRecordingStatus.DoesNotExist;
+            this.RecordingType = RecordingType.Single;
+            this.LastAvailabilityDate = DateTime.MaxValue;
         }
 
         public override string ToString()
@@ -40,10 +48,12 @@ namespace ApiObjects.TimeShiftedTv
             sb.Append(string.Format("RecordingID: {0}, ", RecordingID));
             sb.Append(string.Format("EpgID: {0}, ", EpgID));
             sb.Append(string.Format("ChannelId: {0}, ", string.IsNullOrEmpty(ChannelId) ? "" : ChannelId));
-            sb.Append(string.Format("RecordingStatus: {0}, ", RecordingStatus));            
+            sb.Append(string.Format("RecordingStatus: {0}, ", RecordingStatus));
+            sb.Append(string.Format("RecordingType: {0}, ", RecordingType));            
             sb.Append(string.Format("ExternalRecordingId: {0}, ", string.IsNullOrEmpty(ExternalRecordingId) ? "" : ExternalRecordingId));
             sb.Append(string.Format("StartDate: {0}, ", EpgStartDate != null ? EpgStartDate.ToString() : ""));
             sb.Append(string.Format("EndDate: {0}, ", EpgEndDate != null ? EpgEndDate.ToString() : ""));
+            sb.Append(string.Format("LastAvailabilityDate: {0}, ", LastAvailabilityDate != null ? LastAvailabilityDate.ToString() : ""));
 
             return sb.ToString();
         }

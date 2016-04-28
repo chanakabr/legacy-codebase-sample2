@@ -4166,9 +4166,10 @@ namespace ConditionalAccess
                     int trickPlay = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_trick_play", -1);
                     int catchUpBuffer = ODBCWrapper.Utils.GetIntSafeVal(dr, "catch_up_buffer", -1);
                     int trickPlayBuffer = ODBCWrapper.Utils.GetIntSafeVal(dr, "trick_play_buffer", -1);
+                    long? recordingScheduleWindowBuffer = ODBCWrapper.Utils.GetLongSafeVal(dr, "recording_schedule_window_buffer", null);
                     if (catchup > -1 && cdvr > -1 && startOver > -1 && trickPlay > -1 && catchUpBuffer > -1 && trickPlayBuffer > -1)
                     {
-                        settings = new TimeShiftedTvPartnerSettings(catchup == 1, cdvr == 1, startOver == 1, trickPlay == 1, catchUpBuffer, trickPlayBuffer);
+                        settings = new TimeShiftedTvPartnerSettings(catchup == 1, cdvr == 1, startOver == 1, trickPlay == 1, catchUpBuffer, trickPlayBuffer, recordingScheduleWindowBuffer);
                     }
                 }
             }
@@ -4277,11 +4278,11 @@ namespace ConditionalAccess
             return services;
         }
 
-        internal static List<SearchRecording> SearchDomainRecordingIDsByFilter(int groupID, string userID, long domainID, List<Recording> recordings, string filter,
+        internal static List<Recording> SearchDomainRecordingIDsByFilter(int groupID, string userID, long domainID, Dictionary<long, Recording> recordings, string filter,
                                                                     int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy, string requestID)
         {
             WS_Catalog.IserviceClient client = null;
-            List<SearchRecording> filteredRecordings = null;
+            List<Recording> filteredRecordings = null;
 
             try
             {
@@ -4298,7 +4299,7 @@ namespace ConditionalAccess
                 KeyValuePair<eAssetTypes, long>[] recordingAssets = new KeyValuePair<eAssetTypes, long>[recordings.Count];
                 for (int i = 0; i < recordings.Count; i++)
                 {
-                    recordingAssets[i] = new KeyValuePair<eAssetTypes, long>(eAssetTypes.NPVR, recordings[i].RecordingID);
+                    recordingAssets[i] = new KeyValuePair<eAssetTypes, long>(eAssetTypes.NPVR, recordings.ElementAt(i).Key);
                 }
                 request.specificAssets = recordingAssets;                
                 request.m_oFilter = new WS_Catalog.Filter()
@@ -4312,11 +4313,12 @@ namespace ConditionalAccess
                 {
                     return filteredRecordings;
                 }
+
                 client.Endpoint.Address = new System.ServiceModel.EndpointAddress(sCatalogUrl);
                 WS_Catalog.UnifiedSearchResponse response = client.GetResponse(request) as WS_Catalog.UnifiedSearchResponse;
                 if (response != null && response.status.Code == (int)eResponseStatus.OK && response.m_nTotalItems > 0 && response.searchResults != null && response.searchResults.Length > 0)
                 {
-                    filteredRecordings = new List<SearchRecording>();
+                    filteredRecordings = new List<Recording>();
                     Dictionary<long, DateTime> searchRecordingsResult = new Dictionary<long, DateTime>();
                     foreach (UnifiedSearchResult unifiedSearchResult in response.searchResults)
                     {
@@ -4329,19 +4331,17 @@ namespace ConditionalAccess
                         }                       
                     }
 
-                    if (searchRecordingsResult != null && searchRecordingsResult.Count > 0)
+                    foreach (KeyValuePair<long, DateTime> pair in searchRecordingsResult)
                     {
-                        foreach (KeyValuePair<long, DateTime> pair in searchRecordingsResult)
+                        if (recordings.ContainsKey(pair.Key))
                         {
-                            Recording recording = recordings.Single(x => x.RecordingID == pair.Key);
-                            if (recording != null)
-                            {
-                                SearchRecording searchRecording = new SearchRecording(recording) { UpdateDate = pair.Value };
-                                filteredRecordings.Add(searchRecording);
-                            }
+                            Recording recording = recordings[pair.Key];
+                            recording.EpgUpdateDate = pair.Value;
+                            filteredRecordings.Add(recording);
                         }
                     }
                 }
+
             }
 
             catch (Exception ex)

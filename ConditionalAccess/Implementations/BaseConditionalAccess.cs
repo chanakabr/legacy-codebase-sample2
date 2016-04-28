@@ -17163,6 +17163,15 @@ namespace ConditionalAccess
                     log.ErrorFormat("Failed parsing EPG start date, epgID: {0}, domainID: {1}, userID {2}, startDate: {3}", epg.EPG_ID, domainID, userID, epg.START_DATE);
                     return response;
                 }
+
+                // validate recording schedule window
+                if (accountSettings.RecordingScheduleWindow.HasValue && epgStartDate.AddMinutes(accountSettings.RecordingScheduleWindow.Value) >= DateTime.UtcNow)
+                {
+                    log.DebugFormat("Program not in recording schedule window, epgID: {0}, domainID: {1}, userID {2}", epg.EPG_ID, domainID, userID);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramNotInRecordingScheduleWindow, eResponseStatus.ProgramNotInRecordingScheduleWindow.ToString());
+                    return response;
+                }
+
                 if (epgStartDate < DateTime.UtcNow)
                 {
                     if (!accountSettings.IsCatchUpEnabled.HasValue || !accountSettings.IsCatchUpEnabled.Value)
@@ -17326,15 +17335,15 @@ namespace ConditionalAccess
             return response;
         }
 
-        public SearchRecordingResponse SerachDomainRecordings(string userID, long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses, string filter, int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy, string requestID)
+        public RecordingResponse SerachDomainRecordings(string userID, long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses, string filter, int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy, string requestID)
         {
-            SearchRecordingResponse response = new SearchRecordingResponse();
+            RecordingResponse response = new RecordingResponse();
             try
             {
                 if (recordingStatuses == null || recordingStatuses.Count == 0)
                 {
                     log.DebugFormat("RecordingStatuses is null, DomainID: {0}, UserID: {1}", domainID, userID);
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingStatusNotSent, eResponseStatus.RecordingStatusNotSent.ToString());
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     return response;
                 }
 
@@ -17346,8 +17355,8 @@ namespace ConditionalAccess
                     return response;
                 }
 
-                List<Recording> recordings = ConditionalAccessDAL.GetDomainRecordingsByRecordingStatuses(m_nGroupID, domainID, recordingStatuses, pageIndex, pageSize);
-                List<SearchRecording> searchRecordings = null;
+                Dictionary<long, Recording> recordings = ConditionalAccessDAL.GetDomainRecordingsByRecordingStatuses(m_nGroupID, domainID, recordingStatuses, pageIndex, pageSize);
+                List<Recording> searchRecordings = null;
                 if (recordings == null)
                 {
                     log.DebugFormat("Failed GetDomainRecordingIDsByRecordingStatuses, recordingIDs is null, DomainID: {0}, UserID: {1}, pageIndex: {2}, pageSize: {3}, ", domainID, userID, pageIndex, pageSize);
@@ -17365,7 +17374,7 @@ namespace ConditionalAccess
                         return response;
                     }
 
-                    response.SearchRecordings = searchRecordings;
+                    response.Recordings = searchRecordings;
                     response.TotalItems = searchRecordings.Count;
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
@@ -17408,7 +17417,7 @@ namespace ConditionalAccess
                 if (recordings == null || recordings.Count == 0)
                 {
                     log.DebugFormat("No recordingIDs were returned from ConditionalAccessDAL.GetRecordings");
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingNotFound, eResponseStatus.RecordingNotFound.ToString());
                     return response;
                 }
 

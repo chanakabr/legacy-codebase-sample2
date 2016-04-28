@@ -968,5 +968,20 @@ namespace ODBCWrapper
 
             return result;
         }
+
+        public static long? GetLongSafeVal(DataRow dr, string sField, long? returnThisInCaseOfFail)
+        {
+            long? res = returnThisInCaseOfFail;
+            try
+            {
+                if (dr != null && dr[sField] != DBNull.Value)
+                    res = Int64.Parse(dr[sField].ToString());
+                return res;
+            }
+            catch
+            {
+                return res;
+            }
+        }
     }
 }

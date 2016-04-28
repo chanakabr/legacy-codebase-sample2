@@ -326,7 +326,7 @@ namespace Users
 
         internal override void InitSendWelcomeMail(ref UserResponseObject userResponse, ref TvinciAPI.WelcomeMailRequest mailRequest, string firstName, string userName, string password, string email, string facebookId)
         {
-            mailRequest.m_sToken = DAL.UsersDal.GetActivationToken(GroupId, mailRequest.m_sUsername);
+            mailRequest.m_sToken = DAL.UsersDal.GetActivationToken(GroupId, userName);
             mailRequest.m_sTemplateName = WelcomeMailTemplate;
             mailRequest.m_eMailType = TvinciAPI.eMailTemplateType.Welcome;
             mailRequest.m_sFirstName = firstName;
