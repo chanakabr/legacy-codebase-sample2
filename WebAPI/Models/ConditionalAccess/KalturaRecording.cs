@@ -16,41 +16,41 @@ namespace WebAPI.Models.ConditionalAccess
         /// <summary>
         /// Kaltura unique ID representing the recording identifier
         /// </summary>
-        [DataMember(Name = "recording_id")]
-        [JsonProperty("recording_id")]
-        [XmlElement(ElementName = "recording_id", IsNullable = true)]
+        [DataMember(Name = "recordingId")]
+        [JsonProperty("recordingId")]
+        [XmlElement(ElementName = "recordingId", IsNullable = true)]
         public long RecordingId { get; set; }
 
         /// <summary>
         /// Recording state: scheduled/recording/recorded/canceled/failed/does_not_exists/deleted
         /// </summary>
-        [DataMember(Name = "recording_state")]
-        [JsonProperty("recording_state")]
-        [XmlElement(ElementName = "recording_state")]
+        [DataMember(Name = "recordingStatus")]
+        [JsonProperty("recordingStatus")]
+        [XmlElement(ElementName = "recordingStatus")]
         public KalturaRecordingStatus RecordingStatus { get; set; }
 
         /// <summary>
         /// Kaltura unique ID representing the program identifier
         /// </summary>
-        [DataMember(Name = "epg_id")]
-        [JsonProperty("epg_id")]
-        [XmlElement(ElementName = "epg_id")]
+        [DataMember(Name = "epgID")]
+        [JsonProperty("epgID")]
+        [XmlElement(ElementName = "epgID")]
         public long EpgID { get; set; }
 
         /// <summary>
         /// Recording Type: single/series
         /// </summary>
-        [DataMember(Name = "recording_type")]
-        [JsonProperty("recording_type")]
-        [XmlElement(ElementName = "recording_type")]
+        [DataMember(Name = "recordingType")]
+        [JsonProperty("recordingType")]
+        [XmlElement(ElementName = "recordingType")]
         public KalturaRecordingType RecordingType { get; set; }
 
         /// <summary>
         /// The date when the record is no longer available
         /// </summary>
-        [DataMember(Name = "last_availability_date")]
-        [JsonProperty("last_availability_date")]
-        [XmlElement(ElementName = "last_availability_date")]
+        [DataMember(Name = "lastAvailabilityDate")]
+        [JsonProperty("lastAvailabilityDate")]
+        [XmlElement(ElementName = "lastAvailabilityDate")]
         public long LastAvailabilityDate { get; set; }
 
         /// <summary>
