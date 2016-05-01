@@ -4237,10 +4237,9 @@ namespace ConditionalAccess
         {
             bool res = false;
             switch (recordingStatus)
-            {
-                case TstvRecordingStatus.OK:                    
-                case TstvRecordingStatus.Recording:                    
-                case TstvRecordingStatus.Recorded:                    
+            {                
+                case TstvRecordingStatus.Recording:
+                case TstvRecordingStatus.Recorded:
                 case TstvRecordingStatus.Scheduled:
                     res = true;
                     break;
@@ -4278,11 +4277,11 @@ namespace ConditionalAccess
             return services;
         }
 
-        internal static List<Recording> SearchDomainRecordingIDsByFilter(int groupID, string userID, long domainID, Dictionary<long, Recording> recordings, string filter,
-                                                                    int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy, string requestID)
+        internal static List<Recording> SearchDomainRecordingIDsByFilter(int groupID, string userID, long domainID, Dictionary<long, long> recordingIdToDomainRecordingMap, string filter,
+                                                                        List<Recording> recordingsWithValidStatus, int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy)
         {
             WS_Catalog.IserviceClient client = null;
-            List<Recording> filteredRecordings = null;
+            List<Recording> recordings = null;
 
             try
             {
@@ -4295,11 +4294,10 @@ namespace ConditionalAccess
                 request.assetTypes = new int[1] { 1 };
                 request.filterQuery = filter;
                 request.order = orderBy;
-                request.requestId = requestID;
-                KeyValuePair<eAssetTypes, long>[] recordingAssets = new KeyValuePair<eAssetTypes, long>[recordings.Count];
-                for (int i = 0; i < recordings.Count; i++)
+                KeyValuePair<eAssetTypes, long>[] recordingAssets = new KeyValuePair<eAssetTypes, long>[recordingIdToDomainRecordingMap.Count];
+                for (int i = 0; i < recordingIdToDomainRecordingMap.Count; i++)
                 {
-                    recordingAssets[i] = new KeyValuePair<eAssetTypes, long>(eAssetTypes.NPVR, recordings.ElementAt(i).Key);
+                    recordingAssets[i] = new KeyValuePair<eAssetTypes, long>(eAssetTypes.NPVR, recordingIdToDomainRecordingMap.ElementAt(i).Key);
                 }
                 request.specificAssets = recordingAssets;                
                 request.m_oFilter = new WS_Catalog.Filter()
@@ -4311,33 +4309,36 @@ namespace ConditionalAccess
                 string sCatalogUrl = GetWSURL("WS_Catalog");
                 if (string.IsNullOrEmpty(sCatalogUrl))
                 {
-                    return filteredRecordings;
+                    log.Error("Catalog Url is null or empty");
+                    return recordings;
                 }
 
                 client.Endpoint.Address = new System.ServiceModel.EndpointAddress(sCatalogUrl);
                 WS_Catalog.UnifiedSearchResponse response = client.GetResponse(request) as WS_Catalog.UnifiedSearchResponse;
-                if (response != null && response.status.Code == (int)eResponseStatus.OK && response.m_nTotalItems > 0 && response.searchResults != null && response.searchResults.Length > 0)
+                if (response != null && response.status.Code == (int)eResponseStatus.OK && response.m_nTotalItems > 0 && response.searchResults != null)
                 {
-                    filteredRecordings = new List<Recording>();
-                    Dictionary<long, DateTime> searchRecordingsResult = new Dictionary<long, DateTime>();
+                    recordings = new List<Recording>();
+                    List<long> filteredRecordingIds = new List<long>();
                     foreach (UnifiedSearchResult unifiedSearchResult in response.searchResults)
                     {
                         // no need to check epg status since catalog returns only active epg's
                         long searchRecordingID;
-                        if (unifiedSearchResult.AssetType == eAssetTypes.NPVR && long.TryParse(unifiedSearchResult.AssetId, out searchRecordingID)
-                                && searchRecordingID > 0 && !searchRecordingsResult.ContainsKey(searchRecordingID))
+                        if (unifiedSearchResult.AssetType == eAssetTypes.NPVR && long.TryParse(unifiedSearchResult.AssetId, out searchRecordingID) && searchRecordingID > 0)
                         {
-                            searchRecordingsResult.Add(searchRecordingID, unifiedSearchResult.m_dUpdateDate);                            
+                            filteredRecordingIds.Add(searchRecordingID);                            
                         }                       
                     }
 
-                    foreach (KeyValuePair<long, DateTime> pair in searchRecordingsResult)
+                    if (recordingsWithValidStatus != null)
                     {
-                        if (recordings.ContainsKey(pair.Key))
+                        foreach (Recording recording in recordingsWithValidStatus)
                         {
-                            Recording recording = recordings[pair.Key];
-                            recording.EpgUpdateDate = pair.Value;
-                            filteredRecordings.Add(recording);
+                            // find recording in filtered recordings and convert recording ID to domain recording ID
+                            if (filteredRecordingIds.Contains(recording.Id) && recordingIdToDomainRecordingMap.ContainsKey(recording.Id))
+                            {
+                                recording.Id = recordingIdToDomainRecordingMap[recording.Id];
+                                recordings.Add(recording);
+                            }
                         }
                     }
                 }
@@ -4357,7 +4358,7 @@ namespace ConditionalAccess
                 }
             }
 
-            return filteredRecordings;
+            return recordings;
         }
     }
 }
