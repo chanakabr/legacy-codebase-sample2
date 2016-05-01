@@ -547,10 +547,8 @@ namespace Recordings
             return failStatus;
         }
 
-
         private static void FixRecordingStatus(Recording recording)
         {
-
             if (recording.RecordingStatus == TstvRecordingStatus.Scheduled)
             {
                 // If program already finished, we say it is recorded
