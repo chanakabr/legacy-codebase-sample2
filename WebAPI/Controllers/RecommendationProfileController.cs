@@ -8,7 +8,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/RecommendationProfile/action")]
+    [RoutePrefix("_service/recommendationProfile/action")]
     public class RecommendationProfileController : ApiController
     {
         /// <summary>
@@ -117,7 +117,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().SetRecommendationEngine(groupId, recommendation_engine.Id, recommendation_engine);
+                response = ClientsManager.ApiClient().SetRecommendationEngine(groupId, recommendation_engine.getId(), recommendation_engine);
             }
             catch (ClientException ex)
             {

@@ -11,7 +11,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/CDVRAdapterProfile/action")]
+    [RoutePrefix("_service/cDVRAdapterProfile/action")]
     public class CDVRAdapterProfileController : ApiController
     {
         /// <summary>

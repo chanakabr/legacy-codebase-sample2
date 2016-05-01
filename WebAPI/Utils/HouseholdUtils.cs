@@ -42,7 +42,7 @@ namespace WebAPI.Utils
             if (domain == null)
                 return 0;
 
-            return domain.Id;
+            return domain.getId();
         }
 
         public static List<string> GetHouseholdUserIds(int groupID, bool withPending = false)

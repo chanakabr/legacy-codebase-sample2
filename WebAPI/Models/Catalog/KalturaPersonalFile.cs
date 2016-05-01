@@ -17,7 +17,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "id")]
         [JsonProperty(PropertyName = "id")]
         [XmlElement(ElementName = "id")]
-        public int Id
+        public int? Id
         {
             get;
             set;
@@ -29,7 +29,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "discounted")]
         [JsonProperty(PropertyName = "discounted")]
         [XmlElement(ElementName = "discounted")]
-        public bool Discounted
+        public bool? Discounted
         {
             get;
             set;
@@ -54,7 +54,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "entitled")]
         [JsonProperty(PropertyName = "entitled")]
         [XmlElement(ElementName = "entitled")]
-        public bool Entitled
+        public bool? Entitled
         {
             get;
             set;

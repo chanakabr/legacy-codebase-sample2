@@ -20,7 +20,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
-        public long Id { get; set; }
+        public long? Id { get; set; }
 
         /// <summary>
         /// Usage module name
@@ -36,7 +36,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "max_views_number")]
         [JsonProperty("max_views_number")]
         [XmlElement(ElementName = "max_views_number")]
-        public int MaxViewsNumber { get; set; }
+        public int? MaxViewsNumber { get; set; }
 
         /// <summary>
         /// The amount time an item is available for viewing since a user started watching the item
@@ -44,7 +44,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "view_life_cycle")]
         [JsonProperty("view_life_cycle")]
         [XmlElement(ElementName = "view_life_cycle")]
-        public int ViewLifeCycle { get; set; }
+        public int? ViewLifeCycle { get; set; }
 
         /// <summary>
         /// The amount time an item is available for viewing
@@ -52,7 +52,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "full_life_cycle")]
         [JsonProperty("full_life_cycle")]
         [XmlElement(ElementName = "full_life_cycle")]
-        public int FullLifeCycle { get; set; }
+        public int? FullLifeCycle { get; set; }
 
         /// <summary>
         /// Identifies a specific coupon linked to this object
@@ -60,7 +60,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "coupon_id")]
         [JsonProperty("coupon_id")]
         [XmlElement(ElementName = "coupon_id")]
-        public int CouponId { get; set; }
+        public int? CouponId { get; set; }
 
         /// <summary>
         /// Denotes whether this object is available only as part of a subscription or can be sold separately
@@ -68,7 +68,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "is_subscription_only")]
         [JsonProperty("is_subscription_only")]
         [XmlElement(ElementName = "is_subscription_only")]
-        public bool IsSubscriptionOnly { get; set; }
+        public bool? IsSubscriptionOnly { get; set; }
                 
         /// <summary>
         /// Time period during which the end user can waive his rights to cancel a purchase. When the time period is passed, the purchase can no longer be cancelled
@@ -76,7 +76,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "waiver_period")]
         [JsonProperty("waiver_period")]
         [XmlElement(ElementName = "waiver_period")]
-        public int WaiverPeriod { get; set; }
+        public int? WaiverPeriod { get; set; }
 
         /// <summary>
         /// Indicates whether or not the end user has the right to waive his rights to cancel a purchase
@@ -84,7 +84,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "is_waiver_enabled")]
         [JsonProperty("is_waiver_enabled")]
         [XmlElement(ElementName = "is_waiver_enabled")]
-        public bool IsWaiverEnabled { get; set; }
+        public bool? IsWaiverEnabled { get; set; }
 
         /// <summary>
         /// Indicates that usage is targeted for offline playback
@@ -92,6 +92,6 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "is_offline_playback")]
         [JsonProperty("is_offline_playback")]
         [XmlElement(ElementName = "is_offline_playback")]
-        public bool IsOfflinePlayback { get; set; }
+        public bool? IsOfflinePlayback { get; set; }
     }
 }

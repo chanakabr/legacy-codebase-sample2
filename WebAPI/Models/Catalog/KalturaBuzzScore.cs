@@ -20,7 +20,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "normalized_avg_score")]
         [JsonProperty(PropertyName = "normalized_avg_score")]
         [XmlElement(ElementName = "normalized_avg_score")]
-        public double NormalizedAvgScore { get; set; }
+        public double? NormalizedAvgScore { get; set; }
 
         /// <summary>
         /// Update date
@@ -28,7 +28,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "update_date")]
         [JsonProperty(PropertyName = "update_date")]
         [XmlElement(ElementName = "update_date")]
-        public long UpdateDate { get; set; }
+        public long? UpdateDate { get; set; }
 
         /// <summary>
         /// Average score
@@ -36,6 +36,6 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "avg_score")]
         [JsonProperty(PropertyName = "avg_score")]
         [XmlElement(ElementName = "avg_score")]
-        public double AvgScore { get; set; }
+        public double? AvgScore { get; set; }
     }
 }

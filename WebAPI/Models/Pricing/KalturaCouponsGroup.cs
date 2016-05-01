@@ -45,7 +45,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "start_date")]
         [JsonProperty("start_date")]
         [XmlElement(ElementName = "start_date")]
-        public long StartDate { get; set; }
+        public long? StartDate { get; set; }
 
         /// <summary>
         /// The last date the coupons in this coupons group are valid
@@ -53,7 +53,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "end_date")]
         [JsonProperty("end_date")]
         [XmlElement(ElementName = "end_date")]
-        public long EndDate { get; set; }
+        public long? EndDate { get; set; }
 
         /// <summary>
         /// Maximum number of uses for each coupon in the group
@@ -61,7 +61,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "max_uses_number")]
         [JsonProperty("max_uses_number")]
         [XmlElement(ElementName = "max_uses_number")]
-        public int MaxUsesNumber { get; set; }
+        public int? MaxUsesNumber { get; set; }
 
         /// <summary>
         /// Maximum number of uses for each coupon in the group on a renewable subscription
@@ -69,6 +69,6 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "max_uses_number_on_renewable_sub")]
         [JsonProperty("max_uses_number_on_renewable_sub")]
         [XmlElement(ElementName = "max_uses_number_on_renewable_sub")]
-        public int MaxUsesNumberOnRenewableSub { get; set; }
+        public int? MaxUsesNumberOnRenewableSub { get; set; }
     }
 }

@@ -20,7 +20,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
-        public long Id { get; set; }
+        public long? Id { get; set; }
 
         /// <summary>
         /// Service name / description

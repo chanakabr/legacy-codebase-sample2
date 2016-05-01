@@ -35,6 +35,11 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "should_get_only_lowest")]
         [JsonProperty("should_get_only_lowest")]
         [XmlElement(ElementName = "should_get_only_lowest")]
-        public bool ShouldGetOnlyLowest { get; set; }
+        public bool? ShouldGetOnlyLowest { get; set; }
+
+        internal bool getShouldGetOnlyLowest()
+        {
+            return ShouldGetOnlyLowest.HasValue ? (bool)ShouldGetOnlyLowest : false;
+        }
     }
 }

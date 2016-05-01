@@ -21,7 +21,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "household_id")]
         [JsonProperty("household_id")]
         [XmlElement(ElementName = "household_id")]
-        public int HouseholdID { get; set; }
+        public int? HouseholdID { get; set; }
 
         /// <summary>
         /// Email
@@ -133,7 +133,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "is_household_master")]
         [JsonProperty("is_household_master")]
         [XmlElement(ElementName = "is_household_master")]
-        public bool IsHouseholdMaster { get; set; }
+        public bool? IsHouseholdMaster { get; set; }
 
         /// <summary>
         /// Suspention state
@@ -150,5 +150,10 @@ namespace WebAPI.Models.Users
         [JsonProperty("user_state")]
         [XmlElement(ElementName = "user_state")]
         public KalturaUserState UserState { get; set; }
+
+        internal int getHouseholdID()
+        {
+            return HouseholdID.HasValue ? (int) HouseholdID : 0;
+        }
     }
 }

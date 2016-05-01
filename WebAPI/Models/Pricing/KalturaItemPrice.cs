@@ -20,7 +20,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "file_id")]
         [JsonProperty("file_id")]
         [XmlElement(ElementName = "file_id")]
-        public int FileId { get; set; }
+        public int? FileId { get; set; }
 
         /// <summary>
         /// PPV price details

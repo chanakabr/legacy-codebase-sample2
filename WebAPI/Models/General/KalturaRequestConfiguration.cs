@@ -19,7 +19,7 @@ namespace WebAPI.Models.General
         [DataMember(Name = "partnerId")]
         [JsonProperty("partnerId")]
         [XmlElement(ElementName = "partnerId")]
-        public int PartnerID { get; set; }
+        public int? PartnerID { get; set; }
 
         /// <summary>
         /// Kaltura API session

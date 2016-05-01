@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 
 namespace WebAPI.Models.General
 {
@@ -16,6 +17,7 @@ namespace WebAPI.Models.General
         [DataMember(Name = "value")]
         [XmlElement("value")]
         [JsonProperty("value")]
+        [ValidationException(ValidationType.NULLABLE)]
         public bool value { get; set; }
     }
 }

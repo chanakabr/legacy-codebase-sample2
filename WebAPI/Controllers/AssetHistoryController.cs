@@ -16,7 +16,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/AssetHistory/action")]
+    [RoutePrefix("_service/assetHistory/action")]
     public class AssetHistoryController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -72,7 +72,7 @@ namespace WebAPI.Controllers
             {
                 // call client
                 response = ClientsManager.CatalogClient().WatchHistory(groupId, userId.ToString(), udid,
-                    language, pager.PageIndex, pager.PageSize, filterStatusHelper, filter.days, filter.filter_types != null ?
+                    language, pager.getPageIndex(), pager.PageSize, filterStatusHelper, filter.getDays(), filter.filter_types != null ?
                     filter.filter_types.Select(x => x.value).ToList() : null, filter.with.Select(x=> x.type).ToList());
             }
             catch (ClientException ex)

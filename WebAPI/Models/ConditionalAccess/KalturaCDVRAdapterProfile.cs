@@ -20,7 +20,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
         /// <summary>
         /// C-DVR adapter name
@@ -36,7 +36,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "is_active")]
         [JsonProperty("is_active")]
         [XmlElement(ElementName = "is_active")]
-        public bool IsActive { get; set; }
+        public bool? IsActive { get; set; }
 
         /// <summary>
         /// C-DVR adapter adapter URL
@@ -76,6 +76,6 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "dynamic_links_support")]
         [JsonProperty("dynamic_links_support")]
         [XmlElement(ElementName = "dynamic_links_support")]
-        public bool DynamicLinksSupport { get; set; }
+        public bool? DynamicLinksSupport { get; set; }
     }
 }

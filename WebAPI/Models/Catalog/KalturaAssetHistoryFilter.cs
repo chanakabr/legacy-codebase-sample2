@@ -38,7 +38,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "days")]
         [JsonProperty(PropertyName = "days")]
         [XmlElement(ElementName = "days")]
-        public int days { get; set; }
+        public int? days { get; set; }
 
         /// <summary>
         /// Additional data to return per asset, formatted as a comma-separated array. 
@@ -49,5 +49,10 @@ namespace WebAPI.Models.Catalog
         [XmlArray(ElementName = "with", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
         public List<KalturaCatalogWithHolder> with { get; set; }
+
+        internal int getDays()
+        {
+            return days.HasValue ? (int)days : 0;
+        }
     }
 }

@@ -40,7 +40,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "start_date")]
         [JsonProperty("start_date")]
         [XmlElement(ElementName = "start_date")]
-        public long StartDate { get; set; }
+        public long? StartDate { get; set; }
 
         /// <summary>
         /// The last date the subscription is available for purchasing
@@ -48,7 +48,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "end_date")]
         [JsonProperty("end_date")]
         [XmlElement(ElementName = "end_date")]
-        public long EndDate { get; set; }
+        public long? EndDate { get; set; }
 
         /// <summary>
         /// A list of file types identifiers that are supported in this subscription
@@ -65,7 +65,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "is_renewable")]
         [JsonProperty("is_renewable")]
         [XmlElement(ElementName = "is_renewable")]
-        public bool IsRenewable { get; set; }
+        public bool? IsRenewable { get; set; }
 
         /// <summary>
         /// Defines the number of times this subscription will be renewed
@@ -73,7 +73,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "renewals_number")]
         [JsonProperty("renewals_number")]
         [XmlElement(ElementName = "renewals_number")]
-        public int RenewalsNumber { get; set; }
+        public int? RenewalsNumber { get; set; }
 
         /// <summary>
         /// Indicates whether the subscription will renew forever
@@ -81,7 +81,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "is_infinite_renewal")]
         [JsonProperty("is_infinite_renewal")]
         [XmlElement(ElementName = "is_infinite_renewal")]
-        public bool IsInfiniteRenewal { get; set; }
+        public bool? IsInfiniteRenewal { get; set; }
 
         /// <summary>
         /// The price of the subscription
@@ -131,7 +131,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "media_id")]
         [JsonProperty("media_id")]
         [XmlElement(ElementName = "media_id")]
-        public int MediaId { get; set; }
+        public int? MediaId { get; set; }
 
         /// <summary>
         /// Subscription order (when returned in methods that retrieve subscriptions)
@@ -139,7 +139,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "prority_in_order")]
         [JsonProperty("prority_in_order")]
         [XmlElement(ElementName = "prority_in_order")]
-        public long ProrityInOrder { get; set; }
+        public long? ProrityInOrder { get; set; }
 
         /// <summary>
         /// Product code for the subscription
@@ -172,7 +172,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "household_limitations_id")]
         [JsonProperty("household_limitations_id")]
         [XmlElement(ElementName = "household_limitations_id")]
-        public int HouseholdLimitationsId { get; set; }
+        public int? HouseholdLimitationsId { get; set; }
 
         /// <summary>
         /// The subscription grace period in minutes
@@ -180,7 +180,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "grace_period_minutes")]
         [JsonProperty("grace_period_minutes")]
         [XmlElement(ElementName = "grace_period_minutes")]
-        public int GracePeriodMinutes { get; set; }
+        public int? GracePeriodMinutes { get; set; }
 
         /// <summary>
         /// List of premium services included in the subscription
@@ -199,7 +199,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "max_views_number")]
         [JsonProperty("max_views_number")]
         [XmlElement(ElementName = "max_views_number")]
-        public int MaxViewsNumber { get; set; }
+        public int? MaxViewsNumber { get; set; }
 
         /// <summary>
         /// The amount time an item is available for viewing since a user started watching the item
@@ -207,7 +207,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "view_life_cycle")]
         [JsonProperty("view_life_cycle")]
         [XmlElement(ElementName = "view_life_cycle")]
-        public int ViewLifeCycle { get; set; }
+        public int? ViewLifeCycle { get; set; }
 
         /// <summary>
         /// Time period during which the end user can waive his rights to cancel a purchase. When the time period is passed, the purchase can no longer be cancelled
@@ -215,7 +215,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "waiver_period")]
         [JsonProperty("waiver_period")]
         [XmlElement(ElementName = "waiver_period")]
-        public int WaiverPeriod { get; set; }
+        public int? WaiverPeriod { get; set; }
 
         /// <summary>
         /// Indicates whether or not the end user has the right to waive his rights to cancel a purchase
@@ -223,7 +223,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "is_waiver_enabled")]
         [JsonProperty("is_waiver_enabled")]
         [XmlElement(ElementName = "is_waiver_enabled")]
-        public bool IsWaiverEnabled { get; set; }
+        public bool? IsWaiverEnabled { get; set; }
 
         /// <summary>
         /// List of permitted user types for the subscription

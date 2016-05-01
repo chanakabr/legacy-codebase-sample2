@@ -98,9 +98,9 @@ namespace WebAPI.Managers.Models
         public AppToken(KalturaAppToken kalturaAppToken)
         {
             AppTokenId = kalturaAppToken.Id;
-            Expiry = kalturaAppToken.Expiry;
-            PartnerId = kalturaAppToken.PartnerId;
-            SessionDuration = kalturaAppToken.SessionDuration;
+            Expiry = kalturaAppToken.getExpiry();
+            PartnerId = kalturaAppToken.getPartnerId();
+            SessionDuration = kalturaAppToken.getSessionDuration();
             HashType = kalturaAppToken.HashType;
             SessionPrivileges = kalturaAppToken.SessionPrivileges;
             SessionType = kalturaAppToken.SessionType;

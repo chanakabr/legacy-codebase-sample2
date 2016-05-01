@@ -20,7 +20,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "asset_id")]
         [JsonProperty(PropertyName = "asset_id")]
         [XmlElement(ElementName = "asset_id")]
-        public int AssetId { get; set; }
+        public int? AssetId { get; set; }
 
         /// <summary>
         /// File unique identifier
@@ -28,7 +28,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "id")]
         [JsonProperty(PropertyName = "id")]
         [XmlElement(ElementName = "id")]
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
         /// <summary>
         /// Device types as defined in the system
@@ -52,7 +52,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "duration")]
         [JsonProperty(PropertyName = "duration")]
         [XmlElement(ElementName = "duration")]
-        public long Duration { get; set; }
+        public long? Duration { get; set; }
 
         /// <summary>
         /// External identifier for the media file

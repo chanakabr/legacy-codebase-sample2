@@ -50,7 +50,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "position")]
         [JsonProperty(PropertyName = "position")]
         [XmlElement(ElementName = "position")]
-        public int Position { get; set; }
+        public int? Position { get; set; }
 
         /// <summary>
         /// Duration in seconds of the relevant asset
@@ -58,7 +58,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "duration")]
         [JsonProperty(PropertyName = "duration")]
         [XmlElement(ElementName = "duration")]
-        public int Duration { get; set; }
+        public int? Duration { get; set; }
 
         /// <summary>
         /// The date when the media was last watched
@@ -66,7 +66,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "watched_date")]
         [JsonProperty(PropertyName = "watched_date")]
         [XmlElement(ElementName = "watched_date")]
-        public long LastWatched { get; set; }
+        public long? LastWatched { get; set; }
 
         /// <summary>
         /// Boolean which specifies whether the user finished watching the movie or not
@@ -74,6 +74,6 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "finished_watching")]
         [JsonProperty(PropertyName = "finished_watching")]
         [XmlElement(ElementName = "finished_watching")]
-        public bool IsFinishedWatching { get; set; }
+        public bool? IsFinishedWatching { get; set; }
     }
 }

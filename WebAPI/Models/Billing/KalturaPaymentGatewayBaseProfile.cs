@@ -20,7 +20,7 @@ namespace WebAPI.Models.Billing
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
         /// <summary>
         /// payment gateway name
@@ -36,7 +36,7 @@ namespace WebAPI.Models.Billing
         [DataMember(Name = "is_default")]
         [JsonProperty("is_default")]
         [XmlElement(ElementName = "is_default")]
-        public bool IsDefault { get; set; }
+        public bool? IsDefault { get; set; }
 
         /// <summary>
         /// distinction payment gateway selected by account or household

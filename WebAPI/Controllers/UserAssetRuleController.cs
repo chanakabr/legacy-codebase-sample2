@@ -13,7 +13,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/UserAssetRule/action")]
+    [RoutePrefix("_service/userAssetRule/action")]
     public class UserAssetRuleController : ApiController
     {
         /// <summary>
@@ -54,12 +54,12 @@ namespace WebAPI.Controllers
                 if ((AssetType)filter.AssetType == AssetType.epg)
                 {
                     // call client
-                    response = ClientsManager.ApiClient().GetEpgRules(groupId, userID, filter.AssetId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId));
+                    response = ClientsManager.ApiClient().GetEpgRules(groupId, userID, filter.getAssetId(), (int)HouseholdUtils.GetHouseholdIDByKS(groupId));
                 }
                 else if ((AssetType)filter.AssetType == AssetType.media)
                 {
                     // call client
-                    response = ClientsManager.ApiClient().GetMediaRules(groupId, userID, filter.AssetId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
+                    response = ClientsManager.ApiClient().GetMediaRules(groupId, userID, filter.getAssetId(), (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
                 }
             }
             catch (ClientException ex)

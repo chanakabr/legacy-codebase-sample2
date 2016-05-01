@@ -337,21 +337,41 @@
         </member>
         <member name="M:WebAPI.Controllers.RecordingController.Get(System.Int64)">
             <summary>
+            Returns recording object by internal identifier
+            </summary>
+            <param name="id">Recording identifier</param>
+            <returns></returns>
+            <remarks>Possible status codes: BadRequest = 500003, RecordingNotFound = 3040</remarks>     
+        </member>
+        <member name="M:WebAPI.Controllers.RecordingController.GetContext(System.String)">
+            <summary>
             Query record options for a program
             </summary>
-            <remarks>
-            </remarks>
-            <returns>The recording availability and status for for the requested program</returns>
-            
+            <param name="assetId">Comma seperated, internal identifier of the asset</param>
+            <returns></returns>
+            <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024,
+            ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, AccountCatchUpNotEnabled = 3034, ProgramCdvrNotEnabled = 3035,
+            ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, ProgramNotInRecordingScheduleWindow = 3039, InvalidAssetId = 4024</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.RecordingController.Add(System.Int64)">
+        <member name="M:WebAPI.Controllers.RecordingController.Add(WebAPI.Models.ConditionalAccess.KalturaRecording)">
             <summary>
             Issue a record request for a program
             </summary>
-            <remarks>
-            </remarks>
-            <returns>The recording ID and status for options for the requested program</returns>
-            
+            <param name="recording">Recording Object</param>
+            <returns></returns>
+            <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
+            UserWithNoDomain = 2024, ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, AccountCatchUpNotEnabled = 3034,
+            ProgramCdvrNotEnabled = 3035, ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, CdvrAdapterProviderFail = 3038,
+            ProgramNotInRecordingScheduleWindow = 3039, InvalidAssetId = 4024</remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.RecordingController.List(WebAPI.Models.ConditionalAccess.KalturaRecordingFilter,WebAPI.Models.General.KalturaFilterPager)">
+            <summary>
+            Return a list of recordings for the household with optional filter by status and KSQL.
+            </summary>
+            <param name="filter">Filter parameters for filtering out the result</param>
+            <param name="pager">Page size and index</param>
+            <returns></returns>
+            <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024</remarks>
         </member>
         <member name="M:WebAPI.Controllers.LicensedUrlController.Get(WebAPI.Models.Catalog.KalturaAssetType,System.Int32,System.String,System.String,System.Nullable{System.Int64},System.Nullable{WebAPI.Models.ConditionalAccess.KalturaStreamType})">
             <summary>
@@ -513,20 +533,15 @@
             <summary>
             Retrieve the account’s time-shifted TV settings (catch-up and C-DVR, Trick-play, Start-over)
             </summary>
-            <remarks>
-            </remarks>
-            <returns>The time shifted tv settings that apply for the partner</returns>
-            
+            <returns></returns>
+            <remarks>Possible status codes: BadRequest = 500003, TimeShiftedTvPartnerSettingsNotFound = 5022</remarks>   
         </member>
         <member name="M:WebAPI.Controllers.TimeShiftedTvPartnerSettingsController.Update(WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings)">
             <summary>
             Configure the account’s time-shifted TV settings (catch-up and C-DVR, Trick-play, Start-over)
-            </summary>    
-            
-            <remarks>        
-            </remarks>
-            <returns>The time shifted tv settings that apply for the partner</returns>
-            
+            </summary>
+            <returns></returns>
+            <remarks>Possible status codes: BadRequest = 500003, TimeShiftedTvPartnerSettingsNotSent = 5023, TimeShiftedTvPartnerSettingsNegativeBufferSent = 5024</remarks>   
         </member>
         <member name="M:WebAPI.Controllers.VersionController.Get">
             <summary>
@@ -700,14 +715,14 @@
             "key1": {"value": "value2"}}
             </param>
         </member>
-        <member name="M:WebAPI.Controllers.OSSAdapterProfileSettingsController.List">
+        <member name="M:WebAPI.Controllers.OssAdapterProfileSettingsController.List">
             <summary>
             Returns all OSS adapter settings for partner
             </summary>
             <remarks>       
             </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.OSSAdapterProfileSettingsController.Delete(System.Int32,SerializableDictionary{System.String,WebAPI.Models.General.KalturaStringValue})">
+        <member name="M:WebAPI.Controllers.OssAdapterProfileSettingsController.Delete(System.Int32,SerializableDictionary{System.String,WebAPI.Models.General.KalturaStringValue})">
              <summary>
              Delete OSS adapter specific settings by settings keys 
              </summary>
@@ -721,7 +736,7 @@
             "key1": {"value": "value2"}}
             </param>
         </member>
-        <member name="M:WebAPI.Controllers.OSSAdapterProfileSettingsController.Add(System.Int32,SerializableDictionary{System.String,WebAPI.Models.General.KalturaStringValue})">
+        <member name="M:WebAPI.Controllers.OssAdapterProfileSettingsController.Add(System.Int32,SerializableDictionary{System.String,WebAPI.Models.General.KalturaStringValue})">
              <summary>
              Insert new settings for OSS adapter for partner
              </summary>
@@ -735,7 +750,7 @@
             "key1": {"value": "value2"}}
             </param>
         </member>
-        <member name="M:WebAPI.Controllers.OSSAdapterProfileSettingsController.Update(System.Int32,SerializableDictionary{System.String,WebAPI.Models.General.KalturaStringValue})">
+        <member name="M:WebAPI.Controllers.OssAdapterProfileSettingsController.Update(System.Int32,SerializableDictionary{System.String,WebAPI.Models.General.KalturaStringValue})">
              <summary>
              Update settings for OSS adapter
              </summary>
@@ -749,14 +764,14 @@
             "key1": {"value": "value2"}}
             </param>
         </member>
-        <member name="M:WebAPI.Controllers.OSSAdapterProfileController.List">
+        <member name="M:WebAPI.Controllers.OssAdapterProfileController.List">
             <summary>
             Returns all OSS adapters for partner : id + name
             </summary>
             <remarks>       
             </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.OSSAdapterProfileController.Delete(System.Int32)">
+        <member name="M:WebAPI.Controllers.OssAdapterProfileController.Delete(System.Int32)">
             <summary>
             Delete OSS adapter by OSS adapter id
             </summary>
@@ -766,7 +781,7 @@
             </remarks>
             <param name="oss_adapter_id">OSS adapter identifier</param>
         </member>
-        <member name="M:WebAPI.Controllers.OSSAdapterProfileController.Add(WebAPI.Models.API.KalturaOSSAdapterProfile)">
+        <member name="M:WebAPI.Controllers.OssAdapterProfileController.Add(WebAPI.Models.API.KalturaOSSAdapterProfile)">
             <summary>
             Insert new OSS adapter for partner
             </summary>
@@ -776,7 +791,7 @@
             </remarks>
             <param name="oss_adapter">OSS adapter Object</param>
         </member>
-        <member name="M:WebAPI.Controllers.OSSAdapterProfileController.Update(WebAPI.Models.API.KalturaOSSAdapterProfile)">
+        <member name="M:WebAPI.Controllers.OssAdapterProfileController.Update(WebAPI.Models.API.KalturaOSSAdapterProfile)">
             <summary>
             Update OSS adapter details
             </summary>
@@ -786,7 +801,7 @@
             </remarks>
             <param name="oss_adapter">OSS adapter Object</param>       
         </member>
-        <member name="M:WebAPI.Controllers.OSSAdapterProfileController.GenerateSharedSecret(System.Int32)">
+        <member name="M:WebAPI.Controllers.OssAdapterProfileController.GenerateSharedSecret(System.Int32)">
             <summary>
             Generate oss adapter shared secret
             </summary>
@@ -796,7 +811,7 @@
             </remarks>
             <param name="oss_adapter_id">OSS adapter identifier</param>
         </member>
-        <member name="M:WebAPI.Controllers.EPGChannelController.List(WebAPI.Models.Catalog.KalturaEpgChannelFilter,System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder},System.String)">
+        <member name="M:WebAPI.Controllers.EpgChannelController.List(WebAPI.Models.Catalog.KalturaEpgChannelFilter,System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaCatalogWithHolder},System.String)">
             <summary>
             Returns EPG channel programs filtered by channel identifiers and dates
             </summary>
@@ -1369,7 +1384,7 @@
         </member>
         <member name="T:WebAPI.ApiSchema">
             <summary>
-            XXX: SHOULD BE REFACTORED SOMETIME TO USE XMLDOCUMENT...
+            Prints out the API XML schema
             </summary>
         </member>
         <member name="M:WebAPI.Controllers.SocialController.GetByToken(System.Int32,System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
@@ -2502,20 +2517,70 @@
             List of bookmarks
             </summary>
         </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecording.RecordingId">
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecording.Id">
             <summary>
             Kaltura unique ID representing the recording identifier
             </summary>
         </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecording.RecordingStatus">
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecording.Status">
             <summary>
-            Recording state: Scheduled/Recording/Recorded/Canceled/Failed/DoesNotExists/Deleted
+            Recording state: scheduled/recording/recorded/canceled/failed/does_not_exists/deleted
             </summary>
         </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecording.EpgID">
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecording.AssetId">
             <summary>
             Kaltura unique ID representing the program identifier
             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecording.Type">
+            <summary>
+            Recording Type: single/series
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingContext.Recording">
+            <summary>
+            Recording object
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaRecordingFilter">
+            <summary>
+            Filtering assets
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaFilter">
+            <summary>
+            Base filter
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingFilter.StatusIn">
+            <summary>
+            Recording Statuses
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingFilter.FilterExpression">
+            <summary>
+            KSQL expression
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingFilter.OrderBy">
+            <summary>
+            order by
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaRecordingListResponse">
+            <summary>
+            Recordings info wrapper
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingListResponse.Objects">
+            <summary>
+            Recordings
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaRecordingStatusHolder">
+            <summary>
+            Holder object for Catalog With enum
+            </summary>    
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaLicensedUrl.MainUrl">
             <summary>
@@ -4114,6 +4179,11 @@
             Trick play buffer length
             </summary>
         </member>
+        <member name="P:WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings.RecordingScheduleWindow">
+            <summary>
+            Recording schedule window. Indicates how long (in minutes) after the program starts it is allowed to schedule the recording
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Users.KalturaFavoriteFilter">
             <summary>
             Favorite request filter 
@@ -4858,12 +4928,12 @@
             User type description
             </summary>
         </member>
-        <member name="T:WebAPI.Controllers.OTTUserController">
+        <member name="T:WebAPI.Controllers.OttUserController">
             <summary>
             
             </summary>
         </member>
-        <member name="M:WebAPI.Controllers.OTTUserController.AnonymousLogin(System.Int32,System.String)">
+        <member name="M:WebAPI.Controllers.OttUserController.AnonymousLogin(System.Int32,System.String)">
             <summary>
             Returns tokens (KS and refresh token) for anonymous access
             </summary>
@@ -4871,7 +4941,7 @@
             <param name="udid">The caller device's UDID</param>
             <returns>KalturaLoginResponse</returns>
         </member>
-        <member name="M:WebAPI.Controllers.OTTUserController.LoginWithPin(System.Int32,System.String,System.String,System.String)">
+        <member name="M:WebAPI.Controllers.OttUserController.LoginWithPin(System.Int32,System.String,System.String,System.String)">
             <summary>
             User sign-in via a time-expired sign-in PIN.        
             </summary>
@@ -4885,7 +4955,7 @@
             UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserWIthNoHousehold = 2024, User does not exist = 2000
             </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.OTTUserController.Login(System.Int32,System.String,System.String,SerializableDictionary{System.String,WebAPI.Models.General.KalturaStringValue},System.String)">
+        <member name="M:WebAPI.Controllers.OttUserController.Login(System.Int32,System.String,System.String,SerializableDictionary{System.String,WebAPI.Models.General.KalturaStringValue},System.String)">
             <summary>
             login with user name and password.
             </summary>        
@@ -4899,7 +4969,7 @@
             UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, User does not exist = 2000
             </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.OTTUserController.RefreshSession(System.String,System.String)">
+        <member name="M:WebAPI.Controllers.OttUserController.RefreshSession(System.String,System.String)">
             <summary>
             Returns new Kaltura session (ks) for the user, using the supplied refresh_token (only if it's valid and not expired)
             </summary>
@@ -4907,7 +4977,7 @@
             <param name="udid">Device UDID</param>
             <returns></returns>
         </member>
-        <member name="M:WebAPI.Controllers.OTTUserController.FacebookLogin(System.Int32,System.String,System.String)">
+        <member name="M:WebAPI.Controllers.OttUserController.FacebookLogin(System.Int32,System.String,System.String)">
             <summary>
             Login via Facebook credentials
             </summary>        
@@ -4918,7 +4988,7 @@
             User does not exist = 2000
             </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.OTTUserController.Add(System.Int32,WebAPI.Models.Users.KalturaOTTUser,System.String)">
+        <member name="M:WebAPI.Controllers.OttUserController.Add(System.Int32,WebAPI.Models.Users.KalturaOTTUser,System.String)">
             <summary>
             Sign up a new user.      
             </summary>        
@@ -4929,7 +4999,7 @@
             Wrong username or password = 1011, User exists = 2014
             </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.OTTUserController.sendPassword(System.Int32,System.String)">
+        <member name="M:WebAPI.Controllers.OttUserController.sendPassword(System.Int32,System.String)">
             <summary>
             Send a new password by user name.        
             </summary>        
@@ -4937,7 +5007,7 @@
             <param name="username">user name</param>
             <remarks></remarks>
         </member>
-        <member name="M:WebAPI.Controllers.OTTUserController.resetPassword(System.Int32,System.String,System.String)">
+        <member name="M:WebAPI.Controllers.OttUserController.resetPassword(System.Int32,System.String,System.String)">
             <summary>
             Renew the user's password without validating the existing password.
             </summary>        
@@ -4946,7 +5016,7 @@
             <param name="password">new password</param>
             <remarks>Possible status codes: User does not exist = 2000</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.OTTUserController.validateToken(System.Int32,System.String)">
+        <member name="M:WebAPI.Controllers.OttUserController.validateToken(System.Int32,System.String)">
             <summary>
             Returns the user associated with a temporary reset token.
             </summary>        
@@ -4954,7 +5024,7 @@
             <param name="token">token</param>
             <remarks>Possible status codes: 2000 = User does not exist</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.OTTUserController.ChangePassword(System.String,System.String,System.String)">
+        <member name="M:WebAPI.Controllers.OttUserController.ChangePassword(System.String,System.String,System.String)">
             <summary>
             Given a user name and existing password, change to a new password.        
             </summary>        
@@ -4963,28 +5033,28 @@
             <param name="new_password">new password</param>
             <remarks>Possible status codes: Wrong username or password = 1011, User does not exist = 2000, Inside lock time = 2015, User already logged in = 2017</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.OTTUserController.Get">
+        <member name="M:WebAPI.Controllers.OttUserController.Get">
             <summary>
             Retrieving users' data
             </summary>        
             <remarks></remarks>
             <remarks></remarks>        
         </member>
-        <member name="M:WebAPI.Controllers.OTTUserController.Update(WebAPI.Models.Users.KalturaOTTUser)">
+        <member name="M:WebAPI.Controllers.OttUserController.Update(WebAPI.Models.Users.KalturaOTTUser)">
             <summary>Update user information      
             </summary>
             <param name="user"> UserData Object (include basic and dynamic data)</param>
             <remarks>         User suspended = 2001, User does not exist = 2000
             </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.OTTUserController.AddRole(System.Int64)">
+        <member name="M:WebAPI.Controllers.OttUserController.AddRole(System.Int64)">
             <summary>Edit user details.        
             </summary>
             <param name="role_id"> The role identifier to add</param>
             <remarks>
             </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.OTTUserController.Delete">
+        <member name="M:WebAPI.Controllers.OttUserController.Delete">
             <summary>
             Permanently delete a user. User to delete cannot be an exclusive household master, and cannot be default user.
             </summary>        
@@ -4993,13 +5063,13 @@
             Household suspended = 1009, Limitation period = 1014,  User does not exist = 2000, Default user cannot be deleted = 2030, Exclusive master user cannot be deleted = 2031
             </remarks>        
         </member>
-        <member name="M:WebAPI.Controllers.OTTUserController.Logout">
+        <member name="M:WebAPI.Controllers.OttUserController.Logout">
             <summary>
             Logout the calling user.
             </summary>
             <returns></returns>
         </member>
-        <member name="M:WebAPI.Controllers.OTTUserController.Activate(System.Int32,System.String,System.String)">
+        <member name="M:WebAPI.Controllers.OttUserController.Activate(System.Int32,System.String,System.String)">
             <summary>
             Activate the account by activation token
             </summary>
@@ -5008,7 +5078,7 @@
             <param name="username">Username of the user to activate</param>
             <returns></returns>
         </member>
-        <member name="M:WebAPI.Controllers.OTTUserController.ResendActivationToken(System.Int32,System.String)">
+        <member name="M:WebAPI.Controllers.OttUserController.ResendActivationToken(System.Int32,System.String)">
             <summary>
             Resend the activation token to a user
             </summary>
@@ -7757,6 +7827,9 @@
         <member name="P:WebAPI.Api.EPGChannelProgrammeObject.ENABLE_TRICK_PLAY">
             <remarks/>
         </member>
+        <member name="P:WebAPI.Api.EPGChannelProgrammeObject.IS_RECORDED">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Api.RecordedEPGChannelProgrammeObject">
             <remarks/>
         </member>
@@ -9126,6 +9199,9 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.TimeShiftedTvPartnerSettings.TrickPlayBufferLength">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.TimeShiftedTvPartnerSettings.RecordingScheduleWindow">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.TimeShiftedTvPartnerSettingsResponse">
@@ -12746,6 +12822,15 @@
         <member name="M:WebAPI.ConditionalAccess.module.SetCDVRAdapterAsync(System.String,System.String,WebAPI.ConditionalAccess.CDVRAdapter,System.Object)">
             <remarks/>
         </member>
+        <member name="M:WebAPI.ConditionalAccess.module.SendCDVRAdapterConfiguration(System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.SendCDVRAdapterConfigurationAsync(System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.SendCDVRAdapterConfigurationAsync(System.String,System.String,System.Int32,System.Object)">
+            <remarks/>
+        </member>
         <member name="M:WebAPI.ConditionalAccess.module.Record(System.String,System.String,System.String,System.Int64)">
             <remarks/>
         </member>
@@ -12780,6 +12865,33 @@
             <remarks/>
         </member>
         <member name="M:WebAPI.ConditionalAccess.module.GetRecordingStatusAsync(System.String,System.String,System.Int64,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.SearchDomainRecordings(System.String,System.String,System.String,System.Int64,WebAPI.ConditionalAccess.TstvRecordingStatus[],System.String,System.Int32,System.Int32,WebAPI.ConditionalAccess.OrderObj,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.SearchDomainRecordingsAsync(System.String,System.String,System.String,System.Int64,WebAPI.ConditionalAccess.TstvRecordingStatus[],System.String,System.Int32,System.Int32,WebAPI.ConditionalAccess.OrderObj,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.SearchDomainRecordingsAsync(System.String,System.String,System.String,System.Int64,WebAPI.ConditionalAccess.TstvRecordingStatus[],System.String,System.Int32,System.Int32,WebAPI.ConditionalAccess.OrderObj,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.GetRecordingsByIDs(System.String,System.String,System.Int64[])">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.GetRecordingsByIDsAsync(System.String,System.String,System.Int64[])">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.GetRecordingsByIDsAsync(System.String,System.String,System.Int64[],System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.UpdateRecording(System.String,System.String,System.Int64[],WebAPI.ConditionalAccess.eAction)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.UpdateRecordingAsync(System.String,System.String,System.Int64[],WebAPI.ConditionalAccess.eAction)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.UpdateRecordingAsync(System.String,System.String,System.Int64[],WebAPI.ConditionalAccess.eAction,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.ConditionalAccess.module.GetUserPermittedItems(System.String,System.String,System.String)">
@@ -13607,6 +13719,9 @@
         <member name="E:WebAPI.ConditionalAccess.module.SetCDVRAdapterCompleted">
             <remarks/>
         </member>
+        <member name="E:WebAPI.ConditionalAccess.module.SendCDVRAdapterConfigurationCompleted">
+            <remarks/>
+        </member>
         <member name="E:WebAPI.ConditionalAccess.module.RecordCompleted">
             <remarks/>
         </member>
@@ -13617,6 +13732,15 @@
             <remarks/>
         </member>
         <member name="E:WebAPI.ConditionalAccess.module.GetRecordingStatusCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.ConditionalAccess.module.SearchDomainRecordingsCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.ConditionalAccess.module.GetRecordingsByIDsCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.ConditionalAccess.module.UpdateRecordingCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.ConditionalAccess.module.GetUserPermittedItemsCompleted">
@@ -13946,13 +14070,7 @@
         <member name="P:WebAPI.ConditionalAccess.NPVRResponse.msg">
             <remarks/>
         </member>
-        <member name="T:WebAPI.ConditionalAccess.QuotaResponse">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.ConditionalAccess.QuotaResponse.totalQuota">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.ConditionalAccess.QuotaResponse.occupiedQuota">
+        <member name="T:WebAPI.ConditionalAccess.CancelDeleteResponse">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.LicensedLinkNPVRResponse">
@@ -13961,7 +14079,13 @@
         <member name="P:WebAPI.ConditionalAccess.LicensedLinkNPVRResponse.mainUrl">
             <remarks/>
         </member>
-        <member name="T:WebAPI.ConditionalAccess.CancelDeleteResponse">
+        <member name="T:WebAPI.ConditionalAccess.QuotaResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.QuotaResponse.totalQuota">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.QuotaResponse.occupiedQuota">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.RecordResponse">
@@ -13989,36 +14113,6 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.ConditionalAccess.BaseNPVRCommand.assetID">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.RecordNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.RetrieveQuotaNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.CancelNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.DeleteNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.CancelSeriesNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.RecordSeriesByProgramIdNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.RecordSeriesByNameNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.DeleteSeriesNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.ProtectNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.ConditionalAccess.ProtectNPVRCommand.isProtect">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.LicensedLinkNPVRCommand">
@@ -14049,6 +14143,36 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.ConditionalAccess.LicensedLinkNPVRCommand.couponCode">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.DeleteNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.CancelNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.ProtectNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.ProtectNPVRCommand.isProtect">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.RetrieveQuotaNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.RecordNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.CancelSeriesNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.RecordSeriesByProgramIdNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.RecordSeriesByNameNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.DeleteSeriesNPVRCommand">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.EntitlementResponse">
@@ -15221,6 +15345,78 @@
         <member name="P:WebAPI.ConditionalAccess.PermittedMediaContainer.PPVCode">
             <remarks/>
         </member>
+        <member name="T:WebAPI.ConditionalAccess.OrderObj">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.OrderObj.m_eOrderBy">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.OrderObj.m_eOrderDir">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.OrderObj.lu_min_period_id">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.OrderObj.m_sOrderValue">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.OrderObj.m_bIsSlidingWindowField">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.OrderBy">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.OrderBy.ID">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.OrderBy.VIEWS">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.OrderBy.RATING">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.OrderBy.VOTES_COUNT">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.OrderBy.LIKE_COUNTER">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.OrderBy.START_DATE">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.OrderBy.NAME">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.OrderBy.CREATE_DATE">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.OrderBy.META">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.OrderBy.RANDOM">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.OrderBy.RELATED">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.OrderBy.NONE">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.OrderBy.RECOMMENDATION">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.OrderDir">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.OrderDir.ASC">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.OrderDir.DESC">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.OrderDir.NONE">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.ConditionalAccess.RecordingResponse">
             <remarks/>
         </member>
@@ -15230,16 +15426,19 @@
         <member name="P:WebAPI.ConditionalAccess.RecordingResponse.Recordings">
             <remarks/>
         </member>
+        <member name="P:WebAPI.ConditionalAccess.RecordingResponse.TotalItems">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.ConditionalAccess.Recording">
             <remarks/>
         </member>
         <member name="P:WebAPI.ConditionalAccess.Recording.Status">
             <remarks/>
         </member>
-        <member name="P:WebAPI.ConditionalAccess.Recording.RecordingID">
+        <member name="P:WebAPI.ConditionalAccess.Recording.Id">
             <remarks/>
         </member>
-        <member name="P:WebAPI.ConditionalAccess.Recording.EpgID">
+        <member name="P:WebAPI.ConditionalAccess.Recording.EpgId">
             <remarks/>
         </member>
         <member name="P:WebAPI.ConditionalAccess.Recording.ChannelId">
@@ -15255,6 +15454,12 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.ConditionalAccess.Recording.EpgEndDate">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.Recording.EpgUpdateDate">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.Recording.Type">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.TstvRecordingStatus">
@@ -15282,6 +15487,15 @@
             <remarks/>
         </member>
         <member name="F:WebAPI.ConditionalAccess.TstvRecordingStatus.Deleted">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.RecordingType">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.RecordingType.Single">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.RecordingType.Series">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.CDVRAdapterResponse">
@@ -15503,6 +15717,24 @@
         <member name="P:WebAPI.ConditionalAccess.Entitlements.entitelments">
             <remarks/>
         </member>
+        <member name="T:WebAPI.ConditionalAccess.eAction">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.eAction.Off">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.eAction.On">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.eAction.Update">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.eAction.Delete">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.ConditionalAccess.eAction.Rebuild">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.ConditionalAccess.UserCAStatus">
             <remarks/>
         </member>
@@ -15698,6 +15930,15 @@
         <member name="P:WebAPI.ConditionalAccess.SetCDVRAdapterCompletedEventArgs.Result">
             <remarks/>
         </member>
+        <member name="T:WebAPI.ConditionalAccess.SendCDVRAdapterConfigurationCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.SendCDVRAdapterConfigurationCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.SendCDVRAdapterConfigurationCompletedEventArgs.Result">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.ConditionalAccess.RecordCompletedEventHandler">
             <remarks/>
         </member>
@@ -15732,6 +15973,33 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.ConditionalAccess.GetRecordingStatusCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.SearchDomainRecordingsCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.SearchDomainRecordingsCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.SearchDomainRecordingsCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.GetRecordingsByIDsCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.GetRecordingsByIDsCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.GetRecordingsByIDsCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.UpdateRecordingCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.UpdateRecordingCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.UpdateRecordingCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.GetUserPermittedItemsCompletedEventHandler">

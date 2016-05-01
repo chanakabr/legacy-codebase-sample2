@@ -28,7 +28,7 @@ namespace WebAPI.Models.General
         [DataMember(Name = "expiry")]
         [JsonProperty("expiry")]
         [XmlElement(ElementName = "expiry")]
-        public int Expiry { get; set; }
+        public int? Expiry { get; set; }
 
         /// <summary>
         /// Partner identifier
@@ -36,7 +36,7 @@ namespace WebAPI.Models.General
         [DataMember(Name = "partnerId")]
         [JsonProperty("partnerId")]
         [XmlElement(ElementName = "partnerId")]
-        public int PartnerId { get; set; }
+        public int? PartnerId { get; set; }
 
         /// <summary>
         /// Expiry duration of KS (Kaltura Session) that created using the current token (in seconds)
@@ -44,7 +44,7 @@ namespace WebAPI.Models.General
         [DataMember(Name = "sessionDuration")]
         [JsonProperty("sessionDuration")]
         [XmlElement(ElementName = "sessionDuration")]
-        public int SessionDuration { get; set; }
+        public int? SessionDuration { get; set; }
 
         /// <summary>
         /// The hash type of the token
@@ -110,6 +110,21 @@ namespace WebAPI.Models.General
             Status = appToken.Status;
             Token = appToken.Token;
             SessionUserId = appToken.SessionUserId;
+        }
+
+        internal int getSessionDuration()
+        {
+            return SessionDuration.HasValue ? (int)SessionDuration : 0;
+        }
+
+        internal int getPartnerId()
+        {
+            return PartnerId.HasValue ? (int)PartnerId : 0;
+        }
+
+        internal int getExpiry()
+        {
+            return Expiry.HasValue ? (int)Expiry : 0;
         }
     }
 }

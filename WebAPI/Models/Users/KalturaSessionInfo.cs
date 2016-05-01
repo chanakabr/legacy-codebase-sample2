@@ -38,7 +38,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "partnerId")]
         [JsonProperty(PropertyName = "partnerId")]
         [XmlElement("partnerId")]
-        public int partnerId { get; set; }
+        public int? partnerId { get; set; }
 
         /// <summary>
         /// User identifier
@@ -54,7 +54,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "expiry")]
         [JsonProperty(PropertyName = "expiry")]
         [XmlElement("expiry")]
-        public int expiry { get; set; }
+        public int? expiry { get; set; }
 
         /// <summary>
         /// Privileges

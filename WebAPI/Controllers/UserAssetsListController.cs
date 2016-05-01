@@ -13,7 +13,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/UserAssetsList/action")]
+    [RoutePrefix("_service/userAssetsList/action")]
     public class UserAssetsListController : ApiController
     {
         /// <summary>

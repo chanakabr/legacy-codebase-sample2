@@ -25,12 +25,12 @@ namespace WebAPI.Models.Notifications
         [DataMember(Name = "enabled")]
         [JsonProperty(PropertyName = "enabled")]
         [XmlElement(ElementName = "enabled")]
-        public bool Enabled { get; set; }
+        public bool? Enabled { get; set; }
 
         [DataMember(Name = "start_time")]
         [JsonProperty(PropertyName = "start_time")]
         [XmlElement(ElementName = "start_time")]
-        public long StartTime { get; set; }
+        public long? StartTime { get; set; }
 
         [DataMember(Name = "timezone")]
         [JsonProperty(PropertyName = "timezone")]
@@ -50,6 +50,21 @@ namespace WebAPI.Models.Notifications
         [DataMember(Name = "id")]
         [JsonProperty(PropertyName = "id")]
         [XmlElement(ElementName = "id")]
-        public int Id { get; set; }
+        public int? Id { get; set; }
+
+        internal long getStartTime()
+        {
+            return StartTime.HasValue ? (int)StartTime : 0;
+        }
+
+        internal int getId()
+        {
+            return Id.HasValue ? (int)Id : 0;
+        }
+
+        internal bool getEnabled()
+        {
+            return Enabled.HasValue ? (bool)Enabled : true;
+        }
     }
 }

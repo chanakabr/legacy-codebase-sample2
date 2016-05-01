@@ -20,7 +20,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "asset_id")]
         [JsonProperty(PropertyName = "asset_id")]
         [XmlElement(ElementName = "asset_id")]
-        public int AssetId { get; set; }
+        public int? AssetId { get; set; }
 
         /// <summary>
         /// Total number of likes for this asset
@@ -28,7 +28,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "likes")]
         [JsonProperty(PropertyName = "likes")]
         [XmlElement(ElementName = "likes")]
-        public int Likes { get; set; }
+        public int? Likes { get; set; }
 
         /// <summary>
         /// Total number of views for this asset
@@ -36,7 +36,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "views")]
         [JsonProperty(PropertyName = "views")]
         [XmlElement(ElementName = "views")]
-        public int Views { get; set; }
+        public int? Views { get; set; }
 
         /// <summary>
         /// Number of people that rated the asset
@@ -44,7 +44,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "rating_count")]
         [JsonProperty(PropertyName = "rating_count")]
         [XmlElement(ElementName = "rating_count")]
-        public int RatingCount { get; set; }
+        public int? RatingCount { get; set; }
 
         /// <summary>
         /// Average rating for the asset
@@ -52,7 +52,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "rating")]
         [JsonProperty(PropertyName = "rating")]
         [XmlElement(ElementName = "rating")]
-        public double Rating { get; set; }
+        public double? Rating { get; set; }
 
         /// <summary>
         /// Buzz score

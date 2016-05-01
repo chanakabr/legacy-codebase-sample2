@@ -12,8 +12,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/OSSAdapterProfile/action")]
-    public class OSSAdapterProfileController : ApiController
+    [RoutePrefix("_service/ossAdapterProfile/action")]
+    public class OssAdapterProfileController : ApiController
     {
         /// <summary>
         /// Returns all OSS adapters for partner : id + name

@@ -38,7 +38,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.DomainsClient().GetDomainInfo(groupId, user.First().HouseholdID);
+                response = ClientsManager.DomainsClient().GetDomainInfo(groupId, user.First().getHouseholdID());
 
                 if (with != null && with.Where(x => x.type == KalturaHouseholdWith.users_base_info || x.type == KalturaHouseholdWith.users_full_info).Count() > 0)
                 {

@@ -20,7 +20,7 @@ namespace WebAPI.Models.Billing
         [DataMember(Name = "is_active")]
         [JsonProperty("is_active")]
         [XmlElement(ElementName = "is_active")]
-        public int IsActive { get; set; }
+        public int? IsActive { get; set; }
 
         /// <summary>
         /// Payment gateway adapter URL
@@ -76,7 +76,7 @@ namespace WebAPI.Models.Billing
         [DataMember(Name = "pending_interval")]
         [JsonProperty("pending_interval")]
         [XmlElement(ElementName = "pending_interval")]
-        public int PendingInterval { get; set; }
+        public int? PendingInterval { get; set; }
 
         /// <summary>
         /// Pending Retries
@@ -84,7 +84,7 @@ namespace WebAPI.Models.Billing
         [DataMember(Name = "pending_retries")]
         [JsonProperty("pending_retries")]
         [XmlElement(ElementName = "pending_retries")]
-        public int PendingRetries { get; set; }
+        public int? PendingRetries { get; set; }
 
         /// <summary>
         /// Shared Secret
@@ -100,7 +100,7 @@ namespace WebAPI.Models.Billing
         [DataMember(Name = "renew_interval_minutes")]
         [JsonProperty("renew_interval_minutes")]
         [XmlElement(ElementName = "renew_interval_minutes")]
-        public int RenewIntervalMinutes { get; set; }
+        public int? RenewIntervalMinutes { get; set; }
 
         /// <summary>
         /// Renew Start Minutes
@@ -108,6 +108,6 @@ namespace WebAPI.Models.Billing
         [DataMember(Name = "renew_start_minutes")]
         [JsonProperty("renew_start_minutes")]
         [XmlElement(ElementName = "renew_start_minutes")]
-        public int RenewStartMinutes { get; set; }
+        public int? RenewStartMinutes { get; set; }
     }
 }

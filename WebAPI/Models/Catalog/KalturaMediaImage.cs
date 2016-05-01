@@ -28,7 +28,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "width")]
         [JsonProperty(PropertyName = "width")]
         [XmlElement(ElementName = "width")]
-        public int Width { get; set; }
+        public int? Width { get; set; }
 
         /// <summary>
         /// Image height
@@ -36,7 +36,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "height")]
         [JsonProperty(PropertyName = "height")]
         [XmlElement(ElementName = "height")]
-        public int Height { get; set; }
+        public int? Height { get; set; }
 
         /// <summary>
         /// Image URL
@@ -52,7 +52,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "version")]
         [JsonProperty(PropertyName = "version")]
         [XmlElement(ElementName = "version")]
-        public int Version { get; set; }
+        public int? Version { get; set; }
 
         /// <summary>
         /// Image ID
@@ -68,6 +68,6 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "is_default")]
         [JsonProperty(PropertyName = "is_default")]
         [XmlElement(ElementName = "is_default")]
-        public bool IsDefault { get; set; }
+        public bool? IsDefault { get; set; }
     }
 }

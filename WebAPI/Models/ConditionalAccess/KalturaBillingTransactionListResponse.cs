@@ -85,7 +85,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "action_date")]
         [JsonProperty("action_date")]
         [XmlElement(ElementName = "action_date")]
-        public long actionDate { get; set; }
+        public long? actionDate { get; set; }
 
         /// <summary>
         ///Start Date
@@ -93,7 +93,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "start_date")]
         [JsonProperty("start_date")]
         [XmlElement(ElementName = "start_date")]
-        public long startDate { get; set; }
+        public long? startDate { get; set; }
 
         /// <summary>
         /// End Date
@@ -101,7 +101,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "end_date")]
         [JsonProperty("end_date")]
         [XmlElement(ElementName = "end_date")]
-        public long endDate { get; set; }
+        public long? endDate { get; set; }
 
         /// <summary>
         ///Payment Method
@@ -125,7 +125,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "is_recurring")]
         [JsonProperty("is_recurring")]
         [XmlElement(ElementName = "is_recurring")]
-        public bool isRecurring { get; set; }
+        public bool? isRecurring { get; set; }
 
         /// <summary>
         ///Billing Provider Ref
@@ -133,7 +133,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "billing_provider_ref")]
         [JsonProperty("billing_provider_ref")]
         [XmlElement(ElementName = "billing_provider_ref")]
-        public Int32 billingProviderRef { get; set; }
+        public Int32? billingProviderRef { get; set; }
 
         /// <summary>
         ///Purchase ID
@@ -141,7 +141,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "purchase_id")]
         [JsonProperty("purchase_id")]
         [XmlElement(ElementName = "purchase_id")]
-        public Int32 purchaseID { get; set; }
+        public Int32? purchaseID { get; set; }
 
         /// <summary>
         ///Remarks

@@ -30,7 +30,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "order_index")]
         [JsonProperty("order_index")]
         [XmlElement(ElementName = "order_index")]
-        public int OrderIndex { get; set; }
+        public int? OrderIndex { get; set; }
 
         /// <summary>
         ///The type of the asset

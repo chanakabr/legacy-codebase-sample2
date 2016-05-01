@@ -36,7 +36,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.DomainsClient().AddDomainHomeNetwork(groupId, householdId, home_network.ExternalId, home_network.Name, home_network.Description, home_network.IsActive);
+                response = ClientsManager.DomainsClient().AddDomainHomeNetwork(groupId, householdId, home_network.ExternalId, home_network.Name, home_network.Description, home_network.getIsActive());
             }
             catch (ClientException ex)
             {
@@ -93,7 +93,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.DomainsClient().UpdateDomainHomeNetwork(groupId, householdId, home_network.ExternalId, home_network.Name, home_network.Description, home_network.IsActive);
+                response = ClientsManager.DomainsClient().UpdateDomainHomeNetwork(groupId, householdId, home_network.ExternalId, home_network.Name, home_network.Description, home_network.getIsActive());
             }
             catch (ClientException ex)
             {

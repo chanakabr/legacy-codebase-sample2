@@ -16,7 +16,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/epgChannel/action")]
-    public class EPGChannelController : ApiController
+    public class EpgChannelController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -51,8 +51,8 @@ namespace WebAPI.Controllers
 
                 response = ClientsManager.CatalogClient().GetEPGByChannelIds(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, 0, 0, 
                     new List<int>(filter.IDs.Select(x => x.value).ToList()), 
-                    SerializationUtils.ConvertFromUnixTimestamp(filter.StartTime),
-                    SerializationUtils.ConvertFromUnixTimestamp(filter.EndTime), with.Select(x => x.type).ToList());
+                    SerializationUtils.ConvertFromUnixTimestamp(filter.getStartTime()),
+                    SerializationUtils.ConvertFromUnixTimestamp(filter.getEndTime()), with.Select(x => x.type).ToList());
 
                 // if no response - return not found status 
                 if (response == null || response.Count == 0)

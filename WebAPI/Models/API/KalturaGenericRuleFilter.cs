@@ -20,7 +20,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "asset_id")]
         [JsonProperty("asset_id")]
         [XmlElement(ElementName = "asset_id")]
-        public long AssetId{ get; set; }
+        public long? AssetId{ get; set; }
 
         /// <summary>
         /// Asset type to filter by - 0 = EPG, 1 = media
@@ -28,6 +28,11 @@ namespace WebAPI.Models.API
         [DataMember(Name = "asset_type")]
         [JsonProperty("asset_type")]
         [XmlElement(ElementName = "asset_type")]
-        public int AssetType { get; set; }
+        public int? AssetType { get; set; }
+
+        internal long getAssetId()
+        {
+            return AssetId.HasValue ? (long)AssetId : 0;
+        }
     }
 }

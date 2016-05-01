@@ -11,7 +11,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/RegistrySettings/action")]
+    [RoutePrefix("_service/registrySettings/action")]
     public class RegistrySettingsController : ApiController
     {
         /// <summary>

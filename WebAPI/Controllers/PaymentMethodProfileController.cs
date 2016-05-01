@@ -64,7 +64,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().AddPaymentMethodToPaymentGateway(groupId, payment_gateway_id, payment_method.Name, payment_method.AllowMultiInstance);
+                response = ClientsManager.BillingClient().AddPaymentMethodToPaymentGateway(groupId, payment_gateway_id, payment_method.Name, payment_method.getAllowMultiInstance());
             }
             catch (ClientException ex)
             {
@@ -94,7 +94,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().UpdatePaymentGatewayPaymentMethod(groupId, payment_gateway_id, payment_method.Id, payment_method.Name, payment_method.AllowMultiInstance);
+                response = ClientsManager.BillingClient().UpdatePaymentGatewayPaymentMethod(groupId, payment_gateway_id, payment_method.getId(), payment_method.Name, payment_method.getAllowMultiInstance());
             }
             catch (ClientException ex)
             {

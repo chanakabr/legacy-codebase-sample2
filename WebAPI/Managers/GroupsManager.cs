@@ -166,7 +166,7 @@ namespace WebAPI.ClientManagers
             {
                 // build dictionary permission items - roles with groups dictionary, for easy access
                 group.PermissionItemsRolesMapping = RolesManager.BuildPermissionItemsDictionary(roles);
-                group.RolesIdsNamesMapping = roles.ToDictionary(dr => dr.Id, dr => dr.Name);
+                group.RolesIdsNamesMapping = roles.ToDictionary(dr => dr.getId(), dr => dr.Name);
             }
 
             return group;
