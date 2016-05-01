@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/CDVRAdapter.Models" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/CDVRAdapter.Models" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:import schemaLocation="http://localhost/CdvrAdp/Service.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" />
+  <xs:import schemaLocation="http://52.31.200.113:90/CdvrAdapter/Service.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" />
   <xs:complexType name="RecordingResponse">
     <xs:sequence>
       <xs:element minOccurs="0" name="Recording" nillable="true" type="tns:Recording" />

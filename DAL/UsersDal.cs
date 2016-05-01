@@ -1192,12 +1192,13 @@ namespace DAL
                         }
                         int activateStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "ACTIVATE_STATUS"); ;
                         int isActivationNeeded = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_ACTIVATION_NEEDED");
+                        string facebookbId = ODBCWrapper.Utils.GetSafeStr(dr, "FACEBOOK_ID");
                         if (string.IsNullOrEmpty(sUserName))
                         {
                             sUserName = ODBCWrapper.Utils.GetSafeStr(dr, "USERNAME");
                         }
                         DateTime createDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
-                        if (activateStatus == 1)
+                        if (activateStatus == 1 || !string.IsNullOrEmpty(facebookbId))
                         {
                             res = DALUserActivationState.Activated;
                         }

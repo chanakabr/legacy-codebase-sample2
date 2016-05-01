@@ -23,8 +23,8 @@ namespace Recordings
         private const string SCHEDULED_TASKS_ROUTING_KEY = "PROCESS_RECORDING_TASK\\{0}";
 
         private const int MINUTES_ALLOWED_DIFFERENCE = 5;
-        private const int MINUTES_RETRY_INTERVAL = 5;
-        private const int MAXIMUM_RETRIES_ALLOWED = 6;
+        private static readonly int MINUTES_RETRY_INTERVAL;
+        private static readonly int MAXIMUM_RETRIES_ALLOWED;
 
         #endregion
 
@@ -59,6 +59,30 @@ namespace Recordings
                 }
 
                 return instance;
+            }
+        }
+
+        static RecordingsManager()
+        {
+            int retryInterval = TVinciShared.WS_Utils.GetTcmIntValue("CDVRAdapterRetryInterval");
+            int maximumRetries = TVinciShared.WS_Utils.GetTcmIntValue("CDVRAdapterMaximumRetriesAllowed");
+
+            if (retryInterval != 0)
+            {
+                MINUTES_RETRY_INTERVAL = retryInterval;
+            }
+            else
+            {
+                MINUTES_RETRY_INTERVAL = 5;
+            }
+
+            if (maximumRetries != 0)
+            {
+                MAXIMUM_RETRIES_ALLOWED = maximumRetries;
+            }
+            else
+            {
+                MAXIMUM_RETRIES_ALLOWED = 6;
             }
         }
 
@@ -133,6 +157,8 @@ namespace Recordings
                         if (recording.RecordingStatus != TstvRecordingStatus.Failed)
                         {
                             recording.RecordingStatus = TstvRecordingStatus.Scheduled;
+
+                            FixRecordingStatus(recording);
                         }
                         else
                         {
@@ -275,7 +301,7 @@ namespace Recordings
                         currentRecording.GetStatusRetries++;
                         DateTime nextCheck = DateTime.UtcNow.AddMinutes(MINUTES_RETRY_INTERVAL);
 
-                        UpdateRecording(groupId, currentRecording.EpgID, currentRecording.EpgStartDate, currentRecording.EpgEndDate);
+                        UpdateRecording(groupId, currentRecording.EpgId, currentRecording.EpgStartDate, currentRecording.EpgEndDate);
 
                         int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
 
@@ -299,7 +325,7 @@ namespace Recordings
                         {
                             if (currentRecording.GetStatusRetries <= MAXIMUM_RETRIES_ALLOWED)
                             {
-                                EnqueueMessage(groupId, currentRecording.EpgID, currentRecording.RecordingID, nextCheck, eRecordingTask.GetStatusAfterProgramEnded);
+                                EnqueueMessage(groupId, currentRecording.EpgId, currentRecording.Id, nextCheck, eRecordingTask.GetStatusAfterProgramEnded);
                             }
 
                             return currentRecording;
@@ -309,7 +335,7 @@ namespace Recordings
                         {
                             if (currentRecording.GetStatusRetries <= MAXIMUM_RETRIES_ALLOWED)
                             {
-                                EnqueueMessage(groupId, currentRecording.EpgID, currentRecording.RecordingID, nextCheck, eRecordingTask.GetStatusAfterProgramEnded);
+                                EnqueueMessage(groupId, currentRecording.EpgId, currentRecording.Id, nextCheck, eRecordingTask.GetStatusAfterProgramEnded);
                             }
 
                             currentRecording.Status = new Status((int)eResponseStatus.Error, "Adapter controller returned null response.");
@@ -323,12 +349,14 @@ namespace Recordings
                         }
                         else
                         {
-                            if (adapterResponse.RecordingState == TstvRecordingStatus.Failed)
+                            // If recording failed - we mark it as failed
+                            if (!adapterResponse.ActionSuccess)
                             {
                                 currentRecording.RecordingStatus = TstvRecordingStatus.Failed;
                             }
-                            else if (adapterResponse.RecordingState == TstvRecordingStatus.Recorded)
+                            else
                             {
+                                // If it was successfull - we mark it as recorded
                                 currentRecording.RecordingStatus = TstvRecordingStatus.Recorded;
                             }
 
@@ -457,6 +485,22 @@ namespace Recordings
             return status;
         }
 
+        public Recording GetRecordingByProgramId(long programId)
+        {
+            Recording recording = ConditionalAccessDAL.GetRecordingByProgramId(programId);
+            FixRecordingStatus(recording);
+
+            return recording;
+        }
+
+        public Recording GetRecording(long recordingId)
+        {
+            Recording recording = ConditionalAccessDAL.GetRecordingByRecordingId(recordingId);
+            FixRecordingStatus(recording);
+
+            return recording;
+        }
+
         #endregion
 
         #region Private Methods
@@ -503,6 +547,23 @@ namespace Recordings
                 adapterResponse.FailReason, adapterResponse.ProviderStatusCode, adapterResponse.ProviderStatusMessage, adapterResponse.FailReason);
             Status failStatus = new Status((int)eResponseStatus.Error, message);
             return failStatus;
+        }
+
+        private static void FixRecordingStatus(Recording recording)
+        {
+            if (recording.RecordingStatus == TstvRecordingStatus.Scheduled)
+            {
+                // If program already finished, we say it is recorded
+                if (recording.EpgEndDate < DateTime.UtcNow)
+                {
+                    recording.RecordingStatus = TstvRecordingStatus.Recorded;
+                }
+                // If program already started but didn't finish, we say it is recording
+                else if (recording.EpgStartDate < DateTime.UtcNow)
+                {
+                    recording.RecordingStatus = TstvRecordingStatus.Recording;
+                }
+            }
         }
 
         #endregion
