@@ -347,12 +347,14 @@ namespace Recordings
                         }
                         else
                         {
+                            // If recording failed - we mark it as failed
                             if (!adapterResponse.ActionSuccess)
                             {
                                 currentRecording.RecordingStatus = TstvRecordingStatus.Failed;
                             }
                             else
                             {
+                                // If it was successfull - we mark it as recorded
                                 currentRecording.RecordingStatus = TstvRecordingStatus.Recorded;
                             }
 
@@ -481,6 +483,22 @@ namespace Recordings
             return status;
         }
 
+        public Recording GetRecordingByProgramId(long programId)
+        {
+            Recording recording = ConditionalAccessDAL.GetRecordingByProgramId(programId);
+            FixRecordingStatus(recording);
+
+            return recording;
+        }
+
+        public Recording GetRecording(long recordingId)
+        {
+            Recording recording = ConditionalAccessDAL.GetRecordingByRecordingId(recordingId);
+            FixRecordingStatus(recording);
+
+            return recording;
+        }
+
         #endregion
 
         #region Private Methods
@@ -527,6 +545,25 @@ namespace Recordings
                 adapterResponse.FailReason, adapterResponse.ProviderStatusCode, adapterResponse.ProviderStatusMessage, adapterResponse.FailReason);
             Status failStatus = new Status((int)eResponseStatus.Error, message);
             return failStatus;
+        }
+
+
+        private static void FixRecordingStatus(Recording recording)
+        {
+
+            if (recording.RecordingStatus == TstvRecordingStatus.Scheduled)
+            {
+                // If program already finished, we say it is recorded
+                if (recording.EpgEndDate < DateTime.UtcNow)
+                {
+                    recording.RecordingStatus = TstvRecordingStatus.Recorded;
+                }
+                // If program already started but didn't finish, we say it is recording
+                else if (recording.EpgStartDate < DateTime.UtcNow)
+                {
+                    recording.RecordingStatus = TstvRecordingStatus.Recording;
+                }
+            }
         }
 
         #endregion
