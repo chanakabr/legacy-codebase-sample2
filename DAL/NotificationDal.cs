@@ -782,7 +782,7 @@ namespace DAL
             spInsert.AddParameter("@is_active", enabled ? 1 : 0);
             spInsert.AddParameter("@result_message_id", resultMsgId);
             spInsert.AddParameter("@update_date", DateTime.UtcNow);
-            spInsert.AddParameter("@message_reference", resultMsgId);
+            spInsert.AddParameter("@message_reference", messageReference);
             if (announcement_id != 0)
                 spInsert.AddParameter("@announcement_id", announcement_id);
             int newTransactionID = spInsert.ExecuteReturnValue<int>();
