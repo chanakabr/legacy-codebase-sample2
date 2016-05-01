@@ -157,6 +157,8 @@ namespace Recordings
                         if (recording.RecordingStatus != TstvRecordingStatus.Failed)
                         {
                             recording.RecordingStatus = TstvRecordingStatus.Scheduled;
+
+                            FixRecordingStatus(recording);
                         }
                         else
                         {
