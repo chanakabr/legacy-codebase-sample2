@@ -731,11 +731,12 @@ namespace DAL
             return null;
         }
 
-        public static DataRowCollection Get_MessageAnnouncementsByAnnouncementId(int announcementId)
+        public static DataRowCollection Get_MessageAnnouncementByAnnouncementAndReference(int announcementId, string messageReference)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncementByAnnouncementId");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncementByAnnouncementAndReference");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             sp.AddParameter("@Announcement_ID", announcementId);
+            sp.AddParameter("@message_reference", announcementId);
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
@@ -767,7 +768,7 @@ namespace DAL
             return 0;
         }
 
-        public static int Insert_MessageAnnouncement(int groupId, int recipients, string name, string message, bool enabled, DateTime startTime, string timezone, int updaterId, long announcement_id = 0, string resultMsgId = null)
+        public static int Insert_MessageAnnouncement(int groupId, int recipients, string name, string message, bool enabled, DateTime startTime, string timezone, int updaterId, long announcement_id = 0, string messageReference = null, string resultMsgId = null)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("InsertMessageAnnouncement");
             spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -781,6 +782,7 @@ namespace DAL
             spInsert.AddParameter("@is_active", enabled ? 1 : 0);
             spInsert.AddParameter("@result_message_id", resultMsgId);
             spInsert.AddParameter("@update_date", DateTime.UtcNow);
+            spInsert.AddParameter("@message_reference", resultMsgId);
             if (announcement_id != 0)
                 spInsert.AddParameter("@announcement_id", announcement_id);
             int newTransactionID = spInsert.ExecuteReturnValue<int>();

@@ -28,8 +28,10 @@ namespace NotificationObj
         public int MessageAnnouncementId { get; set; }
         [DataMember]
         public int AnnouncementId { get; set; }
+        [DataMember]
+        public string MessageReference { get; set; }
 
-        public MessageAnnouncement(string name, string msg, bool enabled, long startTime, string timezone, eAnnouncementRecipientsType recipients, eAnnouncementStatus status = eAnnouncementStatus.NotSent, int announcementId = 0)
+        public MessageAnnouncement(string name, string msg, bool enabled, long startTime, string timezone, eAnnouncementRecipientsType recipients, eAnnouncementStatus status = eAnnouncementStatus.NotSent, string messageReference = null, int announcementId = 0)
         {
             Name = name;
             Message = msg;
@@ -39,6 +41,7 @@ namespace NotificationObj
             Recipients = recipients;
             Status = status;
             AnnouncementId = announcementId;
+            MessageReference = messageReference;
         }
 
         public override string ToString()
