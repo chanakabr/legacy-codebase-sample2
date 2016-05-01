@@ -22,7 +22,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
 
     /// <summary>
-    /// Holder object for Catalog With enum
+    /// Holder object for KalturaRecordingStatus
     /// </summary>    
     public class KalturaRecordingStatusHolder : KalturaOTTObject
     {

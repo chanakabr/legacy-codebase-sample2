@@ -595,8 +595,8 @@
           <s:element minOccurs="0" maxOccurs="1" name="ExternalRecordingId" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="EpgStartDate" type="s:dateTime" />
           <s:element minOccurs="1" maxOccurs="1" name="EpgEndDate" type="s:dateTime" />
-          <s:element minOccurs="1" maxOccurs="1" name="EpgUpdateDate" type="s:dateTime" />
           <s:element minOccurs="1" maxOccurs="1" name="Type" type="tns:RecordingType" />
+          <s:element minOccurs="1" maxOccurs="1" name="GetStatusRetries" type="s:int" />
         </s:sequence>
       </s:complexType>
       <s:simpleType name="TstvRecordingStatus">
@@ -651,23 +651,6 @@
           <s:element minOccurs="0" maxOccurs="unbounded" name="Recording" nillable="true" type="tns:Recording" />
         </s:sequence>
       </s:complexType>
-      <s:element name="QueryRecord">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="userID" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="epgID" type="s:long" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="QueryRecordResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="QueryRecordResult" type="tns:Recording" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
       <s:element name="GetRecordingStatus">
         <s:complexType>
           <s:sequence>
@@ -696,7 +679,6 @@
             <s:element minOccurs="1" maxOccurs="1" name="pageIndex" type="s:int" />
             <s:element minOccurs="1" maxOccurs="1" name="pageSize" type="s:int" />
             <s:element minOccurs="0" maxOccurs="1" name="orderBy" type="tns:OrderObj" />
-            <s:element minOccurs="0" maxOccurs="1" name="requestID" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -3566,12 +3548,6 @@
   <wsdl:message name="QueryRecordsSoapOut">
     <wsdl:part name="parameters" element="tns:QueryRecordsResponse" />
   </wsdl:message>
-  <wsdl:message name="QueryRecordSoapIn">
-    <wsdl:part name="parameters" element="tns:QueryRecord" />
-  </wsdl:message>
-  <wsdl:message name="QueryRecordSoapOut">
-    <wsdl:part name="parameters" element="tns:QueryRecordResponse" />
-  </wsdl:message>
   <wsdl:message name="GetRecordingStatusSoapIn">
     <wsdl:part name="parameters" element="tns:GetRecordingStatus" />
   </wsdl:message>
@@ -4287,15 +4263,6 @@
   </wsdl:message>
   <wsdl:message name="QueryRecordsHttpPostOut">
     <wsdl:part name="Body" element="tns:RecordingResponse" />
-  </wsdl:message>
-  <wsdl:message name="QueryRecordHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="userID" type="s:string" />
-    <wsdl:part name="epgID" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="QueryRecordHttpPostOut">
-    <wsdl:part name="Body" element="tns:Recording" />
   </wsdl:message>
   <wsdl:message name="GetRecordingStatusHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -5464,10 +5431,6 @@
       <wsdl:input message="tns:QueryRecordsSoapIn" />
       <wsdl:output message="tns:QueryRecordsSoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="QueryRecord">
-      <wsdl:input message="tns:QueryRecordSoapIn" />
-      <wsdl:output message="tns:QueryRecordSoapOut" />
-    </wsdl:operation>
     <wsdl:operation name="GetRecordingStatus">
       <wsdl:input message="tns:GetRecordingStatusSoapIn" />
       <wsdl:output message="tns:GetRecordingStatusSoapOut" />
@@ -5893,10 +5856,6 @@
     <wsdl:operation name="QueryRecords">
       <wsdl:input message="tns:QueryRecordsHttpPostIn" />
       <wsdl:output message="tns:QueryRecordsHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="QueryRecord">
-      <wsdl:input message="tns:QueryRecordHttpPostIn" />
-      <wsdl:output message="tns:QueryRecordHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="GetRecordingStatus">
       <wsdl:input message="tns:GetRecordingStatusHttpPostIn" />
@@ -6393,15 +6352,6 @@
     </wsdl:operation>
     <wsdl:operation name="QueryRecords">
       <soap:operation soapAction="http://ca.tvinci.com/QueryRecords" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="QueryRecord">
-      <soap:operation soapAction="http://ca.tvinci.com/QueryRecord" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -7393,15 +7343,6 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="QueryRecord">
-      <soap12:operation soapAction="http://ca.tvinci.com/QueryRecord" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
     <wsdl:operation name="GetRecordingStatus">
       <soap12:operation soapAction="http://ca.tvinci.com/GetRecordingStatus" style="document" />
       <wsdl:input>
@@ -8352,15 +8293,6 @@
     </wsdl:operation>
     <wsdl:operation name="QueryRecords">
       <http:operation location="/QueryRecords" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="QueryRecord">
-      <http:operation location="/QueryRecord" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>

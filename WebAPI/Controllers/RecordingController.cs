@@ -42,26 +42,36 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Query record options for a program
+        /// Query record options for programs
         /// </summary>
-        /// <param name="assetId">Comma seperated, internal identifier of the asset</param>
+        /// <param name="filter">Filter parameters for filtering out the result</param>
         /// <returns></returns>
         /// <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024,
         /// ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, AccountCatchUpNotEnabled = 3034, ProgramCdvrNotEnabled = 3035,
         /// ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, ProgramNotInRecordingScheduleWindow = 3039, InvalidAssetId = 4024</remarks>
         [Route("getContext"), HttpPost]
         [ApiAuthorize]
-        public List<KalturaRecording> GetContext(string assetIds)
+        public KalturaRecordingContextListResponse GetContext(KalturaRecordingContextFilter filter)
         {
-            var ids = assetIds.Split(',').Select(id => long.Parse(id));
-            List<KalturaRecording> response = null;
+            KalturaRecordingContextListResponse response = null;
 
             try
-            {
+            {                        
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
+
+                if (filter == null)
+                {
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter cannot be null");
+                }
+
+                if (filter.AssetIds == null || filter.AssetIds.Count == 0)
+                {
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter ids cannot be empty");
+                }          
+
                 // call client                
-                response = ClientsManager.ConditionalAccessClient().QueryRecords(groupId, userId, ids.ToArray());
+                response = ClientsManager.ConditionalAccessClient().QueryRecords(groupId, userId, filter.AssetIds.ToArray());
             }
             catch (ClientException ex)
             {
@@ -128,6 +138,11 @@ namespace WebAPI.Controllers
                     filter = new KalturaRecordingFilter();
                 }
 
+                if (!filter.OrderBy.HasValue)
+                {
+                    filter.OrderBy = KalturaRecordingOrder.start_date_asc;
+                }
+
                 if (!string.IsNullOrEmpty(filter.FilterExpression) && filter.FilterExpression.Length > 1024)
                 {
                     throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter too long");
@@ -135,7 +150,7 @@ namespace WebAPI.Controllers
 
                 // call client                
                 response = ClientsManager.ConditionalAccessClient().SearchRecordings(groupId, userId, domainId, filter.StatusIn.Select(x => x.status).ToList(),
-                                                                                     filter.FilterExpression, pager.getPageIndex(), pager.PageSize, filter.OrderBy, string.Empty);
+                                                                                     filter.FilterExpression, pager.getPageIndex(), pager.PageSize, filter.OrderBy);
             }
             catch (ClientException ex)
             {
