@@ -787,11 +787,13 @@ namespace AdapterControllers.CDVR
                         }).ToList();
             }
 
+            bool actionSuccess = adapterResponse.Recording.RecordingState == 0;
+
             RecordResult recordResult = new RecordResult()
             {
                 Links = links,
                 RecordingId = adapterResponse.Recording.RecordingId,
-                RecordingState = (TstvRecordingStatus)adapterResponse.Recording.RecordingState,
+                ActionSuccess = actionSuccess,
                 FailReason = adapterResponse.Recording.FailReason,
                 ProviderStatusCode = adapterResponse.Recording.ProviderStatusCode,
                 ProviderStatusMessage = adapterResponse.Recording.ProviderStatusMessage

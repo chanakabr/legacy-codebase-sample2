@@ -23,8 +23,8 @@ namespace Recordings
         private const string SCHEDULED_TASKS_ROUTING_KEY = "PROCESS_RECORDING_TASK\\{0}";
 
         private const int MINUTES_ALLOWED_DIFFERENCE = 5;
-        private const int MINUTES_RETRY_INTERVAL = 5;
-        private const int MAXIMUM_RETRIES_ALLOWED = 6;
+        private static readonly int MINUTES_RETRY_INTERVAL;
+        private static readonly int MAXIMUM_RETRIES_ALLOWED;
 
         #endregion
 
@@ -59,6 +59,30 @@ namespace Recordings
                 }
 
                 return instance;
+            }
+        }
+
+        static RecordingsManager()
+        {
+            int retryInterval = TVinciShared.WS_Utils.GetTcmIntValue("CDVRAdapterRetryInterval");
+            int maximumRetries = TVinciShared.WS_Utils.GetTcmIntValue("CDVRAdapterMaximumRetriesAllowed");
+
+            if (retryInterval != 0)
+            {
+                MINUTES_RETRY_INTERVAL = retryInterval;
+            }
+            else
+            {
+                MINUTES_RETRY_INTERVAL = 5;
+            }
+
+            if (maximumRetries != 0)
+            {
+                MAXIMUM_RETRIES_ALLOWED = maximumRetries;
+            }
+            else
+            {
+                MAXIMUM_RETRIES_ALLOWED = 6;
             }
         }
 
@@ -323,11 +347,11 @@ namespace Recordings
                         }
                         else
                         {
-                            if (adapterResponse.RecordingState == TstvRecordingStatus.Failed)
+                            if (!adapterResponse.ActionSuccess)
                             {
                                 currentRecording.RecordingStatus = TstvRecordingStatus.Failed;
                             }
-                            else if (adapterResponse.RecordingState == TstvRecordingStatus.Recorded)
+                            else
                             {
                                 currentRecording.RecordingStatus = TstvRecordingStatus.Recorded;
                             }
