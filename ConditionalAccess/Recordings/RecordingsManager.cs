@@ -275,7 +275,7 @@ namespace Recordings
                         currentRecording.GetStatusRetries++;
                         DateTime nextCheck = DateTime.UtcNow.AddMinutes(MINUTES_RETRY_INTERVAL);
 
-                        UpdateRecording(groupId, currentRecording.EpgID, currentRecording.EpgStartDate, currentRecording.EpgEndDate);
+                        UpdateRecording(groupId, currentRecording.EpgId, currentRecording.EpgStartDate, currentRecording.EpgEndDate);
 
                         int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
 
@@ -299,7 +299,7 @@ namespace Recordings
                         {
                             if (currentRecording.GetStatusRetries <= MAXIMUM_RETRIES_ALLOWED)
                             {
-                                EnqueueMessage(groupId, currentRecording.EpgID, currentRecording.RecordingID, nextCheck, eRecordingTask.GetStatusAfterProgramEnded);
+                                EnqueueMessage(groupId, currentRecording.EpgId, currentRecording.Id, nextCheck, eRecordingTask.GetStatusAfterProgramEnded);
                             }
 
                             return currentRecording;
@@ -309,7 +309,7 @@ namespace Recordings
                         {
                             if (currentRecording.GetStatusRetries <= MAXIMUM_RETRIES_ALLOWED)
                             {
-                                EnqueueMessage(groupId, currentRecording.EpgID, currentRecording.RecordingID, nextCheck, eRecordingTask.GetStatusAfterProgramEnded);
+                                EnqueueMessage(groupId, currentRecording.EpgId, currentRecording.Id, nextCheck, eRecordingTask.GetStatusAfterProgramEnded);
                             }
 
                             currentRecording.Status = new Status((int)eResponseStatus.Error, "Adapter controller returned null response.");
