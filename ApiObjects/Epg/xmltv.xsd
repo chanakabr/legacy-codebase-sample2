@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- edited with XMLSpy v2016 (http://www.altova.com) by Amishai Guilburd (Kaltura) -->
+<!-- edited with XMLSpy v2016 rel. 2 (x64) (http://www.altova.com) by liat regev (kaltura) -->
 <xs:schema xmlns="http://tempuri.org/xmltv" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://tempuri.org/xmltv" elementFormDefault="qualified">
 	<xs:element name="EpgChannels">
 		<xs:complexType>
@@ -68,6 +68,10 @@
 				<xs:element ref="review" minOccurs="0" maxOccurs="unbounded"/>
 				<xs:element ref="metas" minOccurs="0" maxOccurs="unbounded"/>
 				<xs:element ref="tags" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element name="enable-catch-up" type="xs:string" minOccurs="0"/>
+				<xs:element name="enable-cdvr" type="xs:string" minOccurs="0"/>
+				<xs:element name="enable-start-over" type="xs:string" minOccurs="0"/>
+				<xs:element name="enable-trick-play" type="xs:string" minOccurs="0"/>
 			</xs:sequence>
 			<xs:attribute name="start" type="xs:string" use="required"/>
 			<xs:attribute name="stop" type="xs:string"/>
