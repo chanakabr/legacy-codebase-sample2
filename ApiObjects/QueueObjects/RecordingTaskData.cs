@@ -10,7 +10,7 @@ namespace ApiObjects
     {
         #region Consts
 
-        public const string TASK = "distributed_tasks.process_recording_task";
+        public const string TASK = "distributed_tasks.process_recording_mission";
         
         #endregion
 

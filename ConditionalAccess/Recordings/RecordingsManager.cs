@@ -22,6 +22,10 @@ namespace Recordings
 
         private const string SCHEDULED_TASKS_ROUTING_KEY = "PROCESS_RECORDING_TASK\\{0}";
 
+        private const int MINUTES_ALLOWED_DIFFERENCE = 5;
+        private const int MINUTES_RETRY_INTERVAL = 5;
+        private const int MAXIMUM_RETRIES_ALLOWED = 6;
+
         #endregion
 
         #region Static Members
@@ -73,7 +77,7 @@ namespace Recordings
             {
                 recording = new Recording();
                 recording.Status = null;
-                recording.EpgID = programId;
+                recording.EpgId = programId;
                 recording.EpgStartDate = startDate;
                 recording.EpgEndDate = endDate;
                 recording.ChannelId = epgChannelID;
@@ -124,14 +128,23 @@ namespace Recordings
                     try
                     {
                         recording.ExternalRecordingId = adapterResponse.RecordingId;
-                        recording.RecordingStatus = adapterResponse.RecordingState;
+
+                        // Set recording to be scheduled if it hasn't failed
+                        if (recording.RecordingStatus != TstvRecordingStatus.Failed)
+                        {
+                            recording.RecordingStatus = TstvRecordingStatus.Scheduled;
+                        }
+                        else
+                        {
+                            recording.RecordingStatus = TstvRecordingStatus.Failed;
+                        }
 
                         // Insert recording information to database
                         recording = ConditionalAccessDAL.InsertRecording(recording, groupId);
 
                         if (adapterResponse.Links != null)
                         {
-                            ConditionalAccessDAL.InsertRecordingLinks(adapterResponse.Links, groupId, recording.RecordingID);
+                            ConditionalAccessDAL.InsertRecordingLinks(adapterResponse.Links, groupId, recording.Id);
                         }
 
                         // Update Couchbase that the EPG is recorded
@@ -148,7 +161,7 @@ namespace Recordings
                             recording.RecordingStatus == TstvRecordingStatus.Recording ||
                             recording.RecordingStatus == TstvRecordingStatus.Scheduled)
                         {
-                            UpdateIndex(groupId, recording.RecordingID);
+                            UpdateIndex(groupId, recording.Id);
                         }
 
                         // Schedule a message tocheck status 1 minute after recording of program is supposed to be over
@@ -156,7 +169,7 @@ namespace Recordings
                         DateTime checkTime = endDate.AddMinutes(1);
                         eRecordingTask task = eRecordingTask.GetStatusAfterProgramEnded;
 
-                        EnqueueMessage(groupId, programId, recording.RecordingID, checkTime, task);
+                        EnqueueMessage(groupId, programId, recording.Id, checkTime, task);
 
                         // We're OK
                         recording.Status = new Status((int)eResponseStatus.OK);
@@ -219,7 +232,9 @@ namespace Recordings
                 {
                     try
                     {
-                        // Insert recording information to database
+                        recording.RecordingStatus = TstvRecordingStatus.Canceled;
+
+                        // Update recording information in to database
                         bool updateResult = ConditionalAccessDAL.UpdateRecording(recording, groupId, 2, 0);
 
                         if (!updateResult)
@@ -227,7 +242,7 @@ namespace Recordings
                             return new Status((int)eResponseStatus.Error, "Failed update recording");
                         }
 
-                        UpdateCouchbaseIsRecorded(groupId, recording.EpgID, false);
+                        UpdateCouchbaseIsRecorded(groupId, recording.EpgId, false);
 
                         // We're OK
                         status = new Status((int)eResponseStatus.OK);
@@ -250,11 +265,18 @@ namespace Recordings
                 // If the program finished already or not: if it didn't finish, then the recording obviously didn't finish...
                 if (currentRecording.EpgEndDate < DateTime.Now)
                 {
+
                     var timeSpan = DateTime.UtcNow - currentRecording.EpgEndDate;
 
                     // Only if the difference is less than 5 minutes we continue
-                    if (timeSpan.TotalMinutes < 5)
+                    if (timeSpan.TotalMinutes < MINUTES_ALLOWED_DIFFERENCE)
                     {
+                        // Count current try to get status - first and foremost
+                        currentRecording.GetStatusRetries++;
+                        DateTime nextCheck = DateTime.UtcNow.AddMinutes(MINUTES_RETRY_INTERVAL);
+
+                        UpdateRecording(groupId, currentRecording.EpgID, currentRecording.EpgStartDate, currentRecording.EpgEndDate);
+
                         int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
 
                         var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
@@ -275,11 +297,21 @@ namespace Recordings
 
                         if (currentRecording.Status != null)
                         {
+                            if (currentRecording.GetStatusRetries <= MAXIMUM_RETRIES_ALLOWED)
+                            {
+                                EnqueueMessage(groupId, currentRecording.EpgID, currentRecording.RecordingID, nextCheck, eRecordingTask.GetStatusAfterProgramEnded);
+                            }
+
                             return currentRecording;
                         }
 
                         if (adapterResponse == null)
                         {
+                            if (currentRecording.GetStatusRetries <= MAXIMUM_RETRIES_ALLOWED)
+                            {
+                                EnqueueMessage(groupId, currentRecording.EpgID, currentRecording.RecordingID, nextCheck, eRecordingTask.GetStatusAfterProgramEnded);
+                            }
+
                             currentRecording.Status = new Status((int)eResponseStatus.Error, "Adapter controller returned null response.");
                         }
                         //
@@ -289,19 +321,28 @@ namespace Recordings
                         {
                             currentRecording.Status = CreateFailStatus(adapterResponse);
                         }
-
-                        currentRecording.RecordingStatus = adapterResponse.RecordingState;
-
-                        ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1);
-
-                        // After we know that recording was succesful,
-                        // we index data so it is available on search
-                        if (currentRecording.RecordingStatus == TstvRecordingStatus.OK ||
-                            currentRecording.RecordingStatus == TstvRecordingStatus.Recorded ||
-                            currentRecording.RecordingStatus == TstvRecordingStatus.Recording ||
-                            currentRecording.RecordingStatus == TstvRecordingStatus.Scheduled)
+                        else
                         {
-                            UpdateIndex(groupId, recordingId);
+                            if (adapterResponse.RecordingState == TstvRecordingStatus.Failed)
+                            {
+                                currentRecording.RecordingStatus = TstvRecordingStatus.Failed;
+                            }
+                            else if (adapterResponse.RecordingState == TstvRecordingStatus.Recorded)
+                            {
+                                currentRecording.RecordingStatus = TstvRecordingStatus.Recorded;
+                            }
+
+                            ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1);
+
+                            // After we know that recording was succesful,
+                            // we index data so it is available on search
+                            if (currentRecording.RecordingStatus == TstvRecordingStatus.OK ||
+                                currentRecording.RecordingStatus == TstvRecordingStatus.Recorded ||
+                                currentRecording.RecordingStatus == TstvRecordingStatus.Recording ||
+                                currentRecording.RecordingStatus == TstvRecordingStatus.Scheduled)
+                            {
+                                UpdateIndex(groupId, recordingId);
+                            }
                         }
                     }
                 }
@@ -323,7 +364,7 @@ namespace Recordings
             }
             else
             {
-                long recordingId = recording.RecordingID;
+                long recordingId = recording.Id;
 
                 // First of all - if EPG was updated, update the recording index, nevermind what was the change
                 UpdateIndex(groupId, recordingId);
@@ -460,7 +501,7 @@ namespace Recordings
         {
             string message = string.Format("Adapter failed for reason: {0}. Provider code = {1}, provider message = {2}, fail reason = {3}",
                 adapterResponse.FailReason, adapterResponse.ProviderStatusCode, adapterResponse.ProviderStatusMessage, adapterResponse.FailReason);
-            Status failStatus = new Status((int)eResponseStatus.CdvrAdapterProviderFail, message);
+            Status failStatus = new Status((int)eResponseStatus.Error, message);
             return failStatus;
         }
 
