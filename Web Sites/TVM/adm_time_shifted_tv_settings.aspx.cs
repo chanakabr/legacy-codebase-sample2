@@ -65,9 +65,6 @@ public partial class adm_time_shifted_tv_settings : System.Web.UI.Page
 
         // check if to insert a new record to the table or update an existing one
         int idFromTable = DAL.TvmDAL.GetTimeShiftedTVSettingsID(groupID);
-        int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupID);
-
-        string sTable = string.Empty;
  
         if (idFromTable > 0)
         {
@@ -103,46 +100,15 @@ public partial class adm_time_shifted_tv_settings : System.Web.UI.Page
         theRecord.AddRecord(dr_trickPlayBuffer);
 
         DataRecordDropDownField dr_adapters = new DataRecordDropDownField("time_shifted_tv_settings", "adapter_id", "id", "", null, 60, true);
-        string sQuery = "select name as txt,id as id from conditionalAccess..cdvr_adapters where status=1 and is_active=1 and group_id=" + LoginManager.GetLoginGroupID();
+        string sQuery = "select name as txt,id as id from conditionalAccess..cdvr_adapters where status=1 and is_active=1 and group_id=" + groupID;
         dr_adapters.SetSelectsQuery(sQuery);
         dr_adapters.Initialize("C-DVR Adapter", "adm_table_header_nbg", "FormInput", "adapter_id", false);
         dr_adapters.SetDefaultVal("---");
         theRecord.AddRecord(dr_adapters);
 
-        sTable = theRecord.GetTableHTML("adm_time_shifted_tv_settings.aspx?submited=1");
+        string sTable = theRecord.GetTableHTML("adm_time_shifted_tv_settings.aspx?submited=1");
 
         return sTable;
-    }
-
-    private bool IsParentGroup(int groupID)
-    {
-        bool res = false;
-        try
-        {
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
-            selectQuery += "select * from F_Get_GroupsParent(" + groupID.ToString() + ")";
-            if (selectQuery.Execute("query", true) != null)
-            {
-                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                if (nCount > 0)
-                {
-                    int parentGroupID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row, "PARENT_GROUP_ID");
-                    if (parentGroupID == 1)
-                    {
-                        res = true;
-                    }
-                }
-            }
-            selectQuery.Finish();
-            selectQuery = null;
-        }
-        catch (Exception ex)
-        {
-            log.Error("", ex);
-            res = false;
-        }
-        return res;
     }
     
 }
