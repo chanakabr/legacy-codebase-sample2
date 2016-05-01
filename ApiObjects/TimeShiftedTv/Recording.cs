@@ -32,6 +32,8 @@ namespace ApiObjects.TimeShiftedTv
 
         public DateTime LastAvailabilityDate { get; set; }        
 
+        public int GetStatusRetries { get; set; }
+
         public Recording()
         {
             Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -54,6 +56,7 @@ namespace ApiObjects.TimeShiftedTv
             sb.Append(string.Format("StartDate: {0}, ", EpgStartDate != null ? EpgStartDate.ToString() : ""));
             sb.Append(string.Format("EndDate: {0}, ", EpgEndDate != null ? EpgEndDate.ToString() : ""));
             sb.Append(string.Format("LastAvailabilityDate: {0}, ", LastAvailabilityDate != null ? LastAvailabilityDate.ToString() : ""));
+            sb.Append(string.Format("GetStatusRetries: {0}, ", GetStatusRetries != null ? GetStatusRetries.ToString() : ""));
 
             return sb.ToString();
         }

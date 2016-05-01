@@ -2459,13 +2459,7 @@ namespace DAL
 
             if (row != null)
             {
-                recording = new Recording();
-                recording.EpgID = programId;
-                recording.RecordingID = ODBCWrapper.Utils.ExtractValue<long>(row, "ID");
-                recording.RecordingStatus = (TstvRecordingStatus)ODBCWrapper.Utils.ExtractInteger(row, "RECORDING_STATUS");
-                recording.ExternalRecordingId = ODBCWrapper.Utils.ExtractString(row, "EXTERNAL_RECORDING_ID");
-                recording.EpgStartDate = ODBCWrapper.Utils.ExtractDateTime(row, "START_DATE");
-                recording.EpgEndDate = ODBCWrapper.Utils.ExtractDateTime(row, "END_DATE");                
+                recording = BuildRecordingFromRow(row);
             }
 
             return recording;
@@ -2484,6 +2478,7 @@ namespace DAL
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CREATE_DATE", "=", DateTime.UtcNow);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GET_STATUS_RETRIES", "=", 0);
 
             var executeResult = insertQuery.ExecuteAndGetId();
             insertQuery.Finish();
@@ -2502,13 +2497,7 @@ namespace DAL
 
             if (row != null)
             {
-                recording = new Recording();
-                recording.EpgID = ODBCWrapper.Utils.ExtractValue<long>(row, "EPG_PROGRAM_ID");
-                recording.RecordingID = ODBCWrapper.Utils.ExtractValue<long>(row, "ID");
-                recording.RecordingStatus = (TstvRecordingStatus)ODBCWrapper.Utils.ExtractInteger(row, "RECORDING_STATUS");
-                recording.ExternalRecordingId = ODBCWrapper.Utils.ExtractString(row, "EXTERNAL_RECORDING_ID");
-                recording.EpgStartDate = ODBCWrapper.Utils.ExtractDateTime(row, "START_DATE");
-                recording.EpgEndDate = ODBCWrapper.Utils.ExtractDateTime(row, "END_DATE");                
+                recording = BuildRecordingFromRow(row);               
             }
 
             return recording;
@@ -2527,6 +2516,7 @@ namespace DAL
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", recording.EpgStartDate);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", status);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", isActive);
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("GET_STATUS_RETRIES", "=", recording.GetStatusRetries);
 
             updateQuery += "where";
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", recording.RecordingID);
@@ -2644,6 +2634,8 @@ namespace DAL
             recording.ExternalRecordingId = ODBCWrapper.Utils.ExtractString(row, "EXTERNAL_RECORDING_ID");
             recording.EpgStartDate = ODBCWrapper.Utils.ExtractDateTime(row, "START_DATE");
             recording.EpgEndDate = ODBCWrapper.Utils.ExtractDateTime(row, "END_DATE");
+            recording.GetStatusRetries = ODBCWrapper.Utils.ExtractInteger(row, "GET_STATUS_RETRIES");
+
             return recording;
         }
 
