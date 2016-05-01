@@ -1003,7 +1003,6 @@
     <Compile Include="Controllers\NotificationsSettingsController.cs" />
     <Compile Include="Controllers\PaymentMethodProfileController.cs" />
     <Compile Include="Controllers\RegistrySettingsController.cs" />
-    <Compile Include="Controllers\StatisticsController.cs" />
     <Compile Include="Controllers\TimeShiftedTvPartnerSettingsController.cs" />
     <Compile Include="Controllers\VersionController.cs" />
     <Compile Include="Controllers\HouseholdLimitationsController.cs" />
@@ -1059,7 +1058,6 @@
     <Compile Include="Managers\Models\AppToken.cs" />
     <Compile Include="Managers\Models\KSUtils.cs" />
     <Compile Include="Managers\RolesManager.cs" />
-    <Compile Include="Models\Catalog\KalturaAssetStatisticsListResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaCDVRAdapterProfile.cs" />
     <Compile Include="Models\API\KalturaPermissionsFilter.cs" />
     <Compile Include="Models\API\KalturaExportFilter.cs" />
@@ -1107,6 +1105,7 @@
     <Compile Include="Models\Catalog\PersonalEnrichments\KalturaPersonalAssetWith.cs" />
     <Compile Include="Models\Catalog\KalturaAssetsBookmarksResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaRecording.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaRecordingContext.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaRecordingFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaRecordingListResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaRecordingOrder.cs" />
@@ -1150,7 +1149,6 @@
     <Compile Include="Models\API\KalturaPermission.cs" />
     <Compile Include="Models\API\KalturaPermissionItem.cs" />
     <Compile Include="Models\General\KalturaRequestConfiguration.cs" />
-    <Compile Include="Models\General\KalturaRequestFilter.cs" />
     <Compile Include="Models\General\KalturaSessionType.cs" />
     <Compile Include="Models\General\KalturaIntegerValue.cs" />
     <Compile Include="Models\General\KalturaStringValue.cs" />

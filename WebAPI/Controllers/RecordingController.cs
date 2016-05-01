@@ -51,16 +51,16 @@ namespace WebAPI.Controllers
         /// ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, ProgramNotInRecordingScheduleWindow = 3039, InvalidAssetId = 4024</remarks>
         [Route("getContext"), HttpPost]
         [ApiAuthorize]
-        public KalturaRecording GetContext(long assetId)
+        public List<KalturaRecording> GetContext(long[] assetIds)
         {
-            KalturaRecording response = null;
+            List<KalturaRecording> response = null;
 
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
                 // call client                
-                response = ClientsManager.ConditionalAccessClient().QueryRecord(groupId, userId, assetId);
+                response = ClientsManager.ConditionalAccessClient().QueryRecords(groupId, userId, assetIds);
             }
             catch (ClientException ex)
             {
@@ -89,7 +89,7 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
                 // call client                
-                response = ClientsManager.ConditionalAccessClient().Record(groupId, userId, recording.EpgId);
+                response = ClientsManager.ConditionalAccessClient().Record(groupId, userId, recording.AssetId);
             }
             catch (ClientException ex)
             {
@@ -133,8 +133,8 @@ namespace WebAPI.Controllers
                 }
 
                 // call client                
-                response = ClientsManager.ConditionalAccessClient().SearchRecordings(groupId, userId, domainId, filter.RecordingStatuses.Select(x => x.status).ToList(),
-                                                                                     filter.FilterExpression, pager.PageIndex, pager.PageSize, filter.OrderBy, filter.RequestId);
+                response = ClientsManager.ConditionalAccessClient().SearchRecordings(groupId, userId, domainId, filter.StatusIn.Select(x => x.status).ToList(),
+                                                                                     filter.FilterExpression, pager.PageIndex, pager.PageSize, filter.OrderBy, string.Empty);
             }
             catch (ClientException ex)
             {

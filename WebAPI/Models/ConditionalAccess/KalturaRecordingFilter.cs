@@ -14,17 +14,17 @@ namespace WebAPI.Models.ConditionalAccess
     /// Filtering assets
     /// </summary>
     [Serializable]
-    public class KalturaRecordingFilter : KalturaRequestFilter
+    public class KalturaRecordingFilter : KalturaFilter
     {
 
         /// <summary>
         /// Recording Statuses
         /// </summary>
-        [DataMember(Name = "recordingStatuses")]
-        [JsonProperty(PropertyName = "recordingStatuses")]
-        [XmlArray(ElementName = "recordingStatuses", IsNullable = true)]
-        [XmlArrayItem(ElementName = "recordingStatuses")]
-        public List<KalturaRecordingStatusHolder> RecordingStatuses { get; set; }
+        [DataMember(Name = "statusIn")]
+        [JsonProperty(PropertyName = "statusIn")]
+        [XmlArray(ElementName = "statusIn", IsNullable = true)]
+        [XmlArrayItem(ElementName = "statusIn")]
+        public List<KalturaRecordingStatusHolder> StatusIn { get; set; }
 
         /// <summary>
         /// KSQL expression

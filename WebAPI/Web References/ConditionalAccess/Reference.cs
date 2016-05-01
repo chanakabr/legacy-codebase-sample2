@@ -10113,9 +10113,9 @@ namespace WebAPI.ConditionalAccess {
         
         private Status statusField;
         
-        private long recordingIDField;
+        private long idField;
         
-        private long epgIDField;
+        private long epgIdField;
         
         private string channelIdField;
         
@@ -10129,9 +10129,7 @@ namespace WebAPI.ConditionalAccess {
         
         private System.DateTime epgUpdateDateField;
         
-        private RecordingType recordingTypeField;
-        
-        private System.DateTime lastAvailabilityDateField;
+        private RecordingType typeField;
         
         /// <remarks/>
         public Status Status {
@@ -10144,22 +10142,22 @@ namespace WebAPI.ConditionalAccess {
         }
         
         /// <remarks/>
-        public long RecordingID {
+        public long Id {
             get {
-                return this.recordingIDField;
+                return this.idField;
             }
             set {
-                this.recordingIDField = value;
+                this.idField = value;
             }
         }
         
         /// <remarks/>
-        public long EpgID {
+        public long EpgId {
             get {
-                return this.epgIDField;
+                return this.epgIdField;
             }
             set {
-                this.epgIDField = value;
+                this.epgIdField = value;
             }
         }
         
@@ -10224,22 +10222,12 @@ namespace WebAPI.ConditionalAccess {
         }
         
         /// <remarks/>
-        public RecordingType RecordingType {
+        public RecordingType Type {
             get {
-                return this.recordingTypeField;
+                return this.typeField;
             }
             set {
-                this.recordingTypeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime LastAvailabilityDate {
-            get {
-                return this.lastAvailabilityDateField;
-            }
-            set {
-                this.lastAvailabilityDateField = value;
+                this.typeField = value;
             }
         }
     }

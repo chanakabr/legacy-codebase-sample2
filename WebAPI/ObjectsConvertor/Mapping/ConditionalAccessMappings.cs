@@ -219,22 +219,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             // KalturaRecording to Recording
             Mapper.CreateMap<KalturaRecording, WebAPI.ConditionalAccess.Recording>()
-               .ForMember(dest => dest.EpgID, opt => opt.MapFrom(src => src.EpgId))
-               .ForMember(dest => dest.RecordingID, opt => opt.MapFrom(src => src.RecordingId))
-               .ForMember(dest => dest.RecordingStatus, opt => opt.MapFrom(src => ConvertKalturaRecordingStatus(src.RecordingStatus)))
-               .ForMember(dest => dest.LastAvailabilityDate, opt => opt.MapFrom(src => SerializationUtils.ConvertFromUnixTimestamp(src.LastAvailabilityDate)))
-               .ForMember(dest => dest.RecordingType, opt => opt.MapFrom(src => ConvertKalturaRecordingType(src.RecordingType)));
+               .ForMember(dest => dest.EpgId, opt => opt.MapFrom(src => src.AssetId))
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.RecordingStatus, opt => opt.MapFrom(src => ConvertKalturaRecordingStatus(src.Status)))
+               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertKalturaRecordingType(src.Type)));
 
             // Recording to KalturaRecording
             Mapper.CreateMap<WebAPI.ConditionalAccess.Recording, KalturaRecording>()
-               .ForMember(dest => dest.EpgId, opt => opt.MapFrom(src => src.EpgID))
-               .ForMember(dest => dest.RecordingId, opt => opt.MapFrom(src => src.RecordingID))
-               .ForMember(dest => dest.RecordingStatus, opt => opt.MapFrom(src => ConvertTstvRecordingStatus(src.RecordingStatus)))
-               .ForMember(dest => dest.LastAvailabilityDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.LastAvailabilityDate)))
-               .ForMember(dest => dest.RecordingType, opt => opt.MapFrom(src => ConvertRecordingType(src.RecordingType)));
+               .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.EpgId))
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertTstvRecordingStatus(src.RecordingStatus)))
+               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertRecordingType(src.Type)));
         }
 
-        //
         public static WebAPI.ConditionalAccess.TstvRecordingStatus ConvertKalturaRecordingStatus(KalturaRecordingStatus recordingStatus)
         {
             WebAPI.ConditionalAccess.TstvRecordingStatus result;
@@ -356,18 +353,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     result.m_eOrderDir = OrderDir.ASC;
                     break;
             }
-            return result;
-        }
-
-        public static List<WebAPI.Catalog.BaseObject> ConvertRecordings(Recording[] recordings)
-        {
-            List<WebAPI.Catalog.BaseObject> result = new List<Catalog.BaseObject>();
-            foreach (Recording recording in recordings)
-            {
-                WebAPI.Catalog.BaseObject baseObject = new Catalog.BaseObject() { AssetId = recording.EpgID.ToString(), AssetType = Catalog.eAssetTypes.EPG, m_dUpdateDate = recording.EpgUpdateDate };
-                result.Add(baseObject);
-            }
-
             return result;
         }
 
