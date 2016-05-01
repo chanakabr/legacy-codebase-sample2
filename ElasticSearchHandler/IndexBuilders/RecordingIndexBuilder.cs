@@ -56,8 +56,8 @@ namespace ElasticSearchHandler.IndexBuilders
             // Map EPGs to recordings and create list of all EPGs
             foreach (var recording in recordings)
             {
-                epgToRecordingMapping.Add((int)recording.EpgID, recording.RecordingID);
-                epgIds.Add(recording.EpgID.ToString());
+                epgToRecordingMapping.Add((int)recording.EpgId, recording.Id);
+                epgIds.Add(recording.EpgId.ToString());
             }
 
             EpgBL.TvinciEpgBL epgBL = new TvinciEpgBL(this.groupId);

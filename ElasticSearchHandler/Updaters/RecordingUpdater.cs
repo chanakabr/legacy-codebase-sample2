@@ -67,8 +67,8 @@ namespace ElasticSearchHandler.Updaters
 
             foreach (Recording recording in recordings)
             {
-                epgIds.Add((int)recording.EpgID);
-                epgToRecordingMapping[(int)recording.EpgID] = recording;
+                epgIds.Add((int)recording.EpgId);
+                epgToRecordingMapping[(int)recording.EpgId] = recording;
             }
 
             // Call to methods in EPG Updater with the EPG IDs we "collected"
@@ -117,7 +117,7 @@ namespace ElasticSearchHandler.Updaters
         {
             ulong result = base.GetDocumentId(epg);
 
-            result = (ulong)(epgToRecordingMapping[(int)epg.EpgID].RecordingID);
+            result = (ulong)(epgToRecordingMapping[(int)epg.EpgID].Id);
 
             return result;
         }
@@ -129,7 +129,7 @@ namespace ElasticSearchHandler.Updaters
         /// <returns></returns>
         protected override ulong GetDocumentId(int epgId)
         {
-            return (ulong)(epgToRecordingMapping[epgId].RecordingID);
+            return (ulong)(epgToRecordingMapping[epgId].Id);
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace ElasticSearchHandler.Updaters
         /// <returns></returns>
         protected override string SerializeEPG(ApiObjects.EpgCB epg)
         {
-            long recordingId = (long)(epgToRecordingMapping[(int)epg.EpgID].RecordingID);
+            long recordingId = (long)(epgToRecordingMapping[(int)epg.EpgID].Id);
 
             return esSerializer.SerializeRecordingObject(epg, recordingId);
         }
