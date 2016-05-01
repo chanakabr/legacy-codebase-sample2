@@ -219,7 +219,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             // KalturaRecording to Recording
             Mapper.CreateMap<KalturaRecording, WebAPI.ConditionalAccess.Recording>()
-               .ForMember(dest => dest.EpgID, opt => opt.MapFrom(src => src.EpgID))
+               .ForMember(dest => dest.EpgID, opt => opt.MapFrom(src => src.EpgId))
                .ForMember(dest => dest.RecordingID, opt => opt.MapFrom(src => src.RecordingId))
                .ForMember(dest => dest.RecordingStatus, opt => opt.MapFrom(src => ConvertKalturaRecordingStatus(src.RecordingStatus)))
                .ForMember(dest => dest.LastAvailabilityDate, opt => opt.MapFrom(src => SerializationUtils.ConvertFromUnixTimestamp(src.LastAvailabilityDate)))
@@ -227,7 +227,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             // Recording to KalturaRecording
             Mapper.CreateMap<WebAPI.ConditionalAccess.Recording, KalturaRecording>()
-               .ForMember(dest => dest.EpgID, opt => opt.MapFrom(src => src.EpgID))
+               .ForMember(dest => dest.EpgId, opt => opt.MapFrom(src => src.EpgID))
                .ForMember(dest => dest.RecordingId, opt => opt.MapFrom(src => src.RecordingID))
                .ForMember(dest => dest.RecordingStatus, opt => opt.MapFrom(src => ConvertTstvRecordingStatus(src.RecordingStatus)))
                .ForMember(dest => dest.LastAvailabilityDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.LastAvailabilityDate)))

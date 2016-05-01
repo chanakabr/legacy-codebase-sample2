@@ -32,10 +32,10 @@ namespace WebAPI.Models.ConditionalAccess
         /// <summary>
         /// Kaltura unique ID representing the program identifier
         /// </summary>
-        [DataMember(Name = "epgID")]
-        [JsonProperty("epgID")]
-        [XmlElement(ElementName = "epgID")]
-        public long EpgID { get; set; }
+        [DataMember(Name = "epgId")]
+        [JsonProperty("epgId")]
+        [XmlElement(ElementName = "epgId")]
+        public long EpgId { get; set; }
 
         /// <summary>
         /// Recording Type: single/series

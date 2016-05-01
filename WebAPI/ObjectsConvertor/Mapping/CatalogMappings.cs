@@ -161,6 +161,25 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertAssetType(src.AssetType)));
         }
 
+        //Catalog.StatsType to KalturaAssetType
+        public static StatsType ConvertToStatsType(KalturaAssetType assetType)
+        {
+            StatsType result;
+            switch (assetType)
+            {
+                case KalturaAssetType.media:
+                    result = StatsType.MEDIA;
+                    break;
+                case KalturaAssetType.epg:
+                    result = StatsType.EPG;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown Stats Type");
+            }
+
+            return result;
+        }
+
         //eAssetTypes to KalturaAssetType
         public static KalturaAssetType ConvertAssetType(eAssetTypes assetType)
         {

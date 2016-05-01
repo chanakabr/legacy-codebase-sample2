@@ -1003,6 +1003,7 @@
     <Compile Include="Controllers\NotificationsSettingsController.cs" />
     <Compile Include="Controllers\PaymentMethodProfileController.cs" />
     <Compile Include="Controllers\RegistrySettingsController.cs" />
+    <Compile Include="Controllers\StatisticsController.cs" />
     <Compile Include="Controllers\TimeShiftedTvPartnerSettingsController.cs" />
     <Compile Include="Controllers\VersionController.cs" />
     <Compile Include="Controllers\HouseholdLimitationsController.cs" />
@@ -1058,6 +1059,7 @@
     <Compile Include="Managers\Models\AppToken.cs" />
     <Compile Include="Managers\Models\KSUtils.cs" />
     <Compile Include="Managers\RolesManager.cs" />
+    <Compile Include="Models\Catalog\KalturaAssetStatisticsListResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaCDVRAdapterProfile.cs" />
     <Compile Include="Models\API\KalturaPermissionsFilter.cs" />
     <Compile Include="Models\API\KalturaExportFilter.cs" />

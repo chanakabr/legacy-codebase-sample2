@@ -1147,12 +1147,6 @@ namespace WebAPI.Clients
                 // internal web service exception
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
-
-            if (response.Recordings == null || response.Recordings.Length != 1)
-            {
-                // internal web service exception
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
             
             if (response.Recordings != null && response.Recordings.Length > 0)
             {
@@ -1173,7 +1167,7 @@ namespace WebAPI.Clients
                         recording = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaRecording>(requestedRecording);
                         recording.Asset = (KalturaAssetInfo)assetInfo;
                         recording.RecordingType = KalturaRecordingType.single;
-                        recording.LastAvailabilityDate = 0;                    
+                        recording.LastAvailabilityDate = 0;
                     }
                 }                
             }

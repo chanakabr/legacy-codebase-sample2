@@ -89,7 +89,7 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
                 // call client                
-                response = ClientsManager.ConditionalAccessClient().Record(groupId, userId, recording.EpgID);
+                response = ClientsManager.ConditionalAccessClient().Record(groupId, userId, recording.EpgId);
             }
             catch (ClientException ex)
             {
