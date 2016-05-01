@@ -1468,6 +1468,38 @@ namespace DAL
             }
         }
 
+        public static void UnlockDeviceNotificationDocument(int groupId, string udid, ulong cas)
+        {
+            string docKey = GetDeviceDataKey(groupId, udid);
+            try
+            {
+                if (cbManager.Unlock(docKey, cas))
+                    log.DebugFormat("document unlocked {0}", docKey);
+                else
+                    log.ErrorFormat("error unlocking document {0}", docKey);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to unlock device notification object. key: {0}, cas: {1}, ex: {2}", docKey, cas, ex);
+            }
+        }
+
+        public static void UnlockUserNotificationDocument(int groupId, int userId, ulong cas)
+        {
+            string docKey = GetUserNotificationKey(groupId, userId);
+            try
+            {
+                if (cbManager.Unlock(docKey, cas))
+                    log.DebugFormat("document unlocked {0}", docKey);
+                else
+                    log.ErrorFormat("error unlocking document {0}", docKey);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to unlock user notification object. key: {0}, cas: {1}, ex: {2}", docKey, cas, ex);
+            }
+        }
+
         public static eOTTAssetTypes GetOttAssetTypByMediaType(int mediaTypeId)
         {
             eOTTAssetTypes assetType = eOTTAssetTypes.None;
