@@ -88,5 +88,10 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "stats", IsNullable = true)]
         public KalturaAssetStatistics Statistics { get; set; }
 
+
+        internal int getType()
+        {
+            return Type.HasValue ? (int)Type : 0;
+        }
     }
 }
