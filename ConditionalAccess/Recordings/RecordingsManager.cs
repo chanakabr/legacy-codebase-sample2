@@ -73,7 +73,7 @@ namespace Recordings
             {
                 recording = new Recording();
                 recording.Status = null;
-                recording.EpgID = programId;
+                recording.EpgId = programId;
                 recording.EpgStartDate = startDate;
                 recording.EpgEndDate = endDate;
                 recording.ChannelId = epgChannelID;
@@ -131,7 +131,7 @@ namespace Recordings
 
                         if (adapterResponse.Links != null)
                         {
-                            ConditionalAccessDAL.InsertRecordingLinks(adapterResponse.Links, groupId, recording.RecordingID);
+                            ConditionalAccessDAL.InsertRecordingLinks(adapterResponse.Links, groupId, recording.Id);
                         }
 
                         // Update Couchbase that the EPG is recorded
@@ -148,7 +148,7 @@ namespace Recordings
                             recording.RecordingStatus == TstvRecordingStatus.Recording ||
                             recording.RecordingStatus == TstvRecordingStatus.Scheduled)
                         {
-                            UpdateIndex(groupId, recording.RecordingID);
+                            UpdateIndex(groupId, recording.Id);
                         }
 
                         // Schedule a message tocheck status 1 minute after recording of program is supposed to be over
@@ -156,7 +156,7 @@ namespace Recordings
                         DateTime checkTime = endDate.AddMinutes(1);
                         eRecordingTask task = eRecordingTask.GetStatusAfterProgramEnded;
 
-                        EnqueueMessage(groupId, programId, recording.RecordingID, checkTime, task);
+                        EnqueueMessage(groupId, programId, recording.Id, checkTime, task);
 
                         // We're OK
                         recording.Status = new Status((int)eResponseStatus.OK);
@@ -227,7 +227,7 @@ namespace Recordings
                             return new Status((int)eResponseStatus.Error, "Failed update recording");
                         }
 
-                        UpdateCouchbaseIsRecorded(groupId, recording.EpgID, false);
+                        UpdateCouchbaseIsRecorded(groupId, recording.EpgId, false);
 
                         // We're OK
                         status = new Status((int)eResponseStatus.OK);
@@ -323,7 +323,7 @@ namespace Recordings
             }
             else
             {
-                long recordingId = recording.RecordingID;
+                long recordingId = recording.Id;
 
                 // First of all - if EPG was updated, update the recording index, nevermind what was the change
                 UpdateIndex(groupId, recordingId);
@@ -460,7 +460,7 @@ namespace Recordings
         {
             string message = string.Format("Adapter failed for reason: {0}. Provider code = {1}, provider message = {2}, fail reason = {3}",
                 adapterResponse.FailReason, adapterResponse.ProviderStatusCode, adapterResponse.ProviderStatusMessage, adapterResponse.FailReason);
-            Status failStatus = new Status((int)eResponseStatus.CdvrAdapterProviderFail, message);
+            Status failStatus = new Status((int)eResponseStatus.Error, message);
             return failStatus;
         }
 

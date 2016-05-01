@@ -16995,7 +16995,7 @@ namespace ConditionalAccess
         */
         public Recording Record(string userID, long epgID)
         {
-            Recording recording = new Recording() { EpgID = epgID };
+            Recording recording = new Recording() { EpgId = epgID };
             try
             {
                 long domainID = 0;
@@ -17006,12 +17006,12 @@ namespace ConditionalAccess
                     return recording;
                 }
 
-                if (recording.RecordingID == 0 || !Utils.IsValidRecordingStatus(recording.RecordingStatus))
+                if (recording.Id == 0 || !Utils.IsValidRecordingStatus(recording.RecordingStatus))
                 {
                     log.DebugFormat("Recording ID is 0 or RecordingStatus not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
-                    recording = RecordingsManager.Instance.Record(m_nGroupID, recording.EpgID, recording.ChannelId, recording.EpgStartDate, recording.EpgEndDate, userID, domainID);
+                    recording = RecordingsManager.Instance.Record(m_nGroupID, recording.EpgId, recording.ChannelId, recording.EpgStartDate, recording.EpgEndDate, userID, domainID);
                     if (recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK
-                        && recording.RecordingID > 0 && Utils.IsValidRecordingStatus(recording.RecordingStatus))
+                        && recording.Id > 0 && Utils.IsValidRecordingStatus(recording.RecordingStatus))
                     {
                         if (!ConditionalAccessDAL.UpdateOrInsertDomainRecording(m_nGroupID, long.Parse(userID), domainID, recording))
                         {
@@ -17038,7 +17038,7 @@ namespace ConditionalAccess
 
         public Recording QueryRecord(string userID, long epgID, ref long domainID)
         {
-            Recording recording = new Recording() { EpgID = epgID };
+            Recording recording = new Recording() { EpgId = epgID };
             try
             {
                 RecordingResponse recordings = QueryRecords(userID, new List<long>() { epgID }, ref domainID);
@@ -17147,7 +17147,7 @@ namespace ConditionalAccess
 
         private Recording QueryEpgRecord(TimeShiftedTvPartnerSettings accountSettings, EPGChannelProgrammeObject epg, long domainID, string userID)
         {
-            Recording response = new Recording() { EpgID = epg.EPG_ID };
+            Recording response = new Recording() { EpgId = epg.EPG_ID };
             try
             {
                 if (epg.ENABLE_CDVR != 1)
@@ -17213,7 +17213,7 @@ namespace ConditionalAccess
                     if (priceValidationPassed)
                     {                        
                         response = ConditionalAccessDAL.GetDomainExistingRecording(m_nGroupID, domainID, epg.EPG_ID);
-                        if (response == null || response.Status.Code != (int)eResponseStatus.OK || response.RecordingID == 0)
+                        if (response == null || response.Status.Code != (int)eResponseStatus.OK || response.Id == 0)
                         {
                             DateTime epgEndDate;
                             if (DateTime.TryParseExact(epg.END_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgEndDate))
@@ -17221,9 +17221,9 @@ namespace ConditionalAccess
                                 response = new Recording()
                                 {
                                     Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString()),
-                                    EpgID = epg.EPG_ID,
+                                    EpgId = epg.EPG_ID,
                                     ChannelId = epg.EPG_CHANNEL_ID,
-                                    RecordingID = 0,
+                                    Id = 0,
                                     RecordingStatus = TstvRecordingStatus.DoesNotExist,
                                     EpgStartDate = epgStartDate,
                                     EpgEndDate = epgEndDate
@@ -17232,7 +17232,7 @@ namespace ConditionalAccess
                             else
                             {
                                 log.ErrorFormat("Failed parsing EPG end date, epgID: {0}, domainID: {1}, userID {2}, startDate: {3}", epg.EPG_ID, domainID, userID, epg.END_DATE);
-                                response = new Recording() { EpgID = epg.EPG_ID, ChannelId = epg.EPG_CHANNEL_ID };
+                                response = new Recording() { EpgId = epg.EPG_ID, ChannelId = epg.EPG_CHANNEL_ID };
                             }
                         }
 
