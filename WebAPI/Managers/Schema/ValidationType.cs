@@ -8,6 +8,7 @@ namespace WebAPI.Managers.Schema
     public enum ValidationType
     {
         NULLABLE,
-        ACTION_NAME
+        ACTION_NAME,
+        FILTER_SUFFIX
     }
 }

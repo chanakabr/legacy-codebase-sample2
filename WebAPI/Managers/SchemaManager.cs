@@ -160,14 +160,14 @@ namespace WebAPI.Managers.Schema
             {
                 if (apiName.Contains('_'))
                 {
-                    logError("Warning", property.DeclaringType, string.Format("Property {0}.{1} ({2}) data member name may not contain underscores", property.ReflectedType.Name, property.Name, property.PropertyType.Name));
+                    logError("Warning", property.DeclaringType, string.Format("Property {0}.{1} ({2}) data member ({3}) name may not contain underscores", property.ReflectedType.Name, property.Name, property.PropertyType.Name, apiName));
                     if (strict)
                         valid = false;
                 }
 
                 if (!Char.IsLower(apiName, 0))
                 {
-                    logError("Warning", property.DeclaringType, string.Format("Property {0}.{1} ({2}) must start with a small lette", property.ReflectedType.Name, property.Name, property.PropertyType.Name));
+                    logError("Warning", property.DeclaringType, string.Format("Property {0}.{1} ({2}) data member ({3}) must start with a small lette", property.ReflectedType.Name, property.Name, property.PropertyType.Name, apiName));
                     if (strict)
                         valid = false;
                 }
@@ -181,7 +181,59 @@ namespace WebAPI.Managers.Schema
 
         private static bool ValidateFilter(Type type, bool strict)
         {
-            return true;
+            bool valid = true;
+
+            string[] availableFilterSuffixes = new string[]{
+			    "LessThan",
+			    "LessThanOrEqual",
+			    "GreaterThan",
+			    "GreaterThanOrEqual",
+			    "LessThanOrNull",
+			    "LessThanOrEqualOrNull",
+			    "GreaterThanOrNull",
+			    "GreaterThanOrEqualOrNull",
+			    "Equal",
+			    "Like",
+			    "MultiLikeOr",
+			    "MultiLikeAnd",
+			    "EndsWith",
+			    "StartsWith",
+			    "In",
+			    "NotIn",
+			    "NotEqual",
+			    "BitAnd",
+			    "BitOr",
+			    "MatchOr",
+			    "MatchAnd",
+			    "NotContains",
+			    "Empty"
+            };
+
+            foreach (PropertyInfo property in type.GetProperties())
+            {
+                if (hasValidationException(property, ValidationType.FILTER_SUFFIX))
+                    continue;
+
+                JsonPropertyAttribute jsonProperty = property.GetCustomAttribute<JsonPropertyAttribute>(true);
+                bool hasRightSuffix = false;
+                foreach (string suffix in availableFilterSuffixes)
+                {
+                    if (jsonProperty.PropertyName.EndsWith(suffix))
+                    {
+                        hasRightSuffix = true;
+                        break;
+                    }
+                }
+
+                if (!hasRightSuffix)
+                {
+                    logError("Warning", property.DeclaringType, string.Format("Filter property {0}.{1} ({2}) data member ({3}) must use on of the following suffixes: {4}", property.ReflectedType.Name, property.Name, property.PropertyType.Name, jsonProperty.PropertyName, String.Join(", ", availableFilterSuffixes)));
+                    if (strict)
+                        valid = false;
+                }
+            }
+
+            return valid;
         }
 
         private static void logError(string category, Type type, string message)
@@ -216,16 +268,16 @@ namespace WebAPI.Managers.Schema
                     valid = false;
             }
 
-            //if (type.IsSubclassOf(typeof(KalturaFilter)))
-            //{
-            //    valid = ValidateFilter(type) && valid;
-            //}
-
-            //if (type.Name.EndsWith("Filter") && !type.IsSubclassOf(typeof(KalturaFilter)))
-            //{
-            //    logError("Error", type, string.Format("Filter {0} must inherit KalturaListResponse", type.Name));
-            //    valid = false;
-            //}
+            if (type.IsSubclassOf(typeof(KalturaFilter)))
+            {
+                valid = ValidateFilter(type, strict) && valid;
+            }
+            else if (type.Name.EndsWith("Filter"))
+            {
+                logError("Warning", type, string.Format("Filter {0} must inherit KalturaFilter", type.Name));
+                if (strict)
+                    valid = false;
+            }
 
             foreach (PropertyInfo property in type.GetProperties())
             {
