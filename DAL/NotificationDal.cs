@@ -736,7 +736,7 @@ namespace DAL
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncementByAnnouncementAndReference");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             sp.AddParameter("@Announcement_ID", announcementId);
-            sp.AddParameter("@message_reference", announcementId);
+            sp.AddParameter("@message_reference", messageReference);
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
