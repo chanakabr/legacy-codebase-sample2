@@ -632,7 +632,7 @@ namespace WebAPI.Clients
             followData.Status = 1;
             followData.Title = mediaInfoResponse.Objects[0].Name;
             followDataNotification = Mapper.Map<FollowDataTvSeries>(followData);
-            followDataNotification.Type = mediaInfoResponse.Objects[0].Type;
+            followDataNotification.Type = mediaInfoResponse.Objects[0].getType();
 
             try
             {

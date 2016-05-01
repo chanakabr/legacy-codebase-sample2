@@ -47,5 +47,10 @@ namespace WebAPI.Models.Catalog
             get;
             set;
         }
+
+        internal long getId()
+        {
+            return Id.HasValue ? (long)Id : 0;
+        }
     }
 }

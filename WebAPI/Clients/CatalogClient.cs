@@ -1117,7 +1117,7 @@ namespace WebAPI.Clients
                 m_sUserIP = Utils.Utils.GetClientIP(),
                 m_nGroupID = groupId,
                 filterQuery = filter,
-                specificAssets = assets.Select(asset => new KeyValuePairOfeAssetTypeslongHVR2FNfI(){ key = eAssetTypes.MEDIA, value = asset.Id }).ToList()
+                specificAssets = assets.Select(asset => new KeyValuePairOfeAssetTypeslongHVR2FNfI(){ key = eAssetTypes.MEDIA, value = asset.getId() }).ToList()
                 //assetTypes = assetTypes,
             };
 

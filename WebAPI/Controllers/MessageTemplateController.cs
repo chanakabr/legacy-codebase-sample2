@@ -8,7 +8,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/MessageTemplate/action")]
+    [RoutePrefix("_service/messageTemplate/action")]
     public class MessageTemplateController : ApiController
     {
         /// <summary>

@@ -13,7 +13,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/Recording/action")]
+    [RoutePrefix("_service/recording/action")]
     public class RecordingController : ApiController
     {
         /// <summary>
@@ -44,15 +44,16 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Query record options for a program
         /// </summary>
-        /// <param name="assetId">Internal identifier of the asset</param>
+        /// <param name="assetId">Comma seperated, internal identifier of the asset</param>
         /// <returns></returns>
         /// <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024,
         /// ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, AccountCatchUpNotEnabled = 3034, ProgramCdvrNotEnabled = 3035,
         /// ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, ProgramNotInRecordingScheduleWindow = 3039, InvalidAssetId = 4024</remarks>
         [Route("getContext"), HttpPost]
         [ApiAuthorize]
-        public List<KalturaRecording> GetContext(long[] assetIds)
+        public List<KalturaRecording> GetContext(string assetIds)
         {
+            var ids = assetIds.Split(',').Select(id => long.Parse(id));
             List<KalturaRecording> response = null;
 
             try
@@ -60,7 +61,7 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
                 // call client                
-                response = ClientsManager.ConditionalAccessClient().QueryRecords(groupId, userId, assetIds);
+                response = ClientsManager.ConditionalAccessClient().QueryRecords(groupId, userId, ids.ToArray());
             }
             catch (ClientException ex)
             {
@@ -134,7 +135,7 @@ namespace WebAPI.Controllers
 
                 // call client                
                 response = ClientsManager.ConditionalAccessClient().SearchRecordings(groupId, userId, domainId, filter.StatusIn.Select(x => x.status).ToList(),
-                                                                                     filter.FilterExpression, pager.PageIndex, pager.PageSize, filter.OrderBy, string.Empty);
+                                                                                     filter.FilterExpression, pager.getPageIndex(), pager.PageSize, filter.OrderBy, string.Empty);
             }
             catch (ClientException ex)
             {
