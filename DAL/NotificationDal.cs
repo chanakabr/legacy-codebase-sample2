@@ -733,7 +733,7 @@ namespace DAL
 
         public static DataRowCollection Get_MessageAnnouncementsByAnnouncementId(int announcementId)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncementById");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncementByAnnouncementId");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             sp.AddParameter("@Announcement_ID", announcementId);
             DataSet ds = sp.ExecuteDataSet();
