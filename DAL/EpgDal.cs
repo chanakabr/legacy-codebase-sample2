@@ -645,7 +645,7 @@ namespace Tvinci.Core.DAL
             return dataSet;
         }
 
-        public static List<long> GetEpgIds(int epgChannelID, int groupId, DateTime fromDate, DateTime toDate)
+        public static List<long> GetEpgIds(int epgChannelID, int groupId, DateTime fromDate, DateTime toDate, int? status = null)
         {
             List<long> list = null;
             try
@@ -658,6 +658,10 @@ namespace Tvinci.Core.DAL
                 sp.AddParameter("@groupID", groupId);
                 sp.AddParameter("@fromDate", fromDate);
                 sp.AddParameter("@toDate", toDate);
+                if (status != null)
+                {
+                    sp.AddParameter("@status", status);
+                }
                 DataSet ds = sp.ExecuteDataSet();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {

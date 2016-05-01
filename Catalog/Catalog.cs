@@ -6423,32 +6423,56 @@ namespace Catalog
             return Catalog.Update(recordingsIds, groupId, eObjectType.Recording, action);
         }
 
-        public static bool RebuildEpgChannel(int groupId, int epgChannelID, DateTime fromDate, DateTime toDate)
+        public static bool RebuildEpgChannel(int groupId, int epgChannelID, DateTime fromDate, DateTime toDate, bool duplicates)
+        {           
+            try
+            {
+                if (duplicates)
+                {
+                    return RemoveDuplicatesEpgPrograms(groupId, epgChannelID, fromDate, toDate);
+                }
+                else
+                {
+                    return RebuildEpgProgramsChannel(groupId, epgChannelID, fromDate, toDate);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("RebuildGroup:{0}, ex:{1}", groupId, ex.Message), ex);
+            }
+
+            return false;
+        }
+
+        private static bool RebuildEpgProgramsChannel(int groupId, int epgChannelID, DateTime fromDate, DateTime toDate)
         {
             bool res = false;
             try
-            {
-               List<LanguageObj> groupLang = CatalogDAL.GetGroupLanguages(groupId);
-               string mainLang = groupLang.Where(x => x.IsDefault).Select(x => x.Code).FirstOrDefault();
+            {                
+                List<LanguageObj> groupLang = CatalogDAL.GetGroupLanguages(groupId);
+                string mainLang = groupLang.Where(x => x.IsDefault).Select(x => x.Code).FirstOrDefault();
 
-                log.DebugFormat("RebuildEpgChannel:{0}, epgChannelID:{1}", groupId, epgChannelID);
+                log.DebugFormat("RebuildEpgChannel:{0}, epgChannelID:{1}, fromDate:{2}, toDate:{3}", groupId, epgChannelID, fromDate, toDate);
                 DataSet ds = EpgDal.Get_EpgProgramsDetailsByChannelIds(groupId, epgChannelID, fromDate, toDate);
                 List<EpgCB> epgs = ConvertToEpgCB(ds, mainLang);
 
+                // get all epg program ids from DB in channel ID between date (all statuses)
+                List<long> lProgramsID = GetEpgIds(epgChannelID, groupId, fromDate, toDate);
+                log.DebugFormat("RebuildEpgProgramsChannel : lProgramsID:{0}, epgChannelID:{1}", string.Join(",", lProgramsID), epgChannelID);
+
                 // delete all current Epgs in CB related to channel between dates 
                 BaseEpgBL epgBL = EpgBL.Utils.GetInstance(groupId);
-                epgBL.RemoveGroupPrograms(fromDate, toDate, epgChannelID);
+                epgBL.RemoveGroupPrograms(lProgramsID.ConvertAll<int>(x => (int)x));
                 // insert all above         
                 foreach (EpgCB epg in epgs)
                 {
                     ulong epgID = 0;
                     epgBL.InsertEpg(epg, out epgID);
-                }                
+                }
 
                 // Delete from ES 
                 // get all programs 
-                // Delete all EpgIdentifiers that are not needed (per channel per day)
-                List<long> lProgramsID = GetEpgIds(epgChannelID, groupId, fromDate, toDate);
+                // Delete all EpgIdentifiers that are not needed (per channel per day)               
                 bool resultEpgIndex;
                 if (lProgramsID != null && lProgramsID.Count > 0)
                 {
@@ -6459,13 +6483,35 @@ namespace Catalog
                 // insert to ES 
                 List<long> epgIds = epgs.Select(e => (long)e.EpgID).ToList<long>();
                 resultEpgIndex = UpdateEpgIndex(epgIds, groupId, ApiObjects.eAction.Update);
+                res = true;                
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("RebuildGroup:{0}, ex:{1}", groupId, ex.Message), ex);
+                log.ErrorFormat("RebuildEpgProgramsChannel:{0}, epgChannelID:{1}, fromDate:{2}, toDate:{3}, ex:{4}", 
+                    groupId, epgChannelID, fromDate, toDate, ex.InnerException);
+                return false;
             }
+            return res;
+        }
 
-            return res; 
+        private static bool RemoveDuplicatesEpgPrograms(int groupId, int epgChannelID, DateTime fromDate, DateTime toDate)
+        {           
+            try
+            {
+                List<long> epgIds = EpgDal.GetEpgIds(epgChannelID, groupId, fromDate, toDate, 2);
+                if (epgIds != null && epgIds.Count > 0)
+                {
+                    BaseEpgBL epgBL = EpgBL.Utils.GetInstance(groupId);
+                    epgBL.RemoveGroupPrograms(epgIds.ConvertAll<int>(x => (int)x));
+                    bool resultEpgIndex = UpdateEpgIndex(epgIds, groupId, ApiObjects.eAction.Delete);                    
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+            return false;
         }
 
         private static List<long> GetEpgIds(int epgChannelID, int groupId, DateTime fromDate, DateTime toDate)
