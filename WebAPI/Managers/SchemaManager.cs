@@ -5,9 +5,11 @@ using System.IO;
 using System.Reflection;
 using System.Linq;
 using WebAPI.Models.General;
-using System.Runtime.Serialization;
 using System.Web.Http;
 using System.Xml;
+using System.Globalization;
+using System.Runtime.Serialization;
+using Newtonsoft.Json;
 
 namespace WebAPI.Managers.Schema
 {
@@ -112,9 +114,9 @@ namespace WebAPI.Managers.Schema
             return ValidateObject(type, strict) && valid;
         }
 
-        private static bool hasValidationException(PropertyInfo property, ValidationType type)
+        private static bool hasValidationException(ICustomAttributeProvider attributeProvider, ValidationType type)
         {
-            object[] attributes = property.GetCustomAttributes(true);
+            object[] attributes = attributeProvider.GetCustomAttributes(true);
             foreach (Attribute attribute in attributes)
             {
                 if (attribute.GetType() == typeof(ValidationException))
@@ -154,11 +156,21 @@ namespace WebAPI.Managers.Schema
                 logError("Error", property.DeclaringType, string.Format("Data member attribute is not defined for property {0}.{1} ({2})", property.ReflectedType.Name, property.Name, property.PropertyType.Name));
                 valid = false;
             }
-            else if (apiName.Contains('_'))
+            else
             {
-                logError("Warning", property.DeclaringType, string.Format("Property {0}.{1} ({2}) data member name may not contain underscores", property.ReflectedType.Name, property.Name, property.PropertyType.Name));
-                if (strict)
-                    valid = false;
+                if (apiName.Contains('_'))
+                {
+                    logError("Warning", property.DeclaringType, string.Format("Property {0}.{1} ({2}) data member name may not contain underscores", property.ReflectedType.Name, property.Name, property.PropertyType.Name));
+                    if (strict)
+                        valid = false;
+                }
+
+                if (!Char.IsLower(apiName, 0))
+                {
+                    logError("Warning", property.DeclaringType, string.Format("Property {0}.{1} ({2}) must start with a small lette", property.ReflectedType.Name, property.Name, property.PropertyType.Name));
+                    if (strict)
+                        valid = false;
+                }
             }
 
             string description = string.Format("Property {0}.{1} ({2})", property.ReflectedType.Name, property.Name, property.PropertyType.Name);
@@ -180,11 +192,21 @@ namespace WebAPI.Managers.Schema
         private static bool ValidateObject(Type type, bool strict)
         {
             bool valid = true;
-
-            if (type.Name.EndsWith("ListResponse") && type != typeof(KalturaListResponse) && !type.IsSubclassOf(typeof(KalturaListResponse)))
+            
+            if (type.Name.EndsWith("ListResponse"))
             {
-                logError("Error", type, string.Format("List response {0} must inherit KalturaListResponse", type.Name));
-                valid = false;
+                if (type != typeof(KalturaListResponse) && !type.IsSubclassOf(typeof(KalturaListResponse)))
+                {
+                    logError("Error", type, string.Format("List response {0} must inherit KalturaListResponse", type.Name));
+                    valid = false;
+                }
+
+                PropertyInfo objectsProperty = getObjectsProperty(type);
+                if (objectsProperty == null)
+                {
+                    logError("Error", type, string.Format("List response {0} must implement objects attribute", type.Name));
+                    valid = false;
+                }
             }
 
             if (type.IsSubclassOf(typeof(KalturaFilterPager)))
@@ -342,6 +364,13 @@ namespace WebAPI.Managers.Schema
                     valid = false;
             }
 
+            if (!Char.IsLower(param.Name, 0))
+            {
+                logError("Warning", controller, string.Format("Parameter {0} in method {1}.{2} ({3}) must start with a small letter", param.Name, serviceId, actionId, controller.Name));
+                if (strict)
+                    valid = false;
+            }
+
             string description = string.Format("Parameter {0} in method {1}.{2} ({3})", param.Name, serviceId, actionId, controller.Name);
             valid = ValidateAttribute(controller, param.ParameterType, description, strict) && valid;
 
@@ -359,7 +388,49 @@ namespace WebAPI.Managers.Schema
             if (route == null)
             {
                 logError("Error", controller, string.Format("Action {0}.{1} ({2}) has no routing attribute", serviceId, action.Name, controller.Name));
-                valid = false;
+                return false;
+            }
+
+            string actionId = route.Template;
+            if (actionId != "get" && actionId != "add" && actionId != "update" && actionId != "delete" && actionId != "list" && !hasValidationException(action, ValidationType.ACTION_NAME))
+            {
+                logError("Warning", controller, string.Format("Action {0}.{1} ({2}) has non-standard name (add, update, get, delete and list are allowed)", serviceId, actionId, controller.Name));
+                if (strict)
+                    valid = false;
+            }
+
+            if (actionId == "get" || actionId == "add" || actionId == "update")
+            {
+                string expectedObjectType = string.Format("Kaltura{0}", FirstCharacterToUpper(serviceId));
+                if (action.ReturnType.Name != expectedObjectType)
+                {
+                    logError("Warning", controller, string.Format("Action {0}.{1} ({2}) returned type is {3}, expected {4}", serviceId, actionId, controller.Name, action.ReturnType.Name, expectedObjectType));
+                    if (strict)
+                        valid = false;
+                }
+            }
+
+            if (actionId == "list")
+            {
+                string expectedObjectType = string.Format("Kaltura{0}ListResponse", FirstCharacterToUpper(serviceId));
+                string expectedResponseType = string.Format("Kaltura{0}ListResponse", FirstCharacterToUpper(serviceId));
+                if (action.ReturnType.Name != expectedResponseType)
+                {
+                    logError("Warning", controller, string.Format("Action {0}.{1} ({2}) returned type is {3}, expected {4}", serviceId, actionId, controller.Name, action.ReturnType.Name, expectedResponseType));
+                    if (strict)
+                        valid = false;
+                }
+                else
+                {
+                    PropertyInfo objectsProperty = getObjectsProperty(action.ReturnType);
+                    Type arrayType = objectsProperty.PropertyType.GetGenericArguments()[0];
+                    if (arrayType.Name != expectedObjectType)
+                    {
+                        logError("Warning", controller, string.Format("Action {0}.{1} ({2}) returned list-response contains array of {3}, expected {4}", serviceId, actionId, controller.Name, arrayType.Name, expectedObjectType));
+                        if (strict)
+                            valid = false;
+                    }
+                }
             }
 
             foreach (var param in action.GetParameters())
@@ -368,6 +439,18 @@ namespace WebAPI.Managers.Schema
             }
 
             return valid;
+        }
+
+        public static PropertyInfo getObjectsProperty(Type listResponseType)
+        {
+            foreach (PropertyInfo property in listResponseType.GetProperties())
+            {
+                JsonPropertyAttribute jsonProperty = property.GetCustomAttribute<JsonPropertyAttribute>(true);
+                if (jsonProperty.PropertyName == "objects")
+                    return property;
+            }
+
+            return null;
         }
 
         public static string getServiceId(Type controller)
@@ -381,6 +464,14 @@ namespace WebAPI.Managers.Schema
                 return str;
 
             return Char.ToLowerInvariant(str[0]) + str.Substring(1);
+        }
+
+        public static string FirstCharacterToUpper(string str)
+        {
+            if (String.IsNullOrEmpty(str) || Char.IsUpper(str, 0))
+                return str;
+
+            return Char.ToUpper(str[0]) + str.Substring(1);
         }
     }
 }

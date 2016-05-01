@@ -7,6 +7,7 @@ namespace WebAPI.Managers.Schema
 {
     public enum ValidationType
     {
-        NULLABLE
+        NULLABLE,
+        ACTION_NAME
     }
 }
