@@ -291,7 +291,6 @@ namespace Recordings
                 // If the program finished already or not: if it didn't finish, then the recording obviously didn't finish...
                 if (currentRecording.EpgEndDate < DateTime.Now)
                 {
-
                     var timeSpan = DateTime.UtcNow - currentRecording.EpgEndDate;
 
                     // Only if the difference is less than 5 minutes we continue
@@ -299,9 +298,10 @@ namespace Recordings
                     {
                         // Count current try to get status - first and foremost
                         currentRecording.GetStatusRetries++;
-                        DateTime nextCheck = DateTime.UtcNow.AddMinutes(MINUTES_RETRY_INTERVAL);
 
                         UpdateRecording(groupId, currentRecording.EpgId, currentRecording.EpgStartDate, currentRecording.EpgEndDate);
+
+                        DateTime nextCheck = DateTime.UtcNow.AddMinutes(MINUTES_RETRY_INTERVAL);
 
                         int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
 
@@ -323,6 +323,7 @@ namespace Recordings
 
                         if (currentRecording.Status != null)
                         {
+                            // Retry in a few minutes if we still have retries left.
                             if (currentRecording.GetStatusRetries <= MAXIMUM_RETRIES_ALLOWED)
                             {
                                 EnqueueMessage(groupId, currentRecording.EpgId, currentRecording.Id, nextCheck, eRecordingTask.GetStatusAfterProgramEnded);
@@ -360,6 +361,7 @@ namespace Recordings
                                 currentRecording.RecordingStatus = TstvRecordingStatus.Recorded;
                             }
 
+                            // Update recording after updating the status
                             ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1);
 
                             // After we know that recording was succesful,
@@ -500,6 +502,8 @@ namespace Recordings
             foreach (var recording in recordings)
             {
                 FixRecordingStatus(recording);
+
+                recording.Status = new Status();
             }
 
             return recordings;
@@ -510,6 +514,7 @@ namespace Recordings
             Recording recording = ConditionalAccessDAL.GetRecordingByRecordingId(recordingId);
 
             FixRecordingStatus(recording);
+            recording.Status = new Status();
 
             return recording;
         }
@@ -562,7 +567,7 @@ namespace Recordings
             return failStatus;
         }
 
-        private static void FixRecordingStatus(Recording recording)
+        public static void FixRecordingStatus(Recording recording)
         {
             if (recording.RecordingStatus == TstvRecordingStatus.Scheduled)
             {
