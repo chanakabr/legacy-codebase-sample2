@@ -1195,8 +1195,16 @@ namespace WebAPI.Clients
             {
                 result = new KalturaRecordingContextListResponse() { Objects = new List<KalturaRecordingContext>(), TotalCount = 0 };
                 result.TotalCount = response.TotalItems;
-                // convert recordings            
-                result.Objects = Mapper.Map<List<WebAPI.Models.ConditionalAccess.KalturaRecordingContext>>(response.Recordings);
+                // convert recordings
+                foreach (Recording recording in response.Recordings)
+                {
+                    KalturaRecordingContext recordingContext = new KalturaRecordingContext() { QueryStatus = recording.Status.Code, Recording = null };
+                    if (recording.Status.Code == (int)StatusCode.OK)
+                    {
+                        recordingContext.Recording = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaRecording>(recording);
+                    }
+                    result.Objects.Add(recordingContext);
+                }                
             }
 
             return result;
