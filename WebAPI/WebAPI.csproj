@@ -1112,6 +1112,8 @@
     <Compile Include="Models\Catalog\KalturaAssetsBookmarksResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaRecording.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaRecordingContext.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaRecordingContextFilter.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaRecordingContextListResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaRecordingFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaRecordingListResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaRecordingOrder.cs" />

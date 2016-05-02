@@ -13,6 +13,14 @@ namespace WebAPI.Models.ConditionalAccess
     {
 
         /// <summary>
+        /// query status
+        /// </summary>
+        [DataMember(Name = "queryStatus")]
+        [JsonProperty("queryStatus")]
+        [XmlElement(ElementName = "queryStatus", IsNullable = true)]
+        public int QueryStatus { get; set; }
+
+        /// <summary>
         /// Recording object
         /// </summary>
         [DataMember(Name = "recording")]

@@ -68,8 +68,6 @@ namespace WebAPI.ConditionalAccess {
         
         private System.Threading.SendOrPostCallback QueryRecordsOperationCompleted;
         
-        private System.Threading.SendOrPostCallback QueryRecordOperationCompleted;
-        
         private System.Threading.SendOrPostCallback GetRecordingStatusOperationCompleted;
         
         private System.Threading.SendOrPostCallback SearchDomainRecordingsOperationCompleted;
@@ -344,9 +342,6 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         public event QueryRecordsCompletedEventHandler QueryRecordsCompleted;
-        
-        /// <remarks/>
-        public event QueryRecordCompletedEventHandler QueryRecordCompleted;
         
         /// <remarks/>
         public event GetRecordingStatusCompletedEventHandler GetRecordingStatusCompleted;
@@ -1406,41 +1401,6 @@ namespace WebAPI.ConditionalAccess {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/QueryRecord", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Recording QueryRecord(string sWSUserName, string sWSPassword, string userID, long epgID) {
-            object[] results = this.Invoke("QueryRecord", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        userID,
-                        epgID});
-            return ((Recording)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void QueryRecordAsync(string sWSUserName, string sWSPassword, string userID, long epgID) {
-            this.QueryRecordAsync(sWSUserName, sWSPassword, userID, epgID, null);
-        }
-        
-        /// <remarks/>
-        public void QueryRecordAsync(string sWSUserName, string sWSPassword, string userID, long epgID, object userState) {
-            if ((this.QueryRecordOperationCompleted == null)) {
-                this.QueryRecordOperationCompleted = new System.Threading.SendOrPostCallback(this.OnQueryRecordOperationCompleted);
-            }
-            this.InvokeAsync("QueryRecord", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        userID,
-                        epgID}, this.QueryRecordOperationCompleted, userState);
-        }
-        
-        private void OnQueryRecordOperationCompleted(object arg) {
-            if ((this.QueryRecordCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.QueryRecordCompleted(this, new QueryRecordCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetRecordingStatus", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public Recording GetRecordingStatus(string sWSUserName, string sWSPassword, long recordingId) {
             object[] results = this.Invoke("GetRecordingStatus", new object[] {
@@ -1475,7 +1435,7 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/SearchDomainRecordings", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public RecordingResponse SearchDomainRecordings(string sWSUserName, string sWSPassword, string userID, long domainID, TstvRecordingStatus[] recordingStatuses, string filter, int pageIndex, int pageSize, OrderObj orderBy, string requestID) {
+        public RecordingResponse SearchDomainRecordings(string sWSUserName, string sWSPassword, string userID, long domainID, TstvRecordingStatus[] recordingStatuses, string filter, int pageIndex, int pageSize, OrderObj orderBy) {
             object[] results = this.Invoke("SearchDomainRecordings", new object[] {
                         sWSUserName,
                         sWSPassword,
@@ -1485,18 +1445,17 @@ namespace WebAPI.ConditionalAccess {
                         filter,
                         pageIndex,
                         pageSize,
-                        orderBy,
-                        requestID});
+                        orderBy});
             return ((RecordingResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void SearchDomainRecordingsAsync(string sWSUserName, string sWSPassword, string userID, long domainID, TstvRecordingStatus[] recordingStatuses, string filter, int pageIndex, int pageSize, OrderObj orderBy, string requestID) {
-            this.SearchDomainRecordingsAsync(sWSUserName, sWSPassword, userID, domainID, recordingStatuses, filter, pageIndex, pageSize, orderBy, requestID, null);
+        public void SearchDomainRecordingsAsync(string sWSUserName, string sWSPassword, string userID, long domainID, TstvRecordingStatus[] recordingStatuses, string filter, int pageIndex, int pageSize, OrderObj orderBy) {
+            this.SearchDomainRecordingsAsync(sWSUserName, sWSPassword, userID, domainID, recordingStatuses, filter, pageIndex, pageSize, orderBy, null);
         }
         
         /// <remarks/>
-        public void SearchDomainRecordingsAsync(string sWSUserName, string sWSPassword, string userID, long domainID, TstvRecordingStatus[] recordingStatuses, string filter, int pageIndex, int pageSize, OrderObj orderBy, string requestID, object userState) {
+        public void SearchDomainRecordingsAsync(string sWSUserName, string sWSPassword, string userID, long domainID, TstvRecordingStatus[] recordingStatuses, string filter, int pageIndex, int pageSize, OrderObj orderBy, object userState) {
             if ((this.SearchDomainRecordingsOperationCompleted == null)) {
                 this.SearchDomainRecordingsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSearchDomainRecordingsOperationCompleted);
             }
@@ -1509,8 +1468,7 @@ namespace WebAPI.ConditionalAccess {
                         filter,
                         pageIndex,
                         pageSize,
-                        orderBy,
-                        requestID}, this.SearchDomainRecordingsOperationCompleted, userState);
+                        orderBy}, this.SearchDomainRecordingsOperationCompleted, userState);
         }
         
         private void OnSearchDomainRecordingsOperationCompleted(object arg) {
@@ -10127,9 +10085,9 @@ namespace WebAPI.ConditionalAccess {
         
         private System.DateTime epgEndDateField;
         
-        private System.DateTime epgUpdateDateField;
-        
         private RecordingType typeField;
+        
+        private int getStatusRetriesField;
         
         /// <remarks/>
         public Status Status {
@@ -10212,22 +10170,22 @@ namespace WebAPI.ConditionalAccess {
         }
         
         /// <remarks/>
-        public System.DateTime EpgUpdateDate {
-            get {
-                return this.epgUpdateDateField;
-            }
-            set {
-                this.epgUpdateDateField = value;
-            }
-        }
-        
-        /// <remarks/>
         public RecordingType Type {
             get {
                 return this.typeField;
             }
             set {
                 this.typeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int GetStatusRetries {
+            get {
+                return this.getStatusRetriesField;
+            }
+            set {
+                this.getStatusRetriesField = value;
             }
         }
     }
@@ -11611,32 +11569,6 @@ namespace WebAPI.ConditionalAccess {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((RecordingResponse)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    public delegate void QueryRecordCompletedEventHandler(object sender, QueryRecordCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class QueryRecordCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal QueryRecordCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public Recording Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((Recording)(this.results[0]));
             }
         }
     }

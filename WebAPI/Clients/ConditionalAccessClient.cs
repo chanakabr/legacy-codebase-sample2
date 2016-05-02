@@ -1157,9 +1157,9 @@ namespace WebAPI.Clients
             return recording;
         }
 
-        internal List<KalturaRecording> QueryRecords(int groupID, string userID, long[] epgIDs)
+        internal KalturaRecordingContextListResponse QueryRecords(int groupID, string userID, long[] assetIds)
         {
-            List<KalturaRecording> recording = null;
+            KalturaRecordingContextListResponse result = null;            
             RecordingResponse response = null;           
 
             // get group ID
@@ -1170,7 +1170,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {                    
                     // fire request
-                    response = ConditionalAccess.QueryRecords(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, epgIDs);
+                    response = ConditionalAccess.QueryRecords(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, assetIds);
                 }
             }
             catch (Exception ex)
@@ -1185,20 +1185,15 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            if (response.Status.Code != (int)StatusCode.OK)
+            if (response.Recordings != null && response.Recordings.Length > 0)
             {
-                // internal web service exception
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                result = new KalturaRecordingContextListResponse() { Objects = new List<KalturaRecordingContext>(), TotalCount = 0 };
+                result.TotalCount = response.TotalItems;
+                // convert recordings            
+                result.Objects = Mapper.Map<List<WebAPI.Models.ConditionalAccess.KalturaRecordingContext>>(response.Recordings);
             }
 
-            if (response.Recordings != null)
-            {
-                // convert response
-                recording = new List<KalturaRecording>();
-                recording = Mapper.Map<List<WebAPI.Models.ConditionalAccess.KalturaRecording>>(response.Recordings);
-            }
-
-            return recording;
+            return result;
         }
 
         internal KalturaRecording Record(int groupID, string userID, long epgID)
@@ -1242,7 +1237,7 @@ namespace WebAPI.Clients
         }
 
         internal KalturaRecordingListResponse SearchRecordings(int groupID, string userID, long domainID, List<KalturaRecordingStatus> recordingStatuses, string ksqlFilter,
-                                                                int pageIndex, int? pageSize, KalturaRecordingOrder? orderBy, string requestID)
+                                                                int pageIndex, int? pageSize, KalturaRecordingOrder? orderBy)
         {
             KalturaRecordingListResponse result = null;
             RecordingResponse response = null;
@@ -1275,7 +1270,7 @@ namespace WebAPI.Clients
                 {
                     // fire request
                     response = ConditionalAccess.SearchDomainRecordings(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, domainID, convertedRecordingStatuses.ToArray(),
-                                                                          ksqlFilter, pageIndex, pageSize.Value, order, requestID);
+                                                                          ksqlFilter, pageIndex, pageSize.Value, order);
                 }
             }
             catch (Exception ex)

@@ -11,7 +11,7 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.ConditionalAccess
 {
     /// <summary>
-    /// Filtering assets
+    /// Filtering recordings
     /// </summary>
     [Serializable]
     public class KalturaRecordingFilter : KalturaFilter
