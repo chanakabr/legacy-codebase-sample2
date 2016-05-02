@@ -1114,7 +1114,7 @@ namespace WebAPI.Clients
             return adapter;
         }
 
-        internal KalturaRecording GetRecording(int groupID, long recordingID)
+        internal KalturaRecording GetRecording(int groupID, long domainID, long recordingID)
         {
             KalturaRecording recording = null;
             RecordingResponse response = null;
@@ -1127,7 +1127,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = ConditionalAccess.GetRecordingsByIDs(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, new long[] { recordingID });
+                    response = ConditionalAccess.GetRecordingsByIDs(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, domainID, new long[] { recordingID });
                 }
             }
             catch (Exception ex)

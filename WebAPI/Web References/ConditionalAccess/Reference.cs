@@ -1480,27 +1480,29 @@ namespace WebAPI.ConditionalAccess {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://ca.tvinci.com/GetRecordingsByIDs", RequestNamespace="http://ca.tvinci.com/", ResponseNamespace="http://ca.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public RecordingResponse GetRecordingsByIDs(string sWSUserName, string sWSPassword, long[] recordingIDs) {
+        public RecordingResponse GetRecordingsByIDs(string sWSUserName, string sWSPassword, long domainID, long[] recordingIDs) {
             object[] results = this.Invoke("GetRecordingsByIDs", new object[] {
                         sWSUserName,
                         sWSPassword,
+                        domainID,
                         recordingIDs});
             return ((RecordingResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void GetRecordingsByIDsAsync(string sWSUserName, string sWSPassword, long[] recordingIDs) {
-            this.GetRecordingsByIDsAsync(sWSUserName, sWSPassword, recordingIDs, null);
+        public void GetRecordingsByIDsAsync(string sWSUserName, string sWSPassword, long domainID, long[] recordingIDs) {
+            this.GetRecordingsByIDsAsync(sWSUserName, sWSPassword, domainID, recordingIDs, null);
         }
         
         /// <remarks/>
-        public void GetRecordingsByIDsAsync(string sWSUserName, string sWSPassword, long[] recordingIDs, object userState) {
+        public void GetRecordingsByIDsAsync(string sWSUserName, string sWSPassword, long domainID, long[] recordingIDs, object userState) {
             if ((this.GetRecordingsByIDsOperationCompleted == null)) {
                 this.GetRecordingsByIDsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetRecordingsByIDsOperationCompleted);
             }
             this.InvokeAsync("GetRecordingsByIDs", new object[] {
                         sWSUserName,
                         sWSPassword,
+                        domainID,
                         recordingIDs}, this.GetRecordingsByIDsOperationCompleted, userState);
         }
         

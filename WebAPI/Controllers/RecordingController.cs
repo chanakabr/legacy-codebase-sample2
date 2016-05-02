@@ -31,8 +31,9 @@ namespace WebAPI.Controllers
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
+                long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
                 // call client                
-                response = ClientsManager.ConditionalAccessClient().GetRecording(groupId, id);
+                response = ClientsManager.ConditionalAccessClient().GetRecording(groupId, domainId, id);
             }
             catch (ClientException ex)
             {
