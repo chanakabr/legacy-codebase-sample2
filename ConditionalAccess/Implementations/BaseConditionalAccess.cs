@@ -16953,9 +16953,10 @@ namespace ConditionalAccess
             {
                 long domainID = 0;
                 recordingResponse = QueryRecords(userID, new List<long>() { epgID }, ref domainID);
-                if (recordingResponse == null || recordingResponse.Status.Code != (int)eResponseStatus.OK || recordingResponse.TotalItems == 0)
+                if (recordingResponse.Status.Code != (int)eResponseStatus.OK || recordingResponse.TotalItems == 0)
                 {
                     log.DebugFormat("RecordingResponse status not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
+                    recording.Status = recordingResponse.Status;
                     return recording;
                 }
                 recording = recordingResponse.Recordings[0];
