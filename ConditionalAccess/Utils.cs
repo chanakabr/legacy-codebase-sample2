@@ -4279,7 +4279,7 @@ namespace ConditionalAccess
         }
 
         internal static List<Recording> SearchDomainRecordingIDsByFilter(int groupID, string userID, long domainID, Dictionary<long, long> recordingIdToDomainRecordingMap, string filter,
-                                                                        List<Recording> recordingsWithValidStatus, int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy)
+                                                                List<Recording> recordingsWithValidStatus, int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy, ref int totalResults)
         {
             WS_Catalog.IserviceClient client = null;
             List<Recording> recordings = null;
@@ -4320,6 +4320,7 @@ namespace ConditionalAccess
                 {
                     recordings = new List<Recording>();
                     List<long> filteredRecordingIds = new List<long>();
+                    totalResults = response.m_nTotalItems;
                     foreach (UnifiedSearchResult unifiedSearchResult in response.searchResults)
                     {
                         // no need to check epg status since catalog returns only active epg's

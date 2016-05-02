@@ -17061,6 +17061,7 @@ namespace ConditionalAccess
                 log.Error(sb.ToString(), ex);
             }
 
+            response.TotalItems = response.Recordings.Count;
             return response;
         }
 
@@ -17302,7 +17303,8 @@ namespace ConditionalAccess
                     List<Recording> recordingsWithValidStatus = RecordingsManager.Instance.GetRecordingsByIdsAndStatuses(m_nGroupID, recordingIdToDomainRecordingIdMap.Keys.ToList(), recordingStatuses);
                     if (recordingsWithValidStatus != null && recordingsWithValidStatus.Count > 0)
                     {
-                        searchRecordings = Utils.SearchDomainRecordingIDsByFilter(m_nGroupID, userID, domainID, recordingIdToDomainRecordingIdMap, filter, recordingsWithValidStatus, pageIndex, pageSize, orderBy);
+                        int totalResults = 0;
+                        searchRecordings = Utils.SearchDomainRecordingIDsByFilter(m_nGroupID, userID, domainID, recordingIdToDomainRecordingIdMap, filter, recordingsWithValidStatus, pageIndex, pageSize, orderBy, ref totalResults);
                         if (searchRecordings == null)
                         {
                             log.DebugFormat("Failed SearchDomainRecordingIDsByFilter, recordingIDs is null, DomainID: {0}, UserID: {1}, pageIndex: {2}, pageSize: {3}, filter: {4}", domainID, userID, pageIndex, pageSize, filter);
@@ -17311,7 +17313,7 @@ namespace ConditionalAccess
                         }
 
                         response.Recordings = searchRecordings;
-                        response.TotalItems = searchRecordings.Count;
+                        response.TotalItems = totalResults;
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     }
 
