@@ -217,6 +217,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.MainUrl, opt => opt.MapFrom(src => src.mainUrl))
                .ForMember(dest => dest.AltUrl, opt => opt.MapFrom(src => src.altUrl));
 
+            #region Recordings
+
             // KalturaRecording to Recording
             Mapper.CreateMap<KalturaRecording, WebAPI.ConditionalAccess.Recording>()
                .ForMember(dest => dest.EpgId, opt => opt.MapFrom(src => src.AssetId))
@@ -235,7 +237,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<WebAPI.ConditionalAccess.Recording, KalturaRecordingContext>()
                .ForMember(dest => dest.QueryStatus, opt => opt.MapFrom(src => src.Status.Code))
                .ForMember(dest => dest.Recording, opt => opt.MapFrom(src => src));
+
+            #endregion
+
         }
+
+        #region Recording Help Methods
 
         public static WebAPI.ConditionalAccess.TstvRecordingStatus ConvertKalturaRecordingStatus(KalturaRecordingStatus recordingStatus)
         {
@@ -247,9 +254,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 case KalturaRecordingStatus.deleted:
                     result = WebAPI.ConditionalAccess.TstvRecordingStatus.Deleted;
-                    break;
-                case KalturaRecordingStatus.does_not_exists:
-                    result = WebAPI.ConditionalAccess.TstvRecordingStatus.DoesNotExist;
                     break;
                 case KalturaRecordingStatus.failed:
                     result = WebAPI.ConditionalAccess.TstvRecordingStatus.Failed;
@@ -279,9 +283,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 case WebAPI.ConditionalAccess.TstvRecordingStatus.Deleted:
                     result = KalturaRecordingStatus.deleted;
-                    break;
-                case WebAPI.ConditionalAccess.TstvRecordingStatus.DoesNotExist:
-                    result = KalturaRecordingStatus.does_not_exists;
                     break;
                 case WebAPI.ConditionalAccess.TstvRecordingStatus.Failed:
                     result = KalturaRecordingStatus.failed;
@@ -360,6 +361,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
             return result;
         }
+
+        #endregion
 
         // TransactionType to eTransactionType
         public static WebAPI.ConditionalAccess.eTransactionType ConvertTransactionType(KalturaTransactionType clientTransactionType)

@@ -607,7 +607,6 @@
           <s:enumeration value="Recording" />
           <s:enumeration value="Recorded" />
           <s:enumeration value="Canceled" />
-          <s:enumeration value="DoesNotExist" />
           <s:enumeration value="Deleted" />
         </s:restriction>
       </s:simpleType>

@@ -10215,9 +10215,6 @@ namespace WebAPI.ConditionalAccess {
         Canceled,
         
         /// <remarks/>
-        DoesNotExist,
-        
-        /// <remarks/>
         Deleted,
     }
     
