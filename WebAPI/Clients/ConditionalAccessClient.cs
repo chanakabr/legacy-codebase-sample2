@@ -1185,6 +1185,12 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
             if (response.Recordings != null && response.Recordings.Length > 0)
             {
                 result = new KalturaRecordingContextListResponse() { Objects = new List<KalturaRecordingContext>(), TotalCount = 0 };
