@@ -493,14 +493,25 @@ namespace Recordings
             return recording;
         }
 
-        public List<Recording> GetRecordings(List<long> recordingIds)
+        public List<Recording> GetRecordings(int groupId, List<long> recordingIds)
         {
-            List<Recording> recordings = new List<Recording>();
-            Recording recording = ConditionalAccessDAL.GetRecordingByRecordingId(recordingIds.First());
-            FixRecordingStatus(recording);
-            recordings.Add(recording);
+            List<Recording> recordings = ConditionalAccessDAL.GetRecordings(groupId, recordingIds);
+
+            foreach (var recording in recordings)
+            {
+                FixRecordingStatus(recording);
+            }
 
             return recordings;
+        }
+
+        public Recording GetRecording(int groupId, long recordingId)
+        {
+            Recording recording = ConditionalAccessDAL.GetRecordingByRecordingId(recordingId);
+
+            FixRecordingStatus(recording);
+
+            return recording;
         }
 
         #endregion

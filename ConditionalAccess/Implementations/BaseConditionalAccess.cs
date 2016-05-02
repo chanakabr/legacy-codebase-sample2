@@ -17136,11 +17136,7 @@ namespace ConditionalAccess
                         Recording recording = null;
                         if (recordingId > 0)
                         {
-                            List<Recording> recordings = RecordingsManager.Instance.GetRecordings(new List<long>() { recordingId });
-                            if (recordings != null && recordings.Count > 0)
-                            {
-                                recording = recordings[0];
-                            }
+                            recording = RecordingsManager.Instance.GetRecording(m_nGroupID, recordingId);
                         }
 
                         if (recording == null || recording.Id == 0)
@@ -17350,7 +17346,7 @@ namespace ConditionalAccess
                     return response;
                 }
 
-                List<Recording> recordings = RecordingsManager.Instance.GetRecordings(recordingIDs);
+                List<Recording> recordings = RecordingsManager.Instance.GetRecordings(this.m_nGroupID, recordingIDs);
                 if (recordings == null || recordings.Count == 0)
                 {
                     log.DebugFormat("No recordingIDs were returned from ConditionalAccessDAL.GetRecordings");
