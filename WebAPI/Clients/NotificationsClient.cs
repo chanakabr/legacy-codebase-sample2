@@ -352,7 +352,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal bool UpdateAnnouncementStatus(int groupId, int id, bool status)
+        internal bool UpdateAnnouncementStatus(int groupId, long id, bool status)
         {
             Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
@@ -379,7 +379,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal bool DeleteAnnouncement(int groupId, int id)
+        internal bool DeleteAnnouncement(int groupId, long id)
         {
             Status response = null;
             Group group = GroupsManager.GetGroup(groupId);

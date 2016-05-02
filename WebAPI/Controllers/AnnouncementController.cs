@@ -83,7 +83,7 @@ namespace WebAPI.Controllers
         /// <remarks>AnnouncementNotFound = 8006, AnnouncementUpdateNotAllowed = 8007, FeatureDisabled = 8009</remarks>
         [Route("updateStatus"), HttpPost]
         [ApiAuthorize]
-        public bool UpdateStatus(int id, bool status)
+        public bool UpdateStatus(long id, bool status)
         {
             bool response = false;
 
@@ -109,7 +109,7 @@ namespace WebAPI.Controllers
         /// <remarks>AnnouncementNotFound = 8006, FeatureDisabled = 8009</remarks>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        public bool Delete(int id)
+        public bool Delete(long id)
         {
             bool response = false;
 

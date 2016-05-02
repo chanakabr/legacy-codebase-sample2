@@ -1295,6 +1295,9 @@ namespace WebAPI.Notifications {
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int AnnouncementIdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private bool EnabledField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -1302,6 +1305,9 @@ namespace WebAPI.Notifications {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int MessageAnnouncementIdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string MessageReferenceField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string NameField;
@@ -1325,6 +1331,19 @@ namespace WebAPI.Notifications {
             }
             set {
                 this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int AnnouncementId {
+            get {
+                return this.AnnouncementIdField;
+            }
+            set {
+                if ((this.AnnouncementIdField.Equals(value) != true)) {
+                    this.AnnouncementIdField = value;
+                    this.RaisePropertyChanged("AnnouncementId");
+                }
             }
         }
         
@@ -1363,6 +1382,19 @@ namespace WebAPI.Notifications {
                 if ((this.MessageAnnouncementIdField.Equals(value) != true)) {
                     this.MessageAnnouncementIdField = value;
                     this.RaisePropertyChanged("MessageAnnouncementId");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string MessageReference {
+            get {
+                return this.MessageReferenceField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.MessageReferenceField, value) != true)) {
+                    this.MessageReferenceField = value;
+                    this.RaisePropertyChanged("MessageReference");
                 }
             }
         }
@@ -1558,6 +1590,12 @@ namespace WebAPI.Notifications {
         
         [System.Runtime.Serialization.EnumMemberAttribute()]
         ChangeUsers = 5,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        EnableUserNotifications = 6,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        DisableUserNotifications = 7,
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -2106,6 +2144,67 @@ namespace WebAPI.Notifications {
         }
     }
     
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="IdsResponse", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Response")]
+    [System.SerializableAttribute()]
+    public partial class IdsResponse : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<int> IdsField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private WebAPI.Notifications.Status StatusField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<int> Ids {
+            get {
+                return this.IdsField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.IdsField, value) != true)) {
+                    this.IdsField = value;
+                    this.RaisePropertyChanged("Ids");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public WebAPI.Notifications.Status Status {
+            get {
+                return this.StatusField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.StatusField, value) != true)) {
+                    this.StatusField = value;
+                    this.RaisePropertyChanged("Status");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="Notifications.INotificationService")]
     public interface INotificationService {
@@ -2209,16 +2308,16 @@ namespace WebAPI.Notifications {
         System.Threading.Tasks.Task<WebAPI.Notifications.Status> UpdateMessageAnnouncementAsync(string sWSUserName, string sWSPassword, WebAPI.Notifications.MessageAnnouncement announcement);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateMessageAnnouncementStatus", ReplyAction="http://tempuri.org/INotificationService/UpdateMessageAnnouncementStatusResponse")]
-        WebAPI.Notifications.Status UpdateMessageAnnouncementStatus(string sWSUserName, string sWSPassword, int id, bool status);
+        WebAPI.Notifications.Status UpdateMessageAnnouncementStatus(string sWSUserName, string sWSPassword, long id, bool status);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateMessageAnnouncementStatus", ReplyAction="http://tempuri.org/INotificationService/UpdateMessageAnnouncementStatusResponse")]
-        System.Threading.Tasks.Task<WebAPI.Notifications.Status> UpdateMessageAnnouncementStatusAsync(string sWSUserName, string sWSPassword, int id, bool status);
+        System.Threading.Tasks.Task<WebAPI.Notifications.Status> UpdateMessageAnnouncementStatusAsync(string sWSUserName, string sWSPassword, long id, bool status);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/DeleteMessageAnnouncement", ReplyAction="http://tempuri.org/INotificationService/DeleteMessageAnnouncementResponse")]
-        WebAPI.Notifications.Status DeleteMessageAnnouncement(string sWSUserName, string sWSPassword, int id);
+        WebAPI.Notifications.Status DeleteMessageAnnouncement(string sWSUserName, string sWSPassword, long id);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/DeleteMessageAnnouncement", ReplyAction="http://tempuri.org/INotificationService/DeleteMessageAnnouncementResponse")]
-        System.Threading.Tasks.Task<WebAPI.Notifications.Status> DeleteMessageAnnouncementAsync(string sWSUserName, string sWSPassword, int id);
+        System.Threading.Tasks.Task<WebAPI.Notifications.Status> DeleteMessageAnnouncementAsync(string sWSUserName, string sWSPassword, long id);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/InitiateNotificationAction", ReplyAction="http://tempuri.org/INotificationService/InitiateNotificationActionResponse")]
         bool InitiateNotificationAction(string sWSUserName, string sWSPassword, WebAPI.Notifications.eUserMessageAction userAction, int userId, string udid, string pushToken);
@@ -2267,6 +2366,12 @@ namespace WebAPI.Notifications {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/Follow", ReplyAction="http://tempuri.org/INotificationService/FollowResponse")]
         System.Threading.Tasks.Task<WebAPI.Notifications.Status> FollowAsync(string sWSUserName, string sWSPassword, int userId, WebAPI.Notifications.FollowDataBase followData);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/Get_FollowedAssetIdsFromAssets", ReplyAction="http://tempuri.org/INotificationService/Get_FollowedAssetIdsFromAssetsResponse")]
+        WebAPI.Notifications.IdsResponse Get_FollowedAssetIdsFromAssets(string sWSUserName, string sWSPassword, int groupId, int userId, System.Collections.Generic.List<int> assets);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/Get_FollowedAssetIdsFromAssets", ReplyAction="http://tempuri.org/INotificationService/Get_FollowedAssetIdsFromAssetsResponse")]
+        System.Threading.Tasks.Task<WebAPI.Notifications.IdsResponse> Get_FollowedAssetIdsFromAssetsAsync(string sWSUserName, string sWSPassword, int groupId, int userId, System.Collections.Generic.List<int> assets);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -2424,19 +2529,19 @@ namespace WebAPI.Notifications {
             return base.Channel.UpdateMessageAnnouncementAsync(sWSUserName, sWSPassword, announcement);
         }
         
-        public WebAPI.Notifications.Status UpdateMessageAnnouncementStatus(string sWSUserName, string sWSPassword, int id, bool status) {
+        public WebAPI.Notifications.Status UpdateMessageAnnouncementStatus(string sWSUserName, string sWSPassword, long id, bool status) {
             return base.Channel.UpdateMessageAnnouncementStatus(sWSUserName, sWSPassword, id, status);
         }
         
-        public System.Threading.Tasks.Task<WebAPI.Notifications.Status> UpdateMessageAnnouncementStatusAsync(string sWSUserName, string sWSPassword, int id, bool status) {
+        public System.Threading.Tasks.Task<WebAPI.Notifications.Status> UpdateMessageAnnouncementStatusAsync(string sWSUserName, string sWSPassword, long id, bool status) {
             return base.Channel.UpdateMessageAnnouncementStatusAsync(sWSUserName, sWSPassword, id, status);
         }
         
-        public WebAPI.Notifications.Status DeleteMessageAnnouncement(string sWSUserName, string sWSPassword, int id) {
+        public WebAPI.Notifications.Status DeleteMessageAnnouncement(string sWSUserName, string sWSPassword, long id) {
             return base.Channel.DeleteMessageAnnouncement(sWSUserName, sWSPassword, id);
         }
         
-        public System.Threading.Tasks.Task<WebAPI.Notifications.Status> DeleteMessageAnnouncementAsync(string sWSUserName, string sWSPassword, int id) {
+        public System.Threading.Tasks.Task<WebAPI.Notifications.Status> DeleteMessageAnnouncementAsync(string sWSUserName, string sWSPassword, long id) {
             return base.Channel.DeleteMessageAnnouncementAsync(sWSUserName, sWSPassword, id);
         }
         
@@ -2502,6 +2607,14 @@ namespace WebAPI.Notifications {
         
         public System.Threading.Tasks.Task<WebAPI.Notifications.Status> FollowAsync(string sWSUserName, string sWSPassword, int userId, WebAPI.Notifications.FollowDataBase followData) {
             return base.Channel.FollowAsync(sWSUserName, sWSPassword, userId, followData);
+        }
+        
+        public WebAPI.Notifications.IdsResponse Get_FollowedAssetIdsFromAssets(string sWSUserName, string sWSPassword, int groupId, int userId, System.Collections.Generic.List<int> assets) {
+            return base.Channel.Get_FollowedAssetIdsFromAssets(sWSUserName, sWSPassword, groupId, userId, assets);
+        }
+        
+        public System.Threading.Tasks.Task<WebAPI.Notifications.IdsResponse> Get_FollowedAssetIdsFromAssetsAsync(string sWSUserName, string sWSPassword, int groupId, int userId, System.Collections.Generic.List<int> assets) {
+            return base.Channel.Get_FollowedAssetIdsFromAssetsAsync(sWSUserName, sWSPassword, groupId, userId, assets);
         }
     }
 }
