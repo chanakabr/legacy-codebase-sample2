@@ -2467,16 +2467,43 @@ namespace DAL
 
         public static Recording InsertRecording(Recording recording, int groupId)
         {
-            bool isOk = recording.RecordingStatus != TstvRecordingStatus.Failed;
-            bool isCanceled = recording.RecordingStatus != TstvRecordingStatus.Canceled;
-            
+            int recordingStatus = 0;
+
+            switch (recording.RecordingStatus)
+            {
+                case TstvRecordingStatus.Scheduled:
+                case TstvRecordingStatus.Recording:
+                case TstvRecordingStatus.Recorded:
+                case TstvRecordingStatus.OK:
+                {
+                    recordingStatus = 0;
+                    break;
+                }
+                case TstvRecordingStatus.Failed:
+                {
+                    recordingStatus = 1;
+                    break;
+                }
+                case TstvRecordingStatus.Canceled:
+                {
+                    recordingStatus = 2;
+                    break;
+                }
+                case TstvRecordingStatus.Deleted:
+                {
+                    recordingStatus = 3;
+                    break;
+                }
+                default:
+                break;
+            }
+
             var insertQuery = new ODBCWrapper.InsertQuery("recordings");
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupId);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", recording.EpgEndDate);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("EPG_PROGRAM_ID", "=", recording.EpgId);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("EXTERNAL_RECORDING_ID", "=", recording.ExternalRecordingId);
-            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_OK", "=", Convert.ToInt32(isOk));
-            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_CANCELED", "=", Convert.ToInt32(isCanceled));
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("RECORDING_STATUS", "=", recordingStatus);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", recording.EpgStartDate);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
@@ -2510,16 +2537,44 @@ namespace DAL
         public static bool UpdateRecording(Recording recording, int groupId, int status, int isActive)
         {
             bool result = false;
-            bool isOk = recording.RecordingStatus != TstvRecordingStatus.Failed;
-            bool isCanceled = recording.RecordingStatus != TstvRecordingStatus.Canceled;
+            int recordingStatus = 0;
+
+            switch (recording.RecordingStatus)
+            {
+                case TstvRecordingStatus.Scheduled:
+                case TstvRecordingStatus.Recording:
+                case TstvRecordingStatus.Recorded:
+                case TstvRecordingStatus.OK:
+                {
+                    recordingStatus = 0;
+                    break;
+                }
+                case TstvRecordingStatus.Failed:
+                {
+                    recordingStatus = 1;
+                    break;
+                }
+                case TstvRecordingStatus.Canceled:
+                {
+                    recordingStatus = 2;
+                    break;
+                }
+                case TstvRecordingStatus.Deleted:
+                {
+                    recordingStatus = 3;
+                    break;
+                }
+                default:
+                break;
+            }
             
             var updateQuery = new ODBCWrapper.UpdateQuery("recordings");
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupId);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", recording.EpgEndDate);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("EPG_PROGRAM_ID", "=", recording.EpgId);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("EXTERNAL_RECORDING_ID", "=", recording.ExternalRecordingId);
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_OK", "=", Convert.ToInt32(isOk));
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_CANCELED", "=", Convert.ToInt32(isCanceled));
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("RECORDING_STATUS", "=", recordingStatus);
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_CANCELED", "=", recordingStatus);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", recording.EpgStartDate);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", status);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", isActive);
@@ -2621,8 +2676,7 @@ namespace DAL
             Recording recording = new Recording();
             recording.EpgId = ODBCWrapper.Utils.ExtractValue<long>(row, "EPG_PROGRAM_ID");
             recording.Id = ODBCWrapper.Utils.ExtractValue<long>(row, "ID");
-            bool isOk = ODBCWrapper.Utils.ExtractBoolean(row, "IS_OK");
-            bool isCanceled = ODBCWrapper.Utils.ExtractBoolean(row, "IS_CANCELED");
+            int recordingStatus = ODBCWrapper.Utils.ExtractInteger(row, "RECORDING_STATUS");
             recording.ExternalRecordingId = ODBCWrapper.Utils.ExtractString(row, "EXTERNAL_RECORDING_ID");
             recording.EpgStartDate = ODBCWrapper.Utils.ExtractDateTime(row, "START_DATE");
             recording.EpgEndDate = ODBCWrapper.Utils.ExtractDateTime(row, "END_DATE");
@@ -2630,29 +2684,40 @@ namespace DAL
 
             TstvRecordingStatus status = TstvRecordingStatus.OK;
 
-            if (isCanceled)
+            switch (recordingStatus)
             {
-                status = TstvRecordingStatus.Canceled;
-            }
-            else if (!isOk)
-            {
-                status = TstvRecordingStatus.Failed;
-            }
-            else
-            {
-                // If program already finished, we say it is recorded
-                if (recording.EpgEndDate < DateTime.UtcNow)
+                case 0:
                 {
-                    status = TstvRecordingStatus.Recorded;
+                    // If program already finished, we say it is recorded
+                    if (recording.EpgEndDate < DateTime.UtcNow)
+                    {
+                        status = TstvRecordingStatus.Recorded;
+                    }
+                    // If program already started but didn't finish, we say it is recording
+                    else if (recording.EpgStartDate < DateTime.UtcNow)
+                    {
+                        status = TstvRecordingStatus.Recording;
+                    }
+                    else
+                    {
+                        status = TstvRecordingStatus.Scheduled;
+                    }
+                    break;
                 }
-                // If program already started but didn't finish, we say it is recording
-                else if (recording.EpgStartDate < DateTime.UtcNow)
+                case 1:
                 {
-                    status = TstvRecordingStatus.Recording;
+                    status = TstvRecordingStatus.Failed;
+                    break;
                 }
-                else
+                case 2:
                 {
-                    status = TstvRecordingStatus.Scheduled;
+                    status = TstvRecordingStatus.Canceled;
+                    break;
+                }
+                default:
+                {
+                    status = TstvRecordingStatus.Deleted;
+                    break;
                 }
             }
 
