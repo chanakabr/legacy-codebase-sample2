@@ -13,12 +13,28 @@ namespace WebAPI.Models.ConditionalAccess
     {
 
         /// <summary>
-        /// query status
+        /// query status code
         /// </summary>
-        [DataMember(Name = "queryStatus")]
-        [JsonProperty("queryStatus")]
-        [XmlElement(ElementName = "queryStatus", IsNullable = true)]
-        public int QueryStatus { get; set; }
+        [DataMember(Name = "code")]
+        [JsonProperty("code")]
+        [XmlElement(ElementName = "code", IsNullable = true)]
+        public int Code { get; set; }
+
+        /// <summary>
+        /// query status message
+        /// </summary>
+        [DataMember(Name = "message")]
+        [JsonProperty("message")]
+        [XmlElement(ElementName = "message", IsNullable = true)]
+        public string Message { get; set; }
+
+        /// <summary>
+        /// Asset identifier
+        /// </summary>
+        [DataMember(Name = "assetId")]
+        [JsonProperty("assetId")]
+        [XmlElement(ElementName = "assetId", IsNullable = true)]
+        public long AssetId { get; set; }
 
         /// <summary>
         /// Recording object

@@ -1198,11 +1198,11 @@ namespace WebAPI.Clients
                 // convert recordings
                 foreach (Recording recording in response.Recordings)
                 {
-                    KalturaRecordingContext recordingContext = new KalturaRecordingContext() { QueryStatus = recording.Status.Code, Recording = null };
-                    if (recording.Status.Code == (int)StatusCode.OK)
+                    KalturaRecordingContext recordingContext = new KalturaRecordingContext() { Code = recording.Status.Code, Message = recording.Status.Message, AssetId = recording.EpgId, Recording = null };
+                    if (recording.Status.Code == (int)StatusCode.OK && recording.RecordingStatus != TstvRecordingStatus.OK)
                     {
                         recordingContext.Recording = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaRecording>(recording);
-                    }
+                    }                    
                     result.Objects.Add(recordingContext);
                 }                
             }

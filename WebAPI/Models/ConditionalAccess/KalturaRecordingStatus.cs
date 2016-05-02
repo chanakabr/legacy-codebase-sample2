@@ -17,8 +17,7 @@ namespace WebAPI.Models.ConditionalAccess
         recorded = 2,
         canceled = 3,
         failed = 4,
-        does_not_exists = 5,
-        deleted = 6
+        deleted = 5
     }
 
     /// <summary>
