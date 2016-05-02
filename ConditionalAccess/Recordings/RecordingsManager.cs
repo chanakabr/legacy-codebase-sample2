@@ -261,7 +261,7 @@ namespace Recordings
                         recording.RecordingStatus = TstvRecordingStatus.Canceled;
 
                         // Update recording information in to database
-                        bool updateResult = ConditionalAccessDAL.UpdateRecording(recording, groupId, 2, 0);
+                        bool updateResult = ConditionalAccessDAL.UpdateRecording(recording, groupId, 1, 1);
 
                         if (!updateResult)
                         {
