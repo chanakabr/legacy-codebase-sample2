@@ -2686,6 +2686,7 @@ namespace DAL
 
             switch (recordingStatus)
             {
+                // 0 = OK
                 case 0:
                 {
                     // If program already finished, we say it is recorded
@@ -2704,16 +2705,19 @@ namespace DAL
                     }
                     break;
                 }
+                // 1 - FAILED
                 case 1:
                 {
                     status = TstvRecordingStatus.Failed;
                     break;
                 }
+                // 2 - CANCELED
                 case 2:
                 {
                     status = TstvRecordingStatus.Canceled;
                     break;
                 }
+                // Other - IDK
                 default:
                 {
                     status = TstvRecordingStatus.Deleted;
@@ -2753,13 +2757,13 @@ namespace DAL
             return result;
         }
 
-        public static List<Recording> GetAllRecordingsByStatus(int groupId, TstvRecordingStatus status)
+        public static List<Recording> GetAllRecordingsByStatus(int groupId, int status)
         {
             return GetAllRecordingsByStatuses(groupId,
-                new List<TstvRecordingStatus>() { status });
+                new List<int>() { status });
         }
 
-        public static List<Recording> GetAllRecordingsByStatuses(int groupId, List<TstvRecordingStatus> statuses)
+        public static List<Recording> GetAllRecordingsByStatuses(int groupId, List<int> statuses)
         {
             List<Recording> recordings = new List<Recording>();
 
