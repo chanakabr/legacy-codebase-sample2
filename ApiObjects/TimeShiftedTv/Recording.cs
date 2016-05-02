@@ -33,8 +33,7 @@ namespace ApiObjects.TimeShiftedTv
         public Recording()
         {
             Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            this.Id = 0;
-            this.RecordingStatus = TstvRecordingStatus.DoesNotExist;
+            this.Id = 0;            
             this.Type = RecordingType.Single;
         }
 

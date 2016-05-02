@@ -16953,9 +16953,10 @@ namespace ConditionalAccess
             {
                 long domainID = 0;
                 recordingResponse = QueryRecords(userID, new List<long>() { epgID }, ref domainID);
-                if (recordingResponse == null || recordingResponse.Status.Code != (int)eResponseStatus.OK || recordingResponse.TotalItems == 0)
+                if (recordingResponse.Status.Code != (int)eResponseStatus.OK || recordingResponse.TotalItems == 0)
                 {
                     log.DebugFormat("RecordingResponse status not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
+                    recording.Status = recordingResponse.Status;
                     return recording;
                 }
                 recording = recordingResponse.Recordings[0];
@@ -17083,7 +17084,8 @@ namespace ConditionalAccess
                 }
 
                 // validate recording schedule window
-                if (accountSettings.RecordingScheduleWindow.HasValue && epgStartDate.AddMinutes(accountSettings.RecordingScheduleWindow.Value) >= DateTime.UtcNow)
+                if (accountSettings.IsRecordingScheduleWindowEnabled.HasValue && accountSettings.IsRecordingScheduleWindowEnabled.Value && 
+                    accountSettings.RecordingScheduleWindow.HasValue && epgStartDate.AddMinutes(accountSettings.RecordingScheduleWindow.Value) >= DateTime.UtcNow)
                 {
                     log.DebugFormat("Program not in recording schedule window, epgID: {0}, domainID: {1}, userID {2}", epg.EPG_ID, domainID, userID);
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramNotInRecordingScheduleWindow, eResponseStatus.ProgramNotInRecordingScheduleWindow.ToString());
@@ -17149,8 +17151,7 @@ namespace ConditionalAccess
                                     Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString()),
                                     EpgId = epg.EPG_ID,
                                     ChannelId = epg.EPG_CHANNEL_ID,
-                                    Id = 0,
-                                    RecordingStatus = TstvRecordingStatus.DoesNotExist,
+                                    Id = 0,                                    
                                     EpgStartDate = epgStartDate,
                                     EpgEndDate = epgEndDate
                                 };
@@ -17287,8 +17288,7 @@ namespace ConditionalAccess
                     return response;
                 }
 
-                Dictionary<long, long> recordingIdToDomainRecordingIdMap = ConditionalAccessDAL.GetDomainRecordings(m_nGroupID, domainID);
-                List<Recording> recordingsWithValidStatus = RecordingsManager.Instance.GetRecordingsByStatuses(m_nGroupID, recordingStatuses);
+                Dictionary<long, long> recordingIdToDomainRecordingIdMap = ConditionalAccessDAL.GetDomainRecordingsByRecordingStatuses(m_nGroupID, domainID, Utils.ConvertToDomainRecordingStatus(recordingStatuses));
                 List<Recording> searchRecordings = null;
                 if (recordingIdToDomainRecordingIdMap == null)
                 {
@@ -17299,17 +17299,21 @@ namespace ConditionalAccess
 
                 if (recordingIdToDomainRecordingIdMap.Count > 0)
                 {
-                    searchRecordings = Utils.SearchDomainRecordingIDsByFilter(m_nGroupID, userID, domainID, recordingIdToDomainRecordingIdMap, filter, recordingsWithValidStatus, pageIndex, pageSize, orderBy);
-                    if (searchRecordings == null)
+                    List<Recording> recordingsWithValidStatus = RecordingsManager.Instance.GetRecordingsByIdsAndStatuses(m_nGroupID, recordingIdToDomainRecordingIdMap.Keys.ToList(), recordingStatuses);
+                    if (recordingsWithValidStatus != null && recordingsWithValidStatus.Count > 0)
                     {
-                        log.DebugFormat("Failed SearchDomainRecordingIDsByFilter, recordingIDs is null, DomainID: {0}, UserID: {1}, pageIndex: {2}, pageSize: {3}, filter: {4}", domainID, userID, pageIndex, pageSize, filter);
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                        return response;
-                    }
+                        searchRecordings = Utils.SearchDomainRecordingIDsByFilter(m_nGroupID, userID, domainID, recordingIdToDomainRecordingIdMap, filter, recordingsWithValidStatus, pageIndex, pageSize, orderBy);
+                        if (searchRecordings == null)
+                        {
+                            log.DebugFormat("Failed SearchDomainRecordingIDsByFilter, recordingIDs is null, DomainID: {0}, UserID: {1}, pageIndex: {2}, pageSize: {3}, filter: {4}", domainID, userID, pageIndex, pageSize, filter);
+                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                            return response;
+                        }
 
-                    response.Recordings = searchRecordings;
-                    response.TotalItems = searchRecordings.Count;
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        response.Recordings = searchRecordings;
+                        response.TotalItems = searchRecordings.Count;
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    }
 
                 }
                 

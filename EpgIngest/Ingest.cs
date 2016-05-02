@@ -364,8 +364,10 @@ namespace EpgIngest
         {
             try
             {
-                if (string.IsNullOrEmpty(enable) || enable == "false" || enable == "0")
-                    return 0;
+                if (string.IsNullOrEmpty(enable))
+                    return 0; // 0 == none
+                if (enable == "false" || enable == "2")
+                    return 2;
                 if (enable == "true" || enable == "1")
                     return 1;
                 return 0;
