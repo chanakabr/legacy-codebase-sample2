@@ -549,7 +549,7 @@ namespace Recordings
 
         public List<Recording> GetRecordingsByIdsAndStatuses(int groupId, List<long> recordingIds, List<TstvRecordingStatus> statuses)
         {
-            List<Recording> recordings = ConditionalAccessDAL.GetRecordings(groupId, recordingIds);
+            List<Recording> recordings = GetRecordings(groupId, recordingIds);
 
             var filteredRecording = recordings.Where(recording =>
                 statuses.Contains(recording.RecordingStatus)).ToList();
