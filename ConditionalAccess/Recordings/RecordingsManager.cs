@@ -519,6 +519,36 @@ namespace Recordings
             return recording;
         }
 
+        public List<Recording> GetRecordingsByStatuses(int groupId, List<TstvRecordingStatus> statuses)
+        {
+            List<Recording> filteredRecordings = new List<Recording>();
+            bool shouldRemoveScheduledStatus = false;
+            if (!statuses.Contains(TstvRecordingStatus.Scheduled) && (statuses.Contains(TstvRecordingStatus.Recorded) || statuses.Contains(TstvRecordingStatus.Recording)))
+            {
+                // add scheduled status incase recording\recorded are sent and later fix the status
+                statuses.Add(TstvRecordingStatus.Scheduled);
+                shouldRemoveScheduledStatus = true;
+            }
+
+            List<Recording> recordings = ConditionalAccessDAL.GetAllRecordingsByStatuses(groupId, statuses);
+            if (shouldRemoveScheduledStatus)
+            {
+                statuses.Remove(TstvRecordingStatus.Scheduled);
+            }
+
+            foreach (var recording in recordings)
+            {
+                FixRecordingStatus(recording);
+                if (statuses.Contains(recording.RecordingStatus))
+                {
+                    recording.Status = new Status((int)eResponseStatus.OK);
+                    filteredRecordings.Add(recording);
+                }
+            }
+
+            return recordings;
+        }
+
         #endregion
 
         #region Private Methods

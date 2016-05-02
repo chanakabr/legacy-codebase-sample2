@@ -731,6 +731,24 @@ namespace DAL
             return null;
         }
 
+        public static DataRowCollection Get_MessageAnnouncementByAnnouncementId(int announcementId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncementByAnnouncementId");
+            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            sp.AddParameter("@Announcement_ID", announcementId);
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    return dt.Rows;
+                }
+            }
+
+            return null;
+        }
+
         public static DataRowCollection Get_MessageAnnouncementByAnnouncementAndReference(int announcementId, string messageReference)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncementByAnnouncementAndReference");
