@@ -4244,7 +4244,6 @@ namespace ConditionalAccess
                     res = true;
                     break;
 
-                case TstvRecordingStatus.DoesNotExist:
                 case TstvRecordingStatus.Deleted:
                 case TstvRecordingStatus.Failed:
                 case TstvRecordingStatus.Canceled:
@@ -4294,10 +4293,10 @@ namespace ConditionalAccess
                 request.assetTypes = new int[1] { 1 };
                 request.filterQuery = filter;
                 request.order = orderBy;
-                KeyValuePair<eAssetTypes, long>[] recordingAssets = new KeyValuePair<eAssetTypes, long>[recordingIdToDomainRecordingMap.Count];
-                for (int i = 0; i < recordingIdToDomainRecordingMap.Count; i++)
+                KeyValuePair<eAssetTypes, long>[] recordingAssets = new KeyValuePair<eAssetTypes, long>[recordingsWithValidStatus.Count];
+                for (int i = 0; i < recordingsWithValidStatus.Count; i++)
                 {
-                    recordingAssets[i] = new KeyValuePair<eAssetTypes, long>(eAssetTypes.NPVR, recordingIdToDomainRecordingMap.ElementAt(i).Key);
+                    recordingAssets[i] = new KeyValuePair<eAssetTypes, long>(eAssetTypes.NPVR, recordingsWithValidStatus.ElementAt(i).Id);
                 }
                 request.specificAssets = recordingAssets;                
                 request.m_oFilter = new WS_Catalog.Filter()
@@ -4359,6 +4358,60 @@ namespace ConditionalAccess
             }
 
             return recordings;
+        }
+
+        internal static List<TstvRecordingStatus> ConvertToTstvRecordingStatus(List<int> domainRecordingStatuses)
+        {
+            List<TstvRecordingStatus> result = new List<TstvRecordingStatus>();
+            foreach(int status in domainRecordingStatuses.Distinct())
+            {
+                switch (status)
+	            {
+                    case 1:
+                        result.Add(TstvRecordingStatus.OK);
+                        break;
+                    case 2:
+                        result.Add(TstvRecordingStatus.Canceled);
+                        break;
+                    case 3:
+                        result.Add(TstvRecordingStatus.Deleted);
+                        break;
+		            default:
+                        break;
+	            }
+            }
+            return result;
+        }
+
+        internal static List<int> ConvertToDomainRecordingStatus(List<TstvRecordingStatus> recordingStatus)
+        {
+            List<int> result = new List<int>();
+            foreach(TstvRecordingStatus status in recordingStatus)
+            {
+                switch (status)
+                {
+                    case TstvRecordingStatus.Failed:                        
+                    case TstvRecordingStatus.Scheduled:
+                    case TstvRecordingStatus.Recording:
+                    case TstvRecordingStatus.Recorded:
+                        if (!result.Contains(1))
+                        {
+                            result.Add(1);
+                        }
+                        break;
+                    case TstvRecordingStatus.Canceled:
+                        if (!result.Contains(2))
+                        {
+                            result.Add(2);
+                        }
+                        break;
+                    case TstvRecordingStatus.Deleted:
+                    default:
+                        break;
+                }
+            }
+
+            return result;
         }
     }
 }

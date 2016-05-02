@@ -519,7 +519,7 @@ namespace Recordings
             return recording;
         }
 
-        public List<Recording> GetRecordingsByStatuses(int groupId, List<TstvRecordingStatus> statuses)
+        public List<Recording> GetRecordingsByIdsAndStatuses(int groupId, List<long> recordingIds, List<TstvRecordingStatus> statuses)
         {
             List<Recording> filteredRecordings = new List<Recording>();
             bool shouldRemoveScheduledStatus = false;
