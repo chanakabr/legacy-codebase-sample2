@@ -17043,6 +17043,8 @@ namespace ConditionalAccess
                 {
                     response.Recordings.Add(QueryEpgRecord(accountSettings, epg, domainID, userID));
                 }
+
+                response.TotalItems = response.Recordings.Count;
             }
 
             catch (Exception ex)
@@ -17060,8 +17062,7 @@ namespace ConditionalAccess
 
                 log.Error(sb.ToString(), ex);
             }
-
-            response.TotalItems = response.Recordings.Count;
+            
             return response;
         }
 
@@ -17289,36 +17290,32 @@ namespace ConditionalAccess
                     return response;
                 }
 
-                Dictionary<long, long> recordingIdToDomainRecordingIdMap = ConditionalAccessDAL.GetDomainRecordingsByRecordingStatuses(m_nGroupID, domainID, Utils.ConvertToDomainRecordingStatus(recordingStatuses));
-                List<Recording> searchRecordings = null;
-                if (recordingIdToDomainRecordingIdMap == null)
-                {
-                    log.ErrorFormat("Failed GetDomainRecordingIDsByRecordingStatuses, recordingIDs is null, DomainID: {0}, UserID: {1}, pageIndex: {2}, pageSize: {3}, ", domainID, userID, pageIndex, pageSize);
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                    return response;
-                }
+                Dictionary<long, long> recordingIdToDomainRecordingIdMap = ConditionalAccessDAL.GetRecordingsMapingByRecordingStatuses(m_nGroupID, domainID, Utils.ConvertToDomainRecordingStatus(recordingStatuses));
 
-                if (recordingIdToDomainRecordingIdMap.Count > 0)
+                if (recordingIdToDomainRecordingIdMap != null && recordingIdToDomainRecordingIdMap.Count > 0)
                 {
                     List<Recording> recordingsWithValidStatus = RecordingsManager.Instance.GetRecordingsByIdsAndStatuses(m_nGroupID, recordingIdToDomainRecordingIdMap.Keys.ToList(), recordingStatuses);
                     if (recordingsWithValidStatus != null && recordingsWithValidStatus.Count > 0)
                     {
                         int totalResults = 0;
-                        searchRecordings = Utils.SearchDomainRecordingIDsByFilter(m_nGroupID, userID, domainID, recordingIdToDomainRecordingIdMap, filter, recordingsWithValidStatus, pageIndex, pageSize, orderBy, ref totalResults);
-                        if (searchRecordings == null)
+                        List<Recording> searchRecordings = Utils.SearchDomainRecordingIDsByFilter(m_nGroupID, userID, domainID, recordingIdToDomainRecordingIdMap, filter, recordingsWithValidStatus, pageIndex, pageSize, orderBy, ref totalResults);
+                        if (searchRecordings != null)
+                        {
+                            response.Recordings = searchRecordings;
+                            response.TotalItems = totalResults;
+                        }
+                        else
                         {
                             log.DebugFormat("Failed SearchDomainRecordingIDsByFilter, recordingIDs is null, DomainID: {0}, UserID: {1}, pageIndex: {2}, pageSize: {3}, filter: {4}", domainID, userID, pageIndex, pageSize, filter);
-                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                            return response;
                         }
-
-                        response.Recordings = searchRecordings;
-                        response.TotalItems = totalResults;
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     }
-
                 }
-                
+                else
+                {
+                    log.ErrorFormat("Failed GetDomainRecordingIDsByRecordingStatuses, recordingIDs is null, DomainID: {0}, UserID: {1}, pageIndex: {2}, pageSize: {3}, ", domainID, userID, pageIndex, pageSize);
+                }
+
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
 
             catch (Exception ex)
@@ -17340,7 +17337,7 @@ namespace ConditionalAccess
             return response;
         }
 
-        public RecordingResponse GetRecordingsByIDs(List<long> recordingIDs)
+        public RecordingResponse GetRecordingsByIDs(List<long> recordingIDs, long domainID)
         {
             RecordingResponse response = new RecordingResponse();
             try
@@ -17352,12 +17349,28 @@ namespace ConditionalAccess
                     return response;
                 }
 
-                List<Recording> recordings = RecordingsManager.Instance.GetRecordings(this.m_nGroupID, recordingIDs);
-                if (recordings == null || recordings.Count == 0)
+                Dictionary<long, long> recordingIdToDomainRecordingIdMap = ConditionalAccessDAL.GetRecordingsMapingsByDomainRecordingIds(m_nGroupID, domainID, recordingIDs);
+                if (recordingIdToDomainRecordingIdMap == null || recordingIdToDomainRecordingIdMap.Count == 0)
                 {
-                    log.DebugFormat("No recordingIDs were returned from ConditionalAccessDAL.GetRecordings");
+                    log.DebugFormat("No recordingIDs were returned from ConditionalAccessDAL.GetRecordingsMapingsByDomainRecordingIds");
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingNotFound, eResponseStatus.RecordingNotFound.ToString());
                     return response;
+                }
+
+                List<Recording> recordings = RecordingsManager.Instance.GetRecordings(m_nGroupID, recordingIdToDomainRecordingIdMap.Keys.ToList());
+                if (recordings == null || recordings.Count == 0)
+                {
+                    log.DebugFormat("No recordings were returned from RecordingsManager.Instance.GetRecordings");
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingNotFound, eResponseStatus.RecordingNotFound.ToString());
+                    return response;
+                }
+
+                foreach (Recording recording in recordings)
+                {
+                    if (recordingIdToDomainRecordingIdMap.ContainsKey(recording.Id))
+                    {
+                        recording.Id = recordingIdToDomainRecordingIdMap[recording.Id];
+                    }
                 }
 
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
