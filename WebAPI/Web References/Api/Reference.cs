@@ -13096,6 +13096,8 @@ namespace WebAPI.Api {
         
         private System.Nullable<bool> isTrickPlayEnabledField;
         
+        private System.Nullable<bool> isRecordingScheduleWindowEnabledField;
+        
         private System.Nullable<long> catchUpBufferLengthField;
         
         private System.Nullable<long> trickPlayBufferLengthField;
@@ -13143,6 +13145,17 @@ namespace WebAPI.Api {
             }
             set {
                 this.isTrickPlayEnabledField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<bool> IsRecordingScheduleWindowEnabled {
+            get {
+                return this.isRecordingScheduleWindowEnabledField;
+            }
+            set {
+                this.isRecordingScheduleWindowEnabledField = value;
             }
         }
         

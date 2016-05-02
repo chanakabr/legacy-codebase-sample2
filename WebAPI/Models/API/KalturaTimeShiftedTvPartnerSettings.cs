@@ -44,6 +44,14 @@ namespace WebAPI.Models.API
         public bool? TrickPlayEnabled { get; set; }
 
         /// <summary>
+        /// Is recording schedule window enabled
+        /// </summary>
+        [DataMember(Name = "recording_schedule_window_enabled")]
+        [JsonProperty("recording_schedule_window_enabled")]
+        [XmlElement(ElementName = "recording_schedule_window_enabled", IsNullable = true)]
+        public bool? RecordingScheduleWindowEnabled { get; set; }
+
+        /// <summary>
         /// Catch-up buffer length
         /// </summary>
         [DataMember(Name = "catch_up_buffer_length")]

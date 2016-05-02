@@ -557,6 +557,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="IsCdvrEnabled" nillable="true" type="s:boolean" />
           <s:element minOccurs="1" maxOccurs="1" name="IsStartOverEnabled" nillable="true" type="s:boolean" />
           <s:element minOccurs="1" maxOccurs="1" name="IsTrickPlayEnabled" nillable="true" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsRecordingScheduleWindowEnabled" nillable="true" type="s:boolean" />
           <s:element minOccurs="1" maxOccurs="1" name="CatchUpBufferLength" nillable="true" type="s:long" />
           <s:element minOccurs="1" maxOccurs="1" name="TrickPlayBufferLength" nillable="true" type="s:long" />
           <s:element minOccurs="1" maxOccurs="1" name="RecordingScheduleWindow" nillable="true" type="s:long" />
