@@ -99,6 +99,14 @@ public partial class adm_time_shifted_tv_settings : System.Web.UI.Page
         dr_trickPlayBuffer.Initialize("Live Trick-Play Buffer Length", "adm_table_header_nbg", "FormInput", "trick_play_buffer", false);
         theRecord.AddRecord(dr_trickPlayBuffer);
 
+        DataRecordCheckBoxField dr_scheduleWindow = new DataRecordCheckBoxField(true);
+        dr_scheduleWindow.Initialize("Enable Recording Schedule Window ", "adm_table_header_nbg", "FormInput", "enable_recording_schedule_window", false);
+        theRecord.AddRecord(dr_scheduleWindow);
+
+        DataRecordShortIntField dr_scheduleWindowBuffer = new DataRecordShortIntField(true, 9, 9, 0);
+        dr_scheduleWindowBuffer.Initialize("Recording Schedule Window Length", "adm_table_header_nbg", "FormInput", "recording_schedule_window_buffer", false);
+        theRecord.AddRecord(dr_scheduleWindowBuffer);
+
         DataRecordDropDownField dr_adapters = new DataRecordDropDownField("time_shifted_tv_settings", "adapter_id", "id", "", null, 60, true);
         string sQuery = "select name as txt,id as id from conditionalAccess..cdvr_adapters where status=1 and is_active=1 and group_id=" + groupID;
         dr_adapters.SetSelectsQuery(sQuery);
