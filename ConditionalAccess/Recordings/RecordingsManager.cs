@@ -549,32 +549,12 @@ namespace Recordings
 
         public List<Recording> GetRecordingsByIdsAndStatuses(int groupId, List<long> recordingIds, List<TstvRecordingStatus> statuses)
         {
-            List<Recording> filteredRecordings = new List<Recording>();
-            bool shouldRemoveScheduledStatus = false;
-            if (!statuses.Contains(TstvRecordingStatus.Scheduled) && (statuses.Contains(TstvRecordingStatus.Recorded) || statuses.Contains(TstvRecordingStatus.Recording)))
-            {
-                // add scheduled status incase recording\recorded are sent and later fix the status
-                statuses.Add(TstvRecordingStatus.Scheduled);
-                shouldRemoveScheduledStatus = true;
-            }
+            List<Recording> recordings = ConditionalAccessDAL.GetRecordings(groupId, recordingIds);
 
-            List<Recording> recordings = ConditionalAccessDAL.GetAllRecordingsByStatuses(groupId, statuses);
-            if (shouldRemoveScheduledStatus)
-            {
-                statuses.Remove(TstvRecordingStatus.Scheduled);
-            }
-
-            foreach (var recording in recordings)
-            {
-                SetRecordingStatus(recording);
-                if (statuses.Contains(recording.RecordingStatus))
-                {
-                    recording.Status = new Status((int)eResponseStatus.OK);
-                    filteredRecordings.Add(recording);
-                }
-            }
-
-            return recordings;
+            var filteredRecording = recordings.Where(recording =>
+                statuses.Contains(recording.RecordingStatus)).ToList();
+                
+            return filteredRecording;
         }
 
         #endregion
