@@ -503,7 +503,7 @@ namespace Recordings
             {
                 FixRecordingStatus(recording);
 
-                recording.Status = new Status();
+                recording.Status = new Status((int)eResponseStatus.OK);
             }
 
             return recordings;
@@ -514,7 +514,7 @@ namespace Recordings
             Recording recording = ConditionalAccessDAL.GetRecordingByRecordingId(recordingId);
 
             FixRecordingStatus(recording);
-            recording.Status = new Status();
+            recording.Status = new Status((int)eResponseStatus.OK);
 
             return recording;
         }
