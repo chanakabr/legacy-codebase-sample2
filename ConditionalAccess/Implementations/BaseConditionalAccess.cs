@@ -17030,20 +17030,28 @@ namespace ConditionalAccess
                 }
 
                 List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(m_nGroupID, epgIDs);
-                if (epgs == null || epgs.Count == 0)
+                if (epgs == null)
                 {
                     log.DebugFormat("Failed Getting EPGs from Catalog, DomainID: {0}, UserID: {1}, EpgIDs: {2}", domainID, userID, string.Join(",", epgIDs));
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.InvalidAssetId, eResponseStatus.InvalidAssetId.ToString());
-                    return response;
+                    epgs = new List<EPGChannelProgrammeObject>();
                 }
 
+                List<long> validEpgIds = epgs.Select(x => x.EPG_ID).ToList();
+                foreach (long epgId in epgIDs)
+                {
+                    if (!validEpgIds.Contains(epgId))
+                    {
+                        Recording invalidAsset = new Recording() { Status = new ApiObjects.Response.Status((int)eResponseStatus.InvalidAssetId, eResponseStatus.InvalidAssetId.ToString()), EpgId = epgId };
+                        response.Recordings.Add(invalidAsset);
+                    }
+                }
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());                
 
                 foreach (EPGChannelProgrammeObject epg in epgs)
                 {
                     response.Recordings.Add(QueryEpgRecord(accountSettings, epg, domainID, userID));
                 }
-
+                
                 response.TotalItems = response.Recordings.Count;
             }
 
