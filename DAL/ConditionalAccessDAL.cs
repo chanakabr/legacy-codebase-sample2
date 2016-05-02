@@ -2711,13 +2711,14 @@ namespace DAL
             return recordings;
         }
 
-        public static Dictionary<long, long> GetDomainRecordings(int groupID, long domainID)
+        public static Dictionary<long, long> GetDomainRecordingsByRecordingStatuses(int groupID, long domainID, List<int> recordingStatuses)
         {
             Dictionary<long, long> recordingIdToDomainRecordingIdMap = null;
-            ODBCWrapper.StoredProcedure spGetDomainRecordings = new ODBCWrapper.StoredProcedure("GetDomainRecordings");
+            ODBCWrapper.StoredProcedure spGetDomainRecordings = new ODBCWrapper.StoredProcedure("GetDomainRecordingsByRecordingStatuses");
             spGetDomainRecordings.SetConnectionKey("CONNECTION_STRING");
             spGetDomainRecordings.AddParameter("@GroupID", groupID);
-            spGetDomainRecordings.AddParameter("@DomainID", domainID);            
+            spGetDomainRecordings.AddParameter("@DomainID", domainID);
+            spGetDomainRecordings.AddIDListParameter<int>("@RecordingStatuses", recordingStatuses, "ID");
 
             DataTable dt = spGetDomainRecordings.Execute();
             if (dt != null && dt.Rows != null)
