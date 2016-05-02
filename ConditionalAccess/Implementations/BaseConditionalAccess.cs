@@ -17288,7 +17288,7 @@ namespace ConditionalAccess
                 }
 
                 Dictionary<long, long> recordingIdToDomainRecordingIdMap = ConditionalAccessDAL.GetDomainRecordings(m_nGroupID, domainID);
-                List<Recording> recordingsWithValidStatus = ConditionalAccessDAL.GetAllRecordingsByStatuses(m_nGroupID, recordingStatuses);
+                List<Recording> recordingsWithValidStatus = RecordingsManager.Instance.GetRecordingsByStatuses(m_nGroupID, recordingStatuses);
                 List<Recording> searchRecordings = null;
                 if (recordingIdToDomainRecordingIdMap == null)
                 {
