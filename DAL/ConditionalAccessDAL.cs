@@ -2467,12 +2467,43 @@ namespace DAL
 
         public static Recording InsertRecording(Recording recording, int groupId)
         {
+            int recordingStatus = 0;
+
+            switch (recording.RecordingStatus)
+            {
+                case TstvRecordingStatus.Scheduled:
+                case TstvRecordingStatus.Recording:
+                case TstvRecordingStatus.Recorded:
+                case TstvRecordingStatus.OK:
+                {
+                    recordingStatus = 0;
+                    break;
+                }
+                case TstvRecordingStatus.Failed:
+                {
+                    recordingStatus = 1;
+                    break;
+                }
+                case TstvRecordingStatus.Canceled:
+                {
+                    recordingStatus = 2;
+                    break;
+                }
+                case TstvRecordingStatus.Deleted:
+                {
+                    recordingStatus = 3;
+                    break;
+                }
+                default:
+                break;
+            }
+
             var insertQuery = new ODBCWrapper.InsertQuery("recordings");
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupId);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", recording.EpgEndDate);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("EPG_PROGRAM_ID", "=", recording.EpgId);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("EXTERNAL_RECORDING_ID", "=", recording.ExternalRecordingId);
-            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("RECORDING_STATUS", "=", (int)recording.RecordingStatus);
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("RECORDING_STATUS", "=", recordingStatus);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", recording.EpgStartDate);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
@@ -2506,13 +2537,44 @@ namespace DAL
         public static bool UpdateRecording(Recording recording, int groupId, int status, int isActive)
         {
             bool result = false;
+            int recordingStatus = 0;
 
+            switch (recording.RecordingStatus)
+            {
+                case TstvRecordingStatus.Scheduled:
+                case TstvRecordingStatus.Recording:
+                case TstvRecordingStatus.Recorded:
+                case TstvRecordingStatus.OK:
+                {
+                    recordingStatus = 0;
+                    break;
+                }
+                case TstvRecordingStatus.Failed:
+                {
+                    recordingStatus = 1;
+                    break;
+                }
+                case TstvRecordingStatus.Canceled:
+                {
+                    recordingStatus = 2;
+                    break;
+                }
+                case TstvRecordingStatus.Deleted:
+                {
+                    recordingStatus = 3;
+                    break;
+                }
+                default:
+                break;
+            }
+            
             var updateQuery = new ODBCWrapper.UpdateQuery("recordings");
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupId);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", recording.EpgEndDate);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("EPG_PROGRAM_ID", "=", recording.EpgId);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("EXTERNAL_RECORDING_ID", "=", recording.ExternalRecordingId);
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("RECORDING_STATUS", "=", (int)recording.RecordingStatus);
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("RECORDING_STATUS", "=", recordingStatus);
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_CANCELED", "=", recordingStatus);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", recording.EpgStartDate);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", status);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", isActive);
@@ -2614,11 +2676,56 @@ namespace DAL
             Recording recording = new Recording();
             recording.EpgId = ODBCWrapper.Utils.ExtractValue<long>(row, "EPG_PROGRAM_ID");
             recording.Id = ODBCWrapper.Utils.ExtractValue<long>(row, "ID");
-            recording.RecordingStatus = (TstvRecordingStatus)ODBCWrapper.Utils.ExtractInteger(row, "RECORDING_STATUS");
+            int recordingStatus = ODBCWrapper.Utils.ExtractInteger(row, "RECORDING_STATUS");
             recording.ExternalRecordingId = ODBCWrapper.Utils.ExtractString(row, "EXTERNAL_RECORDING_ID");
             recording.EpgStartDate = ODBCWrapper.Utils.ExtractDateTime(row, "START_DATE");
             recording.EpgEndDate = ODBCWrapper.Utils.ExtractDateTime(row, "END_DATE");
             recording.GetStatusRetries = ODBCWrapper.Utils.ExtractInteger(row, "GET_STATUS_RETRIES");
+
+            TstvRecordingStatus status = TstvRecordingStatus.OK;
+
+            switch (recordingStatus)
+            {
+                // 0 = OK
+                case 0:
+                {
+                    // If program already finished, we say it is recorded
+                    if (recording.EpgEndDate < DateTime.UtcNow)
+                    {
+                        status = TstvRecordingStatus.Recorded;
+                    }
+                    // If program already started but didn't finish, we say it is recording
+                    else if (recording.EpgStartDate < DateTime.UtcNow)
+                    {
+                        status = TstvRecordingStatus.Recording;
+                    }
+                    else
+                    {
+                        status = TstvRecordingStatus.Scheduled;
+                    }
+                    break;
+                }
+                // 1 - FAILED
+                case 1:
+                {
+                    status = TstvRecordingStatus.Failed;
+                    break;
+                }
+                // 2 - CANCELED
+                case 2:
+                {
+                    status = TstvRecordingStatus.Canceled;
+                    break;
+                }
+                // Other - IDK
+                default:
+                {
+                    status = TstvRecordingStatus.Deleted;
+                    break;
+                }
+            }
+
+            recording.RecordingStatus = status;
 
             return recording;
         }
@@ -2650,13 +2757,13 @@ namespace DAL
             return result;
         }
 
-        public static List<Recording> GetAllRecordingsByStatus(int groupId, TstvRecordingStatus status)
+        public static List<Recording> GetAllRecordingsByStatus(int groupId, int status)
         {
             return GetAllRecordingsByStatuses(groupId,
-                new List<TstvRecordingStatus>() { status });
+                new List<int>() { status });
         }
 
-        public static List<Recording> GetAllRecordingsByStatuses(int groupId, List<TstvRecordingStatus> statuses)
+        public static List<Recording> GetAllRecordingsByStatuses(int groupId, List<int> statuses)
         {
             List<Recording> recordings = new List<Recording>();
 
@@ -2673,13 +2780,38 @@ namespace DAL
             return recordings;
         }
 
-        public static Dictionary<long, long> GetDomainRecordings(int groupID, long domainID)
+        public static Dictionary<long, long> GetRecordingsMapingByRecordingStatuses(int groupID, long domainID, List<int> recordingStatuses)
         {
             Dictionary<long, long> recordingIdToDomainRecordingIdMap = null;
-            ODBCWrapper.StoredProcedure spGetDomainRecordings = new ODBCWrapper.StoredProcedure("GetDomainRecordings");
+            ODBCWrapper.StoredProcedure spGetDomainRecordings = new ODBCWrapper.StoredProcedure("GetDomainRecordingsByRecordingStatuses");
             spGetDomainRecordings.SetConnectionKey("CONNECTION_STRING");
             spGetDomainRecordings.AddParameter("@GroupID", groupID);
-            spGetDomainRecordings.AddParameter("@DomainID", domainID);            
+            spGetDomainRecordings.AddParameter("@DomainID", domainID);
+            spGetDomainRecordings.AddIDListParameter<int>("@RecordingStatuses", recordingStatuses, "ID");
+
+            DataTable dt = spGetDomainRecordings.Execute();
+            if (dt != null && dt.Rows != null)
+            {
+                recordingIdToDomainRecordingIdMap = new Dictionary<long, long>();
+                foreach (DataRow dr in dt.Rows)
+                {
+                    long recordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "RECORDING_ID");
+                    long domainRecordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
+                    recordingIdToDomainRecordingIdMap.Add(recordingID, domainRecordingID);
+                }
+            }
+
+            return recordingIdToDomainRecordingIdMap;
+        }
+
+        public static Dictionary<long, long> GetRecordingsMapingsByDomainRecordingIds(int groupID, long domainID, List<long> domainRecordingIds)
+        {
+            Dictionary<long, long> recordingIdToDomainRecordingIdMap = null;
+            ODBCWrapper.StoredProcedure spGetDomainRecordings = new ODBCWrapper.StoredProcedure("GetDomainRecordingsByRecordingIds");
+            spGetDomainRecordings.SetConnectionKey("CONNECTION_STRING");
+            spGetDomainRecordings.AddParameter("@GroupID", groupID);
+            spGetDomainRecordings.AddParameter("@DomainID", domainID);
+            spGetDomainRecordings.AddIDListParameter<long>("@DomainRecordingIds", domainRecordingIds, "ID");
 
             DataTable dt = spGetDomainRecordings.Execute();
             if (dt != null && dt.Rows != null)

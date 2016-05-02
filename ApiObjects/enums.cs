@@ -587,8 +587,7 @@ namespace ApiObjects
         Recording = 3,
         Recorded = 4,
         Canceled = 5,
-        DoesNotExist = 6,
-        Deleted = 7
+        Deleted = 6
     }
 
     public enum eRecordingTask

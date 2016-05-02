@@ -96,15 +96,30 @@ namespace Recordings
 
             recording = ConditionalAccessDAL.GetRecordingByProgramId(programId);
 
+            bool issueRecord = false;
+
             // If there is no recording for this program - create one. This is the first, hurray!
             if (recording == null)
             {
+                issueRecord = true;
                 recording = new Recording();
-                recording.Status = null;
                 recording.EpgId = programId;
                 recording.EpgStartDate = startDate;
                 recording.EpgEndDate = endDate;
                 recording.ChannelId = epgChannelID;
+                recording.RecordingStatus = TstvRecordingStatus.Scheduled;
+            }
+            else if (recording.RecordingStatus == TstvRecordingStatus.Canceled)
+            {
+                issueRecord = true;
+            }
+
+            // If it is a new recording or a canceled recording - we call adapter
+            if (issueRecord)
+            {
+                bool isCancled = recording.RecordingStatus == TstvRecordingStatus.Canceled;
+
+                recording.Status = null;
 
                 int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
 
@@ -158,19 +173,35 @@ namespace Recordings
                         {
                             recording.RecordingStatus = TstvRecordingStatus.Scheduled;
 
-                            FixRecordingStatus(recording);
+                            SetRecordingStatus(recording);
                         }
                         else
                         {
                             recording.RecordingStatus = TstvRecordingStatus.Failed;
                         }
 
-                        // Insert recording information to database
-                        recording = ConditionalAccessDAL.InsertRecording(recording, groupId);
-
-                        if (adapterResponse.Links != null)
+                        // if it isn't a canceled recording, it is a completely new one - INSERT
+                        if (!isCancled)
                         {
-                            ConditionalAccessDAL.InsertRecordingLinks(adapterResponse.Links, groupId, recording.Id);
+                            // Insert recording information to database
+                            recording = ConditionalAccessDAL.InsertRecording(recording, groupId);
+
+                            if (adapterResponse.Links != null)
+                            {
+                                ConditionalAccessDAL.InsertRecordingLinks(adapterResponse.Links, groupId, recording.Id);
+                            }
+
+                        }
+                        // Otherwise it is an UPDATE
+                        else
+                        {
+                            bool updateSuccess = ConditionalAccessDAL.UpdateRecording(recording, groupId, 1, 1);
+
+                            if (!updateSuccess)
+                            {
+                                recording.Status = new Status((int)eResponseStatus.Error, "Failed updating recording in database.");
+                                return recording;
+                            }
                         }
 
                         // Update Couchbase that the EPG is recorded
@@ -179,7 +210,7 @@ namespace Recordings
                         UpdateCouchbaseIsRecorded(groupId, programId, true);
 
                         #endregion
-                        
+
                         // After we know that schedule was succesful,
                         // we index data so it is available on search
                         if (recording.RecordingStatus == TstvRecordingStatus.OK ||
@@ -202,7 +233,7 @@ namespace Recordings
                     }
                     catch (Exception ex)
                     {
-                        recording.Status = new Status((int)eResponseStatus.Error, "Failed inserting recording to database and queue.");
+                        recording.Status = new Status((int)eResponseStatus.Error, "Failed inserting/updating recording in database and queue.");
                     }
                 }
             }
@@ -261,7 +292,7 @@ namespace Recordings
                         recording.RecordingStatus = TstvRecordingStatus.Canceled;
 
                         // Update recording information in to database
-                        bool updateResult = ConditionalAccessDAL.UpdateRecording(recording, groupId, 2, 0);
+                        bool updateResult = ConditionalAccessDAL.UpdateRecording(recording, groupId, 1, 1);
 
                         if (!updateResult)
                         {
@@ -490,7 +521,7 @@ namespace Recordings
         public Recording GetRecordingByProgramId(long programId)
         {
             Recording recording = ConditionalAccessDAL.GetRecordingByProgramId(programId);
-            FixRecordingStatus(recording);
+            SetRecordingStatus(recording);
 
             return recording;
         }
@@ -501,8 +532,6 @@ namespace Recordings
 
             foreach (var recording in recordings)
             {
-                FixRecordingStatus(recording);
-
                 recording.Status = new Status((int)eResponseStatus.OK);
             }
 
@@ -513,10 +542,19 @@ namespace Recordings
         {
             Recording recording = ConditionalAccessDAL.GetRecordingByRecordingId(recordingId);
 
-            FixRecordingStatus(recording);
             recording.Status = new Status((int)eResponseStatus.OK);
 
             return recording;
+        }
+
+        public List<Recording> GetRecordingsByIdsAndStatuses(int groupId, List<long> recordingIds, List<TstvRecordingStatus> statuses)
+        {
+            List<Recording> recordings = GetRecordings(groupId, recordingIds);
+
+            var filteredRecording = recordings.Where(recording =>
+                statuses.Contains(recording.RecordingStatus)).ToList();
+                
+            return filteredRecording;
         }
 
         #endregion
@@ -567,7 +605,7 @@ namespace Recordings
             return failStatus;
         }
 
-        public static void FixRecordingStatus(Recording recording)
+        public static void SetRecordingStatus(Recording recording)
         {
             if (recording.RecordingStatus == TstvRecordingStatus.Scheduled)
             {
