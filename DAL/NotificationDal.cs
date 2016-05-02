@@ -681,7 +681,7 @@ namespace DAL
             return null;
         }
 
-        public static DataRow Get_MessageAnnouncement(int messageAnnouncementId)
+        public static DataRow Get_MessageAnnouncement(long messageAnnouncementId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncementById");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -852,7 +852,7 @@ namespace DAL
             spInsert.ExecuteDataSet();
         }
 
-        public static void Delete_MessageAnnouncement(int id, int groupId)
+        public static void Delete_MessageAnnouncement(long id, int groupId)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("UpdateMessageAnnouncement");
             spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
