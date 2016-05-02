@@ -728,6 +728,37 @@ namespace CouchbaseManager
             return result;
         }
 
+        public bool Unlock(string key, ulong cas)
+        {
+            bool result = false;
+
+            try
+            {
+                using (var cluster = new Cluster(clientConfiguration))
+                {
+                    using (var bucket = cluster.OpenBucket(bucketName))
+                    {
+                        IOperationResult unlockResult = bucket.Unlock(key, cas);
+                        if (unlockResult != null)
+                        {
+                            if (unlockResult.Exception != null)
+                                throw unlockResult.Exception;
+
+                            if (unlockResult.Status == Couchbase.IO.ResponseStatus.Success)
+                                result = true;
+                            else
+                                HandleStatusCode(unlockResult.Status, key);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("CouchBaseCache - Failed Unlock with key = {0}, error = {1}", key, ex);
+            }
+            return result;
+        }
+
         public T Get<T>(string key, bool asJson = false)
         {
             T result = default(T);
