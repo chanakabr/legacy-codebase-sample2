@@ -1137,11 +1137,12 @@ namespace DAL
             return result;
         }
 
-        public static DeviceNotificationData GetDeviceNotificationData(int groupId, string udid, bool withLock = false)
+        public static DeviceNotificationData GetDeviceNotificationData(int groupId, string udid, ref bool isDocumentExist, bool withLock = false)
         {
             DeviceNotificationData deviceData = null;
             Couchbase.IO.ResponseStatus status = Couchbase.IO.ResponseStatus.None;
             ulong cas = 0;
+            isDocumentExist = true;
 
             try
             {
@@ -1160,7 +1161,8 @@ namespace DAL
                         {
                             // key doesn't exist - don't try again
                             log.DebugFormat("device notification data with lock wasn't found. key: {0}", GetDeviceDataKey(groupId, udid));
-                            result = true;
+                            isDocumentExist = false;
+                            break;
                         }
                         else
                         {
@@ -1243,11 +1245,12 @@ namespace DAL
             return result;
         }
 
-        public static UserNotification GetUserNotificationData(int groupId, int userId, bool withLock = false)
+        public static UserNotification GetUserNotificationData(int groupId, int userId, ref bool isDocumentExist, bool withLock = false)
         {
             UserNotification userNotification = null;
             Couchbase.IO.ResponseStatus status = Couchbase.IO.ResponseStatus.None;
             ulong cas = 0;
+            isDocumentExist = true;
 
             try
             {
@@ -1266,7 +1269,8 @@ namespace DAL
                         {
                             // key doesn't exist - don't try again
                             log.DebugFormat("user notification data wasn't found. key: {0}", GetUserNotificationKey(groupId, userId));
-                            result = true;
+                            isDocumentExist = false;
+                            break;
                         }
                         else
                         {
@@ -1388,6 +1392,7 @@ namespace DAL
                         if (status == Couchbase.IO.ResponseStatus.KeyNotFound)
                         {
                             isDocumentExist = false;
+
                             // key doesn't exist - don't try again
                             log.DebugFormat("user notification data wasn't found. key: {0}", cbKey);
                             break;
