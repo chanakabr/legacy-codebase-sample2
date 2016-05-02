@@ -3360,7 +3360,7 @@ namespace DAL
             return dr;
         }
 
-        public static bool UpdateTimeShiftedTvPartnerSettings(int groupID, bool? isCatchupAllowed, bool? isCdvrEnabled, bool? isStartOverEnabled, bool? isTrickPlayEnabled,
+        public static bool UpdateTimeShiftedTvPartnerSettings(int groupID, bool? isCatchupAllowed, bool? isCdvrEnabled, bool? isStartOverEnabled, bool? isTrickPlayEnabled, bool? isRecordingScheduleWindowEnabled,
                                                                 long? catchUpBufferLength, long? trickPlayBufferLength, long? recordingScheduleWindowBuffer)
         {
             bool isUpdated = false;
@@ -3376,6 +3376,7 @@ namespace DAL
                 spUpdateTimeShiftedTvPartnerSettings.AddParameter("@CatchUpBuffer", catchUpBufferLength);
                 spUpdateTimeShiftedTvPartnerSettings.AddParameter("@TrickPlayBuffer", trickPlayBufferLength);
                 spUpdateTimeShiftedTvPartnerSettings.AddParameter("@RecordingScheduleWindowBuffer", recordingScheduleWindowBuffer);
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@EnableRecordingScheduleWindow", isRecordingScheduleWindowEnabled);
 
                 isUpdated = spUpdateTimeShiftedTvPartnerSettings.ExecuteReturnValue<bool>();
             }
