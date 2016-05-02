@@ -532,7 +532,7 @@ namespace Recordings
 
             foreach (var recording in recordings)
             {
-                recording.Status = new Status((int)eResponseStatus.OK);
+                recording.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
 
             return recordings;
@@ -542,7 +542,7 @@ namespace Recordings
         {
             Recording recording = ConditionalAccessDAL.GetRecordingByRecordingId(recordingId);
 
-            recording.Status = new Status((int)eResponseStatus.OK);
+            recording.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
             return recording;
         }
