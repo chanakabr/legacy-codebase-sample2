@@ -41,16 +41,8 @@ namespace ElasticSearchHandler.IndexBuilders
 
         protected override void PopulateIndex(string newIndexName)
         {
-            var statuses = new List<TstvRecordingStatus>() 
-            { 
-                TstvRecordingStatus.Recorded,
-                TstvRecordingStatus.OK,
-                TstvRecordingStatus.Recording,
-                TstvRecordingStatus.Scheduled
-            };
-
             // Get information about relevant recordings
-            List<Recording> recordings = DAL.ConditionalAccessDAL.GetAllRecordingsByStatuses(this.groupId, statuses);
+            List<Recording> recordings = DAL.ConditionalAccessDAL.GetAllRecordingsByStatus(this.groupId, 0);
             List<string> epgIds = new List<string>();
 
             // Map EPGs to recordings and create list of all EPGs
