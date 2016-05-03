@@ -148,6 +148,8 @@ namespace Ingest.Pricing {
         
         private System.Threading.SendOrPostCallback DeletePricePlanOperationCompleted;
         
+        private System.Threading.SendOrPostCallback testOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -362,6 +364,9 @@ namespace Ingest.Pricing {
         
         /// <remarks/>
         public event DeletePricePlanCompletedEventHandler DeletePricePlanCompleted;
+        
+        /// <remarks/>
+        public event testCompletedEventHandler testCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://pricing.tvinci.com/GetCurrencyValues", RequestNamespace="http://pricing.tvinci.com/", ResponseNamespace="http://pricing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -2467,6 +2472,39 @@ namespace Ingest.Pricing {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://pricing.tvinci.com/test", RequestNamespace="http://pricing.tvinci.com/", ResponseNamespace="http://pricing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public BusinessModuleResponse test(string sWSUserName, string sWSPassword, string name) {
+            object[] results = this.Invoke("test", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        name});
+            return ((BusinessModuleResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void testAsync(string sWSUserName, string sWSPassword, string name) {
+            this.testAsync(sWSUserName, sWSPassword, name, null);
+        }
+        
+        /// <remarks/>
+        public void testAsync(string sWSUserName, string sWSPassword, string name, object userState) {
+            if ((this.testOperationCompleted == null)) {
+                this.testOperationCompleted = new System.Threading.SendOrPostCallback(this.OntestOperationCompleted);
+            }
+            this.InvokeAsync("test", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        name}, this.testOperationCompleted, userState);
+        }
+        
+        private void OntestOperationCompleted(object arg) {
+            if ((this.testCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.testCompleted(this, new testCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -2642,6 +2680,39 @@ namespace Ingest.Pricing {
     }
     
     /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    public partial class IngestPriceCode {
+        
+        private double priceField;
+        
+        private string currencyField;
+        
+        /// <remarks/>
+        public double Price {
+            get {
+                return this.priceField;
+            }
+            set {
+                this.priceField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Currency {
+            get {
+                return this.currencyField;
+            }
+            set {
+                this.currencyField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(IngestPricePlan))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(IngestMultiPricePlan))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(IngestPPV))]
@@ -2707,7 +2778,7 @@ namespace Ingest.Pricing {
         
         private int maxViewsField;
         
-        private string priceCodeField;
+        private IngestPriceCode priceCodeField;
         
         private bool isRenewableField;
         
@@ -2748,7 +2819,7 @@ namespace Ingest.Pricing {
         }
         
         /// <remarks/>
-        public string PriceCode {
+        public IngestPriceCode PriceCode {
             get {
                 return this.priceCodeField;
             }
@@ -3007,7 +3078,7 @@ namespace Ingest.Pricing {
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
     public partial class IngestPPV : IngestModule {
         
-        private string priceCodeField;
+        private IngestPriceCode priceCodeField;
         
         private string usageModuleField;
         
@@ -3028,7 +3099,7 @@ namespace Ingest.Pricing {
         private bool isActiveField;
         
         /// <remarks/>
-        public string PriceCode {
+        public IngestPriceCode PriceCode {
             get {
                 return this.priceCodeField;
             }
@@ -6788,6 +6859,32 @@ namespace Ingest.Pricing {
         private object[] results;
         
         internal DeletePricePlanCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public BusinessModuleResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((BusinessModuleResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void testCompletedEventHandler(object sender, testCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class testCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal testCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }

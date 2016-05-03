@@ -350,6 +350,7 @@ namespace Ingest.Importers
                 IngestPricePlan pricePlan = null;
                 XmlNodeList nodeList;
                 string strVal;
+                double dVal;
                 eIngestAction actionVal;
                 bool boolVal;
                 int intVal;
@@ -410,9 +411,22 @@ namespace Ingest.Importers
                         else
                             continue;
 
-                        // price code - mandatory
-                        if (GetMandatoryNodeStrValue(node, "price_code", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, pricePlan.Action.ToString().ToLower(), out strVal))
-                            pricePlan.PriceCode = strVal;
+                        // price code (price) - mandatory
+                        if (GetMandatoryNodeDoubleValue(node, "price_code/price", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, pricePlan.Action.ToString().ToLower(), out dVal))
+                        {
+                            pricePlan.PriceCode = new IngestPriceCode();
+                            pricePlan.PriceCode.Price = dVal;
+                        }
+                        else
+                            continue;
+
+                        // price code (currency) - mandatory
+                        if (GetMandatoryNodeStrValue(node, "price_code/currency", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, pricePlan.Action.ToString().ToLower(), out strVal))
+                        {
+                            if (pricePlan.PriceCode == null)
+                                pricePlan.PriceCode = new IngestPriceCode();
+                            pricePlan.PriceCode.Currency = strVal;
+                        }
                         else
                             continue;
 
@@ -613,6 +627,7 @@ namespace Ingest.Importers
                 IngestPPV ppv = null;
                 XmlNodeList nodeList;
                 string strVal;
+                double dVal;
                 eIngestAction actionVal;
                 bool boolVal;
                 KeyValuePair[] keyValArr;
@@ -673,9 +688,22 @@ namespace Ingest.Importers
                         else
                             continue;
 
-                        // price code - mandatory
-                        if (GetMandatoryNodeStrValue(node, "price_code", PPV, ppv.Code, ref reportBuilder, reportId, ppv.Action.ToString().ToLower(), out strVal))
-                            ppv.PriceCode = strVal;
+                        // price code (price) - mandatory
+                        if (GetMandatoryNodeDoubleValue(node, "price_code/price", PRICE_PLAN, ppv.Code, ref reportBuilder, reportId, ppv.Action.ToString().ToLower(), out dVal))
+                        {
+                            ppv.PriceCode = new IngestPriceCode();
+                            ppv.PriceCode.Price = dVal;
+                        }
+                        else
+                            continue;
+
+                        // price code (currency) - mandatory
+                        if (GetMandatoryNodeStrValue(node, "price_code/currency", PRICE_PLAN, ppv.Code, ref reportBuilder, reportId, ppv.Action.ToString().ToLower(), out strVal))
+                        {
+                            if (ppv.PriceCode == null)
+                                ppv.PriceCode = new IngestPriceCode();
+                            ppv.PriceCode.Currency = strVal;
+                        }
                         else
                             continue;
 
@@ -957,5 +985,33 @@ namespace Ingest.Importers
 
             return response;
         }
+
+        private static bool GetMandatoryNodeDoubleValue(XmlNode node, string nodeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, string action, out double value)
+        {
+            value = 0;
+
+            var nodeList = node.SelectNodes(nodeName);
+            if (nodeList != null && nodeList.Count > 0 && !string.IsNullOrEmpty(nodeList[0].InnerText))
+            {
+                double tempVal;
+                if (double.TryParse(nodeList[0].InnerText, out tempVal))
+                    value = tempVal;
+                else
+                {
+                    log.ErrorFormat(LOG_FORMAT_ERROR_FORMAT, moduleName, moduleCode, nodeName, reportId, action);
+                    report.AppendFormat(FORMAT_ERROR_FORMAT, moduleName, moduleCode, nodeName, action);
+                    return false;
+                }
+            }
+            else
+            {
+                log.ErrorFormat(LOG_MANDATORY_ERROR_FORMAT, moduleName, moduleCode, nodeName, reportId, action);
+                report.AppendFormat(MANDATORY_ERROR_FORMAT, moduleName, moduleCode, nodeName, action);
+                return false;
+            }
+
+            return true;
+        }
+            
     }
 }
