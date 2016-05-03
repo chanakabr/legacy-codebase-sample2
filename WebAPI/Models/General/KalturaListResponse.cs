@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 
 namespace WebAPI.Models.General
 {
@@ -20,6 +21,7 @@ namespace WebAPI.Models.General
         [DataMember(Name = "totalCount")]
         [JsonProperty(PropertyName = "totalCount")]
         [XmlElement(ElementName = "totalCount")]
-        public int? TotalCount { get; set; }
+        [ValidationException(ValidationType.NULLABLE)]
+        public int TotalCount { get; set; }
     }
 }
