@@ -54,7 +54,7 @@ namespace WebAPI.Models.Notifications
 
         internal long getStartTime()
         {
-            return StartTime.HasValue ? (int)StartTime : 0;
+            return StartTime.HasValue ? (long)StartTime : 0;
         }
 
         internal int getId()
