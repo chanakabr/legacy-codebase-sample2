@@ -1074,7 +1074,7 @@ namespace DAL
             return sp.ExecuteReturnValue<int>(); ;
         }
 
-        public static DataTable ValidatePricePlan(int groupID, string code, string fullLifeCycle, string viewLifeCycle, string priceCode, string discount,
+        public static DataTable ValidatePricePlan(int groupID, string code, string fullLifeCycle, string viewLifeCycle, string currency, double price, string discount,
             ApiObjects.eIngestAction action)
         {
             StoredProcedure sp = new StoredProcedure("ValidatePricePlan");
@@ -1083,7 +1083,8 @@ namespace DAL
             sp.AddParameter("@Name", code);
             sp.AddParameter("@FullLifeCycle", fullLifeCycle);
             sp.AddParameter("@ViewLifeCycle", viewLifeCycle);
-            sp.AddParameter("@PriceCode", priceCode);
+            sp.AddParameter("@currency", currency);
+            sp.AddParameter("@price", price);
             sp.AddParameter("@Discount", discount);
             sp.AddParameter("@Action", (int)action);
 
@@ -1162,14 +1163,15 @@ namespace DAL
             return 0;
         }
 
-        public static DataTable ValidatePPV(int groupID, string code, string priceCode, string usageModule, string discount, string couponGroup, List<string> fileTypes,
+        public static DataTable ValidatePPV(int groupID, string code, string currency, double price, string usageModule, string discount, string couponGroup, List<string> fileTypes,
             ApiObjects.eIngestAction action)
         {
             StoredProcedure sp = new StoredProcedure("ValidatePPV");
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@GroupID", groupID);
             sp.AddParameter("@Name", code);
-            sp.AddParameter("@priceCode", priceCode);
+            sp.AddParameter("@currency", currency);
+            sp.AddParameter("@price", price);
             sp.AddParameter("@usageModule", usageModule);
             sp.AddParameter("@discount", discount);
             sp.AddParameter("@couponGroup", couponGroup);
@@ -1244,6 +1246,18 @@ namespace DAL
                 HandleException(string.Empty, ex);
             }
             return 0;
+        }
+
+        public static int InsertPriceCode(int groupID, int currencyID, double price, string currency)
+        {
+            StoredProcedure sp = new StoredProcedure("Insert_PriceCode");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@CurrencyID", currencyID);
+            sp.AddParameter("@Currency", currency);
+            sp.AddParameter("@Price", price);
+            sp.AddParameter("@Date", DateTime.UtcNow);
+            return sp.ExecuteReturnValue<int>();
         }
     }
 }

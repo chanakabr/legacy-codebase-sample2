@@ -257,6 +257,7 @@ namespace ApiObjects.Response
         UniqueFiled = 9012,
         InvalidUsageModule = 9013,
         InvalidCouponGroup = 9014,
+        InvalidCurrency = 9015,
 
         // Adapters 10000-11000
         AdapterNotExists = 10000,
