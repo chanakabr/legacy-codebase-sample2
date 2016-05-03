@@ -185,7 +185,8 @@ namespace Recordings
             }
             catch (KalturaException ex)
             {
-                currentRecording.Status = new Status((int)ex.Data["StatusCode"], ex.Message);
+                currentRecording.Status = new Status((int)eResponseStatus.Error, 
+                    string.Format("Code: {0} Message: {1}", (int)ex.Data["StatusCode"],ex.Message));
             }
             catch (Exception ex)
             {
@@ -266,7 +267,8 @@ namespace Recordings
                 }
                 catch (KalturaException ex)
                 {
-                    recording.Status = new Status((int)ex.Data["StatusCode"], ex.Message);
+                    recording.Status = new Status((int)eResponseStatus.Error,
+                        string.Format("Code: {0} Message: {1}", (int)ex.Data["StatusCode"], ex.Message));
                 }
                 catch (Exception ex)
                 {
@@ -349,7 +351,8 @@ namespace Recordings
                         }
                         catch (KalturaException ex)
                         {
-                            currentRecording.Status = new Status((int)ex.Data["StatusCode"], ex.Message);
+                            currentRecording.Status = new Status((int)eResponseStatus.Error,
+                                string.Format("Code: {0} Message: {1}", (int)ex.Data["StatusCode"], ex.Message));
                         }
                         catch (Exception ex)
                         {
@@ -455,7 +458,8 @@ namespace Recordings
                     }
                     catch (KalturaException ex)
                     {
-                        recording.Status = new Status((int)ex.Data["StatusCode"], ex.Message);
+                        recording.Status = new Status((int)eResponseStatus.Error,
+                            string.Format("Code: {0} Message: {1}", (int)ex.Data["StatusCode"], ex.Message));
                     }
                     catch (Exception ex)
                     {
