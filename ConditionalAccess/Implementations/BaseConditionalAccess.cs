@@ -16984,6 +16984,10 @@ namespace ConditionalAccess
                             recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                         }
                     }
+                    else
+                    {
+                        recording = new Recording() { Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingFailed, eResponseStatus.RecordingFailed.ToString()) };
+                    }
                 }
             }
             catch (Exception ex)
@@ -17045,12 +17049,27 @@ namespace ConditionalAccess
                         response.Recordings.Add(invalidAsset);
                     }
                 }
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());                
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
-                foreach (EPGChannelProgrammeObject epg in epgs)
+                // set max amount of concurrent tasks
+                int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
+                if (maxDegreeOfParallelism == 0)
                 {
-                    response.Recordings.Add(QueryEpgRecord(accountSettings, epg, domainID, userID));
+                    maxDegreeOfParallelism = 5;
                 }
+
+                ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
+                System.Collections.Concurrent.ConcurrentBag<Recording> recordingBag = new System.Collections.Concurrent.ConcurrentBag<Recording>();
+                //duplicate domainID so we can use it in lambda expression (doesn't allow use of ref\out parameter) 
+                long domainId = domainID;
+                // loop on all Epg Id's
+                Parallel.For(0, epgs.Count, options, i =>
+                {
+                    Recording recording = QueryEpgRecord(accountSettings, epgs[i], domainId, userID);
+                    recordingBag.Add(recording);
+                });
+
+                response.Recordings.AddRange(recordingBag);
                 
                 response.TotalItems = response.Recordings.Count;
             }
