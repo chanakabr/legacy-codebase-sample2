@@ -722,5 +722,59 @@ namespace WebAPI.Clients
 
             return result;
         }
+
+        internal KalturaPersonalFollowFeedResponse GetUserFeeder(int groupId, string userID, int pageSize, int pageIndex, KalturaOrder? orderBy)
+        {
+            IdListResponse response = null;
+            List<KalturaPersonalFollowFeed> result = null;
+            KalturaPersonalFollowFeedResponse ret = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            int userId = 0;
+            if (!int.TryParse(userID, out userId))
+            {
+                throw new ClientException((int)StatusCode.UserIDInvalid, "Invalid UID");
+            }
+
+            // Create notifications order object
+            WebAPI.Notifications.OrderObj order = new WebAPI.Notifications.OrderObj();
+            if (orderBy == null)
+            {
+                order.m_eOrderBy = WebAPI.Notifications.OrderBy.NONE;
+            }
+            else
+            {
+                order = NotificationMapping.ConvertOrderToOrderObj(orderBy.Value);
+            }
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Notification.GetUserFeeder(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, pageSize, pageIndex, order);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetUserFeeder.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            result = Mapper.Map<List<KalturaPersonalFollowFeed>>(response.Ids);
+            ret = new KalturaPersonalFollowFeedResponse() { PersonalFollowFeed = result, TotalCount = response.TotalCount };
+
+            return ret;
+        }
     }
 }

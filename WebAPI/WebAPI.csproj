@@ -416,6 +416,9 @@
     <None Include="Service References\Notifications\NotificationService3.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\Notifications\NotificationService30.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\Notifications\NotificationService4.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -463,6 +466,12 @@
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
     <Content Include="Service References\Notifications\WebAPI.Notifications.MessageTemplateResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\Notifications\WebAPI.Notifications.IdsResponse1.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\Notifications\WebAPI.Notifications.IdListResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
     <None Include="Web References\Api\api.disco" />
@@ -995,6 +1004,7 @@
     <Compile Include="Controllers\CDVRAdapterProfileController.cs" />
     <Compile Include="Controllers\MessageTemplateController.cs" />
     <Compile Include="Controllers\FollowTvSeriesController.cs" />
+    <Compile Include="Controllers\PersonalFeedController.cs" />
     <Compile Include="Controllers\RecordingController.cs" />
     <Compile Include="Controllers\LicensedUrlController.cs" />
     <Compile Include="Controllers\HomeNetworkController.cs" />
@@ -1167,6 +1177,7 @@
     <Compile Include="Models\Notification\KalturaAnnouncement.cs" />
     <Compile Include="Models\Notification\KalturaAnnouncementRecipientsType.cs" />
     <Compile Include="Models\Notification\KalturaAnnouncementStatus.cs" />
+    <Compile Include="Models\Notification\KalturaFeed.cs" />
     <Compile Include="Models\Notification\KalturaFollowDataTvSeries.cs" />
     <Compile Include="Models\Notification\KalturaMessageTemplate.cs" />
     <Compile Include="Models\Notification\KalturaFollowDataBase.cs" />
@@ -1174,6 +1185,8 @@
     <Compile Include="Models\Notification\KalturaMessageAnnouncementListResponse.cs" />
     <Compile Include="Models\Notification\KalturaNotificationSettings.cs" />
     <Compile Include="Models\Notification\KalturaPartnerNotificationSettings.cs" />
+    <Compile Include="Models\Notification\KalturaPersonalFollowFeed.cs" />
+    <Compile Include="Models\Notification\KalturaPersonalFollowFeedResponse.cs" />
     <Compile Include="Models\Partner\KalturaBillingPartnerConfiguration.cs">
       <SubType>Code</SubType>
     </Compile>
