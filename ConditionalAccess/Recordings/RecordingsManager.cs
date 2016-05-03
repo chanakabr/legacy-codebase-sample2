@@ -177,6 +177,15 @@ namespace Recordings
             return recording;
         }
 
+        public Recording RecordRetry(int groupId, long recordingId)
+        {
+            Recording recording = ConditionalAccessDAL.GetRecordingByRecordingId(recordingId);
+
+            CallAdapterRecord(groupId, recording.ChannelId, recording.EpgStartDate, recording.EpgEndDate, false, recording);
+
+            return recording;
+        }
+
         private static void CallAdapterRecord(int groupId, string epgChannelID, DateTime startDate, DateTime endDate, bool isCanceled, Recording currentRecording)
         {
             bool success = false;
