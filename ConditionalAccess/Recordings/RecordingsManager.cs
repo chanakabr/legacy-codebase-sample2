@@ -158,10 +158,6 @@ namespace Recordings
                 //
                 // TODO: Validate adapter response
                 //
-                else if (adapterResponse.FailReason != 0)
-                {
-                    recording.Status = CreateFailStatus(adapterResponse);
-                }
                 else
                 {
                     try
@@ -169,7 +165,7 @@ namespace Recordings
                         recording.ExternalRecordingId = adapterResponse.RecordingId;
 
                         // Set recording to be scheduled if it hasn't failed
-                        if (adapterResponse.ActionSuccess == true)
+                        if (adapterResponse.ActionSuccess && adapterResponse.FailReason == 0)
                         {
                             recording.RecordingStatus = TstvRecordingStatus.Scheduled;
 
@@ -178,6 +174,8 @@ namespace Recordings
                         else
                         {
                             recording.RecordingStatus = TstvRecordingStatus.Failed;
+
+                            recording.Status = CreateFailStatus(adapterResponse);
                         }
 
                         // if it isn't a canceled recording, it is a completely new one - INSERT
@@ -367,21 +365,18 @@ namespace Recordings
                         //
                         // TODO: Validate adapter response
                         //
-                        else if (adapterResponse.FailReason != 0)
-                        {
-                            currentRecording.Status = CreateFailStatus(adapterResponse);
-                        }
                         else
                         {
-                            // If recording failed - we mark it as failed
-                            if (!adapterResponse.ActionSuccess)
+                            // If it was successfull - we mark it as recorded
+                            if (adapterResponse.ActionSuccess && adapterResponse.FailReason == 0)
                             {
-                                currentRecording.RecordingStatus = TstvRecordingStatus.Failed;
+                                currentRecording.RecordingStatus = TstvRecordingStatus.Recorded;
                             }
                             else
                             {
-                                // If it was successfull - we mark it as recorded
-                                currentRecording.RecordingStatus = TstvRecordingStatus.Recorded;
+                                currentRecording.RecordingStatus = TstvRecordingStatus.Failed;
+
+                                currentRecording.Status = CreateFailStatus(adapterResponse);
                             }
 
                             // Update recording after updating the status
