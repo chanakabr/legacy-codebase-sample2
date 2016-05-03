@@ -117,7 +117,7 @@ namespace Recordings
             // If it is a new recording or a canceled recording - we call adapter
             if (issueRecord)
             {
-                bool isCancled = recording.RecordingStatus == TstvRecordingStatus.Canceled;
+                bool isCanceled = recording.RecordingStatus == TstvRecordingStatus.Canceled;
 
                 recording.Status = null;
 
@@ -169,7 +169,7 @@ namespace Recordings
                         recording.ExternalRecordingId = adapterResponse.RecordingId;
 
                         // Set recording to be scheduled if it hasn't failed
-                        if (recording.RecordingStatus != TstvRecordingStatus.Failed)
+                        if (adapterResponse.ActionSuccess == true)
                         {
                             recording.RecordingStatus = TstvRecordingStatus.Scheduled;
 
@@ -181,7 +181,7 @@ namespace Recordings
                         }
 
                         // if it isn't a canceled recording, it is a completely new one - INSERT
-                        if (!isCancled)
+                        if (!isCanceled)
                         {
                             // Insert recording information to database
                             recording = ConditionalAccessDAL.InsertRecording(recording, groupId);
@@ -354,21 +354,13 @@ namespace Recordings
 
                         if (currentRecording.Status != null)
                         {
-                            // Retry in a few minutes if we still have retries left.
-                            if (currentRecording.GetStatusRetries <= MAXIMUM_RETRIES_ALLOWED)
-                            {
-                                EnqueueMessage(groupId, currentRecording.EpgId, currentRecording.Id, nextCheck, eRecordingTask.GetStatusAfterProgramEnded);
-                            }
-
+                            
                             return currentRecording;
                         }
 
                         if (adapterResponse == null)
                         {
-                            if (currentRecording.GetStatusRetries <= MAXIMUM_RETRIES_ALLOWED)
-                            {
-                                EnqueueMessage(groupId, currentRecording.EpgId, currentRecording.Id, nextCheck, eRecordingTask.GetStatusAfterProgramEnded);
-                            }
+                            RetryGetRecordingStatus(groupId, currentRecording, nextCheck);
 
                             currentRecording.Status = new Status((int)eResponseStatus.Error, "Adapter controller returned null response.");
                         }
@@ -595,6 +587,23 @@ namespace Recordings
                 recordingId);
 
             queue.Enqueue(message, string.Format(SCHEDULED_TASKS_ROUTING_KEY, groupId));
+        }
+
+        private static void RetryGetRecordingStatus(int groupId, Recording currentRecording, DateTime nextCheck)
+        {
+            // Retry in a few minutes if we still didn't exceed retries count
+            if (currentRecording.GetStatusRetries <= MAXIMUM_RETRIES_ALLOWED)
+            {
+                EnqueueMessage(groupId, currentRecording.EpgId, currentRecording.Id, nextCheck, eRecordingTask.GetStatusAfterProgramEnded);
+            }
+            else
+            {
+                // Otherwise, we tried too much! Mark this recording as failed. Sorry mates!
+                currentRecording.RecordingStatus = TstvRecordingStatus.Failed;
+
+                // Update recording after updating the status
+                ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1);
+            }
         }
 
         private static Status CreateFailStatus(RecordResult adapterResponse)
