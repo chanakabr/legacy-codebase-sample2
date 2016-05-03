@@ -272,12 +272,19 @@ namespace Recordings
                 // If we have any tries left, schedule another try in a few minutes
                 if (currentRecording.GetStatusRetries < MAXIMUM_RETRIES_ALLOWED)
                 {
+                    // Trying to record every minute
                     DateTime nextCheck = DateTime.UtcNow.AddMinutes(MINUTES_RETRY_INTERVAL);
-                    EnqueueMessage(groupId, currentRecording.EpgId, currentRecording.Id, nextCheck, eRecordingTask.Record);
+
+                    // If the next retry will be before the EPG finishes
+                    if (nextCheck < currentRecording.EpgEndDate)
+                    {
+                        EnqueueMessage(groupId, currentRecording.EpgId, currentRecording.Id, nextCheck, eRecordingTask.Record);
+                    }
                 }
             }
             else
             {
+                // If the Record was successful, reset the retries counter so that it will start from 0 when trying to get the status after the program started
                 currentRecording.GetStatusRetries = 0;
                 ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1);
             }
