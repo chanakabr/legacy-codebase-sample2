@@ -48,12 +48,35 @@ namespace RecordingTaskHandler
                 {
                     cas.Url = url;
                 }
-                                
+
                 switch (request.Task.Value)
                 {
                     case eRecordingTask.GetStatusAfterProgramEnded:
                     {
                         var recording = cas.GetRecordingStatus(username, password, request.RecordingId);
+
+                        if (recording == null)
+                        {
+                            message = "recording is null";
+                        }
+                        else if (recording.Status == null)
+                        {
+                            message = "status is null";
+                        }
+                        else if (recording.Status.Code != 0)
+                        {
+                            message = string.Format("Status code is {0} and message is {1}", recording.Status.Code, recording.Status.Message);
+                        }
+                        else
+                        {
+                            success = true;
+                        }
+
+                        break;
+                    }
+                    case eRecordingTask.Record:
+                    {
+                        var recording = cas.RecordRetry(username, password, request.RecordingId);
 
                         if (recording == null)
                         {
