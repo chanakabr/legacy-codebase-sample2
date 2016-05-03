@@ -24,11 +24,12 @@ namespace RecordingTaskHandler
 
             try
             {
-                log.InfoFormat("starting setup task. data={0}", data);
+                log.InfoFormat("starting recording task. data={0}", data);
 
                 RecordingTaskRequest request = JsonConvert.DeserializeObject<RecordingTaskHandler.RecordingTaskRequest>(data);
 
                 bool success = false;
+                string message = string.Empty;
 
                 if (request.Task == null || !request.Task.HasValue)
                 {
@@ -54,8 +55,19 @@ namespace RecordingTaskHandler
                     {
                         var recording = cas.GetRecordingStatus(username, password, request.RecordingId);
 
-                        if (recording.Status != null &&
-                            recording.Status.Code == 0)
+                        if (recording == null)
+                        {
+                            message = "recording is null";
+                        }
+                        else if (recording.Status == null)
+                        {
+                            message = "status is null";
+                        }
+                        else if (recording.Status.Code != 0)
+                        {
+                            message = string.Format("Status code is {0} and message is {1}", recording.Status.Code, recording.Status.Message);
+                        }
+                        else
                         {
                             success = true;
                         }
@@ -67,7 +79,7 @@ namespace RecordingTaskHandler
                 if (!success)
                 {
                     throw new Exception(string.Format(
-                        "Recording task on {0} did not finish successfully.", request.Task.ToString()));
+                        "Recording task on {0} did not finish successfully. message is {1}", request.Task.ToString(), message));
                 }
                 else
                 {
