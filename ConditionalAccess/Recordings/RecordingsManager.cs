@@ -154,7 +154,21 @@ namespace Recordings
                 // Async - call adapter. Main flow is done
                 System.Threading.Tasks.Task async = Task.Factory.StartNew((taskRecording) =>
                 {
-                    Recording currentRecording = (Recording)taskRecording;
+                    Recording copyRecording = (Recording)taskRecording;
+                    Recording currentRecording = new Recording()
+                    {
+                        ChannelId = copyRecording.ChannelId,
+                        EpgEndDate = copyRecording.EpgEndDate,
+                        EpgId = copyRecording.EpgId,
+                        EpgStartDate = copyRecording.EpgStartDate,
+                        ExternalRecordingId = copyRecording.ExternalRecordingId,
+                        GetStatusRetries = copyRecording.GetStatusRetries,
+                        Id =  copyRecording.Id,
+                        RecordingStatus = copyRecording.RecordingStatus,
+                        Status = copyRecording.Status,
+                        Type = copyRecording.Type
+                    };
+
                     CallAdapterRecord(groupId, epgChannelID, startDate, endDate, isCanceled, currentRecording);
                 },
                 recording);
@@ -165,6 +179,8 @@ namespace Recordings
 
         private static void CallAdapterRecord(int groupId, string epgChannelID, DateTime startDate, DateTime endDate, bool isCanceled, Recording currentRecording)
         {
+            bool success = false;
+
             currentRecording.Status = null;
 
             int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
@@ -177,6 +193,10 @@ namespace Recordings
             long startTimeSeconds = ODBCWrapper.Utils.DateTimeToUnixTimestamp(startDate);
             long durationSeconds = (long)(endDate - startDate).TotalSeconds;
             string externalChannelId = CatalogDAL.GetEPGChannelCDVRId(groupId, epgChannelID);
+
+            // Count this try
+            currentRecording.GetStatusRetries++;
+            ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1);
 
             RecordResult adapterResponse = null;
             try
@@ -215,6 +235,8 @@ namespace Recordings
                         currentRecording.RecordingStatus = TstvRecordingStatus.Scheduled;
 
                         SetRecordingStatus(currentRecording);
+
+                        success = true;
                     }
                     else
                     {
@@ -243,6 +265,21 @@ namespace Recordings
                     log.ErrorFormat("Failed inserting/updating recording {0} in database and queue: {1}", currentRecording.Id, ex);
                     currentRecording.Status = new Status((int)eResponseStatus.Error, "Failed inserting/updating recording in database and queue.");
                 }
+            }
+
+            if (!success)
+            {
+                // If we have any tries left, schedule another try in a few minutes
+                if (currentRecording.GetStatusRetries < MAXIMUM_RETRIES_ALLOWED)
+                {
+                    DateTime nextCheck = DateTime.UtcNow.AddMinutes(MINUTES_RETRY_INTERVAL);
+                    EnqueueMessage(groupId, currentRecording.EpgId, currentRecording.Id, nextCheck, eRecordingTask.Record);
+                }
+            }
+            else
+            {
+                currentRecording.GetStatusRetries = 0;
+                ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1);
             }
         }
 
@@ -361,13 +398,12 @@ namespace Recordings
 
                         if (currentRecording.Status != null)
                         {
-                            
                             return currentRecording;
                         }
 
                         if (adapterResponse == null)
                         {
-                            RetryGetRecordingStatus(groupId, currentRecording, nextCheck);
+                            RetryTask(groupId, currentRecording, nextCheck, eRecordingTask.GetStatusAfterProgramEnded);
 
                             currentRecording.Status = new Status((int)eResponseStatus.Error, "Adapter controller returned null response.");
                         }
@@ -391,15 +427,7 @@ namespace Recordings
                             // Update recording after updating the status
                             ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1);
 
-                            // After we know that recording was succesful,
-                            // we index data so it is available on search
-                            if (currentRecording.RecordingStatus == TstvRecordingStatus.OK ||
-                                currentRecording.RecordingStatus == TstvRecordingStatus.Recorded ||
-                                currentRecording.RecordingStatus == TstvRecordingStatus.Recording ||
-                                currentRecording.RecordingStatus == TstvRecordingStatus.Scheduled)
-                            {
-                                UpdateIndex(groupId, recordingId);
-                            }
+                            UpdateIndex(groupId, recordingId);
                         }
                     }
                 }
@@ -594,12 +622,12 @@ namespace Recordings
             queue.Enqueue(message, string.Format(SCHEDULED_TASKS_ROUTING_KEY, groupId));
         }
 
-        private static void RetryGetRecordingStatus(int groupId, Recording currentRecording, DateTime nextCheck)
+        private static void RetryTask(int groupId, Recording currentRecording, DateTime nextCheck, eRecordingTask recordingTask)
         {
             // Retry in a few minutes if we still didn't exceed retries count
             if (currentRecording.GetStatusRetries <= MAXIMUM_RETRIES_ALLOWED)
             {
-                EnqueueMessage(groupId, currentRecording.EpgId, currentRecording.Id, nextCheck, eRecordingTask.GetStatusAfterProgramEnded);
+                EnqueueMessage(groupId, currentRecording.EpgId, currentRecording.Id, nextCheck, recordingTask);
             }
             else
             {
