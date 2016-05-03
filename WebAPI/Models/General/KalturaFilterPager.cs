@@ -77,9 +77,9 @@ namespace WebAPI.Models.General
                     return;
                 }
                 
-                if (value < 0)
+                if (value <= 0)
                 {
-                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.InvalidPaging, "page index cannot be < 0");
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.InvalidPaging, "page index cannot be <= 0");
                 }
                 pageIndex = (int)value;
             }
@@ -94,11 +94,13 @@ namespace WebAPI.Models.General
                 if (KalturaFilterPager.maxPageSize == 0)
                     KalturaFilterPager.maxPageSize = DEFAULT_PAGE_SIZE;
             }
+
+            pageSize = DEFAULT_PAGE_SIZE;
         }
 
         internal int getPageIndex()
         {
-            return pageIndex;
+            return pageIndex - 1;
         }
 
         internal int getPageSize()
