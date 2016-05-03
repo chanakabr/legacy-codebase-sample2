@@ -338,14 +338,14 @@ namespace WebAPI.Managers
 
             // 3. set default values for empty properties
             // session duration
-            if (appToken.SessionDuration <= 0 || appToken.SessionDuration > group.AppTokenSessionMaxDurationSeconds)
+            if (appToken.SessionDuration == null || appToken.SessionDuration <= 0 || appToken.SessionDuration > group.AppTokenSessionMaxDurationSeconds)
             {
                 appToken.SessionDuration = group.AppTokenSessionMaxDurationSeconds;
             }
 
             // expiry
             long maxExpiry = Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(group.AppTokenMaxExpirySeconds));
-            if (appToken.Expiry <= 0 || appToken.Expiry > maxExpiry)
+            if (appToken.Expiry == null || appToken.Expiry <= 0 || appToken.Expiry > maxExpiry)
             {
                 appToken.Expiry = (int)maxExpiry;
             }
