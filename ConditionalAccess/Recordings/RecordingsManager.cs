@@ -108,6 +108,9 @@ namespace Recordings
                 recording.EpgEndDate = endDate;
                 recording.ChannelId = epgChannelID;
                 recording.RecordingStatus = TstvRecordingStatus.Scheduled;
+
+                // Insert recording information to database
+                recording = ConditionalAccessDAL.InsertRecording(recording, groupId);
             }
             else if (recording.RecordingStatus == TstvRecordingStatus.Canceled)
             {
@@ -143,7 +146,7 @@ namespace Recordings
                 }
                 catch (Exception ex)
                 {
-                    recording.Status = new Status((int)eResponseStatus.AdapterAppFailure, "Adapter controller excpetion: " + ex.Message);
+                    recording.Status = new Status((int)eResponseStatus.Error, "Adapter controller excpetion: " + ex.Message);
                 }
 
                 if (recording.Status != null)
@@ -175,20 +178,16 @@ namespace Recordings
                         {
                             recording.RecordingStatus = TstvRecordingStatus.Failed;
 
-                            recording.Status = CreateFailStatus(adapterResponse);
+                            //recording.Status = CreateFailStatus(adapterResponse);
                         }
 
                         // if it isn't a canceled recording, it is a completely new one - INSERT
                         if (!isCanceled)
                         {
-                            // Insert recording information to database
-                            recording = ConditionalAccessDAL.InsertRecording(recording, groupId);
-
                             if (adapterResponse.Links != null)
                             {
                                 ConditionalAccessDAL.InsertRecordingLinks(adapterResponse.Links, groupId, recording.Id);
                             }
-
                         }
                         // Otherwise it is an UPDATE
                         else
@@ -231,6 +230,7 @@ namespace Recordings
                     }
                     catch (Exception ex)
                     {
+                        log.ErrorFormat("Failed inserting/updating recording {0} in database and queue: {1}", recording.Id, ex);
                         recording.Status = new Status((int)eResponseStatus.Error, "Failed inserting/updating recording in database and queue.");
                     }
                 }
@@ -264,7 +264,7 @@ namespace Recordings
                 }
                 catch (Exception ex)
                 {
-                    recording.Status = new Status((int)eResponseStatus.AdapterAppFailure, "Adapter controller excpetion: " + ex.Message);
+                    recording.Status = new Status((int)eResponseStatus.Error, "Adapter controller excpetion: " + ex.Message);
                 }
 
                 if (recording.Status != null)
@@ -347,7 +347,7 @@ namespace Recordings
                         }
                         catch (Exception ex)
                         {
-                            currentRecording.Status = new Status((int)eResponseStatus.AdapterAppFailure, "Adapter controller excpetion: " + ex.Message);
+                            currentRecording.Status = new Status((int)eResponseStatus.Error, "Adapter controller excpetion: " + ex.Message);
                         }
 
                         if (currentRecording.Status != null)
@@ -453,7 +453,7 @@ namespace Recordings
                     }
                     catch (Exception ex)
                     {
-                        recording.Status = new Status((int)eResponseStatus.AdapterAppFailure, "Adapter controller excpetion: " + ex.Message);
+                        recording.Status = new Status((int)eResponseStatus.Error, "Adapter controller excpetion: " + ex.Message);
                     }
 
                     if (recording.Status != null)
