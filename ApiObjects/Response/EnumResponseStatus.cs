@@ -110,6 +110,7 @@ namespace ApiObjects.Response
         CatchUpBufferLimitation = 3037,        
         ProgramNotInRecordingScheduleWindow = 3038,
         RecordingNotFound = 3039,
+        RecordingFailed = 3040,
 
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,
