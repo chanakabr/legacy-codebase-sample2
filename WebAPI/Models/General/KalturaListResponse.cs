@@ -21,7 +21,7 @@ namespace WebAPI.Models.General
         [DataMember(Name = "totalCount")]
         [JsonProperty(PropertyName = "totalCount")]
         [XmlElement(ElementName = "totalCount")]
-        [ValidationException(ValidationType.NULLABLE)]
+        [ValidationException(SchemaValidationType.NULLABLE)]
         public int TotalCount { get; set; }
     }
 }
