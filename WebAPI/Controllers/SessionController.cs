@@ -7,8 +7,10 @@ using System.Web.Http;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
+using WebAPI.Models.General;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
 
@@ -85,6 +87,31 @@ namespace WebAPI.Controllers
                 userId = ks.UserId,
                 udid = KSUtils.ExtractKSPayload(ks).UDID
             };
+        }
+
+        /// <summary>
+        /// Switching the user in the session by generating a new session for a new user within the same household
+        /// </summary>
+        /// <param name="userIdToSwitch">The identifier of the user to change</param>
+        [Route("switchUser"), HttpPost]
+        [ApiAuthorize]
+        public KalturaLoginSession SwitchUser(string userIdToSwitch)
+        {
+            if (string.IsNullOrEmpty(userIdToSwitch))
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "userIdToSwitch cannot be empty");
+            }
+
+            int partnerId = KS.GetFromRequest().GroupId;
+
+            if (!AuthorizationManager.IsUserInHousehold(userIdToSwitch, partnerId))
+            {
+                throw new ForbiddenException((int)WebAPI.Managers.Models.StatusCode.ServiceForbidden, "userIdToSwitch is not in household");
+            }
+
+            string udid = KSUtils.ExtractKSPayload().UDID;
+
+            return AuthorizationManager.GenerateSession(userIdToSwitch, partnerId, false, false, udid);
         }
     }
 }
