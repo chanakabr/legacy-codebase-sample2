@@ -682,19 +682,19 @@ namespace Recordings
                     shouldRetry = true;
                 }
 
-                if (currentRecording.Status != null)
+                // if adapter failed - retry, don't mark as failed
+                if (currentRecording.Status != null && currentRecording.Status.Code != (int)eResponseStatus.OK)
                 {
-                    // if adapter failed - retry, don't mark as failed
-                    if (currentRecording.Status.Code != (int)eResponseStatus.OK)
-                    {
-                        shouldMarkAsFailed = false;
-                        shouldRetry = true;
-                    }
+                    shouldMarkAsFailed = false;
+                    shouldRetry = true;
+                }
+
+                // If we have a resposne AND we didn't set the status to be invalid
+                if (adapterResponse != null && (currentRecording.Status == null || currentRecording.Status.Code == (int)eResponseStatus.OK))
+                {
                     // if provider failed
-                    else if (!adapterResponse.ActionSuccess || adapterResponse.FailReason != 0)
+                    if (!adapterResponse.ActionSuccess || adapterResponse.FailReason != 0)
                     {
-                        log.DebugFormat("RecordingsManager - Record: provider failed. action success = {0}, fail reason = {1}", 
-                            adapterResponse.ActionSuccess, adapterResponse.FailReason);
                         shouldRetry = true;
                         shouldMarkAsFailed = true;
                     }
