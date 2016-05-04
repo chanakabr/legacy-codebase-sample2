@@ -630,7 +630,8 @@ namespace Recordings
 
         private static void CallAdapterRecord(int groupId, string epgChannelID, DateTime startDate, DateTime endDate, bool isCanceled, Recording currentRecording)
         {
-            bool success = false;
+            bool shouldRetry = true;
+            bool shouldMarkAsFailed = false;
 
             currentRecording.Status = null;
 
@@ -675,10 +676,27 @@ namespace Recordings
                 {
                     // Set external recording ID
                     currentRecording.ExternalRecordingId = adapterResponse.RecordingId;
+                }
+                else
+                {
+                    shouldRetry = true;
+                }
 
-                    // Set recording to be scheduled if it hasn't failed
-                    if (currentRecording.Status != null && currentRecording.Status.Code == (int)eResponseStatus.OK && 
-                        adapterResponse.ActionSuccess && adapterResponse.FailReason == 0)
+                if (currentRecording.Status != null)
+                {
+                    // if adapter failed - retry, don't mark as failed
+                    if (currentRecording.Status.Code != (int)eResponseStatus.OK)
+                    {
+                        shouldMarkAsFailed = false;
+                        shouldRetry = true;
+                    }
+                    // if provider failed
+                    else if (!adapterResponse.ActionSuccess || adapterResponse.FailReason != 0)
+                    {
+                        shouldRetry = true;
+                        shouldMarkAsFailed = true;
+                    }
+                    else
                     {
                         currentRecording.RecordingStatus = TstvRecordingStatus.Scheduled;
 
@@ -693,11 +711,13 @@ namespace Recordings
                             }
                         }
 
-                        success = true;
+                        // everything is good
+                        shouldMarkAsFailed = false;
+                        shouldRetry = false;
                     }
                 }
 
-                if (!success)
+                if (!shouldMarkAsFailed)
                 {
                     currentRecording.RecordingStatus = TstvRecordingStatus.Failed;
                 }
@@ -716,7 +736,7 @@ namespace Recordings
                 currentRecording.Status = new Status((int)eResponseStatus.Error, "Failed inserting/updating recording in database and queue.");
             }
 
-            if (!success)
+            if (shouldRetry)
             {
                 var span = currentRecording.EpgStartDate - DateTime.UtcNow;
 
@@ -727,15 +747,21 @@ namespace Recordings
                 {
                     nextCheck = DateTime.UtcNow.AddDays(1);
                 }
-                else
+                else if (span.TotalHours > 1)
                 {
                     // if there is less than 1 day, get as HALF as close to the start of the program.
                     // e.g. if we are 4 hours away from program, check in 2 hours. If we are 140 minutes away, try in 70 minutes.
                     nextCheck = DateTime.UtcNow.AddSeconds(span.TotalSeconds / 2);
                 }
+                else
+                {
+                    // if we are less than an hour away from the program, try when the program starts
+                    nextCheck = currentRecording.EpgStartDate;
+                }
 
-                // If the next retry will be at least an hour before program starts
-                if (nextCheck < currentRecording.EpgStartDate.AddHours(-1))
+                // stop checking after the program started
+                if (DateTime.UtcNow < currentRecording.EpgStartDate &&
+                    DateTime.UtcNow < nextCheck)
                 {
                     EnqueueMessage(groupId, currentRecording.EpgId, currentRecording.Id, nextCheck, eRecordingTask.Record);
                 }
