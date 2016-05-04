@@ -112,12 +112,15 @@ namespace Recordings
             syncParmeters.Add("startDate", startDate);
             syncParmeters.Add("endDate", endDate);
 
-            bool syncedAction = synchronizer.DoAction(syncKey, syncParmeters);
+            recording = ConditionalAccessDAL.GetRecordingByProgramId(programId);
+
+            if (recording == null)
+            {
+                bool syncedAction = synchronizer.DoAction(syncKey, syncParmeters);
+            }
 
             try
             {
-                recording = ConditionalAccessDAL.GetRecordingByProgramId(programId);
-
                 if (recording != null)
                 {
                     recording.Status = new Status((int)eResponseStatus.OK);
@@ -476,7 +479,7 @@ namespace Recordings
             DateTime startDate = (DateTime)parameters["startDate"];
             DateTime endDate = (DateTime)parameters["endDate"];
 
-            Recording recording = null;
+            Recording recording = ConditionalAccessDAL.GetRecordingByProgramId(programId);
 
             bool issueRecord = false;
 
