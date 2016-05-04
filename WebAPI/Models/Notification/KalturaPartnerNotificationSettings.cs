@@ -26,5 +26,21 @@ namespace WebAPI.Models.Notification
         [JsonProperty("push_system_announcements_enabled")]
         [XmlElement(ElementName = "push_system_announcements_enabled", IsNullable = true)]
         public bool? PushSystemAnnouncementsEnabled { get; set; }
+
+        /// <summary>
+        /// push start hour
+        /// </summary>
+        [DataMember(Name = "push_start_hour")]
+        [JsonProperty("push_start_hour")]
+        [XmlElement(ElementName = "push_start_hour", IsNullable = true)]
+        public int? PushStartHour { get; set; }
+
+        /// <summary>
+        /// push end hour
+        /// </summary>
+        [DataMember(Name = "push_end_hour")]
+        [JsonProperty("push_end_hour")]
+        [XmlElement(ElementName = "push_end_hour", IsNullable = true)]
+        public int? PushEndHour { get; set; }
     }
 }

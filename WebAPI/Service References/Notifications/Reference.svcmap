@@ -26,6 +26,7 @@
   <Metadata>
     <MetadataFile FileName="NotificationService5.xsd" MetadataType="Schema" ID="3345276a-4cbe-4916-ad34-88cca68f3441" SourceId="1" SourceUrl="http://localhost/ws_notification/NotificationService.svc?xsd=xsd4" />
     <MetadataFile FileName="NotificationService13.xsd" MetadataType="Schema" ID="e2452ad0-15a7-471c-bad5-ecb3b8b72d52" SourceId="1" SourceUrl="http://localhost/ws_notification/NotificationService.svc?xsd=xsd5" />
+    <MetadataFile FileName="NotificationService30.xsd" MetadataType="Schema" ID="b0b994bd-b1f7-4a24-b1a8-69504ad7146d" SourceId="1" SourceUrl="http://localhost/ws_notification/NotificationService.svc?xsd=xsd8" />
     <MetadataFile FileName="NotificationService1.wsdl" MetadataType="Wsdl" ID="872a3730-02d2-4a9a-a82c-55abdbe4126a" SourceId="1" SourceUrl="http://localhost/ws_notification/NotificationService.svc?wsdl" />
     <MetadataFile FileName="NotificationService14.xsd" MetadataType="Schema" ID="9a80c250-eea3-4715-b14f-398e71115633" SourceId="1" SourceUrl="http://localhost/ws_notification/NotificationService.svc?xsd=xsd6" />
     <MetadataFile FileName="NotificationService15.xsd" MetadataType="Schema" ID="85ea2729-978e-4015-b0d1-2f4a17744f6b" SourceId="1" SourceUrl="http://localhost/ws_notification/NotificationService.svc?xsd=xsd2" />

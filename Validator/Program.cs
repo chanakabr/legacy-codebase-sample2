@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.Managers.Schema;
+using Validator.Managers.Schema;
 
 namespace Validator
 {

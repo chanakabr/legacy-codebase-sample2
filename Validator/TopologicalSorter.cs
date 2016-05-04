@@ -15,7 +15,7 @@ using System.Web.Http.Description;
 using System.Web;
 using System.Xml.Serialization;
 
-namespace WebAPI.Managers.Schema
+namespace Validator.Managers.Schema
 {
     internal class TopologicalSorter
     {

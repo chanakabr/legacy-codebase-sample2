@@ -14,15 +14,15 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Utils;
 
-namespace WebAPI.Managers.Schema
+namespace Validator.Managers.Schema
 {
     internal class Schema
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
         private Stream stream;
         private Assembly assembly;
+        private Assembly validatorAssembly;
         private XmlDocument assemblyXml;
         private XmlWriter writer;
 
@@ -32,8 +32,9 @@ namespace WebAPI.Managers.Schema
 
         public Schema(bool loadAll)
         {
-            this.assembly = Assembly.GetExecutingAssembly();
-            this.assemblyXml = GetAssemblyXml(assembly);
+            this.assembly = Assembly.Load("WebAPI");
+            this.validatorAssembly = Assembly.GetExecutingAssembly();
+            this.assemblyXml = GetAssemblyXml();
 
             Load(loadAll);
         }
@@ -160,9 +161,9 @@ namespace WebAPI.Managers.Schema
             }
         }
 
-        private XmlDocument GetAssemblyXml(Assembly assembly)
+        private XmlDocument GetAssemblyXml()
         {
-            string assemblyFilename = assembly.CodeBase;
+            string assemblyFilename = validatorAssembly.CodeBase;
 
             const string prefix = "file:///";
 
@@ -172,7 +173,7 @@ namespace WebAPI.Managers.Schema
 
                 try
                 {
-                    streamReader = new StreamReader(Path.ChangeExtension(assemblyFilename.Substring(prefix.Length), ".xml"));
+                    streamReader = new StreamReader(string.Format("{0}/WebAPI.xml", Path.GetDirectoryName(assemblyFilename.Substring(prefix.Length))));
                 }
                 catch (FileNotFoundException exception)
                 {
@@ -182,6 +183,31 @@ namespace WebAPI.Managers.Schema
                 XmlDocument xmlDocument = new XmlDocument();
                 xmlDocument.Load(streamReader);
                 return xmlDocument;
+            }
+            else
+            {
+                throw new Exception("Could not ascertain assembly filename", null);
+            }
+        }
+
+        private string GetAssemblyVersion()
+        {
+            string assemblyFilename = validatorAssembly.CodeBase;
+
+            const string prefix = "file:///";
+
+            if (assemblyFilename.StartsWith(prefix))
+            {
+                try
+                {
+                    string location = string.Format("{0}/WebAPI.dll", Path.GetDirectoryName(assemblyFilename.Substring(prefix.Length)));
+                    FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(location);
+                    return fileVersionInfo.FileVersion;
+                }
+                catch (FileNotFoundException exception)
+                {
+                    throw new Exception("DLL not present (make sure it is turned on in project properties when building)", exception);
+                }
             }
             else
             {
@@ -225,12 +251,10 @@ namespace WebAPI.Managers.Schema
 
         internal void write()
         {
-            FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
-
             writer.WriteStartDocument();
             writer.WriteStartElement("xml");
-            writer.WriteAttributeString("apiVersion", fileVersionInfo.FileVersion);
-            writer.WriteAttributeString("generatedDate", Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow).ToString());
+            writer.WriteAttributeString("apiVersion", GetAssemblyVersion());
+            writer.WriteAttributeString("generatedDate", SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow).ToString());
             
             //Printing enums
             writer.WriteStartElement("enums");

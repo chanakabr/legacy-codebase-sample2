@@ -26,7 +26,7 @@
             <remarks>Possible status codes: AnnouncementMessageTooLong = 8010, AnnouncementMessageIsEmpty = 8004, AnnouncementInvalidStartTime = 8005, AnnouncementNotFound = 8006,
             AnnouncementUpdateNotAllowed = 8007, FeatureDisabled = 8009</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.AnnouncementController.UpdateStatus(System.Int32,System.Boolean)">
+        <member name="M:WebAPI.Controllers.AnnouncementController.UpdateStatus(System.Int64,System.Boolean)">
             <summary>
             Update a system announcement status
             </summary>
@@ -35,7 +35,7 @@
             <returns></returns>
             <remarks>AnnouncementNotFound = 8006, AnnouncementUpdateNotAllowed = 8007, FeatureDisabled = 8009</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.AnnouncementController.Delete(System.Int32)">
+        <member name="M:WebAPI.Controllers.AnnouncementController.Delete(System.Int64)">
             <summary>
             Delete an exisitng annoucnent. Annoucment cannot be delete while being sent.
             </summary>
@@ -335,6 +335,16 @@
             <param name="asset_id"></param>
             <returns></returns>
         </member>
+        <member name="M:WebAPI.Controllers.PersonalFeedController.List(System.Nullable{WebAPI.Models.Catalog.KalturaOrder},WebAPI.Models.General.KalturaFilterPager)">
+            <summary>
+            List user's feeds.
+            <remarks>Possible status codes:</remarks>
+            </summary>
+            <param name="order_by">Required sort option to apply for the identified assets. If omitted – will use relevancy.
+            Possible values: relevancy, a_to_z, z_to_a, views, ratings, votes, newest.</param>        
+            <param name="pager">Page size and index</param>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.RecordingController.Get(System.Int64)">
             <summary>
             Returns recording object by internal identifier
@@ -343,11 +353,11 @@
             <returns></returns>
             <remarks>Possible status codes: BadRequest = 500003, RecordingNotFound = 3040</remarks>     
         </member>
-        <member name="M:WebAPI.Controllers.RecordingController.GetContext(System.String)">
+        <member name="M:WebAPI.Controllers.RecordingController.GetContext(WebAPI.Models.ConditionalAccess.KalturaRecordingContextFilter)">
             <summary>
-            Query record options for a program
+            Query record options for programs
             </summary>
-            <param name="assetId">Comma seperated, internal identifier of the asset</param>
+            <param name="filter">Filter parameters for filtering out the result</param>
             <returns></returns>
             <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024,
             ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, AccountCatchUpNotEnabled = 3034, ProgramCdvrNotEnabled = 3035,
@@ -1381,11 +1391,6 @@
             </remarks>
              <param name="request">Sequential API calls' definitions</param>
              <returns></returns>
-        </member>
-        <member name="T:WebAPI.ApiSchema">
-            <summary>
-            Prints out the API XML schema
-            </summary>
         </member>
         <member name="M:WebAPI.Controllers.SocialController.GetByToken(System.Int32,System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
             <summary>
@@ -2537,12 +2542,27 @@
             Recording Type: single/series
             </summary>
         </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingContext.Code">
+            <summary>
+            query status code
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingContext.Message">
+            <summary>
+            query status message
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingContext.AssetId">
+            <summary>
+            Asset identifier
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingContext.Recording">
             <summary>
             Recording object
             </summary>
         </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaRecordingFilter">
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaRecordingContextFilter">
             <summary>
             Filtering assets
             </summary>
@@ -2550,6 +2570,26 @@
         <member name="T:WebAPI.Models.General.KalturaFilter">
             <summary>
             Base filter
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingContextFilter.AssetIds">
+            <summary>
+            Asset Id's
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaRecordingContextListResponse">
+            <summary>
+            Recordings context info wrapper
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingContextListResponse.Objects">
+            <summary>
+            Recording contexts
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaRecordingFilter">
+            <summary>
+            Filtering recordings
             </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingFilter.StatusIn">
@@ -2579,7 +2619,7 @@
         </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaRecordingStatusHolder">
             <summary>
-            Holder object for Catalog With enum
+            Holder object for KalturaRecordingStatus
             </summary>    
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaLicensedUrl.MainUrl">
@@ -3218,6 +3258,22 @@
             push system announcements enabled
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Notification.KalturaPartnerNotificationSettings.PushStartHour">
+            <summary>
+            push start hour
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaPartnerNotificationSettings.PushEndHour">
+            <summary>
+            push end hour
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaPersonalFollowFeedResponse">
+            <summary>
+            List of message follow data.
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "P:WebAPI.Models.Notification.KalturaPersonalFollowFeedResponse.PersonalFollowFeed" -->
         <member name="T:WebAPI.Models.Partner.KalturaBillingPartnerConfig">
             <summary>
             Partner billing configuration
@@ -4167,6 +4223,11 @@
         <member name="P:WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings.TrickPlayEnabled">
             <summary>
             Is trick-play enabled
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings.RecordingScheduleWindowEnabled">
+            <summary>
+            Is recording schedule window enabled
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings.CatchUpBufferLength">
@@ -9195,6 +9256,9 @@
         <member name="P:WebAPI.Api.TimeShiftedTvPartnerSettings.IsTrickPlayEnabled">
             <remarks/>
         </member>
+        <member name="P:WebAPI.Api.TimeShiftedTvPartnerSettings.IsRecordingScheduleWindowEnabled">
+            <remarks/>
+        </member>
         <member name="P:WebAPI.Api.TimeShiftedTvPartnerSettings.CatchUpBufferLength">
             <remarks/>
         </member>
@@ -12849,15 +12913,6 @@
         <member name="M:WebAPI.ConditionalAccess.module.QueryRecordsAsync(System.String,System.String,System.String,System.Int64[],System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.QueryRecord(System.String,System.String,System.String,System.Int64)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.ConditionalAccess.module.QueryRecordAsync(System.String,System.String,System.String,System.Int64)">
-            <remarks/>
-        </member>
-        <member name="M:WebAPI.ConditionalAccess.module.QueryRecordAsync(System.String,System.String,System.String,System.Int64,System.Object)">
-            <remarks/>
-        </member>
         <member name="M:WebAPI.ConditionalAccess.module.GetRecordingStatus(System.String,System.String,System.Int64)">
             <remarks/>
         </member>
@@ -12867,22 +12922,22 @@
         <member name="M:WebAPI.ConditionalAccess.module.GetRecordingStatusAsync(System.String,System.String,System.Int64,System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.SearchDomainRecordings(System.String,System.String,System.String,System.Int64,WebAPI.ConditionalAccess.TstvRecordingStatus[],System.String,System.Int32,System.Int32,WebAPI.ConditionalAccess.OrderObj,System.String)">
+        <member name="M:WebAPI.ConditionalAccess.module.SearchDomainRecordings(System.String,System.String,System.String,System.Int64,WebAPI.ConditionalAccess.TstvRecordingStatus[],System.String,System.Int32,System.Int32,WebAPI.ConditionalAccess.OrderObj)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.SearchDomainRecordingsAsync(System.String,System.String,System.String,System.Int64,WebAPI.ConditionalAccess.TstvRecordingStatus[],System.String,System.Int32,System.Int32,WebAPI.ConditionalAccess.OrderObj,System.String)">
+        <member name="M:WebAPI.ConditionalAccess.module.SearchDomainRecordingsAsync(System.String,System.String,System.String,System.Int64,WebAPI.ConditionalAccess.TstvRecordingStatus[],System.String,System.Int32,System.Int32,WebAPI.ConditionalAccess.OrderObj)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.SearchDomainRecordingsAsync(System.String,System.String,System.String,System.Int64,WebAPI.ConditionalAccess.TstvRecordingStatus[],System.String,System.Int32,System.Int32,WebAPI.ConditionalAccess.OrderObj,System.String,System.Object)">
+        <member name="M:WebAPI.ConditionalAccess.module.SearchDomainRecordingsAsync(System.String,System.String,System.String,System.Int64,WebAPI.ConditionalAccess.TstvRecordingStatus[],System.String,System.Int32,System.Int32,WebAPI.ConditionalAccess.OrderObj,System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.GetRecordingsByIDs(System.String,System.String,System.Int64[])">
+        <member name="M:WebAPI.ConditionalAccess.module.GetRecordingsByIDs(System.String,System.String,System.Int64,System.Int64[])">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.GetRecordingsByIDsAsync(System.String,System.String,System.Int64[])">
+        <member name="M:WebAPI.ConditionalAccess.module.GetRecordingsByIDsAsync(System.String,System.String,System.Int64,System.Int64[])">
             <remarks/>
         </member>
-        <member name="M:WebAPI.ConditionalAccess.module.GetRecordingsByIDsAsync(System.String,System.String,System.Int64[],System.Object)">
+        <member name="M:WebAPI.ConditionalAccess.module.GetRecordingsByIDsAsync(System.String,System.String,System.Int64,System.Int64[],System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.ConditionalAccess.module.UpdateRecording(System.String,System.String,System.Int64[],WebAPI.ConditionalAccess.eAction)">
@@ -13726,9 +13781,6 @@
             <remarks/>
         </member>
         <member name="E:WebAPI.ConditionalAccess.module.QueryRecordsCompleted">
-            <remarks/>
-        </member>
-        <member name="E:WebAPI.ConditionalAccess.module.QueryRecordCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.ConditionalAccess.module.GetRecordingStatusCompleted">
@@ -15456,10 +15508,10 @@
         <member name="P:WebAPI.ConditionalAccess.Recording.EpgEndDate">
             <remarks/>
         </member>
-        <member name="P:WebAPI.ConditionalAccess.Recording.EpgUpdateDate">
+        <member name="P:WebAPI.ConditionalAccess.Recording.Type">
             <remarks/>
         </member>
-        <member name="P:WebAPI.ConditionalAccess.Recording.Type">
+        <member name="P:WebAPI.ConditionalAccess.Recording.GetStatusRetries">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.TstvRecordingStatus">
@@ -15481,9 +15533,6 @@
             <remarks/>
         </member>
         <member name="F:WebAPI.ConditionalAccess.TstvRecordingStatus.Canceled">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.ConditionalAccess.TstvRecordingStatus.DoesNotExist">
             <remarks/>
         </member>
         <member name="F:WebAPI.ConditionalAccess.TstvRecordingStatus.Deleted">
@@ -15955,15 +16004,6 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.ConditionalAccess.QueryRecordsCompletedEventArgs.Result">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.QueryRecordCompletedEventHandler">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.QueryRecordCompletedEventArgs">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.ConditionalAccess.QueryRecordCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.GetRecordingStatusCompletedEventHandler">

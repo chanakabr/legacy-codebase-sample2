@@ -23,7 +23,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty(PropertyName = "assetIds")]
         [XmlArray(ElementName = "assetIds", IsNullable = true)]
         [XmlArrayItem(ElementName = "assetIds")]
-        public List<long> AssetIds { get; set; }
+        public List<KalturaLongValue> AssetIds { get; set; }
 
 
     }

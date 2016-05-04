@@ -15,12 +15,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //NotificationPartnerSettings to KalturaPartnerNotificationSettings
             Mapper.CreateMap<NotificationPartnerSettings, KalturaPartnerNotificationSettings>()                 
                  .ForMember(dest => dest.PushNotificationEnabled, opt => opt.MapFrom(src => src.push_notification_enabled))
-                 .ForMember(dest => dest.PushSystemAnnouncementsEnabled, opt => opt.MapFrom(src => src.push_system_announcements_enabled));
+                 .ForMember(dest => dest.PushSystemAnnouncementsEnabled, opt => opt.MapFrom(src => src.push_system_announcements_enabled))
+                 .ForMember(dest => dest.PushStartHour, opt => opt.MapFrom(src => src.PushStartHour))
+                 .ForMember(dest => dest.PushEndHour, opt => opt.MapFrom(src => src.PushEndHour));
 
             //KalturaPartnerNotificationSettings TO NotificationPartnerSettings
             Mapper.CreateMap<KalturaPartnerNotificationSettings, NotificationPartnerSettings>()
                  .ForMember(dest => dest.push_notification_enabled, opt => opt.MapFrom(src => src.PushNotificationEnabled))
-                 .ForMember(dest => dest.push_system_announcements_enabled, opt => opt.MapFrom(src => src.PushSystemAnnouncementsEnabled));
+                 .ForMember(dest => dest.push_system_announcements_enabled, opt => opt.MapFrom(src => src.PushSystemAnnouncementsEnabled))
+                 .ForMember(dest => dest.PushStartHour, opt => opt.MapFrom(src => src.PushStartHour))
+                 .ForMember(dest => dest.PushEndHour, opt => opt.MapFrom(src => src.PushEndHour));
 
             Mapper.CreateMap<UserNotificationSettings, KalturaNotificationSettings>()
                  .ForMember(dest => dest.PushNotificationEnabled, opt => opt.MapFrom(src => src.EnablePush))
@@ -32,8 +36,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<KalturaNotificationSettings, UserNotificationSettings>()
                  .ForMember(dest => dest.EnablePush, opt => opt.MapFrom(src => src.PushNotificationEnabled))
                  .ForMember(dest =>  dest.FollowSettings, opt => opt.MapFrom(src => src.PushFollowEnabled));
-
-
 
             Mapper.CreateMap<MessageAnnouncement, KalturaAnnouncement>()
                  .ForMember(dest => dest.Enabled, opt => opt.MapFrom(src => src.Enabled))
@@ -87,6 +89,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
                  .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
                  .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0));
+
+            Mapper.CreateMap<int, KalturaPersonalFollowFeed>()
+               .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src));
         }
 
         private static bool? GetFollowSettingsEnablePush(UserNotificationSettings userFollowSettings)
@@ -180,6 +185,48 @@ namespace WebAPI.ObjectsConvertor.Mapping
             int.TryParse(input, out ret);
 
             return ret;
+        }
+
+        internal static OrderObj ConvertOrderToOrderObj(Models.Catalog.KalturaOrder order)
+        {
+            OrderObj result = new OrderObj();
+
+            switch (order)
+            {
+                case Models.Catalog.KalturaOrder.a_to_z:
+                    result.m_eOrderBy = OrderBy.NAME;
+                    result.m_eOrderDir = OrderDir.ASC;
+                    break;
+                case Models.Catalog.KalturaOrder.z_to_a:
+                    result.m_eOrderBy = OrderBy.NAME;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case Models.Catalog.KalturaOrder.views:
+                    result.m_eOrderBy = OrderBy.VIEWS;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case Models.Catalog.KalturaOrder.ratings:
+                    result.m_eOrderBy = OrderBy.RATING;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case Models.Catalog.KalturaOrder.votes:
+                    result.m_eOrderBy = OrderBy.VOTES_COUNT;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case Models.Catalog.KalturaOrder.newest:
+                    result.m_eOrderBy = OrderBy.START_DATE;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case Models.Catalog.KalturaOrder.relevancy:
+                    result.m_eOrderBy = OrderBy.RELATED;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case Models.Catalog.KalturaOrder.oldest_first:
+                    result.m_eOrderBy = OrderBy.START_DATE;
+                    result.m_eOrderDir = OrderDir.ASC;
+                    break;
+            }
+            return result;   
         }
     }
 }
