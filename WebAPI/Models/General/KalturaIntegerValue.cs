@@ -17,7 +17,7 @@ namespace WebAPI.Models.General
         [DataMember(Name = "value")]
         [XmlElement("value")]
         [JsonProperty("value")]
-        [ValidationException(ValidationType.NULLABLE)]
+        [ValidationException(SchemaValidationType.NULLABLE)]
         public int value { get; set; }
     }
 }

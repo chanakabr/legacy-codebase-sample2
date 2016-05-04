@@ -53,6 +53,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Validator\Validator.csproj">
+      <Project>{972a170c-c623-4dae-90b3-f47509ec6aa1}</Project>
+      <Name>Validator</Name>
+    </ProjectReference>
     <ProjectReference Include="..\WebAPI\WebAPI.csproj">
       <Project>{223f9697-c15b-46e8-b71b-52ffbafbeba2}</Project>
       <Name>WebAPI</Name>

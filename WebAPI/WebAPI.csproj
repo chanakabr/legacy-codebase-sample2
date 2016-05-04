@@ -148,7 +148,6 @@
     <Content Include="log4net.config">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="ApiSchema.ashx" />
     <None Include="Properties\PublishProfiles\fdf.pubxml" />
     <None Include="Properties\PublishProfiles\rest.pubxml" />
     <None Include="Properties\Settings.settings">
@@ -1037,9 +1036,6 @@
     <Compile Include="Controllers\PaymentGatewayController.cs" />
     <Compile Include="Controllers\PaymentGatewayProfileController.cs" />
     <Compile Include="Controllers\MultiRequestController.cs" />
-    <Compile Include="ApiSchema.ashx.cs">
-      <DependentUpon>ApiSchema.ashx</DependentUpon>
-    </Compile>
     <Compile Include="Controllers\ServiceController.cs" />
     <Compile Include="Controllers\SocialController.cs" />
     <Compile Include="Controllers\TransactionController.cs" />
@@ -1054,16 +1050,12 @@
     <Compile Include="Exceptions\NotFoundException.cs" />
     <Compile Include="Filters\VoidActionFilter.cs" />
     <Compile Include="Managers\AuthorizationManager.cs" />
-    <Compile Include="Managers\SchemaManager.cs" />
     <Compile Include="Managers\Models\ApiToken.cs" />
     <Compile Include="Managers\Models\AppToken.cs" />
     <Compile Include="Managers\Models\KSUtils.cs" />
     <Compile Include="Managers\RolesManager.cs" />
     <Compile Include="Managers\Schema\ValidationException.cs" />
-    <Compile Include="Managers\Schema\TopologicalSorter.cs" />
-    <Compile Include="Managers\Schema\Field.cs" />
-    <Compile Include="Managers\Schema\Schema.cs" />
-    <Compile Include="Managers\Schema\ValidationType.cs" />
+    <Compile Include="Managers\Schema\SchemaValidationType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaCDVRAdapterProfile.cs" />
     <Compile Include="Models\API\KalturaPermissionsFilter.cs" />
     <Compile Include="Models\API\KalturaExportFilter.cs" />

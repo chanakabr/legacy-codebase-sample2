@@ -113,7 +113,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <returns></returns>
         [Route("startSession"), HttpPost]
-        [ValidationException(ValidationType.ACTION_NAME)]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
         [ApiAuthorize]
         public KalturaSessionInfo StartSession(string id, string tokenHash, string userId = null, KalturaSessionType? type = null, int? expiry = null, string udid = null)
         {
