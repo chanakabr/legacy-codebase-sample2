@@ -1116,24 +1116,19 @@ namespace DAL
                 sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@assetType", (int)assetType);
-
                 DataSet ds = sp.ExecuteDataSet();
 
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
                     if (ds.Tables[0].Rows.Count > 0)
-                    {
                         result = CreateMessageTemplate(ds.Tables[0].Rows[0]);
-                    }
                 }
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("Error at GetMessageTemplate. groupId: {0}. Error {1}", groupId, ex);
             }
-
             return result;
-
         }
 
         private static MessageTemplate CreateMessageTemplate(DataRow row)
@@ -1388,7 +1383,7 @@ namespace DAL
             return result;
         }
 
-        public static bool UpdateUserNotificationSettings(int groupID, int userId, UserNotificationSettings settings, ref bool isDocumentExist)
+        public static UserNotificationSettings UpdateUserNotificationSettings(int groupID, int userId, UserNotificationSettings settings, ref bool isDocumentExist)
         {
             bool result = false;
             UserNotification userNotification = null;
@@ -1466,7 +1461,10 @@ namespace DAL
                 log.ErrorFormat("Error while trying to update user notification settings. key: {0}, ex: {1}", cbKey, ex);
             }
 
-            return result;
+            if (userNotification != null && userNotification.Settings != null)
+                return userNotification.Settings;
+            else
+                return null;
         }
 
         private static void UpdateUserNotification(UserNotificationSettings settings, ref UserNotification userNotification)
