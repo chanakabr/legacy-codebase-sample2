@@ -72,7 +72,7 @@ namespace WebAPI.Controllers
                 }          
 
                 // call client                
-                response = ClientsManager.ConditionalAccessClient().QueryRecords(groupId, userId, filter.AssetIds.ToArray());
+                response = ClientsManager.ConditionalAccessClient().QueryRecords(groupId, userId, filter.AssetIds.Select(x => x.value).ToArray());
             }
             catch (ClientException ex)
             {
