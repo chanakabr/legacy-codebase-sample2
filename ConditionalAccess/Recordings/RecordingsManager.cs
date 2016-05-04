@@ -45,7 +45,7 @@ namespace Recordings
 
         private RecordingsManager()
         {
-            synchronizer = new CouchbaseSynchronizer();
+            synchronizer = new CouchbaseSynchronizer(1000, 60);
             synchronizer.SynchronizedAct += synchronizer_SynchronizedAct;
         }
 
@@ -113,7 +113,20 @@ namespace Recordings
 
             bool syncedAction = synchronizer.DoAction(syncKey, syncParmeters);
 
-            recording = ConditionalAccessDAL.GetRecordingByProgramId(programId);
+            try
+            {
+                recording = ConditionalAccessDAL.GetRecordingByProgramId(programId);
+
+                if (recording != null)
+                {
+                    recording.Status = new Status((int)eResponseStatus.OK);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("RecordingsManager - Record: Error getting recording of program {0}. error = {1}", programId, ex);
+                recording = null;
+            }
 
             return recording;
         }
