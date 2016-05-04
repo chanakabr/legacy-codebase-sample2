@@ -532,9 +532,13 @@ namespace Recordings
                 // We're OK
                 recording.Status = new Status((int)eResponseStatus.OK);
 
+                var httpContext = System.Web.HttpContext.Current;
+
                 // Async - call adapter. Main flow is done
                 System.Threading.Tasks.Task async = Task.Factory.StartNew((taskRecording) =>
                 {
+                    System.Web.HttpContext.Current = httpContext;
+
                     Recording copyRecording = (Recording)taskRecording;
                     Recording currentRecording = new Recording()
                     {
