@@ -1116,24 +1116,19 @@ namespace DAL
                 sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@assetType", (int)assetType);
-
                 DataSet ds = sp.ExecuteDataSet();
 
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
                     if (ds.Tables[0].Rows.Count > 0)
-                    {
                         result = CreateMessageTemplate(ds.Tables[0].Rows[0]);
-                    }
                 }
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("Error at GetMessageTemplate. groupId: {0}. Error {1}", groupId, ex);
             }
-
             return result;
-
         }
 
         private static MessageTemplate CreateMessageTemplate(DataRow row)

@@ -46,7 +46,15 @@ namespace NotificationObj
 
         public override string ToString()
         {
-            return string.Format("MessageAnnouncement: Name: {0}, Messagel {1}, StartTime: {2}, TimeZone: {3} Status: {4}, Recipients {5}, Enabled {6}, AnnouncementId: {7}", Name, Message, StartTime, Timezone, Status, Recipients, Enabled, AnnouncementId);
+            return string.Format("MessageAnnouncement: Name: {0}, Message {1}, StartTime: {2}, TimeZone: {3} Status: {4}, Recipients {5}, Enabled {6}, AnnouncementId: {7}",
+                Name,
+                Message,
+                StartTime,
+                Timezone,
+                Status,
+                Recipients,
+                Enabled,
+                AnnouncementId);
         }
     }
 }
