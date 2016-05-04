@@ -121,15 +121,23 @@ namespace QueueWrapper
             return bResult;
         }
 
-        public bool Publish(RabbitConfigurationData configuration, string sMessage)
+        /// <summary>
+        /// Publishes a message to the Rabbit queue
+        /// </summary>
+        /// <param name="configuration"></param>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        public bool Publish(RabbitConfigurationData configuration, string message)
         {
             bool isPublishSucceeded = false;
-            if (m_FailCounter < m_FailCounterLimit) // Check if we reached the writing limit
-            {
-                bool bIsInstanceExist = false;
-                bIsInstanceExist = this.GetInstance(configuration, QueueAction.Publish);
 
-                if (m_Connection != null && bIsInstanceExist)
+            // Check if we reached the writing limit
+            if (m_FailCounter < m_FailCounterLimit)
+            {
+                bool instanecExists = false;
+                instanecExists = this.GetInstance(configuration, QueueAction.Publish);
+
+                if (m_Connection != null && instanecExists)
                 {
                     try
                     {
@@ -140,38 +148,55 @@ namespace QueueWrapper
                         // If failed, retry until we reach limit - with a new connection
                         catch (OperationInterruptedException ex)
                         {
+                            log.ErrorFormat("Failed publishing message to rabbit. Message = {0}", message, ex);
                             ClearConnection();
                             IncreaseFailCounter();
-                            return Publish(configuration, sMessage);
+                            return Publish(configuration, message);
                         }
 
                         if (this.m_Model != null)
                         {
-                            var body = Encoding.UTF8.GetBytes(sMessage.ToString());
+                            var body = Encoding.UTF8.GetBytes(message.ToString());
                             IBasicProperties properties = m_Model.CreateBasicProperties();
                             if (configuration.setContentType)
                                 properties.ContentType = "application/json";
 
-                            using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_RABBITMQ, null, null, null, null) { Database = configuration.Exchange })
+                            using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_RABBITMQ, null, null, null, null)
+                            {
+                                Database = configuration.Exchange
+                            })
                             {
                                 m_Model.BasicPublish(configuration.Exchange, configuration.RoutingKey, properties, body);
                             }
+
                             isPublishSucceeded = true;
                             ResetFailCounter();
                         }
                     }
                     catch (OperationInterruptedException ex)
                     {
+                        log.ErrorFormat("Failed publishing message to rabbit. Message = {0}", message, ex);
                         string msg = ex.Message;
                         ClearConnection();
-                        return Publish(configuration, sMessage);
+                        return Publish(configuration, message);
                     }
                     catch (Exception ex)
                     {
-                        log.Error("", ex);
+                        log.ErrorFormat("Failed publishing message to rabbit. Message = {0}", message, ex);
                         IncreaseFailCounter();
                         string msg = ex.Message;
                     }
+                }
+                else
+                {
+                    string host = string.Empty;
+                    
+                    if (configuration != null)
+                    {
+                        host = configuration.Host;
+                    }
+
+                    log.ErrorFormat("RabbitConnection: No instance/connection to host {0}", host);
                 }
             }
 
@@ -237,6 +262,7 @@ namespace QueueWrapper
                     }
                     catch (Exception ex)
                     {
+                        log.Error("Failed closing instance of Rabbit Connection.", ex);
                         m_Connection = null;
                         m_Model = null;
                     }
