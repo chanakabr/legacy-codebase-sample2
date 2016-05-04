@@ -1220,7 +1220,7 @@ namespace DAL
             {
                 int numOfTries = 0;
                 while (!result && numOfTries < NUM_OF_INSERT_TRIES)
-                {
+                {   
                     if (unlock)
                         result = cbManager.Set(GetDeviceDataKey(groupId, udid), newDeviceNotificationData, true, 0, newDeviceNotificationData.cas);
                     else
@@ -1499,7 +1499,7 @@ namespace DAL
                 if (cbManager.Unlock(docKey, cas))
                     log.DebugFormat("document unlocked {0}", docKey);
                 else
-                    log.ErrorFormat("error unlocking document {0}", docKey);
+                    log.DebugFormat("couldn't unlock document {0}", docKey);
             }
             catch (Exception ex)
             {
@@ -1515,7 +1515,7 @@ namespace DAL
                 if (cbManager.Unlock(docKey, cas))
                     log.DebugFormat("document unlocked {0}", docKey);
                 else
-                    log.ErrorFormat("error unlocking document {0}", docKey);
+                    log.DebugFormat("couldn't unlock document {0}", docKey);
             }
             catch (Exception ex)
             {
