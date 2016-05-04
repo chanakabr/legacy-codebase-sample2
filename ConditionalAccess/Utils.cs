@@ -28,6 +28,8 @@ namespace ConditionalAccess
         public const int DEFAULT_MPP_RENEW_FAIL_COUNT = 10; // to be group specific override this value in the 
         // table groups_parameters, column FAIL_COUNT under ConditionalAccess DB.
 
+        internal const string EPG_DATETIME_FORMAT = "dd/MM/yyyy HH:mm:ss";
+
         private static readonly string BASIC_LINK_TICK_TIME = "!--tick_time--";
         private static readonly string BASIC_LINK_COUNTRY_CODE = "!--COUNTRY_CD--";
         private static readonly string BASIC_LINK_HASH = "!--hash--";
@@ -4147,7 +4149,7 @@ namespace ConditionalAccess
                     }
                 }
             }
-            
+
             return channelsList;
         }
 
@@ -4170,7 +4172,7 @@ namespace ConditionalAccess
                     int recordingScheduleWindow = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_schedule_window", -1);
                     if (catchup > -1 && cdvr > -1 && startOver > -1 && trickPlay > -1 && catchUpBuffer > -1 && trickPlayBuffer > -1)
                     {
-                        settings = new TimeShiftedTvPartnerSettings(catchup == 1, cdvr == 1, startOver == 1, trickPlay == 1, recordingScheduleWindow == 1, 
+                        settings = new TimeShiftedTvPartnerSettings(catchup == 1, cdvr == 1, startOver == 1, trickPlay == 1, recordingScheduleWindow == 1,
                             catchUpBuffer, trickPlayBuffer, recordingScheduleWindowBuffer);
                     }
                 }
@@ -4184,7 +4186,7 @@ namespace ConditionalAccess
             return settings;
         }
 
-        internal static List<EPGChannelProgrammeObject> GetEpgsByIds (int nGroupID, List<long> epgIds)
+        internal static List<EPGChannelProgrammeObject> GetEpgsByIds(int nGroupID, List<long> epgIds)
         {
             WS_Catalog.IserviceClient client = null;
             List<EPGChannelProgrammeObject> epgs = null;
@@ -4239,7 +4241,7 @@ namespace ConditionalAccess
         {
             bool res = false;
             switch (recordingStatus)
-            {                
+            {
                 case TstvRecordingStatus.Recording:
                 case TstvRecordingStatus.Recorded:
                 case TstvRecordingStatus.Scheduled:
@@ -4272,7 +4274,7 @@ namespace ConditionalAccess
                 else if (!ConditionalAccessCache.AddItem(key, services))
                 {
                     log.ErrorFormat("Failed inserting GroupEnforcedServices to cache, key: {0}", key);
-                }                
+                }
             }
 
             return services;
@@ -4300,7 +4302,7 @@ namespace ConditionalAccess
                 {
                     recordingAssets[i] = new KeyValuePair<eAssetTypes, long>(eAssetTypes.NPVR, recordingsWithValidStatus.ElementAt(i).Id);
                 }
-                request.specificAssets = recordingAssets;                
+                request.specificAssets = recordingAssets;
                 request.m_oFilter = new WS_Catalog.Filter()
                 {
                     m_bOnlyActiveMedia = true
@@ -4327,8 +4329,8 @@ namespace ConditionalAccess
                         long searchRecordingID;
                         if (unifiedSearchResult.AssetType == eAssetTypes.NPVR && long.TryParse(unifiedSearchResult.AssetId, out searchRecordingID) && searchRecordingID > 0)
                         {
-                            filteredRecordingIds.Add(searchRecordingID);                            
-                        }                       
+                            filteredRecordingIds.Add(searchRecordingID);
+                        }
                     }
 
                     if (recordingsWithValidStatus != null)
@@ -4366,10 +4368,10 @@ namespace ConditionalAccess
         internal static List<TstvRecordingStatus> ConvertToTstvRecordingStatus(List<int> domainRecordingStatuses)
         {
             List<TstvRecordingStatus> result = new List<TstvRecordingStatus>();
-            foreach(int status in domainRecordingStatuses.Distinct())
+            foreach (int status in domainRecordingStatuses.Distinct())
             {
                 switch (status)
-	            {
+                {
                     case 1:
                         result.Add(TstvRecordingStatus.OK);
                         break;
@@ -4379,9 +4381,9 @@ namespace ConditionalAccess
                     case 3:
                         result.Add(TstvRecordingStatus.Deleted);
                         break;
-		            default:
+                    default:
                         break;
-	            }
+                }
             }
             return result;
         }
@@ -4389,11 +4391,11 @@ namespace ConditionalAccess
         internal static List<int> ConvertToDomainRecordingStatus(List<TstvRecordingStatus> recordingStatus)
         {
             List<int> result = new List<int>();
-            foreach(TstvRecordingStatus status in recordingStatus)
+            foreach (TstvRecordingStatus status in recordingStatus)
             {
                 switch (status)
                 {
-                    case TstvRecordingStatus.Failed:                        
+                    case TstvRecordingStatus.Failed:
                     case TstvRecordingStatus.Scheduled:
                     case TstvRecordingStatus.Recording:
                     case TstvRecordingStatus.Recorded:
@@ -4416,5 +4418,138 @@ namespace ConditionalAccess
 
             return result;
         }
+
+        internal static Recording ValidateEpgForRecord(TimeShiftedTvPartnerSettings accountSettings, EPGChannelProgrammeObject epg)
+        {
+            Recording response = new Recording() { EpgId = epg.EPG_ID, Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString()) };
+            try
+            {
+                if (epg.ENABLE_CDVR != 1)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramCdvrNotEnabled, eResponseStatus.ProgramCdvrNotEnabled.ToString());
+                    return response;
+                }
+
+                DateTime epgStartDate;
+                if (!DateTime.TryParseExact(epg.START_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgStartDate))
+                {
+                    log.ErrorFormat("Failed parsing EPG start date, epgID: {0}, startDate: {1}", epg.EPG_ID, epg.START_DATE);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    return response;
+                }
+
+                // validate recording schedule window
+                if (accountSettings.IsRecordingScheduleWindowEnabled.HasValue && accountSettings.IsRecordingScheduleWindowEnabled.Value &&
+                    accountSettings.RecordingScheduleWindow.HasValue && epgStartDate.AddMinutes(accountSettings.RecordingScheduleWindow.Value) >= DateTime.UtcNow)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramNotInRecordingScheduleWindow, eResponseStatus.ProgramNotInRecordingScheduleWindow.ToString());
+                    return response;
+                }
+
+                if (epgStartDate < DateTime.UtcNow)
+                {
+                    if (!accountSettings.IsCatchUpEnabled.HasValue || !accountSettings.IsCatchUpEnabled.Value)
+                    {
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AccountCatchUpNotEnabled, eResponseStatus.AccountCatchUpNotEnabled.ToString());
+                        return response;
+                    }
+                    if (epg.ENABLE_CATCH_UP != 1)
+                    {
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramCatchUpNotEnabled, eResponseStatus.ProgramCatchUpNotEnabled.ToString());
+                        return response;
+                    }
+                    if (epg.CHANNEL_CATCH_UP_BUFFER == 0 || epgStartDate.AddMinutes(epg.CHANNEL_CATCH_UP_BUFFER) < DateTime.UtcNow)
+                    {
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.CatchUpBufferLimitation, eResponseStatus.CatchUpBufferLimitation.ToString());
+                        return response;
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder("Exception at ValidateEpgForRecord. ");
+                sb.Append(String.Concat("epgID: ", epg.EPG_ID));
+                sb.Append(String.Concat("Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(", Stack Trace: ", ex.StackTrace));
+                log.Error(sb.ToString(), ex);
+
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            }
+
+            return response;
+        }
+
+        internal static List<Recording> CheckDomainExistingRecording(int groupId, string userID, long domainID, Dictionary<long, EPGChannelProgrammeObject> validEpgObjectForRecordingMap)
+        {
+            List<Recording> response = null;            
+            try
+            {                
+                DataTable dt = ConditionalAccessDAL.GetDomainExistingRecordingsByEpdIgs(groupId, domainID, validEpgObjectForRecordingMap.Keys.ToList());
+                if (dt != null && dt.Rows != null)
+                {
+                    response = new List<Recording>();
+                    foreach (DataRow dr in dt.Rows)
+                    {                        
+                        long recordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "RECORDING_ID", 0);
+                        long domainRecordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
+                        long epgId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_ID", 0);
+                        Recording recording = new Recording() { EpgId = epgId };
+                        Recording existingRecording = null;
+                        if (recordingId > 0)
+                        {
+                            existingRecording = Recordings.RecordingsManager.Instance.GetRecording(groupId, recordingId);
+                        }
+
+                        if (existingRecording == null || existingRecording.Id == 0)
+                        {
+                            EPGChannelProgrammeObject epg = validEpgObjectForRecordingMap[epgId];
+                            DateTime epgStartDate;
+                            DateTime epgEndDate;
+                            if (DateTime.TryParseExact(epg.START_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgStartDate)
+                                && DateTime.TryParseExact(epg.END_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgEndDate))
+                            {
+                                recording = new Recording()
+                                {
+                                    Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString()),
+                                    EpgId = epg.EPG_ID,
+                                    ChannelId = epg.EPG_CHANNEL_ID,
+                                    Id = 0,
+                                    EpgStartDate = epgStartDate,
+                                    EpgEndDate = epgEndDate
+                                };
+                            }
+                            else
+                            {
+                                log.ErrorFormat("Failed parsing EPG start or end date, epgID: {0}, domainID: {1}, userID {2}, startDate: {3}, endDate: {4}", epg.EPG_ID, domainID, userID, epg.START_DATE, epg.END_DATE);
+                                recording = new Recording() { EpgId = epg.EPG_ID, ChannelId = epg.EPG_CHANNEL_ID };
+                            }
+                        }
+                        else
+                        {
+                            recording = existingRecording;
+                            recording.Id = domainRecordingId;
+                        }
+                    }
+                }
+
+            }
+
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder("Exception at ValidateRecordingsEntitlement. ");
+                sb.Append(String.Concat("userID: ", userID));
+                sb.Append(String.Concat("domainID: ", domainID));
+                sb.Append(String.Concat("Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(", Stack Trace: ", ex.StackTrace));
+
+                log.Error(sb.ToString(), ex);
+            }
+
+            return response;
+        }
+
     }
 }

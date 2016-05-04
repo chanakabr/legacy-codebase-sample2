@@ -1248,15 +1248,14 @@ namespace DAL
             return 0;
         }
 
-        public static int InsertPriceCode(int groupID, int currencyID, double price, string currency)
+        public static int InsertPriceCode(int groupID, int currencyID, double price, string code)
         {
             StoredProcedure sp = new StoredProcedure("Insert_PriceCode");
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@GroupID", groupID);
             sp.AddParameter("@CurrencyID", currencyID);
-            sp.AddParameter("@Currency", currency);
+            sp.AddParameter("@Code", code);
             sp.AddParameter("@Price", price);
-            sp.AddParameter("@Date", DateTime.UtcNow);
             return sp.ExecuteReturnValue<int>();
         }
     }

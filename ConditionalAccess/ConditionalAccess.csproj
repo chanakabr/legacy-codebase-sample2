@@ -854,6 +854,10 @@
       <Project>{25037a8a-7c6d-4496-b757-6fa85abdd3cf}</Project>
       <Name>GroupsCacheManager</Name>
     </ProjectReference>
+    <ProjectReference Include="..\KlogMonitorHelper\KlogMonitorHelper.csproj">
+      <Project>{fa277e9a-4c82-4ff7-a6e7-60feaeb363e2}</Project>
+      <Name>KlogMonitorHelper</Name>
+    </ProjectReference>
     <ProjectReference Include="..\LLNWMediaVault\LLNWMediaVault.csproj">
       <Project>{e56da89e-efe0-4077-ab1b-fe00389d5a02}</Project>
       <Name>LLNWMediaVault</Name>

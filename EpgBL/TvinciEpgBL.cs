@@ -260,7 +260,7 @@ namespace EpgBL
             }
         }
 
-        public void RemoveGroupPrograms(DateTime? fromDate, DateTime? toDate, int channelID)
+        public override void RemoveGroupPrograms(DateTime? fromDate, DateTime? toDate, int channelID)
         {
             List<EpgCB> lExisitingPrograms = this.GetChannelPrograms(0, 0, channelID, fromDate, toDate);
 

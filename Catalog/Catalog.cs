@@ -34,6 +34,7 @@ using AdapterControllers;
 using KlogMonitorHelper;
 using System.IO;
 using ApiObjects.PlayCycle;
+using ApiObjects.Epg;
 
 namespace Catalog
 {
@@ -6420,6 +6421,309 @@ namespace Catalog
         public static bool UpdateRecordingsIndex(List<long> recordingsIds, int groupId, eAction action)
         {
             return Catalog.Update(recordingsIds, groupId, eObjectType.Recording, action);
+        }
+
+        public static bool RebuildEpgChannel(int groupId, int epgChannelID, DateTime fromDate, DateTime toDate, bool duplicates)
+        {           
+            try
+            {
+                if (duplicates)
+                {
+                    return RemoveDuplicatesEpgPrograms(groupId, epgChannelID, fromDate, toDate);
+                }
+                else
+                {
+                    return RebuildEpgProgramsChannel(groupId, epgChannelID, fromDate, toDate);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("RebuildGroup:{0}, ex:{1}", groupId, ex.Message), ex);
+            }
+
+            return false;
+        }
+
+        private static bool RebuildEpgProgramsChannel(int groupId, int epgChannelID, DateTime fromDate, DateTime toDate)
+        {
+            bool res = false;
+            try
+            {                
+                List<LanguageObj> groupLang = CatalogDAL.GetGroupLanguages(groupId);
+                string mainLang = groupLang.Where(x => x.IsDefault).Select(x => x.Code).FirstOrDefault();
+
+                log.DebugFormat("RebuildEpgChannel:{0}, epgChannelID:{1}, fromDate:{2}, toDate:{3}", groupId, epgChannelID, fromDate, toDate);
+                DataSet ds = EpgDal.Get_EpgProgramsDetailsByChannelIds(groupId, epgChannelID, fromDate, toDate);
+                List<EpgCB> epgs = ConvertToEpgCB(ds, mainLang);
+
+                // get all epg program ids from DB in channel ID between date (all statuses)
+                List<long> lProgramsID = GetEpgIds(epgChannelID, groupId, fromDate, toDate);
+                log.DebugFormat("RebuildEpgProgramsChannel : lProgramsID:{0}, epgChannelID:{1}", string.Join(",", lProgramsID), epgChannelID);
+
+                #region Delete
+                // delete all current Epgs in CB related to channel between dates 
+                BaseEpgBL epgBL = EpgBL.Utils.GetInstance(groupId);
+                epgBL.RemoveGroupPrograms(lProgramsID.ConvertAll<int>(x => (int)x));
+                // Delete from ES
+                bool resultEpgIndex;
+                if (lProgramsID != null && lProgramsID.Count > 0)
+                {
+                    resultEpgIndex = UpdateEpgIndex(lProgramsID, groupId, ApiObjects.eAction.Delete);
+                }
+                #endregion
+
+                #region insert Bulks
+
+                // insert all above  
+                int nCount = 0;
+                int nCountPackage = TVinciShared.WS_Utils.GetTcmIntValue("update_epg_package");
+                if (nCountPackage == 0)
+                    nCountPackage = 200;
+                List<long> epgIds = new List<long>();
+                foreach (EpgCB epg in epgs)
+                {
+                    nCount++;
+                    // insert to CB 
+                    ulong epgID = 0;
+                    epgBL.InsertEpg(epg, out epgID);
+                    // insert to ES
+                    epgIds.Add((long)epg.EpgID);
+                    if (nCount >= nCountPackage)
+                    {
+                        epgIds.Add((long)epg.EpgID);
+                        resultEpgIndex = UpdateEpgIndex(epgIds, groupId, ApiObjects.eAction.Update);
+                        epgIds = new List<long>();
+                        nCount = 0;
+                    }
+                   
+                }
+
+                if (nCount > 0 && epgIds != null && epgIds.Count > 0)
+                {
+                    resultEpgIndex = UpdateEpgIndex(epgIds, groupId, ApiObjects.eAction.Update);
+                }
+
+                #endregion
+                res = true;                
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("RebuildEpgProgramsChannel:{0}, epgChannelID:{1}, fromDate:{2}, toDate:{3}, ex:{4}", 
+                    groupId, epgChannelID, fromDate, toDate, ex.InnerException);
+                return false;
+            }
+            return res;
+        }
+
+        private static bool RemoveDuplicatesEpgPrograms(int groupId, int epgChannelID, DateTime fromDate, DateTime toDate)
+        {           
+            try
+            {
+                List<long> epgIds = EpgDal.GetEpgIds(epgChannelID, groupId, fromDate, toDate, 2);
+                if (epgIds != null && epgIds.Count > 0)
+                {
+                    BaseEpgBL epgBL = EpgBL.Utils.GetInstance(groupId);
+                    epgBL.RemoveGroupPrograms(epgIds.ConvertAll<int>(x => (int)x));
+                    bool resultEpgIndex = UpdateEpgIndex(epgIds, groupId, ApiObjects.eAction.Delete);                    
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+            return false;
+        }
+
+        private static List<long> GetEpgIds(int epgChannelID, int groupId, DateTime fromDate, DateTime toDate)
+        {            
+            try
+            {
+                List<long> epgIds = EpgDal.GetEpgIds(epgChannelID, groupId, fromDate, toDate);              
+                return epgIds;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("fail to DeleteEpgs from DB ex = {0}", ex.Message), ex);
+                return null;
+            }
+        }
+
+        private static List<EpgCB> ConvertToEpgCB(DataSet ds, string mainLang)
+        {
+            List<EpgCB> epgs = new List<EpgCB>();
+            try
+            {
+                if (ds != null && ds.Tables != null && ds.Tables.Count == 6)
+                {
+                    if (ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0
+                        && ds.Tables[1] != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
+                    {
+                        BasicEpgProgramDetails(ds.Tables[0], ds.Tables[1], epgs, mainLang);
+                    }
+                    if (epgs != null && epgs.Count > 0)
+                    {
+                        
+                        GetMetaDetails(epgs, ds.Tables[2]);
+                        GetTagDetails(epgs, ds.Tables[3]);
+
+                        GetPicDetails(epgs, ds.Tables[4], ds.Tables[5]);
+                    }
+                }                
+            }
+            catch (Exception)
+            {
+                epgs = null;
+            }
+            return epgs;
+        }
+
+        private static void GetPicDetails(List<EpgCB> epgs, DataTable dtEpgIDPic, DataTable dtPic)
+        {
+            try
+            {
+                if (dtEpgIDPic == null || dtPic == null)
+                    return;
+
+                foreach (EpgCB item in epgs)
+                {                                    
+                    DataRow[] picID = dtEpgIDPic.Select("ID=" + item.EpgID);
+                    DataRow[] pics = dtPic.Select("id=" + picID[0]["picID"]);
+                    EpgPicture epgPicture;
+                    if (pics != null && pics.Count() > 0)
+                    {
+                        item.pictures = new List<ApiObjects.Epg.EpgPicture>();
+                        foreach (DataRow dr in pics)
+                        {
+                            epgPicture = new EpgPicture();
+                            epgPicture.PicHeight = ODBCWrapper.Utils.GetIntSafeVal(dr, "HEIGHT");
+                            epgPicture.PicID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+                            epgPicture.PicWidth = ODBCWrapper.Utils.GetIntSafeVal(dr, "WIDTH");
+                            epgPicture.Ratio = ODBCWrapper.Utils.GetSafeStr(dr, "ratio");
+                            epgPicture.RatioId = ODBCWrapper.Utils.GetIntSafeVal(dr, "ratio_id");
+                            epgPicture.Url = ODBCWrapper.Utils.GetSafeStr(dr, "m_sURL"); ;
+
+                            item.pictures.Add(epgPicture);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                 log.Error(ex.Message, ex);
+            }
+        }
+
+        private static void GetMetaDetails(List<EpgCB> epgs, DataTable dt)
+        {  
+            try
+            {
+                if (dt == null)
+                    return;
+                foreach (EpgCB item in epgs)
+                {
+                    DataRow[] metas = dt.Select("program_id=" + item.EpgID);
+                    if (metas != null && metas.Count() > 0)
+                    {
+                        item.Metas = new Dictionary<string, List<string>>();
+                        foreach (DataRow dr in metas)
+                        {
+                            string key = Utils.GetStrSafeVal(dr, "name");
+                            string value = Utils.GetStrSafeVal(dr, "value");
+
+                            if (item.Metas.ContainsKey(key))
+                            {
+                                item.Metas[key].Add(value);
+                            }
+                            else
+                            {
+                                item.Metas.Add(key, new List<string>() { value });
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex.Message, ex);
+            }
+        }
+
+        private static void GetTagDetails(List<EpgCB> epgs, DataTable dt)
+        {
+            try
+            {
+                if (dt == null)
+                    return;
+                foreach (EpgCB item in epgs)
+                {
+                    DataRow[] tags = dt.Select("program_id=" + item.EpgID);
+                    if (tags != null && tags.Count() > 0)
+                    {
+                        item.Tags = new Dictionary<string, List<string>>();
+                        foreach (DataRow dr in tags)
+                        {
+                            string key = Utils.GetStrSafeVal(dr, "TagTypeName");
+                            string value = Utils.GetStrSafeVal(dr, "TagValueName");
+
+                            if (item.Tags.ContainsKey(key))
+                            {
+                                item.Tags[key].Add(value);
+                            }
+                            else
+                            {
+                                item.Tags.Add(key, new List<string>() { value });
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex.Message, ex);
+            }
+        }
+
+        private static void BasicEpgProgramDetails(DataTable dt, DataTable dtUpdateDate ,List<EpgCB> epgs, string mainLang)
+        {           
+            EpgCB epg;
+            try
+            {
+                foreach (DataRow dr in dt.Rows)
+                {
+                    epg = new EpgCB();
+                    string pic_url = string.Empty;
+                    epg.EpgID = (ulong)Utils.GetLongSafeVal(dr, "ID");
+                    epg.EpgIdentifier = Utils.GetStrSafeVal(dr, "EPG_IDENTIFIER");
+                    epg.Name = Utils.GetStrSafeVal(dr, "NAME");
+                    epg.Description = Utils.GetStrSafeVal(dr, "DESCRIPTION");
+                    epg.ChannelID = Utils.GetIntSafeVal(dr, "EPG_CHANNEL_ID");
+                    epg.PicUrl = Utils.GetStrSafeVal(dr, "PIC_URL");
+                    epg.Status = Utils.GetIntSafeVal(dr, "STATUS");
+                    epg.isActive = Utils.GetIntSafeVal(dr, "IS_ACTIVE") == 1 ? true : false;
+                    epg.GroupID = Utils.GetIntSafeVal(dr, "GROUP_ID");
+                    epg.PicID = Utils.GetIntSafeVal(dr, "pic_id");
+                    epg.ParentGroupID = Utils.GetIntSafeVal(dr, "PARENT_GROUP_ID");
+                    epg.GroupID = Utils.GetIntSafeVal(dr, "GROUP_ID");
+                    //Dates
+                    epg.StartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "START_DATE");
+                    epg.EndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
+                    epg.CreateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
+                    epg.EnableCatchUp =  Utils.GetIntSafeVal(dr, "ENABLE_CATCH_UP");
+                    epg.EnableCDVR =  Utils.GetIntSafeVal(dr, "ENABLE_CDVR");
+                    epg.EnableStartOver =  Utils.GetIntSafeVal(dr, "ENABLE_START_OVER");
+                    epg.EnableTrickPlay=  Utils.GetIntSafeVal(dr, "ENABLE_TRICK_PLAY");
+                    epg.Language = mainLang;
+                    DataRow updateDr = dtUpdateDate.Select("ID=" + epg.EpgID).FirstOrDefault();
+                    epg.UpdateDate = ODBCWrapper.Utils.GetDateSafeVal(updateDr, "UPDATE_DATE");
+                    epgs.Add(epg);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex.Message, ex);
+            }
         }
     }
 }
