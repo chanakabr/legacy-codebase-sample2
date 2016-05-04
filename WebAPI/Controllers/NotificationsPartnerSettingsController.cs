@@ -55,6 +55,13 @@ namespace WebAPI.Controllers
         {
             bool response = false;
 
+            if (settings.PushStartHour.HasValue && (settings.PushStartHour.Value < 0 || settings.PushStartHour.Value > 24))
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal push start hour");
+
+
+            if (settings.PushEndHour.HasValue && (settings.PushEndHour.Value < 0 || settings.PushEndHour.Value > 24))
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal push end hour");
+
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
