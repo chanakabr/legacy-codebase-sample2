@@ -720,17 +720,26 @@ namespace Recordings
 
             if (!success)
             {
-                // If we have any tries left, schedule another try in a few minutes
-                if (currentRecording.GetStatusRetries < MAXIMUM_RETRIES_ALLOWED)
-                {
-                    // Trying to record every minute
-                    DateTime nextCheck = DateTime.UtcNow.AddMinutes(MINUTES_RETRY_INTERVAL);
+                var span = currentRecording.EpgStartDate - DateTime.UtcNow;
 
-                    // If the next retry will be before the EPG finishes
-                    if (nextCheck < currentRecording.EpgEndDate)
-                    {
-                        EnqueueMessage(groupId, currentRecording.EpgId, currentRecording.Id, nextCheck, eRecordingTask.Record);
-                    }
+                DateTime nextCheck;
+
+                // if there is more than 1 day left, try tomorrow
+                if (span.TotalDays > 1)
+                {
+                    nextCheck = DateTime.UtcNow.AddDays(1);
+                }
+                else
+                {
+                    // if there is less than 1 day, get as HALF as close to the start of the program.
+                    // e.g. if we are 4 hours away from program, check in 2 hours. If we are 140 minutes away, try in 70 minutes.
+                    nextCheck = DateTime.UtcNow.AddSeconds(span.TotalSeconds / 2);
+                }
+
+                // If the next retry will be at least an hour before program starts
+                if (nextCheck < currentRecording.EpgStartDate.AddHours(-1))
+                {
+                    EnqueueMessage(groupId, currentRecording.EpgId, currentRecording.Id, nextCheck, eRecordingTask.Record);
                 }
             }
             else
