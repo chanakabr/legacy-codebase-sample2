@@ -12392,6 +12392,10 @@ namespace ConditionalAccess
         internal bool IsItemPurchased(MediaFileItemPricesContainer price)
         {
             bool res = false;
+            if (price == null || price.m_oItemPrices == null || price.m_oItemPrices.Length == 0)
+            {
+                return res;
+            }
             PriceReason reason = price.m_oItemPrices[0].m_PriceReason;
             switch (reason)
             {
@@ -12422,7 +12426,7 @@ namespace ConditionalAccess
 
         internal bool IsFreeItem(MediaFileItemPricesContainer container)
         {
-            return container.m_oItemPrices == null || container.m_oItemPrices.Length == 0 || container.m_oItemPrices[0].m_PriceReason == PriceReason.Free;
+            return container != null && (container.m_oItemPrices == null || container.m_oItemPrices.Length == 0 || container.m_oItemPrices[0].m_PriceReason == PriceReason.Free);
         }
 
         private bool IsUserSuspended(MediaFileItemPricesContainer container)
@@ -17003,13 +17007,13 @@ namespace ConditionalAccess
             }
 
             return recording;
-        }        
+        }
 
         public RecordingResponse QueryRecords(string userID, List<long> epgIDs, ref long domainID)
         {
             RecordingResponse response = new RecordingResponse();
             try
-            {                
+            {
                 ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userID, ref domainID);
                 if (validationStatus.Code != (int)eResponseStatus.OK)
                 {
@@ -17049,28 +17053,27 @@ namespace ConditionalAccess
                         response.Recordings.Add(invalidAsset);
                     }
                 }
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
-                // set max amount of concurrent tasks
-                int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
-                if (maxDegreeOfParallelism == 0)
+                Dictionary<long, bool> validEpgsForRecording = new Dictionary<long, bool>();
+                // check if Epgs are valid for recording - CDVR enabled and Catch-Up enabled if needed
+                foreach (EPGChannelProgrammeObject epg in epgs)
                 {
-                    maxDegreeOfParallelism = 5;
+                    Recording recording = Utils.ValidateEpgForRecord(accountSettings, epg);
+                    if (recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK)
+                    {
+                        validEpgsForRecording.Add(recording.EpgId, false);
+                    }
+                    else
+                    {
+                        // add nonValidEpgs to response
+                        response.Recordings.Add(recording);
+                    }
                 }
 
-                ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
-                System.Collections.Concurrent.ConcurrentBag<Recording> recordingBag = new System.Collections.Concurrent.ConcurrentBag<Recording>();
-                //duplicate domainID so we can use it in lambda expression (doesn't allow use of ref\out parameter) 
-                long domainId = domainID;
-                // loop on all Epg Id's
-                Parallel.For(0, epgs.Count, options, i =>
-                {
-                    Recording recording = QueryEpgRecord(accountSettings, epgs[i], domainId, userID);
-                    recordingBag.Add(recording);
-                });
+                // validate epgs entitlement and add to response
+                ValidateEpgForRecording(userID, domainID, ref response, epgs, validEpgsForRecording);
 
-                response.Recordings.AddRange(recordingBag);
-                
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 response.TotalItems = response.Recordings.Count;
             }
 
@@ -17082,150 +17085,76 @@ namespace ConditionalAccess
                 foreach (int epgID in epgIDs)
                 {
                     sb.Append(String.Concat(epgID, ", "));
-                }                
+                }
                 sb.Append(String.Concat("Ex Msg: ", ex.Message));
                 sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
                 sb.Append(String.Concat(", Stack Trace: ", ex.StackTrace));
 
                 log.Error(sb.ToString(), ex);
             }
-            
+
             return response;
         }
 
-        private Recording QueryEpgRecord(TimeShiftedTvPartnerSettings accountSettings, EPGChannelProgrammeObject epg, long domainID, string userID)
+        private void ValidateEpgForRecording(string userID, long domainID, ref RecordingResponse response, List<EPGChannelProgrammeObject> epgs, Dictionary<long, bool> validEpgsForRecording)
         {
-            Recording response = new Recording() { EpgId = epg.EPG_ID };
-            try
+            if (validEpgsForRecording != null && validEpgsForRecording.Count > 0)
             {
-                if (epg.ENABLE_CDVR != 1)
-                {
-                    log.DebugFormat("CDVR not enabled for EPG, epgID: {0}, domainID: {1}, userID {2}", epg.EPG_ID, domainID, userID);
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramCdvrNotEnabled, eResponseStatus.ProgramCdvrNotEnabled.ToString());
-                    return response;
-                }
+                // get all fileIds from Epgs that are valid for recording
+                Dictionary<int, List<long>> fileIdsToEpgsMap = DAL.ConditionalAccessDAL.GetFileIdsToEpgIdsMap(m_nGroupID, validEpgsForRecording.Keys.ToList());
 
-                DateTime epgStartDate;
-                if (!DateTime.TryParseExact(epg.START_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgStartDate))
+                if (fileIdsToEpgsMap != null && fileIdsToEpgsMap.Count > 0)
                 {
-                    log.ErrorFormat("Failed parsing EPG start date, epgID: {0}, domainID: {1}, userID {2}, startDate: {3}", epg.EPG_ID, domainID, userID, epg.START_DATE);
-                    return response;
-                }
-
-                // validate recording schedule window
-                if (accountSettings.IsRecordingScheduleWindowEnabled.HasValue && accountSettings.IsRecordingScheduleWindowEnabled.Value && 
-                    accountSettings.RecordingScheduleWindow.HasValue && epgStartDate.AddMinutes(accountSettings.RecordingScheduleWindow.Value) <= DateTime.UtcNow)
-                {
-                    log.DebugFormat("Program not in recording schedule window, epgID: {0}, domainID: {1}, userID {2}", epg.EPG_ID, domainID, userID);
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramNotInRecordingScheduleWindow, eResponseStatus.ProgramNotInRecordingScheduleWindow.ToString());
-                    return response;
-                }
-
-                if (epgStartDate < DateTime.UtcNow)
-                {
-                    if (!accountSettings.IsCatchUpEnabled.HasValue || !accountSettings.IsCatchUpEnabled.Value)
-                    {
-                        log.DebugFormat("account CatchUp not enabled, epgID: {0}, domainID: {1}, userID {2}", epg.EPG_ID, domainID, userID);
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AccountCatchUpNotEnabled, eResponseStatus.AccountCatchUpNotEnabled.ToString());
-                        return response;
-                    }
-                    if (epg.ENABLE_CATCH_UP != 1)
-                    {
-                        log.DebugFormat("Epg CatchUp not enabled, epgID: {0}, domainID: {1}, userID {2}", epg.EPG_ID, domainID, userID);
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramCatchUpNotEnabled, eResponseStatus.ProgramCatchUpNotEnabled.ToString());
-                        return response;
-                    }
-                    if (epg.CHANNEL_CATCH_UP_BUFFER == 0 || epgStartDate.AddMinutes(epg.CHANNEL_CATCH_UP_BUFFER) < DateTime.UtcNow)
-                    {
-                        log.DebugFormat("CatchUp Buffer not in range for EPG, epgID: {0}, domainID: {1}, userID {2}", epg.EPG_ID, domainID, userID);
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.CatchUpBufferLimitation, eResponseStatus.CatchUpBufferLimitation.ToString());
-                        return response;
-                    }
-                }
-
-                List<int> fileIds = DAL.ConditionalAccessDAL.GetFileIdsByEpgProgramId(Convert.ToInt32(epg.EPG_ID), m_nGroupID);
-                if (fileIds != null && fileIds.Count > 0)
-                {
-                    bool priceValidationPassed = false;
-                    MediaFileItemPricesContainer[] prices = GetItemsPrices(fileIds.ToArray(), userID, true, string.Empty, string.Empty, string.Empty);
+                    MediaFileItemPricesContainer[] prices = GetItemsPrices(fileIdsToEpgsMap.Keys.ToArray(), userID, true, string.Empty, string.Empty, string.Empty);
                     if (prices != null && prices.Length > 0)
                     {
-                        foreach (var price in prices)
+                        foreach (MediaFileItemPricesContainer price in prices)
                         {
                             if (IsFreeItem(price) || IsItemPurchased(price))
                             {
-                                priceValidationPassed = true;
-                                break;
-                            }
-                        }
-                    }
-                    if (priceValidationPassed)
-                    {
-                        DataRow dr = ConditionalAccessDAL.GetDomainExistingRecording(m_nGroupID, domainID, epg.EPG_ID);
-                        long recordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "RECORDING_ID", 0);
-                        long domainRecordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
-                        Recording recording = null;
-                        if (recordingId > 0)
-                        {
-                            recording = RecordingsManager.Instance.GetRecording(m_nGroupID, recordingId);
-                        }
-
-                        if (recording == null || recording.Id == 0)
-                        {
-                            DateTime epgEndDate;
-                            if (DateTime.TryParseExact(epg.END_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgEndDate))
-                            {
-                                response = new Recording()
+                                foreach (long epgId in fileIdsToEpgsMap[price.m_nMediaFileID])
                                 {
-                                    Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString()),
-                                    EpgId = epg.EPG_ID,
-                                    ChannelId = epg.EPG_CHANNEL_ID,
-                                    Id = 0,                                    
-                                    EpgStartDate = epgStartDate,
-                                    EpgEndDate = epgEndDate
-                                };
-                            }
-                            else
-                            {
-                                log.ErrorFormat("Failed parsing EPG end date, epgID: {0}, domainID: {1}, userID {2}, startDate: {3}", epg.EPG_ID, domainID, userID, epg.END_DATE);
-                                response = new Recording() { EpgId = epg.EPG_ID, ChannelId = epg.EPG_CHANNEL_ID };
+                                    validEpgsForRecording[epgId] = true;
+                                }
                             }
                         }
-                        else
-                        {
-                            response = recording;
-                            response.Id = domainRecordingId;
-                        }
-
                     }
-                    else
+
+                    List<long> epgsWithNoEntitlement = validEpgsForRecording.Where(x => x.Value == false).Select(x => x.Key).ToList();
+                    if (epgsWithNoEntitlement != null)
                     {
-                        log.DebugFormat("Domain Not entitled for EPG, epgID: {0}, DomainID: {1}, UserID: {2}", epg.EPG_ID, domainID, userID);
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NotEntitled, eResponseStatus.NotEntitled.ToString());
-                        return response;
+                        foreach (long epgId in epgsWithNoEntitlement)
+                        {
+                            Recording RecordingWithNoEntitlement = new Recording() { EpgId = epgId, Status = new ApiObjects.Response.Status((int)eResponseStatus.NotEntitled, eResponseStatus.NotEntitled.ToString()) };
+                            response.Recordings.Add(RecordingWithNoEntitlement);
+                        }
+                    }
+
+                    List<long> epgIdsWithEntitlement = validEpgsForRecording.Where(x => x.Value == true).Select(x => x.Key).ToList();
+                    if (epgIdsWithEntitlement != null)
+                    {
+                        Dictionary<long, EPGChannelProgrammeObject> validEpgObjectForRecordingMap = new Dictionary<long, EPGChannelProgrammeObject>();
+                        foreach (long epgId in epgIdsWithEntitlement)
+                        {
+                            validEpgObjectForRecordingMap.Add(epgId, epgs.FirstOrDefault(x => x.EPG_ID == epgId));
+                        }
+                        if (validEpgObjectForRecordingMap != null && validEpgObjectForRecordingMap.Count > 0)
+                        {
+                            List<Recording> recordings = Utils.CheckDomainExistingRecording(m_nGroupID, userID, domainID, validEpgObjectForRecordingMap);
+                            response.Recordings.AddRange(recordings);
+                        }
                     }
                 }
                 else
                 {
-                    log.DebugFormat("No files were found for EPG, epgID: {0}, DomainID: {1}, UserID: {2}", epg.EPG_ID, domainID, userID);
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                    return response;
+                    log.DebugFormat("No files were found for all the requested EPGs, DomainID: {1}, UserID: {2}", domainID, userID);
+                    foreach (long epgId in validEpgsForRecording.Keys)
+                    {
+                        Recording RecordingWithNoFileIds = new Recording() { EpgId = epgId, Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
+                        response.Recordings.Add(RecordingWithNoFileIds);
+                    }
                 }
             }
-
-            catch (Exception ex)
-            {
-                StringBuilder sb = new StringBuilder("Exception at QueryRecord. ");
-                sb.Append(String.Concat("epgID: ", epg.EPG_ID));
-                sb.Append(String.Concat("domainID: ", domainID));
-                sb.Append(String.Concat("Ex Msg: ", ex.Message));
-                sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
-                sb.Append(String.Concat(", Stack Trace: ", ex.StackTrace));
-
-                log.Error(sb.ToString(), ex);
-            }
-
-            return response;
         }
         
         public CDVRAdapterResponse SendConfigurationToAdapter(int adapterID)

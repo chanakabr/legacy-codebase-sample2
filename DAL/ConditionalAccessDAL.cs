@@ -2587,22 +2587,17 @@ namespace DAL
             return result;
         }
 
-        public static DataRow GetDomainExistingRecording(int groupID, long domainID, long epgID)
+        public static DataTable GetDomainExistingRecordingsByEpdIgs(int groupID, long domainID, List<long> epgIds)
         {
-            DataRow dr = null;
-            ODBCWrapper.StoredProcedure spGetDomainExistingRecordingID = new ODBCWrapper.StoredProcedure("GetDomainExistingRecording");
+            ODBCWrapper.StoredProcedure spGetDomainExistingRecordingID = new ODBCWrapper.StoredProcedure("GetDomainExistingRecordingsByEpdIgs");
             spGetDomainExistingRecordingID.SetConnectionKey("CONNECTION_STRING");
             spGetDomainExistingRecordingID.AddParameter("@GroupID", groupID);
             spGetDomainExistingRecordingID.AddParameter("@DomainID", domainID);
-            spGetDomainExistingRecordingID.AddParameter("@EpgID", epgID);
+            spGetDomainExistingRecordingID.AddIDListParameter<long>("@EpgIds", epgIds, "ID");
 
             DataTable dt = spGetDomainExistingRecordingID.Execute();
-            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-            {
-                dr = dt.Rows[0];
-            }
 
-            return dr;
+            return dt;
         }
 
         public static long UpdateOrInsertDomainRecording(int groupID, long userID, long domainID, Recording recording)
@@ -2825,6 +2820,40 @@ namespace DAL
             }
 
             return recordingIdToDomainRecordingIdMap;
+        }
+
+        public static Dictionary<int, List<long>> GetFileIdsToEpgIdsMap(int groupId, List<long> epgIds)
+        {
+            Dictionary<int, List<long>> fileIdsToEpgMap = new Dictionary<int, List<long>>();
+            ODBCWrapper.StoredProcedure spGet_Get_FilesByEpgIds = new ODBCWrapper.StoredProcedure("Get_FilesByEpgIds");
+            spGet_Get_FilesByEpgIds.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spGet_Get_FilesByEpgIds.AddParameter("@GroupId", groupId);
+            spGet_Get_FilesByEpgIds.AddIDListParameter<long>("@EpgIds", epgIds, "ID");
+
+            DataTable dt = spGet_Get_FilesByEpgIds.Execute();
+
+            if (dt != null && dt.Rows != null)
+            {
+                fileIdsToEpgMap = new Dictionary<int, List<long>>();
+                foreach (DataRow dr in dt.Rows)
+                {
+                    int fileId = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_file_id", 0);
+                    long epgId = ODBCWrapper.Utils.GetIntSafeVal(dr, "epg_id", 0);
+                    if (fileId > 0 && epgId > 0)
+                    {
+                        if (fileIdsToEpgMap.ContainsKey(fileId))
+                        {
+                            fileIdsToEpgMap[fileId].Add(epgId);
+                        }
+                        else
+                        {
+                            fileIdsToEpgMap.Add(fileId, new List<long>() { epgId });
+                        }
+                    }
+                }
+            }
+
+            return fileIdsToEpgMap;
         }
     }
 }
