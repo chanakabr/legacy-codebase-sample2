@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
 using TVinciShared;
 
 public partial class adm_notification_settings : System.Web.UI.Page
@@ -24,15 +19,12 @@ public partial class adm_notification_settings : System.Web.UI.Page
 
         if (!IsPostBack)
         {
-
-
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
                 DBManipulator.DoTheWork("notifications_connection");
-                
                 return;
             }
-        }      
+        }
     }
 
     protected void GetMainMenu()
@@ -42,16 +34,7 @@ public partial class adm_notification_settings : System.Web.UI.Page
 
     public void GetHeader()
     {
-        Response.Write(PageUtils.GetPreHeader() + ": Notification Settings");
-        //if (Session["notification_settings_id"] == null || Session["notification_settings_id"].ToString() == "" || Session["notification_settings_id"].ToString() == "0")
-        //    return;
-
-        //string sRet = PageUtils.GetPreHeader() + ":New Notification Settings ";
-        //if (Session["notification_settings_id"] != null && Session["notification_settings_id"].ToString() != "" && Session["notification_settings_id"].ToString() != "0")
-        //    sRet += " - Edit";
-        //else
-        //    sRet += " - New";
-        //Response.Write(sRet);
+        Response.Write(PageUtils.GetPreHeader() + ": Notification Settings");        
     }
 
     static protected Int32 GetMainLang(ref string sMainLang, ref string sCode)
@@ -90,7 +73,7 @@ public partial class adm_notification_settings : System.Web.UI.Page
         }
 
         object groupId = LoginManager.GetLoginGroupID();
-        bool  push = true;
+        bool push = true;
         bool push_sa = true;
         int tableID = GetNotificationSettingsID(ODBCWrapper.Utils.GetIntSafeVal(groupId), ref push, ref push_sa);
         // check ig groupid is parent , if so show page with all filed else (not parent show a message)
@@ -108,7 +91,6 @@ public partial class adm_notification_settings : System.Web.UI.Page
                 t = tableID;
             }
 
-          
             string sBack = "adm_notification_settings.aspx";
 
             DBRecordWebEditor theRecord = new DBRecordWebEditor("notification_settings", "adm_table_pager", sBack, "", "ID", t, sBack, "");
@@ -116,14 +98,22 @@ public partial class adm_notification_settings : System.Web.UI.Page
 
             DataRecordCheckBoxField push_notification_enabled = new DataRecordCheckBoxField(true);
             push_notification_enabled.Initialize("Push notification enabled", "adm_table_header_nbg", "FormInput", "push_notification_enabled", false);
-            push_notification_enabled.SetValue(push ? "1": "0");
-            
+            push_notification_enabled.SetValue(push ? "1" : "0");
+
             theRecord.AddRecord(push_notification_enabled);
 
             DataRecordCheckBoxField push_system_announcements_enabled = new DataRecordCheckBoxField(true);
             push_system_announcements_enabled.Initialize("Push system announcements enabled", "adm_table_header_nbg", "FormInput", "push_system_announcements_enabled", false);
-            push_system_announcements_enabled.SetValue(push_sa? "1":"0");
+            push_system_announcements_enabled.SetValue(push_sa ? "1" : "0");
             theRecord.AddRecord(push_system_announcements_enabled);
+            
+            DataRecordShortIntField dr_start_time = new DataRecordShortIntField(true, 6, 6, 0, 24);
+            dr_start_time.Initialize("Push start hour", "adm_table_header_nbg", "FormInput", "push_start_hour", false);
+            theRecord.AddRecord(dr_start_time);
+
+            DataRecordShortIntField dr_end_time = new DataRecordShortIntField(true, 6, 6, 0, 24);
+            dr_end_time.Initialize("Push end hour", "adm_table_header_nbg", "FormInput", "push_end_hour", false);
+            theRecord.AddRecord(dr_end_time);
 
             sTable = theRecord.GetTableHTML("adm_notification_settings.aspx?submited=1");
         }
@@ -153,9 +143,8 @@ public partial class adm_notification_settings : System.Web.UI.Page
             selectQuery.Finish();
             selectQuery = null;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-
             notificationSettingId = 0;
         }
         return notificationSettingId;
@@ -186,9 +175,8 @@ public partial class adm_notification_settings : System.Web.UI.Page
             selectQuery.Finish();
             selectQuery = null;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-
             res = false;
         }
         return res;
