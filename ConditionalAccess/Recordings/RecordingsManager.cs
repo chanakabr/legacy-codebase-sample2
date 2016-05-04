@@ -366,7 +366,7 @@ namespace Recordings
                     //
                     else if (adapterResponse.FailReason != 0)
                     {
-                       status  = CreateFailStatus(adapterResponse);
+                        status = CreateFailStatus(adapterResponse);
                     }
                     else
                     {
@@ -436,7 +436,7 @@ namespace Recordings
 
             var filteredRecording = recordings.Where(recording =>
                 statuses.Contains(recording.RecordingStatus)).ToList();
-                
+
             return filteredRecording;
         }
 
@@ -664,58 +664,56 @@ namespace Recordings
                 currentRecording.Status = new Status((int)eResponseStatus.Error, "Adapter controller excpetion: " + ex.Message);
             }
 
-            if (currentRecording.Status != null)
-            {
-                return;
-            }
-
             if (adapterResponse == null)
             {
                 currentRecording.Status = new Status((int)eResponseStatus.Error, "Adapter controller returned null response.");
             }
-            else
+
+            try
             {
-                try
+                if (adapterResponse != null)
                 {
                     // Set external recording ID
                     currentRecording.ExternalRecordingId = adapterResponse.RecordingId;
 
                     // Set recording to be scheduled if it hasn't failed
-                    if (adapterResponse.ActionSuccess && adapterResponse.FailReason == 0)
+                    if (currentRecording.Status != null && currentRecording.Status.Code == (int)eResponseStatus.OK && 
+                        adapterResponse.ActionSuccess && adapterResponse.FailReason == 0)
                     {
                         currentRecording.RecordingStatus = TstvRecordingStatus.Scheduled;
 
                         SetRecordingStatus(currentRecording);
 
+                        // if it isn't a canceled recording, it is a completely new one - INSERT links
+                        if (!isCanceled)
+                        {
+                            if (adapterResponse.Links != null)
+                            {
+                                ConditionalAccessDAL.InsertRecordingLinks(adapterResponse.Links, groupId, currentRecording.Id);
+                            }
+                        }
+
                         success = true;
                     }
-                    else
-                    {
-                        currentRecording.RecordingStatus = TstvRecordingStatus.Failed;
-                    }
-
-                    // Update the result from the adapter
-                    bool updateSuccess = ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1);
-
-                    // if it isn't a canceled recording, it is a completely new one - INSERT links
-                    if (!isCanceled)
-                    {
-                        if (adapterResponse.Links != null)
-                        {
-                            ConditionalAccessDAL.InsertRecordingLinks(adapterResponse.Links, groupId, currentRecording.Id);
-                        }
-                    }
-
-                    if (!updateSuccess)
-                    {
-                        currentRecording.Status = new Status((int)eResponseStatus.Error, "Failed updating recording in database.");
-                    }
                 }
-                catch (Exception ex)
+
+                if (!success)
                 {
-                    log.ErrorFormat("Failed inserting/updating recording {0} in database and queue: {1}", currentRecording.Id, ex);
-                    currentRecording.Status = new Status((int)eResponseStatus.Error, "Failed inserting/updating recording in database and queue.");
+                    currentRecording.RecordingStatus = TstvRecordingStatus.Failed;
                 }
+
+                // Update the result from the adapter
+                bool updateSuccess = ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1);
+
+                if (!updateSuccess)
+                {
+                    currentRecording.Status = new Status((int)eResponseStatus.Error, "Failed updating recording in database.");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed inserting/updating recording {0} in database and queue: {1}", currentRecording.Id, ex);
+                currentRecording.Status = new Status((int)eResponseStatus.Error, "Failed inserting/updating recording in database and queue.");
             }
 
             if (!success)
@@ -741,12 +739,6 @@ namespace Recordings
                 {
                     EnqueueMessage(groupId, currentRecording.EpgId, currentRecording.Id, nextCheck, eRecordingTask.Record);
                 }
-            }
-            else
-            {
-                // If the Record was successful, reset the retries counter so that it will start from 0 when trying to get the status after the program started
-                currentRecording.GetStatusRetries = 0;
-                ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1);
             }
         }
 
