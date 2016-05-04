@@ -412,7 +412,7 @@ namespace Ingest.Importers
                             continue;
 
                         // price code (price) - mandatory
-                        if (GetMandatoryNodeDoubleValue(node, "price_code/price", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, pricePlan.Action.ToString().ToLower(), out dVal))
+                        if (GetMandatoryNodeDoublePositiveValue(node, "price_code/price", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, pricePlan.Action.ToString().ToLower(), out dVal))
                         {
                             pricePlan.PriceCode = new IngestPriceCode();
                             pricePlan.PriceCode.Price = dVal;
@@ -689,7 +689,7 @@ namespace Ingest.Importers
                             continue;
 
                         // price code (price) - mandatory
-                        if (GetMandatoryNodeDoubleValue(node, "price_code/price", PRICE_PLAN, ppv.Code, ref reportBuilder, reportId, ppv.Action.ToString().ToLower(), out dVal))
+                        if (GetMandatoryNodeDoublePositiveValue(node, "price_code/price", PRICE_PLAN, ppv.Code, ref reportBuilder, reportId, ppv.Action.ToString().ToLower(), out dVal))
                         {
                             ppv.PriceCode = new IngestPriceCode();
                             ppv.PriceCode.Price = dVal;
@@ -986,7 +986,7 @@ namespace Ingest.Importers
             return response;
         }
 
-        private static bool GetMandatoryNodeDoubleValue(XmlNode node, string nodeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, string action, out double value)
+        private static bool GetMandatoryNodeDoublePositiveValue(XmlNode node, string nodeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, string action, out double value)
         {
             value = 0;
 
@@ -994,8 +994,10 @@ namespace Ingest.Importers
             if (nodeList != null && nodeList.Count > 0 && !string.IsNullOrEmpty(nodeList[0].InnerText))
             {
                 double tempVal;
-                if (double.TryParse(nodeList[0].InnerText, out tempVal))
+                if (double.TryParse(nodeList[0].InnerText, out tempVal) && tempVal > 0.0)
+                {                    
                     value = tempVal;
+                }
                 else
                 {
                     log.ErrorFormat(LOG_FORMAT_ERROR_FORMAT, moduleName, moduleCode, nodeName, reportId, action);
