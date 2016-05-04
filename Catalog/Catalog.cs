@@ -6460,29 +6460,50 @@ namespace Catalog
                 List<long> lProgramsID = GetEpgIds(epgChannelID, groupId, fromDate, toDate);
                 log.DebugFormat("RebuildEpgProgramsChannel : lProgramsID:{0}, epgChannelID:{1}", string.Join(",", lProgramsID), epgChannelID);
 
+                #region Delete
                 // delete all current Epgs in CB related to channel between dates 
                 BaseEpgBL epgBL = EpgBL.Utils.GetInstance(groupId);
                 epgBL.RemoveGroupPrograms(lProgramsID.ConvertAll<int>(x => (int)x));
-                // insert all above         
-                foreach (EpgCB epg in epgs)
-                {
-                    ulong epgID = 0;
-                    epgBL.InsertEpg(epg, out epgID);
-                }
-
-                // Delete from ES 
-                // get all programs 
-                // Delete all EpgIdentifiers that are not needed (per channel per day)               
+                // Delete from ES
                 bool resultEpgIndex;
                 if (lProgramsID != null && lProgramsID.Count > 0)
                 {
                     resultEpgIndex = UpdateEpgIndex(lProgramsID, groupId, ApiObjects.eAction.Delete);
                 }
+                #endregion
 
-                // delete 
-                // insert to ES 
-                List<long> epgIds = epgs.Select(e => (long)e.EpgID).ToList<long>();
-                resultEpgIndex = UpdateEpgIndex(epgIds, groupId, ApiObjects.eAction.Update);
+                #region insert Bulks
+
+                // insert all above  
+                int nCount = 0;
+                int nCountPackage = TVinciShared.WS_Utils.GetTcmIntValue("update_epg_package");
+                if (nCountPackage == 0)
+                    nCountPackage = 200;
+                List<long> epgIds = new List<long>();
+                foreach (EpgCB epg in epgs)
+                {
+                    nCount++;
+                    // insert to CB 
+                    ulong epgID = 0;
+                    epgBL.InsertEpg(epg, out epgID);
+                    // insert to ES
+                    epgIds.Add((long)epg.EpgID);
+                    if (nCount >= nCountPackage)
+                    {
+                        epgIds.Add((long)epg.EpgID);
+                        resultEpgIndex = UpdateEpgIndex(epgIds, groupId, ApiObjects.eAction.Update);
+                        epgIds = new List<long>();
+                        nCount = 0;
+                    }
+                   
+                }
+
+                if (nCount > 0 && epgIds != null && epgIds.Count > 0)
+                {
+                    resultEpgIndex = UpdateEpgIndex(epgIds, groupId, ApiObjects.eAction.Update);
+                }
+
+                #endregion
                 res = true;                
             }
             catch (Exception ex)
