@@ -179,18 +179,16 @@ namespace WebAPI.Managers
                 household = null;
             }
 
-            if (household == null ||
-                (household.Users != null ? household.Users.Where(u => u.Id == userId).FirstOrDefault() == null : true &&
-                household.Users != null ? household.PendingUsers.Where(u => u.Id == userId).FirstOrDefault() == null : true &&
-                household.Users != null ? household.MasterUsers.Where(u => u.Id == userId).FirstOrDefault() == null : true &&
-                household.Users != null ? household.DefaultUsers.Where(u => u.Id == userId).FirstOrDefault() == null : true))
-            {
-                return false;
-            }
-            else
+            if (household != null &&
+                ((household.Users != null && household.Users.Where(u => u.Id == userId).FirstOrDefault() != null) ||
+                (household.DefaultUsers != null && household.DefaultUsers.Where(u => u.Id == userId).FirstOrDefault() != null) ||
+                (household.MasterUsers != null && household.MasterUsers.Where(u => u.Id == userId).FirstOrDefault() != null) ||
+                (household.PendingUsers != null && household.PendingUsers.Where(u => u.Id == userId).FirstOrDefault() != null)))
             {
                 return true;
             }
+
+            return false;
         }
 
         internal static bool IsUserInGroup(string userId, int groupId)
