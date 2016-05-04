@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Tvinci.Core.DAL;
 using TVinciShared;
 using Synchronizer;
+using KlogMonitorHelper;
 
 namespace Recordings
 {
@@ -45,7 +46,7 @@ namespace Recordings
 
         private RecordingsManager()
         {
-            synchronizer = new CouchbaseSynchronizer();
+            synchronizer = new CouchbaseSynchronizer(1000, 60);
             synchronizer.SynchronizedAct += synchronizer_SynchronizedAct;
         }
 
@@ -111,9 +112,22 @@ namespace Recordings
             syncParmeters.Add("startDate", startDate);
             syncParmeters.Add("endDate", endDate);
 
-            bool syncedAction = synchronizer.DoAction(syncKey);
+            bool syncedAction = synchronizer.DoAction(syncKey, syncParmeters);
 
-            recording = ConditionalAccessDAL.GetRecordingByProgramId(programId);
+            try
+            {
+                recording = ConditionalAccessDAL.GetRecordingByProgramId(programId);
+
+                if (recording != null)
+                {
+                    recording.Status = new Status((int)eResponseStatus.OK);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("RecordingsManager - Record: Error getting recording of program {0}. error = {1}", programId, ex);
+                recording = null;
+            }
 
             return recording;
         }
@@ -352,7 +366,7 @@ namespace Recordings
                     //
                     else if (adapterResponse.FailReason != 0)
                     {
-                       status  = CreateFailStatus(adapterResponse);
+                        status = CreateFailStatus(adapterResponse);
                     }
                     else
                     {
@@ -422,7 +436,7 @@ namespace Recordings
 
             var filteredRecording = recordings.Where(recording =>
                 statuses.Contains(recording.RecordingStatus)).ToList();
-                
+
             return filteredRecording;
         }
 
@@ -519,9 +533,13 @@ namespace Recordings
                 // We're OK
                 recording.Status = new Status((int)eResponseStatus.OK);
 
+                ContextData cd = new ContextData();
+
                 // Async - call adapter. Main flow is done
                 System.Threading.Tasks.Task async = Task.Factory.StartNew((taskRecording) =>
                 {
+                    cd.Load();
+
                     Recording copyRecording = (Recording)taskRecording;
                     Recording currentRecording = new Recording()
                     {
@@ -646,80 +664,81 @@ namespace Recordings
                 currentRecording.Status = new Status((int)eResponseStatus.Error, "Adapter controller excpetion: " + ex.Message);
             }
 
-            if (currentRecording.Status != null)
-            {
-                return;
-            }
-
             if (adapterResponse == null)
             {
                 currentRecording.Status = new Status((int)eResponseStatus.Error, "Adapter controller returned null response.");
             }
-            else
+
+            try
             {
-                try
+                if (adapterResponse != null)
                 {
                     // Set external recording ID
                     currentRecording.ExternalRecordingId = adapterResponse.RecordingId;
 
                     // Set recording to be scheduled if it hasn't failed
-                    if (adapterResponse.ActionSuccess && adapterResponse.FailReason == 0)
+                    if (currentRecording.Status != null && currentRecording.Status.Code == (int)eResponseStatus.OK && 
+                        adapterResponse.ActionSuccess && adapterResponse.FailReason == 0)
                     {
                         currentRecording.RecordingStatus = TstvRecordingStatus.Scheduled;
 
                         SetRecordingStatus(currentRecording);
 
+                        // if it isn't a canceled recording, it is a completely new one - INSERT links
+                        if (!isCanceled)
+                        {
+                            if (adapterResponse.Links != null)
+                            {
+                                ConditionalAccessDAL.InsertRecordingLinks(adapterResponse.Links, groupId, currentRecording.Id);
+                            }
+                        }
+
                         success = true;
                     }
-                    else
-                    {
-                        currentRecording.RecordingStatus = TstvRecordingStatus.Failed;
-                    }
-
-                    // Update the result from the adapter
-                    bool updateSuccess = ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1);
-
-                    // if it isn't a canceled recording, it is a completely new one - INSERT links
-                    if (!isCanceled)
-                    {
-                        if (adapterResponse.Links != null)
-                        {
-                            ConditionalAccessDAL.InsertRecordingLinks(adapterResponse.Links, groupId, currentRecording.Id);
-                        }
-                    }
-
-                    if (!updateSuccess)
-                    {
-                        currentRecording.Status = new Status((int)eResponseStatus.Error, "Failed updating recording in database.");
-                    }
                 }
-                catch (Exception ex)
+
+                if (!success)
                 {
-                    log.ErrorFormat("Failed inserting/updating recording {0} in database and queue: {1}", currentRecording.Id, ex);
-                    currentRecording.Status = new Status((int)eResponseStatus.Error, "Failed inserting/updating recording in database and queue.");
+                    currentRecording.RecordingStatus = TstvRecordingStatus.Failed;
                 }
+
+                // Update the result from the adapter
+                bool updateSuccess = ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1);
+
+                if (!updateSuccess)
+                {
+                    currentRecording.Status = new Status((int)eResponseStatus.Error, "Failed updating recording in database.");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed inserting/updating recording {0} in database and queue: {1}", currentRecording.Id, ex);
+                currentRecording.Status = new Status((int)eResponseStatus.Error, "Failed inserting/updating recording in database and queue.");
             }
 
             if (!success)
             {
-                // If we have any tries left, schedule another try in a few minutes
-                if (currentRecording.GetStatusRetries < MAXIMUM_RETRIES_ALLOWED)
-                {
-                    // Trying to record every minute
-                    DateTime nextCheck = DateTime.UtcNow.AddMinutes(MINUTES_RETRY_INTERVAL);
+                var span = currentRecording.EpgStartDate - DateTime.UtcNow;
 
-                    // If the next retry will be before the EPG finishes
-                    if (nextCheck < currentRecording.EpgEndDate)
-                    {
-                        EnqueueMessage(groupId, currentRecording.EpgId, currentRecording.Id, nextCheck, eRecordingTask.Record);
-                    }
+                DateTime nextCheck;
+
+                // if there is more than 1 day left, try tomorrow
+                if (span.TotalDays > 1)
+                {
+                    nextCheck = DateTime.UtcNow.AddDays(1);
                 }
-            }
-            else
-            {
-                // If the Record was successful, reset the retries counter so that it will start from 0 when trying to get the status after the program started
-                currentRecording.GetStatusRetries = 0;
-                ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1);
+                else
+                {
+                    // if there is less than 1 day, get as HALF as close to the start of the program.
+                    // e.g. if we are 4 hours away from program, check in 2 hours. If we are 140 minutes away, try in 70 minutes.
+                    nextCheck = DateTime.UtcNow.AddSeconds(span.TotalSeconds / 2);
+                }
+
+                // If the next retry will be at least an hour before program starts
+                if (nextCheck < currentRecording.EpgStartDate.AddHours(-1))
+                {
+                    EnqueueMessage(groupId, currentRecording.EpgId, currentRecording.Id, nextCheck, eRecordingTask.Record);
+                }
             }
         }
 

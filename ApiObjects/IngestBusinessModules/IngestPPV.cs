@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.IngestBusinessModules;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,7 @@ namespace ApiObjects
 { 
     public class IngestPPV : IngestModule
     {
-        public string PriceCode { get; set; }
+        public IngestPriceCode PriceCode { get; set; }
 
         public string UsageModule { get; set; }
 

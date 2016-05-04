@@ -110,6 +110,7 @@
     <Compile Include="IngestBusinessModules\IngestPPV.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="IngestBusinessModules\IngestPriceCode.cs" />
     <Compile Include="Notification\Announcement.cs" />
     <Compile Include="Notification\AnnouncementSubscription.cs" />
     <Compile Include="Notification\DbAnnouncement.cs" />

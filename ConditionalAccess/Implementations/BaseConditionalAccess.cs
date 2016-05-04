@@ -17114,7 +17114,7 @@ namespace ConditionalAccess
 
                 // validate recording schedule window
                 if (accountSettings.IsRecordingScheduleWindowEnabled.HasValue && accountSettings.IsRecordingScheduleWindowEnabled.Value && 
-                    accountSettings.RecordingScheduleWindow.HasValue && epgStartDate.AddMinutes(accountSettings.RecordingScheduleWindow.Value) >= DateTime.UtcNow)
+                    accountSettings.RecordingScheduleWindow.HasValue && epgStartDate.AddMinutes(accountSettings.RecordingScheduleWindow.Value) <= DateTime.UtcNow)
                 {
                     log.DebugFormat("Program not in recording schedule window, epgID: {0}, domainID: {1}, userID {2}", epg.EPG_ID, domainID, userID);
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramNotInRecordingScheduleWindow, eResponseStatus.ProgramNotInRecordingScheduleWindow.ToString());
