@@ -693,6 +693,8 @@ namespace Recordings
                     // if provider failed
                     else if (!adapterResponse.ActionSuccess || adapterResponse.FailReason != 0)
                     {
+                        log.DebugFormat("RecordingsManager - Record: provider failed. action success = {0}, fail reason = {1}", 
+                            adapterResponse.ActionSuccess, adapterResponse.FailReason);
                         shouldRetry = true;
                         shouldMarkAsFailed = true;
                     }
