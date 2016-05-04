@@ -13,6 +13,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Tvinci.Core.DAL;
 using TVinciShared;
+using Synchronizer;
 
 namespace Recordings
 {
@@ -28,6 +29,12 @@ namespace Recordings
 
         #endregion
 
+        #region Data Members
+
+        private Synchronizer.CouchbaseSynchronizer synchronizer = null;
+
+        #endregion
+
         #region Static Members
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -38,6 +45,8 @@ namespace Recordings
 
         private RecordingsManager()
         {
+            synchronizer = new CouchbaseSynchronizer();
+            synchronizer.SynchronizedAct += synchronizer_SynchronizedAct;
         }
 
         private static object locker = new object();
@@ -94,85 +103,17 @@ namespace Recordings
         {
             Recording recording = null;
 
+            string syncKey = string.Format("RecordingsManager_{0}", programId);
+            Dictionary<string, object> syncParmeters = new Dictionary<string, object>();
+            syncParmeters.Add("groupId", groupId);
+            syncParmeters.Add("programId", programId);
+            syncParmeters.Add("epgChannelID", epgChannelID);
+            syncParmeters.Add("startDate", startDate);
+            syncParmeters.Add("endDate", endDate);
+
+            bool syncedAction = synchronizer.DoAction(syncKey, syncParmeters);
+
             recording = ConditionalAccessDAL.GetRecordingByProgramId(programId);
-
-            bool issueRecord = false;
-
-            // If there is no recording for this program - create one. This is the first, hurray!
-            if (recording == null)
-            {
-                issueRecord = true;
-                recording = new Recording();
-                recording.EpgId = programId;
-                recording.EpgStartDate = startDate;
-                recording.EpgEndDate = endDate;
-                recording.ChannelId = epgChannelID;
-                recording.RecordingStatus = TstvRecordingStatus.Scheduled;
-
-                // Insert recording information to database
-                recording = ConditionalAccessDAL.InsertRecording(recording, groupId);
-            }
-            else if (recording.RecordingStatus == TstvRecordingStatus.Canceled)
-            {
-                issueRecord = true;
-            }
-
-            // If it is a new recording or a canceled recording - we call adapter
-            if (issueRecord)
-            {
-                // Schedule a message tocheck status 1 minute after recording of program is supposed to be over
-
-                DateTime checkTime = endDate.AddMinutes(1);
-                eRecordingTask task = eRecordingTask.GetStatusAfterProgramEnded;
-
-                EnqueueMessage(groupId, programId, recording.Id, checkTime, task);
-
-                bool isCanceled = recording.RecordingStatus == TstvRecordingStatus.Canceled;
-
-                recording.Status = null;
-
-                // Update Couchbase that the EPG is recorded
-                #region Update CB
-
-                UpdateCouchbaseIsRecorded(groupId, programId, true);
-
-                #endregion
-
-                // After we know that schedule was succesful,
-                // we index data so it is available on search
-                if (recording.RecordingStatus == TstvRecordingStatus.OK ||
-                    recording.RecordingStatus == TstvRecordingStatus.Recorded ||
-                    recording.RecordingStatus == TstvRecordingStatus.Recording ||
-                    recording.RecordingStatus == TstvRecordingStatus.Scheduled)
-                {
-                    UpdateIndex(groupId, recording.Id);
-                }
-
-                // We're OK
-                recording.Status = new Status((int)eResponseStatus.OK);
-
-                // Async - call adapter. Main flow is done
-                System.Threading.Tasks.Task async = Task.Factory.StartNew((taskRecording) =>
-                {
-                    Recording copyRecording = (Recording)taskRecording;
-                    Recording currentRecording = new Recording()
-                    {
-                        ChannelId = copyRecording.ChannelId,
-                        EpgEndDate = copyRecording.EpgEndDate,
-                        EpgId = copyRecording.EpgId,
-                        EpgStartDate = copyRecording.EpgStartDate,
-                        ExternalRecordingId = copyRecording.ExternalRecordingId,
-                        GetStatusRetries = copyRecording.GetStatusRetries,
-                        Id =  copyRecording.Id,
-                        RecordingStatus = copyRecording.RecordingStatus,
-                        Status = copyRecording.Status,
-                        Type = copyRecording.Type
-                    };
-
-                    CallAdapterRecord(groupId, epgChannelID, startDate, endDate, isCanceled, currentRecording);
-                },
-                recording);
-            }
 
             return recording;
         }
@@ -184,119 +125,6 @@ namespace Recordings
             CallAdapterRecord(groupId, recording.ChannelId, recording.EpgStartDate, recording.EpgEndDate, false, recording);
 
             return recording;
-        }
-
-        private static void CallAdapterRecord(int groupId, string epgChannelID, DateTime startDate, DateTime endDate, bool isCanceled, Recording currentRecording)
-        {
-            bool success = false;
-
-            currentRecording.Status = null;
-
-            int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
-
-            var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
-
-            // Call Adapter to schedule recording,
-
-            // Initialize parameters for adapter controller
-            long startTimeSeconds = ODBCWrapper.Utils.DateTimeToUnixTimestamp(startDate);
-            long durationSeconds = (long)(endDate - startDate).TotalSeconds;
-            string externalChannelId = CatalogDAL.GetEPGChannelCDVRId(groupId, epgChannelID);
-
-            // Count this try
-            currentRecording.GetStatusRetries++;
-            ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1);
-
-            RecordResult adapterResponse = null;
-            try
-            {
-                adapterResponse = adapterController.Record(groupId, startTimeSeconds, durationSeconds, externalChannelId, adapterId);
-            }
-            catch (KalturaException ex)
-            {
-                currentRecording.Status = new Status((int)eResponseStatus.Error, 
-                    string.Format("Code: {0} Message: {1}", (int)ex.Data["StatusCode"],ex.Message));
-            }
-            catch (Exception ex)
-            {
-                currentRecording.Status = new Status((int)eResponseStatus.Error, "Adapter controller excpetion: " + ex.Message);
-            }
-
-            if (currentRecording.Status != null)
-            {
-                return;
-            }
-
-            if (adapterResponse == null)
-            {
-                currentRecording.Status = new Status((int)eResponseStatus.Error, "Adapter controller returned null response.");
-            }
-            else
-            {
-                try
-                {
-                    // Set external recording ID
-                    currentRecording.ExternalRecordingId = adapterResponse.RecordingId;
-
-                    // Set recording to be scheduled if it hasn't failed
-                    if (adapterResponse.ActionSuccess && adapterResponse.FailReason == 0)
-                    {
-                        currentRecording.RecordingStatus = TstvRecordingStatus.Scheduled;
-
-                        SetRecordingStatus(currentRecording);
-
-                        success = true;
-                    }
-                    else
-                    {
-                        currentRecording.RecordingStatus = TstvRecordingStatus.Failed;
-                    }
-
-                    // Update the result from the adapter
-                    bool updateSuccess = ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1);
-
-                    // if it isn't a canceled recording, it is a completely new one - INSERT links
-                    if (!isCanceled)
-                    {
-                        if (adapterResponse.Links != null)
-                        {
-                            ConditionalAccessDAL.InsertRecordingLinks(adapterResponse.Links, groupId, currentRecording.Id);
-                        }
-                    }
-
-                    if (!updateSuccess)
-                    {
-                        currentRecording.Status = new Status((int)eResponseStatus.Error, "Failed updating recording in database.");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    log.ErrorFormat("Failed inserting/updating recording {0} in database and queue: {1}", currentRecording.Id, ex);
-                    currentRecording.Status = new Status((int)eResponseStatus.Error, "Failed inserting/updating recording in database and queue.");
-                }
-            }
-
-            if (!success)
-            {
-                // If we have any tries left, schedule another try in a few minutes
-                if (currentRecording.GetStatusRetries < MAXIMUM_RETRIES_ALLOWED)
-                {
-                    // Trying to record every minute
-                    DateTime nextCheck = DateTime.UtcNow.AddMinutes(MINUTES_RETRY_INTERVAL);
-
-                    // If the next retry will be before the EPG finishes
-                    if (nextCheck < currentRecording.EpgEndDate)
-                    {
-                        EnqueueMessage(groupId, currentRecording.EpgId, currentRecording.Id, nextCheck, eRecordingTask.Record);
-                    }
-                }
-            }
-            else
-            {
-                // If the Record was successful, reset the retries counter so that it will start from 0 when trying to get the status after the program started
-                currentRecording.GetStatusRetries = 0;
-                ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1);
-            }
         }
 
         public Status CancelRecording(int groupId, long programId)
@@ -598,6 +426,125 @@ namespace Recordings
             return filteredRecording;
         }
 
+        public static void SetRecordingStatus(Recording recording)
+        {
+            if (recording.RecordingStatus == TstvRecordingStatus.Scheduled)
+            {
+                // If program already finished, we say it is recorded
+                if (recording.EpgEndDate < DateTime.UtcNow)
+                {
+                    recording.RecordingStatus = TstvRecordingStatus.Recorded;
+                }
+                // If program already started but didn't finish, we say it is recording
+                else if (recording.EpgStartDate < DateTime.UtcNow)
+                {
+                    recording.RecordingStatus = TstvRecordingStatus.Recording;
+                }
+            }
+        }
+
+        #endregion
+
+        #region Event Methods
+
+        /// <summary>
+        /// Actually performs the "Record"
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
+        private bool synchronizer_SynchronizedAct(Dictionary<string, object> parameters)
+        {
+            bool success = true;
+
+            int groupId = (int)parameters["groupId"];
+            long programId = (long)parameters["programId"];
+            string epgChannelID = (string)parameters["epgChannelID"];
+            DateTime startDate = (DateTime)parameters["startDate"];
+            DateTime endDate = (DateTime)parameters["endDate"];
+
+            Recording recording = null;
+
+            bool issueRecord = false;
+
+            // If there is no recording for this program - create one. This is the first, hurray!
+            if (recording == null)
+            {
+                issueRecord = true;
+                recording = new Recording();
+                recording.EpgId = programId;
+                recording.EpgStartDate = startDate;
+                recording.EpgEndDate = endDate;
+                recording.ChannelId = epgChannelID;
+                recording.RecordingStatus = TstvRecordingStatus.Scheduled;
+
+                // Insert recording information to database
+                recording = ConditionalAccessDAL.InsertRecording(recording, groupId);
+            }
+            else if (recording.RecordingStatus == TstvRecordingStatus.Canceled)
+            {
+                issueRecord = true;
+            }
+
+            // If it is a new recording or a canceled recording - we call adapter
+            if (issueRecord)
+            {
+                // Schedule a message tocheck status 1 minute after recording of program is supposed to be over
+
+                DateTime checkTime = endDate.AddMinutes(1);
+                eRecordingTask task = eRecordingTask.GetStatusAfterProgramEnded;
+
+                EnqueueMessage(groupId, programId, recording.Id, checkTime, task);
+
+                bool isCanceled = recording.RecordingStatus == TstvRecordingStatus.Canceled;
+
+                recording.Status = null;
+
+                // Update Couchbase that the EPG is recorded
+                #region Update CB
+
+                UpdateCouchbaseIsRecorded(groupId, programId, true);
+
+                #endregion
+
+                // After we know that schedule was succesful,
+                // we index data so it is available on search
+                if (recording.RecordingStatus == TstvRecordingStatus.OK ||
+                    recording.RecordingStatus == TstvRecordingStatus.Recorded ||
+                    recording.RecordingStatus == TstvRecordingStatus.Recording ||
+                    recording.RecordingStatus == TstvRecordingStatus.Scheduled)
+                {
+                    UpdateIndex(groupId, recording.Id);
+                }
+
+                // We're OK
+                recording.Status = new Status((int)eResponseStatus.OK);
+
+                // Async - call adapter. Main flow is done
+                System.Threading.Tasks.Task async = Task.Factory.StartNew((taskRecording) =>
+                {
+                    Recording copyRecording = (Recording)taskRecording;
+                    Recording currentRecording = new Recording()
+                    {
+                        ChannelId = copyRecording.ChannelId,
+                        EpgEndDate = copyRecording.EpgEndDate,
+                        EpgId = copyRecording.EpgId,
+                        EpgStartDate = copyRecording.EpgStartDate,
+                        ExternalRecordingId = copyRecording.ExternalRecordingId,
+                        GetStatusRetries = copyRecording.GetStatusRetries,
+                        Id = copyRecording.Id,
+                        RecordingStatus = copyRecording.RecordingStatus,
+                        Status = copyRecording.Status,
+                        Type = copyRecording.Type
+                    };
+
+                    CallAdapterRecord(groupId, epgChannelID, startDate, endDate, isCanceled, currentRecording);
+                },
+                recording);
+            }
+
+            return success;
+        }
+
         #endregion
 
         #region Private Methods
@@ -663,20 +610,116 @@ namespace Recordings
             return failStatus;
         }
 
-        public static void SetRecordingStatus(Recording recording)
+        private static void CallAdapterRecord(int groupId, string epgChannelID, DateTime startDate, DateTime endDate, bool isCanceled, Recording currentRecording)
         {
-            if (recording.RecordingStatus == TstvRecordingStatus.Scheduled)
+            bool success = false;
+
+            currentRecording.Status = null;
+
+            int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
+
+            var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
+
+            // Call Adapter to schedule recording,
+
+            // Initialize parameters for adapter controller
+            long startTimeSeconds = ODBCWrapper.Utils.DateTimeToUnixTimestamp(startDate);
+            long durationSeconds = (long)(endDate - startDate).TotalSeconds;
+            string externalChannelId = CatalogDAL.GetEPGChannelCDVRId(groupId, epgChannelID);
+
+            // Count this try
+            currentRecording.GetStatusRetries++;
+            ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1);
+
+            RecordResult adapterResponse = null;
+            try
             {
-                // If program already finished, we say it is recorded
-                if (recording.EpgEndDate < DateTime.UtcNow)
+                adapterResponse = adapterController.Record(groupId, startTimeSeconds, durationSeconds, externalChannelId, adapterId);
+            }
+            catch (KalturaException ex)
+            {
+                currentRecording.Status = new Status((int)eResponseStatus.Error,
+                    string.Format("Code: {0} Message: {1}", (int)ex.Data["StatusCode"], ex.Message));
+            }
+            catch (Exception ex)
+            {
+                currentRecording.Status = new Status((int)eResponseStatus.Error, "Adapter controller excpetion: " + ex.Message);
+            }
+
+            if (currentRecording.Status != null)
+            {
+                return;
+            }
+
+            if (adapterResponse == null)
+            {
+                currentRecording.Status = new Status((int)eResponseStatus.Error, "Adapter controller returned null response.");
+            }
+            else
+            {
+                try
                 {
-                    recording.RecordingStatus = TstvRecordingStatus.Recorded;
+                    // Set external recording ID
+                    currentRecording.ExternalRecordingId = adapterResponse.RecordingId;
+
+                    // Set recording to be scheduled if it hasn't failed
+                    if (adapterResponse.ActionSuccess && adapterResponse.FailReason == 0)
+                    {
+                        currentRecording.RecordingStatus = TstvRecordingStatus.Scheduled;
+
+                        SetRecordingStatus(currentRecording);
+
+                        success = true;
+                    }
+                    else
+                    {
+                        currentRecording.RecordingStatus = TstvRecordingStatus.Failed;
+                    }
+
+                    // Update the result from the adapter
+                    bool updateSuccess = ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1);
+
+                    // if it isn't a canceled recording, it is a completely new one - INSERT links
+                    if (!isCanceled)
+                    {
+                        if (adapterResponse.Links != null)
+                        {
+                            ConditionalAccessDAL.InsertRecordingLinks(adapterResponse.Links, groupId, currentRecording.Id);
+                        }
+                    }
+
+                    if (!updateSuccess)
+                    {
+                        currentRecording.Status = new Status((int)eResponseStatus.Error, "Failed updating recording in database.");
+                    }
                 }
-                // If program already started but didn't finish, we say it is recording
-                else if (recording.EpgStartDate < DateTime.UtcNow)
+                catch (Exception ex)
                 {
-                    recording.RecordingStatus = TstvRecordingStatus.Recording;
+                    log.ErrorFormat("Failed inserting/updating recording {0} in database and queue: {1}", currentRecording.Id, ex);
+                    currentRecording.Status = new Status((int)eResponseStatus.Error, "Failed inserting/updating recording in database and queue.");
                 }
+            }
+
+            if (!success)
+            {
+                // If we have any tries left, schedule another try in a few minutes
+                if (currentRecording.GetStatusRetries < MAXIMUM_RETRIES_ALLOWED)
+                {
+                    // Trying to record every minute
+                    DateTime nextCheck = DateTime.UtcNow.AddMinutes(MINUTES_RETRY_INTERVAL);
+
+                    // If the next retry will be before the EPG finishes
+                    if (nextCheck < currentRecording.EpgEndDate)
+                    {
+                        EnqueueMessage(groupId, currentRecording.EpgId, currentRecording.Id, nextCheck, eRecordingTask.Record);
+                    }
+                }
+            }
+            else
+            {
+                // If the Record was successful, reset the retries counter so that it will start from 0 when trying to get the status after the program started
+                currentRecording.GetStatusRetries = 0;
+                ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1);
             }
         }
 

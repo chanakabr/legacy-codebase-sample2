@@ -886,6 +886,10 @@
       <Project>{320c9ff3-da35-42ea-a872-65b1cfe681cb}</Project>
       <Name>StreamingProvider</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Synchronizer\Synchronizer.csproj">
+      <Project>{9b1d6676-614f-4f0d-9bfb-66422f8a5031}</Project>
+      <Name>Synchronizer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TvinciCache\TvinciCache.csproj">
       <Project>{d57b2371-da31-4035-8b00-6a6d0256ec00}</Project>
       <Name>TvinciCache</Name>
