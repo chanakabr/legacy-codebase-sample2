@@ -881,6 +881,12 @@ namespace WebAPI.Notifications {
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Nullable<int> PushEndHourField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Nullable<int> PushStartHourField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Nullable<bool> push_notification_enabledField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -893,6 +899,32 @@ namespace WebAPI.Notifications {
             }
             set {
                 this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Nullable<int> PushEndHour {
+            get {
+                return this.PushEndHourField;
+            }
+            set {
+                if ((this.PushEndHourField.Equals(value) != true)) {
+                    this.PushEndHourField = value;
+                    this.RaisePropertyChanged("PushEndHour");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Nullable<int> PushStartHour {
+            get {
+                return this.PushStartHourField;
+            }
+            set {
+                if ((this.PushStartHourField.Equals(value) != true)) {
+                    this.PushStartHourField = value;
+                    this.RaisePropertyChanged("PushStartHour");
+                }
             }
         }
         

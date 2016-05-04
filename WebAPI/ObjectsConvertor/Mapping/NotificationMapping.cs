@@ -15,12 +15,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //NotificationPartnerSettings to KalturaPartnerNotificationSettings
             Mapper.CreateMap<NotificationPartnerSettings, KalturaPartnerNotificationSettings>()                 
                  .ForMember(dest => dest.PushNotificationEnabled, opt => opt.MapFrom(src => src.push_notification_enabled))
-                 .ForMember(dest => dest.PushSystemAnnouncementsEnabled, opt => opt.MapFrom(src => src.push_system_announcements_enabled));
+                 .ForMember(dest => dest.PushSystemAnnouncementsEnabled, opt => opt.MapFrom(src => src.push_system_announcements_enabled))
+                 .ForMember(dest => dest.PushStartHour, opt => opt.MapFrom(src => src.PushStartHour))
+                 .ForMember(dest => dest.PushEndHour, opt => opt.MapFrom(src => src.PushEndHour));
 
             //KalturaPartnerNotificationSettings TO NotificationPartnerSettings
             Mapper.CreateMap<KalturaPartnerNotificationSettings, NotificationPartnerSettings>()
                  .ForMember(dest => dest.push_notification_enabled, opt => opt.MapFrom(src => src.PushNotificationEnabled))
-                 .ForMember(dest => dest.push_system_announcements_enabled, opt => opt.MapFrom(src => src.PushSystemAnnouncementsEnabled));
+                 .ForMember(dest => dest.push_system_announcements_enabled, opt => opt.MapFrom(src => src.PushSystemAnnouncementsEnabled))
+                 .ForMember(dest => dest.PushStartHour, opt => opt.MapFrom(src => src.PushStartHour))
+                 .ForMember(dest => dest.PushEndHour, opt => opt.MapFrom(src => src.PushEndHour));
 
             Mapper.CreateMap<UserNotificationSettings, KalturaNotificationSettings>()
                  .ForMember(dest => dest.PushNotificationEnabled, opt => opt.MapFrom(src => src.EnablePush))
