@@ -621,33 +621,50 @@ namespace DAL
             return sp.ExecuteReturnValue<int>();
         }
 
-        public static bool UpdateNotificationPartnerSettings(int groupID, bool? push_notification_enabled, bool? push_system_announcements_enabled)
+        public static bool UpdateNotificationPartnerSettings(int groupID, NotificationPartnerSettings settings)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_NotificationPartnerSettings");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             sp.AddParameter("@groupID", groupID);
-            if (push_notification_enabled != null)
+            if (settings.push_notification_enabled.HasValue)
             {
-                sp.AddParameter("@push_notification_enabled", push_notification_enabled);
+                sp.AddParameter("@push_notification_enabled", settings.push_notification_enabled.Value);
             }
-            if (push_system_announcements_enabled != null)
+            if (settings.push_system_announcements_enabled.HasValue)
             {
-                sp.AddParameter("@push_system_announcements_enabled", push_system_announcements_enabled);
+                sp.AddParameter("@push_system_announcements_enabled", settings.push_system_announcements_enabled.Value);
             }
             sp.AddParameter("@date", DateTime.UtcNow);
+            if (settings.PushStartHour.HasValue)
+            {
+                sp.AddParameter("@pushStartHour", settings.PushStartHour.Value);
+            }
+            if (settings.PushEndHour.HasValue)
+            {
+                sp.AddParameter("@pushEndHour", settings.PushEndHour.Value);
+            }
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static DataRow GetNotificationPartnerSettings(int groupID)
+        public static NotificationPartnerSettings GetNotificationPartnerSettings(int groupID)
         {
+            NotificationPartnerSettings settings = null;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_NotificationPartnerSettings");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             sp.AddParameter("@groupID", groupID);
             DataTable dt = sp.Execute();
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                return dt.Rows[0];
-            else
-                return null;
+            {
+                settings = new NotificationPartnerSettings()
+                {
+                    push_notification_enabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "push_notification_enabled") == 1 ? true : false,
+                    push_system_announcements_enabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "push_system_announcements_enabled") == 1 ? true : false,
+                    PushStartHour = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "push_start_hour"),
+                    PushEndHour = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "push_end_hour")
+                };
+            }
+
+            return settings;
         }
 
         public static DataRow GetNotificationSettings(int groupID, int userID)
