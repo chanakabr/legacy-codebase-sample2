@@ -144,7 +144,18 @@ namespace QueueWrapper
                 {
                     try
                     {
-                        this.m_Model = m_Connection.CreateModel();
+                        try
+                        {
+                            this.m_Model = m_Connection.CreateModel();
+                        }
+                        // If failed, retry until we reach limit - with a new connection
+                        catch (OperationInterruptedException ex)
+                        {
+                            ClearConnection();
+                            IncreaseFailCounter();
+                            return Publish(configuration, sMessage);
+                        }
+
                         if (this.m_Model != null)
                         {
                             var body = Encoding.UTF8.GetBytes(sMessage.ToString());
@@ -155,6 +166,12 @@ namespace QueueWrapper
                             isPublishSucceeded = true;
                             ResetFailCounter();
                         }
+                    }
+                    catch (OperationInterruptedException ex)
+                    {
+                        string msg = ex.Message;
+                        ClearConnection();
+                        return Publish(configuration, sMessage);
                     }
                     catch (Exception ex)
                     {
@@ -201,6 +218,40 @@ namespace QueueWrapper
                 finally
                 {
                     m_lock.ExitWriteLock();
+                }
+            }
+        }
+
+        private void ClearConnection()
+        {
+            if (this.m_Connection != null)
+            {
+                bool createdNew = false;
+                var mutexSecurity = Utils.CreateMutex();
+
+                using (Mutex mutex = new Mutex(false, string.Concat("Connection ", "Mutex"), out createdNew, mutexSecurity))
+                {
+                    try
+                    {
+                        mutex.WaitOne(-1);
+
+                        if (this.m_Connection != null)
+                        {
+                            this.m_Connection = null;
+                            this.m_Model = null;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        m_Connection = null;
+                        m_Model = null;
+                    }
+                    finally
+                    {
+                        m_Connection = null;
+                        m_Model = null;
+                        mutex.ReleaseMutex();
+                    }
                 }
             }
         }
