@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Tvinci.Core.DAL;
 using TVinciShared;
 using Synchronizer;
+using KlogMonitorHelper;
 
 namespace Recordings
 {
@@ -532,12 +533,12 @@ namespace Recordings
                 // We're OK
                 recording.Status = new Status((int)eResponseStatus.OK);
 
-                var httpContext = System.Web.HttpContext.Current;
+                ContextData cd = new ContextData();
 
                 // Async - call adapter. Main flow is done
                 System.Threading.Tasks.Task async = Task.Factory.StartNew((taskRecording) =>
                 {
-                    System.Web.HttpContext.Current = httpContext;
+                    cd.Load();
 
                     Recording copyRecording = (Recording)taskRecording;
                     Recording currentRecording = new Recording()
