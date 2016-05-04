@@ -7,11 +7,11 @@ namespace WebAPI.Managers.Schema
 {
     public class ValidationException : Attribute
     {
-        public ValidationException(ValidationType type)
+        public ValidationException(SchemaValidationType type)
         {
             ValidationType = type;
         }
 
-        public ValidationType ValidationType { get; set; }
+        public SchemaValidationType ValidationType { get; set; }
     }
 }

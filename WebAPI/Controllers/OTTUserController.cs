@@ -51,7 +51,7 @@ namespace WebAPI.Controllers
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserWIthNoHousehold = 2024, User does not exist = 2000
         /// </remarks>
         [Route("loginWithPin"), HttpPost]
-        [ValidationException(ValidationType.ACTION_NAME)]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
         public KalturaLoginResponse LoginWithPin(int partnerId, string pin, string udid = null, string secret = null)
         {
             KalturaOTTUser response = null;
@@ -87,7 +87,7 @@ namespace WebAPI.Controllers
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, User does not exist = 2000
         /// </remarks>
         [Route("login"), HttpPost]
-        [ValidationException(ValidationType.ACTION_NAME)]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
         public KalturaLoginResponse Login(int partnerId, string username = null, string password = null, SerializableDictionary<string, KalturaStringValue> extra_params = null,
             string udid = null)
         {
@@ -124,7 +124,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("refreshSession"), HttpPost]
         [ApiAuthorize(true)]
-        [ValidationException(ValidationType.ACTION_NAME)]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
         public KalturaLoginSession RefreshSession(string refresh_token, string udid = null)
         {
             KalturaLoginSession response = null;
@@ -161,7 +161,7 @@ namespace WebAPI.Controllers
         /// User does not exist = 2000
         /// </remarks>
         [Route("facebookLogin"), HttpPost]
-        [ValidationException(ValidationType.ACTION_NAME)]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
         public KalturaLoginResponse FacebookLogin(int partnerId, string token, string udid = null)
         {
             KalturaOTTUser response = null;
@@ -268,7 +268,7 @@ namespace WebAPI.Controllers
         /// <param name="password">new password</param>
         /// <remarks>Possible status codes: User does not exist = 2000</remarks>
         [Route("resetPassword"), HttpPost]
-        [ValidationException(ValidationType.ACTION_NAME)]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
         public bool resetPassword(int partnerId, string username, string password)
         {
             bool response = false;
@@ -301,7 +301,7 @@ namespace WebAPI.Controllers
         /// <param name="token">token</param>
         /// <remarks>Possible status codes: 2000 = User does not exist</remarks>
         [Route("validateToken"), HttpPost]
-        [ValidationException(ValidationType.ACTION_NAME)]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
         public KalturaOTTUser validateToken(int partnerId, string token)
         {
             KalturaOTTUser response = null;
@@ -526,7 +526,7 @@ namespace WebAPI.Controllers
         /// <param name="username">Username of the user to activate</param>
         /// <returns></returns>
         [Route("activate"), HttpPost]
-        [ValidationException(ValidationType.ACTION_NAME)]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
         public Models.Users.KalturaOTTUser Activate(int partnerId, string username, string activation_token)
         {
             Models.Users.KalturaOTTUser response = null;

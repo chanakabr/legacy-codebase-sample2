@@ -1391,11 +1391,6 @@
              <param name="request">Sequential API calls' definitions</param>
              <returns></returns>
         </member>
-        <member name="T:WebAPI.ApiSchema">
-            <summary>
-            Prints out the API XML schema
-            </summary>
-        </member>
         <member name="M:WebAPI.Controllers.SocialController.GetByToken(System.Int32,System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
             <summary>
             Return the user object with social information according to a provided external social token

@@ -6,17 +6,17 @@ using System.Reflection;
 using System.Linq;
 using WebAPI.Models.General;
 using System.Web.Http;
+using System.Web.Http.ModelBinding;
 using System.Xml;
 using System.Globalization;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
+using WebAPI.Managers.Schema;
 
-namespace WebAPI.Managers.Schema
+namespace Validator.Managers.Schema
 {
     public class SchemaManager
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
         private static XmlDocument GetProjectXml()
         {
             string filename = Assembly.GetExecutingAssembly().CodeBase;
@@ -114,7 +114,7 @@ namespace WebAPI.Managers.Schema
             return ValidateObject(type, strict) && valid;
         }
 
-        private static bool hasValidationException(ICustomAttributeProvider attributeProvider, ValidationType type)
+        private static bool hasValidationException(ICustomAttributeProvider attributeProvider, SchemaValidationType type)
         {
             object[] attributes = attributeProvider.GetCustomAttributes(true);
             foreach (Attribute attribute in attributes)
@@ -211,7 +211,7 @@ namespace WebAPI.Managers.Schema
 
             foreach (PropertyInfo property in type.GetProperties())
             {
-                if (hasValidationException(property, ValidationType.FILTER_SUFFIX))
+                if (hasValidationException(property, SchemaValidationType.FILTER_SUFFIX))
                     continue;
 
                 JsonPropertyAttribute jsonProperty = property.GetCustomAttribute<JsonPropertyAttribute>(true);
@@ -444,7 +444,7 @@ namespace WebAPI.Managers.Schema
             }
 
             string actionId = route.Template;
-            if (actionId != "get" && actionId != "add" && actionId != "update" && actionId != "delete" && actionId != "list" && !hasValidationException(action, ValidationType.ACTION_NAME))
+            if (actionId != "get" && actionId != "add" && actionId != "update" && actionId != "delete" && actionId != "list" && !hasValidationException(action, SchemaValidationType.ACTION_NAME))
             {
                 logError("Warning", controller, string.Format("Action {0}.{1} ({2}) has non-standard name (add, update, get, delete and list are allowed)", serviceId, actionId, controller.Name));
                 if (strict)
