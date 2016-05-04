@@ -111,7 +111,7 @@ namespace Recordings
             syncParmeters.Add("startDate", startDate);
             syncParmeters.Add("endDate", endDate);
 
-            bool syncedAction = synchronizer.DoAction(syncKey);
+            bool syncedAction = synchronizer.DoAction(syncKey, syncParmeters);
 
             recording = ConditionalAccessDAL.GetRecordingByProgramId(programId);
 
