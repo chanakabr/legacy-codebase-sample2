@@ -250,7 +250,8 @@ namespace ApiObjects
 
     public enum eOTTAssetTypes
     {
-        Series= 0
+        None = 0,
+        Series= 1
     }
 
     public enum eAssetTypes
@@ -538,7 +539,9 @@ namespace ApiObjects
         AnonymousPushRegistration = 2,
         IdentifyPushRegistration = 3,
         DeleteUser = 4,
-        ChangeUsers = 5
+        ChangeUsers = 5,
+        EnableUserNotifications = 6,
+        DisableUserNotifications = 7
     }
 
     public enum eAnnouncementStatus
@@ -573,7 +576,8 @@ namespace ApiObjects
         MediaName= 0,
         SeriesName = 1,
         CatalaogStartDate = 2,
-        StartDate = 3
+        StartDate = 3,
+        MediaId = 4,
     }
     public enum TstvRecordingStatus
     {
@@ -583,12 +587,18 @@ namespace ApiObjects
         Recording = 3,
         Recorded = 4,
         Canceled = 5,
-        DoesNotExist = 6,
-        Deleted = 7
+        Deleted = 6
     }
 
     public enum eRecordingTask
     {
         GetStatusAfterProgramEnded = 1,
-    }   
+        Record = 2,
+    }
+
+    public enum RecordingType
+    {
+        Single = 0,
+        Series = 1,
+    }
 }

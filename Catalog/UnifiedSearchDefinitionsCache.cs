@@ -91,6 +91,7 @@ namespace Catalog
                 {
                     definitions.shouldSearchEpg = true;
                     definitions.shouldSearchMedia = true;
+                    definitions.shouldSearchRecordings = true;
                 }
                 else
                 {
@@ -98,9 +99,15 @@ namespace Catalog
                 }
 
                 // 0 - hard coded for EPG
-                if (definitions.mediaTypes.Remove(0))
+                if (definitions.mediaTypes.Remove(UnifiedSearchDefinitions.EPG_ASSET_TYPE))
                 {
                     definitions.shouldSearchEpg = true;
+                }
+                
+                // 1 - hard coded for recording
+                if (definitions.mediaTypes.Remove(UnifiedSearchDefinitions.RECORDING_ASSET_TYPE))
+                {
+                    definitions.shouldSearchRecordings = true;
                 }
 
                 // If there are items left in media types after removing 0, we are searching for media
@@ -286,6 +293,31 @@ namespace Catalog
                     }
                      */
                 }
+                #endregion
+
+                #region Specific Assets
+
+                if (request.specificAssets != null)
+                {
+                    // If we don't have dictionary yet - create it
+                    if (definitions.specificAssets == null)
+                    {
+                        definitions.specificAssets = new Dictionary<ApiObjects.eAssetTypes, List<string>>();
+                    }
+
+                    foreach (var specificAsset in request.specificAssets)
+                    {
+                        // If we don't have the list of the current asset type - create it
+                        if (!definitions.specificAssets.ContainsKey(specificAsset.Key))
+                        {
+                            definitions.specificAssets[specificAsset.Key] = new List<string>();
+                        }
+
+                        // Add asset from request to definitions
+                        definitions.specificAssets[specificAsset.Key].Add(specificAsset.Value.ToString());
+                    }
+                }
+
                 #endregion
             }
             catch (Exception ex)

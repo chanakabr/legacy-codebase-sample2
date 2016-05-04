@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.Notification;
+using Couchbase.IO;
 using CouchbaseManager;
 using KLogMonitor;
 using Newtonsoft.Json;
@@ -649,19 +650,6 @@ namespace DAL
                 return null;
         }
 
-        public static bool UpdateNotificationSettings(int groupID, string userId, bool? push_notification_enabled)
-        {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_NotificationSettings");
-            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
-            sp.AddParameter("@groupID", groupID);
-            sp.AddParameter("@userId", userId);
-            if (push_notification_enabled != null)
-            {
-                sp.AddParameter("@push_notification_enabled", push_notification_enabled);
-            }
-            return sp.ExecuteReturnValue<bool>();
-        }
-
         public static DataRow GetNotificationSettings(int groupID, int userID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_NotificationSettings");
@@ -693,7 +681,7 @@ namespace DAL
             return null;
         }
 
-        public static DataRow Get_MessageAnnouncement(int messageAnnouncementId)
+        public static DataRow Get_MessageAnnouncement(long messageAnnouncementId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncementById");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -743,6 +731,43 @@ namespace DAL
             return null;
         }
 
+        public static DataRowCollection Get_MessageAnnouncementByAnnouncementId(int announcementId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncementByAnnouncementId");
+            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            sp.AddParameter("@Announcement_ID", announcementId);
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    return dt.Rows;
+                }
+            }
+
+            return null;
+        }
+
+        public static DataRowCollection Get_MessageAnnouncementByAnnouncementAndReference(int announcementId, string messageReference)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncementByAnnouncementAndReference");
+            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            sp.AddParameter("@Announcement_ID", announcementId);
+            sp.AddParameter("@message_reference", messageReference);
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    return dt.Rows;
+                }
+            }
+
+            return null;
+        }
+
         public static int Get_MessageAllAnnouncementsCount(int groupId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageAnnouncements");
@@ -761,7 +786,7 @@ namespace DAL
             return 0;
         }
 
-        public static int Insert_MessageAnnouncement(int groupId, int recipients, string name, string message, bool enabled, DateTime startTime, string timezone, int updaterId, string resultMsgId = null)
+        public static int Insert_MessageAnnouncement(int groupId, int recipients, string name, string message, bool enabled, DateTime startTime, string timezone, int updaterId, long announcement_id = 0, string messageReference = null, string resultMsgId = null)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("InsertMessageAnnouncement");
             spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -775,6 +800,9 @@ namespace DAL
             spInsert.AddParameter("@is_active", enabled ? 1 : 0);
             spInsert.AddParameter("@result_message_id", resultMsgId);
             spInsert.AddParameter("@update_date", DateTime.UtcNow);
+            spInsert.AddParameter("@message_reference", messageReference);
+            if (announcement_id != 0)
+                spInsert.AddParameter("@announcement_id", announcement_id);
             int newTransactionID = spInsert.ExecuteReturnValue<int>();
             return newTransactionID;
         }
@@ -824,7 +852,7 @@ namespace DAL
             spInsert.ExecuteDataSet();
         }
 
-        public static void Delete_MessageAnnouncement(int id, int groupId)
+        public static void Delete_MessageAnnouncement(long id, int groupId)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("UpdateMessageAnnouncement");
             spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -863,7 +891,7 @@ namespace DAL
             return ret;
         }
 
-        public static int Insert_Announcement(int groupId, string announcementName, string externalAnnouncementId, int messageType, int announcementRecipientsType)
+        public static int Insert_Announcement(int groupId, string announcementName, string externalAnnouncementId, int messageType, int announcementRecipientsType, string followPhrase = null, string followReference = null)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("Insert_Announcement");
             spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -874,6 +902,8 @@ namespace DAL
             spInsert.AddParameter("@recipient_type", announcementRecipientsType);
             spInsert.AddParameter("@status", 1);
             spInsert.AddParameter("@created_at", DateTime.UtcNow);
+            spInsert.AddParameter("@follow_phrase", followPhrase);
+            spInsert.AddParameter("@follow_reference", followReference);
 
             int newTransactionID = spInsert.ExecuteReturnValue<int>();
             return newTransactionID;
@@ -1027,6 +1057,7 @@ namespace DAL
                             ExternalId = ODBCWrapper.Utils.GetSafeStr(row, "external_id"),
                             Name = ODBCWrapper.Utils.GetSafeStr(row, "name"),
                             FollowPhrase = ODBCWrapper.Utils.GetSafeStr(row, "follow_phrase"),
+                            FollowReference = ODBCWrapper.Utils.GetSafeStr(row, "follow_reference"),
                             RecipientsType = Enum.IsDefined(typeof(eAnnouncementRecipientsType), recipientType) ? (eAnnouncementRecipientsType)recipientType : eAnnouncementRecipientsType.All
                         };
 
@@ -1053,6 +1084,9 @@ namespace DAL
                 sp.AddParameter("@message", messageTemplate.Message);
                 sp.AddParameter("@dateFormat", messageTemplate.DateFormat);
                 sp.AddParameter("@assetType", (int)messageTemplate.AssetType);
+                sp.AddParameter("@sound", messageTemplate.Sound);
+                sp.AddParameter("@action", messageTemplate.Action);
+                sp.AddParameter("@url", messageTemplate.URL);
 
                 DataSet ds = sp.ExecuteDataSet();
 
@@ -1075,7 +1109,7 @@ namespace DAL
 
         public static MessageTemplate GetMessageTemplate(int groupId, eOTTAssetTypes assetType)
         {
-            MessageTemplate result =null;
+            MessageTemplate result = null;
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageTemplate");
@@ -1113,16 +1147,20 @@ namespace DAL
                 Id = ODBCWrapper.Utils.GetIntSafeVal(row, "ID"),
                 Message = ODBCWrapper.Utils.GetSafeStr(row, "MESSAGE"),
                 DateFormat = ODBCWrapper.Utils.GetSafeStr(row, "DATE_FORMAT"),
+                Sound = ODBCWrapper.Utils.GetSafeStr(row, "SOUND"),
+                Action = ODBCWrapper.Utils.GetSafeStr(row, "ACTION"),
+                URL = ODBCWrapper.Utils.GetSafeStr(row, "URL"),
                 AssetType = Enum.IsDefined(typeof(eOTTAssetTypes), assetType) ? (eOTTAssetTypes)assetType : eOTTAssetTypes.Series
             };
             return result;
         }
 
-        public static DeviceNotificationData GetDeviceNotificationData(int groupId, string udid, bool withLock = false)
+        public static DeviceNotificationData GetDeviceNotificationData(int groupId, string udid, ref bool isDocumentExist, bool withLock = false)
         {
             DeviceNotificationData deviceData = null;
             Couchbase.IO.ResponseStatus status = Couchbase.IO.ResponseStatus.None;
             ulong cas = 0;
+            isDocumentExist = true;
 
             try
             {
@@ -1141,7 +1179,8 @@ namespace DAL
                         {
                             // key doesn't exist - don't try again
                             log.DebugFormat("device notification data with lock wasn't found. key: {0}", GetDeviceDataKey(groupId, udid));
-                            result = true;
+                            isDocumentExist = false;
+                            break;
                         }
                         else
                         {
@@ -1224,11 +1263,12 @@ namespace DAL
             return result;
         }
 
-        public static UserNotification GetUserNotificationData(int groupId, int userId, bool withLock = false)
+        public static UserNotification GetUserNotificationData(int groupId, int userId, ref bool isDocumentExist, bool withLock = false)
         {
             UserNotification userNotification = null;
             Couchbase.IO.ResponseStatus status = Couchbase.IO.ResponseStatus.None;
             ulong cas = 0;
+            isDocumentExist = true;
 
             try
             {
@@ -1247,7 +1287,8 @@ namespace DAL
                         {
                             // key doesn't exist - don't try again
                             log.DebugFormat("user notification data wasn't found. key: {0}", GetUserNotificationKey(groupId, userId));
-                            result = true;
+                            isDocumentExist = false;
+                            break;
                         }
                         else
                         {
@@ -1345,6 +1386,173 @@ namespace DAL
                 log.ErrorFormat("Error while set user notification data. gid: {0}, user ID: {1}, ex: {2}", groupId, userId, ex);
             }
             return result;
+        }
+
+        public static UserNotificationSettings UpdateUserNotificationSettings(int groupID, int userId, UserNotificationSettings settings, ref bool isDocumentExist)
+        {
+            bool result = false;
+            UserNotification userNotification = null;
+            ResponseStatus status = ResponseStatus.None;
+            isDocumentExist = true;
+            ulong cas = 0;
+            string cbKey = string.Empty;
+
+            try
+            {
+                int numOfTries = 0;
+                cbKey = GetUserNotificationKey(groupID, userId);
+
+                while (!result && numOfTries < NUM_OF_INSERT_TRIES)
+                {
+                    userNotification = cbManager.Get<UserNotification>(cbKey, false, out cas, out status);
+                    if (userNotification == null)
+                    {
+                        if (status == Couchbase.IO.ResponseStatus.KeyNotFound)
+                        {
+                            isDocumentExist = false;
+
+                            // key doesn't exist - don't try again
+                            log.DebugFormat("user notification data wasn't found. key: {0}", cbKey);
+                            break;
+                        }
+                        else
+                        {
+                            // error retrieving document
+                            numOfTries++;
+                            log.ErrorFormat("Error getting user notification document while trying to update user notification settings. number of tries: {0}/{1}. key: {2}",
+                                numOfTries,
+                                NUM_OF_INSERT_TRIES,
+                                cbKey);
+
+                            Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
+                        }
+                    }
+                    else
+                    {
+                        // document retrieved - update it    
+                        UpdateUserNotification(settings, ref userNotification);
+
+                        // insert document to CB
+                        if (cbManager.Set<UserNotification>(cbKey, userNotification, false, 0, cas))
+                        {
+                            result = true;
+                            userNotification.cas = cas;
+
+                            // log success on retry
+                            if (numOfTries > 0)
+                            {
+                                numOfTries++;
+                                log.DebugFormat("successfully updated user notification settings. number of tries: {0}/{1}. key {2}",
+                                numOfTries,
+                                NUM_OF_INSERT_TRIES,
+                                cbKey);
+                            }
+                        }
+                        else
+                        {
+                            numOfTries++;
+                            log.ErrorFormat("Error while updating user notification settings. number of tries: {0}/{1}. key: {2}",
+                                numOfTries,
+                                NUM_OF_INSERT_TRIES,
+                                cbKey);
+
+                            Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to update user notification settings. key: {0}, ex: {1}", cbKey, ex);
+            }
+
+            if (userNotification != null && userNotification.Settings != null)
+                return userNotification.Settings;
+            else
+                return null;
+        }
+
+        private static void UpdateUserNotification(UserNotificationSettings settings, ref UserNotification userNotification)
+        {
+            if (settings.EnableInbox.HasValue)
+                userNotification.Settings.EnableInbox = settings.EnableInbox.Value;
+
+            if (settings.EnableMail.HasValue)
+                userNotification.Settings.EnableMail = settings.EnableMail.Value;
+
+            if (settings.EnablePush.HasValue)
+                userNotification.Settings.EnablePush = settings.EnablePush.Value;
+
+            if (settings.FollowSettings != null)
+            {
+                if (settings.FollowSettings.EnableInbox.HasValue)
+                    userNotification.Settings.FollowSettings.EnableInbox = settings.FollowSettings.EnableInbox.Value;
+
+                if (settings.FollowSettings.EnableMail.HasValue)
+                    userNotification.Settings.FollowSettings.EnableMail = settings.FollowSettings.EnableMail.Value;
+
+                if (settings.FollowSettings.EnablePush.HasValue)
+                    userNotification.Settings.FollowSettings.EnablePush = settings.FollowSettings.EnablePush.Value;
+            }
+        }
+
+        public static void UnlockDeviceNotificationDocument(int groupId, string udid, ulong cas)
+        {
+            string docKey = GetDeviceDataKey(groupId, udid);
+            try
+            {
+                if (cbManager.Unlock(docKey, cas))
+                    log.DebugFormat("document unlocked {0}", docKey);
+                else
+                    log.ErrorFormat("error unlocking document {0}", docKey);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to unlock device notification object. key: {0}, cas: {1}, ex: {2}", docKey, cas, ex);
+            }
+        }
+
+        public static void UnlockUserNotificationDocument(int groupId, int userId, ulong cas)
+        {
+            string docKey = GetUserNotificationKey(groupId, userId);
+            try
+            {
+                if (cbManager.Unlock(docKey, cas))
+                    log.DebugFormat("document unlocked {0}", docKey);
+                else
+                    log.ErrorFormat("error unlocking document {0}", docKey);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to unlock user notification object. key: {0}, cas: {1}, ex: {2}", docKey, cas, ex);
+            }
+        }
+
+        public static eOTTAssetTypes GetOttAssetTypByMediaType(int mediaTypeId)
+        {
+            eOTTAssetTypes assetType = eOTTAssetTypes.None;
+
+            try
+            {
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+                selectQuery += string.Format("SELECT ASSET_TYPE FROM [media_types] WHERE Id = {0}", mediaTypeId);
+
+                if (selectQuery.Execute("query", true) != null && selectQuery.Table("query").DefaultView.Count > 0)
+                {
+                    var assetTypeId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0], "ASSET_TYPE");
+                    assetType = (eOTTAssetTypes)assetTypeId;
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+            }
+
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while getting asset type by media Id. mediaTypeId: {0}, ex: {1}", mediaTypeId, ex);
+            }
+
+            return assetType;
         }
     }
 }

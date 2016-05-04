@@ -4166,9 +4166,12 @@ namespace ConditionalAccess
                     int trickPlay = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_trick_play", -1);
                     int catchUpBuffer = ODBCWrapper.Utils.GetIntSafeVal(dr, "catch_up_buffer", -1);
                     int trickPlayBuffer = ODBCWrapper.Utils.GetIntSafeVal(dr, "trick_play_buffer", -1);
+                    int recordingScheduleWindowBuffer = ODBCWrapper.Utils.GetIntSafeVal(dr, "recording_schedule_window_buffer", -1);
+                    int recordingScheduleWindow = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_schedule_window", -1);
                     if (catchup > -1 && cdvr > -1 && startOver > -1 && trickPlay > -1 && catchUpBuffer > -1 && trickPlayBuffer > -1)
                     {
-                        settings = new TimeShiftedTvPartnerSettings(catchup == 1, cdvr == 1, startOver == 1, trickPlay == 1, catchUpBuffer, trickPlayBuffer);
+                        settings = new TimeShiftedTvPartnerSettings(catchup == 1, cdvr == 1, startOver == 1, trickPlay == 1, recordingScheduleWindow == 1, 
+                            catchUpBuffer, trickPlayBuffer, recordingScheduleWindowBuffer);
                     }
                 }
             }
@@ -4236,15 +4239,13 @@ namespace ConditionalAccess
         {
             bool res = false;
             switch (recordingStatus)
-            {
-                case TstvRecordingStatus.OK:                    
-                case TstvRecordingStatus.Recording:                    
-                case TstvRecordingStatus.Recorded:                    
+            {                
+                case TstvRecordingStatus.Recording:
+                case TstvRecordingStatus.Recorded:
                 case TstvRecordingStatus.Scheduled:
                     res = true;
                     break;
 
-                case TstvRecordingStatus.DoesNotExist:
                 case TstvRecordingStatus.Deleted:
                 case TstvRecordingStatus.Failed:
                 case TstvRecordingStatus.Canceled:
@@ -4275,6 +4276,145 @@ namespace ConditionalAccess
             }
 
             return services;
+        }
+
+        internal static List<Recording> SearchDomainRecordingIDsByFilter(int groupID, string userID, long domainID, Dictionary<long, long> recordingIdToDomainRecordingMap, string filter,
+                                                                List<Recording> recordingsWithValidStatus, int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy, ref int totalResults)
+        {
+            WS_Catalog.IserviceClient client = null;
+            List<Recording> recordings = null;
+
+            try
+            {
+                WS_Catalog.UnifiedSearchRequest request = new WS_Catalog.UnifiedSearchRequest();
+                request.m_nGroupID = groupID;
+                request.m_sSiteGuid = userID;
+                request.domainId = (int)domainID;
+                request.m_nPageIndex = pageIndex;
+                request.m_nPageSize = pageSize;
+                request.assetTypes = new int[1] { 1 };
+                request.filterQuery = filter;
+                request.order = orderBy;
+                KeyValuePair<eAssetTypes, long>[] recordingAssets = new KeyValuePair<eAssetTypes, long>[recordingsWithValidStatus.Count];
+                for (int i = 0; i < recordingsWithValidStatus.Count; i++)
+                {
+                    recordingAssets[i] = new KeyValuePair<eAssetTypes, long>(eAssetTypes.NPVR, recordingsWithValidStatus.ElementAt(i).Id);
+                }
+                request.specificAssets = recordingAssets;                
+                request.m_oFilter = new WS_Catalog.Filter()
+                {
+                    m_bOnlyActiveMedia = true
+                };
+                FillCatalogSignature(request);
+                client = new WS_Catalog.IserviceClient();
+                string sCatalogUrl = GetWSURL("WS_Catalog");
+                if (string.IsNullOrEmpty(sCatalogUrl))
+                {
+                    log.Error("Catalog Url is null or empty");
+                    return recordings;
+                }
+
+                client.Endpoint.Address = new System.ServiceModel.EndpointAddress(sCatalogUrl);
+                WS_Catalog.UnifiedSearchResponse response = client.GetResponse(request) as WS_Catalog.UnifiedSearchResponse;
+                if (response != null && response.status.Code == (int)eResponseStatus.OK && response.m_nTotalItems > 0 && response.searchResults != null)
+                {
+                    recordings = new List<Recording>();
+                    List<long> filteredRecordingIds = new List<long>();
+                    totalResults = response.m_nTotalItems;
+                    foreach (UnifiedSearchResult unifiedSearchResult in response.searchResults)
+                    {
+                        // no need to check epg status since catalog returns only active epg's
+                        long searchRecordingID;
+                        if (unifiedSearchResult.AssetType == eAssetTypes.NPVR && long.TryParse(unifiedSearchResult.AssetId, out searchRecordingID) && searchRecordingID > 0)
+                        {
+                            filteredRecordingIds.Add(searchRecordingID);                            
+                        }                       
+                    }
+
+                    if (recordingsWithValidStatus != null)
+                    {
+                        foreach (Recording recording in recordingsWithValidStatus)
+                        {
+                            // find recording in filtered recordings and convert recording ID to domain recording ID
+                            if (filteredRecordingIds.Contains(recording.Id) && recordingIdToDomainRecordingMap.ContainsKey(recording.Id))
+                            {
+                                recording.Id = recordingIdToDomainRecordingMap[recording.Id];
+                                recordings.Add(recording);
+                            }
+                        }
+                    }
+                }
+
+            }
+
+            catch (Exception ex)
+            {
+                log.Error("Failed UnifiedSearchRequest Request To Catalog", ex);
+            }
+
+            finally
+            {
+                if (client != null)
+                {
+                    client.Close();
+                }
+            }
+
+            return recordings;
+        }
+
+        internal static List<TstvRecordingStatus> ConvertToTstvRecordingStatus(List<int> domainRecordingStatuses)
+        {
+            List<TstvRecordingStatus> result = new List<TstvRecordingStatus>();
+            foreach(int status in domainRecordingStatuses.Distinct())
+            {
+                switch (status)
+	            {
+                    case 1:
+                        result.Add(TstvRecordingStatus.OK);
+                        break;
+                    case 2:
+                        result.Add(TstvRecordingStatus.Canceled);
+                        break;
+                    case 3:
+                        result.Add(TstvRecordingStatus.Deleted);
+                        break;
+		            default:
+                        break;
+	            }
+            }
+            return result;
+        }
+
+        internal static List<int> ConvertToDomainRecordingStatus(List<TstvRecordingStatus> recordingStatus)
+        {
+            List<int> result = new List<int>();
+            foreach(TstvRecordingStatus status in recordingStatus)
+            {
+                switch (status)
+                {
+                    case TstvRecordingStatus.Failed:                        
+                    case TstvRecordingStatus.Scheduled:
+                    case TstvRecordingStatus.Recording:
+                    case TstvRecordingStatus.Recorded:
+                        if (!result.Contains(1))
+                        {
+                            result.Add(1);
+                        }
+                        break;
+                    case TstvRecordingStatus.Canceled:
+                        if (!result.Contains(2))
+                        {
+                            result.Add(2);
+                        }
+                        break;
+                    case TstvRecordingStatus.Deleted:
+                    default:
+                        break;
+                }
+            }
+
+            return result;
         }
     }
 }

@@ -7,6 +7,7 @@ namespace ApiObjects.Notification
         public string ExternalId { get; set; }
         public string Name { get; set; }
         public eAnnouncementRecipientsType  RecipientsType{ get; set; }
-        public string FollowPhrase{ get; set; }
+        public string FollowPhrase { get; set; }
+        public string FollowReference { get; set; }
     }
 }

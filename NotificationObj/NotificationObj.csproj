@@ -58,7 +58,8 @@
     <Compile Include="DMSPushRequest.cs" />
     <Compile Include="DMSPushResponse.cs" />
     <Compile Include="enums.cs" />
-    <Compile Include="FollowData.cs" />
+    <Compile Include="FollowDataBase.cs" />
+    <Compile Include="FollowDataTvSeries.cs" />
     <Compile Include="FollowUpTagNotification.cs" />
     <Compile Include="GetAllMessageAnnouncementsResponse.cs" />
     <Compile Include="GetUserFollowsResponse.cs" />

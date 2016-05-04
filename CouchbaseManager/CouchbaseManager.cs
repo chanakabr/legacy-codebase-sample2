@@ -682,7 +682,10 @@ namespace CouchbaseManager
                         string action = string.Format("Action: Upsert bucket: {0} key: {1} expiration: {2} seconds", bucketName, key, expiration);
                         using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                         {
-                            insertResult = bucket.Upsert<T>(key, value, expiration);
+                            if (cas > 0)
+                                insertResult = bucket.Upsert<T>(key, value, cas, expiration);
+                            else
+                                insertResult = bucket.Upsert<T>(key, value, expiration);
                         }
 
                         if (insertResult != null)
@@ -702,7 +705,13 @@ namespace CouchbaseManager
 
                                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                                 {
-                                    insertResult = bucket.Upsert<T>(key, value, expiration);
+                                    if (cas > 0)
+                                        insertResult = bucket.Upsert<T>(key, value, cas, expiration);
+                                    else
+                                        insertResult = bucket.Upsert<T>(key, value, expiration);
+
+                                    if (insertResult.Status == Couchbase.IO.ResponseStatus.Success)
+                                        result = insertResult.Success;
                                 }
                             }
                         }
@@ -715,6 +724,37 @@ namespace CouchbaseManager
             catch (Exception ex)
             {
                 log.ErrorFormat("CouchBaseCache - Failed Set<T> with key = {0}, error = {1}", key, ex);
+            }
+            return result;
+        }
+
+        public bool Unlock(string key, ulong cas)
+        {
+            bool result = false;
+
+            try
+            {
+                using (var cluster = new Cluster(clientConfiguration))
+                {
+                    using (var bucket = cluster.OpenBucket(bucketName))
+                    {
+                        IOperationResult unlockResult = bucket.Unlock(key, cas);
+                        if (unlockResult != null)
+                        {
+                            if (unlockResult.Exception != null)
+                                throw unlockResult.Exception;
+
+                            if (unlockResult.Status == Couchbase.IO.ResponseStatus.Success)
+                                result = true;
+                            else
+                                HandleStatusCode(unlockResult.Status, key);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("CouchBaseCache - Failed Unlock with key = {0}, error = {1}", key, ex);
             }
             return result;
         }

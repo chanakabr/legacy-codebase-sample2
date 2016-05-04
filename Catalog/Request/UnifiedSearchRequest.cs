@@ -49,6 +49,9 @@ namespace Catalog.Request
         [DataMember]
         public string requestId;
 
+        [DataMember]
+        public List<KeyValuePair<eAssetTypes, long>> specificAssets;
+
         #endregion
 
         #region Ctor
@@ -165,10 +168,17 @@ namespace Catalog.Request
 
                 CheckSignature(baseRequest);
 
-                // If this is a new request - generate a new GUID for it
+                // If this is a new request - generate a request ID based on the filter query
                 if (string.IsNullOrEmpty(request.requestId))
                 {
-                    request.requestId = request.filterQuery.Replace(' ', '_');
+                    if (!string.IsNullOrEmpty(request.filterQuery))
+                    {
+                        request.requestId = request.filterQuery.Replace(' ', '_');
+                    }
+                    else
+                    {
+                        request.requestId = "empty_filter";
+                    }
                 }
 
                 int totalItems = 0;

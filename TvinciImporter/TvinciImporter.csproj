@@ -128,6 +128,11 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.map</DependentUpon>
     </Compile>
+    <Compile Include="Web References\WS_ConditionalAccess\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.map</DependentUpon>
+    </Compile>
     <Compile Include="Web References\WS_Encryptor\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -209,6 +214,17 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>TvinciImporter_WS_Encryptor_Encryptor</CachedSettingsPropName>
     </WebReferenceUrl>
+    <WebReferenceUrl Include="http://localhost:82/ws_cas/module.asmx">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\WS_ConditionalAccess\</RelPath>
+      <UpdateFromURL>http://localhost:82/ws_cas/module.asmx</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>TvinciImporter_WS_CAS1_module</CachedSettingsPropName>
+    </WebReferenceUrl>
     <WebReferenceUrl Include="http://lucene.prd.tvincidns.com/v1_1/Service.svc%3fwsdl">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\Lucene_WCF\</RelPath>
@@ -234,6 +250,7 @@
     <None Include="obj\Release\DesignTimeResolveAssemblyReferencesInput.cache" />
     <None Include="obj\Release\ResolveAssemblyReference.cache" />
     <None Include="Properties\DataSources\ApiObjects.Notification.FollowTemplateResponse.datasource" />
+    <None Include="Properties\DataSources\ApiObjects.Notification.MessageTemplateResponse.datasource" />
     <None Include="Properties\DataSources\ApiObjects.Notification.NotificationPartnerSettingsResponse.datasource" />
     <None Include="Properties\DataSources\ApiObjects.Notification.NotificationSettingsResponse.datasource" />
     <None Include="Properties\DataSources\ApiObjects.Response.Status.datasource" />
@@ -266,6 +283,9 @@
     <None Include="Service References\Notification_WCF\NotificationService7.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\Notification_WCF\NotificationService81.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\Notification_WCF\TvinciImporter.Notification_WCF.AddMessageAnnouncementResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
@@ -273,9 +293,6 @@
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
     <None Include="Service References\Notification_WCF\TvinciImporter.Notification_WCF.GetUserFollowsResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\Notification_WCF\TvinciImporter.Notification_WCF.MessageTemplateResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
     <None Include="Service References\Notification_WCF\TvinciImporter.Notification_WCF.NotificationMessage.datasource">
@@ -375,6 +392,125 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Web References\Lucene_WCF\Service0.wsdl" />
+    <None Include="Web References\WS_ConditionalAccess\AssetItemPriceResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\BillingResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\BillingStatusResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\BillingTransactions1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\CampaignActionInfo1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\CDVRAdapterResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\CDVRAdapterResponseList1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\ChangeSubscriptionStatus1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\CollectionsPricesContainer1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\DomainsBillingTransactionsResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\DomainServicesResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\DomainTransactionsHistoryResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\EntitlementResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\Entitlements1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\LicensedLinkResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\MediaFileItemPricesContainer1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\MediaFileItemPricesContainerResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\module.wsdl" />
+    <None Include="Web References\WS_ConditionalAccess\NPVRResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\PermittedCollectionContainer1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\PermittedMediaContainer1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\PermittedMediaContainerResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\PermittedSubscriptionContainer1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\PrePaidHistoryResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\PrePaidPricesContainer1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\PrePaidResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\PurchaseSessionIdResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\Recording1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\RecordingIDsResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\RecordingResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\Status1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\SubscriptionsPricesContainer1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\SubscriptionsPricesResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\TransactionResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\UserBillingTransactionsResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\UserBundlesResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\UserCAStatus1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\UserPrePaidContainer1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\WS_ConditionalAccess\UserPurhcasedAssetsResponse1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
     <None Include="Web References\WS_Encryptor\ClientPlayreadyPolicy.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -439,6 +575,7 @@
     <Content Include="obj\Release\TvinciImporter.csproj.FileListAbsolute.txt" />
     <Content Include="obj\Release\TvinciImporter.dll" />
     <Content Include="obj\Release\TvinciImporter.pdb" />
+    <None Include="Web References\WS_ConditionalAccess\module.disco" />
     <None Include="Service References\WSCatalog\Service2.disco" />
     <None Include="Service References\Notification_WCF\NotificationService.disco" />
     <None Include="Service References\WSCatalog\Service1.disco" />

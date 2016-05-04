@@ -107,8 +107,10 @@ namespace ApiObjects.Response
         AccountCatchUpNotEnabled = 3034,
         ProgramCdvrNotEnabled = 3035,
         ProgramCatchUpNotEnabled = 3036,
-        CatchUpBufferLimitation = 3037,
-        RecordingStatusNotSent = 3038,
+        CatchUpBufferLimitation = 3037,        
+        ProgramNotInRecordingScheduleWindow = 3038,
+        RecordingNotFound = 3039,
+        RecordingFailed = 3040,
 
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,
@@ -235,9 +237,11 @@ namespace ApiObjects.Response
         FailCreateAnnouncement = 8011,
         UserNotFollowing = 8012,
         UserAlreadyFollowing = 8013,
-        InvalidPlaceholders= 8014,
+        MessagePlaceholdersInvalid= 8014,
         DatetimeFormatIsInvalid = 8015,
         MessageTemplateNotFound = 8016,
+        URLPlaceholdersInvalid = 8017,
+
 
         //Pricing 9000-9999
         InvalidPriceCode = 9000,

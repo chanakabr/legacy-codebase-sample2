@@ -44,6 +44,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -96,17 +97,17 @@
     <None Include="Service References\cdvrAdap\AdapterControllers.cdvrAdap.RecordingResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\cdvrAdap\Service.wsdl" />
-    <None Include="Service References\cdvrAdap\Service.xsd">
+    <None Include="Service References\cdvrAdap\Service1.wsdl" />
+    <None Include="Service References\cdvrAdap\Service4.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\cdvrAdap\Service1.xsd">
+    <None Include="Service References\cdvrAdap\Service41.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\cdvrAdap\Service2.xsd">
+    <None Include="Service References\cdvrAdap\Service42.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\cdvrAdap\Service3.xsd">
+    <None Include="Service References\cdvrAdap\Service43.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\RecommendationEngineAdapter\AdapterControllers.RecommendationEngineAdapter.AdapterStatus.datasource">
@@ -171,9 +172,6 @@
     <None Include="Service References\RecommendationEngineAdapter\Service.disco" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\cdvrAdap\Service.disco" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Service References\cdvrAdap\configuration91.svcinfo" />
   </ItemGroup>
   <ItemGroup>
@@ -184,6 +182,9 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\cdvrAdap\Service1.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

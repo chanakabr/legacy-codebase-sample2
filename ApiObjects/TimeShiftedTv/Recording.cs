@@ -12,9 +12,9 @@ namespace ApiObjects.TimeShiftedTv
         
         public ApiObjects.Response.Status Status { get; set; }
 
-        public long RecordingID { get; set; }
+        public long Id { get; set; }
 
-        public long EpgID { get; set; }
+        public long EpgId { get; set; }
 
         public string ChannelId { get; set; }
 
@@ -26,24 +26,30 @@ namespace ApiObjects.TimeShiftedTv
 
         public DateTime EpgEndDate { get; set; }
 
+        public RecordingType Type { get; set; }       
+
+        public int GetStatusRetries { get; set; }
+
         public Recording()
         {
             Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            this.RecordingID = 0;
-            this.RecordingStatus = TstvRecordingStatus.DoesNotExist;
+            this.Id = 0;            
+            this.Type = RecordingType.Single;
         }
 
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
             sb.Append(string.Format("Status Code: {0}, Status Message: {1} ", Status.Code, Status.Message));
-            sb.Append(string.Format("RecordingID: {0}, ", RecordingID));
-            sb.Append(string.Format("EpgID: {0}, ", EpgID));
+            sb.Append(string.Format("Id: {0}, ", Id));
+            sb.Append(string.Format("EpgID: {0}, ", EpgId));
             sb.Append(string.Format("ChannelId: {0}, ", string.IsNullOrEmpty(ChannelId) ? "" : ChannelId));
-            sb.Append(string.Format("RecordingStatus: {0}, ", RecordingStatus));            
+            sb.Append(string.Format("RecordingStatus: {0}, ", RecordingStatus));
+            sb.Append(string.Format("Type: {0}, ", Type));            
             sb.Append(string.Format("ExternalRecordingId: {0}, ", string.IsNullOrEmpty(ExternalRecordingId) ? "" : ExternalRecordingId));
             sb.Append(string.Format("StartDate: {0}, ", EpgStartDate != null ? EpgStartDate.ToString() : ""));
             sb.Append(string.Format("EndDate: {0}, ", EpgEndDate != null ? EpgEndDate.ToString() : ""));
+            sb.Append(string.Format("GetStatusRetries: {0}, ", GetStatusRetries));
 
             return sb.ToString();
         }

@@ -938,6 +938,11 @@ namespace Catalog
                                     assetIdField = "fields.epg_id";
                                     break;
                                 }
+                                case eAssetTypes.NPVR:
+                                {
+                                    assetIdField = "fields.recording_id";
+                                    break;
+                                }
                                 default:
                                 {
                                     break;
@@ -1923,7 +1928,6 @@ namespace Catalog
             totalItems = 0;
 
             string requestBody = new ESUnifiedQueryBuilder(null, groupId).BuildMultiSearchQueryString(unifiedSearchDefinitions);
-
 
             if (!string.IsNullOrEmpty(requestBody))
             {

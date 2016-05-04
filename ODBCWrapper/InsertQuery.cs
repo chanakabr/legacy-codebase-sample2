@@ -119,14 +119,16 @@ namespace ODBCWrapper
             return true;
         }
 
-        public int ExecuteAndGetId()
+        public long ExecuteAndGetId()
         {
             string oraStr = m_sOraStr.ToString();
 
-            int id = -1;
+            long id = -1;
             m_sOraStr = new System.Text.StringBuilder(oraStr);
             m_sOraStr.Append(sInsertStructure);
             m_sOraStr.Append(") ");
+            // To get the ID of the inserted row
+            m_sOraStr.Append("output INSERTED.ID ");
             m_sOraStr.Append("VALUES ");
             m_sOraStr.Append(sInsertValues);
             m_sOraStr.Append(")");
@@ -154,7 +156,7 @@ namespace ODBCWrapper
                         Table = queryInfo.Table
                     })
                     {
-                        id = command.ExecuteNonQuery();
+                        id = (long)command.ExecuteScalar();
                     }
                 }
                 catch (Exception ex)

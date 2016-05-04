@@ -13,21 +13,27 @@ namespace ApiObjects.TimeShiftedTv
         public bool? IsCdvrEnabled { get; set; }
         public bool? IsStartOverEnabled { get; set; }
         public bool? IsTrickPlayEnabled { get; set; }
+        public bool? IsRecordingScheduleWindowEnabled { get; set; }
         public long? CatchUpBufferLength { get; set; }
-        public long? TrickPlayBufferLength { get; set; }        
+        public long? TrickPlayBufferLength { get; set; }
+        public long? RecordingScheduleWindow { get; set; }
+
 
         public TimeShiftedTvPartnerSettings()
         {
         }
 
-        public TimeShiftedTvPartnerSettings(bool? isCatchUpEnabled, bool? isCdvrEnabled, bool? isStartOverEnabled, bool? isTrickPlayEnabled, long? catchUpBufferLength, long? trickPlayBufferLength)
+        public TimeShiftedTvPartnerSettings(bool? isCatchUpEnabled, bool? isCdvrEnabled, bool? isStartOverEnabled, bool? isTrickPlayEnabled, bool? isRecordingScheduleWindowEnabled,
+            long? catchUpBufferLength, long? trickPlayBufferLength, long? recordingScheduleWindowBuffer)
         {
             this.IsCatchUpEnabled = isCatchUpEnabled;
             this.IsCdvrEnabled = isCdvrEnabled;
             this.IsStartOverEnabled = isStartOverEnabled;
             this.IsTrickPlayEnabled = isTrickPlayEnabled;
             this.CatchUpBufferLength = catchUpBufferLength;
-            this.TrickPlayBufferLength = trickPlayBufferLength;            
+            this.TrickPlayBufferLength = trickPlayBufferLength;
+            this.RecordingScheduleWindow = recordingScheduleWindowBuffer;
+            this.IsRecordingScheduleWindowEnabled = isRecordingScheduleWindowEnabled;
         }
 
         public override string ToString()
@@ -37,8 +43,10 @@ namespace ApiObjects.TimeShiftedTv
             sb.Append(string.Format("IsCdvrEnabled: {0}, ", IsCdvrEnabled.HasValue ? IsCdvrEnabled.Value.ToString() : "Null"));
             sb.Append(string.Format("IsStartOverEnabled: {0}, ", IsStartOverEnabled.HasValue ? IsStartOverEnabled.Value.ToString() : "Null"));
             sb.Append(string.Format("IsTrickPlayEnabled: {0}, ", IsTrickPlayEnabled.HasValue ? IsTrickPlayEnabled.Value.ToString() : "Null"));
-            sb.Append(string.Format("CatchUpBufferLength: {0}, ", CatchUpBufferLength.HasValue ? IsTrickPlayEnabled.Value.ToString() : "Null"));
-            sb.Append(string.Format("TrickPlayBufferLength: {0}, ", TrickPlayBufferLength.HasValue ? TrickPlayBufferLength.Value.ToString() : "Null"));            
+            sb.Append(string.Format("IsRecordingScheduleWindowEnabled: {0}, ", IsRecordingScheduleWindowEnabled.HasValue ? IsRecordingScheduleWindowEnabled.Value.ToString() : "Null"));
+            sb.Append(string.Format("CatchUpBufferLength: {0}, ", CatchUpBufferLength.HasValue ? CatchUpBufferLength.Value.ToString() : "Null"));
+            sb.Append(string.Format("TrickPlayBufferLength: {0}, ", TrickPlayBufferLength.HasValue ? TrickPlayBufferLength.Value.ToString() : "Null"));
+            sb.Append(string.Format("RecordingScheduleWindowBuffer: {0}, ", RecordingScheduleWindow.HasValue ? RecordingScheduleWindow.Value.ToString() : "Null"));
                         
             return sb.ToString();
         }

@@ -186,6 +186,10 @@ namespace EpgIngest
                     newEpgItem.CreateDate = DateTime.UtcNow;
                     newEpgItem.isActive = true;
                     newEpgItem.Status = 1;
+                    newEpgItem.EnableCatchUp = EnableLinearSetting(prog.enablecatchup);
+                    newEpgItem.EnableCDVR = EnableLinearSetting(prog.enablecdvr);
+                    newEpgItem.EnableStartOver = EnableLinearSetting(prog.enablestartover);
+                    newEpgItem.EnableTrickPlay = EnableLinearSetting(prog.enabletrickplay);
 
                     string picName = string.Empty;
                     #region Name  With languages
@@ -354,6 +358,24 @@ namespace EpgIngest
 
             success = true;
             return success;
+        }
+
+        private int EnableLinearSetting(string enable)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(enable))
+                    return 0; // 0 == none
+                if (enable == "false" || enable == "2")
+                    return 2;
+                if (enable == "true" || enable == "1")
+                    return 1;
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                return 0;
+            }
         }
 
         private Dictionary<string, List<string>> GetEpgProgramMetas(programme prog, string language)

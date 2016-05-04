@@ -85,6 +85,13 @@ namespace ApiObjects
         [JsonConverter(typeof(EpgTimeConverter))]
         public DateTime SearchEndDate { get; set; }
 
+        [JsonProperty("is_recorded", Required = Required.Default, NullValueHandling = NullValueHandling.Ignore)]
+        public int IsRecorded
+        {
+            get;
+            set;
+        }
+
         public EpgCB()
         {
             EpgID = 0;
@@ -149,6 +156,9 @@ namespace ApiObjects
                     if (obj.ExtraData.MediaID != this.ExtraData.MediaID)
                         return false;
                 }
+                if (this.EnableCatchUp != obj.EnableCatchUp || this.EnableCDVR != obj.EnableCDVR || 
+                    this.EnableStartOver != obj.EnableStartOver || this.EnableTrickPlay != obj.EnableTrickPlay)
+                    return false;
 
                 #region Tags
                 if (this.Tags != null && obj.Tags != null && this.Tags.Count == obj.Tags.Count)
@@ -172,7 +182,7 @@ namespace ApiObjects
                             // compare the values between the lists
                             foreach (string sTagValue in obj.Tags[objTagKey])
                             {
-                                if (!this.Tags[objTagKey.ToLower()].Contains(sTagValue))                                
+                                if (!this.Tags[objTagKey.ToLower()].Contains(sTagValue))
                                 {
                                     return false;
                                 }

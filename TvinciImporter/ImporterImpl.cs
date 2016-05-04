@@ -5145,7 +5145,7 @@ namespace TvinciImporter
 
         static public ApiObjects.Response.Status SetMessageTemplate(int groupID, ref ApiObjects.Notification.MessageTemplate messageTemplate)
         {
-            TvinciImporter.Notification_WCF.MessageTemplateResponse response = null;
+            MessageTemplateResponse response = null;
             try
             {
                 //Call Notifications WCF service
@@ -5160,10 +5160,13 @@ namespace TvinciImporter
                 int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupID);
                 TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "", "notifications", sIP, ref sWSUserName, ref sWSPass);
 
-                Notification_WCF.MessageTemplate wcfMessageTemplate = new Notification_WCF.MessageTemplate()
+                MessageTemplate wcfMessageTemplate = new MessageTemplate()
                 {
                     AssetType = messageTemplate.AssetType,
                     Message = messageTemplate.Message,
+                    Sound    = messageTemplate.Sound,
+                    Action = messageTemplate.Action,
+                    URL = messageTemplate.URL,
                     Id = messageTemplate.Id,
                     DateFormat = messageTemplate.DateFormat
                 };
@@ -5240,7 +5243,7 @@ namespace TvinciImporter
 
         #endregion
 
-        public static bool UpdateIndex(List<int> lMediaIds, int nGroupId, eAction eAction)
+        public static bool UpdateIndex(List<int> lMediaIds, int nGroupId, ApiObjects.eAction eAction)
         {
             bool isUpdateIndexSucceeded = false;
 
@@ -5488,11 +5491,45 @@ namespace TvinciImporter
             return res;
         }
 
-        public static bool UpdateEpg(List<ulong> epgIds, int groupId, eAction action)
+        public static bool UpdateEpg(List<ulong> epgIds, int groupId, ApiObjects.eAction action, bool datesUpdates = true)
         {
             bool isUpdateIndexSucceeded = false;
 
-            #region Update EPG Index (Catalog)
+            if (epgIds == null || epgIds.Count == 0)
+            {
+                return isUpdateIndexSucceeded;
+            }
+
+            try
+            {
+                #region Update EPG Index (Catalog)
+                isUpdateIndexSucceeded = UpdateEPGIndex(epgIds, groupId, action);
+
+                #endregion
+
+                #region Update Recordings (CAS)
+
+                // Update recordings only if we know that the dates have changed
+                if (datesUpdates)
+                {
+                    UpdateRecordingsOfEPGs(epgIds, groupId, action);
+                }
+
+                #endregion
+            }
+            catch (Exception ex)
+            {
+                log.Error("ImporterImpl - Update EPG failed, ex = {0}", ex);
+            }
+
+            return isUpdateIndexSucceeded;
+        }
+
+        public static bool UpdateEPGIndex(List<ulong> epgIds, int groupId, ApiObjects.eAction action)
+        {
+            bool isUpdateIndexSucceeded = false;
+
+            int parentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);
 
             string sUseElasticSearch = GetConfigVal("indexer");  /// Indexer - ES / Lucene
             if (!string.IsNullOrEmpty(sUseElasticSearch) && sUseElasticSearch.Equals("ES")) //ES
@@ -5501,69 +5538,66 @@ namespace TvinciImporter
 
                 try
                 {
-                    int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);
                     wsCatalog = GetWCFSvc("WS_Catalog");
-                    if (epgIds != null && epgIds.Count > 0 && nParentGroupID > 0)
+
+                    string sWSURL = GetCatalogUrl(parentGroupID);
+
+                    if (!string.IsNullOrEmpty(sWSURL))
                     {
-                        string sWSURL = GetCatalogUrl(nParentGroupID);
+                        string[] arrAddresses = sWSURL.Split(';');
+                        int[] arrEPGIds = new int[epgIds.Count];
+                        int nArrayIndex = 0;
 
-                        if (!string.IsNullOrEmpty(sWSURL))
+                        foreach (ulong item in epgIds)
                         {
-                            string[] arrAddresses = sWSURL.Split(';');
-                            int[] arrEPGIds = new int[epgIds.Count];
-                            int nArrayIndex = 0;
+                            arrEPGIds[nArrayIndex] = int.Parse(item.ToString());
+                            nArrayIndex++;
+                        }
 
-                            foreach (ulong item in epgIds)
+                        foreach (string sEndPointAddress in arrAddresses)
+                        {
+                            try
                             {
-                                arrEPGIds[nArrayIndex] = int.Parse(item.ToString());
-                                nArrayIndex++;
-                            }
+                                wsCatalog = GetCatalogClient(sEndPointAddress);
 
-                            foreach (string sEndPointAddress in arrAddresses)
-                            {
-                                try
+                                if (wsCatalog != null)
                                 {
-                                    wsCatalog = GetCatalogClient(sEndPointAddress);
+                                    WSCatalog.eAction actionCatalog = WSCatalog.eAction.On;
 
-                                    if (wsCatalog != null)
+                                    switch (action)
                                     {
-                                        WSCatalog.eAction actionCatalog = WSCatalog.eAction.On;
-
-                                        switch (action)
-                                        {
-                                            case eAction.Off:
-                                                actionCatalog = WSCatalog.eAction.Off;
-                                                break;
-                                            case eAction.On:
-                                                actionCatalog = WSCatalog.eAction.On;
-                                                break;
-                                            case eAction.Update:
-                                                actionCatalog = WSCatalog.eAction.Update;
-                                                break;
-                                            case eAction.Delete:
-                                                actionCatalog = WSCatalog.eAction.Delete;
-                                                break;
-                                            case eAction.Rebuild:
-                                                actionCatalog = WSCatalog.eAction.Rebuild;
-                                                break;                                          
-                                            default:
-                                                break;
-                                        }
-
-                                        isUpdateIndexSucceeded = wsCatalog.UpdateEpgIndex(
-                                            arrEPGIds, 
-                                            nParentGroupID, actionCatalog);
-
-                                        string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
-                                        log.DebugFormat("Update index {0} in catalog '{1}'", sInfo, sEndPointAddress);
-
-                                        wsCatalog.Close();
+                                        case eAction.Off:
+                                        actionCatalog = WSCatalog.eAction.Off;
+                                        break;
+                                        case eAction.On:
+                                        actionCatalog = WSCatalog.eAction.On;
+                                        break;
+                                        case eAction.Update:
+                                        actionCatalog = WSCatalog.eAction.Update;
+                                        break;
+                                        case eAction.Delete:
+                                        actionCatalog = WSCatalog.eAction.Delete;
+                                        break;
+                                        case eAction.Rebuild:
+                                        actionCatalog = WSCatalog.eAction.Rebuild;
+                                        break;
+                                        default:
+                                        break;
                                     }
+
+                                    isUpdateIndexSucceeded = wsCatalog.UpdateEpgIndex(
+                                        arrEPGIds,
+                                        parentGroupID, actionCatalog);
+
+                                    string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
+                                    log.DebugFormat("Update index {0} in catalog '{1}'", sInfo, sEndPointAddress);
+
+                                    wsCatalog.Close();
                                 }
-                                catch (Exception ex)
-                                {
-                                    log.ErrorFormat("Couldn't update catalog '{0}' due to the following error: {1}", sEndPointAddress, ex.Message);
-                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                log.ErrorFormat("Couldn't update catalog '{0}' due to the following error: {1}", sEndPointAddress, ex.Message);
                             }
                         }
                     }
@@ -5580,16 +5614,62 @@ namespace TvinciImporter
                     }
                 }
             }
-
-            #endregion
-
-            #region Update Recordings (CAS)
-
-            #endregion
-
             return isUpdateIndexSucceeded;
         }
 
+        public static void UpdateRecordingsOfEPGs(List<ulong> epgIds, int groupId, ApiObjects.eAction action, string tcmKey = "conditionalaccess_ws")
+        {
+            try
+            {
+                TvinciImporter.WS_ConditionalAccess.module cas = new WS_ConditionalAccess.module();
+
+                string sWSUserName = string.Empty;
+                string sWSPassword = string.Empty;
+                WS_Utils.GetWSCredentials(groupId, eWSModules.CONDITIONALACCESS.ToString(), ref sWSUserName, ref sWSPassword);
+                string casURL = TVinciShared.WS_Utils.GetTcmConfigValue(tcmKey);
+
+                if (!string.IsNullOrEmpty(casURL))
+                {
+                    WS_ConditionalAccess.eAction casAction = WS_ConditionalAccess.eAction.Update;
+
+                    switch (action)
+                    {
+                        case eAction.Off:
+                        casAction = WS_ConditionalAccess.eAction.Off;
+                        break;
+                        case eAction.On:
+                        casAction = WS_ConditionalAccess.eAction.On;
+                        break;
+                        case eAction.Update:
+                        casAction = WS_ConditionalAccess.eAction.Update;
+                        break;
+                        case eAction.Delete:
+                        casAction = WS_ConditionalAccess.eAction.Delete;
+                        break;
+                        case eAction.Rebuild:
+                        casAction = WS_ConditionalAccess.eAction.Rebuild;
+                        break;
+                        default:
+                        break;
+                    }
+
+                    var status = cas.UpdateRecording(sWSUserName, sWSPassword, epgIds.Select(i => (long)i).ToArray(), casAction);
+
+                    if (status == null)
+                    {
+                        log.Error("ImporterImpl - Update Recording returned empty status");
+                    }
+                    else if (status.Code != (int)ApiObjects.Response.eResponseStatus.OK)
+                    {
+                        log.ErrorFormat("ImporterImpl - Update Recording did not finish successfully: code = {0}, message = {1}", status.Code, status.Message);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("ImporterImpl - Update recording failed on Conditional Access, ex = {0}", ex);
+            }
+        }
 
         public static bool UpdateEpgChannelIndex(List<ulong> epgChannels, int groupID, eAction eAction)
         {

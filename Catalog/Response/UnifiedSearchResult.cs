@@ -29,6 +29,10 @@ namespace Catalog.Response
             {
                 typeEnum = eAssetTypes.EPG;
             }
+            else if (typeString.ToLower().StartsWith("recording"))
+            {
+                typeEnum = eAssetTypes.NPVR;
+            }
 
             return typeEnum;
         }

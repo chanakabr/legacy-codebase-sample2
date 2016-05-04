@@ -33,7 +33,7 @@ namespace CachingProvider
 
         public abstract bool SetWithVersion<T>(string sKey, BaseModuleCache oValue);
 
-        public abstract IDictionary<string, object> GetValues(List<string> keys);
+        public abstract IDictionary<string, object> GetValues(List<string> keys, bool asJson = false);
 
         public abstract bool SetJson<T>(string sKey, T obj, double dCacheTT);
 

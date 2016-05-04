@@ -1525,7 +1525,6 @@ namespace Users
         protected virtual TvinciAPI.WelcomeMailRequest GetWelcomeMailRequest(string sFirstName, string sUserName, string sPassword, string sEmail, string sFacekookID)
         {
             string sMailData = string.Empty;
-            string sActivation = string.Empty;
 
             TvinciAPI.WelcomeMailRequest retVal = new TvinciAPI.WelcomeMailRequest();
             retVal.m_sTemplateName = m_sWelcomeMailTemplate;
@@ -1540,10 +1539,7 @@ namespace Users
 
             retVal.m_sPassword = (string.IsNullOrEmpty(sFacekookID)) ? sPassword : "Facebook Password";
             //TO DO merge it to one call. IRA?????
-            sActivation = DAL.UsersDal.GetActivationToken(m_nGroupID, sUserName);
             retVal.m_sToken = DAL.UsersDal.GetActivationToken(m_nGroupID, sUserName);
-
-
 
             return retVal;
         }
