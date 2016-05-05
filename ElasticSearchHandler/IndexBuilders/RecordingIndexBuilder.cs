@@ -41,14 +41,16 @@ namespace ElasticSearchHandler.IndexBuilders
 
         protected override void PopulateIndex(string newIndexName)
         {
+            List<int> statuses = new List<int>() { (int)RecordingInternalStatus.OK, (int)RecordingInternalStatus.Waiting };
+
             // Get information about relevant recordings
-            List<Recording> recordings = DAL.ConditionalAccessDAL.GetAllRecordingsByStatus(this.groupId, 0);
+            List<Recording> recordings = DAL.ConditionalAccessDAL.GetAllRecordingsByStatuses(this.groupId, statuses);
             List<string> epgIds = new List<string>();
 
             // Map EPGs to recordings and create list of all EPGs
             foreach (var recording in recordings)
             {
-                epgToRecordingMapping.Add((int)recording.EpgId, recording.Id);
+                epgToRecordingMapping[(int)recording.EpgId] = recording.Id;
                 epgIds.Add(recording.EpgId.ToString());
             }
 
