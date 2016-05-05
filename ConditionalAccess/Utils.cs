@@ -4482,58 +4482,56 @@ namespace ConditionalAccess
         }
 
         internal static List<Recording> CheckDomainExistingRecording(int groupId, string userID, long domainID, Dictionary<long, EPGChannelProgrammeObject> validEpgObjectForRecordingMap)
-        {
-            List<Recording> response = null;            
+        {            
+            Dictionary<long, Recording> responseDictionary = new Dictionary<long,Recording>();
+            foreach (long epgId in validEpgObjectForRecordingMap.Keys)
+            {
+                Recording recording = new Recording() { EpgId = epgId };
+                EPGChannelProgrammeObject epg = validEpgObjectForRecordingMap[epgId];
+                DateTime epgStartDate;
+                DateTime epgEndDate;
+                if (DateTime.TryParseExact(epg.START_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgStartDate)
+                    && DateTime.TryParseExact(epg.END_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgEndDate))
+                {
+                    recording = new Recording()
+                    {
+                        Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString()),
+                        EpgId = epg.EPG_ID,
+                        ChannelId = epg.EPG_CHANNEL_ID,
+                        Id = 0,
+                        EpgStartDate = epgStartDate,
+                        EpgEndDate = epgEndDate
+                    };
+                }
+                else
+                {
+                    log.ErrorFormat("Failed parsing EPG start or end date, epgID: {0}, domainID: {1}, userID {2}, startDate: {3}, endDate: {4}", epg.EPG_ID, domainID, userID, epg.START_DATE, epg.END_DATE);
+                    recording = new Recording() { EpgId = epg.EPG_ID, ChannelId = epg.EPG_CHANNEL_ID };
+                }
+                responseDictionary.Add(epgId, recording);
+            }
+
             try
             {                
                 DataTable dt = ConditionalAccessDAL.GetDomainExistingRecordingsByEpdIgs(groupId, domainID, validEpgObjectForRecordingMap.Keys.ToList());
                 if (dt != null && dt.Rows != null)
                 {
-                    response = new List<Recording>();
                     foreach (DataRow dr in dt.Rows)
                     {                        
                         long recordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "RECORDING_ID", 0);
-                        long domainRecordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
-                        long epgId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_ID", 0);
-                        Recording recording = new Recording() { EpgId = epgId };
-                        Recording existingRecording = null;
                         if (recordingId > 0)
                         {
-                            existingRecording = Recordings.RecordingsManager.Instance.GetRecording(groupId, recordingId);
-                        }
-
-                        if (existingRecording == null || existingRecording.Id == 0)
-                        {
-                            EPGChannelProgrammeObject epg = validEpgObjectForRecordingMap[epgId];
-                            DateTime epgStartDate;
-                            DateTime epgEndDate;
-                            if (DateTime.TryParseExact(epg.START_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgStartDate)
-                                && DateTime.TryParseExact(epg.END_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out epgEndDate))
+                            long domainRecordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
+                            long epgId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_ID", 0);
+                            Recording existingRecording = Recordings.RecordingsManager.Instance.GetRecording(groupId, recordingId);
+                            if (existingRecording != null && existingRecording.Status != null && existingRecording.Status.Code == (int)eResponseStatus.OK && existingRecording.Id > 0)
                             {
-                                recording = new Recording()
-                                {
-                                    Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString()),
-                                    EpgId = epg.EPG_ID,
-                                    ChannelId = epg.EPG_CHANNEL_ID,
-                                    Id = 0,
-                                    EpgStartDate = epgStartDate,
-                                    EpgEndDate = epgEndDate
-                                };
+                                existingRecording.Id = domainRecordingId;
+                                responseDictionary[epgId] = existingRecording;
                             }
-                            else
-                            {
-                                log.ErrorFormat("Failed parsing EPG start or end date, epgID: {0}, domainID: {1}, userID {2}, startDate: {3}, endDate: {4}", epg.EPG_ID, domainID, userID, epg.START_DATE, epg.END_DATE);
-                                recording = new Recording() { EpgId = epg.EPG_ID, ChannelId = epg.EPG_CHANNEL_ID };
-                            }
-                        }
-                        else
-                        {
-                            recording = existingRecording;
-                            recording.Id = domainRecordingId;
                         }
                     }
                 }
-
             }
 
             catch (Exception ex)
@@ -4548,7 +4546,7 @@ namespace ConditionalAccess
                 log.Error(sb.ToString(), ex);
             }
 
-            return response;
+            return responseDictionary.Values.ToList();
         }
 
     }
