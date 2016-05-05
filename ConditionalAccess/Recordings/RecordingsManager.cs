@@ -268,22 +268,24 @@ namespace Recordings
                             currentRecording.Status = new Status((int)eResponseStatus.Error, "Adapter controller excpetion: " + ex.Message);
                         }
 
-                        if (currentRecording.Status != null)
-                        {
-                            return currentRecording;
-                        }
-
-                        if (adapterResponse == null)
+                        if (currentRecording.Status != null || adapterResponse == null)
                         {
                             RetryTask(groupId, currentRecording, nextCheck, eRecordingTask.GetStatusAfterProgramEnded);
 
-                            currentRecording.Status = new Status((int)eResponseStatus.Error, "Adapter controller returned null response.");
+                            if (currentRecording.Status == null)
+                            {
+                                currentRecording.Status = new Status((int)eResponseStatus.Error, "Adapter controller returned null response.");
+
+                            }
                         }
-                        //
-                        // TODO: Validate adapter response
-                        //
                         else
                         {
+                            //
+                            // TODO: Validate adapter response?
+                            //
+
+                            currentRecording.Status = new Status();
+
                             // If it was successfull - we mark it as recorded
                             if (adapterResponse.ActionSuccess && adapterResponse.FailReason == 0)
                             {

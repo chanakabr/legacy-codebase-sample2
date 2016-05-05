@@ -2650,7 +2650,7 @@ namespace DAL
             List<Recording> recordings = new List<Recording>();
 
             ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_Recordings");
-            storedProcedure.SetConnectionKey("CONNECTION_STRING");
+            storedProcedure.SetConnectionKey("CA_CONNECTION_STRING");
             storedProcedure.AddIDListParameter<long>("@RecordingIds", recordingIds, "Id");
             storedProcedure.AddParameter("@GroupId", groupId);
 
