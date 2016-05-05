@@ -1118,7 +1118,7 @@
     <Compile Include="Models\ConditionalAccess\KalturaRecordingContextListResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaRecordingFilter.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaRecordingListResponse.cs" />
-    <Compile Include="Models\ConditionalAccess\KalturaRecordingOrder.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaRecordingOrderBy.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaRecordingStatus.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaRecordingType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaStreamType.cs" />
