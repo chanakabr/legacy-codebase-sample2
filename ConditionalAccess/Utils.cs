@@ -4440,7 +4440,7 @@ namespace ConditionalAccess
 
                 // validate recording schedule window
                 if (accountSettings.IsRecordingScheduleWindowEnabled.HasValue && accountSettings.IsRecordingScheduleWindowEnabled.Value &&
-                    accountSettings.RecordingScheduleWindow.HasValue && epgStartDate.AddMinutes(accountSettings.RecordingScheduleWindow.Value) >= DateTime.UtcNow)
+                    accountSettings.RecordingScheduleWindow.HasValue && epgStartDate.AddMinutes(accountSettings.RecordingScheduleWindow.Value) < DateTime.UtcNow)
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramNotInRecordingScheduleWindow, eResponseStatus.ProgramNotInRecordingScheduleWindow.ToString());
                     return response;
