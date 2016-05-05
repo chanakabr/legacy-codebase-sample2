@@ -807,11 +807,17 @@ namespace Recordings
                     nextCheck = currentRecording.EpgStartDate;
                 }
 
-                // stop checking after the program started
+                // continue checking until the program started. 
                 if (DateTime.UtcNow < currentRecording.EpgStartDate &&
                     DateTime.UtcNow < nextCheck)
                 {
                     EnqueueMessage(groupId, currentRecording.EpgId, currentRecording.Id, nextCheck, eRecordingTask.Record);
+                }
+                else
+                // If it is still not ok - mark as failed
+                {
+                    currentRecording.RecordingStatus = TstvRecordingStatus.Failed;
+                    ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1, RecordingInternalStatus.Failed);
                 }
             }
         }
