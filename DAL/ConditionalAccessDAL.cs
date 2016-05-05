@@ -2465,37 +2465,44 @@ namespace DAL
             return recording;
         }
 
-        public static Recording InsertRecording(Recording recording, int groupId)
+        public static Recording InsertRecording(Recording recording, int groupId, RecordingInternalStatus? status)
         {
             int recordingStatus = 0;
 
-            switch (recording.RecordingStatus)
+            if (status != null)
             {
-                case TstvRecordingStatus.Scheduled:
-                case TstvRecordingStatus.Recording:
-                case TstvRecordingStatus.Recorded:
-                case TstvRecordingStatus.OK:
+                recordingStatus = (int)status.Value;
+            }
+            else
+            {
+                switch (recording.RecordingStatus)
                 {
-                    recordingStatus = 0;
+                    case TstvRecordingStatus.Scheduled:
+                    case TstvRecordingStatus.Recording:
+                    case TstvRecordingStatus.Recorded:
+                    case TstvRecordingStatus.OK:
+                    {
+                        recordingStatus = 0;
+                        break;
+                    }
+                    case TstvRecordingStatus.Failed:
+                    {
+                        recordingStatus = 1;
+                        break;
+                    }
+                    case TstvRecordingStatus.Canceled:
+                    {
+                        recordingStatus = 2;
+                        break;
+                    }
+                    case TstvRecordingStatus.Deleted:
+                    {
+                        recordingStatus = 4;
+                        break;
+                    }
+                    default:
                     break;
                 }
-                case TstvRecordingStatus.Failed:
-                {
-                    recordingStatus = 1;
-                    break;
-                }
-                case TstvRecordingStatus.Canceled:
-                {
-                    recordingStatus = 2;
-                    break;
-                }
-                case TstvRecordingStatus.Deleted:
-                {
-                    recordingStatus = 3;
-                    break;
-                }
-                default:
-                break;
             }
 
             var insertQuery = new ODBCWrapper.InsertQuery("recordings");
@@ -2534,38 +2541,45 @@ namespace DAL
             return recording;
         }
 
-        public static bool UpdateRecording(Recording recording, int groupId, int status, int isActive)
+        public static bool UpdateRecording(Recording recording, int groupId, int rowStatus, int isActive, RecordingInternalStatus? status)
         {
             bool result = false;
             int recordingStatus = 0;
 
-            switch (recording.RecordingStatus)
+            if (status != null)
             {
-                case TstvRecordingStatus.Scheduled:
-                case TstvRecordingStatus.Recording:
-                case TstvRecordingStatus.Recorded:
-                case TstvRecordingStatus.OK:
+                recordingStatus = (int)status.Value;
+            }
+            else
+            {
+                switch (recording.RecordingStatus)
                 {
-                    recordingStatus = 0;
+                    case TstvRecordingStatus.Scheduled:
+                    case TstvRecordingStatus.Recording:
+                    case TstvRecordingStatus.Recorded:
+                    case TstvRecordingStatus.OK:
+                    {
+                        recordingStatus = 0;
+                        break;
+                    }
+                    case TstvRecordingStatus.Failed:
+                    {
+                        recordingStatus = 1;
+                        break;
+                    }
+                    case TstvRecordingStatus.Canceled:
+                    {
+                        recordingStatus = 2;
+                        break;
+                    }
+                    case TstvRecordingStatus.Deleted:
+                    {
+                        recordingStatus = 4;
+                        break;
+                    }
+                    default:
                     break;
                 }
-                case TstvRecordingStatus.Failed:
-                {
-                    recordingStatus = 1;
-                    break;
-                }
-                case TstvRecordingStatus.Canceled:
-                {
-                    recordingStatus = 2;
-                    break;
-                }
-                case TstvRecordingStatus.Deleted:
-                {
-                    recordingStatus = 3;
-                    break;
-                }
-                default:
-                break;
             }
             
             var updateQuery = new ODBCWrapper.UpdateQuery("recordings");
@@ -2575,7 +2589,7 @@ namespace DAL
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("EXTERNAL_RECORDING_ID", "=", recording.ExternalRecordingId);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("RECORDING_STATUS", "=", recordingStatus);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", recording.EpgStartDate);
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", status);
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", rowStatus);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", isActive);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("GET_STATUS_RETRIES", "=", recording.GetStatusRetries);
 
@@ -2670,7 +2684,7 @@ namespace DAL
             Recording recording = new Recording();
             recording.EpgId = ODBCWrapper.Utils.ExtractValue<long>(row, "EPG_PROGRAM_ID");
             recording.Id = ODBCWrapper.Utils.ExtractValue<long>(row, "ID");
-            int recordingStatus = ODBCWrapper.Utils.ExtractInteger(row, "RECORDING_STATUS");
+            RecordingInternalStatus recordingStatus = (RecordingInternalStatus)ODBCWrapper.Utils.ExtractInteger(row, "RECORDING_STATUS");
             recording.ExternalRecordingId = ODBCWrapper.Utils.ExtractString(row, "EXTERNAL_RECORDING_ID");
             recording.EpgStartDate = ODBCWrapper.Utils.ExtractDateTime(row, "START_DATE");
             recording.EpgEndDate = ODBCWrapper.Utils.ExtractDateTime(row, "END_DATE");
@@ -2680,8 +2694,8 @@ namespace DAL
 
             switch (recordingStatus)
             {
-                // 0 = OK
-                case 0:
+                case RecordingInternalStatus.Waiting:
+                case RecordingInternalStatus.OK:
                 {
                     // If program already finished, we say it is recorded
                     if (recording.EpgEndDate < DateTime.UtcNow)
@@ -2699,19 +2713,21 @@ namespace DAL
                     }
                     break;
                 }
-                // 1 - FAILED
-                case 1:
+                case RecordingInternalStatus.Failed:
                 {
                     status = TstvRecordingStatus.Failed;
                     break;
                 }
-                // 2 - CANCELED
-                case 2:
+                case RecordingInternalStatus.Canceled:
                 {
                     status = TstvRecordingStatus.Canceled;
                     break;
                 }
-                // Other - IDK
+                case RecordingInternalStatus.Deleted:
+                {
+                    status = TstvRecordingStatus.Deleted;
+                    break;
+                }
                 default:
                 {
                     status = TstvRecordingStatus.Deleted;

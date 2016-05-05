@@ -590,6 +590,15 @@ namespace ApiObjects
         Deleted = 6
     }
 
+    public enum RecordingInternalStatus
+    {
+        OK = 0,
+        Failed = 1,
+        Canceled = 2,
+        Waiting = 3,
+        Deleted = 4
+    }
+
     public enum eRecordingTask
     {
         GetStatusAfterProgramEnded = 1,
