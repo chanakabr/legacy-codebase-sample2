@@ -274,7 +274,7 @@ namespace Recordings
 
                             if (currentRecording.Status == null)
                             {
-                                currentRecording.Status = new Status((int)eResponseStatus.Error, "Adapter controller returned null response.");
+                                currentRecording.Status = new Status((int)eResponseStatus.Error, "Adapter failed performing GetRecordingStatus");
 
                             }
                         }
