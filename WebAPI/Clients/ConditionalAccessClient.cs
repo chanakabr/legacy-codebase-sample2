@@ -1253,7 +1253,7 @@ namespace WebAPI.Clients
         internal KalturaRecordingListResponse SearchRecordings(int groupID, string userID, long domainID, List<KalturaRecordingStatus> recordingStatuses, string ksqlFilter,
                                                                 int pageIndex, int? pageSize, KalturaRecordingOrder? orderBy)
         {
-            KalturaRecordingListResponse result = null;
+            KalturaRecordingListResponse result = new KalturaRecordingListResponse() { TotalCount = 0 };
             RecordingResponse response = null;
 
             // Create catalog order object
@@ -1304,8 +1304,7 @@ namespace WebAPI.Clients
                 // internal web service exception
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
-
-            result = new KalturaRecordingListResponse() { Objects = new List<KalturaRecording>(), TotalCount = 0 };
+            
             if (response.Recordings != null && response.Recordings.Length > 0)
             {                
                 result.TotalCount = response.TotalItems;
