@@ -17,7 +17,7 @@ namespace Validator.Managers.Schema
 {
     public class SchemaManager
     {
-        private static XmlDocument GetProjectXml()
+        private static string GetProjectDir()
         {
             string filename = Assembly.GetExecutingAssembly().CodeBase;
             const string prefix = "file:///";
@@ -26,27 +26,31 @@ namespace Validator.Managers.Schema
             {
                 FileInfo dll = new FileInfo(filename.Substring(prefix.Length));
                 var projectDir = dll.Directory.Parent.Parent.Parent;
-
-                StreamReader streamReader;
-
-                try
-                {
-                    streamReader = new StreamReader(projectDir.FullName + @"\WebAPI\WebAPI.csproj");
-                }
-                catch (FileNotFoundException exception)
-                {
-                    throw new Exception("XML documentation not present (make sure it is turned on in project properties when building)", exception);
-                }
-
-                XmlDocument projectXml = new XmlDocument();
-                projectXml.Load(streamReader);
-
-                return projectXml;
+                return projectDir.FullName;
             }
             else
             {
                 throw new Exception("Could not ascertain assembly filename", null);
             }
+        }
+
+        private static XmlDocument GetProjectXml()
+        {   
+            StreamReader streamReader;
+
+            try
+            {
+                streamReader = new StreamReader(GetProjectDir() + @"\WebAPI\WebAPI.csproj");
+            }
+            catch (FileNotFoundException exception)
+            {
+                throw new Exception("XML documentation not present (make sure it is turned on in project properties when building)", exception);
+            }
+
+            XmlDocument projectXml = new XmlDocument();
+            projectXml.Load(streamReader);
+
+            return projectXml;
         }
 
         private static Dictionary<string, string> map;
@@ -64,7 +68,7 @@ namespace Validator.Managers.Schema
             {
                 foreach (XmlNode compileNode in compileNodes)
                 {
-                    string path = compileNode.Attributes["Include"].Value;
+                    string path = GetProjectDir() + @"\WebAPI\" + compileNode.Attributes["Include"].Value;
                     string type = path.Substring(path.LastIndexOf(@"\") + 1).Replace(".cs", "");
                     if(!map.ContainsKey(type))
                         map.Add(type, path);
@@ -464,7 +468,7 @@ namespace Validator.Managers.Schema
 
             if (actionId == "list")
             {
-                string expectedObjectType = string.Format("Kaltura{0}ListResponse", FirstCharacterToUpper(serviceId));
+                string expectedObjectType = string.Format("Kaltura{0}", FirstCharacterToUpper(serviceId));
                 string expectedResponseType = string.Format("Kaltura{0}ListResponse", FirstCharacterToUpper(serviceId));
                 if (action.ReturnType.Name != expectedResponseType)
                 {
