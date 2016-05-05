@@ -268,22 +268,24 @@ namespace Recordings
                             currentRecording.Status = new Status((int)eResponseStatus.Error, "Adapter controller excpetion: " + ex.Message);
                         }
 
-                        if (currentRecording.Status != null)
-                        {
-                            return currentRecording;
-                        }
-
-                        if (adapterResponse == null)
+                        if (currentRecording.Status != null || adapterResponse == null)
                         {
                             RetryTask(groupId, currentRecording, nextCheck, eRecordingTask.GetStatusAfterProgramEnded);
 
-                            currentRecording.Status = new Status((int)eResponseStatus.Error, "Adapter controller returned null response.");
+                            if (currentRecording.Status == null)
+                            {
+                                currentRecording.Status = new Status((int)eResponseStatus.Error, "Adapter failed performing GetRecordingStatus");
+
+                            }
                         }
-                        //
-                        // TODO: Validate adapter response
-                        //
                         else
                         {
+                            //
+                            // TODO: Validate adapter response?
+                            //
+
+                            currentRecording.Status = new Status();
+
                             // If it was successfull - we mark it as recorded
                             if (adapterResponse.ActionSuccess && adapterResponse.FailReason == 0)
                             {
@@ -687,10 +689,6 @@ namespace Recordings
             long durationSeconds = (long)(endDate - startDate).TotalSeconds;
             string externalChannelId = CatalogDAL.GetEPGChannelCDVRId(groupId, epgChannelID);
 
-            // Count this try
-            currentRecording.GetStatusRetries++;
-            ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1, RecordingInternalStatus.Waiting);
-
             RecordResult adapterResponse = null;
             try
             {
@@ -807,11 +805,17 @@ namespace Recordings
                     nextCheck = currentRecording.EpgStartDate;
                 }
 
-                // stop checking after the program started
+                // continue checking until the program started. 
                 if (DateTime.UtcNow < currentRecording.EpgStartDate &&
                     DateTime.UtcNow < nextCheck)
                 {
                     EnqueueMessage(groupId, currentRecording.EpgId, currentRecording.Id, nextCheck, eRecordingTask.Record);
+                }
+                else
+                // If it is still not ok - mark as failed
+                {
+                    currentRecording.RecordingStatus = TstvRecordingStatus.Failed;
+                    ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1, RecordingInternalStatus.Failed);
                 }
             }
         }
