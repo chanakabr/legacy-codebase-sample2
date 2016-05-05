@@ -1013,6 +1013,7 @@
     <Compile Include="Controllers\PaymentMethodProfileController.cs" />
     <Compile Include="Controllers\RegistrySettingsController.cs" />
     <Compile Include="Controllers\TimeShiftedTvPartnerSettingsController.cs" />
+    <Compile Include="Controllers\UserAssetsListItemController.cs" />
     <Compile Include="Controllers\VersionController.cs" />
     <Compile Include="Controllers\HouseholdLimitationsController.cs" />
     <Compile Include="Controllers\HouseholdPremiumServiceController.cs" />
@@ -1399,6 +1400,9 @@
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\Users\UsersItemsListsResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Users\UsersListItemResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <None Include="Web.Debug.config">

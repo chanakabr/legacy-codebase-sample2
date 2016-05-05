@@ -48,5 +48,13 @@ namespace WebAPI.Models.Users
         [XmlElement(ElementName = "user_id")]
         public string UserId { get; set; }
 
+        /// <summary>
+        ///The type of the list
+        /// </summary>
+        [DataMember(Name = "list_type")]
+        [JsonProperty("list_type")]
+        [XmlElement(ElementName = "list_type")]
+        public KalturaUserAssetsListType ListType { get; set; }
+
     }
 }

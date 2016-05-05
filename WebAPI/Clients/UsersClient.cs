@@ -872,5 +872,123 @@ namespace WebAPI.Clients
 
             return true;
         }
+
+        internal KalturaUserAssetsListItem AddItemToUsersList(int groupId, string userId, KalturaUserAssetsListItem userAssetsListItem)
+        {
+            KalturaUserAssetsListItem listItem = null;
+            UsersListItemResponse response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                Item item = Mapper.Map<Item>(userAssetsListItem);
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Users.AddItemToUsersList(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, item);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while ActivateAccount. Username: {0}, Password: {1}, exception: {2}", group.UsersCredentials.Username, group.UsersCredentials.Password, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Item == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            listItem = Mapper.Map<KalturaUserAssetsListItem>(response.Item);
+
+            return listItem;
+        }
+
+        internal bool DeleteItemFromUsersList(int groupId, string userId, KalturaUserAssetsListItem userAssetsListItem)
+        {
+            Status response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                Item item = Mapper.Map<Item>(userAssetsListItem);
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Users.DeleteItemFromUsersList(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, item);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while ActivateAccount. Username: {0}, Password: {1}, exception: {2}", group.UsersCredentials.Username, group.UsersCredentials.Password, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        internal KalturaUserAssetsListItem GetItemFromUsersList(int groupId, string userId, KalturaUserAssetsListItem userAssetsListItem)
+        {
+            KalturaUserAssetsListItem listItem = null;
+            UsersListItemResponse response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                Item item = Mapper.Map<Item>(userAssetsListItem);
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Users.GetItemFromUsersList(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, item);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while ActivateAccount. Username: {0}, Password: {1}, exception: {2}", group.UsersCredentials.Username, group.UsersCredentials.Password, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Item == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            listItem = Mapper.Map<KalturaUserAssetsListItem>(response.Item);
+
+            return listItem;
+        }
     }
 }

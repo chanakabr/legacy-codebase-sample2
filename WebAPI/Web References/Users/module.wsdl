@@ -1342,6 +1342,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="ItemId" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="OrderIndex" nillable="true" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="UserId" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="ListType" type="tns:ListType" />
         </s:sequence>
       </s:complexType>
       <s:element name="IsItemExistsInList">
@@ -1761,6 +1762,8 @@
           <s:enumeration value="IdentifyPushRegistration" />
           <s:enumeration value="DeleteUser" />
           <s:enumeration value="ChangeUsers" />
+          <s:enumeration value="EnableUserNotifications" />
+          <s:enumeration value="DisableUserNotifications" />
         </s:restriction>
       </s:simpleType>
       <s:element name="AddInitiateNotificationActionResponse">
@@ -1779,6 +1782,63 @@
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="ResendActivationTokenResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteItemFromUsersList">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="item" type="tns:Item" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteItemFromUsersListResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DeleteItemFromUsersListResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="AddItemToUsersList">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="item" type="tns:Item" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="AddItemToUsersListResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="AddItemToUsersListResult" type="tns:UsersListItemResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UsersListItemResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Item" type="tns:Item" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetItemFromUsersList">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="item" type="tns:Item" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetItemFromUsersListResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetItemFromUsersListResult" type="tns:UsersListItemResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -2308,6 +2368,24 @@
   </wsdl:message>
   <wsdl:message name="ResendActivationTokenSoapOut">
     <wsdl:part name="parameters" element="tns:ResendActivationTokenResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteItemFromUsersListSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteItemFromUsersList" />
+  </wsdl:message>
+  <wsdl:message name="DeleteItemFromUsersListSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteItemFromUsersListResponse" />
+  </wsdl:message>
+  <wsdl:message name="AddItemToUsersListSoapIn">
+    <wsdl:part name="parameters" element="tns:AddItemToUsersList" />
+  </wsdl:message>
+  <wsdl:message name="AddItemToUsersListSoapOut">
+    <wsdl:part name="parameters" element="tns:AddItemToUsersListResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetItemFromUsersListSoapIn">
+    <wsdl:part name="parameters" element="tns:GetItemFromUsersList" />
+  </wsdl:message>
+  <wsdl:message name="GetItemFromUsersListSoapOut">
+    <wsdl:part name="parameters" element="tns:GetItemFromUsersListResponse" />
   </wsdl:message>
   <wsdl:message name="CheckUserPasswordHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -3231,6 +3309,18 @@
     <wsdl:operation name="ResendActivationToken">
       <wsdl:input message="tns:ResendActivationTokenSoapIn" />
       <wsdl:output message="tns:ResendActivationTokenSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteItemFromUsersList">
+      <wsdl:input message="tns:DeleteItemFromUsersListSoapIn" />
+      <wsdl:output message="tns:DeleteItemFromUsersListSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AddItemToUsersList">
+      <wsdl:input message="tns:AddItemToUsersListSoapIn" />
+      <wsdl:output message="tns:AddItemToUsersListSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetItemFromUsersList">
+      <wsdl:input message="tns:GetItemFromUsersListSoapIn" />
+      <wsdl:output message="tns:GetItemFromUsersListSoapOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="UsersServiceHttpPost">
@@ -4235,6 +4325,33 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="DeleteItemFromUsersList">
+      <soap:operation soapAction="http://users.tvinci.com/DeleteItemFromUsersList" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddItemToUsersList">
+      <soap:operation soapAction="http://users.tvinci.com/AddItemToUsersList" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetItemFromUsersList">
+      <soap:operation soapAction="http://users.tvinci.com/GetItemFromUsersList" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="UsersServiceSoap12" type="tns:UsersServiceSoap">
     <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
@@ -4969,6 +5086,33 @@
     </wsdl:operation>
     <wsdl:operation name="ResendActivationToken">
       <soap12:operation soapAction="http://users.tvinci.com/ResendActivationToken" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteItemFromUsersList">
+      <soap12:operation soapAction="http://users.tvinci.com/DeleteItemFromUsersList" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddItemToUsersList">
+      <soap12:operation soapAction="http://users.tvinci.com/AddItemToUsersList" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetItemFromUsersList">
+      <soap12:operation soapAction="http://users.tvinci.com/GetItemFromUsersList" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>

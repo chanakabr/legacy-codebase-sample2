@@ -162,6 +162,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ItemId))
                 .ForMember(dest => dest.OrderIndex, opt => opt.MapFrom(src => src.OrderIndex))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertUserAssetsListItemType(src.ItemType)))
+                .ForMember(dest => dest.ListType, opt => opt.MapFrom(src => ConvertUserAssetsListType(src.ListType)))
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId));
+
+            // Item to KalturaUserAssetsListItem
+            Mapper.CreateMap<KalturaUserAssetsListItem, WebAPI.Users.Item>()
+                .ForMember(dest => dest.ItemId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.OrderIndex, opt => opt.MapFrom(src => src.OrderIndex))
+                .ForMember(dest => dest.ItemType, opt => opt.MapFrom(src => ConvertUserAssetsListItemType(src.Type)))
+                .ForMember(dest => dest.ListType, opt => opt.MapFrom(src => ConvertUserAssetsListType(src.ListType)))
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId));
         }
 
