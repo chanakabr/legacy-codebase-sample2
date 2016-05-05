@@ -689,10 +689,6 @@ namespace Recordings
             long durationSeconds = (long)(endDate - startDate).TotalSeconds;
             string externalChannelId = CatalogDAL.GetEPGChannelCDVRId(groupId, epgChannelID);
 
-            // Count this try
-            currentRecording.GetStatusRetries++;
-            ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1, RecordingInternalStatus.Waiting);
-
             RecordResult adapterResponse = null;
             try
             {
