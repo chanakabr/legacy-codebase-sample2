@@ -460,6 +460,32 @@ namespace Recordings
             }
         }
 
+        internal void RecoverRecordings(int groupId)
+        {
+            // Get both valid and failed recordings
+            List<int> statuses = new List<int>()
+                {
+                    0, 1
+                };
+
+            List<Recording> recordings = ConditionalAccessDAL.GetAllRecordingsByStatuses(groupId, statuses);
+
+            foreach (var recording in recordings)
+            {
+                // If the provider failed, we'll start retrying as usual
+                if (recording.RecordingStatus == TstvRecordingStatus.Failed &&
+                    recording.EpgStartDate > DateTime.UtcNow)
+                {
+                    EnqueueMessage(groupId, recording.EpgId, recording.Id, DateTime.UtcNow, eRecordingTask.Record);
+                }
+
+                DateTime getStatusTime = recording.EpgEndDate.AddMinutes(1);
+
+                // Anyway we should always check the status after the program finishes
+                EnqueueMessage(groupId, recording.EpgId, recording.Id, getStatusTime, eRecordingTask.GetStatusAfterProgramEnded);
+            }
+        }
+
         #endregion
 
         #region Event Methods
@@ -774,5 +800,6 @@ namespace Recordings
         }
 
         #endregion
+
     }
 }

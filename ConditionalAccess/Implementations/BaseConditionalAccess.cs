@@ -17552,5 +17552,22 @@ namespace ConditionalAccess
 
             return status;
         }
+
+        public ApiObjects.Response.Status RecoverRecordingMessages(int groupID)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+
+            try
+            {
+                RecordingsManager.Instance.RecoverRecordings(groupID);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed recovering recording messages for group = {0}. ex = {1}", groupID, ex);
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, ex.Message);
+            }
+
+            return status;
+        }
     }
 }
