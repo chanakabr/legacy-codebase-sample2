@@ -118,7 +118,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024</remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaRecordingListResponse List(KalturaRecordingFilter filter, KalturaFilterPager pager = null)
+        public KalturaRecordingListResponse List(KalturaRecordingFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaRecordingListResponse response = null;
 
