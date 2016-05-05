@@ -764,7 +764,7 @@ namespace Recordings
                     }
                 }
 
-                if (!shouldMarkAsFailed)
+                if (shouldMarkAsFailed)
                 {
                     currentRecording.RecordingStatus = TstvRecordingStatus.Failed;
                     newRecordingInternalStatus = RecordingInternalStatus.Failed;
