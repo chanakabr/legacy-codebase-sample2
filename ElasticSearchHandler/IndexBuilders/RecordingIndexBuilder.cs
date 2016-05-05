@@ -41,7 +41,8 @@ namespace ElasticSearchHandler.IndexBuilders
 
         protected override void PopulateIndex(string newIndexName)
         {
-            List<int> statuses = new List<int>() { (int)RecordingInternalStatus.OK, (int)RecordingInternalStatus.Waiting };
+            List<int> statuses = new List<int>() { (int)RecordingInternalStatus.OK, (int)RecordingInternalStatus.Waiting,
+            (int)RecordingInternalStatus.Canceled, (int)RecordingInternalStatus.Failed};
 
             // Get information about relevant recordings
             List<Recording> recordings = DAL.ConditionalAccessDAL.GetAllRecordingsByStatuses(this.groupId, statuses);
