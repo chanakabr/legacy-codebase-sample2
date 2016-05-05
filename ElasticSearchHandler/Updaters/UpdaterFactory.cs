@@ -25,6 +25,9 @@ namespace ElasticSearchHandler.Updaters
                 case ApiObjects.eObjectType.EpgChannel:
                     result = new EpgChannelUpdater(nGroupID);
                     break;
+                case ApiObjects.eObjectType.Recording:
+                    result = new RecordingUpdater(nGroupID);
+                    break;
                 default:
                     break;
             }
