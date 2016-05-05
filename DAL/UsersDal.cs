@@ -1066,7 +1066,7 @@ namespace DAL
             return bIsActivationNeeded;
         }
 
-        public static bool Insert_ItemList(int nSiteGuid, Dictionary<int, List<int>> dItems, int listType, int itemType, int nGroupID)
+        public static bool Insert_ItemList(int nSiteGuid, List<KeyValuePair<int,int>> dItems, int listType, int itemType, int nGroupID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_ItemList");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
@@ -2050,6 +2050,68 @@ namespace DAL
             if (!string.IsNullOrEmpty(sUDID))
                 sp.AddParameter("@UDID", sUDID);
 
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                return ds.Tables[0];
+            }
+
+            return null;
+        }
+
+        public static int DeleteItemFromUserList(int itemId, int listType, int itemType, string userId, int groupId)
+        {
+            int rowCount = 0;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteItemFromUserList");
+                sp.SetConnectionKey("USERS_CONNECTION_STRING");
+                sp.AddParameter("@userID", userId);
+                sp.AddParameter("@itemID", itemId);
+                sp.AddParameter("@listType", listType);
+                sp.AddParameter("@itemType", itemType);
+                sp.AddParameter("@groupID", groupId);
+                rowCount = sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return rowCount;
+        }
+
+        public static DataTable InsertItemToUserList(int userId, int order, int itemId, int listType, int itemType, int groupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertItemToUserList");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@userID", userId);
+            sp.AddParameter("@listType", listType);
+            sp.AddParameter("@itemType", itemType);
+            sp.AddParameter("@order", order);
+            sp.AddParameter("@itemID", itemId);
+            sp.AddParameter("@groupID", groupId);
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                return ds.Tables[0];
+            }
+
+            return null;
+        }
+
+        public static DataTable GetItemFromUserList(int userId, int itemId, int listType, int itemType, int groupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetItemFromUserList");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@userID", userId);
+            sp.AddParameter("@listType", listType);
+            sp.AddParameter("@itemType", itemType);
+            sp.AddParameter("@itemID", itemId);
+            sp.AddParameter("@groupID", groupId);
             DataSet ds = sp.ExecuteDataSet();
 
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)

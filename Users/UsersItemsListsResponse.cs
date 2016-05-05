@@ -14,6 +14,8 @@ namespace Users
         public int? OrderIndex { get; set; }
 
         public string UserId { get; set; }
+
+        public ListType ListType { get; set; }
     }
 
     public class UserItemsList
@@ -26,6 +28,13 @@ namespace Users
     public class UsersItemsListsResponse
     {
         public List<UserItemsList> UsersItemsLists { get; set; }
+
+        public ApiObjects.Response.Status Status { get; set; }
+    }
+
+    public class UsersListItemResponse
+    {
+        public Item Item { get; set; }
 
         public ApiObjects.Response.Status Status { get; set; }
     }

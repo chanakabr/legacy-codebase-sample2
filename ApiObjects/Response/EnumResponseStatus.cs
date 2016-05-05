@@ -76,6 +76,7 @@ namespace ApiObjects.Response
         RoleAlreadyAssignedToUser = 2029,
         DefaultUserCannotBeDeleted = 2030,
         ExclusiveMasterUserCannotBeDeleted = 2031,
+        ItemNotFound = 2032,
 
         // CAS Section 3000 - 3999
         InvalidPurchase = 3000,

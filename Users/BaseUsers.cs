@@ -567,19 +567,13 @@ namespace Users
                 {
                 }
 
-                Dictionary<int, List<int>> dItems = new Dictionary<int, List<int>>();
-                List<int> orderNum = null;
+                List<KeyValuePair<int, int>> dItems = new List<KeyValuePair<int, int>>();
                 int nOrderNum = 0;
 
                 foreach (ItemObj itemObj in userItemList.itemObj)
                 {
-                    if (itemObj.orderNum != null)
-                    {
-                        nOrderNum = itemObj.orderNum.Value;
-                    }
-                    orderNum = new List<int>();
-                    orderNum.Add(nOrderNum);
-                    dItems.Add(itemObj.item, orderNum);
+                    nOrderNum = itemObj.orderNum.HasValue ? itemObj.orderNum.Value : 0;
+                    dItems.Add(new KeyValuePair<int, int>(itemObj.item, nOrderNum));
                 }
 
                 bool result = UsersDal.Insert_ItemList(nSiteGuid, dItems, (int)userItemList.listType, (int)userItemList.itemType, nGroupID);
@@ -630,6 +624,33 @@ namespace Users
                 log.Error("RemoveItemFromList - exception =  " + ex.Message, ex);
                 return false;
             }
+        }
+
+        public virtual ApiObjects.Response.Status DeleteItemFromUsersList(int itemId, ListType listType, ItemType itemType, string userId, int groupId)
+        {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            try
+            {
+                if (itemId == 0 || string.IsNullOrEmpty(userId) || listType == ListType.All || itemType == ItemType.All)
+                    return response;
+
+                int spRes = UsersDal.DeleteItemFromUserList(itemId, (int)listType, (int)itemType, userId, groupId);
+                if (spRes == -1)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.ItemNotFound, "Item was not found in list");
+                }
+                else if (spRes > -1)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("DeleteItemFromUsersList - exception =  " + ex.Message, ex);
+            }
+
+            return response;
         }
 
         public virtual bool UpdateItemInList(UserItemList userItemList, int nGroupID)
@@ -1355,5 +1376,79 @@ namespace Users
         }
 
         public abstract ApiObjects.Response.Status ResendActivationToken(string username);
+
+        public UsersListItemResponse AddItemToUsersList(int itemId, ListType listType, ItemType itemType, int order, string userId, int groupId)
+        {
+            UsersListItemResponse response = new UsersListItemResponse()
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            try
+            {
+                int parsedUserId = 0;
+                if (!int.TryParse(userId, out parsedUserId) || itemId == 0 || string.IsNullOrEmpty(userId) || listType == ListType.All || itemType == ItemType.All)
+                    return response;
+
+                DataTable dt = UsersDal.InsertItemToUserList(parsedUserId, order, itemId, (int)listType, (int)itemType, groupId);
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    response.Item = new Item()
+                    {
+                        ItemId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["item_id"]),
+                        ItemType = (ItemType)ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["item_type"]),
+                        ListType = (ListType)ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["list_type"]),
+                        OrderIndex = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["order_num"]),
+                        UserId = userId
+                    };
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("AddItemToUsersList - exception =  " + ex.Message, ex);
+            }
+
+            return response;
+        }
+
+        public UsersListItemResponse GetItemFromUsersList(int itemId, ListType listType, ItemType itemType, string userId, int groupId)
+        {
+            UsersListItemResponse response = new UsersListItemResponse()
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            try
+            {
+                int parsedUserId = 0;
+                if (!int.TryParse(userId, out parsedUserId) || itemId == 0 || string.IsNullOrEmpty(userId) || listType == ListType.All || itemType == ItemType.All)
+                    return response;
+
+                DataTable dt = UsersDal.GetItemFromUserList(parsedUserId, itemId, (int)listType, (int)itemType, groupId);
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    response.Item = new Item()
+                    {
+                        ItemId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["item_id"]),
+                        ItemType = (ItemType)ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["item_type"]),
+                        ListType = (ListType)ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["list_type"]),
+                        OrderIndex = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["order_num"]),
+                        UserId = userId
+                    };
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+                else
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ItemNotFound, "Item was not found in list");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("GetItemFromUsersList - exception =  " + ex.Message, ex);
+            }
+
+            return response;
+        }
     }
 }
