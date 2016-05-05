@@ -1304,10 +1304,10 @@ namespace WebAPI.Clients
                 // internal web service exception
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
-            
+
+            result = new KalturaRecordingListResponse() { Objects = new List<KalturaRecording>(), TotalCount = 0 };
             if (response.Recordings != null && response.Recordings.Length > 0)
-            {
-                result = new KalturaRecordingListResponse() { Objects = new List<KalturaRecording>(), TotalCount = 0 };
+            {                
                 result.TotalCount = response.TotalItems;
                 // convert recordings            
                 result.Objects = Mapper.Map<List<WebAPI.Models.ConditionalAccess.KalturaRecording>>(response.Recordings);

@@ -135,7 +135,13 @@ namespace WebAPI.Controllers
 
                 if (filter == null)
                 {
-                    filter = new KalturaRecordingFilter();
+                    filter = new KalturaRecordingFilter() { StatusIn = new List<KalturaRecordingStatusHolder>() };
+                    
+                }
+
+                if (filter.StatusIn == null)
+                {
+                    filter.StatusIn = new List<KalturaRecordingStatusHolder>();
                 }
 
                 if (!filter.OrderBy.HasValue)
