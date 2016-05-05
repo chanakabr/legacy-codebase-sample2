@@ -52,6 +52,7 @@ namespace WebAPI.Controllers
         /// ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, ProgramNotInRecordingScheduleWindow = 3038, InvalidAssetId = 4024</remarks>
         [Route("getContext"), HttpPost]
         [ApiAuthorize]
+        [WebAPI.Managers.Schema.ValidationException(WebAPI.Managers.Schema.SchemaValidationType.ACTION_NAME)]
         public KalturaRecordingContextListResponse GetContext(KalturaRecordingContextFilter filter)
         {
             KalturaRecordingContextListResponse response = null;
@@ -66,13 +67,13 @@ namespace WebAPI.Controllers
                     throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter cannot be null");
                 }
 
-                if (filter.AssetIds == null || filter.AssetIds.Count == 0)
+                if (filter.AssetIdIn == null || filter.AssetIdIn.Count == 0)
                 {
                     throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "filter ids cannot be empty");
                 }          
 
                 // call client                
-                response = ClientsManager.ConditionalAccessClient().QueryRecords(groupId, userId, filter.AssetIds.Select(x => x.value).ToArray());
+                response = ClientsManager.ConditionalAccessClient().QueryRecords(groupId, userId, filter.AssetIdIn.Select(x => x.value).ToArray());
             }
             catch (ClientException ex)
             {
@@ -146,7 +147,7 @@ namespace WebAPI.Controllers
 
                 if (!filter.OrderBy.HasValue)
                 {
-                    filter.OrderBy = KalturaRecordingOrder.start_date_asc;
+                    filter.OrderBy = (KalturaRecordingOrderBy)filter.GetDefaultOrderByValue();
                 }
 
                 if (!string.IsNullOrEmpty(filter.FilterExpression) && filter.FilterExpression.Length > 1024)
@@ -155,7 +156,7 @@ namespace WebAPI.Controllers
                 }
 
                 // call client                
-                response = ClientsManager.ConditionalAccessClient().SearchRecordings(groupId, userId, domainId, filter.StatusIn.Select(x => x.status).ToList(),
+                response = ClientsManager.ConditionalAccessClient().SearchRecordings(groupId, userId, domainId, filter.StatusIn.Select(x => x.Status).ToList(),
                                                                                      filter.FilterExpression, pager.getPageIndex(), pager.PageSize, filter.OrderBy);
             }
             catch (ClientException ex)

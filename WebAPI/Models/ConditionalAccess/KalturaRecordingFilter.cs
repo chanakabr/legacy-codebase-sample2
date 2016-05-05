@@ -40,7 +40,12 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "orderBy")]
         [JsonProperty("orderBy")]
         [XmlElement(ElementName = "orderBy", IsNullable = true)]
-        public KalturaRecordingOrder? OrderBy { get; set; }
+        public KalturaRecordingOrderBy? OrderBy { get; set; }
+
+        public override object GetDefaultOrderByValue()
+        {
+            return KalturaRecordingOrderBy.START_DATE_DESC;
+        }
         
     }
 }

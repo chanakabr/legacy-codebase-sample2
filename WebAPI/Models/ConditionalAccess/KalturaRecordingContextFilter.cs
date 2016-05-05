@@ -19,12 +19,15 @@ namespace WebAPI.Models.ConditionalAccess
         /// <summary>
         /// Asset Id's
         /// </summary>
-        [DataMember(Name = "assetIds")]
-        [JsonProperty(PropertyName = "assetIds")]
-        [XmlArray(ElementName = "assetIds", IsNullable = true)]
-        [XmlArrayItem(ElementName = "assetIds")]
-        public List<KalturaLongValue> AssetIds { get; set; }
+        [DataMember(Name = "assetIdIn")]
+        [JsonProperty(PropertyName = "assetIdIn")]
+        [XmlArray(ElementName = "assetIdIn", IsNullable = true)]
+        [XmlArrayItem(ElementName = "assetIdIn")]
+        public List<KalturaLongValue> AssetIdIn { get; set; }
 
-
+        public override object GetDefaultOrderByValue()
+        {
+            return null;
+        }
     }
 }

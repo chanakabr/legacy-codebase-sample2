@@ -1251,7 +1251,7 @@ namespace WebAPI.Clients
         }
 
         internal KalturaRecordingListResponse SearchRecordings(int groupID, string userID, long domainID, List<KalturaRecordingStatus> recordingStatuses, string ksqlFilter,
-                                                                int pageIndex, int? pageSize, KalturaRecordingOrder? orderBy)
+                                                                int pageIndex, int? pageSize, KalturaRecordingOrderBy? orderBy)
         {
             KalturaRecordingListResponse result = new KalturaRecordingListResponse() { TotalCount = 0 };
             RecordingResponse response = null;
@@ -1270,8 +1270,8 @@ namespace WebAPI.Clients
 
             if (recordingStatuses == null || recordingStatuses.Count == 0)
             {
-                recordingStatuses = new List<KalturaRecordingStatus>() { KalturaRecordingStatus.scheduled, KalturaRecordingStatus.recording, KalturaRecordingStatus.recorded,
-                                                                         KalturaRecordingStatus.canceled, KalturaRecordingStatus.failed };
+                recordingStatuses = new List<KalturaRecordingStatus>() { KalturaRecordingStatus.SCHEDULED, KalturaRecordingStatus.RECORDING, KalturaRecordingStatus.RECORDED,
+                                                                         KalturaRecordingStatus.CANCELED, KalturaRecordingStatus.FAILED };
             }
 
             List<WebAPI.ConditionalAccess.TstvRecordingStatus> convertedRecordingStatuses = recordingStatuses.Select(x => ConditionalAccessMappings.ConvertKalturaRecordingStatus(x)).ToList();            

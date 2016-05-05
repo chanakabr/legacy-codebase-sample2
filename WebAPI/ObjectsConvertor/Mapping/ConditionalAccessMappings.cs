@@ -244,22 +244,22 @@ namespace WebAPI.ObjectsConvertor.Mapping
             WebAPI.ConditionalAccess.TstvRecordingStatus result;
             switch (recordingStatus)
             {
-                case KalturaRecordingStatus.canceled:
+                case KalturaRecordingStatus.CANCELED:
                     result = WebAPI.ConditionalAccess.TstvRecordingStatus.Canceled;
                     break;
-                case KalturaRecordingStatus.deleted:
+                case KalturaRecordingStatus.DELETED:
                     result = WebAPI.ConditionalAccess.TstvRecordingStatus.Deleted;
                     break;
-                case KalturaRecordingStatus.failed:
+                case KalturaRecordingStatus.FAILED:
                     result = WebAPI.ConditionalAccess.TstvRecordingStatus.Failed;
                     break;
-                case KalturaRecordingStatus.recorded:
+                case KalturaRecordingStatus.RECORDED:
                     result = WebAPI.ConditionalAccess.TstvRecordingStatus.Recorded;
                     break;
-                case KalturaRecordingStatus.recording:
+                case KalturaRecordingStatus.RECORDING:
                     result = WebAPI.ConditionalAccess.TstvRecordingStatus.Recording;
                     break;
-                case KalturaRecordingStatus.scheduled:
+                case KalturaRecordingStatus.SCHEDULED:
                     result = WebAPI.ConditionalAccess.TstvRecordingStatus.Scheduled;
                     break;
                 default:
@@ -274,22 +274,22 @@ namespace WebAPI.ObjectsConvertor.Mapping
             switch (recordingStatus)
             {
                 case WebAPI.ConditionalAccess.TstvRecordingStatus.Canceled:
-                    result = KalturaRecordingStatus.canceled;
+                    result = KalturaRecordingStatus.CANCELED;
                     break;
                 case WebAPI.ConditionalAccess.TstvRecordingStatus.Deleted:
-                    result = KalturaRecordingStatus.deleted;
+                    result = KalturaRecordingStatus.DELETED;
                     break;
                 case WebAPI.ConditionalAccess.TstvRecordingStatus.Failed:
-                    result = KalturaRecordingStatus.failed;
+                    result = KalturaRecordingStatus.FAILED;
                     break;
                 case WebAPI.ConditionalAccess.TstvRecordingStatus.Recorded:
-                    result = KalturaRecordingStatus.recorded;
+                    result = KalturaRecordingStatus.RECORDED;
                     break;
                 case WebAPI.ConditionalAccess.TstvRecordingStatus.Recording:
-                    result = KalturaRecordingStatus.recording;
+                    result = KalturaRecordingStatus.RECORDING;
                     break;
                 case WebAPI.ConditionalAccess.TstvRecordingStatus.Scheduled:
-                    result = KalturaRecordingStatus.scheduled;
+                    result = KalturaRecordingStatus.SCHEDULED;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown recordingStatus type");
@@ -302,10 +302,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
             WebAPI.ConditionalAccess.RecordingType result;
             switch (recordingType)
             {
-                case KalturaRecordingType.single:
+                case KalturaRecordingType.SINGLE:
                     result = WebAPI.ConditionalAccess.RecordingType.Single;
                     break;
-                case KalturaRecordingType.series:
+                case KalturaRecordingType.SERIES:
                     result = WebAPI.ConditionalAccess.RecordingType.Series;
                     break;
                 default:
@@ -320,10 +320,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
             switch (recordingType)
             {
                 case WebAPI.ConditionalAccess.RecordingType.Single:
-                    result = KalturaRecordingType.single;
+                    result = KalturaRecordingType.SINGLE;
                     break;
                 case WebAPI.ConditionalAccess.RecordingType.Series:
-                    result = KalturaRecordingType.series;
+                    result = KalturaRecordingType.SERIES;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown recordingType type");
@@ -331,27 +331,27 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        public static OrderObj ConvertOrderToOrderObj(KalturaRecordingOrder order)
+        public static OrderObj ConvertOrderToOrderObj(KalturaRecordingOrderBy order)
         {
             OrderObj result = new OrderObj();
 
             switch (order)
             {
-                case KalturaRecordingOrder.title_asc:
+                case KalturaRecordingOrderBy.TITLE_ASC:
                     result.m_eOrderBy = OrderBy.NAME;
                     result.m_eOrderDir = OrderDir.ASC;
                     break;
-                case KalturaRecordingOrder.title_desc:
+                case KalturaRecordingOrderBy.TITLE_DESC:
                     result.m_eOrderBy = OrderBy.NAME;
                     result.m_eOrderDir = OrderDir.DESC;
                     break;
-                case KalturaRecordingOrder.start_date_asc:
-                    result.m_eOrderBy = OrderBy.START_DATE;
-                    result.m_eOrderDir = OrderDir.DESC;
-                    break;
-                case KalturaRecordingOrder.start_date_desc:
+                case KalturaRecordingOrderBy.START_DATE_ASC:
                     result.m_eOrderBy = OrderBy.START_DATE;
                     result.m_eOrderDir = OrderDir.ASC;
+                    break;
+                case KalturaRecordingOrderBy.START_DATE_DESC:
+                    result.m_eOrderBy = OrderBy.START_DATE;
+                    result.m_eOrderDir = OrderDir.DESC;
                     break;
             }
             return result;
