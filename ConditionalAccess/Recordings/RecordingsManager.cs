@@ -114,9 +114,20 @@ namespace Recordings
 
             recording = ConditionalAccessDAL.GetRecordingByProgramId(programId);
 
+            // remember and not forget
             if (recording == null)
             {
                 bool syncedAction = synchronizer.DoAction(syncKey, syncParmeters);
+
+                object recordingObject;
+                if (syncParmeters.TryGetValue("recording", out recordingObject))
+                {
+                    recording = (Recording)recordingObject;
+                }
+                else
+                {
+                    recording = ConditionalAccessDAL.GetRecordingByProgramId(programId);
+                }
             }
 
             try
@@ -588,6 +599,8 @@ namespace Recordings
                 },
                 recording);
             }
+
+            parameters["recording"] = recording;
 
             return success;
         }
