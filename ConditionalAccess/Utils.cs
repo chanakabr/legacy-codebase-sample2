@@ -4281,7 +4281,7 @@ namespace ConditionalAccess
         }
 
         internal static List<Recording> SearchDomainRecordingIDsByFilter(int groupID, string userID, long domainID, Dictionary<long, long> recordingIdToDomainRecordingMap, string filter,
-                                                                List<Recording> recordingsWithValidStatus, int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy, ref int totalResults)
+                                                    Dictionary<long, Recording> recordingIdToValidRecordingsMap, int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy, ref int totalResults)
         {
             WS_Catalog.IserviceClient client = null;
             List<Recording> recordings = null;
@@ -4297,10 +4297,10 @@ namespace ConditionalAccess
                 request.assetTypes = new int[1] { 1 };
                 request.filterQuery = filter;
                 request.order = orderBy;
-                KeyValuePair<eAssetTypes, long>[] recordingAssets = new KeyValuePair<eAssetTypes, long>[recordingsWithValidStatus.Count];
-                for (int i = 0; i < recordingsWithValidStatus.Count; i++)
+                KeyValuePair<eAssetTypes, long>[] recordingAssets = new KeyValuePair<eAssetTypes, long>[recordingIdToValidRecordingsMap.Count];
+                for (int i = 0; i < recordingIdToValidRecordingsMap.Count; i++)
                 {
-                    recordingAssets[i] = new KeyValuePair<eAssetTypes, long>(eAssetTypes.NPVR, recordingsWithValidStatus.ElementAt(i).Id);
+                    recordingAssets[i] = new KeyValuePair<eAssetTypes, long>(eAssetTypes.NPVR, recordingIdToValidRecordingsMap.ElementAt(i).Key);
                 }
                 request.specificAssets = recordingAssets;
                 request.m_oFilter = new WS_Catalog.Filter()
@@ -4320,8 +4320,7 @@ namespace ConditionalAccess
                 WS_Catalog.UnifiedSearchResponse response = client.GetResponse(request) as WS_Catalog.UnifiedSearchResponse;
                 if (response != null && response.status.Code == (int)eResponseStatus.OK && response.m_nTotalItems > 0 && response.searchResults != null)
                 {
-                    recordings = new List<Recording>();
-                    List<long> filteredRecordingIds = new List<long>();
+                    recordings = new List<Recording>();                    
                     totalResults = response.m_nTotalItems;
                     foreach (UnifiedSearchResult unifiedSearchResult in response.searchResults)
                     {
@@ -4329,17 +4328,9 @@ namespace ConditionalAccess
                         long searchRecordingID;
                         if (unifiedSearchResult.AssetType == eAssetTypes.NPVR && long.TryParse(unifiedSearchResult.AssetId, out searchRecordingID) && searchRecordingID > 0)
                         {
-                            filteredRecordingIds.Add(searchRecordingID);
-                        }
-                    }
-
-                    if (recordingsWithValidStatus != null)
-                    {
-                        foreach (Recording recording in recordingsWithValidStatus)
-                        {
-                            // find recording in filtered recordings and convert recording ID to domain recording ID
-                            if (filteredRecordingIds.Contains(recording.Id) && recordingIdToDomainRecordingMap.ContainsKey(recording.Id))
+                            if (recordingIdToDomainRecordingMap.ContainsKey(searchRecordingID))
                             {
+                                Recording recording = recordingIdToValidRecordingsMap[searchRecordingID];
                                 recording.Id = recordingIdToDomainRecordingMap[recording.Id];
                                 recordings.Add(recording);
                             }

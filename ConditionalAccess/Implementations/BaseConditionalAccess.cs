@@ -17250,11 +17250,20 @@ namespace ConditionalAccess
 
                 if (recordingIdToDomainRecordingIdMap != null && recordingIdToDomainRecordingIdMap.Count > 0)
                 {
-                    List<Recording> recordingsWithValidStatus = RecordingsManager.Instance.GetRecordingsByIdsAndStatuses(m_nGroupID, recordingIdToDomainRecordingIdMap.Keys.ToList(), recordingStatuses);
+                    List<Recording> recordingsWithValidStatus = RecordingsManager.Instance.GetRecordingsByIdsAndStatuses(m_nGroupID, recordingIdToDomainRecordingIdMap.Keys.ToList(), recordingStatuses);                    
                     if (recordingsWithValidStatus != null && recordingsWithValidStatus.Count > 0)
                     {
-                        int totalResults = 0;
-                        List<Recording> searchRecordings = Utils.SearchDomainRecordingIDsByFilter(m_nGroupID, userID, domainID, recordingIdToDomainRecordingIdMap, filter, recordingsWithValidStatus, pageIndex, pageSize, orderBy, ref totalResults);
+                        Dictionary<long, Recording> recordingIdToValidRecordingsMap = new Dictionary<long, Recording>();
+                        foreach (Recording recording in recordingsWithValidStatus)
+                        {
+                            if (!recordingIdToValidRecordingsMap.ContainsKey(recording.Id))
+                            {
+                                recordingIdToValidRecordingsMap.Add(recording.Id, recording);
+                            }
+                        }
+                        int totalResults = 0;                        
+                        List<Recording> searchRecordings = Utils.SearchDomainRecordingIDsByFilter(m_nGroupID, userID, domainID, recordingIdToDomainRecordingIdMap, filter,
+                                                                                                    recordingIdToValidRecordingsMap, pageIndex, pageSize, orderBy, ref totalResults);
                         if (searchRecordings != null)
                         {
                             response.Recordings = searchRecordings;
