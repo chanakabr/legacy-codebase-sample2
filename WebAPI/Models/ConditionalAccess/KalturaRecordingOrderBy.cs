@@ -6,14 +6,11 @@ using System.Web;
 namespace WebAPI.Models.ConditionalAccess
 {
 
-    public enum KalturaRecordingOrder
+    public enum KalturaRecordingOrderBy
     {
-        title_asc,
-
-        title_desc,
-
-        start_date_asc,
-
-        start_date_desc
+        TITLE_ASC,
+        TITLE_DESC,
+        START_DATE_ASC,
+        START_DATE_DESC
     }
 }

@@ -8,8 +8,8 @@ namespace WebAPI.Models.General
     /// <summary>
     /// Base filter
     /// </summary>
-    public class KalturaFilter : KalturaOTTObject
+    public abstract class KalturaFilter : KalturaOTTObject
     {
-
+        public abstract object GetDefaultOrderByValue();
     }
 }

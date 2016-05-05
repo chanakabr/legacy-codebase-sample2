@@ -1251,9 +1251,9 @@ namespace WebAPI.Clients
         }
 
         internal KalturaRecordingListResponse SearchRecordings(int groupID, string userID, long domainID, List<KalturaRecordingStatus> recordingStatuses, string ksqlFilter,
-                                                                int pageIndex, int? pageSize, KalturaRecordingOrder? orderBy)
+                                                                int pageIndex, int? pageSize, KalturaRecordingOrderBy? orderBy)
         {
-            KalturaRecordingListResponse result = null;
+            KalturaRecordingListResponse result = new KalturaRecordingListResponse() { TotalCount = 0 };
             RecordingResponse response = null;
 
             // Create catalog order object
@@ -1270,7 +1270,8 @@ namespace WebAPI.Clients
 
             if (recordingStatuses == null || recordingStatuses.Count == 0)
             {
-                recordingStatuses = new List<KalturaRecordingStatus>() { KalturaRecordingStatus.scheduled, KalturaRecordingStatus.recording, KalturaRecordingStatus.recorded };
+                recordingStatuses = new List<KalturaRecordingStatus>() { KalturaRecordingStatus.SCHEDULED, KalturaRecordingStatus.RECORDING, KalturaRecordingStatus.RECORDED,
+                                                                         KalturaRecordingStatus.CANCELED, KalturaRecordingStatus.FAILED };
             }
 
             List<WebAPI.ConditionalAccess.TstvRecordingStatus> convertedRecordingStatuses = recordingStatuses.Select(x => ConditionalAccessMappings.ConvertKalturaRecordingStatus(x)).ToList();            
@@ -1306,8 +1307,7 @@ namespace WebAPI.Clients
             }
             
             if (response.Recordings != null && response.Recordings.Length > 0)
-            {
-                result = new KalturaRecordingListResponse() { Objects = new List<KalturaRecording>(), TotalCount = 0 };
+            {                
                 result.TotalCount = response.TotalItems;
                 // convert recordings            
                 result.Objects = Mapper.Map<List<WebAPI.Models.ConditionalAccess.KalturaRecording>>(response.Recordings);

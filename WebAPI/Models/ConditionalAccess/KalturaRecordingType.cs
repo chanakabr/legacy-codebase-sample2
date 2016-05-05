@@ -8,7 +8,7 @@ namespace WebAPI.Models.ConditionalAccess
     [Serializable]
     public enum KalturaRecordingType
     {
-        single = 0,
-        series = 1,
+        SINGLE = 0,
+        SERIES = 1,
     }
 }
