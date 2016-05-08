@@ -186,6 +186,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_sObjectCode))
                .ForMember(dest => dest.IsSubscriptionOnly, opt => opt.MapFrom(src => src.m_bSubscriptionOnly))
                .ForMember(dest => dest.IsWaiverEnabled, opt => opt.MapFrom(src => src.m_oUsageModule.m_bWaiver))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sObjectVirtualName))
                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.m_oPriceCode))
                .ForMember(dest => dest.ProductCode, opt => opt.MapFrom(src => src.m_Product_Code))
                .ForMember(dest => dest.VirtualName, opt => opt.MapFrom(src => src.m_oUsageModule.m_sVirtualName))

@@ -20,6 +20,14 @@ namespace WebAPI.Models.Pricing
         public string Id { get; set; }
 
         /// <summary>
+        /// the name for the ppv
+        /// </summary>
+        [DataMember(Name = "name")]
+        [JsonProperty("name")]
+        [XmlElement(ElementName = "name")]
+        public string Name { get; set; }
+
+        /// <summary>
         /// The price of the ppv
         /// </summary>
         [DataMember(Name = "price")]
