@@ -1387,7 +1387,7 @@ namespace Catalog
                 {
                     ESTerms tagsTerms = new ESTerms(false)
                     {
-                        Key = string.Format("tags.{0}", item.Value)
+                        Key = string.Format("tags.{0}", item.Value.ToLower())
                     };
 
                     tagsTerms.Value.AddRange(typeToNames[mediaTypeParent[item.Key]]);

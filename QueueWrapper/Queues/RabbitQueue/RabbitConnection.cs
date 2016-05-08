@@ -205,6 +205,7 @@ namespace QueueWrapper
                         log.ErrorFormat("Failed publishing message to rabbit. Message = {0}", message, ex);
                         string msg = ex.Message;
                         ClearConnection();
+                        return Publish(configuration, message);
                     }
                     catch (Exception ex)
                     {
