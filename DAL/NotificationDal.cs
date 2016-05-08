@@ -1,6 +1,5 @@
 ﻿using ApiObjects;
 using ApiObjects.Notification;
-using Couchbase.IO;
 using CouchbaseManager;
 using KLogMonitor;
 using Newtonsoft.Json;
@@ -11,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using Tvinci.Core.DAL;
+using Couchbase.IO;
 
 
 namespace DAL
