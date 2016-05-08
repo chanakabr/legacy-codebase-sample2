@@ -67,7 +67,7 @@ namespace WebAPI.Models.General
         {
             get
             {
-                return pageIndex;
+                return getPageIndex();
             }
 
             set
