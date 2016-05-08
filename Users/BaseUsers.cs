@@ -808,7 +808,8 @@ namespace Users
                             ItemType = (ItemType)ODBCWrapper.Utils.GetIntSafeVal(dr["item_type"]),
                             ItemId = ODBCWrapper.Utils.GetIntSafeVal(dr["item_id"]),
                             OrderIndex = ODBCWrapper.Utils.GetIntSafeVal(dr["order_num"]),
-                            UserId = ODBCWrapper.Utils.GetSafeStr(dr["user_id"])
+                            UserId = ODBCWrapper.Utils.GetSafeStr(dr["user_id"]),
+                            ListType = (ListType)ODBCWrapper.Utils.GetIntSafeVal(dr["list_type"])
                         });
                     }
 
