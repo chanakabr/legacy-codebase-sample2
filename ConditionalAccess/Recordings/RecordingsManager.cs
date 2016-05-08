@@ -232,81 +232,99 @@ namespace Recordings
         {
             Recording currentRecording = ConditionalAccessDAL.GetRecordingByRecordingId(recordingId);
 
-            if (currentRecording != null)
+            try
             {
-                // If the program finished already or not: if it didn't finish, then the recording obviously didn't finish...
-                if (currentRecording.EpgEndDate < DateTime.Now)
+                if (currentRecording == null)
                 {
-                    var timeSpan = DateTime.UtcNow - currentRecording.EpgEndDate;
-
-                    // Only if the difference is less than 5 minutes we continue
-                    if (timeSpan.TotalMinutes < MINUTES_ALLOWED_DIFFERENCE)
+                    currentRecording = new Recording()
                     {
-                        // Count current try to get status - first and foremost
-                        currentRecording.GetStatusRetries++;
+                        Status = new Status((int)eResponseStatus.Error,
+                            string.Format("Not recording with ID = {0} found", recordingId))
+                    };
+                }
+                else
+                {
+                    // If the program finished already or not: if it didn't finish, then the recording obviously didn't finish...
+                    if (currentRecording.EpgEndDate < DateTime.Now)
+                    {
+                        var timeSpan = DateTime.UtcNow - currentRecording.EpgEndDate;
 
-                        UpdateRecording(groupId, currentRecording.EpgId, currentRecording.EpgStartDate, currentRecording.EpgEndDate);
-
-                        DateTime nextCheck = DateTime.UtcNow.AddMinutes(MINUTES_RETRY_INTERVAL);
-
-                        int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
-
-                        var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
-
-                        RecordResult adapterResponse = null;
-                        try
+                        // Only if the difference is less than 5 minutes we continue
+                        if (timeSpan.TotalMinutes < MINUTES_ALLOWED_DIFFERENCE)
                         {
-                            adapterResponse = adapterController.GetRecordingStatus(groupId, currentRecording.ExternalRecordingId, adapterId);
-                        }
-                        catch (KalturaException ex)
-                        {
-                            currentRecording.Status = new Status((int)eResponseStatus.Error,
-                                string.Format("Code: {0} Message: {1}", (int)ex.Data["StatusCode"], ex.Message));
-                        }
-                        catch (Exception ex)
-                        {
-                            currentRecording.Status = new Status((int)eResponseStatus.Error, "Adapter controller excpetion: " + ex.Message);
-                        }
+                            // Count current try to get status - first and foremost
+                            currentRecording.GetStatusRetries++;
 
-                        if (currentRecording.Status != null || adapterResponse == null)
-                        {
-                            RetryTask(groupId, currentRecording, nextCheck, eRecordingTask.GetStatusAfterProgramEnded);
+                            UpdateRecording(groupId, currentRecording.EpgId, currentRecording.EpgStartDate, currentRecording.EpgEndDate);
 
-                            if (currentRecording.Status == null)
+                            DateTime nextCheck = DateTime.UtcNow.AddMinutes(MINUTES_RETRY_INTERVAL);
+
+                            int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
+
+                            var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
+
+                            RecordResult adapterResponse = null;
+                            try
                             {
-                                currentRecording.Status = new Status((int)eResponseStatus.Error, "Adapter failed performing GetRecordingStatus");
-
+                                adapterResponse = adapterController.GetRecordingStatus(groupId, currentRecording.ExternalRecordingId, adapterId);
                             }
-                        }
-                        else
-                        {
-                            //
-                            // TODO: Validate adapter response?
-                            //
-
-                            currentRecording.Status = new Status();
-
-                            // If it was successfull - we mark it as recorded
-                            if (adapterResponse.ActionSuccess && adapterResponse.FailReason == 0)
+                            catch (KalturaException ex)
                             {
-                                currentRecording.RecordingStatus = TstvRecordingStatus.Recorded;
+                                currentRecording.Status = new Status((int)eResponseStatus.Error,
+                                    string.Format("Code: {0} Message: {1}", (int)ex.Data["StatusCode"], ex.Message));
+                            }
+                            catch (Exception ex)
+                            {
+                                currentRecording.Status = new Status((int)eResponseStatus.Error, "Adapter controller excpetion: " + ex.Message);
+                            }
+
+                            if (currentRecording.Status != null || adapterResponse == null)
+                            {
+                                RetryTask(groupId, currentRecording, nextCheck, eRecordingTask.GetStatusAfterProgramEnded);
+
+                                if (currentRecording.Status == null)
+                                {
+                                    currentRecording.Status = new Status((int)eResponseStatus.Error, "Adapter failed performing GetRecordingStatus");
+
+                                }
                             }
                             else
                             {
-                                currentRecording.RecordingStatus = TstvRecordingStatus.Failed;
+                                //
+                                // TODO: Validate adapter response?
+                                //
 
-                                currentRecording.Status = CreateFailStatus(adapterResponse);
+                                currentRecording.Status = new Status();
+
+                                // If it was successfull - we mark it as recorded
+                                if (adapterResponse.ActionSuccess && adapterResponse.FailReason == 0)
+                                {
+                                    currentRecording.RecordingStatus = TstvRecordingStatus.Recorded;
+                                }
+                                else
+                                {
+                                    currentRecording.RecordingStatus = TstvRecordingStatus.Failed;
+
+                                    currentRecording.Status = CreateFailStatus(adapterResponse);
+                                }
+
+                                // Update recording after updating the status
+                                ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1, null);
+
+                                UpdateIndex(groupId, recordingId);
                             }
-
-                            // Update recording after updating the status
-                            ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1, null);
-
-                            UpdateIndex(groupId, recordingId);
                         }
                     }
                 }
             }
-
+            catch (Exception ex)
+            {
+                currentRecording = new Recording()
+                {
+                    Status = new Status((int)eResponseStatus.Error,
+                        string.Format("Exception {0}", ex))
+                };
+            }
             return currentRecording;
         }
 
