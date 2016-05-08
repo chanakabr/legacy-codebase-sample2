@@ -683,9 +683,15 @@ namespace CouchbaseManager
                         using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                         {
                             if (cas > 0)
+                            {
+                                log.DebugFormat("Upsert cas. key: {0}, cas: {1}", key, cas);
                                 insertResult = bucket.Upsert<T>(key, value, cas, expiration);
+                            }
                             else
+                            {
+                                log.DebugFormat("Upsert cas. key: {0}, cas: {1}", key, cas);
                                 insertResult = bucket.Upsert<T>(key, value, expiration);
+                            }
                         }
 
                         if (insertResult != null)
@@ -698,6 +704,16 @@ namespace CouchbaseManager
                             if (insertResult.Status == Couchbase.IO.ResponseStatus.Success)
                             {
                                 result = insertResult.Success;
+
+                                log.DebugFormat("SET before unlocking {0}, cas: {1}", key, cas);
+                                if (unlock && cas > 0)
+                                {
+                                    var unlockResult = bucket.Unlock(key, cas);
+                                    if (unlockResult.Success)
+                                        log.DebugFormat("SET after unlocking {0}, cas: {1}", key, cas);
+                                    else
+                                        log.DebugFormat("failed to unlock - key: {0}, cas: {1}, error = {2}", key, cas, unlockResult.Status.ToString());
+                                }
                             }
                             else
                             {
@@ -711,13 +727,27 @@ namespace CouchbaseManager
                                         insertResult = bucket.Upsert<T>(key, value, expiration);
 
                                     if (insertResult.Status == Couchbase.IO.ResponseStatus.Success)
+                                    {
                                         result = insertResult.Success;
+
+                                        log.Debug("before lock2");
+                                        if (unlock && cas > 0)
+                                        {
+                                            var unlockResult = bucket.Unlock(key, cas);
+                                            if (unlockResult.Success)
+                                                log.DebugFormat("SET after unlocking {0}, cas: {1}", key, cas);
+                                            else
+                                                log.DebugFormat("failed to unlock - key: {0}, cas: {1}, error = {2}", key, cas, unlockResult.Status.ToString());
+
+
+                                            log.Debug("after lock2");
+                                        }
+                                    }
                                 }
                             }
                         }
 
-                        if (unlock && cas > 0)
-                            bucket.Unlock(key, cas);
+
                     }
                 }
             }
@@ -862,9 +892,16 @@ namespace CouchbaseManager
                         using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                         {
                             if (withLock)
+                            {
+
                                 getResult = bucket.GetWithLock<T>(key, TimeSpan.FromSeconds(GET_LOCK_TS_SECONDS));
+                                log.DebugFormat("GET locking {0}, cas: {1}", key, getResult.Cas);
+                            }
                             else
+                            {
                                 getResult = bucket.Get<T>(key);
+                                log.DebugFormat("GET not locking {0}", key);
+                            }
                         }
 
                         if (getResult != null)
