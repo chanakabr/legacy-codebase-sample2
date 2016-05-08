@@ -985,7 +985,9 @@ namespace Catalog
                 orderBy.Equals(ApiObjects.SearchObjects.OrderBy.RECOMMENDATION) ||
                 // If there are virtual assets (series/episode) and the sort is by start date - this is another case of unique sort
                 (orderBy.Equals(ApiObjects.SearchObjects.OrderBy.START_DATE) &&
-                unifiedSearchDefinitions.parentMediaTypes.Count > 0))
+                unifiedSearchDefinitions.parentMediaTypes.Count > 0 &&
+                unifiedSearchDefinitions.shouldSearchMedia
+                ))
             {
                 pageIndex = unifiedSearchDefinitions.pageIndex;
                 pageSize = unifiedSearchDefinitions.pageSize;
@@ -1063,7 +1065,8 @@ namespace Catalog
 
                             List<long> orderedIds = null;
 
-                            if (orderBy == ApiObjects.SearchObjects.OrderBy.START_DATE)
+                            // Do special sort only when searching by media
+                            if (orderBy == ApiObjects.SearchObjects.OrderBy.START_DATE && unifiedSearchDefinitions.shouldSearchMedia)
                             {
                                 orderedIds = SortAssetsByStartDate(assetsDocumentsDecoded, parentGroupId, order.m_eOrderDir,
                                     unifiedSearchDefinitions.associationTags,
