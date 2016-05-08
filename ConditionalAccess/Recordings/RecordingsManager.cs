@@ -745,13 +745,10 @@ namespace Recordings
 
                         SetRecordingStatus(currentRecording);
 
-                        // if it isn't a canceled recording, it is a completely new one - INSERT links
-                        if (!isCanceled)
+                        // Insert the new links of the recordings
+                        if (adapterResponse.Links != null && adapterResponse.Links.Count > 0)
                         {
-                            if (adapterResponse.Links != null)
-                            {
-                                ConditionalAccessDAL.InsertRecordingLinks(adapterResponse.Links, groupId, currentRecording.Id);
-                            }
+                            ConditionalAccessDAL.InsertRecordingLinks(adapterResponse.Links, groupId, currentRecording.Id);
                         }
 
                         // everything is good
