@@ -181,6 +181,59 @@ namespace WebAPI.Utils
             }
         }
 
+        public static byte[] AesEncrypt(string text, string iv, string key)
+        {
+            AesManaged aes = new AesManaged();
+            aes.Key = Convert.FromBase64String(key);
+            aes.IV = Convert.FromBase64String(iv);
+
+            // Text
+            byte[] textAsBytes = Encoding.UTF8.GetBytes(text);
+
+            // Encrypt
+            // Declare the stream used to encrypt to an in memory
+            // array of bytes.
+            MemoryStream msEncrypt = null;
+
+            // Declare the RijndaelManaged object
+            // used to encrypt the data.
+            RijndaelManaged aesAlg = null;
+
+            try
+            {
+                // Create a RijndaelManaged object
+                // with the specified key and IV.
+                aesAlg = new RijndaelManaged();
+                aesAlg.Key = aes.Key;
+                aesAlg.IV = aes.IV;
+
+                // Create a decrytor to perform the stream transform.
+                ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
+
+                // Create the streams used for encryption.
+                msEncrypt = new MemoryStream();
+                using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+                {
+                    using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
+                    {
+
+                        //Write all data to the stream.
+                        swEncrypt.Write(text);
+                    }
+                }
+            }
+            finally
+            {
+
+                // Clear the RijndaelManaged object.
+                if (aesAlg != null)
+                    aesAlg.Clear();
+            }
+
+            // Return the encrypted bytes from the memory stream.
+            return msEncrypt.ToArray();
+        }
+
         public static byte[] AesDecrypt(string secretForSigning, byte[] text, int blockSize)
         {
             // Key

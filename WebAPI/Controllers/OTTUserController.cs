@@ -565,5 +565,39 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        /// <summary>
+        /// Resend the activation token to a user
+        /// </summary>
+        /// <returns></returns>
+        [Route("getEncryptedUserId"), HttpPost]
+        [ApiAuthorize]
+        public KalturaStringValue GetEncryptedUserId()
+        {
+            KalturaStringValue response = null;
+            
+            try
+            {
+                string userId = KS.GetFromRequest().UserId;
+                string key = TCMClient.Settings.Instance.GetValue<string>("user_id_encryption_key");
+                string iv = TCMClient.Settings.Instance.GetValue<string>("user_id_encryption_iv");
+
+                if (string.IsNullOrEmpty(key) || string.IsNullOrEmpty(iv))
+                {
+                    throw new InternalServerErrorException((int)WebAPI.Managers.Models.StatusCode.MissingConfiguration, "Configuration for encryption was not found");
+                }
+
+                response = new KalturaStringValue()
+                {
+                    value = Convert.ToBase64String(Utils.EncryptionUtils.AesEncrypt(userId, iv, key))
+                };
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
     }
 }
