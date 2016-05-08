@@ -31,10 +31,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Couchbase.NetClient">
-      <HintPath>..\..\External\Couchbase-2.2.5\Couchbase.NetClient.dll</HintPath>
+      <HintPath>..\..\External\Couchbase-Net-Client-2.2.6\Couchbase.NetClient.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\External\Couchbase-2.2.5\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\External\Couchbase-Net-Client-2.2.6\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
