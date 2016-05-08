@@ -1430,6 +1430,18 @@
             <remarks>The default is 16K</remarks>
             <remarks>The total buffer size is BufferSize * PoolConfiguration.MaxSize</remarks>
         </member>
+        <member name="P:Couchbase.Configuration.Client.PoolConfiguration.Uri">
+            <summary>
+            The Uri for the specific node instance. Will only be non-null if <see cref="M:Couchbase.Configuration.Client.PoolConfiguration.Clone(System.Uri)"/> is called and a Uri is passed in.
+            </summary>
+        </member>
+        <member name="M:Couchbase.Configuration.Client.PoolConfiguration.Clone(System.Uri)">
+            <summary>
+            Clones the current <see cref="T:Couchbase.Configuration.Client.PoolConfiguration"/> for a specific node. The <see cref="P:Couchbase.Configuration.Client.PoolConfiguration.Uri"/> should match the node.
+            </summary>
+            <param name="uri">The specific node that this <see cref="T:Couchbase.Configuration.Client.PoolConfiguration"/> is targeting.</param>
+            <returns></returns>
+        </member>
         <member name="T:Couchbase.Configuration.CouchbaseBootstrapException">
             <summary>
             Thrown when the client cannot complete the bootstrapping phase of initialization.
@@ -7850,6 +7862,287 @@
             </summary>
             <returns>The list of bucket configurations.</returns>
         </member>
+        <member name="T:Couchbase.IO.Operations.EnhancedDurability.ObserveSeqnoResponse">
+            <summary>
+            Represents values sufficient to determine if a mutation has occurred and
+            been mutated to a specific node, replicated to one or more replicas or has
+            been persisted in one or more of the replicas.
+            </summary>
+        </member>
+        <member name="P:Couchbase.IO.Operations.EnhancedDurability.ObserveSeqnoResponse.Format">
+            <summary>
+            Gets or sets the format of the response. 1 indicates a failover, in which
+            case the <see cref="P:Couchbase.IO.Operations.EnhancedDurability.ObserveSeqnoResponse.OldVBucketUUID"/> and <see cref="P:Couchbase.IO.Operations.EnhancedDurability.ObserveSeqnoResponse.LastSeqnoReceived"/> will
+            be set.
+            </summary>
+            <value>
+            The format of the response
+            </value>
+        </member>
+        <member name="P:Couchbase.IO.Operations.EnhancedDurability.ObserveSeqnoResponse.VBucketId">
+            <summary>
+            Gets or sets the VBucketId identifier.
+            </summary>
+            <value>
+            The VBucket identifier.
+            </value>
+        </member>
+        <member name="P:Couchbase.IO.Operations.EnhancedDurability.ObserveSeqnoResponse.VBucketUUID">
+            <summary>
+            Gets or sets the VBucketUUID.
+            </summary>
+            <value>
+            The vbucket UUID.
+            </value>
+        </member>
+        <member name="P:Couchbase.IO.Operations.EnhancedDurability.ObserveSeqnoResponse.LastPersistedSeqno">
+            <summary>
+            Gets or sets the last persisted seqno.
+            </summary>
+            <value>
+            The last persisted seqno.
+            </value>
+        </member>
+        <member name="P:Couchbase.IO.Operations.EnhancedDurability.ObserveSeqnoResponse.CurrentSeqno">
+            <summary>
+            Gets or sets the current seqno.
+            </summary>
+            <value>
+            The current seqno.
+            </value>
+        </member>
+        <member name="P:Couchbase.IO.Operations.EnhancedDurability.ObserveSeqnoResponse.OldVBucketUUID">
+            <summary>
+            Gets or sets the vbucket uuid for this vbucket prior to the failover and is
+            the same as the vbucket uuid passed in by the client in the observe_seqno request.
+            </summary>
+            <value>
+            The old v bucket UUID.
+            </value>
+        </member>
+        <member name="P:Couchbase.IO.Operations.EnhancedDurability.ObserveSeqnoResponse.LastSeqnoReceived">
+            <summary>
+            Gets or sets the last sequence number received in the old vbucket uuid.
+            </summary>
+            <value>
+            The last seqno received.
+            </value>
+        </member>
+        <member name="P:Couchbase.IO.Operations.EnhancedDurability.ObserveSeqnoResponse.IsHardFailover">
+            <summary>
+            Gets or sets a value indicating whether a hard failover has occurred.
+            </summary>
+            <value>
+            <c>true</c> if a hard failover has occurred; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="M:Couchbase.IO.Operations.EnhancedDurability.ObserveSeqnoResponse.ToString">
+            <summary>
+            Returns a <see cref="T:System.String" /> that represents this instance.
+            </summary>
+            <returns>
+            A <see cref="T:System.String" /> that represents this instance.
+            </returns>
+        </member>
+        <member name="P:Couchbase.IO.Operations.EnhancedDurability.ObserveSeqno.OperationCode">
+            <summary>
+            Gets the operation code for <see cref="P:Couchbase.IO.Operations.EnhancedDurability.ObserveSeqno.OperationCode"/>
+            </summary>
+            <value>
+            The operation code.
+            </value>
+        </member>
+        <member name="M:Couchbase.IO.Operations.EnhancedDurability.ObserveSeqno.Write">
+            <summary>
+            Writes this instance into a memcached packet.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Couchbase.IO.Operations.EnhancedDurability.ObserveSeqno.GetValue">
+            <summary>
+            Gets the value of the memecached response packet and converts it to a <see cref="T:Couchbase.IO.Operations.EnhancedDurability.ObserveSeqnoResponse"/> instance.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Couchbase.IO.Operations.EnhancedDurability.ObserveSeqno.Clone">
+            <summary>
+            Clones this instance.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Couchbase.IO.Operations.ServerFeatures">
+            <summary>
+            Features that they client negotiate on a per connection basis.
+            </summary>
+        </member>
+        <member name="F:Couchbase.IO.Operations.ServerFeatures.Datatype">
+            <summary>
+            For custom data types
+            </summary>
+        </member>
+        <member name="F:Couchbase.IO.Operations.ServerFeatures.TcpNoDelay">
+            <summary>
+            Enable TCP nodelay
+            </summary>
+        </member>
+        <member name="F:Couchbase.IO.Operations.ServerFeatures.MutationSeqno">
+            <summary>
+             Return the sequence number with every mutation
+            </summary>
+        </member>
+        <member name="F:Couchbase.IO.Operations.ServerFeatures.TcpDelay">
+            <summary>
+            Disable TCP nodelay
+            </summary>
+        </member>
+        <member name="T:Couchbase.IO.Operations.MutationOperationBase">
+            <summary>
+            Represents an abstract base class for mutation operations (PROTOCOL_BINARY_CMD_SET, DELETE,REPLACE, ADD,
+            APPEND, PREPEND, INCR, DECR, SET_WITH_META, DEL_WITH_META) and supports <see cref="!:OperationBase&lt;&gt;.MutationToken"/>'s.
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:Couchbase.IO.Operations.MutationOperationBase.ReadExtras(System.Byte[])">
+            <summary>
+            Reads the VBucketUUID and Sequence Number from  the extras if the instance has a <see cref="T:Couchbase.Core.VBucket"/> -
+            only persistent Couchbase buckets that use VBucket Hashing support mutation tokens.
+            </summary>
+            <param name="buffer">The memcached response buffer.</param>
+        </member>
+        <member name="T:Couchbase.IO.Operations.MutationOperationBase`1">
+            <summary>
+            Represents an abstract base class for mutation operations (PROTOCOL_BINARY_CMD_SET, DELETE,REPLACE, ADD,
+            APPEND, PREPEND, INCR, DECR, SET_WITH_META, DEL_WITH_META) and supports <see cref="!:OperationBase&lt;&gt;.MutationToken"/>'s.
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:Couchbase.IO.Operations.MutationOperationBase`1.ReadExtras(System.Byte[])">
+            <summary>
+            Reads the VBucketUUID and Sequence Number from  the extras if the instance has a <see cref="T:Couchbase.Core.VBucket"/> -
+            only persistent Couchbase buckets that use VBucket Hashing support mutation tokens.
+            </summary>
+            <param name="buffer">The memcached response buffer.</param>
+        </member>
+        <member name="T:Couchbase.IO.Operations.Compression">
+            <summary>
+            Specifies the compression type the current operation is using.
+            </summary>
+        </member>
+        <member name="F:Couchbase.IO.Operations.Compression.None">
+            <summary>
+            No compression is being used.
+            </summary>
+        </member>
+        <member name="T:Couchbase.IO.Operations.DataFormat">
+            <summary>
+            Specifies the formatting of data across all SDKs
+            </summary>
+        </member>
+        <member name="F:Couchbase.IO.Operations.DataFormat.Reserved">
+            <summary>
+            Reserved bit position to avoid zeroing out upper 8 bits
+            </summary>
+        </member>
+        <member name="F:Couchbase.IO.Operations.DataFormat.Private">
+            <summary>
+            Used for SDK specific encodings
+            </summary>
+        </member>
+        <member name="F:Couchbase.IO.Operations.DataFormat.Json">
+            <summary>
+            Encode as Json
+            </summary>
+        </member>
+        <member name="F:Couchbase.IO.Operations.DataFormat.Binary">
+            <summary>
+            Store as raw binary format
+            </summary>
+        </member>
+        <member name="F:Couchbase.IO.Operations.DataFormat.String">
+            <summary>
+            Store as a UTF8 string
+            </summary>
+        </member>
+        <member name="T:Couchbase.IO.Operations.KeyState">
+            <summary>
+            In an Observe operation, indicates whether the key is persisted or not.
+            </summary>
+        </member>
+        <member name="F:Couchbase.IO.Operations.KeyState.FoundNotPersisted">
+            <summary>
+            Found, not persisted. Indicates key is in RAM, but not persisted to disk
+            </summary>
+        </member>
+        <member name="F:Couchbase.IO.Operations.KeyState.FoundPersisted">
+            <summary>
+            Found, persisted. Indicates key is found in RAM, and is persisted to disk
+            </summary>
+        </member>
+        <member name="F:Couchbase.IO.Operations.KeyState.NotFound">
+            <summary>
+            Not found. Indicates the key is persisted, but not found in RAM. In this case,
+            a key is not available in any view/index. Couchbase Server will return this keystate
+            for any item that is not stored in the server. It indicates you will not expect to have
+            the item in a view/index.
+            </summary>
+        </member>
+        <member name="F:Couchbase.IO.Operations.KeyState.LogicalDeleted">
+            <summary>
+            Logically deleted. Indicates an item is in RAM, but is not yet deleted from disk.
+            </summary>
+        </member>
+        <member name="T:Couchbase.IO.Operations.Authentication.SaslList">
+            <summary>
+            Gets the supported SASL Mechanisms supported by the Couchbase Server.
+            </summary>
+        </member>
+        <member name="T:Couchbase.IO.Operations.Authentication.SaslStart">
+            <summary>
+            Starts the SASL authentication process using a specified SASL mechanism type as a key.
+            </summary>
+        </member>
+        <member name="M:Couchbase.IO.Operations.Authentication.SaslStart.#ctor(System.String,System.String,Couchbase.Core.IVBucket,Couchbase.Core.Transcoders.ITypeTranscoder,System.UInt32,System.UInt32)">
+            <summary>
+                Creates an instance of the <see cref="T:Couchbase.IO.Operations.Authentication.SaslStart" />" object for starting the SASL authentication process.
+            </summary>
+            <param name="key">The SASL Mechanism to use: PLAIN or CRAM-MD5.</param>
+            <param name="value"></param>
+            <param name="vBucket"></param>
+            <param name="transcoder"></param>
+            <param name="opaque"></param>
+            <param name="timeout"></param>
+        </member>
+        <member name="M:Couchbase.IO.Operations.Authentication.SaslStart.#ctor(System.String,System.String,Couchbase.Core.Transcoders.ITypeTranscoder,System.UInt32)">
+            <summary>
+            Creates an instance of the <see cref="T:Couchbase.IO.Operations.Authentication.SaslStart"/>" object for starting the SASL authentication process.
+            </summary>
+            <param name="key">The SASL Mechanism to use: PLAIN or CRAM-MD5.</param>
+            <param name="value"></param>
+            <param name="transcoder"></param>
+            <param name="timeout"></param>
+        </member>
+        <member name="T:Couchbase.IO.Operations.Authentication.SaslStep">
+            <summary>
+            Peforms the next step in the in SASL authentication process when required by a AuthenticationContinue message from a <see cref="T:Couchbase.IO.Operations.Authentication.SaslStart"/> operation.
+            </summary>
+        </member>
+        <member name="T:Couchbase.IO.Operations.Replace`1">
+            <summary>
+            Replace a key in the database, failing if the key does not exist.
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="T:Couchbase.IO.Operations.Set`1">
+            <summary>
+            Add a key to the database, replacing the key if it already exists.
+            </summary>
+            <typeparam name="T">The value to insert.</typeparam>
+        </member>
+        <member name="F:Couchbase.IO.Operations.OperationCode.Hello">
+            <summary>
+            You say goodbye and I say Hello. Hello, hello.
+            </summary>
+        </member>
         <member name="T:Couchbase.IO.ConnectionPoolFactory">
             <summary>
             A factory creator for <see cref="T:Couchbase.IO.IConnectionPool"/> instances.
@@ -8871,287 +9164,6 @@
             <param name="buffer">The buffer.</param>
             <param name="offset">The offset.</param>
         </member>
-        <member name="T:Couchbase.IO.Operations.EnhancedDurability.ObserveSeqnoResponse">
-            <summary>
-            Represents values sufficient to determine if a mutation has occurred and
-            been mutated to a specific node, replicated to one or more replicas or has
-            been persisted in one or more of the replicas.
-            </summary>
-        </member>
-        <member name="P:Couchbase.IO.Operations.EnhancedDurability.ObserveSeqnoResponse.Format">
-            <summary>
-            Gets or sets the format of the response. 1 indicates a failover, in which
-            case the <see cref="P:Couchbase.IO.Operations.EnhancedDurability.ObserveSeqnoResponse.OldVBucketUUID"/> and <see cref="P:Couchbase.IO.Operations.EnhancedDurability.ObserveSeqnoResponse.LastSeqnoReceived"/> will
-            be set.
-            </summary>
-            <value>
-            The format of the response
-            </value>
-        </member>
-        <member name="P:Couchbase.IO.Operations.EnhancedDurability.ObserveSeqnoResponse.VBucketId">
-            <summary>
-            Gets or sets the VBucketId identifier.
-            </summary>
-            <value>
-            The VBucket identifier.
-            </value>
-        </member>
-        <member name="P:Couchbase.IO.Operations.EnhancedDurability.ObserveSeqnoResponse.VBucketUUID">
-            <summary>
-            Gets or sets the VBucketUUID.
-            </summary>
-            <value>
-            The vbucket UUID.
-            </value>
-        </member>
-        <member name="P:Couchbase.IO.Operations.EnhancedDurability.ObserveSeqnoResponse.LastPersistedSeqno">
-            <summary>
-            Gets or sets the last persisted seqno.
-            </summary>
-            <value>
-            The last persisted seqno.
-            </value>
-        </member>
-        <member name="P:Couchbase.IO.Operations.EnhancedDurability.ObserveSeqnoResponse.CurrentSeqno">
-            <summary>
-            Gets or sets the current seqno.
-            </summary>
-            <value>
-            The current seqno.
-            </value>
-        </member>
-        <member name="P:Couchbase.IO.Operations.EnhancedDurability.ObserveSeqnoResponse.OldVBucketUUID">
-            <summary>
-            Gets or sets the vbucket uuid for this vbucket prior to the failover and is
-            the same as the vbucket uuid passed in by the client in the observe_seqno request.
-            </summary>
-            <value>
-            The old v bucket UUID.
-            </value>
-        </member>
-        <member name="P:Couchbase.IO.Operations.EnhancedDurability.ObserveSeqnoResponse.LastSeqnoReceived">
-            <summary>
-            Gets or sets the last sequence number received in the old vbucket uuid.
-            </summary>
-            <value>
-            The last seqno received.
-            </value>
-        </member>
-        <member name="P:Couchbase.IO.Operations.EnhancedDurability.ObserveSeqnoResponse.IsHardFailover">
-            <summary>
-            Gets or sets a value indicating whether a hard failover has occurred.
-            </summary>
-            <value>
-            <c>true</c> if a hard failover has occurred; otherwise, <c>false</c>.
-            </value>
-        </member>
-        <member name="M:Couchbase.IO.Operations.EnhancedDurability.ObserveSeqnoResponse.ToString">
-            <summary>
-            Returns a <see cref="T:System.String" /> that represents this instance.
-            </summary>
-            <returns>
-            A <see cref="T:System.String" /> that represents this instance.
-            </returns>
-        </member>
-        <member name="P:Couchbase.IO.Operations.EnhancedDurability.ObserveSeqno.OperationCode">
-            <summary>
-            Gets the operation code for <see cref="P:Couchbase.IO.Operations.EnhancedDurability.ObserveSeqno.OperationCode"/>
-            </summary>
-            <value>
-            The operation code.
-            </value>
-        </member>
-        <member name="M:Couchbase.IO.Operations.EnhancedDurability.ObserveSeqno.Write">
-            <summary>
-            Writes this instance into a memcached packet.
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:Couchbase.IO.Operations.EnhancedDurability.ObserveSeqno.GetValue">
-            <summary>
-            Gets the value of the memecached response packet and converts it to a <see cref="T:Couchbase.IO.Operations.EnhancedDurability.ObserveSeqnoResponse"/> instance.
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:Couchbase.IO.Operations.EnhancedDurability.ObserveSeqno.Clone">
-            <summary>
-            Clones this instance.
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="T:Couchbase.IO.Operations.ServerFeatures">
-            <summary>
-            Features that they client negotiate on a per connection basis.
-            </summary>
-        </member>
-        <member name="F:Couchbase.IO.Operations.ServerFeatures.Datatype">
-            <summary>
-            For custom data types
-            </summary>
-        </member>
-        <member name="F:Couchbase.IO.Operations.ServerFeatures.TcpNoDelay">
-            <summary>
-            Enable TCP nodelay
-            </summary>
-        </member>
-        <member name="F:Couchbase.IO.Operations.ServerFeatures.MutationSeqno">
-            <summary>
-             Return the sequence number with every mutation
-            </summary>
-        </member>
-        <member name="F:Couchbase.IO.Operations.ServerFeatures.TcpDelay">
-            <summary>
-            Disable TCP nodelay
-            </summary>
-        </member>
-        <member name="T:Couchbase.IO.Operations.MutationOperationBase">
-            <summary>
-            Represents an abstract base class for mutation operations (PROTOCOL_BINARY_CMD_SET, DELETE,REPLACE, ADD,
-            APPEND, PREPEND, INCR, DECR, SET_WITH_META, DEL_WITH_META) and supports <see cref="!:OperationBase&lt;&gt;.MutationToken"/>'s.
-            </summary>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="M:Couchbase.IO.Operations.MutationOperationBase.ReadExtras(System.Byte[])">
-            <summary>
-            Reads the VBucketUUID and Sequence Number from  the extras if the instance has a <see cref="T:Couchbase.Core.VBucket"/> -
-            only persistent Couchbase buckets that use VBucket Hashing support mutation tokens.
-            </summary>
-            <param name="buffer">The memcached response buffer.</param>
-        </member>
-        <member name="T:Couchbase.IO.Operations.MutationOperationBase`1">
-            <summary>
-            Represents an abstract base class for mutation operations (PROTOCOL_BINARY_CMD_SET, DELETE,REPLACE, ADD,
-            APPEND, PREPEND, INCR, DECR, SET_WITH_META, DEL_WITH_META) and supports <see cref="!:OperationBase&lt;&gt;.MutationToken"/>'s.
-            </summary>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="M:Couchbase.IO.Operations.MutationOperationBase`1.ReadExtras(System.Byte[])">
-            <summary>
-            Reads the VBucketUUID and Sequence Number from  the extras if the instance has a <see cref="T:Couchbase.Core.VBucket"/> -
-            only persistent Couchbase buckets that use VBucket Hashing support mutation tokens.
-            </summary>
-            <param name="buffer">The memcached response buffer.</param>
-        </member>
-        <member name="T:Couchbase.IO.Operations.Compression">
-            <summary>
-            Specifies the compression type the current operation is using.
-            </summary>
-        </member>
-        <member name="F:Couchbase.IO.Operations.Compression.None">
-            <summary>
-            No compression is being used.
-            </summary>
-        </member>
-        <member name="T:Couchbase.IO.Operations.DataFormat">
-            <summary>
-            Specifies the formatting of data across all SDKs
-            </summary>
-        </member>
-        <member name="F:Couchbase.IO.Operations.DataFormat.Reserved">
-            <summary>
-            Reserved bit position to avoid zeroing out upper 8 bits
-            </summary>
-        </member>
-        <member name="F:Couchbase.IO.Operations.DataFormat.Private">
-            <summary>
-            Used for SDK specific encodings
-            </summary>
-        </member>
-        <member name="F:Couchbase.IO.Operations.DataFormat.Json">
-            <summary>
-            Encode as Json
-            </summary>
-        </member>
-        <member name="F:Couchbase.IO.Operations.DataFormat.Binary">
-            <summary>
-            Store as raw binary format
-            </summary>
-        </member>
-        <member name="F:Couchbase.IO.Operations.DataFormat.String">
-            <summary>
-            Store as a UTF8 string
-            </summary>
-        </member>
-        <member name="T:Couchbase.IO.Operations.KeyState">
-            <summary>
-            In an Observe operation, indicates whether the key is persisted or not.
-            </summary>
-        </member>
-        <member name="F:Couchbase.IO.Operations.KeyState.FoundNotPersisted">
-            <summary>
-            Found, not persisted. Indicates key is in RAM, but not persisted to disk
-            </summary>
-        </member>
-        <member name="F:Couchbase.IO.Operations.KeyState.FoundPersisted">
-            <summary>
-            Found, persisted. Indicates key is found in RAM, and is persisted to disk
-            </summary>
-        </member>
-        <member name="F:Couchbase.IO.Operations.KeyState.NotFound">
-            <summary>
-            Not found. Indicates the key is persisted, but not found in RAM. In this case,
-            a key is not available in any view/index. Couchbase Server will return this keystate
-            for any item that is not stored in the server. It indicates you will not expect to have
-            the item in a view/index.
-            </summary>
-        </member>
-        <member name="F:Couchbase.IO.Operations.KeyState.LogicalDeleted">
-            <summary>
-            Logically deleted. Indicates an item is in RAM, but is not yet deleted from disk.
-            </summary>
-        </member>
-        <member name="T:Couchbase.IO.Operations.Authentication.SaslList">
-            <summary>
-            Gets the supported SASL Mechanisms supported by the Couchbase Server.
-            </summary>
-        </member>
-        <member name="T:Couchbase.IO.Operations.Authentication.SaslStart">
-            <summary>
-            Starts the SASL authentication process using a specified SASL mechanism type as a key.
-            </summary>
-        </member>
-        <member name="M:Couchbase.IO.Operations.Authentication.SaslStart.#ctor(System.String,System.String,Couchbase.Core.IVBucket,Couchbase.Core.Transcoders.ITypeTranscoder,System.UInt32,System.UInt32)">
-            <summary>
-                Creates an instance of the <see cref="T:Couchbase.IO.Operations.Authentication.SaslStart" />" object for starting the SASL authentication process.
-            </summary>
-            <param name="key">The SASL Mechanism to use: PLAIN or CRAM-MD5.</param>
-            <param name="value"></param>
-            <param name="vBucket"></param>
-            <param name="transcoder"></param>
-            <param name="opaque"></param>
-            <param name="timeout"></param>
-        </member>
-        <member name="M:Couchbase.IO.Operations.Authentication.SaslStart.#ctor(System.String,System.String,Couchbase.Core.Transcoders.ITypeTranscoder,System.UInt32)">
-            <summary>
-            Creates an instance of the <see cref="T:Couchbase.IO.Operations.Authentication.SaslStart"/>" object for starting the SASL authentication process.
-            </summary>
-            <param name="key">The SASL Mechanism to use: PLAIN or CRAM-MD5.</param>
-            <param name="value"></param>
-            <param name="transcoder"></param>
-            <param name="timeout"></param>
-        </member>
-        <member name="T:Couchbase.IO.Operations.Authentication.SaslStep">
-            <summary>
-            Peforms the next step in the in SASL authentication process when required by a AuthenticationContinue message from a <see cref="T:Couchbase.IO.Operations.Authentication.SaslStart"/> operation.
-            </summary>
-        </member>
-        <member name="T:Couchbase.IO.Operations.Replace`1">
-            <summary>
-            Replace a key in the database, failing if the key does not exist.
-            </summary>
-            <typeparam name="T"></typeparam>
-        </member>
-        <member name="T:Couchbase.IO.Operations.Set`1">
-            <summary>
-            Add a key to the database, replacing the key if it already exists.
-            </summary>
-            <typeparam name="T">The value to insert.</typeparam>
-        </member>
-        <member name="F:Couchbase.IO.Operations.OperationCode.Hello">
-            <summary>
-            You say goodbye and I say Hello. Hello, hello.
-            </summary>
-        </member>
         <member name="T:Couchbase.IO.IState">
             <summary>
             Represents a Memcached request in flight.
@@ -10117,6 +10129,80 @@
             Document Mutation lost during a hard failover.
             </summary>
         </member>
+        <member name="F:Couchbase.IO.ResponseStatus.SubDocPathNotFound">
+            <summary>
+            Subdocument error indicating the path inside the JSON is invalid.
+            </summary>
+        </member>
+        <member name="F:Couchbase.IO.ResponseStatus.SubDocPathMismatch">
+            <summary>
+            Subdocument error indicating one of the path components was denoting a wrong type (eg. trying to access
+            an array index in an entry that isn't an array). Also for arithmetic operations when the value of the
+            path is not a number.
+            </summary>
+        </member>
+        <member name="F:Couchbase.IO.ResponseStatus.SubDocPathInvalid">
+            <summary>
+            Subdocument error indicating that the path provided is invalid. For operations requiring an array index, this
+            is returned if the last component of that path isn't an array. Similarly for operations requiring a dictionary,
+            if the last component isn't a dictionary but eg. an array index.
+            </summary>
+        </member>
+        <member name="F:Couchbase.IO.ResponseStatus.SubDocPathTooBig">
+            <summary>
+             Subdocument error indicating that the path is too large (ie. the string is too long) or too deep (more that 32 components).
+            </summary>
+        </member>
+        <member name="F:Couchbase.IO.ResponseStatus.SubDocDocTooDeep">
+            <summary>
+            Subdocument error indicating that the target document's level of JSON nesting is too deep to be processed by the subdoc service.
+            </summary>
+        </member>
+        <member name="F:Couchbase.IO.ResponseStatus.SubDocCannotInsert">
+            <summary>
+            Subdocument error indicating that the target document is not flagged or recognized as JSON.
+            </summary>
+        </member>
+        <member name="F:Couchbase.IO.ResponseStatus.SubDocDocNotJson">
+            <summary>
+            Subdocument error indicating that, for arithmetic subdoc operations, the existing number is already too large.
+            </summary>
+        </member>
+        <member name="F:Couchbase.IO.ResponseStatus.SubDocNumRange">
+            <summary>
+            Subdocument error indicating that for arithmetic subdoc operations, the operation will make the value too large.
+            </summary>
+        </member>
+        <member name="F:Couchbase.IO.ResponseStatus.SubDocDeltaRange">
+            <summary>
+            Subdocument error indicating that for arithmetic subdoc operations, the operation will make the value too large.
+            </summary>
+        </member>
+        <member name="F:Couchbase.IO.ResponseStatus.SubDocPathExists">
+            <summary>
+            Subdocument error indicating that the last component of the path already exist despite the mutation operation
+            expecting it not to exist (the mutation was expecting to create only the last part of the path and store the
+            fragment there).
+            </summary>
+        </member>
+        <member name="F:Couchbase.IO.ResponseStatus.SubDocValueTooDeep">
+            <summary>
+            Subdocument error indicating that, in a multi-specification, an invalid combination of commands were specified,
+            including the case where too many paths were specified.
+            </summary>
+        </member>
+        <member name="F:Couchbase.IO.ResponseStatus.SubDocInvalidCombo">
+             <summary>
+            Subdocument error indicating that, in a multi-specification, an invalid combination of commands were specified,
+            including the case where too many paths were specified.
+             </summary>
+        </member>
+        <member name="F:Couchbase.IO.ResponseStatus.SubDocMultiPathFailure">
+            <summary>
+            Subdocument error indicating that, in a multi-specification, one or more commands failed to execute on a document
+            which exists (ie. the key was valid).
+            </summary>
+        </member>
         <member name="T:Couchbase.IO.SocketAwaitable">
             <summary>
             A class wrapper for <see cref="T:System.Net.Sockets.SocketAsyncEventArgs"/> which supports await and async on <see cref="T:System.Net.Sockets.Socket"/> objects.
@@ -10162,6 +10248,85 @@
             </summary>
             <remarks>Throws <see cref="T:System.Net.Sockets.SocketException"/> if <see cref="T:System.Net.Sockets.SocketError"/> is not <see cref="F:System.Net.Sockets.SocketError.Success"/>.</remarks>
             <exception cref="T:System.Net.Sockets.SocketException"></exception>
+        </member>
+        <member name="T:Couchbase.IDocumentFragment`1">
+            <summary>
+            Represents one more fragments of an <see cref="T:Couchbase.IDocument`1"/> that is returned by the sub-document API.
+            </summary>
+            <typeparam name="TDocument">The document</typeparam>
+        </member>
+        <member name="P:Couchbase.IDocumentFragment`1.Id">
+            <summary>
+            The unique identifier for the document
+            </summary>
+        </member>
+        <member name="P:Couchbase.IDocumentFragment`1.Expiry">
+            <summary>
+            The time-to-live or TTL for the document before it's evicted from disk in milliseconds.
+            </summary>
+            <remarks>Setting this to zero or less will give the document infinite lifetime</remarks>
+        </member>
+        <member name="M:Couchbase.IDocumentFragment`1.Content``1(System.String)">
+            <summary>
+            The value if it exists for a specific path.
+            </summary>
+            <typeparam name="TContent">The <see cref="T:System.Type"/> to cast the value to.</typeparam>
+            <param name="path">The path of the operation to retrieve the value from.</param>
+            <returns>An object of type <see cref="T:System.Type"/> representing the value of the operation.</returns>
+            <remarks>If no value exists, the default value for the <see cref="T:System.Type"/> will be returned.</remarks>
+        </member>
+        <member name="M:Couchbase.IDocumentFragment`1.Content``1(System.Int32)">
+            <summary>
+            The value if it exists for a specific index.
+            </summary>
+            <typeparam name="TContent">The <see cref="T:System.Type"/> to cast the value to.</typeparam>
+            <param name="index">The ordinal of the operation to retrieve the value from.</param>
+            <returns>An object of type <see cref="T:System.Type"/> representing the value of the operation.</returns>
+            <remarks>If no value exists, the default value for the <see cref="T:System.Type"/> will be returned.</remarks>
+        </member>
+        <member name="M:Couchbase.IDocumentFragment`1.Content(System.String)">
+            <summary>
+            The value if it exists for a specific path.
+            </summary>
+            <param name="path">The path of the operation to retrieve the value from.</param>
+            <returns>An <see cref="T:System.Object"/> representing the result of a operation.</returns>
+            <remarks>If no value exists, the default value (null) for the <see cref="T:System.Object"/> will be returned.</remarks>
+        </member>
+        <member name="M:Couchbase.IDocumentFragment`1.Content(System.Int32)">
+            <summary>
+            The value if it exists for a specific index.
+            </summary>
+            <param name="index">The ordinal of the operation to retrieve the value from.</param>
+            <returns>An <see cref="T:System.Object"/> representing the result of a operation.</returns>
+            <remarks>If no value exists, the default value for the <see cref="T:System.Type"/> will be returned.</remarks>
+            <remarks>If no value exists, the default value (null) for the <see cref="T:System.Object"/> will be returned.</remarks>
+        </member>
+        <member name="M:Couchbase.IDocumentFragment`1.Exists(System.String)">
+            <summary>
+            Checks whether the given path is part of this result set, eg. an operation targeted it, and the operation executed successfully.
+            </summary>
+            <param name="path">The path for the sub-document operation.</param>
+            <returns><s>true</s> if that path is part of the successful result set, <s>false</s> in any other case.</returns>
+        </member>
+        <member name="M:Couchbase.IDocumentFragment`1.Count">
+            <summary>
+            The count of the sub-document operations chained togather.
+            </summary>
+            <returns>An <see cref="T:System.Int32"/> that is the count of the total operations chained togather.</returns>
+        </member>
+        <member name="M:Couchbase.IDocumentFragment`1.OpStatus(System.String)">
+            <summary>
+            Gets the <see cref="T:Couchbase.IO.ResponseStatus"/> for a specific operation at it's path.
+            </summary>
+            <param name="path">The path of the operation.</param>
+            <returns>The <see cref="T:Couchbase.IO.ResponseStatus"/> that the server returned.</returns>
+        </member>
+        <member name="M:Couchbase.IDocumentFragment`1.OpStatus(System.Int32)">
+            <summary>
+            Gets the <see cref="T:Couchbase.IO.ResponseStatus"/> for a specific operation at it's index.
+            </summary>
+            <param name="index">The ordinal of the operation.</param>
+            <returns>The <see cref="T:Couchbase.IO.ResponseStatus"/> that the server returned.</returns>
         </member>
         <member name="T:Couchbase.IQueryCacheInvalidator">
             <summary>
@@ -13331,6 +13496,92 @@
             <summary>
             If Success is false and an exception has been caught internally, this field will contain the exception.
             </summary>
+        </member>
+        <member name="T:Couchbase.DocumentFragment`1">
+            <summary>
+            Represents one more fragments of an <see cref="T:Couchbase.IDocument`1"/> that is returned by the sub-document API.
+            </summary>
+            <typeparam name="TDocument">The document</typeparam>
+        </member>
+        <member name="P:Couchbase.DocumentFragment`1.Id">
+            <summary>
+            The unique identifier or key for the document.
+            </summary>
+            <remarks>Must not be null or empty.</remarks>
+        </member>
+        <member name="P:Couchbase.DocumentFragment`1.Expiry">
+            <summary>
+            The time-to-live or TTL for the document before it's evicted from disk in milliseconds.
+            </summary>
+            <remarks>Setting this to zero or less will give the document infinite lifetime</remarks>
+        </member>
+        <member name="M:Couchbase.DocumentFragment`1.Content``1(System.String)">
+            <summary>
+            The value if it exists for a specific path.
+            </summary>
+            <typeparam name="TContent">The <see cref="T:System.Type"/> to cast the value to.</typeparam>
+            <param name="path">The path of the operation to retrieve the value from.</param>
+            <returns>An object of type <see cref="T:System.Type"/> representing the value of the operation.</returns>
+            <remarks>If no value exists, the default value for the <see cref="T:System.Type"/> will be returned.</remarks>
+        </member>
+        <member name="M:Couchbase.DocumentFragment`1.Content``1(System.Int32)">
+            <summary>
+            The value if it exists for a specific index.
+            </summary>
+            <typeparam name="TContent">The <see cref="T:System.Type"/> to cast the value to.</typeparam>
+            <param name="index">The ordinal of the operation to retrieve the value from.</param>
+            <returns>An object of type <see cref="T:System.Type"/> representing the value of the operation.</returns>
+            <remarks>If no value exists, the default value for the <see cref="T:System.Type"/> will be returned.</remarks>
+        </member>
+        <member name="M:Couchbase.DocumentFragment`1.Content(System.String)">
+            <summary>
+            The value if it exists for a specific path.
+            </summary>
+            <param name="path">The path of the operation to retrieve the value from.</param>
+            <returns>An <see cref="T:System.Object"/> representing the result of a operation.</returns>
+            <remarks>If no value exists, the default value (null) for the <see cref="T:System.Object"/> will be returned.</remarks>
+        </member>
+        <member name="M:Couchbase.DocumentFragment`1.Content(System.Int32)">
+            <summary>
+            The value if it exists for a specific index.
+            </summary>
+            <param name="index">The ordinal of the operation to retrieve the value from.</param>
+            <returns>An <see cref="T:System.Object"/> representing the result of a operation.</returns>
+            <remarks>If no value exists, the default value for the <see cref="T:System.Type"/> will be returned.</remarks>
+            <remarks>If no value exists, the default value (null) for the <see cref="T:System.Object"/> will be returned.</remarks>
+        </member>
+        <member name="M:Couchbase.DocumentFragment`1.Exists(System.String)">
+            <summary>
+            Checks whether the given path is part of this result set, eg. an operation targeted it, and the operation executed successfully.
+            </summary>
+            <param name="path">The path for the sub-document operation.</param>
+            <returns><s>true</s> if that path is part of the successful result set, <s>false</s> in any other case.</returns>
+        </member>
+        <member name="M:Couchbase.DocumentFragment`1.Count">
+            <summary>
+            The count of the sub-document operations chained togather.
+            </summary>
+            <returns>An <see cref="T:System.Int32"/> that is the count of the total operations chained togather.</returns>
+        </member>
+        <member name="M:Couchbase.DocumentFragment`1.OpStatus(System.String)">
+            <summary>
+            Gets the <see cref="T:Couchbase.IO.ResponseStatus"/> for a specific operation at it's path.
+            </summary>
+            <param name="path">The path of the operation.</param>
+            <returns>The <see cref="T:Couchbase.IO.ResponseStatus"/> that the server returned.</returns>
+        </member>
+        <member name="M:Couchbase.DocumentFragment`1.OpStatus(System.Int32)">
+            <summary>
+            Gets the <see cref="T:Couchbase.IO.ResponseStatus"/> for a specific operation at it's index.
+            </summary>
+            <param name="index">The ordinal of the operation.</param>
+            <returns>The <see cref="T:Couchbase.IO.ResponseStatus"/> that the server returned.</returns>
+        </member>
+        <member name="P:Couchbase.DocumentFragment`1.Value">
+            <summary>
+            An adapter between <see cref="T:Couchbase.IOperationResult`1"/> and the sub document API.
+            </summary>
+            <remarks>For internal use only.</remarks>
         </member>
         <member name="T:Couchbase.Utils.QueryResultExtensions">
             <summary>
