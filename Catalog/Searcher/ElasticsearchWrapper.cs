@@ -961,7 +961,8 @@ namespace Catalog
                 orderBy.Equals(ApiObjects.SearchObjects.OrderBy.VOTES_COUNT) ||
                 // If there are virtual assets (series/episode) and the sort is by start date - this is another case of unique sort
                 (orderBy.Equals(ApiObjects.SearchObjects.OrderBy.START_DATE) &&
-                unifiedSearchDefinitions.parentMediaTypes.Count > 0))
+                unifiedSearchDefinitions.parentMediaTypes.Count > 0 &&
+                unifiedSearchDefinitions.shouldSearchMedia))
             {
                 pageIndex = unifiedSearchDefinitions.pageIndex;
                 pageSize = unifiedSearchDefinitions.pageSize;
@@ -1036,7 +1037,7 @@ namespace Catalog
 
                             List<int> orderedIds = null;
 
-                            if (orderBy == ApiObjects.SearchObjects.OrderBy.START_DATE)
+                            if (orderBy == ApiObjects.SearchObjects.OrderBy.START_DATE && unifiedSearchDefinitions.shouldSearchMedia)
                             {
                                 orderedIds = SortAssetsByStartDate(assetsDocumentsDecoded, parentGroupId, order.m_eOrderDir,
                                     unifiedSearchDefinitions.associationTags,
@@ -1174,7 +1175,7 @@ namespace Catalog
                 {
                     ESTerms tagsTerms = new ESTerms(false)
                     {
-                        Key = string.Format("tags.{0}", item.Value)
+                        Key = string.Format("tags.{0}", item.Value.ToLower())
                     };
 
                     tagsTerms.Value.AddRange(typeToNames[mediaTypeParent[item.Key]]);
