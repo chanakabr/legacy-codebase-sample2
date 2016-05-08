@@ -236,10 +236,11 @@ namespace Recordings
             {
                 if (currentRecording == null)
                 {
+                    log.ErrorFormat("GetRecordingStatus: no recording with ID = {0}", recordingId);
                     currentRecording = new Recording()
                     {
-                        Status = new Status((int)eResponseStatus.Error,
-                            string.Format("Not recording with ID = {0} found", recordingId))
+                        Status = new Status((int)eResponseStatus.OK,
+                            string.Format("No recording with ID = {0} found", recordingId))
                     };
                 }
                 else
@@ -264,37 +265,39 @@ namespace Recordings
                             var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
 
                             RecordResult adapterResponse = null;
+                            bool shouldRetry = false;
+
                             try
                             {
                                 adapterResponse = adapterController.GetRecordingStatus(groupId, currentRecording.ExternalRecordingId, adapterId);
                             }
                             catch (KalturaException ex)
                             {
-                                currentRecording.Status = new Status((int)eResponseStatus.Error,
-                                    string.Format("Code: {0} Message: {1}", (int)ex.Data["StatusCode"], ex.Message));
+                                log.ErrorFormat("GetRecordingStatus: KalturaException when using adapter. ID = {0}, ex = {1}, message = {2}, code = {3}",
+                                    recordingId, ex, ex.Message, ex.Data["StatusCode"]);
+                                shouldRetry = true;
                             }
                             catch (Exception ex)
                             {
-                                currentRecording.Status = new Status((int)eResponseStatus.Error, "Adapter controller excpetion: " + ex.Message);
+                                log.ErrorFormat("GetRecordingStatus: Exception when using adapter. ID = {0}, ex = {1}", recordingId, ex);
+                                shouldRetry = true;
                             }
 
-                            if (currentRecording.Status != null || adapterResponse == null)
+                            if (adapterResponse == null)
+                            {
+                                shouldRetry = true;
+                            }
+
+                            // Adapter failed for some reason - retry
+                            if (shouldRetry)
                             {
                                 RetryTask(groupId, currentRecording, nextCheck, eRecordingTask.GetStatusAfterProgramEnded);
-
-                                if (currentRecording.Status == null)
-                                {
-                                    currentRecording.Status = new Status((int)eResponseStatus.Error, "Adapter failed performing GetRecordingStatus");
-
-                                }
                             }
                             else
                             {
                                 //
-                                // TODO: Validate adapter response?
+                                // TODO: Any other validation needed?
                                 //
-
-                                currentRecording.Status = new Status();
 
                                 // If it was successfull - we mark it as recorded
                                 if (adapterResponse.ActionSuccess && adapterResponse.FailReason == 0)
@@ -308,13 +311,25 @@ namespace Recordings
                                     currentRecording.Status = CreateFailStatus(adapterResponse);
                                 }
 
-                                // Update recording after updating the status
+                                // Update recording after setting the new status
                                 ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1, null);
 
                                 UpdateIndex(groupId, recordingId);
                             }
                         }
                     }
+                }
+
+                // if we didn't have any exception, mark as success, because we don't want the remote task to call CAS again
+                // CAS should call GetRecordingStatus only if this method failed completely.
+                // Adapter failure doesn't mean an immediate retry!
+                if (currentRecording.Status == null)
+                {
+                    currentRecording.Status = new Status((int)eResponseStatus.OK);
+                }
+                else
+                {
+                    currentRecording.Status.Code = (int)eResponseStatus.OK;
                 }
             }
             catch (Exception ex)
@@ -325,6 +340,7 @@ namespace Recordings
                         string.Format("Exception {0}", ex))
                 };
             }
+
             return currentRecording;
         }
 
@@ -666,6 +682,9 @@ namespace Recordings
 
         private static void RetryTask(int groupId, Recording currentRecording, DateTime nextCheck, eRecordingTask recordingTask)
         {
+            log.DebugFormat("Retry task groupId {0}, recordingId {1}, nextCheck {2}, recordingTask {3}",
+                groupId, currentRecording.Id, nextCheck.ToString(), recordingTask.ToString());
+
             // Retry in a few minutes if we still didn't exceed retries count
             if (currentRecording.GetStatusRetries <= MAXIMUM_RETRIES_ALLOWED)
             {
