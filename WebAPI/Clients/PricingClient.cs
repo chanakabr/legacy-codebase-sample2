@@ -136,5 +136,41 @@ namespace WebAPI.Clients
             return coupon;
         }
 
+        internal KalturaPpv GetPPVModuleData(int groupId, string ppvCode)
+        {
+            WebAPI.Pricing.PPVModuleDataResponse response = null;
+            KalturaPpv result = new KalturaPpv();
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Pricing.GetPPVModuleResponse(group.PricingCredentials.Username, group.PricingCredentials.Password, ppvCode, string.Empty, string.Empty, string.Empty);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling pricing service. ws address: {0}, exception: {1}", Pricing.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            result = AutoMapper.Mapper.Map<KalturaPpv>(response.PPVModule);
+
+            return result;
+        }
     }
 }

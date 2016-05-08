@@ -819,6 +819,9 @@
     <Content Include="Web References\Pricing\CouponDataResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\Pricing\BusinessModuleResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\Pricing\module.disco" />
     <Content Include="Web References\Social\DoSocialActionResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -845,6 +848,12 @@
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\Social\FacebookConfigResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Pricing\PPVModuleDataResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Pricing\PPVModuleResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <None Include="Web References\Social\module.disco" />
@@ -1003,6 +1012,7 @@
     <Compile Include="Controllers\MessageTemplateController.cs" />
     <Compile Include="Controllers\FollowTvSeriesController.cs" />
     <Compile Include="Controllers\PersonalFeedController.cs" />
+    <Compile Include="Controllers\PpvController.cs" />
     <Compile Include="Controllers\RecordingController.cs" />
     <Compile Include="Controllers\LicensedUrlController.cs" />
     <Compile Include="Controllers\HomeNetworkController.cs" />
@@ -1190,6 +1200,7 @@
     <Compile Include="Models\Pricing\KalturaCoupon.cs" />
     <Compile Include="Models\Pricing\KalturaCouponStatus.cs" />
     <Compile Include="Models\Pricing\KalturaItemPriceListResponse.cs" />
+    <Compile Include="Models\Pricing\KalturaPpv.cs" />
     <Compile Include="Models\Pricing\KalturaPPVItemPriceDetails.cs" />
     <Compile Include="Models\General\KalturaTranslationToken.cs" />
     <Compile Include="Models\Pricing\KalturaCouponsGroup.cs" />

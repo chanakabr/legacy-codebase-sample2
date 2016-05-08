@@ -176,6 +176,20 @@ namespace WebAPI.Mapping.ObjectsConvertor
             Mapper.CreateMap<Pricing.CouponData, Models.Pricing.KalturaCoupon>()
                .ForMember(dest => dest.CouponsGroup, opt => opt.MapFrom(src => src.m_oCouponGroup))
                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertCouponStatus(src.m_CouponStatus)));
+
+            // PpvModule to KalturaPpvModule
+            Mapper.CreateMap<WebAPI.Pricing.PPVModule, Models.Pricing.KalturaPpv>()
+               .ForMember(dest => dest.CouponsGroup, opt => opt.MapFrom(src => src.m_oCouponsGroup))
+               .ForMember(dest => dest.Descriptions, opt => opt.MapFrom(src => src.m_sDescription))
+               .ForMember(dest => dest.DiscountModule, opt => opt.MapFrom(src => src.m_oDiscountModule))
+               .ForMember(dest => dest.FileTypes, opt => opt.MapFrom(src => src.m_relatedFileTypes))
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_sObjectCode))
+               .ForMember(dest => dest.IsSubscriptionOnly, opt => opt.MapFrom(src => src.m_bSubscriptionOnly))
+               .ForMember(dest => dest.IsWaiverEnabled, opt => opt.MapFrom(src => src.m_oUsageModule.m_bWaiver))
+               .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.m_oPriceCode))
+               .ForMember(dest => dest.ProductCode, opt => opt.MapFrom(src => src.m_Product_Code))
+               .ForMember(dest => dest.VirtualName, opt => opt.MapFrom(src => src.m_oUsageModule.m_sVirtualName))
+               .ForMember(dest => dest.WaiverPeriod, opt => opt.MapFrom(src => src.m_oUsageModule.m_nWaiverPeriod));
         }
 
         public static List<int> ConvertToIntList(int[] list)
