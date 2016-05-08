@@ -16,6 +16,7 @@ namespace WebAPI.Models.General
     {
         private static int maxPageSize;
         private const int DEFAULT_PAGE_SIZE = 30;
+        private const int DEFAULT_PAGE_INDEX = 1;
         private int pageSize;
         private int pageIndex;
 
@@ -96,6 +97,7 @@ namespace WebAPI.Models.General
             }
 
             pageSize = DEFAULT_PAGE_SIZE;
+            pageIndex = DEFAULT_PAGE_INDEX;
         }
 
         internal int getPageIndex()
