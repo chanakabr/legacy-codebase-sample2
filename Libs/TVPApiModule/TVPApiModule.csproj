@@ -69,19 +69,19 @@
       <HintPath>..\..\..\tvincicommon\External\ApiObjects.dll</HintPath>
     </Reference>
     <Reference Include="Couchbase.NetClient">
-      <HintPath>..\..\..\tvincicommon\External\Couchbase-2.2.5\Couchbase.NetClient.dll</HintPath>
+      <HintPath>..\..\..\TVinciCommon\External\Couchbase-Net-Client-2.2.6\Couchbase.NetClient.dll</HintPath>
     </Reference>
     <Reference Include="CouchbaseManager">
       <HintPath>..\..\..\tvincicommon\External\4.5\CouchbaseManager.dll</HintPath>
     </Reference>
     <Reference Include="Enyim.Caching">
-      <HintPath>..\..\..\tvincicommon\External\Couchbase-2.2.5\Enyim.Caching.dll</HintPath>
+      <HintPath>..\..\..\TVinciCommon\External\Couchbase-Net-Client-2.2.6\Enyim.Caching.dll</HintPath>
     </Reference>
     <Reference Include="Enyim.Caching.Log4NetAdapter">
-      <HintPath>..\..\..\tvincicommon\External\Couchbase-2.2.5\Enyim.Caching.Log4NetAdapter.dll</HintPath>
+      <HintPath>..\..\..\TVinciCommon\External\Couchbase-Net-Client-2.2.6\Enyim.Caching.Log4NetAdapter.dll</HintPath>
     </Reference>
     <Reference Include="Enyim.Caching.NLogAdapter">
-      <HintPath>..\..\..\tvincicommon\External\Couchbase-2.2.5\Enyim.Caching.NLogAdapter.dll</HintPath>
+      <HintPath>..\..\..\TVinciCommon\External\Couchbase-Net-Client-2.2.6\Enyim.Caching.NLogAdapter.dll</HintPath>
     </Reference>
     <Reference Include="Jil">
       <HintPath>..\..\..\tvincicommon\External\Jil.dll</HintPath>
@@ -94,9 +94,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\TVinciCommon\External\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\tvincicommon\External\Couchbase-2.2.5\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\..\TVinciCommon\External\Couchbase-Net-Client-2.2.6\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
