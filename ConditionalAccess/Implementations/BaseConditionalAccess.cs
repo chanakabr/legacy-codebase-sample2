@@ -17732,17 +17732,213 @@ namespace ConditionalAccess
 
         public CDNAdapterResponse GenerateCDNSharedSecret(int adapterId)
         {
-            throw new NotImplementedException();
+            CDNAdapterResponse response = new CDNAdapterResponse();
+
+            try
+            {
+                if (adapterId <= 0)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterIdentifierRequired, ADAPTER_ID_REQUIRED);
+                    return response;
+                }
+
+                //check CDN Adapter exists
+                CDNAdapter adapter = DAL.ConditionalAccessDAL.GetCDNAdapter(m_nGroupID, adapterId);
+                if (adapter == null || adapter.ID <= 0)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
+                    return response;
+                }
+
+                // Create Shared secret 
+                string sharedSecret = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16);
+
+                response.Adapter = DAL.ConditionalAccessDAL.SetCDNAdapterSharedSecret(m_nGroupID, adapterId, sharedSecret);
+
+                if (response.Adapter != null && response.Adapter.ID > 0)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+                    bool isSendSucceeded = SendConfigurationToCdnAdapter(m_nGroupID, response.Adapter);
+                    if (!isSendSucceeded)
+                    {
+                        log.DebugFormat("SetCDNAdapter - SendConfigurationToCdnAdapter failed : AdapterID = {0}", adapter.ID);
+                    }
+
+                    // remove adapter from cache
+                    string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                    string[] keys = new string[1] 
+                    { 
+                        string.Format("{0}_cdn_adapter_{1}", version,adapterId)
+                    };
+
+                    QueueUtils.UpdateCache(m_nGroupID, CouchbaseManager.eCouchbaseBucket.CACHE.ToString(), keys);
+                }
+                else
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                }
+
+            }
+            catch (Exception ex)
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error(string.Format("Failed groupID={0}, adapterId={1}", m_nGroupID, adapterId), ex);
+            }
+            return response;
         }
 
         public CDNAdapterResponse SetCDNAdapter(ApiObjects.CDNAdapter.CDNAdapter adapter)
         {
-            throw new NotImplementedException();
+            CDNAdapterResponse response = new CDNAdapterResponse();
+
+            try
+            {
+                if (adapter == null)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterIsRequired, NO_ADAPTER_TO_UPDATE);
+                    return response;
+                }
+
+                if (adapter.ID == 0)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterIdentifierRequired, ADAPTER_ID_REQUIRED);
+                    return response;
+                }
+                if (string.IsNullOrEmpty(adapter.Name))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NameRequired, NAME_REQUIRED);
+                    return response;
+                }
+
+                if (string.IsNullOrEmpty(adapter.Alias))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExternalIdentifierRequired, ADAPTER_ALIAS_REQUIRED);
+                    return response;
+                }
+
+                if (string.IsNullOrEmpty(adapter.BaseUrl))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterUrlRequired, ADAPTER_BASEURL_REQUIRED);
+                    return response;
+                }
+
+                // SharedSecret generated only at insert 
+                // this value not relevant at update and should be ignored
+                //--------------------------------------------------------
+                adapter.SharedSecret = null;
+
+                //check alias uniqueness 
+                CDNAdapter responseAdpater = DAL.ConditionalAccessDAL.GetCDNAdapterByAlias(m_nGroupID, adapter.Alias);
+
+                if (responseAdpater != null && responseAdpater.ID > 0 && responseAdpater.ID != responseAdpater.ID)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExternalIdentifierMustBeUnique, ERROR_ALIAS_ALREADY_IN_USE);
+                    return response;
+                }
+
+                if (responseAdpater == null)
+                {
+                    //check adapter exists 
+                    responseAdpater = DAL.ConditionalAccessDAL.GetCDNAdapter(m_nGroupID, adapter.ID);
+                    if (responseAdpater == null)
+                    {
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
+                        return response;
+                    }
+                }
+
+                response.Adapter = DAL.ConditionalAccessDAL.SetCDNAdapter(m_nGroupID, adapter);
+
+                if (response.Adapter != null && response.Adapter.ID > 0)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+                    bool isSendSucceeded = SendConfigurationToCdnAdapter(m_nGroupID, response.Adapter);
+                    if (!isSendSucceeded)
+                    {
+                        log.DebugFormat("SetCDNAdapter - SendConfigurationToCdnAdapter failed : AdapterID = {0}", adapter.ID);
+                    }
+
+                    // remove adapter from cache
+                    string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
+                    string[] keys = new string[1] 
+                    { 
+                        string.Format("{0}_cdn_adapter_{1}", version, adapter.ID)
+                    };
+
+                    QueueUtils.UpdateCache(m_nGroupID, CouchbaseManager.eCouchbaseBucket.CACHE.ToString(), keys);
+                }
+                else
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                }
+
+            }
+            catch (Exception ex)
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error(string.Format("Failed groupID={0}, adapterId={1}, name={2}, baseUrl={3}, isActive={4}",
+                    m_nGroupID, adapter.ID, adapter.Name, adapter.BaseUrl, adapter.IsActive), ex);
+            }
+            return response;
         }
 
         public CDNAdapterResponse SendCDNConfigurationToAdapter(int adapterID)
         {
-            throw new NotImplementedException();
+            CDNAdapterResponse response = new CDNAdapterResponse();
+
+            try
+            {
+                if (adapterID == 0)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterIdentifierRequired, ADAPTER_ID_REQUIRED);
+                    return response;
+                }
+                // get adapter from DB 
+                //check alias uniqueness 
+                CDNAdapter adapter = DAL.ConditionalAccessDAL.GetCDNAdapter(m_nGroupID, adapterID);
+
+                if (adapter == null)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
+                    return response;
+                }
+                if (string.IsNullOrEmpty(adapter.Name))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NameRequired, NAME_REQUIRED);
+                    return response;
+                }
+
+                if (string.IsNullOrEmpty(adapter.Alias))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExternalIdentifierRequired, ADAPTER_ALIAS_REQUIRED);
+                    return response;
+                }
+
+                if (string.IsNullOrEmpty(adapter.BaseUrl))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterUrlRequired, ADAPTER_BASEURL_REQUIRED);
+                    return response;
+                }
+
+                bool isSetSucceeded = SendConfigurationToCdnAdapter(m_nGroupID, adapter);
+                if (!isSetSucceeded)
+                {
+                    log.DebugFormat("SetCDNAdapter - SendConfigurationToCdnAdapter failed : AdapterID = {0}", adapter.ID);
+                }
+                else
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+
+            }
+            catch (Exception ex)
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error(string.Format("Failed groupID={0}, adapterId={1}", m_nGroupID, adapterID), ex);
+            }
+            return response;
         }
 
         private static bool SendConfigurationToCdnAdapter(int groupId, CDNAdapter adapter)

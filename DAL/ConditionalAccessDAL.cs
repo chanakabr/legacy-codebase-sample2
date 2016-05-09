@@ -3087,5 +3087,57 @@ namespace DAL
 
             return resultTable;
         }
+
+        public static CDNAdapter SetCDNAdapterSharedSecret(int groupID, int adapterId, string sharedSecret)
+        {
+            CDNAdapter adapterResponse = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_CDNAdapterSharedSecret");
+                sp.SetConnectionKey("CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupID);
+                sp.AddParameter("@id", adapterId);
+                sp.AddParameter("@sharedSecret", sharedSecret);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                adapterResponse = CreateCDNAdapter(ds);
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return adapterResponse;
+        }
+
+        public static CDNAdapter SetCDNAdapter(int groupID, CDNAdapter adapter)
+        {
+            CDNAdapter adapterResponse = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_CDNAdapter");
+                sp.SetConnectionKey("CONNECTION_STRING");
+                sp.AddParameter("@groupID", groupID);
+                sp.AddParameter("@ID", adapter.ID);
+                sp.AddParameter("@name", adapter.Name);
+                sp.AddParameter("@alias", adapter.Alias);
+                sp.AddParameter("@shared_secret", adapter.SharedSecret);                
+                sp.AddParameter("@base_url", adapter.BaseUrl);
+                sp.AddParameter("@isActive", adapter.IsActive);
+                DataTable dt = CreateDataTableFromCdnDynamicData(adapter.DynamicData);
+                sp.AddDataTableParameter("@KeyValueList", dt);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                adapterResponse = CreateCDNAdapter(ds);
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return adapterResponse;
+        }
     }
 }
