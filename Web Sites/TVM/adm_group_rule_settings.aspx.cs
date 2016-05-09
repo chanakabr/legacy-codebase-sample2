@@ -122,9 +122,13 @@ public partial class adm_group_rule_settings : System.Web.UI.Page
         dr_default_parental_rule_tv_series.Initialize("Force default parental rules (TV series)", "adm_table_header_nbg", "FormInput", "DEFAULT_TV_SERIES_PARENTAL_RULE", false);
         theRecord.AddRecord(dr_default_parental_rule_tv_series);
 
-        DataRecordShortTextField dr_default_pin = new DataRecordShortTextField("ltr", true, 60, 128);
-        dr_default_pin.Initialize("Default parental rule PIN", "adm_table_header_nbg", "FormInput", "DEFAULT_PARENTAL_PIN", true);
-        theRecord.AddRecord(dr_default_pin);
+        DataRecordShortTextField dr_default_parental_pin = new DataRecordShortTextField("ltr", true, 60, 128);
+        dr_default_parental_pin.Initialize("Default parental rule PIN", "adm_table_header_nbg", "FormInput", "DEFAULT_PARENTAL_PIN", true);
+        theRecord.AddRecord(dr_default_parental_pin);
+
+        DataRecordShortTextField dr_default_purchase_pin = new DataRecordShortTextField("ltr", true, 60, 128);
+        dr_default_purchase_pin.Initialize("Default purchase rule PIN", "adm_table_header_nbg", "FormInput", "DEFAULT_PURCHASE_PIN", true);
+        theRecord.AddRecord(dr_default_purchase_pin);
 
         DataRecordDropDownField dr_default_purchase_settings = new DataRecordDropDownField("parental_rules", "NAME", "id", "", null, 60, false);
         dr_default_purchase_settings.SetSelectsQuery(purchaseSettingsQuery);
