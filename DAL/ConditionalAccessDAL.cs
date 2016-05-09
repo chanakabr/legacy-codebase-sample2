@@ -2900,6 +2900,7 @@ namespace DAL
                                 ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "id"),
                                 Name = ODBCWrapper.Utils.GetSafeStr(dr, "name"),
                                 BaseUrl = ODBCWrapper.Utils.GetSafeStr(dr, "base_url"),
+                                AdapterUrl = ODBCWrapper.Utils.GetSafeStr(dr, "adapter_url"),
                                 Alias = ODBCWrapper.Utils.GetSafeStr(dr, "alias"),
                                 IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active") == 0 ? false : true,
                                 SharedSecret = ODBCWrapper.Utils.GetSafeStr(dr, "shared_secret"),                                
@@ -2976,6 +2977,7 @@ namespace DAL
             {
                 adapterResponse = new CDNAdapter();
                 adapterResponse.BaseUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "base_url");
+                adapterResponse.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "adapter_url");
                 adapterResponse.Alias = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "alias");
                 adapterResponse.ID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
                 int is_Active = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active");
@@ -3023,7 +3025,7 @@ namespace DAL
 
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CDVRAdpterByAlias");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CDNAdpterByAlias");
                 sp.SetConnectionKey("CONNECTION_STRING");
                 sp.AddParameter("@groupID", groupID);
                 sp.AddParameter("@alias", alias);
@@ -3050,10 +3052,11 @@ namespace DAL
                 sp.SetConnectionKey("CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@name", adapter.Name);
+                sp.AddParameter("@is_active", adapter.IsActive);
+                sp.AddParameter("@adapter_url", adapter.AdapterUrl);
                 sp.AddParameter("@base_url", adapter.BaseUrl);
                 sp.AddParameter("@alias", adapter.Alias);                
                 sp.AddParameter("@shared_secret", adapter.SharedSecret);
-                sp.AddParameter("@isActive", adapter.IsActive);
 
                 DataTable dt = CreateDataTableFromCdnDynamicData(adapter.DynamicData);
                 sp.AddDataTableParameter("@KeyValueList", dt);
@@ -3122,7 +3125,8 @@ namespace DAL
                 sp.AddParameter("@ID", adapter.ID);
                 sp.AddParameter("@name", adapter.Name);
                 sp.AddParameter("@alias", adapter.Alias);
-                sp.AddParameter("@shared_secret", adapter.SharedSecret);                
+                sp.AddParameter("@shared_secret", adapter.SharedSecret);
+                sp.AddParameter("@adapter_url", adapter.AdapterUrl);
                 sp.AddParameter("@base_url", adapter.BaseUrl);
                 sp.AddParameter("@isActive", adapter.IsActive);
                 DataTable dt = CreateDataTableFromCdnDynamicData(adapter.DynamicData);

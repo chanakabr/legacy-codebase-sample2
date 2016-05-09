@@ -59,7 +59,6 @@ namespace ConditionalAccess
         private const string ADAPTER_ID_REQUIRED = "Adapter identifier is required";
         private const string ADAPTER_NOT_EXIST = "Adapter not exist";
         private const string ADAPTER_URL_REQUIRED = "Adapter url must have a value";
-        private const string ADAPTER_BASEURL_REQUIRED = "Adapter base url must have a value";
         private const string ADAPTER_ALIAS_REQUIRED = "Adapter Alias must have a value";
         private const string ERROR_ALIAS_ALREADY_IN_USE = "Adapter Alias must be unique";
 
@@ -17674,15 +17673,15 @@ namespace ConditionalAccess
                     return response;
                 }
 
-                if (string.IsNullOrEmpty(adapter.BaseUrl))
+                if (string.IsNullOrEmpty(adapter.AdapterUrl))
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterUrlRequired, ADAPTER_BASEURL_REQUIRED);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterUrlRequired, ADAPTER_URL_REQUIRED);
                     return response;
                 }
 
                 if (string.IsNullOrEmpty(adapter.Alias))
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExternalIdentifierRequired, ADAPTER_ALIAS_REQUIRED);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AliasRequired, ADAPTER_ALIAS_REQUIRED);
                     return response;
                 }
 
@@ -17694,7 +17693,7 @@ namespace ConditionalAccess
 
                 if (responseAdapter != null && responseAdapter.ID > 0)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExternalIdentifierMustBeUnique, ERROR_ALIAS_ALREADY_IN_USE);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AliasMustBeUnique, ERROR_ALIAS_ALREADY_IN_USE);
                     return response;
                 }
 
@@ -17813,13 +17812,13 @@ namespace ConditionalAccess
 
                 if (string.IsNullOrEmpty(adapter.Alias))
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExternalIdentifierRequired, ADAPTER_ALIAS_REQUIRED);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AliasRequired, ADAPTER_ALIAS_REQUIRED);
                     return response;
                 }
 
-                if (string.IsNullOrEmpty(adapter.BaseUrl))
+                if (string.IsNullOrEmpty(adapter.AdapterUrl))
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterUrlRequired, ADAPTER_BASEURL_REQUIRED);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterUrlRequired, ADAPTER_URL_REQUIRED);
                     return response;
                 }
 
@@ -17833,7 +17832,7 @@ namespace ConditionalAccess
 
                 if (responseAdpater != null && responseAdpater.ID > 0 && responseAdpater.ID != responseAdpater.ID)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExternalIdentifierMustBeUnique, ERROR_ALIAS_ALREADY_IN_USE);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AliasMustBeUnique, ERROR_ALIAS_ALREADY_IN_USE);
                     return response;
                 }
 
@@ -17912,13 +17911,13 @@ namespace ConditionalAccess
 
                 if (string.IsNullOrEmpty(adapter.Alias))
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExternalIdentifierRequired, ADAPTER_ALIAS_REQUIRED);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AliasRequired, ADAPTER_ALIAS_REQUIRED);
                     return response;
                 }
 
-                if (string.IsNullOrEmpty(adapter.BaseUrl))
+                if (string.IsNullOrEmpty(adapter.AdapterUrl))
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterUrlRequired, ADAPTER_BASEURL_REQUIRED);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterUrlRequired, ADAPTER_URL_REQUIRED);
                     return response;
                 }
 

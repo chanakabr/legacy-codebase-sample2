@@ -11,6 +11,7 @@ namespace ApiObjects.CDNAdapter
         public int ID { get; set; }
         public string Name { get; set; }
         public bool IsActive { get; set; }
+        public string AdapterUrl { get; set; }
         public string BaseUrl { get; set; }
         public string Alias { get; set; }        
         public string SharedSecret { get; set; }        
@@ -27,6 +28,7 @@ namespace ApiObjects.CDNAdapter
             this.ID = cdnAdapter.ID;
             this.Name = cdnAdapter.Name;
             this.IsActive = cdnAdapter.IsActive;
+            this.AdapterUrl = cdnAdapter.AdapterUrl;
             this.BaseUrl = cdnAdapter.BaseUrl;
             this.Alias = cdnAdapter.Alias;
             this.SharedSecret = cdnAdapter.SharedSecret;
