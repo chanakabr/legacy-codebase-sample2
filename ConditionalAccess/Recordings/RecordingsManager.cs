@@ -149,9 +149,48 @@ namespace Recordings
         public Recording RecordRetry(int groupId, long recordingId)
         {
             Recording recording = ConditionalAccessDAL.GetRecordingByRecordingId(recordingId);
+            try
+            {
 
-            CallAdapterRecord(groupId, recording.ChannelId, recording.EpgStartDate, recording.EpgEndDate, false, recording);
+                // If couldn't find a recording with this ID
+                if (recording == null)
+                {
+                    string message = string.Format("Retry Record - could not find Recording with Id = {0} in group {1}", recordingId, groupId);
+                    log.Error(message);
+                    recording = new Recording()
+                    {
+                        Status = new Status((int)eResponseStatus.OK, message)
+                    };
+                }
+                else
+                {
+                    // if this program is in the past (because it moved, for example)
+                    if (recording.EpgStartDate < DateTime.UtcNow)
+                    {
+                        string message = string.Format("Retry Record - Recording with Id = {0} in group {1} is already in the past", recordingId, groupId);
+                        log.Error(message);
+                        recording.Status = new Status((int)eResponseStatus.OK, message);
+                    }
+                    else
+                    {
+                        CallAdapterRecord(groupId, recording.ChannelId, recording.EpgStartDate, recording.EpgEndDate, false, recording);
 
+                        // If we got through here withou any exception, we're ok.
+                        recording.Status = new Status((int)eResponseStatus.OK);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                if (recording == null)
+                {
+                    recording = new Recording();
+                }
+
+                recording.Status = new Status(
+                    (int)eResponseStatus.Error,
+                    string.Format("Record retry failure: id = {0}, ex = {1}", recordingId, ex));
+            }
             return recording;
         }
 
