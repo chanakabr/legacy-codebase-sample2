@@ -100,11 +100,6 @@
     <Compile Include="PersonalEnrichments\AssetItemPriceResponse.cs" />
     <Compile Include="PersonalEnrichments\AssetItemPrices.cs" />
     <Compile Include="Recordings\RecordingsManager.cs" />
-    <Compile Include="Service References\CDVRAdapterService\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Compile>
     <Compile Include="Service References\WS_Catalog\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -225,19 +220,6 @@
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <None Include="Service References\CDVRAdapterService\Service.wsdl" />
-    <None Include="Service References\CDVRAdapterService\Service.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\CDVRAdapterService\Service1.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\CDVRAdapterService\Service2.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\CDVRAdapterService\Service3.xsd">
-      <SubType>Designer</SubType>
     </None>
     <None Include="Service References\WS_Catalog\Service16.xsd">
       <SubType>Designer</SubType>
@@ -940,23 +922,7 @@
     <None Include="Web References\TvinciAPI\api.disco" />
   </ItemGroup>
   <ItemGroup>
-    <WCFMetadataStorage Include="Service References\CDVRAdapterService\" />
     <WCFMetadataStorage Include="Service References\WS_Catalog\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\CDVRAdapterService\Service.disco" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\CDVRAdapterService\configuration91.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\CDVRAdapterService\configuration.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\CDVRAdapterService\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\WS_Catalog\configuration91.svcinfo" />

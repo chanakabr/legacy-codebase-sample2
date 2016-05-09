@@ -102,6 +102,7 @@
     <Compile Include="CDNAdapter\CDNAdapterDynamicData.cs" />
     <Compile Include="CDNAdapter\CDNAdapterListResponse.cs" />
     <Compile Include="CDNAdapter\CDNAdapterResponse.cs" />
+    <Compile Include="CDNAdapter\LinkResult.cs" />
     <Compile Include="CDVRAdapter\CDVRAdapter.cs" />
     <Compile Include="CDVRAdapter\CDVRAdapterResponse.cs" />
     <Compile Include="CDVRAdapter\CDVRAdapterResponseList.cs" />

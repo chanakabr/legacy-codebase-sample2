@@ -52,10 +52,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CDNAdapterController.cs" />
     <Compile Include="CDVR\CdvrAdapterController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RecommendationAdapterController.cs" />
     <Compile Include="RecommendationResult.cs" />
+    <Compile Include="Service References\CdnAdapter\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
     <Compile Include="Service References\cdvrAdap\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -91,6 +97,25 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="Service References\CdnAdapter\AdapterControllers.CdnAdapter.AdapterStatus.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\CdnAdapter\AdapterControllers.CdnAdapter.LinkResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\CdnAdapter\Service.wsdl" />
+    <None Include="Service References\CdnAdapter\Service.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\CdnAdapter\Service1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\CdnAdapter\Service2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\CdnAdapter\Service3.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\cdvrAdap\AdapterControllers.cdvrAdap.AdapterStatus.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
@@ -150,6 +175,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <WCFMetadataStorage Include="Service References\CdnAdapter\" />
     <WCFMetadataStorage Include="Service References\cdvrAdap\" />
     <WCFMetadataStorage Include="Service References\RecommendationEngineAdapter\" />
   </ItemGroup>
@@ -185,6 +211,21 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\cdvrAdap\Service1.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\CdnAdapter\Service.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\CdnAdapter\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\CdnAdapter\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\CdnAdapter\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

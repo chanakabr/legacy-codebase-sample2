@@ -1,3 +1,4 @@
+using AdapterControllers;
 using AdapterControllers.CDVR;
 using ApiObjects;
 using ApiObjects.Billing;
@@ -17942,7 +17943,15 @@ namespace ConditionalAccess
 
         private static bool SendConfigurationToCdnAdapter(int groupId, CDNAdapter adapter)
         {
-            throw new NotImplementedException();
+            try
+            {
+                CDNAdapterController cdnAdapter = CDNAdapterController.GetInstance();
+                return cdnAdapter.SendConfiguration(adapter, groupId);
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
         }
     }
 }

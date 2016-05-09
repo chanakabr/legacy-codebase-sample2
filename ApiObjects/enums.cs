@@ -610,4 +610,13 @@ namespace ApiObjects
         Single = 0,
         Series = 1,
     }
+
+    public enum CDNProviderFailReason
+    {
+        Success = 0,
+        internalProviderError = 1,
+        BadRequest = 2,
+        Unauthorized = 3,
+        NoResponseFromProvider = 4
+    }
 }
