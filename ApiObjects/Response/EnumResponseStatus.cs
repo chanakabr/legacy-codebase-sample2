@@ -260,6 +260,7 @@ namespace ApiObjects.Response
         InvalidUsageModule = 9013,
         InvalidCouponGroup = 9014,
         InvalidCurrency = 9015,
+        ModuleNotExists = 9016,
 
         // Adapters 10000-11000
         AdapterNotExists = 10000,
