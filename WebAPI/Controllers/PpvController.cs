@@ -22,7 +22,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: BadRequest = 500003, ModuleNotExists = 9016</remarks>     
         [Route("get"), HttpPost]
         [ApiAuthorize]
-        public KalturaPpv Get(string id)
+        public KalturaPpv Get(long id)
         {
             KalturaPpv response = null;
 

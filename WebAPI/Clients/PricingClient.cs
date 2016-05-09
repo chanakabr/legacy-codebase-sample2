@@ -136,7 +136,7 @@ namespace WebAPI.Clients
             return coupon;
         }
 
-        internal KalturaPpv GetPPVModuleData(int groupId, string ppvCode)
+        internal KalturaPpv GetPPVModuleData(int groupId, long ppvCode)
         {
             WebAPI.Pricing.PPVModuleDataResponse response = null;
             KalturaPpv result = new KalturaPpv();
@@ -147,7 +147,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Pricing.GetPPVModuleResponse(group.PricingCredentials.Username, group.PricingCredentials.Password, ppvCode, string.Empty, string.Empty, string.Empty);
+                    response = Pricing.GetPPVModuleResponse(group.PricingCredentials.Username, group.PricingCredentials.Password, ppvCode.ToString(), string.Empty, string.Empty, string.Empty);
                 }
             }
             catch (Exception ex)
