@@ -9,6 +9,9 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
 {
+    /// <summary>
+    /// PPV details
+    /// </summary>
     public class KalturaPpv : KalturaOTTObject
     {
         /// <summary>
@@ -78,22 +81,6 @@ namespace WebAPI.Models.Pricing
         public string ProductCode { get; set; }
 
         /// <summary>
-        /// Time period during which the end user can waive his rights to cancel a purchase. When the time period is passed, the purchase can no longer be cancelled
-        /// </summary>
-        [DataMember(Name = "waiverPeriod")]
-        [JsonProperty("waiverPeriod")]
-        [XmlElement(ElementName = "waiverPeriod")]
-        public int? WaiverPeriod { get; set; }
-
-        /// <summary>
-        /// Indicates whether or not the end user has the right to waive his rights to cancel a purchase
-        /// </summary>
-        [DataMember(Name = "isWaiverEnabled")]
-        [JsonProperty("isWaiverEnabled")]
-        [XmlElement(ElementName = "isWaiverEnabled")]
-        public bool? IsWaiverEnabled { get; set; }
-
-        /// <summary>
         /// Indicates whether or not this ppv can be purchased standalone or only as part of a subscription
         /// </summary>
         [DataMember(Name = "isSubscriptionOnly")]
@@ -102,11 +89,20 @@ namespace WebAPI.Models.Pricing
         public bool? IsSubscriptionOnly { get; set; }
 
         /// <summary>
-        /// virtual name for the ppv
+        /// Indicates whether or not this ppv can be consumed only on the first device
         /// </summary>
-        [DataMember(Name = "virtualName")]
-        [JsonProperty("virtualName")]
-        [XmlElement(ElementName = "virtualName")]
-        public string VirtualName { get; set; }
+        [DataMember(Name = "firstDeviceLimitation")]
+        [JsonProperty("firstDeviceLimitation")]
+        [XmlElement(ElementName = "firstDeviceLimitation")]
+        public bool? FirstDeviceLimitation { get; set; }
+
+        /// <summary>
+        /// PPV usage module
+        /// </summary>
+        [DataMember(Name = "usageModule")]
+        [JsonProperty("usageModule")]
+        [XmlArray(ElementName = "usageModule", IsNullable = true)]
+        [XmlArrayItem("item")]
+        public KalturaUsageModule UsageModule { get; set; }
     }
 }

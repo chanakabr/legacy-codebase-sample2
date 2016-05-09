@@ -50,8 +50,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.CouponId, opt => opt.MapFrom(src => src.m_coupon_id))
                .ForMember(dest => dest.FullLifeCycle, opt => opt.MapFrom(src => src.m_tsMaxUsageModuleLifeCycle))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nObjectID))
-               .ForMember(dest => dest.IsOfflinePlayback, opt => opt.MapFrom(src => src.m_bIsOfflinePlayBack))
-               .ForMember(dest => dest.IsSubscriptionOnly, opt => opt.MapFrom(src => src.m_subscription_only))
+               .ForMember(dest => dest.IsOfflinePlayback, opt => opt.MapFrom(src => src.m_bIsOfflinePlayBack))               
                .ForMember(dest => dest.IsWaiverEnabled, opt => opt.MapFrom(src => src.m_bWaiver))
                .ForMember(dest => dest.MaxViewsNumber, opt => opt.MapFrom(src => src.m_nMaxNumberOfViews))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sVirtualName))
@@ -134,8 +133,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.CouponId, opt => opt.MapFrom(src => src.m_coupon_id))
                .ForMember(dest => dest.FullLifeCycle, opt => opt.MapFrom(src => src.m_tsMaxUsageModuleLifeCycle))
                .ForMember(dest => dest.IsOfflinePlayback, opt => opt.MapFrom(src => src.m_bIsOfflinePlayBack))
-               .ForMember(dest => dest.IsRenewable, opt => opt.MapFrom(src => src.m_is_renew))
-               .ForMember(dest => dest.IsSubscriptionOnly, opt => opt.MapFrom(src => src.m_subscription_only))
+               .ForMember(dest => dest.IsRenewable, opt => opt.MapFrom(src => src.m_is_renew))               
                .ForMember(dest => dest.IsWaiverEnabled, opt => opt.MapFrom(src => src.m_bWaiver))
                .ForMember(dest => dest.MaxViewsNumber, opt => opt.MapFrom(src => src.m_nMaxNumberOfViews))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sVirtualName))
@@ -185,12 +183,11 @@ namespace WebAPI.Mapping.ObjectsConvertor
                .ForMember(dest => dest.FileTypes, opt => opt.MapFrom(src => src.m_relatedFileTypes))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_sObjectCode))
                .ForMember(dest => dest.IsSubscriptionOnly, opt => opt.MapFrom(src => src.m_bSubscriptionOnly))
-               .ForMember(dest => dest.IsWaiverEnabled, opt => opt.MapFrom(src => src.m_oUsageModule.m_bWaiver))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sObjectVirtualName))
                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.m_oPriceCode))
                .ForMember(dest => dest.ProductCode, opt => opt.MapFrom(src => src.m_Product_Code))
-               .ForMember(dest => dest.VirtualName, opt => opt.MapFrom(src => src.m_oUsageModule.m_sVirtualName))
-               .ForMember(dest => dest.WaiverPeriod, opt => opt.MapFrom(src => src.m_oUsageModule.m_nWaiverPeriod));
+               .ForMember(dest => dest.UsageModule, opt => opt.MapFrom(src => src.m_oUsageModule))
+               .ForMember(dest => dest.FirstDeviceLimitation, opt => opt.MapFrom(src => src.m_bFirstDeviceLimitation));
         }
 
         public static List<int> ConvertToIntList(int[] list)

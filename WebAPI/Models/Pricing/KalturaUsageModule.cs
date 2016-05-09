@@ -61,14 +61,6 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("coupon_id")]
         [XmlElement(ElementName = "coupon_id")]
         public int? CouponId { get; set; }
-
-        /// <summary>
-        /// Denotes whether this object is available only as part of a subscription or can be sold separately
-        /// </summary>
-        [DataMember(Name = "is_subscription_only")]
-        [JsonProperty("is_subscription_only")]
-        [XmlElement(ElementName = "is_subscription_only")]
-        public bool? IsSubscriptionOnly { get; set; }
                 
         /// <summary>
         /// Time period during which the end user can waive his rights to cancel a purchase. When the time period is passed, the purchase can no longer be cancelled
