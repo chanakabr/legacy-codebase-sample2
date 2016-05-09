@@ -66,7 +66,7 @@ namespace WebAPI.Controllers
                 Enum.TryParse<eWatchStatus>(filter.filter_status.ToString(), out filterStatusHelper);
 
             // days - default value 7
-            if (filter.days == 0)
+            if (filter.days == null || (filter.days.HasValue && filter.days.Value == 0))
                 filter.days = 7;
             try
             {
