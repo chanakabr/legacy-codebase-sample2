@@ -235,6 +235,28 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #endregion
 
+            #region CDN Adapter
+
+            Mapper.CreateMap<KalturaCDNAdapterProfile, WebAPI.ConditionalAccess.CDNAdapter>()
+               .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+               .ForMember(dest => dest.BaseUrl, opt => opt.MapFrom(src => src.BaseUrl))
+               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+               .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => ConvertCDNAdapterDynamicData(src.DynamicData)))
+               .ForMember(dest => dest.Alias, opt => opt.MapFrom(src => src.Alias))               
+               .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret));
+
+            Mapper.CreateMap<WebAPI.ConditionalAccess.CDNAdapter, KalturaCDNAdapterProfile>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+              .ForMember(dest => dest.BaseUrl, opt => opt.MapFrom(src => src.BaseUrl))
+              .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+              .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => ConvertCDNAdapterDynamicData(src.DynamicData)))
+              .ForMember(dest => dest.Alias, opt => opt.MapFrom(src => src.Alias))              
+              .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret));
+
+            #endregion
+
         }
 
         #region Recording Help Methods
@@ -417,6 +439,53 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 result = new Dictionary<string, KalturaStringValue>();
                 foreach (var data in settings)
+                {
+                    if (!string.IsNullOrEmpty(data.key))
+                    {
+                        result.Add(data.key, new KalturaStringValue() { value = data.value });
+                    }
+                }
+            }
+            return result;
+        }
+
+        public static WebAPI.ConditionalAccess.CDNAdapterDynamicData[] ConvertCDNAdapterDynamicData(SerializableDictionary<string, KalturaStringValue> dynamicData)
+        {
+            List<WebAPI.ConditionalAccess.CDNAdapterDynamicData> result = null;
+
+            if (dynamicData != null && dynamicData.Count > 0)
+            {
+                result = new List<WebAPI.ConditionalAccess.CDNAdapterDynamicData>();
+                WebAPI.ConditionalAccess.CDNAdapterDynamicData pc;
+                foreach (KeyValuePair<string, KalturaStringValue> data in dynamicData)
+                {
+                    if (!string.IsNullOrEmpty(data.Key))
+                    {
+                        pc = new WebAPI.ConditionalAccess.CDNAdapterDynamicData();
+                        pc.key = data.Key;
+                        pc.value = data.Value.value;
+                        result.Add(pc);
+                    }
+                }
+            }
+            if (result != null && result.Count > 0)
+            {
+                return result.ToArray();
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public static Dictionary<string, KalturaStringValue> ConvertCDNAdapterDynamicData(WebAPI.ConditionalAccess.CDNAdapterDynamicData[] dynamicData)
+        {
+            Dictionary<string, KalturaStringValue> result = null;
+
+            if (dynamicData != null && dynamicData.Count() > 0)
+            {
+                result = new Dictionary<string, KalturaStringValue>();
+                foreach (var data in dynamicData)
                 {
                     if (!string.IsNullOrEmpty(data.key))
                     {

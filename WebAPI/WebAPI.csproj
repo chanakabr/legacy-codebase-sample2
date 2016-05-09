@@ -724,6 +724,12 @@
     <Content Include="Web References\ConditionalAccess\CDVRAdapterResponseList.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\ConditionalAccess\CDNAdapterListResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\ConditionalAccess\CDNAdapterResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\ConditionalAccess\module.disco" />
     <Content Include="Web References\Domains\ChangeDLMObj.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -1008,6 +1014,7 @@
     <Compile Include="Controllers\AnnouncementController.cs" />
     <Compile Include="Controllers\AppTokenController.cs" />
     <Compile Include="Controllers\AssetController.cs" />
+    <Compile Include="Controllers\CDNAdapterProfileController.cs" />
     <Compile Include="Controllers\CDVRAdapterProfileController.cs" />
     <Compile Include="Controllers\MessageTemplateController.cs" />
     <Compile Include="Controllers\FollowTvSeriesController.cs" />
@@ -1076,6 +1083,7 @@
     <Compile Include="Managers\RolesManager.cs" />
     <Compile Include="Managers\Schema\ValidationException.cs" />
     <Compile Include="Managers\Schema\SchemaValidationType.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaCDNAdapterProfile.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaCDVRAdapterProfile.cs" />
     <Compile Include="Models\API\KalturaPermissionsFilter.cs" />
     <Compile Include="Models\API\KalturaExportFilter.cs" />
