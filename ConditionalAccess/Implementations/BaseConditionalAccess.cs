@@ -17578,5 +17578,35 @@ namespace ConditionalAccess
 
             return status;
         }
+
+        public ApiObjects.CDNAdapter.CDNAdapterListResponse GetCDNAdapters()
+        {
+            throw new NotImplementedException();
+        }
+
+        public ApiObjects.Response.Status DeleteCDNAdapter(int adapterId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ApiObjects.CDNAdapter.CDNAdapterResponse InsertCDNAdapter(ApiObjects.CDNAdapter.CDNAdapter adapter)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ApiObjects.CDNAdapter.CDNAdapterResponse GenerateCDNSharedSecret(int adapterId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ApiObjects.CDNAdapter.CDNAdapterResponse SetCDNAdapter(ApiObjects.CDNAdapter.CDNAdapter adapter)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ApiObjects.CDNAdapter.CDNAdapterResponse SendCDNConfigurationToAdapter(int adapterID)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

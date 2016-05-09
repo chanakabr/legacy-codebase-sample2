@@ -98,6 +98,10 @@
     <Compile Include="Billing\PaymentGatewayListResponse.cs" />
     <Compile Include="Billing\PaymentGatewayAssociate.cs" />
     <Compile Include="Billing\PaymentMethod.cs" />
+    <Compile Include="CDNAdapter\CDNAdapter.cs" />
+    <Compile Include="CDNAdapter\CDNAdapterDynamicData.cs" />
+    <Compile Include="CDNAdapter\CDNAdapterListResponse.cs" />
+    <Compile Include="CDNAdapter\CDNAdapterResponse.cs" />
     <Compile Include="CDVRAdapter\CDVRAdapter.cs" />
     <Compile Include="CDVRAdapter\CDVRAdapterResponse.cs" />
     <Compile Include="CDVRAdapter\CDVRAdapterResponseList.cs" />
