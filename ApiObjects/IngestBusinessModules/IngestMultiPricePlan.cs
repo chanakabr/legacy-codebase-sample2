@@ -12,9 +12,9 @@ namespace ApiObjects
 
         public List<KeyValuePair> Descriptions { get; set; } // lang, description 
 
-        public DateTime StartDate { get; set; }
+        public DateTime? StartDate { get; set; }
 
-        public DateTime EndDate { get; set; }
+        public DateTime? EndDate { get; set; }
 
         public string InternalDiscount { get; set; }
 
@@ -22,13 +22,13 @@ namespace ApiObjects
 
         public string ProductCode { get; set; }
 
-        public bool IsRenewable { get; set; }
+        public bool? IsRenewable { get; set; }
         
         public string PreviewModule { get; set; }
 
         public string DomainLimitationModule { get; set; }
                 
-        public int GracePeriodMinutes { get; set; }
+        public int? GracePeriodMinutes { get; set; }
 
         public List<string> PricePlansCodes { get; set; }
 
@@ -38,6 +38,6 @@ namespace ApiObjects
 
         public bool IsActive { get; set; }
 
-        public int OrderNumber { get; set; }
+        public int? OrderNumber { get; set; }
     }
 }
