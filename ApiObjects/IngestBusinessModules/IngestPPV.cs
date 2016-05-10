@@ -17,11 +17,11 @@ namespace ApiObjects
 
         public string CouponGroup { get; set; }
             
-        public bool SubscriptionOnly { get; set; }
+        public bool? SubscriptionOnly { get; set; }
 
         public List<KeyValuePair> Descriptions { get; set; } // lang, description
 
-        public bool FirstDeviceLimitation { get; set; }
+        public bool? FirstDeviceLimitation { get; set; }
 
         public string ProductCode { get; set; }
 
