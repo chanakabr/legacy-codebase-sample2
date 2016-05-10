@@ -2695,6 +2695,19 @@ namespace DAL
             switch (recordingStatus)
             {
                 case RecordingInternalStatus.Waiting:
+                {
+                    // If we are still waiting for confirmation but program started already, we say it is failed
+                    if (recording.EpgStartDate < DateTime.UtcNow)
+                    {
+                        status = TstvRecordingStatus.Failed;
+                    }
+                    else
+                    {
+                        status = TstvRecordingStatus.Scheduled;
+                    }
+
+                    break;
+                }
                 case RecordingInternalStatus.OK:
                 {
                     // If program already finished, we say it is recorded

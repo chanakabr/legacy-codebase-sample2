@@ -24,7 +24,7 @@ namespace Recordings
 
         private const string SCHEDULED_TASKS_ROUTING_KEY = "PROCESS_RECORDING_TASK\\{0}";
 
-        private const int MINUTES_ALLOWED_DIFFERENCE = 5;
+        private static readonly int MINUTES_ALLOWED_DIFFERENCE = 5;
         private static readonly int MINUTES_RETRY_INTERVAL;
         private static readonly int MAXIMUM_RETRIES_ALLOWED;
 
@@ -93,6 +93,16 @@ namespace Recordings
             else
             {
                 MAXIMUM_RETRIES_ALLOWED = 6;
+            }
+
+            // allowed difference depends on retry interval
+            if (MINUTES_RETRY_INTERVAL < 2)
+            {
+                MINUTES_ALLOWED_DIFFERENCE = 2;
+            }
+            else
+            {
+                MINUTES_ALLOWED_DIFFERENCE = MINUTES_RETRY_INTERVAL;
             }
         }
 
@@ -290,9 +300,16 @@ namespace Recordings
                     {
                         var timeSpan = DateTime.UtcNow - currentRecording.EpgEndDate;
 
+                        // If this recording is mark as failed, there is no point in tring to get its status
+                        if (currentRecording.RecordingStatus == TstvRecordingStatus.Failed)
+                        {
+                            log.InfoFormat("Rejected GetRecordingStatus request because it is already failed. recordingId = {0}" +
+                                "minutesSpan = {1}, allowedDifferenceMinutes = {2}, retryCount = {3}, epg = {4}",
+                                recordingId, timeSpan.TotalMinutes, MINUTES_ALLOWED_DIFFERENCE, currentRecording.GetStatusRetries, currentRecording.EpgId);
+                        }
                         // Only if this is the first request and the difference is less than 5 minutes we continue
                         // If this is not the first request, we're clear to go even if it is far from being after the program ended
-                        if ((currentRecording.GetStatusRetries == 0 && timeSpan.TotalMinutes < MINUTES_ALLOWED_DIFFERENCE) ||
+                        else if ((currentRecording.GetStatusRetries == 0 && timeSpan.TotalMinutes < MINUTES_ALLOWED_DIFFERENCE) ||
                             currentRecording.GetStatusRetries > 0)
                         {
                             // Count current try to get status - first and foremost
@@ -928,6 +945,8 @@ namespace Recordings
 
         private static void CallAdapterRecord(int groupId, string epgChannelID, DateTime startDate, DateTime endDate, bool isCanceled, Recording currentRecording)
         {
+            log.DebugFormat("Call adapter record for recording {0}", currentRecording.Id);
+
             bool shouldRetry = true;
             bool shouldMarkAsFailed = false;
 
@@ -1036,6 +1055,8 @@ namespace Recordings
 
             if (shouldRetry)
             {
+                log.DebugFormat("Call adapter record for recording {0} will retry", currentRecording.Id);
+
                 RetryTaskBeforeProgramStarted(groupId, currentRecording, eRecordingTask.Record);
             }
         }
