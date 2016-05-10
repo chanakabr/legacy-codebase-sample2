@@ -17430,6 +17430,11 @@ namespace ConditionalAccess
                     }
                 }
 
+                if (adapter.Settings == null)
+                {
+                    adapter.Settings = responseAdpater.Settings;
+                }
+
                 response.Adapter = DAL.ConditionalAccessDAL.SetCDVRAdapter(m_nGroupID, adapter);
 
                 if (response.Adapter != null && response.Adapter.ID > 0)
