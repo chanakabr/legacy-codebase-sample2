@@ -967,7 +967,7 @@ namespace DAL
         }
 
         public static DataTable ValidateMPP(int groupID, string code, string internalDiscount, List<string> pricePlansCodes, List<string> channels, List<string> fileTypes,
-            string previewModule, ApiObjects.eIngestAction action)
+            string previewModule)
         {
             StoredProcedure sp = new StoredProcedure("ValidateMPP");
             sp.SetConnectionKey("pricing_connection");
@@ -978,7 +978,6 @@ namespace DAL
             sp.AddIDListParameter<string>("@PricePlansCodes", pricePlansCodes, "STR");
             sp.AddIDListParameter<string>("@Channels", channels, "STR");
             sp.AddIDListParameter<string>("@FileTypes", fileTypes, "STR");
-            sp.AddParameter("@Action", (int)action);
 
             return sp.Execute();
         }
@@ -1053,7 +1052,10 @@ namespace DAL
             sp.AddParameter("@GracePeriodMinutes", mpp.GracePeriodMinutes);
             sp.AddParameter("@IsActive", mpp.IsActive);
             sp.AddParameter("@InternalDiscountID", internalDiscountID);
-            sp.AddParameter("@PreviewModuleID", previewModuleID);
+            if (previewModuleID >= 0)
+            {
+                sp.AddParameter("@PreviewModuleID", previewModuleID);
+            }
             sp.AddParameter("@IsRenewable", mpp.IsRenewable);
             sp.AddParameter("@ProductCode", mpp.ProductCode);
             if (mpp.Descriptions != null)
@@ -1074,8 +1076,7 @@ namespace DAL
             return sp.ExecuteReturnValue<int>(); ;
         }
 
-        public static DataTable ValidatePricePlan(int groupID, string code, string fullLifeCycle, string viewLifeCycle, string currency, double price, string discount,
-            ApiObjects.eIngestAction action)
+        public static DataTable ValidatePricePlan(int groupID, string code, string fullLifeCycle, string viewLifeCycle, string currency, double price, string discount)
         {
             StoredProcedure sp = new StoredProcedure("ValidatePricePlan");
             sp.SetConnectionKey("pricing_connection");
@@ -1085,8 +1086,7 @@ namespace DAL
             sp.AddParameter("@ViewLifeCycle", viewLifeCycle);
             sp.AddParameter("@currency", currency);
             sp.AddParameter("@price", price);
-            sp.AddParameter("@Discount", discount);
-            sp.AddParameter("@Action", (int)action);
+            sp.AddParameter("@Discount", discount);;
 
             return sp.Execute();
         }
@@ -1127,13 +1127,16 @@ namespace DAL
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@Name", pricePlan.Code);
                 sp.AddParameter("@IsActive", pricePlan.IsActive);
-                sp.AddParameter("@MaxViews", pricePlan.MaxViews);
-                sp.AddParameter("@IsRenewable", pricePlan.IsRenewable);
+                sp.AddParameter("@MaxViews", pricePlan.MaxViews);                
                 sp.AddParameter("@RecurringPeriods", pricePlan.RecurringPeriods);
                 sp.AddParameter("@PricCodeID", pricCodeID);
                 sp.AddParameter("@FullLifeCycleID", fullLifeCycleID);
                 sp.AddParameter("@ViewLifeCycleID", viewLifeCycleID);
-                sp.AddParameter("@DiscountID", discountID);
+                if (discountID >= 0)
+                {
+                    sp.AddParameter("@DiscountID", discountID);
+                }
+                sp.AddParameter("@IsRenewable", pricePlan.IsRenewable);
                 sp.AddParameter("@Date", DateTime.UtcNow);
                 
                 return sp.ExecuteReturnValue<int>();
@@ -1163,8 +1166,7 @@ namespace DAL
             return 0;
         }
 
-        public static DataTable ValidatePPV(int groupID, string code, string currency, double price, string usageModule, string discount, string couponGroup, List<string> fileTypes,
-            ApiObjects.eIngestAction action)
+        public static DataTable ValidatePPV(int groupID, string code, string currency, double price, string usageModule, string discount, string couponGroup, List<string> fileTypes)
         {
             StoredProcedure sp = new StoredProcedure("ValidatePPV");
             sp.SetConnectionKey("pricing_connection");
@@ -1174,8 +1176,7 @@ namespace DAL
             sp.AddParameter("@price", price);
             sp.AddParameter("@usageModule", usageModule);
             sp.AddParameter("@discount", discount);
-            sp.AddParameter("@couponGroup", couponGroup);
-            sp.AddParameter("@Action", (int)action);            
+            sp.AddParameter("@couponGroup", couponGroup);            
             sp.AddIDListParameter<string>("@FileTypes", fileTypes, "STR");
 
             return sp.Execute();
@@ -1215,8 +1216,14 @@ namespace DAL
             sp.AddParameter("@Name", ppv.Code);
             sp.AddParameter("@priceCode", priceCodeID);
             sp.AddParameter("@usageModule", usageModuleID);
-            sp.AddParameter("@discount", discountID);
-            sp.AddParameter("@couponGroup", couponGroupID);
+            if (discountID >= 0)
+            {
+                sp.AddParameter("@discount", discountID);
+            }
+            if (couponGroupID >= 0)
+            {
+                sp.AddParameter("@couponGroup", couponGroupID);
+            }
             sp.AddParameter("@subscriptionOnly", ppv.SubscriptionOnly);
             sp.AddParameter("@firstDeviceLimitation", ppv.FirstDeviceLimitation);
             sp.AddParameter("@productCode", ppv.ProductCode);

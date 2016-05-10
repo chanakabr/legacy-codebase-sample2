@@ -1727,7 +1727,7 @@ namespace DAL
             storedProcedure.AddParameter("@DomainID", domainId);
             storedProcedure.AddParameter("@SiteGuid", siteGuid);
             storedProcedure.AddParameter("@GroupID", groupId);
-            storedProcedure.AddParameter("@RuleType", 1);
+            storedProcedure.AddParameter("@RuleType", (int)eGroupRuleType.Parental);
             storedProcedure.AddParameter("@GetUserDomain", getUserDomain);
 
             DataSet dataSet = storedProcedure.ExecuteDataSet();
@@ -1759,7 +1759,7 @@ namespace DAL
             storedProcedure.AddParameter("@SiteGuid", siteGuid);
             storedProcedure.AddParameter("@Pin", pin);
             storedProcedure.AddParameter("@GroupID", groupId);
-            storedProcedure.AddParameter("@RuleType", 1);
+            storedProcedure.AddParameter("@RuleType", (int)eGroupRuleType.Parental);
 
             newId = storedProcedure.ExecuteReturnValue<int>();
 
@@ -1780,15 +1780,45 @@ namespace DAL
             return purchaseSetting;
         }
 
-        public static string Get_Group_DefaultPIN(int groupId)
+        public static string Get_Group_DefaultPIN(int groupId, eGroupRuleType ruleType)
         {
             string pin = string.Empty;
+            string fieldName = string.Empty;
 
-            object value = ODBCWrapper.Utils.GetTableSingleVal("group_rule_settings", "DEFAULT_PARENTAL_PIN", "GROUP_ID", "=", groupId);
-
-            if (value != null && value != DBNull.Value)
+            switch (ruleType)
             {
-                pin = Convert.ToString(value);
+                case eGroupRuleType.Unknown:
+                break;
+                case eGroupRuleType.Parental:
+                {
+                    fieldName = "DEFAULT_PARENTAL_PIN";
+                    break;
+                }
+                case eGroupRuleType.Purchase:
+                {
+                    fieldName = "DEFAULT_PURCHASE_PIN";
+                    break;
+                }
+                case eGroupRuleType.Device:
+                break;
+                case eGroupRuleType.EPG:
+                break;
+                default:
+                break;
+            }
+
+            if (string.IsNullOrEmpty(fieldName))
+            {
+                log.ErrorFormat("Get_Group_DefaultPIN - received bad rule type, cannot get. type = {0}", ruleType);
+            }
+            else
+            {
+                object value = ODBCWrapper.Utils.GetTableSingleVal("group_rule_settings", fieldName, "GROUP_ID", "=", groupId);
+
+                if (value != null && value != DBNull.Value)
+                {
+                    pin = Convert.ToString(value);
+                }
             }
 
             return pin;
@@ -1854,7 +1884,7 @@ namespace DAL
             storedProcedure.AddParameter("@DomainID", domainId);
             storedProcedure.AddParameter("@SiteGuid", siteGuid);
             storedProcedure.AddParameter("@GroupID", groupId);
-            storedProcedure.AddParameter("@RuleType", 2);
+            storedProcedure.AddParameter("@RuleType", (int)eGroupRuleType.Purchase);
             storedProcedure.AddParameter("@GetUserDomain", getUserDomain);
 
             DataSet dataSet = storedProcedure.ExecuteDataSet();
@@ -1888,7 +1918,7 @@ namespace DAL
             storedProcedure.AddParameter("@SiteGuid", siteGuid);
             storedProcedure.AddParameter("@Pin", pin);
             storedProcedure.AddParameter("@GroupID", groupId);
-            storedProcedure.AddParameter("@RuleType", 2);
+            storedProcedure.AddParameter("@RuleType", (int)eGroupRuleType.Purchase);
 
             newId = storedProcedure.ExecuteReturnValue<int>();
 

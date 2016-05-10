@@ -17,7 +17,7 @@ namespace ApiObjects
 
         public IngestPriceCode PriceCode { get; set; }
 
-        public bool IsRenewable { get; set; }
+        public bool? IsRenewable { get; set; }
 
         public int RecurringPeriods { get; set; }
 
