@@ -191,6 +191,7 @@ namespace Recordings
                     (int)eResponseStatus.Error,
                     string.Format("Record retry failure: id = {0}, ex = {1}", recordingId, ex));
             }
+
             return recording;
         }
 
@@ -837,7 +838,6 @@ namespace Recordings
         {
             var queue = new GenericCeleryQueue();
             var message = new RecordingTaskData(groupId, task,
-                // add 1 minutes here
                 checkTime,
                 programId,
                 recordingId);
@@ -877,16 +877,25 @@ namespace Recordings
             // if there is more than 1 day left, try tomorrow
             if (span.TotalDays > 1)
             {
+                log.DebugFormat("Retry task before program started: Recording id = {0} will retry tomorrow, because start date is {1}", 
+                    recording.Id, recording.EpgStartDate);
+
                 nextCheck = DateTime.UtcNow.AddDays(1);
             }
             else if (span.TotalHours > 1)
             {
+                log.DebugFormat("Retry task before program started: Recording id = {0} will retry in half the time (in {1} hours), because start date is {2}",
+                    recording.Id, (span.TotalHours / 2), recording.EpgStartDate);
+
                 // if there is less than 1 day, get as HALF as close to the start of the program.
                 // e.g. if we are 4 hours away from program, check in 2 hours. If we are 140 minutes away, try in 70 minutes.
                 nextCheck = DateTime.UtcNow.AddSeconds(span.TotalSeconds / 2);
             }
             else
             {
+                log.DebugFormat("Retry task before program started: Recording id = {0} will retry when program starts, at {1}",
+                    recording.Id, recording.EpgStartDate);
+
                 // if we are less than an hour away from the program, try when the program starts
                 nextCheck = recording.EpgStartDate;
             }
@@ -895,11 +904,15 @@ namespace Recordings
             if (DateTime.UtcNow < recording.EpgStartDate &&
                 DateTime.UtcNow < nextCheck)
             {
+                log.DebugFormat("Retry task before program started: program didn't start yet, we will enqueue a message now for recording {0}", 
+                    recording.Id);
                 EnqueueMessage(groupId, recording.EpgId, recording.Id, nextCheck, task);
             }
             else
             // If it is still not ok - mark as failed
             {
+                log.DebugFormat("Retry task before program started: program started already, we will mark recording {0} as failed.", recording.Id);
+
                 recording.RecordingStatus = TstvRecordingStatus.Failed;
                 ConditionalAccessDAL.UpdateRecording(recording, groupId, 1, 1, RecordingInternalStatus.Failed);
             }
