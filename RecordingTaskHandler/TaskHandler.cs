@@ -49,6 +49,9 @@ namespace RecordingTaskHandler
                     cas.Url = url;
                 }
 
+                log.DebugFormat("Trying to handle recording task. Task = {0}, recordingId = {1}, programId = {2}, URL = {3}",
+                    request.Task, request.RecordingId, request.ProgramId, url);
+
                 switch (request.Task.Value)
                 {
                     case eRecordingTask.GetStatusAfterProgramEnded:
@@ -131,6 +134,7 @@ namespace RecordingTaskHandler
             }
             catch (Exception ex)
             {
+                log.ErrorFormat("Recording task handler error. data = {0}, message = {2}, ex = {1}", data, ex, ex.Message);
                 throw ex;
             }
 
