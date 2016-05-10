@@ -6,7 +6,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using WebAPI.Models.ConditionalAccess;
+using WebAPI.Models.API;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -31,7 +31,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().GetCDNRAdapters(groupId);
+                response = ClientsManager.ApiClient().GetCDNRAdapters(groupId);
             }
             catch (ClientException ex)
             {
@@ -59,7 +59,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().DeleteCDNAdapter(groupId, adapter_id);
+                response = ClientsManager.ApiClient().DeleteCDNAdapter(groupId, adapter_id);
             }
             catch (ClientException ex)
             {
@@ -88,7 +88,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().InsertCDNAdapter(groupId, adapter);
+                response = ClientsManager.ApiClient().InsertCDNAdapter(groupId, adapter);
             }
             catch (ClientException ex)
             {
@@ -117,7 +117,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().SetCDNAdapter(groupId, adapter);
+                response = ClientsManager.ApiClient().SetCDNAdapter(groupId, adapter);
             }
             catch (ClientException ex)
             {
@@ -146,7 +146,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().GenerateCDNSharedSecret(groupId, adapter_id);
+                response = ClientsManager.ApiClient().GenerateCDNSharedSecret(groupId, adapter_id);
             }
             catch (ClientException ex)
             {

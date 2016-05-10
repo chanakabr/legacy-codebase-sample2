@@ -71,6 +71,18 @@ namespace WebAPI.Api {
         
         private System.Threading.SendOrPostCallback UpdateTimeShiftedTvPartnerSettingsOperationCompleted;
         
+        private System.Threading.SendOrPostCallback GetCDNAdaptersOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback DeleteCDNAdapterOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback InsertCDNAdapterOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GenerateCDNSharedSecretOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback SetCDNAdapterOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback SendCDNAdapterConfigurationOperationCompleted;
+        
         private System.Threading.SendOrPostCallback TVAPI_GetTvinciGUIDOperationCompleted;
         
         private System.Threading.SendOrPostCallback TVAPI_GetMediasOperationCompleted;
@@ -424,6 +436,24 @@ namespace WebAPI.Api {
         
         /// <remarks/>
         public event UpdateTimeShiftedTvPartnerSettingsCompletedEventHandler UpdateTimeShiftedTvPartnerSettingsCompleted;
+        
+        /// <remarks/>
+        public event GetCDNAdaptersCompletedEventHandler GetCDNAdaptersCompleted;
+        
+        /// <remarks/>
+        public event DeleteCDNAdapterCompletedEventHandler DeleteCDNAdapterCompleted;
+        
+        /// <remarks/>
+        public event InsertCDNAdapterCompletedEventHandler InsertCDNAdapterCompleted;
+        
+        /// <remarks/>
+        public event GenerateCDNSharedSecretCompletedEventHandler GenerateCDNSharedSecretCompleted;
+        
+        /// <remarks/>
+        public event SetCDNAdapterCompletedEventHandler SetCDNAdapterCompleted;
+        
+        /// <remarks/>
+        public event SendCDNAdapterConfigurationCompletedEventHandler SendCDNAdapterConfigurationCompleted;
         
         /// <remarks/>
         public event TVAPI_GetTvinciGUIDCompletedEventHandler TVAPI_GetTvinciGUIDCompleted;
@@ -1482,6 +1512,202 @@ namespace WebAPI.Api {
             if ((this.UpdateTimeShiftedTvPartnerSettingsCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.UpdateTimeShiftedTvPartnerSettingsCompleted(this, new UpdateTimeShiftedTvPartnerSettingsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetCDNAdapters", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public CDNAdapterListResponse GetCDNAdapters(string sWSUserName, string sWSPassword) {
+            object[] results = this.Invoke("GetCDNAdapters", new object[] {
+                        sWSUserName,
+                        sWSPassword});
+            return ((CDNAdapterListResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetCDNAdaptersAsync(string sWSUserName, string sWSPassword) {
+            this.GetCDNAdaptersAsync(sWSUserName, sWSPassword, null);
+        }
+        
+        /// <remarks/>
+        public void GetCDNAdaptersAsync(string sWSUserName, string sWSPassword, object userState) {
+            if ((this.GetCDNAdaptersOperationCompleted == null)) {
+                this.GetCDNAdaptersOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetCDNAdaptersOperationCompleted);
+            }
+            this.InvokeAsync("GetCDNAdapters", new object[] {
+                        sWSUserName,
+                        sWSPassword}, this.GetCDNAdaptersOperationCompleted, userState);
+        }
+        
+        private void OnGetCDNAdaptersOperationCompleted(object arg) {
+            if ((this.GetCDNAdaptersCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetCDNAdaptersCompleted(this, new GetCDNAdaptersCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/DeleteCDNAdapter", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status DeleteCDNAdapter(string sWSUserName, string sWSPassword, int adapterId) {
+            object[] results = this.Invoke("DeleteCDNAdapter", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        adapterId});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void DeleteCDNAdapterAsync(string sWSUserName, string sWSPassword, int adapterId) {
+            this.DeleteCDNAdapterAsync(sWSUserName, sWSPassword, adapterId, null);
+        }
+        
+        /// <remarks/>
+        public void DeleteCDNAdapterAsync(string sWSUserName, string sWSPassword, int adapterId, object userState) {
+            if ((this.DeleteCDNAdapterOperationCompleted == null)) {
+                this.DeleteCDNAdapterOperationCompleted = new System.Threading.SendOrPostCallback(this.OnDeleteCDNAdapterOperationCompleted);
+            }
+            this.InvokeAsync("DeleteCDNAdapter", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        adapterId}, this.DeleteCDNAdapterOperationCompleted, userState);
+        }
+        
+        private void OnDeleteCDNAdapterOperationCompleted(object arg) {
+            if ((this.DeleteCDNAdapterCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.DeleteCDNAdapterCompleted(this, new DeleteCDNAdapterCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/InsertCDNAdapter", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public CDNAdapterResponse InsertCDNAdapter(string sWSUserName, string sWSPassword, CDNAdapter adapter) {
+            object[] results = this.Invoke("InsertCDNAdapter", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        adapter});
+            return ((CDNAdapterResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void InsertCDNAdapterAsync(string sWSUserName, string sWSPassword, CDNAdapter adapter) {
+            this.InsertCDNAdapterAsync(sWSUserName, sWSPassword, adapter, null);
+        }
+        
+        /// <remarks/>
+        public void InsertCDNAdapterAsync(string sWSUserName, string sWSPassword, CDNAdapter adapter, object userState) {
+            if ((this.InsertCDNAdapterOperationCompleted == null)) {
+                this.InsertCDNAdapterOperationCompleted = new System.Threading.SendOrPostCallback(this.OnInsertCDNAdapterOperationCompleted);
+            }
+            this.InvokeAsync("InsertCDNAdapter", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        adapter}, this.InsertCDNAdapterOperationCompleted, userState);
+        }
+        
+        private void OnInsertCDNAdapterOperationCompleted(object arg) {
+            if ((this.InsertCDNAdapterCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.InsertCDNAdapterCompleted(this, new InsertCDNAdapterCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GenerateCDNSharedSecret", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public CDNAdapterResponse GenerateCDNSharedSecret(string sWSUserName, string sWSPassword, int adapterId) {
+            object[] results = this.Invoke("GenerateCDNSharedSecret", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        adapterId});
+            return ((CDNAdapterResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GenerateCDNSharedSecretAsync(string sWSUserName, string sWSPassword, int adapterId) {
+            this.GenerateCDNSharedSecretAsync(sWSUserName, sWSPassword, adapterId, null);
+        }
+        
+        /// <remarks/>
+        public void GenerateCDNSharedSecretAsync(string sWSUserName, string sWSPassword, int adapterId, object userState) {
+            if ((this.GenerateCDNSharedSecretOperationCompleted == null)) {
+                this.GenerateCDNSharedSecretOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGenerateCDNSharedSecretOperationCompleted);
+            }
+            this.InvokeAsync("GenerateCDNSharedSecret", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        adapterId}, this.GenerateCDNSharedSecretOperationCompleted, userState);
+        }
+        
+        private void OnGenerateCDNSharedSecretOperationCompleted(object arg) {
+            if ((this.GenerateCDNSharedSecretCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GenerateCDNSharedSecretCompleted(this, new GenerateCDNSharedSecretCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/SetCDNAdapter", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public CDNAdapterResponse SetCDNAdapter(string sWSUserName, string sWSPassword, CDNAdapter adapter) {
+            object[] results = this.Invoke("SetCDNAdapter", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        adapter});
+            return ((CDNAdapterResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void SetCDNAdapterAsync(string sWSUserName, string sWSPassword, CDNAdapter adapter) {
+            this.SetCDNAdapterAsync(sWSUserName, sWSPassword, adapter, null);
+        }
+        
+        /// <remarks/>
+        public void SetCDNAdapterAsync(string sWSUserName, string sWSPassword, CDNAdapter adapter, object userState) {
+            if ((this.SetCDNAdapterOperationCompleted == null)) {
+                this.SetCDNAdapterOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetCDNAdapterOperationCompleted);
+            }
+            this.InvokeAsync("SetCDNAdapter", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        adapter}, this.SetCDNAdapterOperationCompleted, userState);
+        }
+        
+        private void OnSetCDNAdapterOperationCompleted(object arg) {
+            if ((this.SetCDNAdapterCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.SetCDNAdapterCompleted(this, new SetCDNAdapterCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/SendCDNAdapterConfiguration", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public CDNAdapterResponse SendCDNAdapterConfiguration(string sWSUserName, string sWSPassword, int adapterID) {
+            object[] results = this.Invoke("SendCDNAdapterConfiguration", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        adapterID});
+            return ((CDNAdapterResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void SendCDNAdapterConfigurationAsync(string sWSUserName, string sWSPassword, int adapterID) {
+            this.SendCDNAdapterConfigurationAsync(sWSUserName, sWSPassword, adapterID, null);
+        }
+        
+        /// <remarks/>
+        public void SendCDNAdapterConfigurationAsync(string sWSUserName, string sWSPassword, int adapterID, object userState) {
+            if ((this.SendCDNAdapterConfigurationOperationCompleted == null)) {
+                this.SendCDNAdapterConfigurationOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSendCDNAdapterConfigurationOperationCompleted);
+            }
+            this.InvokeAsync("SendCDNAdapterConfiguration", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        adapterID}, this.SendCDNAdapterConfigurationOperationCompleted, userState);
+        }
+        
+        private void OnSendCDNAdapterConfigurationOperationCompleted(object arg) {
+            if ((this.SendCDNAdapterConfigurationCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.SendCDNAdapterConfigurationCompleted(this, new SendCDNAdapterConfigurationCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -9191,12 +9417,12 @@ namespace WebAPI.Api {
     }
     
     /// <remarks/>
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ChangePasswordMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(AddDeviceMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(EmailNotificationRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(SendAdminTokenRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(AddUserMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CinepolisRenewalFailMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ChangePasswordMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PreviewModuleCancelOrRefundRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseWithPreviewModuleRequest))]
@@ -9381,6 +9607,27 @@ namespace WebAPI.Api {
         
         /// <remarks/>
         AddDeviceToDomain,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class ChangePasswordMailRequest : MailRequestObj {
+        
+        private string m_sTokenField;
+        
+        /// <remarks/>
+        public string m_sToken {
+            get {
+                return this.m_sTokenField;
+            }
+            set {
+                this.m_sTokenField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -9712,27 +9959,6 @@ namespace WebAPI.Api {
             }
             set {
                 this.m_sItemNameField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class ChangePasswordMailRequest : MailRequestObj {
-        
-        private string m_sTokenField;
-        
-        /// <remarks/>
-        public string m_sToken {
-            get {
-                return this.m_sTokenField;
-            }
-            set {
-                this.m_sTokenField = value;
             }
         }
     }
@@ -13086,6 +13312,210 @@ namespace WebAPI.Api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class CDNAdapterResponse {
+        
+        private Status statusField;
+        
+        private CDNAdapter adapterField;
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public CDNAdapter Adapter {
+            get {
+                return this.adapterField;
+            }
+            set {
+                this.adapterField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class CDNAdapter {
+        
+        private int idField;
+        
+        private string nameField;
+        
+        private bool isActiveField;
+        
+        private string adapterUrlField;
+        
+        private string baseUrlField;
+        
+        private string aliasField;
+        
+        private string sharedSecretField;
+        
+        private CDNAdapterDynamicData[] dynamicDataField;
+        
+        /// <remarks/>
+        public int ID {
+            get {
+                return this.idField;
+            }
+            set {
+                this.idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Name {
+            get {
+                return this.nameField;
+            }
+            set {
+                this.nameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool IsActive {
+            get {
+                return this.isActiveField;
+            }
+            set {
+                this.isActiveField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string AdapterUrl {
+            get {
+                return this.adapterUrlField;
+            }
+            set {
+                this.adapterUrlField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string BaseUrl {
+            get {
+                return this.baseUrlField;
+            }
+            set {
+                this.baseUrlField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Alias {
+            get {
+                return this.aliasField;
+            }
+            set {
+                this.aliasField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string SharedSecret {
+            get {
+                return this.sharedSecretField;
+            }
+            set {
+                this.sharedSecretField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public CDNAdapterDynamicData[] DynamicData {
+            get {
+                return this.dynamicDataField;
+            }
+            set {
+                this.dynamicDataField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class CDNAdapterDynamicData {
+        
+        private string keyField;
+        
+        private string valueField;
+        
+        /// <remarks/>
+        public string key {
+            get {
+                return this.keyField;
+            }
+            set {
+                this.keyField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string value {
+            get {
+                return this.valueField;
+            }
+            set {
+                this.valueField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class CDNAdapterListResponse {
+        
+        private Status statusField;
+        
+        private CDNAdapter[] adaptersField;
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public CDNAdapter[] Adapters {
+            get {
+                return this.adaptersField;
+            }
+            set {
+                this.adaptersField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class TimeShiftedTvPartnerSettings {
         
         private System.Nullable<bool> isCatchUpEnabledField;
@@ -14721,6 +15151,162 @@ namespace WebAPI.Api {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetCDNAdaptersCompletedEventHandler(object sender, GetCDNAdaptersCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetCDNAdaptersCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetCDNAdaptersCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public CDNAdapterListResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((CDNAdapterListResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void DeleteCDNAdapterCompletedEventHandler(object sender, DeleteCDNAdapterCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class DeleteCDNAdapterCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal DeleteCDNAdapterCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void InsertCDNAdapterCompletedEventHandler(object sender, InsertCDNAdapterCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class InsertCDNAdapterCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal InsertCDNAdapterCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public CDNAdapterResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((CDNAdapterResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GenerateCDNSharedSecretCompletedEventHandler(object sender, GenerateCDNSharedSecretCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GenerateCDNSharedSecretCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GenerateCDNSharedSecretCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public CDNAdapterResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((CDNAdapterResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void SetCDNAdapterCompletedEventHandler(object sender, SetCDNAdapterCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class SetCDNAdapterCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal SetCDNAdapterCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public CDNAdapterResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((CDNAdapterResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void SendCDNAdapterConfigurationCompletedEventHandler(object sender, SendCDNAdapterConfigurationCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class SendCDNAdapterConfigurationCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal SendCDNAdapterConfigurationCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public CDNAdapterResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((CDNAdapterResponse)(this.results[0]));
             }
         }
     }

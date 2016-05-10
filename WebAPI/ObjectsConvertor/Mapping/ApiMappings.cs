@@ -250,6 +250,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Key, opt => opt.MapFrom(src => src.key))
               .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.value));
 
+            #region TimeShiftedTv
+
             //TimeShiftedTvPartnerSettings to KalturaTimeShiftedTvPartnerSettings
             Mapper.CreateMap<TimeShiftedTvPartnerSettings, WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings>()
                 .ForMember(dest => dest.CatchUpEnabled, opt => opt.MapFrom(src => src.IsCatchUpEnabled))
@@ -271,8 +273,34 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.TrickPlayBufferLength, opt => opt.MapFrom(src => src.TrickPlayBufferLength))
                 .ForMember(dest => dest.RecordingScheduleWindow, opt => opt.MapFrom(src => src.RecordingScheduleWindow))
                 .ForMember(dest => dest.IsRecordingScheduleWindowEnabled, opt => opt.MapFrom(src => src.RecordingScheduleWindowEnabled));
-        }
 
+            #endregion
+
+            #region CDN Adapter
+
+            Mapper.CreateMap<KalturaCDNAdapterProfile, WebAPI.Api.CDNAdapter>()
+               .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+               .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
+               .ForMember(dest => dest.BaseUrl, opt => opt.MapFrom(src => src.BaseUrl))
+               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+               .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => ConvertCDNAdapterDynamicData(src.DynamicData)))
+               .ForMember(dest => dest.Alias, opt => opt.MapFrom(src => src.Alias))
+               .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret));
+
+            Mapper.CreateMap<WebAPI.Api.CDNAdapter, KalturaCDNAdapterProfile>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+              .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
+              .ForMember(dest => dest.BaseUrl, opt => opt.MapFrom(src => src.BaseUrl))
+              .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+              .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => ConvertCDNAdapterDynamicData(src.DynamicData)))
+              .ForMember(dest => dest.Alias, opt => opt.MapFrom(src => src.Alias))
+              .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret));
+
+            #endregion
+
+        }
 
         private static List<KalturaPermissionItem> ConvertPermissionItems(PermissionItem[] permissionItems)
         {
@@ -869,6 +897,53 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 break;
             }
 
+            return result;
+        }
+
+        public static WebAPI.Api.CDNAdapterDynamicData[] ConvertCDNAdapterDynamicData(SerializableDictionary<string, KalturaStringValue> dynamicData)
+        {
+            List<WebAPI.Api.CDNAdapterDynamicData> result = null;
+
+            if (dynamicData != null && dynamicData.Count > 0)
+            {
+                result = new List<WebAPI.Api.CDNAdapterDynamicData>();
+                WebAPI.Api.CDNAdapterDynamicData pc;
+                foreach (KeyValuePair<string, KalturaStringValue> data in dynamicData)
+                {
+                    if (!string.IsNullOrEmpty(data.Key))
+                    {
+                        pc = new WebAPI.Api.CDNAdapterDynamicData();
+                        pc.key = data.Key;
+                        pc.value = data.Value.value;
+                        result.Add(pc);
+                    }
+                }
+            }
+            if (result != null && result.Count > 0)
+            {
+                return result.ToArray();
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public static Dictionary<string, KalturaStringValue> ConvertCDNAdapterDynamicData(WebAPI.Api.CDNAdapterDynamicData[] dynamicData)
+        {
+            Dictionary<string, KalturaStringValue> result = null;
+
+            if (dynamicData != null && dynamicData.Count() > 0)
+            {
+                result = new Dictionary<string, KalturaStringValue>();
+                foreach (var data in dynamicData)
+                {
+                    if (!string.IsNullOrEmpty(data.key))
+                    {
+                        result.Add(data.key, new KalturaStringValue() { value = data.value });
+                    }
+                }
+            }
             return result;
         }
     }

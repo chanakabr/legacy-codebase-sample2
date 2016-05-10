@@ -7,7 +7,7 @@ using System.Web;
 using System.Xml.Serialization;
 using WebAPI.Models.General;
 
-namespace WebAPI.Models.ConditionalAccess
+namespace WebAPI.Models.API
 {
     /// <summary>
     /// CDN Adapter
@@ -37,6 +37,14 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("isActive")]
         [XmlElement(ElementName = "isActive")]
         public bool? IsActive { get; set; }
+
+        /// <summary>
+        /// CDN adapter URL
+        /// </summary>
+        [DataMember(Name = "adapterUrl")]
+        [JsonProperty("adapterUrl")]
+        [XmlElement(ElementName = "adapterUrl")]
+        public string AdapterUrl { get; set; }
 
         /// <summary>
         /// CDN adapter base URL

@@ -597,6 +597,12 @@
     <Content Include="Web References\Api\OSSAdapterEntitlementsResponse1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
+    <Content Include="Web References\Api\CDNAdapterListResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\CDNAdapterResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\Api\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
@@ -722,12 +728,6 @@
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\ConditionalAccess\CDVRAdapterResponseList.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\CDNAdapterListResponse.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </Content>
-    <Content Include="Web References\ConditionalAccess\CDNAdapterResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <None Include="Web References\ConditionalAccess\module.disco" />
@@ -1083,7 +1083,7 @@
     <Compile Include="Managers\RolesManager.cs" />
     <Compile Include="Managers\Schema\ValidationException.cs" />
     <Compile Include="Managers\Schema\SchemaValidationType.cs" />
-    <Compile Include="Models\ConditionalAccess\KalturaCDNAdapterProfile.cs" />
+    <Compile Include="Models\API\KalturaCDNAdapterProfile.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaCDVRAdapterProfile.cs" />
     <Compile Include="Models\API\KalturaPermissionsFilter.cs" />
     <Compile Include="Models\API\KalturaExportFilter.cs" />

@@ -800,140 +800,6 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="GetCDNAdapters">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="GetCDNAdaptersResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetCDNAdaptersResult" type="tns:CDNAdapterListResponse" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:complexType name="CDNAdapterListResponse">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
-          <s:element minOccurs="0" maxOccurs="1" name="Adapters" type="tns:ArrayOfCDNAdapter" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="ArrayOfCDNAdapter">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="CDNAdapter" nillable="true" type="tns:CDNAdapter" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="CDNAdapter">
-        <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="ID" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="IsActive" type="s:boolean" />
-          <s:element minOccurs="0" maxOccurs="1" name="BaseUrl" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="Alias" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="SharedSecret" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="DynamicData" type="tns:ArrayOfCDNAdapterDynamicData" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="ArrayOfCDNAdapterDynamicData">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="CDNAdapterDynamicData" nillable="true" type="tns:CDNAdapterDynamicData" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="CDNAdapterDynamicData">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="key" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
-        </s:sequence>
-      </s:complexType>
-      <s:element name="DeleteCDNAdapter">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="adapterId" type="s:int" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="DeleteCDNAdapterResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="DeleteCDNAdapterResult" type="tns:Status" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="InsertCDNAdapter">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="adapter" type="tns:CDNAdapter" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="InsertCDNAdapterResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="InsertCDNAdapterResult" type="tns:CDNAdapterResponse" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:complexType name="CDNAdapterResponse">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
-          <s:element minOccurs="0" maxOccurs="1" name="Adapter" type="tns:CDNAdapter" />
-        </s:sequence>
-      </s:complexType>
-      <s:element name="GenerateCDNSharedSecret">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="adapterId" type="s:int" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="GenerateCDNSharedSecretResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GenerateCDNSharedSecretResult" type="tns:CDNAdapterResponse" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="SetCDNAdapter">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="adapter" type="tns:CDNAdapter" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="SetCDNAdapterResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="SetCDNAdapterResult" type="tns:CDNAdapterResponse" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="SendCDNAdapterConfiguration">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="adapterID" type="s:int" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="SendCDNAdapterConfigurationResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="SendCDNAdapterConfigurationResult" type="tns:CDNAdapterResponse" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
       <s:element name="GetUserPermittedItems">
         <s:complexType>
           <s:sequence>
@@ -3026,26 +2892,6 @@
           <s:element minOccurs="0" maxOccurs="1" name="assetID" type="s:string" />
         </s:sequence>
       </s:complexType>
-      <s:complexType name="RecordNPVRCommand">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:BaseNPVRCommand" />
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="CancelNPVRCommand">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:BaseNPVRCommand" />
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="DeleteNPVRCommand">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:BaseNPVRCommand" />
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="RetrieveQuotaNPVRCommand">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:BaseNPVRCommand" />
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="LicensedLinkNPVRCommand">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseNPVRCommand">
@@ -3082,12 +2928,32 @@
           <s:extension base="tns:BaseNPVRCommand" />
         </s:complexContent>
       </s:complexType>
+      <s:complexType name="RecordSeriesByProgramIdNPVRCommand">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:BaseNPVRCommand" />
+        </s:complexContent>
+      </s:complexType>
       <s:complexType name="CancelSeriesNPVRCommand">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseNPVRCommand" />
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="RecordSeriesByProgramIdNPVRCommand">
+      <s:complexType name="RecordNPVRCommand">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:BaseNPVRCommand" />
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="CancelNPVRCommand">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:BaseNPVRCommand" />
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="DeleteNPVRCommand">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:BaseNPVRCommand" />
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="RetrieveQuotaNPVRCommand">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseNPVRCommand" />
         </s:complexContent>
@@ -3105,21 +2971,6 @@
           <s:element minOccurs="0" maxOccurs="1" name="msg" type="s:string" />
         </s:sequence>
       </s:complexType>
-      <s:complexType name="QuotaResponse">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:NPVRResponse">
-            <s:sequence>
-              <s:element minOccurs="1" maxOccurs="1" name="totalQuota" type="s:long" />
-              <s:element minOccurs="1" maxOccurs="1" name="occupiedQuota" type="s:long" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="CancelDeleteResponse">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:NPVRResponse" />
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="LicensedLinkNPVRResponse">
         <s:complexContent mixed="false">
           <s:extension base="tns:NPVRResponse">
@@ -3134,6 +2985,21 @@
           <s:extension base="tns:NPVRResponse">
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="recordingID" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="CancelDeleteResponse">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:NPVRResponse" />
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="QuotaResponse">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:NPVRResponse">
+            <s:sequence>
+              <s:element minOccurs="1" maxOccurs="1" name="totalQuota" type="s:long" />
+              <s:element minOccurs="1" maxOccurs="1" name="occupiedQuota" type="s:long" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -3301,8 +3167,6 @@
       <s:element name="CDVRAdapterResponse" nillable="true" type="tns:CDVRAdapterResponse" />
       <s:element name="Recording" nillable="true" type="tns:Recording" />
       <s:element name="RecordingResponse" nillable="true" type="tns:RecordingResponse" />
-      <s:element name="CDNAdapterListResponse" nillable="true" type="tns:CDNAdapterListResponse" />
-      <s:element name="CDNAdapterResponse" nillable="true" type="tns:CDNAdapterResponse" />
       <s:element name="ArrayOfPermittedMediaContainer" nillable="true" type="tns:ArrayOfPermittedMediaContainer" />
       <s:element name="PermittedMediaContainerResponse" nillable="true" type="tns:PermittedMediaContainerResponse" />
       <s:element name="UserCAStatus" type="tns:UserCAStatus" />
@@ -3750,42 +3614,6 @@
   </wsdl:message>
   <wsdl:message name="RecoverRecordingMessagesSoapOut">
     <wsdl:part name="parameters" element="tns:RecoverRecordingMessagesResponse" />
-  </wsdl:message>
-  <wsdl:message name="GetCDNAdaptersSoapIn">
-    <wsdl:part name="parameters" element="tns:GetCDNAdapters" />
-  </wsdl:message>
-  <wsdl:message name="GetCDNAdaptersSoapOut">
-    <wsdl:part name="parameters" element="tns:GetCDNAdaptersResponse" />
-  </wsdl:message>
-  <wsdl:message name="DeleteCDNAdapterSoapIn">
-    <wsdl:part name="parameters" element="tns:DeleteCDNAdapter" />
-  </wsdl:message>
-  <wsdl:message name="DeleteCDNAdapterSoapOut">
-    <wsdl:part name="parameters" element="tns:DeleteCDNAdapterResponse" />
-  </wsdl:message>
-  <wsdl:message name="InsertCDNAdapterSoapIn">
-    <wsdl:part name="parameters" element="tns:InsertCDNAdapter" />
-  </wsdl:message>
-  <wsdl:message name="InsertCDNAdapterSoapOut">
-    <wsdl:part name="parameters" element="tns:InsertCDNAdapterResponse" />
-  </wsdl:message>
-  <wsdl:message name="GenerateCDNSharedSecretSoapIn">
-    <wsdl:part name="parameters" element="tns:GenerateCDNSharedSecret" />
-  </wsdl:message>
-  <wsdl:message name="GenerateCDNSharedSecretSoapOut">
-    <wsdl:part name="parameters" element="tns:GenerateCDNSharedSecretResponse" />
-  </wsdl:message>
-  <wsdl:message name="SetCDNAdapterSoapIn">
-    <wsdl:part name="parameters" element="tns:SetCDNAdapter" />
-  </wsdl:message>
-  <wsdl:message name="SetCDNAdapterSoapOut">
-    <wsdl:part name="parameters" element="tns:SetCDNAdapterResponse" />
-  </wsdl:message>
-  <wsdl:message name="SendCDNAdapterConfigurationSoapIn">
-    <wsdl:part name="parameters" element="tns:SendCDNAdapterConfiguration" />
-  </wsdl:message>
-  <wsdl:message name="SendCDNAdapterConfigurationSoapOut">
-    <wsdl:part name="parameters" element="tns:SendCDNAdapterConfigurationResponse" />
   </wsdl:message>
   <wsdl:message name="GetUserPermittedItemsSoapIn">
     <wsdl:part name="parameters" element="tns:GetUserPermittedItems" />
@@ -4510,37 +4338,6 @@
   </wsdl:message>
   <wsdl:message name="RecoverRecordingMessagesHttpPostOut">
     <wsdl:part name="Body" element="tns:Status" />
-  </wsdl:message>
-  <wsdl:message name="GetCDNAdaptersHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetCDNAdaptersHttpPostOut">
-    <wsdl:part name="Body" element="tns:CDNAdapterListResponse" />
-  </wsdl:message>
-  <wsdl:message name="DeleteCDNAdapterHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="adapterId" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="DeleteCDNAdapterHttpPostOut">
-    <wsdl:part name="Body" element="tns:Status" />
-  </wsdl:message>
-  <wsdl:message name="GenerateCDNSharedSecretHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="adapterId" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GenerateCDNSharedSecretHttpPostOut">
-    <wsdl:part name="Body" element="tns:CDNAdapterResponse" />
-  </wsdl:message>
-  <wsdl:message name="SendCDNAdapterConfigurationHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="adapterID" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="SendCDNAdapterConfigurationHttpPostOut">
-    <wsdl:part name="Body" element="tns:CDNAdapterResponse" />
   </wsdl:message>
   <wsdl:message name="GetUserPermittedItemsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -5717,30 +5514,6 @@
       <wsdl:input message="tns:RecoverRecordingMessagesSoapIn" />
       <wsdl:output message="tns:RecoverRecordingMessagesSoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="GetCDNAdapters">
-      <wsdl:input message="tns:GetCDNAdaptersSoapIn" />
-      <wsdl:output message="tns:GetCDNAdaptersSoapOut" />
-    </wsdl:operation>
-    <wsdl:operation name="DeleteCDNAdapter">
-      <wsdl:input message="tns:DeleteCDNAdapterSoapIn" />
-      <wsdl:output message="tns:DeleteCDNAdapterSoapOut" />
-    </wsdl:operation>
-    <wsdl:operation name="InsertCDNAdapter">
-      <wsdl:input message="tns:InsertCDNAdapterSoapIn" />
-      <wsdl:output message="tns:InsertCDNAdapterSoapOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GenerateCDNSharedSecret">
-      <wsdl:input message="tns:GenerateCDNSharedSecretSoapIn" />
-      <wsdl:output message="tns:GenerateCDNSharedSecretSoapOut" />
-    </wsdl:operation>
-    <wsdl:operation name="SetCDNAdapter">
-      <wsdl:input message="tns:SetCDNAdapterSoapIn" />
-      <wsdl:output message="tns:SetCDNAdapterSoapOut" />
-    </wsdl:operation>
-    <wsdl:operation name="SendCDNAdapterConfiguration">
-      <wsdl:input message="tns:SendCDNAdapterConfigurationSoapIn" />
-      <wsdl:output message="tns:SendCDNAdapterConfigurationSoapOut" />
-    </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <wsdl:input message="tns:GetUserPermittedItemsSoapIn" />
       <wsdl:output message="tns:GetUserPermittedItemsSoapOut" />
@@ -6166,22 +5939,6 @@
     <wsdl:operation name="RecoverRecordingMessages">
       <wsdl:input message="tns:RecoverRecordingMessagesHttpPostIn" />
       <wsdl:output message="tns:RecoverRecordingMessagesHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetCDNAdapters">
-      <wsdl:input message="tns:GetCDNAdaptersHttpPostIn" />
-      <wsdl:output message="tns:GetCDNAdaptersHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="DeleteCDNAdapter">
-      <wsdl:input message="tns:DeleteCDNAdapterHttpPostIn" />
-      <wsdl:output message="tns:DeleteCDNAdapterHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GenerateCDNSharedSecret">
-      <wsdl:input message="tns:GenerateCDNSharedSecretHttpPostIn" />
-      <wsdl:output message="tns:GenerateCDNSharedSecretHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="SendCDNAdapterConfiguration">
-      <wsdl:input message="tns:SendCDNAdapterConfigurationHttpPostIn" />
-      <wsdl:output message="tns:SendCDNAdapterConfigurationHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <wsdl:input message="tns:GetUserPermittedItemsHttpPostIn" />
@@ -6724,60 +6481,6 @@
     </wsdl:operation>
     <wsdl:operation name="RecoverRecordingMessages">
       <soap:operation soapAction="http://ca.tvinci.com/RecoverRecordingMessages" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetCDNAdapters">
-      <soap:operation soapAction="http://ca.tvinci.com/GetCDNAdapters" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="DeleteCDNAdapter">
-      <soap:operation soapAction="http://ca.tvinci.com/DeleteCDNAdapter" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="InsertCDNAdapter">
-      <soap:operation soapAction="http://ca.tvinci.com/InsertCDNAdapter" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GenerateCDNSharedSecret">
-      <soap:operation soapAction="http://ca.tvinci.com/GenerateCDNSharedSecret" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="SetCDNAdapter">
-      <soap:operation soapAction="http://ca.tvinci.com/SetCDNAdapter" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="SendCDNAdapterConfiguration">
-      <soap:operation soapAction="http://ca.tvinci.com/SendCDNAdapterConfiguration" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -7787,60 +7490,6 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="GetCDNAdapters">
-      <soap12:operation soapAction="http://ca.tvinci.com/GetCDNAdapters" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="DeleteCDNAdapter">
-      <soap12:operation soapAction="http://ca.tvinci.com/DeleteCDNAdapter" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="InsertCDNAdapter">
-      <soap12:operation soapAction="http://ca.tvinci.com/InsertCDNAdapter" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GenerateCDNSharedSecret">
-      <soap12:operation soapAction="http://ca.tvinci.com/GenerateCDNSharedSecret" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="SetCDNAdapter">
-      <soap12:operation soapAction="http://ca.tvinci.com/SetCDNAdapter" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="SendCDNAdapterConfiguration">
-      <soap12:operation soapAction="http://ca.tvinci.com/SendCDNAdapterConfiguration" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <soap12:operation soapAction="http://ca.tvinci.com/GetUserPermittedItems" style="document" />
       <wsdl:input>
@@ -8791,42 +8440,6 @@
     </wsdl:operation>
     <wsdl:operation name="RecoverRecordingMessages">
       <http:operation location="/RecoverRecordingMessages" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetCDNAdapters">
-      <http:operation location="/GetCDNAdapters" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="DeleteCDNAdapter">
-      <http:operation location="/DeleteCDNAdapter" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GenerateCDNSharedSecret">
-      <http:operation location="/GenerateCDNSharedSecret" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="SendCDNAdapterConfiguration">
-      <http:operation location="/SendCDNAdapterConfiguration" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
