@@ -40,19 +40,20 @@ public partial class adm_cdvr_adapter_settings_new : System.Web.UI.Page
                 if (Session["cdvr_adapter_id"] != null && !string.IsNullOrEmpty(Session["cdvr_adapter_id"].ToString()) && int.TryParse(Session["cdvr_adapter_id"].ToString(), out cdvrAdapterId))
                 {
                     // set adapter configuration
-                    apiWS.API api = new apiWS.API();
+                    ca_ws.module cas = new ca_ws.module();
 
                     string sIP = "1.1.1.1";
                     string sWSUserName = "";
                     string sWSPass = "";
-                    TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "SetCDVRAdapterConfiguration", "api", sIP, ref sWSUserName, ref sWSPass);
-                    string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
+                    TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "SendCDVRAdapterConfiguration", "cas", sIP, ref sWSUserName, ref sWSPass);
+                    string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("conditionalaccess_ws");
                     if (!string.IsNullOrEmpty(sWSURL))
-                        api.Url = sWSURL;
+                        cas.Url = sWSURL;
                     try
                     {
-                        apiWS.Status status = api.SetOSSAdapterConfiguration(sWSUserName, sWSPass, cdvrAdapterId);
-                        log.Debug("SetOSSAdapterConfiguration - " + string.Format("oass adapter id:{0}, status:{1}", cdvrAdapterId, status.Code));
+                        ca_ws.CDVRAdapterResponse response = cas.SendCDVRAdapterConfiguration(sWSUserName, sWSPass, cdvrAdapterId);
+                        log.Debug("SetCDVRAdapterConfiguration - " + string.Format("cdvr adapter id:{0}, status:{1}", 
+                            cdvrAdapterId, response != null && response.Status != null ? response.Status.Code : -1));
 
                         // remove adapter from cache
                         string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");

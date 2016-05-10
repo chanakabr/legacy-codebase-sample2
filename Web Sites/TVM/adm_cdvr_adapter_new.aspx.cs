@@ -64,7 +64,7 @@ public partial class adm_cdvr_adapter_new : System.Web.UI.Page
                             try
                             {
                                 CDVRAdapterResponse status = cas.SendCDVRAdapterConfiguration(sWSUserName, sWSPass, nID);
-                                log.Debug("SetOSSAdapterConfiguration - " + string.Format("oss adapter id:{0}, status:{1}", nID, status.Status != null ? status.Status.Code: 1));
+                                log.Debug("SendCDVRAdapterConfiguration - " + string.Format("cdvr adapter id:{0}, status:{1}", nID, status.Status != null ? status.Status.Code : 1));
 
                                 // remove adapter from cache
                                 string version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
