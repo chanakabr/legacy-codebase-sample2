@@ -99,7 +99,7 @@
     <Compile Include="Billing\PaymentGatewayAssociate.cs" />
     <Compile Include="Billing\PaymentMethod.cs" />
     <Compile Include="CDNAdapter\CDNAdapter.cs" />
-    <Compile Include="CDNAdapter\CDNAdapterDynamicData.cs" />
+    <Compile Include="CDNAdapter\CDNAdapterSettings.cs" />
     <Compile Include="CDNAdapter\CDNAdapterListResponse.cs" />
     <Compile Include="CDNAdapter\CDNAdapterResponse.cs" />
     <Compile Include="CDNAdapter\LinkResult.cs" />

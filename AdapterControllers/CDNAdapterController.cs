@@ -74,7 +74,7 @@ namespace AdapterControllers
                 {
                     RecommendationEngineAdapter.AdapterStatus adapterResponse =
                         client.SetConfiguration(adapter.ID,
-                        adapter.DynamicData != null ? adapter.DynamicData.Select(setting => new RecommendationEngineAdapter.KeyValue()
+                        adapter.Settings != null ? adapter.Settings.Select(setting => new RecommendationEngineAdapter.KeyValue()
                         {
                             Key = setting.key,
                             Value = setting.value

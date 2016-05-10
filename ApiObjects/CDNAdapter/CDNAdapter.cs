@@ -16,11 +16,11 @@ namespace ApiObjects.CDNAdapter
         public string Alias { get; set; }        
         public string SharedSecret { get; set; }        
 
-        public List<CDNAdapterDynamicData> DynamicData { get; set; }
+        public List<CDNAdapterSettings> Settings { get; set; }
          
         public CDNAdapter()
         {
-            DynamicData = new List<CDNAdapterDynamicData>();
+            Settings = new List<CDNAdapterSettings>();
         }
 
         public CDNAdapter(CDNAdapter cdnAdapter)
@@ -32,7 +32,7 @@ namespace ApiObjects.CDNAdapter
             this.BaseUrl = cdnAdapter.BaseUrl;
             this.Alias = cdnAdapter.Alias;
             this.SharedSecret = cdnAdapter.SharedSecret;
-            this.DynamicData = cdnAdapter.DynamicData;            
+            this.Settings = cdnAdapter.Settings;            
         }
     }
 }

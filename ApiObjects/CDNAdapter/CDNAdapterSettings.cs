@@ -5,16 +5,16 @@ using System.Text;
 
 namespace ApiObjects.CDNAdapter
 {
-    public class CDNAdapterDynamicData
+    public class CDNAdapterSettings
     {
         public string key { get; set; }
         public string value { get; set; }       
 
-        public CDNAdapterDynamicData()
+        public CDNAdapterSettings()
         {
         }
 
-        public CDNAdapterDynamicData(string key, string value)
+        public CDNAdapterSettings(string key, string value)
         {             
             this.key = key;
             this.value = value; 

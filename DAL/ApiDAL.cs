@@ -3458,7 +3458,7 @@ namespace DAL
 
                         if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
                         {
-                            Dictionary<int, List<CDNAdapterDynamicData>> adapterToDynamicDataMap = new Dictionary<int, List<CDNAdapterDynamicData>>();
+                            Dictionary<int, List<CDNAdapterSettings>> adapterToDynamicDataMap = new Dictionary<int, List<CDNAdapterSettings>>();
                             foreach (DataRow dr in ds.Tables[1].Rows)
                             {
                                 string key = ODBCWrapper.Utils.GetSafeStr(dr, "key");
@@ -3466,16 +3466,16 @@ namespace DAL
                                 int adapterId = ODBCWrapper.Utils.GetIntSafeVal(dr, "adapter_id");
                                 if (!adapterToDynamicDataMap.ContainsKey(adapterId))
                                 {
-                                    adapterToDynamicDataMap.Add(adapterId, new List<CDNAdapterDynamicData>());
+                                    adapterToDynamicDataMap.Add(adapterId, new List<CDNAdapterSettings>());
                                 }
-                                adapterToDynamicDataMap[adapterId].Add(new CDNAdapterDynamicData(key, value));
+                                adapterToDynamicDataMap[adapterId].Add(new CDNAdapterSettings(key, value));
                             }
 
                             foreach (var adapterRes in res)
                             {
                                 if (adapterToDynamicDataMap.ContainsKey(adapterRes.ID))
                                 {
-                                    adapterRes.DynamicData = adapterToDynamicDataMap[adapterRes.ID];
+                                    adapterRes.Settings = adapterToDynamicDataMap[adapterRes.ID];
                                 }
                             }
                         }
@@ -3538,11 +3538,11 @@ namespace DAL
                     {
                         string key = ODBCWrapper.Utils.GetSafeStr(dr, "key");
                         string value = ODBCWrapper.Utils.GetSafeStr(dr, "value");
-                        if (adapterResponse.DynamicData == null)
+                        if (adapterResponse.Settings == null)
                         {
-                            adapterResponse.DynamicData = new List<CDNAdapterDynamicData>();
+                            adapterResponse.Settings = new List<CDNAdapterSettings>();
                         }
-                        adapterResponse.DynamicData.Add(new CDNAdapterDynamicData(key, value));
+                        adapterResponse.Settings.Add(new CDNAdapterSettings(key, value));
                     }
                 }
             }
@@ -3605,7 +3605,7 @@ namespace DAL
                 sp.AddParameter("@alias", adapter.Alias);
                 sp.AddParameter("@shared_secret", adapter.SharedSecret);
 
-                DataTable dt = CreateDataTableFromCdnDynamicData(adapter.DynamicData);
+                DataTable dt = CreateDataTableFromCdnDynamicData(adapter.Settings);
                 sp.AddDataTableParameter("@KeyValueList", dt);
 
                 DataSet ds = sp.ExecuteDataSet();
@@ -3621,13 +3621,13 @@ namespace DAL
             return adapterResponse;
         }
 
-        private static DataTable CreateDataTableFromCdnDynamicData(List<CDNAdapterDynamicData> dynamicData)
+        private static DataTable CreateDataTableFromCdnDynamicData(List<CDNAdapterSettings> dynamicData)
         {
             DataTable resultTable = new DataTable("resultTable"); ;
             resultTable.Columns.Add("idkey", typeof(string));
             resultTable.Columns.Add("value", typeof(string));
 
-            foreach (CDNAdapterDynamicData item in dynamicData)
+            foreach (CDNAdapterSettings item in dynamicData)
             {
                 DataRow row = resultTable.NewRow();
                 row["idkey"] = item.key;
@@ -3676,7 +3676,7 @@ namespace DAL
                 sp.AddParameter("@adapter_url", adapter.AdapterUrl);
                 sp.AddParameter("@base_url", adapter.BaseUrl);
                 sp.AddParameter("@isActive", adapter.IsActive);
-                DataTable dt = CreateDataTableFromCdnDynamicData(adapter.DynamicData);
+                DataTable dt = CreateDataTableFromCdnDynamicData(adapter.Settings);
                 sp.AddDataTableParameter("@KeyValueList", dt);
 
                 DataSet ds = sp.ExecuteDataSet();
