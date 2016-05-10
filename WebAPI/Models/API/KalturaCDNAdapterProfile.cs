@@ -55,11 +55,11 @@ namespace WebAPI.Models.API
         public string BaseUrl { get; set; }
 
         /// <summary>
-        /// CDN adapter dynamic data
+        /// CDN adapter settings
         /// </summary>
-        [DataMember(Name = "dynamicData")]
-        [JsonProperty("dynamicData")]
-        [XmlElement("dynamicData", IsNullable = true)]
+        [DataMember(Name = "settings")]
+        [JsonProperty("settings")]
+        [XmlElement("settings", IsNullable = true)]
         public SerializableDictionary<string, KalturaStringValue> Settings { get; set; }
 
         /// <summary>
