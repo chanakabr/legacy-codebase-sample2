@@ -295,7 +295,9 @@ namespace Recordings
                             // Count current try to get status - first and foremost
                             currentRecording.GetStatusRetries++;
 
-                            UpdateRecording(groupId, currentRecording.EpgId, currentRecording.EpgStartDate, currentRecording.EpgEndDate);
+                            ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1, null);
+
+                            //UpdateRecording(groupId, currentRecording.EpgId, currentRecording.EpgStartDate, currentRecording.EpgEndDate);
 
                             DateTime nextCheck = DateTime.UtcNow.AddMinutes(MINUTES_RETRY_INTERVAL);
 
