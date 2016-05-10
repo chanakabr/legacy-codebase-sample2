@@ -97,6 +97,26 @@ namespace RecordingTaskHandler
 
                         break;
                     }
+                    case eRecordingTask.UpdateRecording:
+                    {
+                        long[] epgs = new long[]{request.ProgramId};
+                        var status = cas.UpdateRecording(username, password, epgs, WS_CAS.eAction.Update);
+
+                        if (status == null)
+                        {
+                            message = "status is null";
+                        }
+                        else if (status.Code != 0)
+                        {
+                            message = string.Format("Status code is {0} and message is {1}", status.Code, status.Message);
+                        }
+                        else
+                        {
+                            success = true;
+                        }
+
+                        break;
+                    }
                 }
 
                 if (!success)
