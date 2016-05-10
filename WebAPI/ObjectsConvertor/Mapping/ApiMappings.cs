@@ -284,7 +284,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
                .ForMember(dest => dest.BaseUrl, opt => opt.MapFrom(src => src.BaseUrl))
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
-               .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => ConvertCDNAdapterDynamicData(src.DynamicData)))
+               .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertCDNAdapterSettings(src.Settings)))
                .ForMember(dest => dest.Alias, opt => opt.MapFrom(src => src.Alias))
                .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret));
 
@@ -294,7 +294,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
               .ForMember(dest => dest.BaseUrl, opt => opt.MapFrom(src => src.BaseUrl))
               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
-              .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => ConvertCDNAdapterDynamicData(src.DynamicData)))
+              .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertCDNAdapterSettings(src.Settings)))
               .ForMember(dest => dest.Alias, opt => opt.MapFrom(src => src.Alias))
               .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret));
 
@@ -900,19 +900,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        public static WebAPI.Api.CDNAdapterDynamicData[] ConvertCDNAdapterDynamicData(SerializableDictionary<string, KalturaStringValue> dynamicData)
+        public static WebAPI.Api.CDNAdapterSettings[] ConvertCDNAdapterSettings(SerializableDictionary<string, KalturaStringValue> settings)
         {
-            List<WebAPI.Api.CDNAdapterDynamicData> result = null;
+            List<WebAPI.Api.CDNAdapterSettings> result = null;
 
-            if (dynamicData != null && dynamicData.Count > 0)
+            if (settings != null && settings.Count > 0)
             {
-                result = new List<WebAPI.Api.CDNAdapterDynamicData>();
-                WebAPI.Api.CDNAdapterDynamicData pc;
-                foreach (KeyValuePair<string, KalturaStringValue> data in dynamicData)
+                result = new List<WebAPI.Api.CDNAdapterSettings>();
+                WebAPI.Api.CDNAdapterSettings pc;
+                foreach (KeyValuePair<string, KalturaStringValue> data in settings)
                 {
                     if (!string.IsNullOrEmpty(data.Key))
                     {
-                        pc = new WebAPI.Api.CDNAdapterDynamicData();
+                        pc = new WebAPI.Api.CDNAdapterSettings();
                         pc.key = data.Key;
                         pc.value = data.Value.value;
                         result.Add(pc);
@@ -929,14 +929,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
         }
 
-        public static Dictionary<string, KalturaStringValue> ConvertCDNAdapterDynamicData(WebAPI.Api.CDNAdapterDynamicData[] dynamicData)
+        public static Dictionary<string, KalturaStringValue> ConvertCDNAdapterSettings(WebAPI.Api.CDNAdapterSettings[] settings)
         {
             Dictionary<string, KalturaStringValue> result = null;
 
-            if (dynamicData != null && dynamicData.Count() > 0)
+            if (settings != null && settings.Count() > 0)
             {
                 result = new Dictionary<string, KalturaStringValue>();
-                foreach (var data in dynamicData)
+                foreach (var data in settings)
                 {
                     if (!string.IsNullOrEmpty(data.key))
                     {

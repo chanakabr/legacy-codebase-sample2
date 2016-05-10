@@ -13361,7 +13361,7 @@ namespace WebAPI.Api {
         
         private string sharedSecretField;
         
-        private CDNAdapterDynamicData[] dynamicDataField;
+        private CDNAdapterSettings[] settingsField;
         
         /// <remarks/>
         public int ID {
@@ -13434,12 +13434,12 @@ namespace WebAPI.Api {
         }
         
         /// <remarks/>
-        public CDNAdapterDynamicData[] DynamicData {
+        public CDNAdapterSettings[] Settings {
             get {
-                return this.dynamicDataField;
+                return this.settingsField;
             }
             set {
-                this.dynamicDataField = value;
+                this.settingsField = value;
             }
         }
     }
@@ -13450,7 +13450,7 @@ namespace WebAPI.Api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class CDNAdapterDynamicData {
+    public partial class CDNAdapterSettings {
         
         private string keyField;
         

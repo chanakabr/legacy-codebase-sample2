@@ -60,7 +60,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "dynamicData")]
         [JsonProperty("dynamicData")]
         [XmlElement("dynamicData", IsNullable = true)]
-        public SerializableDictionary<string, KalturaStringValue> DynamicData { get; set; }
+        public SerializableDictionary<string, KalturaStringValue> Settings { get; set; }
 
         /// <summary>
         /// CDN adapter alias
