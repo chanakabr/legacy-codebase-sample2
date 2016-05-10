@@ -175,7 +175,7 @@ namespace Recordings
                 else
                 {
                     // if this program is in the past (because it moved, for example)
-                    if (recording.EpgStartDate < DateTime.UtcNow.AddMinutes(1))
+                    if (recording.EpgStartDate.AddMinutes(1) < DateTime.UtcNow)
                     {
                         string message = string.Format("Retry Record - Recording with Id = {0} in group {1} is already in the past", recordingId, groupId);
                         log.Error(message);
