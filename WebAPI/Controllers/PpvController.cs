@@ -19,7 +19,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">ppv identifier</param>
         /// <returns></returns>
-        /// <remarks>Possible status codes: BadRequest = 500003, ModuleNotExists = 9016</remarks>     
+        /// <remarks>Possible status codes: ModuleNotExists = 9016</remarks>     
         [Route("get"), HttpPost]
         [ApiAuthorize]
         public KalturaPpv Get(long id)
