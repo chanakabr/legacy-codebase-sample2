@@ -839,21 +839,24 @@ namespace Recordings
 
         private static void RetryTaskAfterProgramEnded(int groupId, Recording currentRecording, DateTime nextCheck, eRecordingTask recordingTask)
         {
-            log.DebugFormat("Retry task groupId {0}, recordingId {1}, nextCheck {2}, recordingTask {3}",
-                groupId, currentRecording.Id, nextCheck.ToString(), recordingTask.ToString());
-
             // Retry in a few minutes if we still didn't exceed retries count
             if (currentRecording.GetStatusRetries <= MAXIMUM_RETRIES_ALLOWED)
             {
+                log.DebugFormat("Try to enqueue retry task: groupId {0}, recordingId {1}, nextCheck {2}, recordingTask {3}, retries {4}",
+                    groupId, currentRecording.Id, nextCheck.ToString(), recordingTask.ToString(), currentRecording.GetStatusRetries);
+
                 EnqueueMessage(groupId, currentRecording.EpgId, currentRecording.Id, nextCheck, recordingTask);
             }
             else
             {
+                log.DebugFormat("Exceeded allowed retried count, trying to mark as failed: groupId {0}, recordingId {1}, nextCheck {2}, recordingTask {3}, retries {4}",
+                    groupId, currentRecording.Id, nextCheck.ToString(), recordingTask.ToString(), currentRecording.GetStatusRetries);
+
                 // Otherwise, we tried too much! Mark this recording as failed. Sorry mates!
                 currentRecording.RecordingStatus = TstvRecordingStatus.Failed;
 
                 // Update recording after updating the status
-                ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1, null);
+                ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1, RecordingInternalStatus.Failed);
             }
         }
 
