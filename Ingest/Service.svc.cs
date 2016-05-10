@@ -28,7 +28,7 @@ namespace Ingest
             };
 
             // get group id
-            int groupId = 215;// ClientsManager.ApiClient().GetGroupIdByUsernamePassword(username, password);
+            int groupId =  ClientsManager.ApiClient().GetGroupIdByUsernamePassword(username, password);
 
             if (groupId > 0)
             {
