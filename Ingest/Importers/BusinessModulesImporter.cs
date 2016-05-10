@@ -352,7 +352,8 @@ namespace Ingest.Importers
                 string strVal;
                 double dVal;
                 eIngestAction actionVal;
-                bool boolVal;
+                bool boolMandatoryVal;
+                bool? boolVal;                
                 int intVal;
 
                 foreach (XmlNode node in nodes)
@@ -382,8 +383,8 @@ namespace Ingest.Importers
                         }
 
                         // is active - mandatory
-                        if (GetMandatoryAttributeBoolValue(node, "is_active", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, pricePlan.Action.ToString().ToLower(), out boolVal))
-                            pricePlan.IsActive = boolVal;
+                        if (GetMandatoryAttributeBoolValue(node, "is_active", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, pricePlan.Action.ToString().ToLower(), out boolMandatoryVal))
+                            pricePlan.IsActive = boolMandatoryVal;
                         else
                             continue;
 
@@ -440,6 +441,8 @@ namespace Ingest.Importers
                         nodeList = node.SelectNodes("discount");
                         if (nodeList != null && nodeList.Count > 0)
                             pricePlan.Discount = nodeList[0].InnerText;
+                        else //discount filed is NOT provided
+                            pricePlan.Discount = null;
 
                         // add price plan to response list
                         pricePlans.Add(pricePlan);
@@ -473,10 +476,11 @@ namespace Ingest.Importers
                 XmlNodeList nodeList;
                 string strVal;
                 eIngestAction actionVal;
-                bool boolVal;
+                bool boolMandatoryVal;
+                bool? boolVal;
                 KeyValuePair[] keyValArr;
-                DateTime dateVal;
-                int intVal;
+                DateTime? dateVal;
+                int? intVal;
 
                 foreach (XmlNode node in nodes)
                 {
@@ -505,8 +509,8 @@ namespace Ingest.Importers
                         }
 
                         // is active - mandatory
-                        if (GetMandatoryAttributeBoolValue(node, "is_active", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, reportId, multiPricePlan.Action.ToString().ToLower(), out boolVal))
-                            multiPricePlan.IsActive = boolVal;
+                        if (GetMandatoryAttributeBoolValue(node, "is_active", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, reportId, multiPricePlan.Action.ToString().ToLower(), out boolMandatoryVal))
+                            multiPricePlan.IsActive = boolMandatoryVal;
                         else
                             continue;
 
@@ -579,21 +583,29 @@ namespace Ingest.Importers
                         nodeList = node.SelectNodes("coupon_group");
                         if (nodeList != null && nodeList.Count > 0)
                             multiPricePlan.CouponGroup = nodeList[0].InnerText;
+                        else
+                            multiPricePlan.CouponGroup = null;
 
                         // product code
                         nodeList = node.SelectNodes("product_code");
                         if (nodeList != null && nodeList.Count > 0)
                             multiPricePlan.ProductCode = nodeList[0].InnerText;
+                        else
+                            multiPricePlan.ProductCode = null;
 
                         // preview module - not supported
                         nodeList = node.SelectNodes("preview_module");
                         if (nodeList != null && nodeList.Count > 0)
                             multiPricePlan.PreviewModule = nodeList[0].InnerText;
+                        else
+                            multiPricePlan.PreviewModule = null;
 
                         // domain limitation module - not supported
                         nodeList = node.SelectNodes("domain_limitation_module");
                         if (nodeList != null && nodeList.Count > 0)
                             multiPricePlan.DomainLimitationModule = nodeList[0].InnerText;
+                        else
+                            multiPricePlan.DomainLimitationModule = null;
 
                         // add multi price plan to response list
                         multiPricePlans.Add(multiPricePlan);
@@ -629,7 +641,9 @@ namespace Ingest.Importers
                 string strVal;
                 double dVal;
                 eIngestAction actionVal;
-                bool boolVal;
+                bool boolMandatoryVal;
+                bool? boolVal;
+
                 KeyValuePair[] keyValArr;
 
                 foreach (XmlNode node in nodes)
@@ -659,8 +673,8 @@ namespace Ingest.Importers
                         }
 
                         // is active - mandatory
-                        if (GetMandatoryAttributeBoolValue(node, "is_active", PPV, ppv.Code, ref reportBuilder, reportId, ppv.Action.ToString().ToLower(), out boolVal))
-                            ppv.IsActive = boolVal;
+                        if (GetMandatoryAttributeBoolValue(node, "is_active", PPV, ppv.Code, ref reportBuilder, reportId, ppv.Action.ToString().ToLower(), out boolMandatoryVal))
+                            ppv.IsActive = boolMandatoryVal;
                         else
                             continue;
 
@@ -676,13 +690,13 @@ namespace Ingest.Importers
                         else
                             continue;
 
-                        // is renewable
+                        // SubscriptionOnly
                         if (GetNodeBoolValue(node, "subscription_only", PPV, ppv.Code, ref reportBuilder, reportId, ppv.Action.ToString().ToLower(), out boolVal))
                             ppv.SubscriptionOnly = boolVal;
                         else
                             continue;
 
-                        // is renewable
+                        // FirstDeviceLimitation
                         if (GetNodeBoolValue(node, "first_device_limitation", PPV, ppv.Code, ref reportBuilder, reportId, ppv.Action.ToString().ToLower(), out boolVal))
                             ppv.FirstDeviceLimitation = boolVal;
                         else
@@ -711,16 +725,22 @@ namespace Ingest.Importers
                         nodeList = node.SelectNodes("coupon_group");
                         if (nodeList != null && nodeList.Count > 0)
                             ppv.CouponGroup = nodeList[0].InnerText;
+                        else
+                            ppv.CouponGroup = null;
 
                         // product code
                         nodeList = node.SelectNodes("product_code");
                         if (nodeList != null && nodeList.Count > 0)
                             ppv.ProductCode = nodeList[0].InnerText;
+                        else
+                            ppv.ProductCode = null;
 
                         // discount
                         nodeList = node.SelectNodes("discount");
                         if (nodeList != null && nodeList.Count > 0)
                             ppv.Discount = nodeList[0].InnerText;
+                        else
+                            ppv.Discount = null;
 
                         // file types
                         ppv.FileTypes = GetNodeStringArray(node, "file_types/file_type");
@@ -845,14 +865,19 @@ namespace Ingest.Importers
         }
 
         private static bool GetNodeDateTimeValue(XmlNode node, string nodeName, string moduleName, string moduleCode, DateTime defaultValue, ref StringBuilder report, string reportId, string action, 
-            out DateTime value)
+           out DateTime? value)
         {
             value = defaultValue;
 
             DateTime date;
 
             var nodeList = node.SelectNodes(nodeName);
-            if (nodeList != null && nodeList.Count > 0)
+            if ((nodeList == null || nodeList.Count == 0) && eIngestAction.Update.ToString().ToLower() == action)
+            {
+                value = null;
+            }
+
+            else if (nodeList != null && nodeList.Count > 0)
             {
                 var strToParse = nodeList[0].InnerText;
                 if (!string.IsNullOrEmpty(strToParse))
@@ -874,7 +899,6 @@ namespace Ingest.Importers
                     value = defaultValue;
                 }
             }
-
             return true;
         }
 
@@ -896,12 +920,16 @@ namespace Ingest.Importers
             return true;
         }
 
-        private static bool GetNodeBoolValue(XmlNode node, string nodeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, string action, out bool value)
+        private static bool GetNodeBoolValue(XmlNode node, string nodeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, string action, out bool? value)
         {
             value = false;
 
             var nodeList = node.SelectNodes(nodeName);
-            if (nodeList != null && nodeList.Count > 0 && !string.IsNullOrEmpty(nodeList[0].InnerText))
+            if ((nodeList == null || nodeList.Count == 0) && eIngestAction.Update.ToString().ToLower() == action)
+            {
+                value = null;
+            }
+            else if (nodeList != null && nodeList.Count > 0 && !string.IsNullOrEmpty(nodeList[0].InnerText))
             {
                 var strToParse = nodeList[0].InnerText.ToLower();
                 if (strToParse == "true")
@@ -918,12 +946,16 @@ namespace Ingest.Importers
             return true;
         }
 
-        private static bool GetNodeIntValue(XmlNode node, string nodeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, string action, out int value)
+        private static bool GetNodeIntValue(XmlNode node, string nodeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, string action, out int? value)
         {
             value = 0;
 
             var nodeList = node.SelectNodes(nodeName);
-            if (nodeList != null && nodeList.Count > 0 && !string.IsNullOrEmpty(nodeList[0].InnerText))
+            if ((nodeList == null || nodeList.Count == 0) && eIngestAction.Update.ToString().ToLower() == action)
+            {
+                value = null;
+            }
+            else if (nodeList != null && nodeList.Count > 0 && !string.IsNullOrEmpty(nodeList[0].InnerText))
             {
                 int minutes;
                 if (int.TryParse(nodeList[0].InnerText, out minutes))

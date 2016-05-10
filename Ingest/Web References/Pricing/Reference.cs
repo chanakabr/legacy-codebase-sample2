@@ -150,6 +150,8 @@ namespace Ingest.Pricing {
         
         private System.Threading.SendOrPostCallback testOperationCompleted;
         
+        private System.Threading.SendOrPostCallback GetPPVModuleResponseOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -367,6 +369,9 @@ namespace Ingest.Pricing {
         
         /// <remarks/>
         public event testCompletedEventHandler testCompleted;
+        
+        /// <remarks/>
+        public event GetPPVModuleResponseCompletedEventHandler GetPPVModuleResponseCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://pricing.tvinci.com/GetCurrencyValues", RequestNamespace="http://pricing.tvinci.com/", ResponseNamespace="http://pricing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -2505,6 +2510,45 @@ namespace Ingest.Pricing {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://pricing.tvinci.com/GetPPVModuleResponse", RequestNamespace="http://pricing.tvinci.com/", ResponseNamespace="http://pricing.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public PPVModuleDataResponse GetPPVModuleResponse(string sWSUserName, string sWSPassword, string sPPVCode, string sCountryCd2, string sLanguageCode3, string sDeviceName) {
+            object[] results = this.Invoke("GetPPVModuleResponse", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        sPPVCode,
+                        sCountryCd2,
+                        sLanguageCode3,
+                        sDeviceName});
+            return ((PPVModuleDataResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetPPVModuleResponseAsync(string sWSUserName, string sWSPassword, string sPPVCode, string sCountryCd2, string sLanguageCode3, string sDeviceName) {
+            this.GetPPVModuleResponseAsync(sWSUserName, sWSPassword, sPPVCode, sCountryCd2, sLanguageCode3, sDeviceName, null);
+        }
+        
+        /// <remarks/>
+        public void GetPPVModuleResponseAsync(string sWSUserName, string sWSPassword, string sPPVCode, string sCountryCd2, string sLanguageCode3, string sDeviceName, object userState) {
+            if ((this.GetPPVModuleResponseOperationCompleted == null)) {
+                this.GetPPVModuleResponseOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetPPVModuleResponseOperationCompleted);
+            }
+            this.InvokeAsync("GetPPVModuleResponse", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        sPPVCode,
+                        sCountryCd2,
+                        sLanguageCode3,
+                        sDeviceName}, this.GetPPVModuleResponseOperationCompleted, userState);
+        }
+        
+        private void OnGetPPVModuleResponseOperationCompleted(object arg) {
+            if ((this.GetPPVModuleResponseCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetPPVModuleResponseCompleted(this, new GetPPVModuleResponseCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -2586,638 +2630,19 @@ namespace Ingest.Pricing {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
-    public partial class BusinessModuleResponse {
+    public partial class PPVModuleDataResponse {
         
-        private int idField;
+        private PPVModule pPVModuleField;
         
         private Status statusField;
         
         /// <remarks/>
-        public int Id {
+        public PPVModule PPVModule {
             get {
-                return this.idField;
+                return this.pPVModuleField;
             }
             set {
-                this.idField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public Status status {
-            get {
-                return this.statusField;
-            }
-            set {
-                this.statusField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
-    public partial class Status {
-        
-        private int codeField;
-        
-        private string messageField;
-        
-        /// <remarks/>
-        public int Code {
-            get {
-                return this.codeField;
-            }
-            set {
-                this.codeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Message {
-            get {
-                return this.messageField;
-            }
-            set {
-                this.messageField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
-    public partial class KeyValuePair {
-        
-        private string keyField;
-        
-        private string valueField;
-        
-        /// <remarks/>
-        public string key {
-            get {
-                return this.keyField;
-            }
-            set {
-                this.keyField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string value {
-            get {
-                return this.valueField;
-            }
-            set {
-                this.valueField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
-    public partial class IngestPriceCode {
-        
-        private double priceField;
-        
-        private string currencyField;
-        
-        /// <remarks/>
-        public double Price {
-            get {
-                return this.priceField;
-            }
-            set {
-                this.priceField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Currency {
-            get {
-                return this.currencyField;
-            }
-            set {
-                this.currencyField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(IngestPricePlan))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(IngestMultiPricePlan))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(IngestPPV))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
-    public abstract partial class IngestModule {
-        
-        private string codeField;
-        
-        private eIngestAction actionField;
-        
-        /// <remarks/>
-        public string Code {
-            get {
-                return this.codeField;
-            }
-            set {
-                this.codeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public eIngestAction Action {
-            get {
-                return this.actionField;
-            }
-            set {
-                this.actionField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
-    public enum eIngestAction {
-        
-        /// <remarks/>
-        Insert,
-        
-        /// <remarks/>
-        Update,
-        
-        /// <remarks/>
-        Delete,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
-    public partial class IngestPricePlan : IngestModule {
-        
-        private string fullLifeCycleField;
-        
-        private string viewLifeCycleField;
-        
-        private int maxViewsField;
-        
-        private IngestPriceCode priceCodeField;
-        
-        private bool isRenewableField;
-        
-        private int recurringPeriodsField;
-        
-        private bool isActiveField;
-        
-        private string discountField;
-        
-        /// <remarks/>
-        public string FullLifeCycle {
-            get {
-                return this.fullLifeCycleField;
-            }
-            set {
-                this.fullLifeCycleField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string ViewLifeCycle {
-            get {
-                return this.viewLifeCycleField;
-            }
-            set {
-                this.viewLifeCycleField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int MaxViews {
-            get {
-                return this.maxViewsField;
-            }
-            set {
-                this.maxViewsField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public IngestPriceCode PriceCode {
-            get {
-                return this.priceCodeField;
-            }
-            set {
-                this.priceCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool IsRenewable {
-            get {
-                return this.isRenewableField;
-            }
-            set {
-                this.isRenewableField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int RecurringPeriods {
-            get {
-                return this.recurringPeriodsField;
-            }
-            set {
-                this.recurringPeriodsField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool IsActive {
-            get {
-                return this.isActiveField;
-            }
-            set {
-                this.isActiveField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Discount {
-            get {
-                return this.discountField;
-            }
-            set {
-                this.discountField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
-    public partial class IngestMultiPricePlan : IngestModule {
-        
-        private KeyValuePair[] titlesField;
-        
-        private KeyValuePair[] descriptionsField;
-        
-        private System.DateTime startDateField;
-        
-        private System.DateTime endDateField;
-        
-        private string internalDiscountField;
-        
-        private string couponGroupField;
-        
-        private string productCodeField;
-        
-        private bool isRenewableField;
-        
-        private string previewModuleField;
-        
-        private string domainLimitationModuleField;
-        
-        private int gracePeriodMinutesField;
-        
-        private string[] pricePlansCodesField;
-        
-        private string[] channelsField;
-        
-        private string[] fileTypesField;
-        
-        private bool isActiveField;
-        
-        private int orderNumberField;
-        
-        /// <remarks/>
-        public KeyValuePair[] Titles {
-            get {
-                return this.titlesField;
-            }
-            set {
-                this.titlesField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public KeyValuePair[] Descriptions {
-            get {
-                return this.descriptionsField;
-            }
-            set {
-                this.descriptionsField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime StartDate {
-            get {
-                return this.startDateField;
-            }
-            set {
-                this.startDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public System.DateTime EndDate {
-            get {
-                return this.endDateField;
-            }
-            set {
-                this.endDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string InternalDiscount {
-            get {
-                return this.internalDiscountField;
-            }
-            set {
-                this.internalDiscountField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string CouponGroup {
-            get {
-                return this.couponGroupField;
-            }
-            set {
-                this.couponGroupField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string ProductCode {
-            get {
-                return this.productCodeField;
-            }
-            set {
-                this.productCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool IsRenewable {
-            get {
-                return this.isRenewableField;
-            }
-            set {
-                this.isRenewableField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string PreviewModule {
-            get {
-                return this.previewModuleField;
-            }
-            set {
-                this.previewModuleField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string DomainLimitationModule {
-            get {
-                return this.domainLimitationModuleField;
-            }
-            set {
-                this.domainLimitationModuleField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int GracePeriodMinutes {
-            get {
-                return this.gracePeriodMinutesField;
-            }
-            set {
-                this.gracePeriodMinutesField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string[] PricePlansCodes {
-            get {
-                return this.pricePlansCodesField;
-            }
-            set {
-                this.pricePlansCodesField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string[] Channels {
-            get {
-                return this.channelsField;
-            }
-            set {
-                this.channelsField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string[] FileTypes {
-            get {
-                return this.fileTypesField;
-            }
-            set {
-                this.fileTypesField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool IsActive {
-            get {
-                return this.isActiveField;
-            }
-            set {
-                this.isActiveField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int OrderNumber {
-            get {
-                return this.orderNumberField;
-            }
-            set {
-                this.orderNumberField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
-    public partial class IngestPPV : IngestModule {
-        
-        private IngestPriceCode priceCodeField;
-        
-        private string usageModuleField;
-        
-        private string discountField;
-        
-        private string couponGroupField;
-        
-        private bool subscriptionOnlyField;
-        
-        private KeyValuePair[] descriptionsField;
-        
-        private bool firstDeviceLimitationField;
-        
-        private string productCodeField;
-        
-        private string[] fileTypesField;
-        
-        private bool isActiveField;
-        
-        /// <remarks/>
-        public IngestPriceCode PriceCode {
-            get {
-                return this.priceCodeField;
-            }
-            set {
-                this.priceCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string UsageModule {
-            get {
-                return this.usageModuleField;
-            }
-            set {
-                this.usageModuleField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Discount {
-            get {
-                return this.discountField;
-            }
-            set {
-                this.discountField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string CouponGroup {
-            get {
-                return this.couponGroupField;
-            }
-            set {
-                this.couponGroupField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool SubscriptionOnly {
-            get {
-                return this.subscriptionOnlyField;
-            }
-            set {
-                this.subscriptionOnlyField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public KeyValuePair[] Descriptions {
-            get {
-                return this.descriptionsField;
-            }
-            set {
-                this.descriptionsField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool FirstDeviceLimitation {
-            get {
-                return this.firstDeviceLimitationField;
-            }
-            set {
-                this.firstDeviceLimitationField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string ProductCode {
-            get {
-                return this.productCodeField;
-            }
-            set {
-                this.productCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string[] FileTypes {
-            get {
-                return this.fileTypesField;
-            }
-            set {
-                this.fileTypesField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public bool IsActive {
-            get {
-                return this.isActiveField;
-            }
-            set {
-                this.isActiveField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
-    public partial class PPVModuleResponse {
-        
-        private PPVModule[] pPVModulesField;
-        
-        private Status statusField;
-        
-        /// <remarks/>
-        public PPVModule[] PPVModules {
-            get {
-                return this.pPVModulesField;
-            }
-            set {
-                this.pPVModulesField = value;
+                this.pPVModuleField = value;
             }
         }
         
@@ -4597,6 +4022,666 @@ namespace Ingest.Pricing {
             }
             set {
                 this.nameField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    public partial class Status {
+        
+        private int codeField;
+        
+        private string messageField;
+        
+        /// <remarks/>
+        public int Code {
+            get {
+                return this.codeField;
+            }
+            set {
+                this.codeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Message {
+            get {
+                return this.messageField;
+            }
+            set {
+                this.messageField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    public partial class BusinessModuleResponse {
+        
+        private int idField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        public int Id {
+            get {
+                return this.idField;
+            }
+            set {
+                this.idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    public partial class KeyValuePair {
+        
+        private string keyField;
+        
+        private string valueField;
+        
+        /// <remarks/>
+        public string key {
+            get {
+                return this.keyField;
+            }
+            set {
+                this.keyField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string value {
+            get {
+                return this.valueField;
+            }
+            set {
+                this.valueField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    public partial class IngestPriceCode {
+        
+        private double priceField;
+        
+        private string currencyField;
+        
+        /// <remarks/>
+        public double Price {
+            get {
+                return this.priceField;
+            }
+            set {
+                this.priceField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Currency {
+            get {
+                return this.currencyField;
+            }
+            set {
+                this.currencyField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(IngestPricePlan))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(IngestMultiPricePlan))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(IngestPPV))]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    public abstract partial class IngestModule {
+        
+        private string codeField;
+        
+        private eIngestAction actionField;
+        
+        /// <remarks/>
+        public string Code {
+            get {
+                return this.codeField;
+            }
+            set {
+                this.codeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public eIngestAction Action {
+            get {
+                return this.actionField;
+            }
+            set {
+                this.actionField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    public enum eIngestAction {
+        
+        /// <remarks/>
+        Insert,
+        
+        /// <remarks/>
+        Update,
+        
+        /// <remarks/>
+        Delete,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    public partial class IngestPricePlan : IngestModule {
+        
+        private string fullLifeCycleField;
+        
+        private string viewLifeCycleField;
+        
+        private int maxViewsField;
+        
+        private IngestPriceCode priceCodeField;
+        
+        private System.Nullable<bool> isRenewableField;
+        
+        private int recurringPeriodsField;
+        
+        private bool isActiveField;
+        
+        private string discountField;
+        
+        /// <remarks/>
+        public string FullLifeCycle {
+            get {
+                return this.fullLifeCycleField;
+            }
+            set {
+                this.fullLifeCycleField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string ViewLifeCycle {
+            get {
+                return this.viewLifeCycleField;
+            }
+            set {
+                this.viewLifeCycleField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int MaxViews {
+            get {
+                return this.maxViewsField;
+            }
+            set {
+                this.maxViewsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public IngestPriceCode PriceCode {
+            get {
+                return this.priceCodeField;
+            }
+            set {
+                this.priceCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<bool> IsRenewable {
+            get {
+                return this.isRenewableField;
+            }
+            set {
+                this.isRenewableField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int RecurringPeriods {
+            get {
+                return this.recurringPeriodsField;
+            }
+            set {
+                this.recurringPeriodsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool IsActive {
+            get {
+                return this.isActiveField;
+            }
+            set {
+                this.isActiveField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Discount {
+            get {
+                return this.discountField;
+            }
+            set {
+                this.discountField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    public partial class IngestMultiPricePlan : IngestModule {
+        
+        private KeyValuePair[] titlesField;
+        
+        private KeyValuePair[] descriptionsField;
+        
+        private System.Nullable<System.DateTime> startDateField;
+        
+        private System.Nullable<System.DateTime> endDateField;
+        
+        private string internalDiscountField;
+        
+        private string couponGroupField;
+        
+        private string productCodeField;
+        
+        private System.Nullable<bool> isRenewableField;
+        
+        private string previewModuleField;
+        
+        private string domainLimitationModuleField;
+        
+        private System.Nullable<int> gracePeriodMinutesField;
+        
+        private string[] pricePlansCodesField;
+        
+        private string[] channelsField;
+        
+        private string[] fileTypesField;
+        
+        private bool isActiveField;
+        
+        private System.Nullable<int> orderNumberField;
+        
+        /// <remarks/>
+        public KeyValuePair[] Titles {
+            get {
+                return this.titlesField;
+            }
+            set {
+                this.titlesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public KeyValuePair[] Descriptions {
+            get {
+                return this.descriptionsField;
+            }
+            set {
+                this.descriptionsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<System.DateTime> StartDate {
+            get {
+                return this.startDateField;
+            }
+            set {
+                this.startDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<System.DateTime> EndDate {
+            get {
+                return this.endDateField;
+            }
+            set {
+                this.endDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string InternalDiscount {
+            get {
+                return this.internalDiscountField;
+            }
+            set {
+                this.internalDiscountField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string CouponGroup {
+            get {
+                return this.couponGroupField;
+            }
+            set {
+                this.couponGroupField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string ProductCode {
+            get {
+                return this.productCodeField;
+            }
+            set {
+                this.productCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<bool> IsRenewable {
+            get {
+                return this.isRenewableField;
+            }
+            set {
+                this.isRenewableField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string PreviewModule {
+            get {
+                return this.previewModuleField;
+            }
+            set {
+                this.previewModuleField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string DomainLimitationModule {
+            get {
+                return this.domainLimitationModuleField;
+            }
+            set {
+                this.domainLimitationModuleField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<int> GracePeriodMinutes {
+            get {
+                return this.gracePeriodMinutesField;
+            }
+            set {
+                this.gracePeriodMinutesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string[] PricePlansCodes {
+            get {
+                return this.pricePlansCodesField;
+            }
+            set {
+                this.pricePlansCodesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string[] Channels {
+            get {
+                return this.channelsField;
+            }
+            set {
+                this.channelsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string[] FileTypes {
+            get {
+                return this.fileTypesField;
+            }
+            set {
+                this.fileTypesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool IsActive {
+            get {
+                return this.isActiveField;
+            }
+            set {
+                this.isActiveField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<int> OrderNumber {
+            get {
+                return this.orderNumberField;
+            }
+            set {
+                this.orderNumberField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    public partial class IngestPPV : IngestModule {
+        
+        private IngestPriceCode priceCodeField;
+        
+        private string usageModuleField;
+        
+        private string discountField;
+        
+        private string couponGroupField;
+        
+        private System.Nullable<bool> subscriptionOnlyField;
+        
+        private KeyValuePair[] descriptionsField;
+        
+        private System.Nullable<bool> firstDeviceLimitationField;
+        
+        private string productCodeField;
+        
+        private string[] fileTypesField;
+        
+        private bool isActiveField;
+        
+        /// <remarks/>
+        public IngestPriceCode PriceCode {
+            get {
+                return this.priceCodeField;
+            }
+            set {
+                this.priceCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string UsageModule {
+            get {
+                return this.usageModuleField;
+            }
+            set {
+                this.usageModuleField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Discount {
+            get {
+                return this.discountField;
+            }
+            set {
+                this.discountField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string CouponGroup {
+            get {
+                return this.couponGroupField;
+            }
+            set {
+                this.couponGroupField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<bool> SubscriptionOnly {
+            get {
+                return this.subscriptionOnlyField;
+            }
+            set {
+                this.subscriptionOnlyField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public KeyValuePair[] Descriptions {
+            get {
+                return this.descriptionsField;
+            }
+            set {
+                this.descriptionsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<bool> FirstDeviceLimitation {
+            get {
+                return this.firstDeviceLimitationField;
+            }
+            set {
+                this.firstDeviceLimitationField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string ProductCode {
+            get {
+                return this.productCodeField;
+            }
+            set {
+                this.productCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string[] FileTypes {
+            get {
+                return this.fileTypesField;
+            }
+            set {
+                this.fileTypesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool IsActive {
+            get {
+                return this.isActiveField;
+            }
+            set {
+                this.isActiveField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    public partial class PPVModuleResponse {
+        
+        private PPVModule[] pPVModulesField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        public PPVModule[] PPVModules {
+            get {
+                return this.pPVModulesField;
+            }
+            set {
+                this.pPVModulesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
             }
         }
     }
@@ -6894,6 +6979,32 @@ namespace Ingest.Pricing {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((BusinessModuleResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetPPVModuleResponseCompletedEventHandler(object sender, GetPPVModuleResponseCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetPPVModuleResponseCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetPPVModuleResponseCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public PPVModuleDataResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((PPVModuleDataResponse)(this.results[0]));
             }
         }
     }
