@@ -289,8 +289,10 @@ namespace Recordings
                     {
                         var timeSpan = DateTime.UtcNow - currentRecording.EpgEndDate;
 
-                        // Only if the difference is less than 5 minutes we continue
-                        if (timeSpan.TotalMinutes < MINUTES_ALLOWED_DIFFERENCE)
+                        // Only if this is the first request and the difference is less than 5 minutes we continue
+                        // If this is not the first request, we're clear to go even if it is far from being after the program ended
+                        if ((currentRecording.GetStatusRetries == 0 && timeSpan.TotalMinutes < MINUTES_ALLOWED_DIFFERENCE) ||
+                            currentRecording.GetStatusRetries > 0)
                         {
                             // Count current try to get status - first and foremost
                             currentRecording.GetStatusRetries++;
@@ -357,6 +359,12 @@ namespace Recordings
 
                                 UpdateIndex(groupId, recordingId);
                             }
+                        }
+                        else
+                        {
+                            log.InfoFormat("Rejected GetRecordingStatus request because it is too far from the end of the program. recordingId = {0}" +
+                                "minutesSpan = {1}, allowedDifferenceMinutes = {2}, retryCount = {3}, epg = {4}",
+                                recordingId, timeSpan.TotalMinutes, MINUTES_ALLOWED_DIFFERENCE, currentRecording.GetStatusRetries, currentRecording.EpgId);
                         }
                     }
                 }
