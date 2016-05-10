@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.BulkExport;
+using ApiObjects.CDNAdapter;
 using ApiObjects.MediaMarks;
 using ApiObjects.Roles;
 using ApiObjects.Rules;
@@ -3417,6 +3418,277 @@ namespace DAL
             }
 
             return isUpdated;
+        }
+
+        public static List<CDNAdapter> GetCDNAdapters(int groupID, int status = 1, bool? isActive = null)
+        {
+            List<CDNAdapter> res = new List<CDNAdapter>();
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CDNAdapters");
+                sp.SetConnectionKey("CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@status", status);
+                if (isActive.HasValue)
+                {
+                    sp.AddParameter("@isActive", isActive.Value);
+                }
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    DataTable dtResult = ds.Tables[0];
+                    if (dtResult != null && dtResult.Rows != null && dtResult.Rows.Count > 0)
+                    {
+                        CDNAdapter adapter = null;
+                        foreach (DataRow dr in dtResult.Rows)
+                        {
+                            adapter = new CDNAdapter()
+                            {
+                                ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "id"),
+                                Name = ODBCWrapper.Utils.GetSafeStr(dr, "name"),
+                                BaseUrl = ODBCWrapper.Utils.GetSafeStr(dr, "base_url"),
+                                AdapterUrl = ODBCWrapper.Utils.GetSafeStr(dr, "adapter_url"),
+                                Alias = ODBCWrapper.Utils.GetSafeStr(dr, "alias"),
+                                IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active") == 0 ? false : true,
+                                SharedSecret = ODBCWrapper.Utils.GetSafeStr(dr, "shared_secret"),
+
+                            };
+                            res.Add(adapter);
+                        }
+
+                        if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
+                        {
+                            Dictionary<int, List<CDNAdapterDynamicData>> adapterToDynamicDataMap = new Dictionary<int, List<CDNAdapterDynamicData>>();
+                            foreach (DataRow dr in ds.Tables[1].Rows)
+                            {
+                                string key = ODBCWrapper.Utils.GetSafeStr(dr, "key");
+                                string value = ODBCWrapper.Utils.GetSafeStr(dr, "value");
+                                int adapterId = ODBCWrapper.Utils.GetIntSafeVal(dr, "adapter_id");
+                                if (!adapterToDynamicDataMap.ContainsKey(adapterId))
+                                {
+                                    adapterToDynamicDataMap.Add(adapterId, new List<CDNAdapterDynamicData>());
+                                }
+                                adapterToDynamicDataMap[adapterId].Add(new CDNAdapterDynamicData(key, value));
+                            }
+
+                            foreach (var adapterRes in res)
+                            {
+                                if (adapterToDynamicDataMap.ContainsKey(adapterRes.ID))
+                                {
+                                    adapterRes.DynamicData = adapterToDynamicDataMap[adapterRes.ID];
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                res = new List<CDNAdapter>();
+            }
+            return res;
+        }
+
+        public static CDNAdapter GetCDNAdapter(int groupID, int adapterId, int? isActive = null, int status = 1)
+        {
+            CDNAdapter adapterResponse = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CDNAdapter");
+                sp.SetConnectionKey("CONNECTION_STRING");
+                sp.AddParameter("@groupID", groupID);
+                sp.AddParameter("@id", adapterId);
+                sp.AddParameter("@status", status);
+                if (isActive.HasValue)
+                {
+                    sp.AddParameter("@isActive", isActive.Value);
+                }
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                adapterResponse = CreateCDNAdapter(ds);
+
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+            return adapterResponse;
+        }
+
+        private static CDNAdapter CreateCDNAdapter(DataSet ds)
+        {
+            CDNAdapter adapterResponse = null;
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            {
+                adapterResponse = new CDNAdapter();
+                adapterResponse.BaseUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "base_url");
+                adapterResponse.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "adapter_url");
+                adapterResponse.Alias = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "alias");
+                adapterResponse.ID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
+                int is_Active = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active");
+                adapterResponse.IsActive = is_Active == 1 ? true : false;
+                adapterResponse.Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "name");
+                adapterResponse.SharedSecret = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "shared_secret");
+
+                if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
+                {
+                    foreach (DataRow dr in ds.Tables[1].Rows)
+                    {
+                        string key = ODBCWrapper.Utils.GetSafeStr(dr, "key");
+                        string value = ODBCWrapper.Utils.GetSafeStr(dr, "value");
+                        if (adapterResponse.DynamicData == null)
+                        {
+                            adapterResponse.DynamicData = new List<CDNAdapterDynamicData>();
+                        }
+                        adapterResponse.DynamicData.Add(new CDNAdapterDynamicData(key, value));
+                    }
+                }
+            }
+
+            return adapterResponse;
+        }
+
+        public static bool DeleteCDNAdapter(int groupID, int adapterId)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_CDNAdapter");
+                sp.SetConnectionKey("CONNECTION_STRING");
+                sp.AddParameter("@ID", adapterId);
+                bool isDelete = sp.ExecuteReturnValue<bool>();
+                return isDelete;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public static CDNAdapter GetCDNAdapterByAlias(int groupID, string alias)
+        {
+            CDNAdapter adapterResponse = null;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CDNAdpterByAlias");
+                sp.SetConnectionKey("CONNECTION_STRING");
+                sp.AddParameter("@groupID", groupID);
+                sp.AddParameter("@alias", alias);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                adapterResponse = CreateCDNAdapter(ds);
+
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+            return adapterResponse;
+        }
+
+        public static CDNAdapter InsertCDNAdapter(int groupID, CDNAdapter adapter)
+        {
+            CDNAdapter adapterResponse = null;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_CDNAdapter");
+                sp.SetConnectionKey("CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@name", adapter.Name);
+                sp.AddParameter("@is_active", adapter.IsActive);
+                sp.AddParameter("@adapter_url", adapter.AdapterUrl);
+                sp.AddParameter("@base_url", adapter.BaseUrl);
+                sp.AddParameter("@alias", adapter.Alias);
+                sp.AddParameter("@shared_secret", adapter.SharedSecret);
+
+                DataTable dt = CreateDataTableFromCdnDynamicData(adapter.DynamicData);
+                sp.AddDataTableParameter("@KeyValueList", dt);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                adapterResponse = CreateCDNAdapter(ds);
+            }
+
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return adapterResponse;
+        }
+
+        private static DataTable CreateDataTableFromCdnDynamicData(List<CDNAdapterDynamicData> dynamicData)
+        {
+            DataTable resultTable = new DataTable("resultTable"); ;
+            resultTable.Columns.Add("idkey", typeof(string));
+            resultTable.Columns.Add("value", typeof(string));
+
+            foreach (CDNAdapterDynamicData item in dynamicData)
+            {
+                DataRow row = resultTable.NewRow();
+                row["idkey"] = item.key;
+                row["value"] = item.value;
+                resultTable.Rows.Add(row);
+            }
+
+            return resultTable;
+        }
+
+        public static CDNAdapter SetCDNAdapterSharedSecret(int groupID, int adapterId, string sharedSecret)
+        {
+            CDNAdapter adapterResponse = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_CDNAdapterSharedSecret");
+                sp.SetConnectionKey("CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupID);
+                sp.AddParameter("@id", adapterId);
+                sp.AddParameter("@sharedSecret", sharedSecret);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                adapterResponse = CreateCDNAdapter(ds);
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return adapterResponse;
+        }
+
+        public static CDNAdapter SetCDNAdapter(int groupID, CDNAdapter adapter)
+        {
+            CDNAdapter adapterResponse = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_CDNAdapter");
+                sp.SetConnectionKey("CONNECTION_STRING");
+                sp.AddParameter("@groupID", groupID);
+                sp.AddParameter("@ID", adapter.ID);
+                sp.AddParameter("@name", adapter.Name);
+                sp.AddParameter("@alias", adapter.Alias);
+                sp.AddParameter("@shared_secret", adapter.SharedSecret);
+                sp.AddParameter("@adapter_url", adapter.AdapterUrl);
+                sp.AddParameter("@base_url", adapter.BaseUrl);
+                sp.AddParameter("@isActive", adapter.IsActive);
+                DataTable dt = CreateDataTableFromCdnDynamicData(adapter.DynamicData);
+                sp.AddDataTableParameter("@KeyValueList", dt);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                adapterResponse = CreateCDNAdapter(ds);
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return adapterResponse;
         }
 
     }
