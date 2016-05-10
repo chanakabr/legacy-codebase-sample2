@@ -175,7 +175,7 @@ namespace Recordings
                 else
                 {
                     // if this program is in the past (because it moved, for example)
-                    if (recording.EpgStartDate < DateTime.UtcNow)
+                    if (recording.EpgStartDate < DateTime.UtcNow.AddMinutes(1))
                     {
                         string message = string.Format("Retry Record - Recording with Id = {0} in group {1} is already in the past", recordingId, groupId);
                         log.Error(message);
@@ -913,8 +913,8 @@ namespace Recordings
                 log.DebugFormat("Retry task before program started: Recording id = {0} will retry when program starts, at {1}",
                     recording.Id, recording.EpgStartDate);
 
-                // if we are less than an hour away from the program, try when the program starts
-                nextCheck = recording.EpgStartDate;
+                // if we are less than an hour away from the program, try when the program starts (half a minute before it starts)
+                nextCheck = recording.EpgStartDate.AddSeconds(-30);
             }
 
             // continue checking until the program started. 
