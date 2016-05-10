@@ -24,7 +24,7 @@ namespace Recordings
 
         private const string SCHEDULED_TASKS_ROUTING_KEY = "PROCESS_RECORDING_TASK\\{0}";
 
-        private const int MINUTES_ALLOWED_DIFFERENCE = 5;
+        private static readonly int MINUTES_ALLOWED_DIFFERENCE = 5;
         private static readonly int MINUTES_RETRY_INTERVAL;
         private static readonly int MAXIMUM_RETRIES_ALLOWED;
 
@@ -93,6 +93,16 @@ namespace Recordings
             else
             {
                 MAXIMUM_RETRIES_ALLOWED = 6;
+            }
+
+            // allowed difference depends on retry interval
+            if (MINUTES_RETRY_INTERVAL < 2)
+            {
+                MINUTES_ALLOWED_DIFFERENCE = 2;
+            }
+            else
+            {
+                MINUTES_ALLOWED_DIFFERENCE = MINUTES_RETRY_INTERVAL;
             }
         }
 
@@ -165,7 +175,7 @@ namespace Recordings
                 else
                 {
                     // if this program is in the past (because it moved, for example)
-                    if (recording.EpgStartDate < DateTime.UtcNow)
+                    if (recording.EpgStartDate.AddMinutes(1) < DateTime.UtcNow)
                     {
                         string message = string.Format("Retry Record - Recording with Id = {0} in group {1} is already in the past", recordingId, groupId);
                         log.Error(message);
@@ -191,6 +201,7 @@ namespace Recordings
                     (int)eResponseStatus.Error,
                     string.Format("Record retry failure: id = {0}, ex = {1}", recordingId, ex));
             }
+
             return recording;
         }
 
@@ -289,13 +300,24 @@ namespace Recordings
                     {
                         var timeSpan = DateTime.UtcNow - currentRecording.EpgEndDate;
 
-                        // Only if the difference is less than 5 minutes we continue
-                        if (timeSpan.TotalMinutes < MINUTES_ALLOWED_DIFFERENCE)
+                        // If this recording is mark as failed, there is no point in tring to get its status
+                        if (currentRecording.RecordingStatus == TstvRecordingStatus.Failed)
+                        {
+                            log.InfoFormat("Rejected GetRecordingStatus request because it is already failed. recordingId = {0}" +
+                                "minutesSpan = {1}, allowedDifferenceMinutes = {2}, retryCount = {3}, epg = {4}",
+                                recordingId, timeSpan.TotalMinutes, MINUTES_ALLOWED_DIFFERENCE, currentRecording.GetStatusRetries, currentRecording.EpgId);
+                        }
+                        // Only if this is the first request and the difference is less than 5 minutes we continue
+                        // If this is not the first request, we're clear to go even if it is far from being after the program ended
+                        else if ((currentRecording.GetStatusRetries == 0 && timeSpan.TotalMinutes < MINUTES_ALLOWED_DIFFERENCE) ||
+                            currentRecording.GetStatusRetries > 0)
                         {
                             // Count current try to get status - first and foremost
                             currentRecording.GetStatusRetries++;
 
-                            UpdateRecording(groupId, currentRecording.EpgId, currentRecording.EpgStartDate, currentRecording.EpgEndDate);
+                            ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1, null);
+
+                            //UpdateRecording(groupId, currentRecording.EpgId, currentRecording.EpgStartDate, currentRecording.EpgEndDate);
 
                             DateTime nextCheck = DateTime.UtcNow.AddMinutes(MINUTES_RETRY_INTERVAL);
 
@@ -355,6 +377,12 @@ namespace Recordings
 
                                 UpdateIndex(groupId, recordingId);
                             }
+                        }
+                        else
+                        {
+                            log.InfoFormat("Rejected GetRecordingStatus request because it is too far from the end of the program. recordingId = {0}" +
+                                "minutesSpan = {1}, allowedDifferenceMinutes = {2}, retryCount = {3}, epg = {4}",
+                                recordingId, timeSpan.TotalMinutes, MINUTES_ALLOWED_DIFFERENCE, currentRecording.GetStatusRetries, currentRecording.EpgId);
                         }
                     }
                 }
@@ -827,7 +855,6 @@ namespace Recordings
         {
             var queue = new GenericCeleryQueue();
             var message = new RecordingTaskData(groupId, task,
-                // add 1 minutes here
                 checkTime,
                 programId,
                 recordingId);
@@ -837,21 +864,24 @@ namespace Recordings
 
         private static void RetryTaskAfterProgramEnded(int groupId, Recording currentRecording, DateTime nextCheck, eRecordingTask recordingTask)
         {
-            log.DebugFormat("Retry task groupId {0}, recordingId {1}, nextCheck {2}, recordingTask {3}",
-                groupId, currentRecording.Id, nextCheck.ToString(), recordingTask.ToString());
-
             // Retry in a few minutes if we still didn't exceed retries count
             if (currentRecording.GetStatusRetries <= MAXIMUM_RETRIES_ALLOWED)
             {
+                log.DebugFormat("Try to enqueue retry task: groupId {0}, recordingId {1}, nextCheck {2}, recordingTask {3}, retries {4}",
+                    groupId, currentRecording.Id, nextCheck.ToString(), recordingTask.ToString(), currentRecording.GetStatusRetries);
+
                 EnqueueMessage(groupId, currentRecording.EpgId, currentRecording.Id, nextCheck, recordingTask);
             }
             else
             {
+                log.DebugFormat("Exceeded allowed retried count, trying to mark as failed: groupId {0}, recordingId {1}, nextCheck {2}, recordingTask {3}, retries {4}",
+                    groupId, currentRecording.Id, nextCheck.ToString(), recordingTask.ToString(), currentRecording.GetStatusRetries);
+
                 // Otherwise, we tried too much! Mark this recording as failed. Sorry mates!
                 currentRecording.RecordingStatus = TstvRecordingStatus.Failed;
 
                 // Update recording after updating the status
-                ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1, null);
+                ConditionalAccessDAL.UpdateRecording(currentRecording, groupId, 1, 1, RecordingInternalStatus.Failed);
             }
         }
 
@@ -864,29 +894,42 @@ namespace Recordings
             // if there is more than 1 day left, try tomorrow
             if (span.TotalDays > 1)
             {
+                log.DebugFormat("Retry task before program started: Recording id = {0} will retry tomorrow, because start date is {1}", 
+                    recording.Id, recording.EpgStartDate);
+
                 nextCheck = DateTime.UtcNow.AddDays(1);
             }
             else if (span.TotalHours > 1)
             {
+                log.DebugFormat("Retry task before program started: Recording id = {0} will retry in half the time (in {1} hours), because start date is {2}",
+                    recording.Id, (span.TotalHours / 2), recording.EpgStartDate);
+
                 // if there is less than 1 day, get as HALF as close to the start of the program.
                 // e.g. if we are 4 hours away from program, check in 2 hours. If we are 140 minutes away, try in 70 minutes.
                 nextCheck = DateTime.UtcNow.AddSeconds(span.TotalSeconds / 2);
             }
             else
             {
-                // if we are less than an hour away from the program, try when the program starts
-                nextCheck = recording.EpgStartDate;
+                log.DebugFormat("Retry task before program started: Recording id = {0} will retry when program starts, at {1}",
+                    recording.Id, recording.EpgStartDate);
+
+                // if we are less than an hour away from the program, try when the program starts (half a minute before it starts)
+                nextCheck = recording.EpgStartDate.AddSeconds(-30);
             }
 
             // continue checking until the program started. 
             if (DateTime.UtcNow < recording.EpgStartDate &&
                 DateTime.UtcNow < nextCheck)
             {
+                log.DebugFormat("Retry task before program started: program didn't start yet, we will enqueue a message now for recording {0}", 
+                    recording.Id);
                 EnqueueMessage(groupId, recording.EpgId, recording.Id, nextCheck, task);
             }
             else
             // If it is still not ok - mark as failed
             {
+                log.DebugFormat("Retry task before program started: program started already, we will mark recording {0} as failed.", recording.Id);
+
                 recording.RecordingStatus = TstvRecordingStatus.Failed;
                 ConditionalAccessDAL.UpdateRecording(recording, groupId, 1, 1, RecordingInternalStatus.Failed);
             }
@@ -902,6 +945,8 @@ namespace Recordings
 
         private static void CallAdapterRecord(int groupId, string epgChannelID, DateTime startDate, DateTime endDate, bool isCanceled, Recording currentRecording)
         {
+            log.DebugFormat("Call adapter record for recording {0}", currentRecording.Id);
+
             bool shouldRetry = true;
             bool shouldMarkAsFailed = false;
 
@@ -1010,6 +1055,8 @@ namespace Recordings
 
             if (shouldRetry)
             {
+                log.DebugFormat("Call adapter record for recording {0} will retry", currentRecording.Id);
+
                 RetryTaskBeforeProgramStarted(groupId, currentRecording, eRecordingTask.Record);
             }
         }
