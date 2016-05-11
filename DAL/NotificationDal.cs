@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.Notification;
+using Couchbase.IO;
 using CouchbaseManager;
 using KLogMonitor;
 using Newtonsoft.Json;
@@ -10,8 +11,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using Tvinci.Core.DAL;
-using Couchbase.IO;
-
 
 namespace DAL
 {
@@ -626,13 +625,13 @@ namespace DAL
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_NotificationPartnerSettings");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             sp.AddParameter("@groupID", groupID);
-            if (settings.push_notification_enabled.HasValue)
+            if (settings.IsPushNotificationEnabled.HasValue)
             {
-                sp.AddParameter("@push_notification_enabled", settings.push_notification_enabled.Value);
+                sp.AddParameter("@push_notification_enabled", settings.IsPushNotificationEnabled.Value);
             }
-            if (settings.push_system_announcements_enabled.HasValue)
+            if (settings.IsInboxEnabled.HasValue)
             {
-                sp.AddParameter("@push_system_announcements_enabled", settings.push_system_announcements_enabled.Value);
+                sp.AddParameter("@push_system_announcements_enabled", settings.IsInboxEnabled.Value);
             }
             sp.AddParameter("@date", DateTime.UtcNow);
             if (settings.PushStartHour.HasValue)
@@ -642,6 +641,14 @@ namespace DAL
             if (settings.PushEndHour.HasValue)
             {
                 sp.AddParameter("@pushEndHour", settings.PushEndHour.Value);
+            }
+            if (settings.IsInboxEnabled.HasValue)
+            {
+                sp.AddParameter("@isInboxEnabled", settings.IsInboxEnabled.Value);
+            }
+            if (settings.MessageTTL.HasValue)
+            {
+                sp.AddParameter("@messageTTL", settings.MessageTTL.Value);
             }
             return sp.ExecuteReturnValue<bool>();
         }
@@ -657,10 +664,12 @@ namespace DAL
             {
                 settings = new NotificationPartnerSettings()
                 {
-                    push_notification_enabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "push_notification_enabled") == 1 ? true : false,
-                    push_system_announcements_enabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "push_system_announcements_enabled") == 1 ? true : false,
+                    IsPushNotificationEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "push_notification_enabled") == 1 ? true : false,
+                    IsPushSystemAnnouncementsEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "push_system_announcements_enabled") == 1 ? true : false,
                     PushStartHour = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "push_start_hour"),
-                    PushEndHour = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "push_end_hour")
+                    PushEndHour = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "push_end_hour"),
+                    IsInboxEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "is_inbox_enable") == 1 ? true : false,
+                    MessageTTL = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "message_ttl") 
                 };
             }
 
@@ -1237,7 +1246,7 @@ namespace DAL
             {
                 int numOfTries = 0;
                 while (!result && numOfTries < NUM_OF_INSERT_TRIES)
-                {   
+                {
                     if (unlock)
                         result = cbManager.Set(GetDeviceDataKey(groupId, udid), newDeviceNotificationData, true, 0, newDeviceNotificationData.cas);
                     else
@@ -1497,9 +1506,6 @@ namespace DAL
 
             if (settings.FollowSettings != null)
             {
-                if (settings.FollowSettings.EnableInbox.HasValue)
-                    userNotification.Settings.FollowSettings.EnableInbox = settings.FollowSettings.EnableInbox.Value;
-
                 if (settings.FollowSettings.EnableMail.HasValue)
                     userNotification.Settings.FollowSettings.EnableMail = settings.FollowSettings.EnableMail.Value;
 
