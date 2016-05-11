@@ -19,7 +19,7 @@ namespace WebAPI.Controllers
         /// Retrieve the partner’s CDN settings (default adapters)
         /// </summary>
         /// <returns></returns>
-        /// <remarks>Possible status codes: </remarks>   
+        /// <remarks>Possible status codes: CDN partner settings not found = 5025</remarks>   
         [Route("get"), HttpPost]
         [ApiAuthorize]
         public KalturaCDNPartnerSettings Get()
@@ -43,7 +43,7 @@ namespace WebAPI.Controllers
         /// Configure the partner’s CDN settings (default adapters)
         /// </summary>
         /// <returns></returns>
-        /// <remarks>Possible status codes: BadRequest = 500003, TimeShiftedTvPartnerSettingsNotSent = 5023, TimeShiftedTvPartnerSettingsNegativeBufferSent = 5024</remarks>   
+        /// <remarks>Possible status codes: CDN partner settings not found = 5025</remarks>   
         [Route("update"), HttpPost]
         [ApiAuthorize]
         public KalturaCDNPartnerSettings Update(KalturaCDNPartnerSettings settings)
