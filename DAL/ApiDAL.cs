@@ -1789,23 +1789,23 @@ namespace DAL
             switch (ruleType)
             {
                 case eGroupRuleType.Unknown:
-                break;
+                    break;
                 case eGroupRuleType.Parental:
-                {
-                    fieldName = "DEFAULT_PARENTAL_PIN";
-                    break;
-                }
+                    {
+                        fieldName = "DEFAULT_PARENTAL_PIN";
+                        break;
+                    }
                 case eGroupRuleType.Purchase:
-                {
-                    fieldName = "DEFAULT_PURCHASE_PIN";
-                    break;
-                }
+                    {
+                        fieldName = "DEFAULT_PURCHASE_PIN";
+                        break;
+                    }
                 case eGroupRuleType.Device:
-                break;
+                    break;
                 case eGroupRuleType.EPG:
-                break;
+                    break;
                 default:
-                break;
+                    break;
             }
 
             if (string.IsNullOrEmpty(fieldName))
@@ -3414,7 +3414,7 @@ namespace DAL
 
             catch (Exception ex)
             {
-                log.Error("Failed getting TimeShiftedTvPartnerSettings when running the stored procedure: GetTimeShiftedTvPartnerSettings", ex);                
+                log.Error("Failed getting TimeShiftedTvPartnerSettings when running the stored procedure: GetTimeShiftedTvPartnerSettings", ex);
             }
 
             return isUpdated;
@@ -3691,5 +3691,64 @@ namespace DAL
             return adapterResponse;
         }
 
+        public static CDNPartnerSettings GetCdnSettings(int groupId)
+        {
+            CDNPartnerSettings response = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetCdnSettings");
+                sp.SetConnectionKey("CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                response = CreateCDNPartnerSettings(ds);
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return response;
+        }
+
+        private static CDNPartnerSettings CreateCDNPartnerSettings(DataSet ds)
+        {
+            CDNPartnerSettings response = null;
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            {
+                response = new CDNPartnerSettings();
+                response.DefaultVodAdapter = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "vod_adapter_id");
+                response.DefaultEpgAdapter = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "epg_adapter_id");
+                response.DefaultRecordingAdapter = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "recording_adapter_id");
+            }
+
+            return response;
+        }
+
+        public static CDNPartnerSettings UpdateCdnSettings(int groupId, int? defaultVodAdapterId, int? defaultEpgAdapterId, int? defaultRecordingAdapterId)
+        {
+            CDNPartnerSettings response = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetCdnSettings");
+                sp.SetConnectionKey("CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@VodAdapterId", defaultVodAdapterId);
+                sp.AddParameter("@EpgAdapterId", defaultEpgAdapterId);
+                sp.AddParameter("@RecordingAdapterId", defaultRecordingAdapterId);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                response = CreateCDNPartnerSettings(ds);
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return response;
+        }
     }
 }

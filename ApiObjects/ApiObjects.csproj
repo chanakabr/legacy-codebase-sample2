@@ -102,6 +102,7 @@
     <Compile Include="CDNAdapter\CDNAdapterSettings.cs" />
     <Compile Include="CDNAdapter\CDNAdapterListResponse.cs" />
     <Compile Include="CDNAdapter\CDNAdapterResponse.cs" />
+    <Compile Include="CDNAdapter\CDNPartnerSettings.cs" />
     <Compile Include="CDNAdapter\LinkResult.cs" />
     <Compile Include="CDVRAdapter\CDVRAdapter.cs" />
     <Compile Include="CDVRAdapter\CDVRAdapterResponse.cs" />

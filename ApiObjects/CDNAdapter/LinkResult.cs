@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ApiObjects.CDNAdapter
+namespace ApiObjects
 {
     public class LinkResult
     {
