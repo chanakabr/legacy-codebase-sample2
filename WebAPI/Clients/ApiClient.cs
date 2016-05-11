@@ -2670,5 +2670,76 @@ namespace WebAPI.Clients
 
             return adapter;
         }
+
+        internal KalturaCDNPartnerSettings GetCDNPartnerSettings(int groupId)
+        {
+            KalturaCDNPartnerSettings settings = new KalturaCDNPartnerSettings();
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            CDNPartnerSettingsResponse response = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.GetCDNPartnerSettings(group.ApiCredentials.Username, group.ApiCredentials.Password);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling conditional access service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            settings = AutoMapper.Mapper.Map<KalturaCDNPartnerSettings>(response.CDNPartnerSettings);
+
+            return settings;
+        }
+
+        internal KalturaCDNPartnerSettings UpdateCDNSettings(int groupId, KalturaCDNPartnerSettings settings)
+        {
+            KalturaCDNPartnerSettings responseSettings = new KalturaCDNPartnerSettings();
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            CDNPartnerSettingsResponse response = null;
+            try
+            {
+                CDNPartnerSettings requestSettings = AutoMapper.Mapper.Map<CDNPartnerSettings>(settings);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.UpdateCDNPartnerSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, requestSettings);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling conditional access service. ws address: {0}, exception: {1}", Api.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            responseSettings = AutoMapper.Mapper.Map<KalturaCDNPartnerSettings>(response.CDNPartnerSettings);
+
+            return responseSettings;
+        }
     }
 }

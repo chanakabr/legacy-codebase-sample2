@@ -300,6 +300,21 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #endregion
 
+            #region CDN Settings
+
+            //CDNPartnerSettings to KalturaCDNPartnerSettings
+            Mapper.CreateMap<CDNPartnerSettings, KalturaCDNPartnerSettings>()
+                .ForMember(dest => dest.DefaultEpgAdapter, opt => opt.MapFrom(src => src.DefaultEpgAdapter))
+                .ForMember(dest => dest.DefaultRecordingAdapter, opt => opt.MapFrom(src => src.DefaultRecordingAdapter))
+                .ForMember(dest => dest.DefaultVodAdapter, opt => opt.MapFrom(src => src.DefaultVodAdapter));
+
+            //KalturaCDNPartnerSettings to CDNPartnerSettings 
+            Mapper.CreateMap<KalturaCDNPartnerSettings, CDNPartnerSettings>()
+                .ForMember(dest => dest.DefaultEpgAdapter, opt => opt.MapFrom(src => src.DefaultEpgAdapter))
+                .ForMember(dest => dest.DefaultRecordingAdapter, opt => opt.MapFrom(src => src.DefaultRecordingAdapter))
+                .ForMember(dest => dest.DefaultVodAdapter, opt => opt.MapFrom(src => src.DefaultVodAdapter));
+
+            #endregion
         }
 
         private static List<KalturaPermissionItem> ConvertPermissionItems(PermissionItem[] permissionItems)
