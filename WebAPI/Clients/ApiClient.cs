@@ -2523,7 +2523,7 @@ namespace WebAPI.Clients
 
             if (response.Adapters.Length > 0)
             {
-                adapters = AutoMapper.Mapper.Map<List<KalturaCDNAdapterProfile>>(response);
+                adapters = AutoMapper.Mapper.Map<List<KalturaCDNAdapterProfile>>(response.Adapters);
             }
 
             return adapters;
