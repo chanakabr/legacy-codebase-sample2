@@ -5,14 +5,11 @@ namespace ApiObjects.Notification
     {
         public bool? EnablePush { get; set; }
 
-        public bool? EnableInbox { get; set; }
-
         public bool? EnableMail { get; set; }
 
         public UserFollowSettings()
         {
-            EnablePush = true;
-            EnableInbox = true;
+            EnablePush = true;            
             EnableMail = true;
         }
     }
