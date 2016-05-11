@@ -4133,12 +4133,13 @@ namespace Ingest.Pricing {
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
     public partial class IngestPriceCode {
         
-        private double priceField;
+        private System.Nullable<double> priceField;
         
         private string currencyField;
         
         /// <remarks/>
-        public double Price {
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<double> Price {
             get {
                 return this.priceField;
             }
@@ -4222,15 +4223,15 @@ namespace Ingest.Pricing {
         
         private string viewLifeCycleField;
         
-        private int maxViewsField;
+        private System.Nullable<int> maxViewsField;
         
         private IngestPriceCode priceCodeField;
         
         private System.Nullable<bool> isRenewableField;
         
-        private int recurringPeriodsField;
+        private System.Nullable<int> recurringPeriodsField;
         
-        private bool isActiveField;
+        private System.Nullable<bool> isActiveField;
         
         private string discountField;
         
@@ -4255,7 +4256,8 @@ namespace Ingest.Pricing {
         }
         
         /// <remarks/>
-        public int MaxViews {
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<int> MaxViews {
             get {
                 return this.maxViewsField;
             }
@@ -4286,7 +4288,8 @@ namespace Ingest.Pricing {
         }
         
         /// <remarks/>
-        public int RecurringPeriods {
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<int> RecurringPeriods {
             get {
                 return this.recurringPeriodsField;
             }
@@ -4296,7 +4299,8 @@ namespace Ingest.Pricing {
         }
         
         /// <remarks/>
-        public bool IsActive {
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<bool> IsActive {
             get {
                 return this.isActiveField;
             }
@@ -4352,7 +4356,7 @@ namespace Ingest.Pricing {
         
         private string[] fileTypesField;
         
-        private bool isActiveField;
+        private System.Nullable<bool> isActiveField;
         
         private System.Nullable<int> orderNumberField;
         
@@ -4501,7 +4505,8 @@ namespace Ingest.Pricing {
         }
         
         /// <remarks/>
-        public bool IsActive {
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<bool> IsActive {
             get {
                 return this.isActiveField;
             }
@@ -4548,7 +4553,7 @@ namespace Ingest.Pricing {
         
         private string[] fileTypesField;
         
-        private bool isActiveField;
+        private System.Nullable<bool> isActiveField;
         
         /// <remarks/>
         public IngestPriceCode PriceCode {
@@ -4643,7 +4648,8 @@ namespace Ingest.Pricing {
         }
         
         /// <remarks/>
-        public bool IsActive {
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<bool> IsActive {
             get {
                 return this.isActiveField;
             }

@@ -350,11 +350,10 @@ namespace Ingest.Importers
                 IngestPricePlan pricePlan = null;
                 XmlNodeList nodeList;
                 string strVal;
-                double dVal;
-                eIngestAction actionVal;
-                bool boolMandatoryVal;
+                double? dVal;
+                eIngestAction actionVal;               
                 bool? boolVal;                
-                int intVal;
+                int? intVal;
 
                 foreach (XmlNode node in nodes)
                 {
@@ -383,8 +382,8 @@ namespace Ingest.Importers
                         }
 
                         // is active - mandatory
-                        if (GetMandatoryAttributeBoolValue(node, "is_active", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, pricePlan.Action.ToString().ToLower(), out boolMandatoryVal))
-                            pricePlan.IsActive = boolMandatoryVal;
+                        if (GetNodeBoolValue(node, "is_active", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, pricePlan.Action.ToString().ToLower(), out boolVal))
+                            pricePlan.IsActive = boolVal;
                         else
                             continue;
 
@@ -395,25 +394,25 @@ namespace Ingest.Importers
                             continue;
 
                         // full life cycle - mandatory
-                        if (GetMandatoryNodeStrValue(node, "full_life_cycle", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, pricePlan.Action.ToString().ToLower(), out strVal))
+                        if (GetNodeStrValue(node, "full_life_cycle", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, pricePlan.Action.ToString().ToLower(), out strVal))
                             pricePlan.FullLifeCycle = strVal;
                         else
                             continue;
 
                         // view life cycle - mandatory
-                        if (GetMandatoryNodeStrValue(node, "view_life_cycle", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, pricePlan.Action.ToString().ToLower(), out strVal))
+                        if (GetNodeStrValue(node, "view_life_cycle", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, pricePlan.Action.ToString().ToLower(), out strVal))
                             pricePlan.ViewLifeCycle = strVal;
                         else
                             continue;
                         
                         // max views - mandatory
-                        if (GetMandatoryNodeIntValue(node, "max_views", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, pricePlan.Action.ToString().ToLower(), out intVal))
+                        if (GetNodeIntValue(node, "max_views", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, pricePlan.Action.ToString().ToLower(), out intVal))
                             pricePlan.MaxViews = intVal;
                         else
                             continue;
 
                         // price code (price) - mandatory
-                        if (GetMandatoryNodeDoublePositiveValue(node, "price_code/price", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, pricePlan.Action.ToString().ToLower(), out dVal))
+                        if (GetNodeDoublePositiveValue(node, "price_code/price", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, pricePlan.Action.ToString().ToLower(), out dVal))
                         {
                             pricePlan.PriceCode = new IngestPriceCode();
                             pricePlan.PriceCode.Price = dVal;
@@ -422,7 +421,7 @@ namespace Ingest.Importers
                             continue;
 
                         // price code (currency) - mandatory
-                        if (GetMandatoryNodeStrValue(node, "price_code/currency", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, pricePlan.Action.ToString().ToLower(), out strVal))
+                        if (GetNodeStrValue(node, "price_code/currency", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, pricePlan.Action.ToString().ToLower(), out strVal))
                         {
                             if (pricePlan.PriceCode == null)
                                 pricePlan.PriceCode = new IngestPriceCode();
@@ -432,7 +431,7 @@ namespace Ingest.Importers
                             continue;
 
                         // recurring periods - mandatory
-                        if (GetMandatoryNodeIntValue(node, "recurring_periods", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, pricePlan.Action.ToString().ToLower(), out intVal))
+                        if (GetNodeIntValue(node, "recurring_periods", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, pricePlan.Action.ToString().ToLower(), out intVal))
                             pricePlan.RecurringPeriods = intVal;
                         else
                             continue;
@@ -476,7 +475,6 @@ namespace Ingest.Importers
                 XmlNodeList nodeList;
                 string strVal;
                 eIngestAction actionVal;
-                bool boolMandatoryVal;
                 bool? boolVal;
                 KeyValuePair[] keyValArr;
                 DateTime? dateVal;
@@ -507,13 +505,14 @@ namespace Ingest.Importers
                             multiPricePlans.Add(multiPricePlan);
                             continue;
                         }
+                       
 
-                        // is active - mandatory
-                        if (GetMandatoryAttributeBoolValue(node, "is_active", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, reportId, multiPricePlan.Action.ToString().ToLower(), out boolMandatoryVal))
-                            multiPricePlan.IsActive = boolMandatoryVal;
-                        else
-                            continue;
-
+                        // is active - mandatory for insert
+                        if (GetNodeBoolValue(node, "is_active", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, reportId, multiPricePlan.Action.ToString().ToLower(), out boolVal))
+                                multiPricePlan.IsActive = boolVal;
+                            else
+                                continue;
+                       
                         // title
                         if (GetNodeKeyValuePairsArrayValue(node, "titles/title", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, reportId, multiPricePlan.Action.ToString().ToLower(), out keyValArr))
                             multiPricePlan.Titles = keyValArr;
@@ -540,7 +539,7 @@ namespace Ingest.Importers
                             continue;
 
                         // internal discount - mandatory
-                        if (GetMandatoryNodeStrValue(node, "internal_discount", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, reportId, multiPricePlan.Action.ToString().ToLower(), out strVal))
+                        if (GetNodeStrValue(node, "internal_discount", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, reportId, multiPricePlan.Action.ToString().ToLower(), out strVal))
                             multiPricePlan.InternalDiscount = strVal;
                         else
                             continue;
@@ -639,7 +638,7 @@ namespace Ingest.Importers
                 IngestPPV ppv = null;
                 XmlNodeList nodeList;
                 string strVal;
-                double dVal;
+                double? dVal;
                 eIngestAction actionVal;
                 bool boolMandatoryVal;
                 bool? boolVal;
@@ -679,7 +678,7 @@ namespace Ingest.Importers
                             continue;
 
                         // usage module - mandatory
-                        if (GetMandatoryNodeStrValue(node, "usage_module", PPV, ppv.Code, ref reportBuilder, reportId, ppv.Action.ToString().ToLower(), out strVal))
+                        if (GetNodeStrValue(node, "usage_module", PPV, ppv.Code, ref reportBuilder, reportId, ppv.Action.ToString().ToLower(), out strVal))
                             ppv.UsageModule = strVal;
                         else
                             continue;
@@ -703,7 +702,7 @@ namespace Ingest.Importers
                             continue;
 
                         // price code (price) - mandatory
-                        if (GetMandatoryNodeDoublePositiveValue(node, "price_code/price", PRICE_PLAN, ppv.Code, ref reportBuilder, reportId, ppv.Action.ToString().ToLower(), out dVal))
+                        if (GetNodeDoublePositiveValue(node, "price_code/price", PRICE_PLAN, ppv.Code, ref reportBuilder, reportId, ppv.Action.ToString().ToLower(), out dVal))
                         {
                             ppv.PriceCode = new IngestPriceCode();
                             ppv.PriceCode.Price = dVal;
@@ -712,7 +711,7 @@ namespace Ingest.Importers
                             continue;
 
                         // price code (currency) - mandatory
-                        if (GetMandatoryNodeStrValue(node, "price_code/currency", PRICE_PLAN, ppv.Code, ref reportBuilder, reportId, ppv.Action.ToString().ToLower(), out strVal))
+                        if (GetNodeStrValue(node, "price_code/currency", PRICE_PLAN, ppv.Code, ref reportBuilder, reportId, ppv.Action.ToString().ToLower(), out strVal))
                         {
                             if (ppv.PriceCode == null)
                                 ppv.PriceCode = new IngestPriceCode();
@@ -920,6 +919,30 @@ namespace Ingest.Importers
             return true;
         }
 
+        private static bool GetNodeStrValue(XmlNode node, string nodeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, string action, out string value)
+        {
+            value = string.Empty;
+
+            var nodeList = node.SelectNodes(nodeName);
+            if ((nodeList == null || nodeList.Count == 0) && eIngestAction.Update.ToString().ToLower() == action)
+            {
+                value = null;
+            }
+            else if (nodeList != null && nodeList.Count > 0)
+            {
+                value = nodeList[0].InnerText;
+
+                if (string.IsNullOrEmpty(value))
+                {
+                    log.ErrorFormat(LOG_MANDATORY_ERROR_FORMAT, moduleName, moduleCode, nodeName, reportId, action);
+                    report.AppendFormat(MANDATORY_ERROR_FORMAT, moduleName, moduleCode, nodeName, action);
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         private static bool GetNodeBoolValue(XmlNode node, string nodeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, string action, out bool? value)
         {
             value = false;
@@ -1018,12 +1041,16 @@ namespace Ingest.Importers
             return response;
         }
 
-        private static bool GetMandatoryNodeDoublePositiveValue(XmlNode node, string nodeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, string action, out double value)
+        private static bool GetNodeDoublePositiveValue(XmlNode node, string nodeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, string action, out double? value)
         {
             value = 0;
 
             var nodeList = node.SelectNodes(nodeName);
-            if (nodeList != null && nodeList.Count > 0 && !string.IsNullOrEmpty(nodeList[0].InnerText))
+            if ((nodeList == null || nodeList.Count == 0) && eIngestAction.Update.ToString().ToLower() == action)
+            {
+                value = null;
+            }
+            else if (nodeList != null && nodeList.Count > 0 && !string.IsNullOrEmpty(nodeList[0].InnerText))
             {
                 double tempVal;
                 if (double.TryParse(nodeList[0].InnerText, out tempVal) && tempVal > 0.0)
