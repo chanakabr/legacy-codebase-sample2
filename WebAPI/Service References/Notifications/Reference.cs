@@ -881,16 +881,22 @@ namespace WebAPI.Notifications {
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Nullable<bool> IsInboxEnabledField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Nullable<bool> IsPushNotificationEnabledField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Nullable<bool> IsPushSystemAnnouncementsEnabledField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Nullable<int> MessageTTLField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Nullable<int> PushEndHourField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Nullable<int> PushStartHourField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Nullable<bool> push_notification_enabledField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Nullable<bool> push_system_announcements_enabledField;
         
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
@@ -899,6 +905,58 @@ namespace WebAPI.Notifications {
             }
             set {
                 this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Nullable<bool> IsInboxEnabled {
+            get {
+                return this.IsInboxEnabledField;
+            }
+            set {
+                if ((this.IsInboxEnabledField.Equals(value) != true)) {
+                    this.IsInboxEnabledField = value;
+                    this.RaisePropertyChanged("IsInboxEnabled");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Nullable<bool> IsPushNotificationEnabled {
+            get {
+                return this.IsPushNotificationEnabledField;
+            }
+            set {
+                if ((this.IsPushNotificationEnabledField.Equals(value) != true)) {
+                    this.IsPushNotificationEnabledField = value;
+                    this.RaisePropertyChanged("IsPushNotificationEnabled");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Nullable<bool> IsPushSystemAnnouncementsEnabled {
+            get {
+                return this.IsPushSystemAnnouncementsEnabledField;
+            }
+            set {
+                if ((this.IsPushSystemAnnouncementsEnabledField.Equals(value) != true)) {
+                    this.IsPushSystemAnnouncementsEnabledField = value;
+                    this.RaisePropertyChanged("IsPushSystemAnnouncementsEnabled");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Nullable<int> MessageTTL {
+            get {
+                return this.MessageTTLField;
+            }
+            set {
+                if ((this.MessageTTLField.Equals(value) != true)) {
+                    this.MessageTTLField = value;
+                    this.RaisePropertyChanged("MessageTTL");
+                }
             }
         }
         
@@ -924,32 +982,6 @@ namespace WebAPI.Notifications {
                 if ((this.PushStartHourField.Equals(value) != true)) {
                     this.PushStartHourField = value;
                     this.RaisePropertyChanged("PushStartHour");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Nullable<bool> push_notification_enabled {
-            get {
-                return this.push_notification_enabledField;
-            }
-            set {
-                if ((this.push_notification_enabledField.Equals(value) != true)) {
-                    this.push_notification_enabledField = value;
-                    this.RaisePropertyChanged("push_notification_enabled");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Nullable<bool> push_system_announcements_enabled {
-            get {
-                return this.push_system_announcements_enabledField;
-            }
-            set {
-                if ((this.push_system_announcements_enabledField.Equals(value) != true)) {
-                    this.push_system_announcements_enabledField = value;
-                    this.RaisePropertyChanged("push_system_announcements_enabled");
                 }
             }
         }
@@ -1189,9 +1221,6 @@ namespace WebAPI.Notifications {
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Nullable<bool> EnableInboxField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Nullable<bool> EnableMailField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -1204,19 +1233,6 @@ namespace WebAPI.Notifications {
             }
             set {
                 this.extensionDataField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Nullable<bool> EnableInbox {
-            get {
-                return this.EnableInboxField;
-            }
-            set {
-                if ((this.EnableInboxField.Equals(value) != true)) {
-                    this.EnableInboxField = value;
-                    this.RaisePropertyChanged("EnableInbox");
-                }
             }
         }
         
