@@ -3420,7 +3420,7 @@ namespace DAL
             return isUpdated;
         }
 
-        public static List<CDNAdapter> GetCDNAdapters(int groupID, int status = 1, bool? isActive = null)
+        public static List<CDNAdapter> GetCDNAdapters(int groupID)
         {
             List<CDNAdapter> res = new List<CDNAdapter>();
             try
@@ -3428,11 +3428,6 @@ namespace DAL
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CDNAdapters");
                 sp.SetConnectionKey("CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
-                sp.AddParameter("@status", status);
-                if (isActive.HasValue)
-                {
-                    sp.AddParameter("@isActive", isActive.Value);
-                }
                 DataSet ds = sp.ExecuteDataSet();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
