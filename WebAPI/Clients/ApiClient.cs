@@ -2521,7 +2521,10 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            adapters = AutoMapper.Mapper.Map<List<KalturaCDNAdapterProfile>>(response);
+            if (response.Adapters.Length > 0)
+            {
+                adapters = AutoMapper.Mapper.Map<List<KalturaCDNAdapterProfile>>(response);
+            }
 
             return adapters;
         }
