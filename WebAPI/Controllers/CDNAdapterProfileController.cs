@@ -11,7 +11,7 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/cdnAdapterProfile/action")]
+    [RoutePrefix("_service/cDNAdapterProfile/action")]
     public class CDNAdapterProfileController : ApiController
     {
         /// <summary>
