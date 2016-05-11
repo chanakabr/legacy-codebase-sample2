@@ -2502,7 +2502,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetCDNAdapters(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password);
+                    response = Api.GetCDNAdapters(group.ApiCredentials.Username, group.ApiCredentials.Password);
                 }
             }
             catch (Exception ex)
@@ -2535,7 +2535,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.DeleteCDNAdapter(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, adapterId);
+                    response = Api.DeleteCDNAdapter(group.ApiCredentials.Username, group.ApiCredentials.Password, adapterId);
                 }
             }
             catch (Exception ex)
@@ -2571,7 +2571,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.InsertCDNAdapter(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, wsAdapter);
+                    response = Api.InsertCDNAdapter(group.ApiCredentials.Username, group.ApiCredentials.Password, wsAdapter);
                 }
             }
             catch (Exception ex)
@@ -2609,7 +2609,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.SetCDNAdapter(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, wsAdapter);
+                    response = Api.SetCDNAdapter(group.ApiCredentials.Username, group.ApiCredentials.Password, wsAdapter);
                 }
             }
             catch (Exception ex)
@@ -2644,7 +2644,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GenerateCDNSharedSecret(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, adapterId);
+                    response = Api.GenerateCDNSharedSecret(group.ApiCredentials.Username, group.ApiCredentials.Password, adapterId);
                 }
             }
             catch (Exception ex)
