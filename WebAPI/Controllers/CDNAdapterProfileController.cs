@@ -12,7 +12,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/cdnAdapterProfile/action")]
-    public class CDNAdapterProfileController
+    public class CDNAdapterProfileController : ApiController
     {
         /// <summary>
         /// Returns all CDN adapters for partner
