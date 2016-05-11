@@ -243,6 +243,53 @@
             BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, 
             RecommendationEngineNotExist = 4007, ExternalChannelNotExist = 4011</remarks>
         </member>
+        <member name="M:WebAPI.Controllers.CDNAdapterProfileController.List">
+            <summary>
+            Returns all CDN adapters for partner
+            </summary>
+            <remarks> 
+            
+            </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.CDNAdapterProfileController.Delete(System.Int32)">
+            <summary>
+            Delete CDN adapter by CDN adapter id
+            </summary>
+            <remarks>
+            Possible status codes: Adapter does not exist = 10000
+            </remarks>
+            <param name="adapter_id">CDN adapter identifier</param>
+        </member>
+        <member name="M:WebAPI.Controllers.CDNAdapterProfileController.Add(WebAPI.Models.API.KalturaCDNAdapterProfile)">
+            <summary>
+            Insert new CDN adapter for partner
+            </summary>
+            <remarks>
+            Possible status codes:     
+            Adapter Name is required = 5005, Adapter URL is required = 5013, Alias must be unique = 5019, Alias is required = 5020
+            </remarks>
+            <param name="adapter">CDN adapter object</param>
+        </member>
+        <member name="M:WebAPI.Controllers.CDNAdapterProfileController.Update(WebAPI.Models.API.KalturaCDNAdapterProfile)">
+            <summary>
+            Update CDN adapter details
+            </summary>
+            <remarks>
+            Possible status codes:   
+            Adapter name is required = 5005, Adapter identifier is required = 10001, Adapter URL is required = 5013, Alias is required = 5020, Adapter does not exist = 10000
+            </remarks>
+            <param name="adapter">CDN adapter Object</param>       
+        </member>
+        <member name="M:WebAPI.Controllers.CDNAdapterProfileController.GenerateSharedSecret(System.Int32)">
+            <summary>
+            Generate CDN adapter shared secret
+            </summary>
+            <remarks>
+            Possible status codes:  
+            Adapter identifier is required = 10001, AdapterNotExists = 10000
+            </remarks>
+            <param name="adapter_id">CDN adapter identifier</param>
+        </member>
         <member name="M:WebAPI.Controllers.CDVRAdapterProfileController.List">
             <summary>
             Returns all C-DVR adapters for partner
@@ -345,13 +392,21 @@
             <param name="pager">Page size and index</param>
             <returns></returns>
         </member>
+        <member name="M:WebAPI.Controllers.PpvController.Get(System.Int64)">
+            <summary>
+            Returns ppv object by internal identifier
+            </summary>
+            <param name="id">ppv identifier</param>
+            <returns></returns>
+            <remarks>Possible status codes: ModuleNotExists = 9016</remarks>     
+        </member>
         <member name="M:WebAPI.Controllers.RecordingController.Get(System.Int64)">
             <summary>
             Returns recording object by internal identifier
             </summary>
             <param name="id">Recording identifier</param>
             <returns></returns>
-            <remarks>Possible status codes: BadRequest = 500003, RecordingNotFound = 3040</remarks>     
+            <remarks>Possible status codes: BadRequest = 500003, RecordingNotFound = 3039</remarks>     
         </member>
         <member name="M:WebAPI.Controllers.RecordingController.GetContext(WebAPI.Models.ConditionalAccess.KalturaRecordingContextFilter)">
             <summary>
@@ -361,7 +416,7 @@
             <returns></returns>
             <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024,
             ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, AccountCatchUpNotEnabled = 3034, ProgramCdvrNotEnabled = 3035,
-            ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, ProgramNotInRecordingScheduleWindow = 3039, InvalidAssetId = 4024</remarks>
+            ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, ProgramNotInRecordingScheduleWindow = 3038, InvalidAssetId = 4024</remarks>
         </member>
         <member name="M:WebAPI.Controllers.RecordingController.Add(WebAPI.Models.ConditionalAccess.KalturaRecording)">
             <summary>
@@ -371,8 +426,7 @@
             <returns></returns>
             <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
             UserWithNoDomain = 2024, ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, AccountCatchUpNotEnabled = 3034,
-            ProgramCdvrNotEnabled = 3035, ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, CdvrAdapterProviderFail = 3038,
-            ProgramNotInRecordingScheduleWindow = 3039, InvalidAssetId = 4024</remarks>
+            ProgramCdvrNotEnabled = 3035, ProgramCatchUpNotEnabled = 3036, CatchUpBufferLimitation = 3037, ProgramNotInRecordingScheduleWindow = 3038, InvalidAssetId = 4024</remarks>
         </member>
         <member name="M:WebAPI.Controllers.RecordingController.List(WebAPI.Models.ConditionalAccess.KalturaRecordingFilter,WebAPI.Models.General.KalturaFilterPager)">
             <summary>
@@ -552,6 +606,31 @@
             </summary>
             <returns></returns>
             <remarks>Possible status codes: BadRequest = 500003, TimeShiftedTvPartnerSettingsNotSent = 5023, TimeShiftedTvPartnerSettingsNegativeBufferSent = 5024</remarks>   
+        </member>
+        <member name="M:WebAPI.Controllers.UserAssetsListItemController.Add(WebAPI.Models.Users.KalturaUserAssetsListItem)">
+            <summary>
+            Adds a new item to user’s private asset list
+            </summary>
+            <param name="userAssetsListItem">A list item to add</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.UserAssetsListItemController.Get(WebAPI.Models.Users.KalturaUserAssetsListItem)">
+            <summary>
+            Get an item from user’s private asset list
+            </summary>
+            <param name="userAssetsListItem">A list item to add</param>
+            <remarks>Possible status codes: 
+            Item was not found in list = 2032</remarks>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.UserAssetsListItemController.Delete(WebAPI.Models.Users.KalturaUserAssetsListItem)">
+            <summary>
+            Deletes an item from user’s private asset list
+            </summary>
+            <param name="userAssetsListItem">A list item to add</param>
+            <remarks>Possible status codes: 
+            Item was not found in list = 2032</remarks>
+            <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.VersionController.Get">
             <summary>
@@ -886,6 +965,12 @@
             Parses KS
             </summary>
             <param name="ks_to_parse">Additional KS to parse, if not passed the user's KS will be parsed</param>
+        </member>
+        <member name="M:WebAPI.Controllers.SessionController.SwitchUser(System.String)">
+            <summary>
+            Switching the user in the session by generating a new session for a new user within the same household
+            </summary>
+            <param name="userIdToSwitch">The identifier of the user to change</param>
         </member>
         <member name="M:WebAPI.Controllers.UserAssetRuleController.List(WebAPI.Models.API.KalturaGenericRuleFilter)">
             <summary>
@@ -1726,14 +1811,74 @@
             <param name="usersGroup">list of users separated by ';'</param>
             <returns>True if the action is permitted, false otherwise, and a users group list (if exists) for this action</returns>
         </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfile">
+        <member name="T:WebAPI.Models.API.KalturaCDNAdapterProfile">
             <summary>
-            C-DVR Adapter
+            CDN Adapter
             </summary>
         </member>
         <member name="T:WebAPI.Models.General.KalturaOTTObject">
             <summary>
             Base class
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaCDNAdapterProfile.Id">
+            <summary>
+            CDN adapter identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaCDNAdapterProfile.Name">
+            <summary>
+            CDNR adapter name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaCDNAdapterProfile.IsActive">
+            <summary>
+            CDN adapter active status
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaCDNAdapterProfile.AdapterUrl">
+            <summary>
+            CDN adapter URL
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaCDNAdapterProfile.BaseUrl">
+            <summary>
+            CDN adapter base URL
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaCDNAdapterProfile.Settings">
+            <summary>
+            CDN adapter settings
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaCDNAdapterProfile.Alias">
+            <summary>
+            CDN adapter alias
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaCDNAdapterProfile.SharedSecret">
+            <summary>
+            CDN shared secret
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaListResponse">
+            <summary>
+            Base list wrapper
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaListResponse.TotalCount">
+            <summary>
+            Total items
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaCDNAdapterProfileListResponse.Adapters">
+            <summary>
+            Adapters
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfile">
+            <summary>
+            C-DVR Adapter
             </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfile.Id">
@@ -1940,16 +2085,6 @@
         <member name="T:WebAPI.Models.API.KalturaGenericRuleListResponse">
             <summary>
             GenericRules list
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaListResponse">
-            <summary>
-            Base list wrapper
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaListResponse.TotalCount">
-            <summary>
-            Total items
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaGenericRuleListResponse.GenericRules">
@@ -2572,7 +2707,7 @@
             Base filter
             </summary>
         </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingContextFilter.AssetIds">
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecordingContextFilter.AssetIdIn">
             <summary>
             Asset Id's
             </summary>
@@ -3268,6 +3403,16 @@
             push end hour
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Notification.KalturaPartnerNotificationSettings.InboxEnabled">
+            <summary>
+            Inbox enabled
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaPartnerNotificationSettings.MessageTTL">
+            <summary>
+            Inbox enabled
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Notification.KalturaPersonalFollowFeedResponse">
             <summary>
             List of message follow data.
@@ -3337,6 +3482,66 @@
         <member name="P:WebAPI.Models.Pricing.KalturaItemPriceListResponse.ItemPrice">
             <summary>
             A list of item prices
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaPpv">
+            <summary>
+            PPV details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpv.Id">
+            <summary>
+            PPV identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpv.Name">
+            <summary>
+            the name for the ppv
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpv.Price">
+            <summary>
+            The price of the ppv
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpv.FileTypes">
+            <summary>
+            A list of file types identifiers that are supported in this ppv
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpv.DiscountModule">
+            <summary>
+            The internal discount module for the ppv
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpv.CouponsGroup">
+            <summary>
+            Coupons group for the ppv
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpv.Descriptions">
+            <summary>
+            A list of the descriptions of the ppv on different languages (language code and translation)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpv.ProductCode">
+            <summary>
+            Product code for the ppv
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpv.IsSubscriptionOnly">
+            <summary>
+            Indicates whether or not this ppv can be purchased standalone or only as part of a subscription
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpv.FirstDeviceLimitation">
+            <summary>
+            Indicates whether or not this ppv can be consumed only on the first device
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaPpv.UsageModule">
+            <summary>
+            PPV usage module
             </summary>
         </member>
         <member name="T:WebAPI.Models.Pricing.KalturaPPVItemPriceDetails">
@@ -3637,11 +3842,6 @@
         <member name="P:WebAPI.Models.Pricing.KalturaUsageModule.CouponId">
             <summary>
             Identifies a specific coupon linked to this object
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaUsageModule.IsSubscriptionOnly">
-            <summary>
-            Denotes whether this object is available only as part of a subscription or can be sold separately
             </summary>
         </member>
         <member name="P:WebAPI.Models.Pricing.KalturaUsageModule.WaiverPeriod">
@@ -4964,6 +5164,11 @@
             The identifier of the user who added the item to the list
              </summary>
         </member>
+        <member name="P:WebAPI.Models.Users.KalturaUserAssetsListItem.ListType">
+             <summary>
+            The type of the list
+             </summary>
+        </member>
         <member name="T:WebAPI.Models.Users.KalturaOTTUserListResponse">
             <summary>
             Users list
@@ -5145,6 +5350,12 @@
             </summary>
             <param name="partnerId">The partner ID</param>
             <param name="username">Username of the user to activate</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.OttUserController.GetEncryptedUserId">
+            <summary>
+            Resend the activation token to a user
+            </summary>
             <returns></returns>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaIAssetable">
@@ -5609,6 +5820,60 @@
             <remarks/>
         </member>
         <member name="M:WebAPI.Api.API.UpdateTimeShiftedTvPartnerSettingsAsync(System.String,System.String,WebAPI.Api.TimeShiftedTvPartnerSettings,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetCDNAdapters(System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetCDNAdaptersAsync(System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetCDNAdaptersAsync(System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.DeleteCDNAdapter(System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.DeleteCDNAdapterAsync(System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.DeleteCDNAdapterAsync(System.String,System.String,System.Int32,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.InsertCDNAdapter(System.String,System.String,WebAPI.Api.CDNAdapter)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.InsertCDNAdapterAsync(System.String,System.String,WebAPI.Api.CDNAdapter)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.InsertCDNAdapterAsync(System.String,System.String,WebAPI.Api.CDNAdapter,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GenerateCDNSharedSecret(System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GenerateCDNSharedSecretAsync(System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GenerateCDNSharedSecretAsync(System.String,System.String,System.Int32,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.SetCDNAdapter(System.String,System.String,WebAPI.Api.CDNAdapter)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.SetCDNAdapterAsync(System.String,System.String,WebAPI.Api.CDNAdapter)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.SetCDNAdapterAsync(System.String,System.String,WebAPI.Api.CDNAdapter,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.SendCDNAdapterConfiguration(System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.SendCDNAdapterConfigurationAsync(System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.SendCDNAdapterConfigurationAsync(System.String,System.String,System.Int32,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.Api.API.TVAPI_GetTvinciGUID(System.String,System.String,WebAPI.Api.InitializationObject)">
@@ -6824,6 +7089,24 @@
             <remarks/>
         </member>
         <member name="E:WebAPI.Api.API.UpdateTimeShiftedTvPartnerSettingsCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.GetCDNAdaptersCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.DeleteCDNAdapterCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.InsertCDNAdapterCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.GenerateCDNSharedSecretCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.SetCDNAdapterCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.SendCDNAdapterConfigurationCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.Api.API.TVAPI_GetTvinciGUIDCompleted">
@@ -8227,6 +8510,12 @@
         <member name="F:WebAPI.Api.eMailTemplateType.AddDeviceToDomain">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Api.ChangePasswordMailRequest">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ChangePasswordMailRequest.m_sToken">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Api.AddDeviceMailRequest">
             <remarks/>
         </member>
@@ -8312,12 +8601,6 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.CinepolisRenewalFailMailRequest.m_sItemName">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.ChangePasswordMailRequest">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ChangePasswordMailRequest.m_sToken">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.PurchaseMailRequest">
@@ -9241,6 +9524,60 @@
         <member name="P:WebAPI.Api.InitializationObject.m_sAdminToken">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Api.CDNAdapterResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.CDNAdapterResponse.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.CDNAdapterResponse.Adapter">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.CDNAdapter">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.CDNAdapter.ID">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.CDNAdapter.Name">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.CDNAdapter.IsActive">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.CDNAdapter.AdapterUrl">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.CDNAdapter.BaseUrl">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.CDNAdapter.Alias">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.CDNAdapter.SharedSecret">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.CDNAdapter.Settings">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.CDNAdapterSettings">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.CDNAdapterSettings.key">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.CDNAdapterSettings.value">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.CDNAdapterListResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.CDNAdapterListResponse.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.CDNAdapterListResponse.Adapters">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Api.TimeShiftedTvPartnerSettings">
             <remarks/>
         </member>
@@ -9827,6 +10164,60 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.UpdateTimeShiftedTvPartnerSettingsCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetCDNAdaptersCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetCDNAdaptersCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.GetCDNAdaptersCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.DeleteCDNAdapterCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.DeleteCDNAdapterCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.DeleteCDNAdapterCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.InsertCDNAdapterCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.InsertCDNAdapterCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.InsertCDNAdapterCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GenerateCDNSharedSecretCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GenerateCDNSharedSecretCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.GenerateCDNSharedSecretCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.SetCDNAdapterCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.SetCDNAdapterCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.SetCDNAdapterCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.SendCDNAdapterConfigurationCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.SendCDNAdapterConfigurationCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.SendCDNAdapterConfigurationCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.TVAPI_GetTvinciGUIDCompletedEventHandler">
@@ -12904,6 +13295,15 @@
         <member name="M:WebAPI.ConditionalAccess.module.RecordAsync(System.String,System.String,System.String,System.Int64,System.Object)">
             <remarks/>
         </member>
+        <member name="M:WebAPI.ConditionalAccess.module.RecordRetry(System.String,System.String,System.Int64)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.RecordRetryAsync(System.String,System.String,System.Int64)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.RecordRetryAsync(System.String,System.String,System.Int64,System.Object)">
+            <remarks/>
+        </member>
         <member name="M:WebAPI.ConditionalAccess.module.QueryRecords(System.String,System.String,System.String,System.Int64[])">
             <remarks/>
         </member>
@@ -12947,6 +13347,15 @@
             <remarks/>
         </member>
         <member name="M:WebAPI.ConditionalAccess.module.UpdateRecordingAsync(System.String,System.String,System.Int64[],WebAPI.ConditionalAccess.eAction,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.RecoverRecordingMessages(System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.RecoverRecordingMessagesAsync(System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.RecoverRecordingMessagesAsync(System.String,System.String,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.ConditionalAccess.module.GetUserPermittedItems(System.String,System.String,System.String)">
@@ -13780,6 +14189,9 @@
         <member name="E:WebAPI.ConditionalAccess.module.RecordCompleted">
             <remarks/>
         </member>
+        <member name="E:WebAPI.ConditionalAccess.module.RecordRetryCompleted">
+            <remarks/>
+        </member>
         <member name="E:WebAPI.ConditionalAccess.module.QueryRecordsCompleted">
             <remarks/>
         </member>
@@ -13793,6 +14205,9 @@
             <remarks/>
         </member>
         <member name="E:WebAPI.ConditionalAccess.module.UpdateRecordingCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.ConditionalAccess.module.RecoverRecordingMessagesCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.ConditionalAccess.module.GetUserPermittedItemsCompleted">
@@ -14122,15 +14537,6 @@
         <member name="P:WebAPI.ConditionalAccess.NPVRResponse.msg">
             <remarks/>
         </member>
-        <member name="T:WebAPI.ConditionalAccess.CancelDeleteResponse">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.LicensedLinkNPVRResponse">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.ConditionalAccess.LicensedLinkNPVRResponse.mainUrl">
-            <remarks/>
-        </member>
         <member name="T:WebAPI.ConditionalAccess.QuotaResponse">
             <remarks/>
         </member>
@@ -14140,10 +14546,19 @@
         <member name="P:WebAPI.ConditionalAccess.QuotaResponse.occupiedQuota">
             <remarks/>
         </member>
+        <member name="T:WebAPI.ConditionalAccess.CancelDeleteResponse">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.ConditionalAccess.RecordResponse">
             <remarks/>
         </member>
         <member name="P:WebAPI.ConditionalAccess.RecordResponse.recordingID">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.LicensedLinkNPVRResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.LicensedLinkNPVRResponse.mainUrl">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.BaseNPVRCommand">
@@ -14165,6 +14580,36 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.ConditionalAccess.BaseNPVRCommand.assetID">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.RetrieveQuotaNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.DeleteNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.CancelNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.RecordNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.CancelSeriesNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.RecordSeriesByProgramIdNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.RecordSeriesByNameNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.DeleteSeriesNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.ProtectNPVRCommand">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.ProtectNPVRCommand.isProtect">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.LicensedLinkNPVRCommand">
@@ -14195,36 +14640,6 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.ConditionalAccess.LicensedLinkNPVRCommand.couponCode">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.DeleteNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.CancelNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.ProtectNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.ConditionalAccess.ProtectNPVRCommand.isProtect">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.RetrieveQuotaNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.RecordNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.CancelSeriesNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.RecordSeriesByProgramIdNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.RecordSeriesByNameNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.DeleteSeriesNPVRCommand">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.EntitlementResponse">
@@ -15997,6 +16412,15 @@
         <member name="P:WebAPI.ConditionalAccess.RecordCompletedEventArgs.Result">
             <remarks/>
         </member>
+        <member name="T:WebAPI.ConditionalAccess.RecordRetryCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.RecordRetryCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.RecordRetryCompletedEventArgs.Result">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.ConditionalAccess.QueryRecordsCompletedEventHandler">
             <remarks/>
         </member>
@@ -16040,6 +16464,15 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.ConditionalAccess.UpdateRecordingCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.RecoverRecordingMessagesCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.RecoverRecordingMessagesCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.RecoverRecordingMessagesCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.GetUserPermittedItemsCompletedEventHandler">
@@ -18742,6 +19175,132 @@
         <member name="M:WebAPI.Pricing.mdoule.ValidatePPVModuleForMediaFileAsync(System.String,System.String,System.Int32,System.Int64,System.Object)">
             <remarks/>
         </member>
+        <member name="M:WebAPI.Pricing.mdoule.GetSubscriptionsByProductCodes(System.String,System.String,System.String[])">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.GetSubscriptionsByProductCodesAsync(System.String,System.String,System.String[])">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.GetSubscriptionsByProductCodesAsync(System.String,System.String,System.String[],System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.GetPPVModulesByProductCodes(System.String,System.String,System.String[])">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.GetPPVModulesByProductCodesAsync(System.String,System.String,System.String[])">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.GetPPVModulesByProductCodesAsync(System.String,System.String,System.String[],System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.GetPPVModulesData(System.String,System.String,System.String[],System.String,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.GetPPVModulesDataAsync(System.String,System.String,System.String[],System.String,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.GetPPVModulesDataAsync(System.String,System.String,System.String[],System.String,System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.InsertPPV(System.Int32,WebAPI.Pricing.IngestPPV)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.InsertPPVAsync(System.Int32,WebAPI.Pricing.IngestPPV)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.InsertPPVAsync(System.Int32,WebAPI.Pricing.IngestPPV,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.UpdatePPV(System.Int32,WebAPI.Pricing.IngestPPV)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.UpdatePPVAsync(System.Int32,WebAPI.Pricing.IngestPPV)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.UpdatePPVAsync(System.Int32,WebAPI.Pricing.IngestPPV,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.DeletePPV(System.Int32,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.DeletePPVAsync(System.Int32,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.DeletePPVAsync(System.Int32,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.InsertMPP(System.Int32,WebAPI.Pricing.IngestMultiPricePlan)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.InsertMPPAsync(System.Int32,WebAPI.Pricing.IngestMultiPricePlan)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.InsertMPPAsync(System.Int32,WebAPI.Pricing.IngestMultiPricePlan,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.UpdateMPP(System.Int32,WebAPI.Pricing.IngestMultiPricePlan)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.UpdateMPPAsync(System.Int32,WebAPI.Pricing.IngestMultiPricePlan)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.UpdateMPPAsync(System.Int32,WebAPI.Pricing.IngestMultiPricePlan,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.DeleteMPP(System.Int32,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.DeleteMPPAsync(System.Int32,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.DeleteMPPAsync(System.Int32,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.InsertPricePlan(System.Int32,WebAPI.Pricing.IngestPricePlan)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.InsertPricePlanAsync(System.Int32,WebAPI.Pricing.IngestPricePlan)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.InsertPricePlanAsync(System.Int32,WebAPI.Pricing.IngestPricePlan,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.UpdatePricePlan(System.Int32,WebAPI.Pricing.IngestPricePlan)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.UpdatePricePlanAsync(System.Int32,WebAPI.Pricing.IngestPricePlan)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.UpdatePricePlanAsync(System.Int32,WebAPI.Pricing.IngestPricePlan,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.DeletePricePlan(System.Int32,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.DeletePricePlanAsync(System.Int32,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.DeletePricePlanAsync(System.Int32,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.test(System.String,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.testAsync(System.String,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.testAsync(System.String,System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.GetPPVModuleResponse(System.String,System.String,System.String,System.String,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.GetPPVModuleResponseAsync(System.String,System.String,System.String,System.String,System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Pricing.mdoule.GetPPVModuleResponseAsync(System.String,System.String,System.String,System.String,System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
         <member name="M:WebAPI.Pricing.mdoule.CancelAsync(System.Object)">
             <remarks/>
         </member>
@@ -18886,6 +19445,48 @@
         <member name="E:WebAPI.Pricing.mdoule.ValidatePPVModuleForMediaFileCompleted">
             <remarks/>
         </member>
+        <member name="E:WebAPI.Pricing.mdoule.GetSubscriptionsByProductCodesCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Pricing.mdoule.GetPPVModulesByProductCodesCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Pricing.mdoule.GetPPVModulesDataCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Pricing.mdoule.InsertPPVCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Pricing.mdoule.UpdatePPVCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Pricing.mdoule.DeletePPVCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Pricing.mdoule.InsertMPPCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Pricing.mdoule.UpdateMPPCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Pricing.mdoule.DeleteMPPCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Pricing.mdoule.InsertPricePlanCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Pricing.mdoule.UpdatePricePlanCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Pricing.mdoule.DeletePricePlanCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Pricing.mdoule.testCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Pricing.mdoule.GetPPVModuleResponseCompleted">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Pricing.Currency">
             <remarks/>
         </member>
@@ -18901,16 +19502,13 @@
         <member name="P:WebAPI.Pricing.Currency.m_nCurrencyID">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Pricing.SubscriptionsResponse">
+        <member name="T:WebAPI.Pricing.PPVModuleDataResponse">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Pricing.SubscriptionsResponse.Subscriptions">
+        <member name="P:WebAPI.Pricing.PPVModuleDataResponse.PPVModule">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Pricing.SubscriptionsResponse.Status">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Pricing.Subscription">
+        <member name="P:WebAPI.Pricing.PPVModuleDataResponse.Status">
             <remarks/>
         </member>
         <member name="T:WebAPI.Pricing.PPVModule">
@@ -18949,79 +19547,7 @@
         <member name="P:WebAPI.Pricing.PPVModule.m_bFirstDeviceLimitation">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Pricing.Subscription.m_sCodes">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Pricing.Subscription.m_dStartDate">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Pricing.Subscription.m_dEndDate">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Pricing.Subscription.m_sFileTypes">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Pricing.Subscription.m_bIsRecurring">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Pricing.Subscription.m_nNumberOfRecPeriods">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Pricing.Subscription.m_oSubscriptionPriceCode">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Pricing.Subscription.m_oExtDisountModule">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Pricing.Subscription.m_sName">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Pricing.Subscription.m_oSubscriptionUsageModule">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Pricing.Subscription.m_fictivicMediaID">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Pricing.Subscription.m_Priority">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Pricing.Subscription.m_ProductCode">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Pricing.Subscription.m_SubscriptionCode">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Pricing.Subscription.m_MultiSubscriptionUsageModule">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Pricing.Subscription.n_GeoCommerceID">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Pricing.Subscription.m_bIsInfiniteRecurring">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Pricing.Subscription.m_UserTypes">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Pricing.Subscription.m_oPreviewModule">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Pricing.Subscription.m_nDomainLimitationModule">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Pricing.Subscription.m_lServices">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Pricing.Subscription.m_GracePeriodMinutes">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Pricing.BundleCodeContainer">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Pricing.BundleCodeContainer.m_sCode">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Pricing.BundleCodeContainer.m_sName">
+        <member name="P:WebAPI.Pricing.PPVModule.alias">
             <remarks/>
         </member>
         <member name="T:WebAPI.Pricing.PriceCode">
@@ -19073,6 +19599,9 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Pricing.DiscountModule.m_oWhenAlgo">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.DiscountModule.alias">
             <remarks/>
         </member>
         <member name="T:WebAPI.Pricing.RelationTypes">
@@ -19156,42 +19685,6 @@
         <member name="P:WebAPI.Pricing.UsageModule.m_bIsOfflinePlayBack">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Pricing.UserType">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Pricing.UserType.ID">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Pricing.UserType.Description">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Pricing.UserType.IsDefault">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Pricing.PreviewModule">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Pricing.PreviewModule.m_nID">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Pricing.PreviewModule.m_sName">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Pricing.PreviewModule.m_tsFullLifeCycle">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Pricing.PreviewModule.m_tsNonRenewPeriod">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Pricing.ServiceObject">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Pricing.ServiceObject.ID">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Pricing.ServiceObject.Name">
-            <remarks/>
-        </member>
         <member name="T:WebAPI.Pricing.CouponsGroup">
             <remarks/>
         </member>
@@ -19223,6 +19716,9 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Pricing.CouponsGroup.m_nMaxRecurringUsesCountForCoupon">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.CouponsGroup.alias">
             <remarks/>
         </member>
         <member name="T:WebAPI.Pricing.Collection">
@@ -19261,6 +19757,123 @@
         <member name="P:WebAPI.Pricing.Collection.m_CollectionCode">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Pricing.BundleCodeContainer">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.BundleCodeContainer.m_sCode">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.BundleCodeContainer.m_sName">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.Subscription">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.Subscription.m_sCodes">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.Subscription.m_dStartDate">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.Subscription.m_dEndDate">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.Subscription.m_sFileTypes">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.Subscription.m_bIsRecurring">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.Subscription.m_nNumberOfRecPeriods">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.Subscription.m_oSubscriptionPriceCode">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.Subscription.m_oExtDisountModule">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.Subscription.m_sName">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.Subscription.m_oSubscriptionUsageModule">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.Subscription.m_fictivicMediaID">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.Subscription.m_Priority">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.Subscription.m_ProductCode">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.Subscription.m_SubscriptionCode">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.Subscription.m_MultiSubscriptionUsageModule">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.Subscription.n_GeoCommerceID">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.Subscription.m_bIsInfiniteRecurring">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.Subscription.m_UserTypes">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.Subscription.m_oPreviewModule">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.Subscription.m_nDomainLimitationModule">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.Subscription.m_lServices">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.Subscription.m_GracePeriodMinutes">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.UserType">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.UserType.ID">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.UserType.Description">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.UserType.IsDefault">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.PreviewModule">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.PreviewModule.m_nID">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.PreviewModule.m_sName">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.PreviewModule.m_tsFullLifeCycle">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.PreviewModule.m_tsNonRenewPeriod">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.PreviewModule.alias">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.ServiceObject">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.ServiceObject.ID">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.ServiceObject.Name">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Pricing.Status">
             <remarks/>
         </member>
@@ -19268,6 +19881,183 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Pricing.Status.Message">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.BusinessModuleResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.BusinessModuleResponse.Id">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.BusinessModuleResponse.status">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.KeyValuePair">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.KeyValuePair.key">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.KeyValuePair.value">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.IngestPriceCode">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestPriceCode.Price">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestPriceCode.Currency">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.IngestModule">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestModule.Code">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestModule.Action">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.eIngestAction">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Pricing.eIngestAction.Insert">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Pricing.eIngestAction.Update">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Pricing.eIngestAction.Delete">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.IngestPricePlan">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestPricePlan.FullLifeCycle">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestPricePlan.ViewLifeCycle">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestPricePlan.MaxViews">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestPricePlan.PriceCode">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestPricePlan.IsRenewable">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestPricePlan.RecurringPeriods">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestPricePlan.IsActive">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestPricePlan.Discount">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.IngestMultiPricePlan">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestMultiPricePlan.Titles">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestMultiPricePlan.Descriptions">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestMultiPricePlan.StartDate">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestMultiPricePlan.EndDate">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestMultiPricePlan.InternalDiscount">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestMultiPricePlan.CouponGroup">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestMultiPricePlan.ProductCode">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestMultiPricePlan.IsRenewable">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestMultiPricePlan.PreviewModule">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestMultiPricePlan.DomainLimitationModule">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestMultiPricePlan.GracePeriodMinutes">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestMultiPricePlan.PricePlansCodes">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestMultiPricePlan.Channels">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestMultiPricePlan.FileTypes">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestMultiPricePlan.IsActive">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestMultiPricePlan.OrderNumber">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.IngestPPV">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestPPV.PriceCode">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestPPV.UsageModule">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestPPV.Discount">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestPPV.CouponGroup">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestPPV.SubscriptionOnly">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestPPV.Descriptions">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestPPV.FirstDeviceLimitation">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestPPV.ProductCode">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestPPV.FileTypes">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.IngestPPV.IsActive">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.PPVModuleResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.PPVModuleResponse.PPVModules">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.PPVModuleResponse.Status">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.SubscriptionsResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.SubscriptionsResponse.Subscriptions">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.SubscriptionsResponse.Status">
             <remarks/>
         </member>
         <member name="T:WebAPI.Pricing.CouponData">
@@ -19928,6 +20718,132 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Pricing.ValidatePPVModuleForMediaFileCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.GetSubscriptionsByProductCodesCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.GetSubscriptionsByProductCodesCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.GetSubscriptionsByProductCodesCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.GetPPVModulesByProductCodesCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.GetPPVModulesByProductCodesCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.GetPPVModulesByProductCodesCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.GetPPVModulesDataCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.GetPPVModulesDataCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.GetPPVModulesDataCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.InsertPPVCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.InsertPPVCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.InsertPPVCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.UpdatePPVCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.UpdatePPVCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.UpdatePPVCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.DeletePPVCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.DeletePPVCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.DeletePPVCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.InsertMPPCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.InsertMPPCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.InsertMPPCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.UpdateMPPCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.UpdateMPPCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.UpdateMPPCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.DeleteMPPCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.DeleteMPPCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.DeleteMPPCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.InsertPricePlanCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.InsertPricePlanCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.InsertPricePlanCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.UpdatePricePlanCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.UpdatePricePlanCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.UpdatePricePlanCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.DeletePricePlanCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.DeletePricePlanCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.DeletePricePlanCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.testCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.testCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.testCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.GetPPVModuleResponseCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Pricing.GetPPVModuleResponseCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Pricing.GetPPVModuleResponseCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.Social.module">
@@ -22063,6 +22979,33 @@
         <member name="M:WebAPI.Users.UsersService.ResendActivationTokenAsync(System.String,System.String,System.String,System.Object)">
             <remarks/>
         </member>
+        <member name="M:WebAPI.Users.UsersService.DeleteItemFromUsersList(System.String,System.String,System.String,WebAPI.Users.Item)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Users.UsersService.DeleteItemFromUsersListAsync(System.String,System.String,System.String,WebAPI.Users.Item)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Users.UsersService.DeleteItemFromUsersListAsync(System.String,System.String,System.String,WebAPI.Users.Item,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Users.UsersService.AddItemToUsersList(System.String,System.String,System.String,WebAPI.Users.Item)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Users.UsersService.AddItemToUsersListAsync(System.String,System.String,System.String,WebAPI.Users.Item)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Users.UsersService.AddItemToUsersListAsync(System.String,System.String,System.String,WebAPI.Users.Item,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Users.UsersService.GetItemFromUsersList(System.String,System.String,System.String,WebAPI.Users.Item)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Users.UsersService.GetItemFromUsersListAsync(System.String,System.String,System.String,WebAPI.Users.Item)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Users.UsersService.GetItemFromUsersListAsync(System.String,System.String,System.String,WebAPI.Users.Item,System.Object)">
+            <remarks/>
+        </member>
         <member name="M:WebAPI.Users.UsersService.CancelAsync(System.Object)">
             <remarks/>
         </member>
@@ -22312,6 +23255,15 @@
         <member name="E:WebAPI.Users.UsersService.ResendActivationTokenCompleted">
             <remarks/>
         </member>
+        <member name="E:WebAPI.Users.UsersService.DeleteItemFromUsersListCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Users.UsersService.AddItemToUsersListCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Users.UsersService.GetItemFromUsersListCompleted">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Users.UserResponseObject">
             <remarks/>
         </member>
@@ -22525,13 +23477,55 @@
         <member name="P:WebAPI.Users.Country.m_sCountryCode">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Users.LongIdsResponse">
+        <member name="T:WebAPI.Users.UsersListItemResponse">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Users.LongIdsResponse.Status">
+        <member name="P:WebAPI.Users.UsersListItemResponse.Item">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Users.LongIdsResponse.Ids">
+        <member name="P:WebAPI.Users.UsersListItemResponse.Status">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Users.Item">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Users.Item.ItemType">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Users.Item.ItemId">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Users.Item.OrderIndex">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Users.Item.UserId">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Users.Item.ListType">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Users.ItemType">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Users.ItemType.All">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Users.ItemType.Media">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Users.ListType">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Users.ListType.All">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Users.ListType.Watch">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Users.ListType.Purchase">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Users.ListType.Library">
             <remarks/>
         </member>
         <member name="T:WebAPI.Users.Status">
@@ -22541,6 +23535,15 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Users.Status.Message">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Users.LongIdsResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Users.LongIdsResponse.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Users.LongIdsResponse.Ids">
             <remarks/>
         </member>
         <member name="T:WebAPI.Users.UsersResponse">
@@ -22567,30 +23570,6 @@
         <member name="P:WebAPI.Users.PinCodeResponse.siteGuid">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Users.Item">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Users.Item.ItemType">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Users.Item.ItemId">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Users.Item.OrderIndex">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Users.Item.UserId">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Users.ItemType">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Users.ItemType.All">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Users.ItemType.Media">
-            <remarks/>
-        </member>
         <member name="T:WebAPI.Users.UserItemsList">
             <remarks/>
         </member>
@@ -22598,21 +23577,6 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Users.UserItemsList.ListType">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Users.ListType">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Users.ListType.All">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Users.ListType.Watch">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Users.ListType.Purchase">
-            <remarks/>
-        </member>
-        <member name="F:WebAPI.Users.ListType.Library">
             <remarks/>
         </member>
         <member name="T:WebAPI.Users.UsersItemsListsResponse">
@@ -22838,6 +23802,12 @@
             <remarks/>
         </member>
         <member name="F:WebAPI.Users.eUserMessageAction.ChangeUsers">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Users.eUserMessageAction.EnableUserNotifications">
+            <remarks/>
+        </member>
+        <member name="F:WebAPI.Users.eUserMessageAction.DisableUserNotifications">
             <remarks/>
         </member>
         <member name="T:WebAPI.Users.CheckUserPasswordCompletedEventHandler">
@@ -23552,6 +24522,33 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Users.ResendActivationTokenCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Users.DeleteItemFromUsersListCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Users.DeleteItemFromUsersListCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Users.DeleteItemFromUsersListCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Users.AddItemToUsersListCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Users.AddItemToUsersListCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Users.AddItemToUsersListCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Users.GetItemFromUsersListCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Users.GetItemFromUsersListCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Users.GetItemFromUsersListCompletedEventArgs.Result">
             <remarks/>
         </member>
     </members>

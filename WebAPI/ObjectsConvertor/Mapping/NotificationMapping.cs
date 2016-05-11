@@ -13,18 +13,24 @@ namespace WebAPI.ObjectsConvertor.Mapping
         public static void RegisterMappings()
         {
             //NotificationPartnerSettings to KalturaPartnerNotificationSettings
-            Mapper.CreateMap<NotificationPartnerSettings, KalturaPartnerNotificationSettings>()                 
-                 .ForMember(dest => dest.PushNotificationEnabled, opt => opt.MapFrom(src => src.push_notification_enabled))
-                 .ForMember(dest => dest.PushSystemAnnouncementsEnabled, opt => opt.MapFrom(src => src.push_system_announcements_enabled))
+            Mapper.CreateMap<NotificationPartnerSettings, KalturaPartnerNotificationSettings>()
+                 .ForMember(dest => dest.PushNotificationEnabled, opt => opt.MapFrom(src => src.IsPushNotificationEnabled))
+                 .ForMember(dest => dest.PushSystemAnnouncementsEnabled, opt => opt.MapFrom(src => src.IsPushSystemAnnouncementsEnabled))
                  .ForMember(dest => dest.PushStartHour, opt => opt.MapFrom(src => src.PushStartHour))
-                 .ForMember(dest => dest.PushEndHour, opt => opt.MapFrom(src => src.PushEndHour));
+                 .ForMember(dest => dest.PushEndHour, opt => opt.MapFrom(src => src.PushEndHour))
+                 .ForMember(dest => dest.InboxEnabled, opt => opt.MapFrom(src => src.IsInboxEnabled))
+                 .ForMember(dest => dest.MessageTTL, opt => opt.MapFrom(src => src.MessageTTL))
+                 ;
 
             //KalturaPartnerNotificationSettings TO NotificationPartnerSettings
             Mapper.CreateMap<KalturaPartnerNotificationSettings, NotificationPartnerSettings>()
-                 .ForMember(dest => dest.push_notification_enabled, opt => opt.MapFrom(src => src.PushNotificationEnabled))
-                 .ForMember(dest => dest.push_system_announcements_enabled, opt => opt.MapFrom(src => src.PushSystemAnnouncementsEnabled))
+                 .ForMember(dest => dest.IsPushNotificationEnabled, opt => opt.MapFrom(src => src.PushNotificationEnabled))
+                 .ForMember(dest => dest.IsPushSystemAnnouncementsEnabled, opt => opt.MapFrom(src => src.PushSystemAnnouncementsEnabled))
                  .ForMember(dest => dest.PushStartHour, opt => opt.MapFrom(src => src.PushStartHour))
-                 .ForMember(dest => dest.PushEndHour, opt => opt.MapFrom(src => src.PushEndHour));
+                 .ForMember(dest => dest.PushEndHour, opt => opt.MapFrom(src => src.PushEndHour))
+                 .ForMember(dest => dest.IsInboxEnabled, opt => opt.MapFrom(src => src.InboxEnabled))
+                 .ForMember(dest => dest.MessageTTL, opt => opt.MapFrom(src => src.MessageTTL))
+                 ;
 
             Mapper.CreateMap<UserNotificationSettings, KalturaNotificationSettings>()
                  .ForMember(dest => dest.PushNotificationEnabled, opt => opt.MapFrom(src => src.EnablePush))
@@ -35,7 +41,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             Mapper.CreateMap<KalturaNotificationSettings, UserNotificationSettings>()
                  .ForMember(dest => dest.EnablePush, opt => opt.MapFrom(src => src.PushNotificationEnabled))
-                 .ForMember(dest =>  dest.FollowSettings, opt => opt.MapFrom(src => src.PushFollowEnabled));
+                 .ForMember(dest => dest.FollowSettings, opt => opt.MapFrom(src => src.PushFollowEnabled));
 
             Mapper.CreateMap<MessageAnnouncement, KalturaAnnouncement>()
                  .ForMember(dest => dest.Enabled, opt => opt.MapFrom(src => src.Enabled))
@@ -79,7 +85,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
                  .ForMember(dest => dest.Timestamp, opt => opt.MapFrom(src => src.Timestamp))
                  .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title));
-            
+
             Mapper.CreateMap<KalturaFollowDataTvSeries, FollowDataTvSeries>()
                  .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.AnnouncementId))
                  .ForMember(dest => dest.FollowPhrase, opt => opt.MapFrom(src => src.FollowPhrase))
@@ -226,7 +232,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     result.m_eOrderDir = OrderDir.ASC;
                     break;
             }
-            return result;   
+            return result;
         }
     }
 }

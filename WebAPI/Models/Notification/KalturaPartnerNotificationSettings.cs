@@ -42,5 +42,21 @@ namespace WebAPI.Models.Notification
         [JsonProperty("push_end_hour")]
         [XmlElement(ElementName = "push_end_hour", IsNullable = true)]
         public int? PushEndHour { get; set; }
+
+        /// <summary>
+        /// Inbox enabled
+        /// </summary>
+        [DataMember(Name = "inboxEnabled")]
+        [JsonProperty("inboxEnabled")]
+        [XmlElement(ElementName = "inboxEnabled", IsNullable = true)]
+        public bool? InboxEnabled { get; set; }
+
+        /// <summary>
+        /// Inbox enabled
+        /// </summary>
+        [DataMember(Name = "messageTTL")]
+        [JsonProperty("messageTTL")]
+        [XmlElement(ElementName = "messageTTL", IsNullable = true)]
+        public int? MessageTTL { get; set; }
     }
 }

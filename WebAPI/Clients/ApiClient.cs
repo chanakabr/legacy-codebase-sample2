@@ -2491,9 +2491,9 @@ namespace WebAPI.Clients
             return isSuccess;
         }
 
-        internal List<KalturaCDNAdapterProfile> GetCDNRAdapters(int groupId)
+        internal KalturaCDNAdapterProfileListResponse GetCDNRAdapters(int groupId)
         {
-            List<KalturaCDNAdapterProfile> adapters = new List<KalturaCDNAdapterProfile>();
+            KalturaCDNAdapterProfileListResponse result = new KalturaCDNAdapterProfileListResponse() { TotalCount = 0 };
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -2523,10 +2523,11 @@ namespace WebAPI.Clients
 
             if (response.Adapters.Length > 0)
             {
-                adapters = AutoMapper.Mapper.Map<List<KalturaCDNAdapterProfile>>(response.Adapters);
+                result.TotalCount = response.Adapters.Length;
+                result.Adapters = AutoMapper.Mapper.Map<List<KalturaCDNAdapterProfile>>(response.Adapters);
             }
 
-            return adapters;
+            return result;
         }
 
         internal bool DeleteCDNAdapter(int groupId, int adapterId)

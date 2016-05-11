@@ -44,8 +44,9 @@ namespace WebAPI.Controllers
         /// <summary>
         /// update the partner notification settings.      
         /// </summary>    
-        /// 
         /// <remarks>        
+        /// Possible status codes: 
+        /// Push notification false = 8001, Invalid message ttl = 8018
         /// </remarks>
         /// <returns>The notification settings that apply for the partner</returns>
         /// 

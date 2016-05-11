@@ -97,21 +97,27 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         public KalturaLoginSession SwitchUser(string userIdToSwitch)
         {
+            int groupId = KS.GetFromRequest().GroupId;
+
+            Group group = GroupsManager.GetGroup(groupId);
+            if (!group.IsSwitchingUsersAllowed)
+            {
+                throw new ForbiddenException((int)WebAPI.Managers.Models.StatusCode.SwitchingUsersIsNotAllowedForPartner, "Switching users is not allowed for partner");
+            }
+
             if (string.IsNullOrEmpty(userIdToSwitch))
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "userIdToSwitch cannot be empty");
             }
 
-            int partnerId = KS.GetFromRequest().GroupId;
-
-            if (!AuthorizationManager.IsUserInHousehold(userIdToSwitch, partnerId))
+            if (!AuthorizationManager.IsUserInHousehold(userIdToSwitch, groupId))
             {
                 throw new ForbiddenException((int)WebAPI.Managers.Models.StatusCode.ServiceForbidden, "userIdToSwitch is not in household");
             }
 
             string udid = KSUtils.ExtractKSPayload().UDID;
 
-            return AuthorizationManager.GenerateSession(userIdToSwitch, partnerId, false, false, udid);
+            return AuthorizationManager.GenerateSession(userIdToSwitch, groupId, false, false, udid);
         }
     }
 }

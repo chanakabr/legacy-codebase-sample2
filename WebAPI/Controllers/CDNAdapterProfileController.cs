@@ -22,9 +22,9 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public List<KalturaCDNAdapterProfile> List()
+        public KalturaCDNAdapterProfileListResponse List()
         {
-            List<KalturaCDNAdapterProfile> response = null;
+            KalturaCDNAdapterProfileListResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 

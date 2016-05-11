@@ -1089,6 +1089,7 @@
     <Compile Include="Managers\Schema\SchemaValidationType.cs" />
     <Compile Include="Models\API\KalturaCDNPartnerSettings.cs" />
     <Compile Include="Models\API\KalturaCDNAdapterProfile.cs" />
+    <Compile Include="Models\API\KalturaCDNAdapterProfileListResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaCDVRAdapterProfile.cs" />
     <Compile Include="Models\API\KalturaPermissionsFilter.cs" />
     <Compile Include="Models\API\KalturaExportFilter.cs" />
