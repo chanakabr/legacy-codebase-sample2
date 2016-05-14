@@ -27,6 +27,10 @@ public partial class adm_stream_config : System.Web.UI.Page
             Int32 nMenuID = 0;
             m_sMenu = TVinciShared.Menu.GetMainMenu(4, true, ref nMenuID);
             m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, false);
+            if (Request.QueryString["search_save"] != null)
+                Session["search_save"] = "1";
+            else
+                Session["search_save"] = null;
         }
     }
 
@@ -84,6 +88,11 @@ public partial class adm_stream_config : System.Web.UI.Page
             theTable.AddOrderByColumn("Group", "g.GROUP_NAME");
         theTable.AddOrderByColumn("Name", "sc.STREAMING_COMPANY_NAME");
         theTable.AddOrderByColumn("State", "lcs.description");
+
+        DataTableLinkColumn linkColumnKeParams = new DataTableLinkColumn("adm_stream_config_settings.aspx", "Settings", "");
+        linkColumnKeParams.AddQueryStringValue("cdn_adapter_id", "field=id");
+        linkColumnKeParams.AddQueryCounterValue("select count(*) as val from streaming_companies_settings where ( status=1 or status = 4 )  and adapter_id=", "field=id");
+        theTable.AddLinkColumn(linkColumnKeParams);
 
         if (PageUtils.IsTvinciUser() == true)
         {
