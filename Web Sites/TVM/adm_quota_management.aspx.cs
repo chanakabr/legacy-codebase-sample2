@@ -63,7 +63,7 @@ public partial class adm_quota_management : System.Web.UI.Page
         int groupID = LoginManager.GetLoginGroupID();
 
         // check if to insert a new record to the table or update an existing one
-        int idFromTable = DAL.TvmDAL.GetQuotaMamagementID(groupID);
+        int idFromTable = DAL.TvmDAL.GetQuotaMamagementModuleID(groupID);
 
         if (idFromTable > 0)
         {
