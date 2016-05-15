@@ -160,13 +160,13 @@ namespace CachingProvider
                         mutex.WaitOne(-1);
                         VersionModuleCache vModule = (VersionModuleCache)GetWithVersion<T>(sKey);
                         // memory is empty for this key OR the object must have the same version 
-                        if (vModule == null || (vModule != null && vModule.result != null && vModule.version != baseModule.version))
-                        {
+                        if (vModule == null || vModule.result == null || (vModule != null && vModule.result != null && vModule.version != baseModule.version))
+                        {                            
                             Guid versionGuid = Guid.NewGuid();
                             baseModule.version = versionGuid.ToString();
                             cache.Set(sKey, baseModule, DateTime.Now.AddMinutes(nMinuteOffset));
                             return true;
-                        }
+                        }                        
                     }
                     catch
                     {
