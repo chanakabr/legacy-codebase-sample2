@@ -304,15 +304,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             //CDNPartnerSettings to KalturaCDNPartnerSettings
             Mapper.CreateMap<CDNPartnerSettings, KalturaCDNPartnerSettings>()
-                .ForMember(dest => dest.DefaultEpgAdapter, opt => opt.MapFrom(src => src.DefaultEpgAdapter))
-                .ForMember(dest => dest.DefaultRecordingAdapter, opt => opt.MapFrom(src => src.DefaultRecordingAdapter))
-                .ForMember(dest => dest.DefaultVodAdapter, opt => opt.MapFrom(src => src.DefaultVodAdapter));
+                .ForMember(dest => dest.DefaultEpgAdapterId, opt => opt.MapFrom(src => src.DefaultEpgAdapter))
+                .ForMember(dest => dest.DefaultRecordingAdapterId, opt => opt.MapFrom(src => src.DefaultRecordingAdapter))
+                .ForMember(dest => dest.DefaultVodAdapterId, opt => opt.MapFrom(src => src.DefaultVodAdapter));
 
             //KalturaCDNPartnerSettings to CDNPartnerSettings 
             Mapper.CreateMap<KalturaCDNPartnerSettings, CDNPartnerSettings>()
-                .ForMember(dest => dest.DefaultEpgAdapter, opt => opt.MapFrom(src => src.DefaultEpgAdapter))
-                .ForMember(dest => dest.DefaultRecordingAdapter, opt => opt.MapFrom(src => src.DefaultRecordingAdapter))
-                .ForMember(dest => dest.DefaultVodAdapter, opt => opt.MapFrom(src => src.DefaultVodAdapter));
+                .ForMember(dest => dest.DefaultEpgAdapter, opt => opt.MapFrom(src => src.DefaultEpgAdapterId))
+                .ForMember(dest => dest.DefaultRecordingAdapter, opt => opt.MapFrom(src => src.DefaultRecordingAdapterId))
+                .ForMember(dest => dest.DefaultVodAdapter, opt => opt.MapFrom(src => src.DefaultVodAdapterId));
 
             #endregion
         }

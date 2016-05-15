@@ -51,9 +51,9 @@ namespace WebAPI.Controllers
             KalturaCDNPartnerSettings response = null;
 
             if (settings != null &&
-                ((settings.DefaultVodAdapter.HasValue && settings.DefaultVodAdapter < 0) || 
-                (settings.DefaultEpgAdapter.HasValue && settings.DefaultEpgAdapter < 0) || 
-                (settings.DefaultRecordingAdapter.HasValue && settings.DefaultRecordingAdapter < 0)))
+                ((settings.DefaultVodAdapterId.HasValue && settings.DefaultVodAdapterId < 0) || 
+                (settings.DefaultEpgAdapterId.HasValue && settings.DefaultEpgAdapterId < 0) || 
+                (settings.DefaultRecordingAdapterId.HasValue && settings.DefaultRecordingAdapterId < 0)))
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "default adapters' IDs cannot be negative");
             }
