@@ -610,4 +610,17 @@ namespace ApiObjects
         Single = 0,
         Series = 1,
     }
+
+    public enum eMessageCategory
+    {
+        SystemAnnouncement = 0,
+        Followed = 1
+    }
+
+    public enum eMessageState
+    {
+        Unread = 0,
+        Read = 1,
+        Trashed = 2
+    }
 }

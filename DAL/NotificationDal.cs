@@ -48,6 +48,16 @@ namespace DAL
             return string.Format("user_notification_item:{0}:{1}:{2}", groupId, userId, notificationId);
         }
 
+        private static string GetInboxMessageKey(int groupId, long userId, string messageId)
+        {
+            return string.Format("InboxMessage_{0}_{1}_{2}", groupId, userId, messageId);
+        }
+
+        private static string GetInboxSystemAnnouncementKey(int groupId, string messageId)
+        {
+            return string.Format("System_inbox_{0}_{1}", groupId, messageId);
+        }
+
         /// <summary>
         /// Insert one notification request to notifications_requests table
         /// by calling InsertNotifictaionRequest stored procedure.
@@ -1237,7 +1247,7 @@ namespace DAL
             {
                 int numOfTries = 0;
                 while (!result && numOfTries < NUM_OF_INSERT_TRIES)
-                {   
+                {
                     if (unlock)
                         result = cbManager.Set(GetDeviceDataKey(groupId, udid), newDeviceNotificationData, true, 0, newDeviceNotificationData.cas);
                     else
@@ -1565,6 +1575,37 @@ namespace DAL
             }
 
             return assetType;
+        }
+
+        public static List<InboxMessage> GetUserMessagesView(int groupId, long userId, bool onlyUnread, long fromDate)
+        {
+            List<InboxMessage> userMessages = null;
+            try
+            {
+                var startKey = new object[] { groupId, userId, 0, fromDate };
+                var endKey = new object[] { groupId, userId, 1, fromDate };
+
+                if (onlyUnread)
+                    endKey = new object[] { groupId, userId, 0, fromDate };
+
+                // prepare view request
+                ViewManager viewManager = new ViewManager("inbox", "get_user_messages")
+                {
+                    startKey = startKey,
+                    endKey = endKey,
+                    staleState = ViewStaleState.False,
+                    inclusiveEnd = true
+                };
+
+                // execute request
+                userMessages = cbManager.View<InboxMessage>(viewManager);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to get users inbox message view. GID: {0}, userId ID: {1}, ex: {2}", groupId, userId, ex);
+            }
+
+            return userMessages;
         }
     }
 }
