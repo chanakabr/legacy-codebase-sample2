@@ -36,7 +36,7 @@ namespace ApiObjects
 
         public List<string> FileTypes { get; set; }
 
-        public bool IsActive { get; set; }
+        public bool? IsActive { get; set; }
 
         public int? OrderNumber { get; set; }
     }
