@@ -116,7 +116,7 @@ namespace CachingProvider
             {
                 if (string.IsNullOrEmpty(sKey))
                     return null;
-                baseModule = (VersionModuleCache)cache.Get(sKey);
+                baseModule.result = (VersionModuleCache)cache.Get(sKey);
 
                 return baseModule;
             }
