@@ -15,5 +15,6 @@ namespace ApiObjects.Notification
         public string Url { get; set; }
         public long CreatedAtSec { get; set; }
         public long UpdatedAtSec { get; set; }
+        public eMessageState State { get; set; }
     }
 }
