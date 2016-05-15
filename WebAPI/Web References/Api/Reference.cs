@@ -1657,28 +1657,30 @@ namespace WebAPI.Api {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/SetCDNAdapter", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public CDNAdapterResponse SetCDNAdapter(string sWSUserName, string sWSPassword, CDNAdapter adapter) {
+        public CDNAdapterResponse SetCDNAdapter(string sWSUserName, string sWSPassword, CDNAdapter adapter, int adapterID) {
             object[] results = this.Invoke("SetCDNAdapter", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        adapter});
+                        adapter,
+                        adapterID});
             return ((CDNAdapterResponse)(results[0]));
         }
         
         /// <remarks/>
-        public void SetCDNAdapterAsync(string sWSUserName, string sWSPassword, CDNAdapter adapter) {
-            this.SetCDNAdapterAsync(sWSUserName, sWSPassword, adapter, null);
+        public void SetCDNAdapterAsync(string sWSUserName, string sWSPassword, CDNAdapter adapter, int adapterID) {
+            this.SetCDNAdapterAsync(sWSUserName, sWSPassword, adapter, adapterID, null);
         }
         
         /// <remarks/>
-        public void SetCDNAdapterAsync(string sWSUserName, string sWSPassword, CDNAdapter adapter, object userState) {
+        public void SetCDNAdapterAsync(string sWSUserName, string sWSPassword, CDNAdapter adapter, int adapterID, object userState) {
             if ((this.SetCDNAdapterOperationCompleted == null)) {
                 this.SetCDNAdapterOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetCDNAdapterOperationCompleted);
             }
             this.InvokeAsync("SetCDNAdapter", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        adapter}, this.SetCDNAdapterOperationCompleted, userState);
+                        adapter,
+                        adapterID}, this.SetCDNAdapterOperationCompleted, userState);
         }
         
         private void OnSetCDNAdapterOperationCompleted(object arg) {

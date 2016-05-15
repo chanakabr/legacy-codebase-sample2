@@ -2599,7 +2599,7 @@ namespace WebAPI.Clients
             return adapter;
         }
 
-        internal KalturaCDNAdapterProfile SetCDNAdapter(int groupId, KalturaCDNAdapterProfile adapter)
+        internal KalturaCDNAdapterProfile SetCDNAdapter(int groupId, KalturaCDNAdapterProfile adapter, int adapterId)
         {
             KalturaCDNAdapterProfile adapterResponse = new KalturaCDNAdapterProfile();
 
@@ -2613,7 +2613,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.SetCDNAdapter(group.ApiCredentials.Username, group.ApiCredentials.Password, wsAdapter);
+                    response = Api.SetCDNAdapter(group.ApiCredentials.Username, group.ApiCredentials.Password, wsAdapter, adapterId);
                 }
             }
             catch (Exception ex)

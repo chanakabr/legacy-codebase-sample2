@@ -688,6 +688,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="adapter" type="tns:CDNAdapter" />
+            <s:element minOccurs="1" maxOccurs="1" name="adapterID" type="s:int" />
           </s:sequence>
         </s:complexType>
       </s:element>
