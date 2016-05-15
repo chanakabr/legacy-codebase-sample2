@@ -620,4 +620,17 @@ namespace ApiObjects
         Unauthorized = 3,
         NoResponseFromProvider = 4
     }
+
+    public enum eMessageCategory
+    {
+        SystemAnnouncement = 0,
+        Followed = 1
+    }
+
+    public enum eMessageState
+    {
+        Unread = 0,
+        Read = 1,
+        Trashed = 2
+    }
 }
