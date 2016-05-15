@@ -203,6 +203,11 @@ namespace CachingHelpers
 
                                 for (int i = 0; i < 3 && !inserted; i++)
                                 {
+                                    if (versionModule == null)
+                                    {
+                                        versionModule = new VersionModuleCache();
+                                    }
+
                                     //try insert to Cache
                                     versionModule.result = tempValue;
 

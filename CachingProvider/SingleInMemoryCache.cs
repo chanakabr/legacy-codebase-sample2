@@ -118,6 +118,11 @@ namespace CachingProvider
                     return null;
                 baseModule = (VersionModuleCache)cache.Get(sKey);
 
+                if (baseModule == null)
+                {
+                    baseModule = new VersionModuleCache();
+                }
+
                 return baseModule;
             }
             catch
