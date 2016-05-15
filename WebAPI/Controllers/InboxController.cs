@@ -85,7 +85,7 @@ namespace WebAPI.Controllers
                 {
                     filter.CreatedAtLessThanOrEqual = 0;
                 }
-              
+
                 // call client                
                 response = ClientsManager.NotificationClient().GetInboxMessages(groupId, userId, pager.getPageSize(), pager.getPageIndex(), filter.TypeIn, filter.CreatedAtGreaterThanOrEqual.Value, filter.CreatedAtLessThanOrEqual.Value);
             }
@@ -117,7 +117,7 @@ namespace WebAPI.Controllers
                 string userId = KS.GetFromRequest().UserId;
 
                 // call client                
-                response = ClientsManager.NotificationClient().UpdateInboxMessage(groupId, userId, status);
+                response = ClientsManager.NotificationClient().UpdateInboxMessage(groupId, userId, id, status);
             }
             catch (ClientException ex)
             {

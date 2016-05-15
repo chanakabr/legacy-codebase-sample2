@@ -812,7 +812,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while GetUserFeeder.  groupID: {0}, exception: {1}", groupId, ex);
+                log.ErrorFormat("Error while GetInboxMessages.  groupID: {0}, exception: {1}", groupId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -835,14 +835,76 @@ namespace WebAPI.Clients
             return ret;
         }
 
-        internal bool UpdateInboxMessage(int groupId, string userId, KalturaInboxMessageStatus status)
+        internal bool UpdateInboxMessage(int groupId, string userID, string messageId, KalturaInboxMessageStatus status)
         {
-            throw new NotImplementedException();
+            Status response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            int userId = 0;
+            if (!int.TryParse(userID, out userId))
+            {
+                throw new ClientException((int)StatusCode.UserIDInvalid, "Invalid UID");
+            }
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Notification.UpdateInboxMessage(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, messageId, NotificationMapping.ConvertInboxMessageStatus(status));
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while UpdateInboxMessage.  groupID: {0}, messageId: {1}, exception: {2}", groupId, messageId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
         }
 
-        internal KalturaInboxMessage GetInboxMessage(int groupId, string userId, string id)
+        internal KalturaInboxMessage GetInboxMessage(int groupId, string userID, string id)
         {
-            throw new NotImplementedException();
+            InboxMessageResponse response = null;
+            KalturaInboxMessage result = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            int userId = 0;
+            if (!int.TryParse(userID, out userId))
+            {
+                throw new ClientException((int)StatusCode.UserIDInvalid, "Invalid UID");
+            }
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Notification.GetInboxMessage(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password,userId, id);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetInboxMessage.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.InboxMessages != null && response.InboxMessages.Count > 0)
+            {
+                result = AutoMapper.Mapper.Map<KalturaInboxMessage>(response.InboxMessages[0]);
+            }
+            return result;
         }
     }
 }

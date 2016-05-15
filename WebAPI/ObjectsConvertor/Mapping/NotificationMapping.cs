@@ -120,7 +120,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  ;
         }
 
-        private static eMessageState ConvertInboxMessageStatus(KalturaInboxMessageStatus kalturaInboxMessageStatus)
+        public static eMessageState ConvertInboxMessageStatus(KalturaInboxMessageStatus kalturaInboxMessageStatus)
         {
             eMessageState result;
 
