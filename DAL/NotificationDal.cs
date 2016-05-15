@@ -679,7 +679,7 @@ namespace DAL
                     PushStartHour = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "push_start_hour"),
                     PushEndHour = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "push_end_hour"),
                     IsInboxEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "is_inbox_enable") == 1 ? true : false,
-                    MessageTTL = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "message_ttl") 
+                    MessageTTL = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "message_ttl")
                 };
             }
 
@@ -1614,6 +1614,160 @@ namespace DAL
             return userMessages;
         }
 
+        public static InboxMessage GetUserInboxMessage(int groupId, int userId, string messageId)
+        {
+            InboxMessage userInboxMessage = null;
+            Couchbase.IO.ResponseStatus status = Couchbase.IO.ResponseStatus.None;
+
+            try
+            {
+                bool result = false;
+                int numOfTries = 0;
+                while (!result && numOfTries < NUM_OF_INSERT_TRIES)
+                {
+                    userInboxMessage = cbManager.Get<InboxMessage>(GetInboxMessageKey(groupId, userId, messageId), out status);
+                    if (userInboxMessage == null)
+                    {
+                        if (status == Couchbase.IO.ResponseStatus.KeyNotFound)
+                        {
+                            // key doesn't exist - don't try again
+                            log.DebugFormat("user inbox message wasn't found. key: {0}", GetInboxMessageKey(groupId, userId, messageId));
+                            break;
+                        }
+                        else
+                        {
+                            numOfTries++;
+                            log.ErrorFormat("Error while getting user inbox message. number of tries: {0}/{1}. key: {2}",
+                                numOfTries,
+                                NUM_OF_INSERT_TRIES,
+                                GetInboxMessageKey(groupId, userId, messageId));
+
+                            Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
+                        }
+                    }
+                    else
+                    {
+                        result = true;
+
+                        // log success on retry
+                        if (numOfTries > 0)
+                        {
+                            numOfTries++;
+                            log.DebugFormat("successfully received user inbox message. number of tries: {0}/{1}. key {2}",
+                            numOfTries,
+                            NUM_OF_INSERT_TRIES,
+                            GetInboxMessageKey(groupId, userId, messageId));
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to get user inbox message. key: {0}, ex: {1}", GetInboxMessageKey(groupId, userId, messageId), ex);
+            }
+
+            return userInboxMessage;
+        }
+
+        public static bool SetUserInboxMessage(int groupId, int userId, string messageId, InboxMessage inboxMessage)
+        {
+            bool result = false;
+            try
+            {
+                int numOfTries = 0;
+                while (!result && numOfTries < NUM_OF_INSERT_TRIES)
+                {
+                    result = cbManager.Set(GetInboxMessageKey(groupId, userId, messageId), inboxMessage);
+
+                    if (!result)
+                    {
+                        numOfTries++;
+                        log.ErrorFormat("Error while setting inbox message. number of tries: {0}/{1}. GID: {2}, user ID: {3}. data: {4}",
+                             numOfTries,
+                            NUM_OF_INSERT_TRIES,
+                            groupId,
+                            userId,
+                            JsonConvert.SerializeObject(inboxMessage));
+                        Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
+                    }
+                    else
+                    {
+                        // log success on retry
+                        if (numOfTries > 0)
+                        {
+                            numOfTries++;
+                            log.DebugFormat("successfully set inbox message. number of tries: {0}/{1}. object {2}",
+                            numOfTries,
+                            NUM_OF_INSERT_TRIES,
+                            JsonConvert.SerializeObject(inboxMessage));
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while setting inbox message. GID: {0}, user ID: {1}, message ID: {2}, ex: {3}", groupId, userId, messageId, ex);
+            }
+
+            return result;
+        }
+
+        public static bool UpdateInboxMessageState(int groupId, int userId, string messageId, eMessageState messageState)
+        {
+            bool result = false;
+            try
+            {
+                var inboxMessage = GetUserInboxMessage(groupId, userId, messageId);
+                if (inboxMessage == null)
+                {
+                    log.ErrorFormat("couldn't update message state to {0}. inbox message wasn't found. key: {1}", messageState.ToString(), GetInboxMessageKey(groupId, userId, messageId));
+                    return false;
+                }
+
+                int numOfTries = 0;
+                while (!result && numOfTries < NUM_OF_INSERT_TRIES)
+                {
+                    // update message
+                    inboxMessage.State = messageState;
+
+                    // update document
+                    result = cbManager.Set(GetInboxMessageKey(groupId, userId, messageId), inboxMessage);
+
+                    if (!result)
+                    {
+                        numOfTries++;
+                        log.ErrorFormat("Error while updating inbox message state to {0}. number of tries: {1}/{2}. GID: {3}, user ID: {4}. data: {5}",
+                            messageState.ToString(),
+                            numOfTries,
+                            NUM_OF_INSERT_TRIES,
+                            groupId,
+                            userId,
+                            JsonConvert.SerializeObject(inboxMessage));
+                        Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
+                    }
+                    else
+                    {
+                        // log success on retry
+                        if (numOfTries > 0)
+                        {
+                            numOfTries++;
+                            log.DebugFormat("successfully updated inbox message to state {0}. number of tries: {1}/{2}. object {3}",
+                            messageState.ToString(),
+                            numOfTries,
+                            NUM_OF_INSERT_TRIES,
+                            JsonConvert.SerializeObject(inboxMessage));
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while updating inbox message to state {0}. GID: {1}, user ID: {2}, message ID: {3}, ex: {4}", messageState.ToString(), groupId, userId, messageId, ex);
+            }
+
+            return result;
+        }
+
         public static List<string> GetSystemInboxMessagesView(int groupId, long fromDate)
         {
             List<string> messageIds = null;
@@ -1623,8 +1777,8 @@ namespace DAL
                 // prepare view request
                 ViewManager viewManager = new ViewManager("inbox", "get_system_messages")
                 {
-                    startKey =  new object[] { groupId, fromDate },
-                    endKey =  new object[] { groupId, "\uefff" },
+                    startKey = new object[] { groupId, fromDate },
+                    endKey = new object[] { groupId, "\uefff" },
                     staleState = ViewStaleState.False,
                     inclusiveEnd = true
                 };
@@ -1638,6 +1792,49 @@ namespace DAL
             }
 
             return messageIds;
+        }
+
+        public static bool SetSystemAnnouncementMessage(int groupId, int userId, string messageId, InboxMessage inboxMessage)
+        {
+            bool result = false;
+            try
+            {
+                int numOfTries = 0;
+                while (!result && numOfTries < NUM_OF_INSERT_TRIES)
+                {
+                    result = cbManager.Set(GetInboxSystemAnnouncementKey(groupId, messageId), inboxMessage);
+
+                    if (!result)
+                    {
+                        numOfTries++;
+                        log.ErrorFormat("Error while setting inbox system message. number of tries: {0}/{1}. GID: {2}, user ID: {3}. data: {4}",
+                             numOfTries,
+                            NUM_OF_INSERT_TRIES,
+                            groupId,
+                            userId,
+                            JsonConvert.SerializeObject(inboxMessage));
+                        Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
+                    }
+                    else
+                    {
+                        // log success on retry
+                        if (numOfTries > 0)
+                        {
+                            numOfTries++;
+                            log.DebugFormat("successfully set inbox system message. number of tries: {0}/{1}. object {2}",
+                            numOfTries,
+                            NUM_OF_INSERT_TRIES,
+                            JsonConvert.SerializeObject(inboxMessage));
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while setting inbox system message. GID: {0}, user ID: {1}, message ID: {2}, ex: {3}", groupId, userId, messageId, ex);
+            }
+
+            return result;
         }
     }
 }
