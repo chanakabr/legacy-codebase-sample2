@@ -114,6 +114,18 @@ public partial class adm_time_shifted_tv_settings : System.Web.UI.Page
         dr_adapters.SetDefaultVal("---");
         theRecord.AddRecord(dr_adapters);
 
+        DataRecordDropDownField dr_quota = new DataRecordDropDownField("time_shifted_tv_settings", "quota_id", "id", "", null, 60, true);
+        sQuery = "select STR(quota_in_minutes) as txt,id as id from quota_management where status=1 and is_active=1 and group_id=" + groupID;
+        dr_quota.SetSelectsQuery(sQuery);
+        dr_quota.Initialize("Quota Management", "adm_table_header_nbg", "FormInput", "quota_id", false);
+        dr_quota.SetDefaultVal("---");
+        theRecord.AddRecord(dr_quota);
+
+        DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
+        dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
+        dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
+        theRecord.AddRecord(dr_groups);
+
         string sTable = theRecord.GetTableHTML("adm_time_shifted_tv_settings.aspx?submited=1");
 
         return sTable;
