@@ -193,7 +193,7 @@ namespace CachingHelpers
 
                             if (versionModule != null && versionModule.result != null)
                             {
-                                value = (T)baseModule.result;
+                                value = (T)versionModule.result;
                             }
                             else
                             {
