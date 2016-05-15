@@ -1701,6 +1701,7 @@ namespace ConditionalAccess
                                                 {"CustomData", sCustomData},
                                                 {"BillingTransactionID", nReciptCode},
                                                 {"Price", dPrice},
+                                                {"CouponCode", string.Empty},
                                             };
 
                                             if (!this.EnqueueEventRecord(NotifiedAction.ChargedSubscription, eventRecordData))
@@ -2533,6 +2534,8 @@ namespace ConditionalAccess
             ODBCWrapper.UpdateQuery updateQuery = null;
             ODBCWrapper.DirectQuery directQuery2 = null;
             ODBCWrapper.DirectQuery directQuery3 = null;
+            string sCustomData = string.Empty;
+
             try
             {
                 if (string.IsNullOrEmpty(sSiteGUID))
@@ -2601,7 +2604,6 @@ namespace ConditionalAccess
                         }
                         else if (theSub != null && theSub.m_oSubscriptionUsageModule != null)
                         {
-                            string sCustomData = string.Empty;
                             if (dPrice != 0)
                             {
                                 #region Init Billing web service
@@ -2776,13 +2778,13 @@ namespace ConditionalAccess
                             // free-trial converted to paid subscription, paid subscription was renewed
                             Dictionary<string, object> eventRecordData = new Dictionary<string, object>()
                                 {
-                                    {"SubscriptionCode", sSubscriptionCode},
-                                    {"SiteGUID", sSiteGUID},
-                                    {"StartDate", DateTime.UtcNow},
-                                    {"EndDate", endDate},
-                                    {"PurchaseId", nPurchaseID},
                                     {"BillingTransactionID", sReciept},
+                                    {"SiteGUID", sSiteGUID},
+                                    {"PaymentNumber", nPaymentNumber},
+                                    {"CustomData", sCustomData},
                                     {"Price", dPrice},
+                                    {"PurchaseID", nPurchaseID},
+                                    {"SubscriptionCode", sSubscriptionCode}
                                 };
 
                             if (!this.EnqueueEventRecord(NotifiedAction.ChargedSubscriptionRenewal, eventRecordData))
