@@ -629,9 +629,9 @@ namespace DAL
             {
                 sp.AddParameter("@push_notification_enabled", settings.IsPushNotificationEnabled.Value);
             }
-            if (settings.IsInboxEnabled.HasValue)
+            if (settings.IsPushSystemAnnouncementsEnabled.HasValue)
             {
-                sp.AddParameter("@push_system_announcements_enabled", settings.IsInboxEnabled.Value);
+                sp.AddParameter("@push_system_announcements_enabled", settings.IsPushSystemAnnouncementsEnabled.Value);
             }
             sp.AddParameter("@date", DateTime.UtcNow);
             if (settings.PushStartHour.HasValue)
