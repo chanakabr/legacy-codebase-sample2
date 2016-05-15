@@ -164,10 +164,9 @@ public partial class adm_stream_config_new : System.Web.UI.Page
         dr_base_video_url.Initialize("Base video URL", "adm_table_header_nbg", "FormInput", "VIDEO_BASE_URL", false);
         theRecord.AddRecord(dr_base_video_url);
 
-        DataRecordDropDownField dr_action_code = new DataRecordDropDownField("lu_cdn_type", "DESCRIPTION_VAL", "DESCRIPTION", "", null, 60, false);
-        dr_action_code.Initialize("Action Type", "adm_table_header_nbg", "FormInput", "CDN_STR_ID", true);
-        dr_action_code.SetFieldType("string");
-        dr_action_code.SetNoSelectStr("---");
+        DataRecordDropDownField dr_action_code = new DataRecordDropDownField("lu_cdn_type", "DESCRIPTION_VAL", "DESCRIPTION", "", null, 60, true);
+        dr_action_code.Initialize("Action Type", "adm_table_header_nbg", "FormInput", "CDN_STR_ID", false);
+        dr_action_code.SetFieldType("string");        
         theRecord.AddRecord(dr_action_code);
 
         DataRecordShortIntField dr_cdn_ttl = new DataRecordShortIntField(true, 9, 9);
@@ -186,6 +185,10 @@ public partial class adm_stream_config_new : System.Web.UI.Page
         dr_url_type.Initialize("Url Type Dynamic", "adm_table_header_nbg", "FormInput", "url_type", false);
         theRecord.AddRecord(dr_url_type);
 
+        DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
+        dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
+        dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
+        theRecord.AddRecord(dr_groups);
 
         string sTable = theRecord.GetTableHTML("adm_stream_config_new.aspx?submited=1");
 
