@@ -57,7 +57,7 @@ namespace CachingHelpers
 
         public CDNAdapter GetCdnAdapter(int groupId, int adapterId)
         {
-            string cacheKey = string.Format("{0}_cdn_adapter_{1}", version, adapterId);
+            string cacheKey = string.Format("cdn_adapter_{0}", adapterId);
             string mutexName = string.Concat("Group CDNAdapter GID_", groupId);
 
             return base.Get(cacheKey, mutexName, adapterId, groupId);
