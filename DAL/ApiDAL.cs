@@ -3739,5 +3739,36 @@ namespace DAL
 
             return response;
         }
+
+        public static int GetCdnRegularGroupId(int parentGroupId)
+        {
+            int regularGroupId = 0;
+            DataSetSelectQuery selectQuery = null;
+            try
+            {
+                selectQuery = new DataSetSelectQuery();
+                selectQuery += string.Format("SELECT top(1) max(GROUP_ID) group_id FROM dbo.media_files with (nolock) WHERE STATUS = 1 and IS_ACTIVE = 1 and GROUP_ID IN (SELECT cast(iSNULL(id,0) as bigint) as ID FROM dbo.F_Get_GroupsTree(203))={0}", parentGroupId);
+                selectQuery.SetCachedSec(0);
+
+                if (selectQuery.Execute("GetCdnRegularGroupIdQuery", true) != null)
+                {
+                    DataTable dt = selectQuery.Table("GetCdnRegularGroupIdQuery");
+                    if (dt != null && dt.Rows.Count == 1)
+                    {
+                        regularGroupId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "group_id", 0);
+                    }
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+
+                return regularGroupId;
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error occurred while trying to execute GetCdnRegularGroupId", ex);
+            }
+
+            return regularGroupId;        
+        }
     }
 }
