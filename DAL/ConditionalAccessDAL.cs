@@ -2885,5 +2885,42 @@ namespace DAL
             return fileIdsToEpgMap;
         }
 
+        public static QuotaManagementModel GetQuotaManagementModel(int groupId, int quotaManagementModelId)
+        {
+            QuotaManagementModel model = new QuotaManagementModel();
+
+            if (quotaManagementModelId == 0)
+            {
+                // Get the default model of the gruop from the table time_shifted_tv_settings in DB TVinci. 
+                //Also put it in cache for 10 minutes
+                object defaultModelId =
+                    ODBCWrapper.Utils.GetTableSingleVal("time_shifted_tv_settings", "quota_id", "group_id", "=", groupId, 600, "MAIN_CONNECTION_STRING");
+
+                if (defaultModelId != null && defaultModelId != DBNull.Value)
+                {
+                    quotaManagementModelId = Convert.ToInt32(defaultModelId);
+                }
+            }
+
+            // TODO: Verify table name
+            DataRow row = ODBCWrapper.Utils.GetTableSingleRow("quota_management_models", quotaManagementModelId, string.Empty, 30, true);
+
+            if (row != null)
+            {
+                model = BuildQuotaManagementModelFromRow(row);
+            }
+
+            return model;
+        }
+
+        private static QuotaManagementModel BuildQuotaManagementModelFromRow(DataRow row)
+        {
+            QuotaManagementModel model = new QuotaManagementModel();
+
+            model.Id = ODBCWrapper.Utils.ExtractInteger(row, "ID");
+            model.Minutes = ODBCWrapper.Utils.ExtractInteger(row, "MINUTES");
+
+            return model;
+        }
     }
 }

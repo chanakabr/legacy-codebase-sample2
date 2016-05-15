@@ -112,6 +112,7 @@ namespace ApiObjects.Response
         ProgramNotInRecordingScheduleWindow = 3038,
         RecordingNotFound = 3039,
         RecordingFailed = 3040,
+        DomainExceededQuota = 3041,
 
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,
