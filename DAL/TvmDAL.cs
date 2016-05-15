@@ -1138,13 +1138,13 @@ namespace DAL
             return idFromTable;
         }
 
-        public static int GetQuotaMamagementID(int groupID)
+        public static int GetQuotaMamagementModuleID(int groupID)
         {
             int idFromTable = 0;
             DataTable dt = null;
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_QuotaMamagementID");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_QuotaMamagementModuleID");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
 
@@ -1158,7 +1158,7 @@ namespace DAL
 
             catch (Exception ex)
             {
-                log.Error("Failed getting id from table on Get_QuotaMamagementID", ex);
+                log.Error("Failed getting id from table on Get_QuotaMamagementModuleID", ex);
             }
 
             return idFromTable;
