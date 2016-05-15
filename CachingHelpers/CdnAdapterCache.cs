@@ -52,7 +52,7 @@ namespace CachingHelpers
             int adapterId = (int)parameters[0];
             int groupId = (int)parameters[1];
 
-            return DAL.ApiDAL.GetCDNAdapter(groupId, adapterId);
+            return DAL.ApiDAL.GetCDNAdapter(adapterId);
         }
 
         public CDNAdapter GetCdnAdapter(int groupId, int adapterId)

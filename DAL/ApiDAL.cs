@@ -3484,20 +3484,14 @@ namespace DAL
             return res;
         }
 
-        public static CDNAdapter GetCDNAdapter(int groupID, int adapterId, int? isActive = null, int status = 1)
+        public static CDNAdapter GetCDNAdapter(int adapterId)
         {
             CDNAdapter adapterResponse = null;
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CDNAdapter");
                 sp.SetConnectionKey("CONNECTION_STRING");
-                sp.AddParameter("@groupID", groupID);
                 sp.AddParameter("@id", adapterId);
-                sp.AddParameter("@status", status);
-                if (isActive.HasValue)
-                {
-                    sp.AddParameter("@isActive", isActive.Value);
-                }
 
                 DataSet ds = sp.ExecuteDataSet();
 
