@@ -7,5 +7,8 @@ namespace ApiObjects.Notification
         public ApiObjects.Response.Status Status { get; set; }
 
         public List<InboxMessage> InboxMessages { get; set; }
+
+        public int TotalCount { get; set; }
+
     }
 }
