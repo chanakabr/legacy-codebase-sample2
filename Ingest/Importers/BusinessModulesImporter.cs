@@ -352,7 +352,7 @@ namespace Ingest.Importers
                 string strVal;
                 double? dVal;
                 eIngestAction actionVal;               
-                bool? boolVal;                
+                bool? boolVal;
                 int? intVal;
 
                 foreach (XmlNode node in nodes)
@@ -382,7 +382,7 @@ namespace Ingest.Importers
                         }
 
                         // is active - mandatory
-                        if (GetNodeBoolValue(node, "is_active", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, pricePlan.Action.ToString().ToLower(), out boolVal))
+                        if (GetAttributeBoolValue(node, "is_active", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, pricePlan.Action.ToString().ToLower(), out boolVal))
                             pricePlan.IsActive = boolVal;
                         else
                             continue;
@@ -508,7 +508,7 @@ namespace Ingest.Importers
                        
 
                         // is active - mandatory for insert
-                        if (GetNodeBoolValue(node, "is_active", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, reportId, multiPricePlan.Action.ToString().ToLower(), out boolVal))
+                        if (GetAttributeBoolValue(node, "is_active", MULTI_PRICE_PLAN, multiPricePlan.Code, ref reportBuilder, reportId, multiPricePlan.Action.ToString().ToLower(), out boolVal))
                                 multiPricePlan.IsActive = boolVal;
                             else
                                 continue;
@@ -640,7 +640,6 @@ namespace Ingest.Importers
                 string strVal;
                 double? dVal;
                 eIngestAction actionVal;
-                bool boolMandatoryVal;
                 bool? boolVal;
 
                 KeyValuePair[] keyValArr;
@@ -672,8 +671,8 @@ namespace Ingest.Importers
                         }
 
                         // is active - mandatory
-                        if (GetMandatoryAttributeBoolValue(node, "is_active", PPV, ppv.Code, ref reportBuilder, reportId, ppv.Action.ToString().ToLower(), out boolMandatoryVal))
-                            ppv.IsActive = boolMandatoryVal;
+                        if (GetAttributeBoolValue(node, "is_active", PPV, ppv.Code, ref reportBuilder, reportId, ppv.Action.ToString().ToLower(), out boolVal))
+                            ppv.IsActive = boolVal;
                         else
                             continue;
 
@@ -966,6 +965,33 @@ namespace Ingest.Importers
                     return false;
                 }
             }
+            return true;
+        }
+
+        private static bool GetAttributeBoolValue(XmlNode node, string attributeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, string action, out bool? value)
+        {
+            value = false;
+
+            var attribute = node.Attributes[attributeName];
+            if (attribute == null && eIngestAction.Update.ToString().ToLower() == action)
+            {
+                value = null;
+            }
+            else if (attribute != null && !string.IsNullOrEmpty(attribute.InnerText))
+            {
+                var strToParse = attribute.InnerText.ToLower();
+                if (strToParse == "true")
+                    value = true;
+                else if (strToParse == "false")
+                    value = false;
+                else
+                {
+                    log.ErrorFormat(LOG_FORMAT_ERROR_FORMAT, moduleName, moduleCode, attributeName, reportId, action);
+                    report.AppendFormat(FORMAT_ERROR_FORMAT, moduleName, moduleCode, attributeName, action);
+                    return false;
+                }
+            }
+
             return true;
         }
 
