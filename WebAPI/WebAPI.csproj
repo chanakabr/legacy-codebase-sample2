@@ -1020,7 +1020,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
-    <Compile Include="Clients\InboxMessageType.cs" />
     <Compile Include="Controllers\AnnouncementController.cs" />
     <Compile Include="Controllers\AppTokenController.cs" />
     <Compile Include="Controllers\AssetController.cs" />
