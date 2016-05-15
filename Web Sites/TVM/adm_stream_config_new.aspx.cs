@@ -147,7 +147,7 @@ public partial class adm_stream_config_new : System.Web.UI.Page
         theRecord.AddRecord(dr_alias);
 
         DataRecordShortTextField dr_adapter_url = new DataRecordShortTextField("ltr", true, 60, 128);
-        dr_adapter_url.Initialize("Adapter URL", "adm_table_header_nbg", "FormInput", "ADAPTER_URL", true);
+        dr_adapter_url.Initialize("Adapter URL", "adm_table_header_nbg", "FormInput", "ADAPTER_URL", false);
         theRecord.AddRecord(dr_adapter_url);
 
         DataRecordShortTextField dr_shared_secret = new DataRecordShortTextField("ltr", false, 60, 128);
@@ -164,29 +164,10 @@ public partial class adm_stream_config_new : System.Web.UI.Page
         dr_base_video_url.Initialize("Base video URL", "adm_table_header_nbg", "FormInput", "VIDEO_BASE_URL", false);
         theRecord.AddRecord(dr_base_video_url);
 
-        DataRecordShortTextField dr_base_notify_url = new DataRecordShortTextField("ltr", true, 60, 128);
-        dr_base_notify_url.Initialize("Base Notify URL", "adm_table_header_nbg", "FormInput", "CDN_BASE_NOTIFY", false);
-        theRecord.AddRecord(dr_base_notify_url);
-
-        bool bVisible = PageUtils.IsTvinciUser();
-        if (bVisible == true)
-        {
-            DataRecordDropDownField dr_groups = new DataRecordDropDownField("groups", "GROUP_NAME", "id", "", null, 60, false);
-            dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", true);
-            dr_groups.SetWhereString("status<>2 and id " + PageUtils.GetAllChildGroupsStr());
-            theRecord.AddRecord(dr_groups);
-        }
-        else
-        {
-            DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
-            dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", true);
-            dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
-            theRecord.AddRecord(dr_groups);
-        }
-
         DataRecordDropDownField dr_action_code = new DataRecordDropDownField("lu_cdn_type", "DESCRIPTION_VAL", "DESCRIPTION", "", null, 60, false);
         dr_action_code.Initialize("Action Type", "adm_table_header_nbg", "FormInput", "CDN_STR_ID", true);
         dr_action_code.SetFieldType("string");
+        dr_action_code.SetNoSelectStr("---");
         theRecord.AddRecord(dr_action_code);
 
         DataRecordShortIntField dr_cdn_ttl = new DataRecordShortIntField(true, 9, 9);
