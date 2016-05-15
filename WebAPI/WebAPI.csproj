@@ -472,9 +472,6 @@
     <Content Include="Service References\Notifications\WebAPI.Notifications.IdListResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
-    <Content Include="Service References\Notifications\WebAPI.Notifications.InboxMessage.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
     <Content Include="Service References\Notifications\WebAPI.Notifications.InboxMessageResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>

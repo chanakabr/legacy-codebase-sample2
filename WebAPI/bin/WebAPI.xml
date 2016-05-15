@@ -256,7 +256,7 @@
             Delete CDN adapter by CDN adapter id
             </summary>
             <remarks>
-            Possible status codes: Adapter does not exist = 10000
+            Possible status codes: AdapterNotExists = 10000, AdapterIdentifierRequired = 10001
             </remarks>
             <param name="adapter_id">CDN adapter identifier</param>
         </member>
@@ -266,17 +266,16 @@
             </summary>
             <remarks>
             Possible status codes:     
-            Adapter Name is required = 5005, Adapter URL is required = 5013, Alias must be unique = 5019, Alias is required = 5020
+            Adapter NameRequired = 5005, AdapterUrlRequired = 5013, AliasMustBeUnique = 5019, AliasRequired = 5020
             </remarks>
             <param name="adapter">CDN adapter object</param>
         </member>
-        <member name="M:WebAPI.Controllers.CDNAdapterProfileController.Update(WebAPI.Models.API.KalturaCDNAdapterProfile)">
+        <member name="M:WebAPI.Controllers.CDNAdapterProfileController.Update(System.Int32,WebAPI.Models.API.KalturaCDNAdapterProfile)">
             <summary>
             Update CDN adapter details
             </summary>
             <remarks>
-            Possible status codes:   
-            Adapter name is required = 5005, Adapter identifier is required = 10001, Adapter URL is required = 5013, Alias is required = 5020, Adapter does not exist = 10000
+            Possible status codes: AdapterNotExists = 10000, NameRequired = 5005, AdapterUrlRequired = 5013, AliasMustBeUnique = 5019, AliasRequired = 5020
             </remarks>
             <param name="adapter">CDN adapter Object</param>       
         </member>
@@ -286,9 +285,9 @@
             </summary>
             <remarks>
             Possible status codes:  
-            Adapter identifier is required = 10001, AdapterNotExists = 10000
+            AdapterIdentifierRequired = 10001, AdapterNotExists = 10000
             </remarks>
-            <param name="adapter_id">CDN adapter identifier</param>
+            <param name="adapterId">CDN adapter identifier</param>
         </member>
         <member name="M:WebAPI.Controllers.CDVRAdapterProfileController.List">
             <summary>
@@ -1913,7 +1912,7 @@
             CDN adapter settings
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaCDNAdapterProfile.Alias">
+        <member name="P:WebAPI.Models.API.KalturaCDNAdapterProfile.SystemName">
             <summary>
             CDN adapter alias
             </summary>
@@ -5971,13 +5970,13 @@
         <member name="M:WebAPI.Api.API.GenerateCDNSharedSecretAsync(System.String,System.String,System.Int32,System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.SetCDNAdapter(System.String,System.String,WebAPI.Api.CDNAdapter)">
+        <member name="M:WebAPI.Api.API.SetCDNAdapter(System.String,System.String,WebAPI.Api.CDNAdapter,System.Int32)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.SetCDNAdapterAsync(System.String,System.String,WebAPI.Api.CDNAdapter)">
+        <member name="M:WebAPI.Api.API.SetCDNAdapterAsync(System.String,System.String,WebAPI.Api.CDNAdapter,System.Int32)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.SetCDNAdapterAsync(System.String,System.String,WebAPI.Api.CDNAdapter,System.Object)">
+        <member name="M:WebAPI.Api.API.SetCDNAdapterAsync(System.String,System.String,WebAPI.Api.CDNAdapter,System.Int32,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.Api.API.SendCDNAdapterConfiguration(System.String,System.String,System.Int32)">
