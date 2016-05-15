@@ -41,18 +41,20 @@ namespace CachingHelpers
         /// How long will an object stay in cache IN MINUTES
         /// </summary>
         protected double cacheTime;
-        protected string cacheGroupConfiguration;
         protected string version;
 
         #endregion
 
         #region Ctor and initialization
 
-        protected BaseCacheHelper()
+        protected BaseCacheHelper(string cacheType = "")
         {
-            cacheGroupConfiguration = TVinciShared.WS_Utils.GetTcmConfigValue("GroupsCacheConfiguration");
+            if (string.IsNullOrEmpty(cacheType))
+            {
+                cacheType = TVinciShared.WS_Utils.GetTcmConfigValue("GroupsCacheConfiguration");
+            }
 
-            switch (cacheGroupConfiguration)
+            switch (cacheType)
             {
                 case "CouchBase":
                 {
