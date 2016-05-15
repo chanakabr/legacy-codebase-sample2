@@ -1607,5 +1607,31 @@ namespace DAL
 
             return userMessages;
         }
+
+        public static List<string> GetSystemInboxMessagesView(int groupId, long fromDate)
+        {
+            List<string> messageIds = null;
+            try
+            {
+
+                // prepare view request
+                ViewManager viewManager = new ViewManager("inbox", "get_system_messages")
+                {
+                    startKey =  new object[] { groupId, fromDate },
+                    endKey =  new object[] { groupId, "\uefff" },
+                    staleState = ViewStaleState.False,
+                    inclusiveEnd = true
+                };
+
+                // execute request
+                messageIds = cbManager.View<string>(viewManager);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to get system inbox message view. GID: {0}, fromDate: {1}, ex: {2}", groupId, fromDate, ex);
+            }
+
+            return messageIds;
+        }
     }
 }
