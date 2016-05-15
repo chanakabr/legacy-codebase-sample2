@@ -98,6 +98,107 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             Mapper.CreateMap<int, KalturaPersonalFollowFeed>()
                .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src));
+
+            //InboxMessage to KalturaInboxMessage
+            Mapper.CreateMap<InboxMessage, KalturaInboxMessage>()
+                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAtSec))
+                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                 .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
+                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertInboxMessageStatus(src.State)))
+                 .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
+                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertInboxMessageType(src.Category)))
+                 ;
+
+            //KalturaInboxMessage TO InboxMessage
+            Mapper.CreateMap<KalturaInboxMessage, InboxMessage>()
+                 .ForMember(dest => dest.Category, opt => opt.MapFrom(src => ConvertInboxMessageType(src.Type)))
+                 .ForMember(dest => dest.CreatedAtSec, opt => opt.MapFrom(src => src.CreatedAt))
+                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                 .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
+                 .ForMember(dest => dest.State, opt => opt.MapFrom(src => ConvertInboxMessageStatus(src.Status)))
+                 .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
+                 ;
+        }
+
+        private static eMessageState ConvertInboxMessageStatus(KalturaInboxMessageStatus kalturaInboxMessageStatus)
+        {
+            eMessageState result;
+
+            switch (kalturaInboxMessageStatus)
+            {
+                case KalturaInboxMessageStatus.Unread:
+                    result = eMessageState.Unread;
+                    break;
+                case KalturaInboxMessageStatus.Read:
+                    result = eMessageState.Read;
+                    break;
+                case KalturaInboxMessageStatus.Deleted:
+                    result = eMessageState.Trashed;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown inbox message status");
+            }
+
+            return result;
+        }
+
+        private static KalturaInboxMessageStatus ConvertInboxMessageStatus(eMessageState eMessageState)
+        {
+            KalturaInboxMessageStatus result;
+
+            switch (eMessageState)
+            {
+                case eMessageState.Unread:
+                    result = KalturaInboxMessageStatus.Unread;
+                    break;
+                case eMessageState.Read:
+                    result = KalturaInboxMessageStatus.Read;
+                    break;
+                case eMessageState.Trashed:
+                    result = KalturaInboxMessageStatus.Deleted;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown inbox message status");
+            }
+
+            return result;
+        }
+
+        public static eMessageCategory ConvertInboxMessageType(KalturaInboxMessageType kalturaInboxMessageType)
+        {
+            eMessageCategory result;
+
+            switch (kalturaInboxMessageType)
+            {
+                case KalturaInboxMessageType.SystemAnnouncement:
+                    result = eMessageCategory.SystemAnnouncement;
+                    break;
+                case KalturaInboxMessageType.Followed:
+                    result = eMessageCategory.Followed;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown inbox message type");
+            }
+
+            return result;
+        }
+
+        private static KalturaInboxMessageType ConvertInboxMessageType(eMessageCategory eMessageCategory)
+        {
+            KalturaInboxMessageType result;
+            switch (eMessageCategory)
+            {
+                case eMessageCategory.SystemAnnouncement:
+                    result = KalturaInboxMessageType.SystemAnnouncement;
+                    break;
+                case eMessageCategory.Followed:
+                    result = KalturaInboxMessageType.Followed;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown inbox message type");
+            }
+
+            return result;
         }
 
         private static bool? GetFollowSettingsEnablePush(UserNotificationSettings userFollowSettings)

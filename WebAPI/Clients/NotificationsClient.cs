@@ -2,6 +2,7 @@
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
@@ -406,7 +407,6 @@ namespace WebAPI.Clients
             return true;
         }
 
-
         internal bool CreateSystemAnnouncement(int groupId)
         {
             Status response = null;
@@ -771,10 +771,78 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.Status.Code, response.Status.Message);
             }
 
-            result = Mapper.Map<List<KalturaPersonalFollowFeed>>(response.Ids);
+            if (response.Ids != null && response.Ids.Count > 0)
+            {
+                result = Mapper.Map<List<KalturaPersonalFollowFeed>>(response.Ids);
+            }
             ret = new KalturaPersonalFollowFeedResponse() { PersonalFollowFeed = result, TotalCount = response.TotalCount };
 
             return ret;
+        }
+
+        internal KalturaInboxMessageResponse GetInboxMessages(int groupId, string userID, int pageSize, int pageIndex, List<KalturaInboxMessageType> typeIn, long createdAtGreaterThanOrEqual, long createdAtLessThanOrEqual)
+        {
+            InboxMessageResponse response = null;
+            List<KalturaInboxMessage> result = null;
+            KalturaInboxMessageResponse ret = null;
+
+            if (typeIn == null || typeIn.Count == 0)
+            {
+                typeIn = new List<KalturaInboxMessageType>() { KalturaInboxMessageType.Followed, KalturaInboxMessageType.SystemAnnouncement };
+            }
+
+            List<eMessageCategory> convertedtypeIn = typeIn.Select(x => NotificationMapping.ConvertInboxMessageType(x)).ToList();
+
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            int userId = 0;
+            if (!int.TryParse(userID, out userId))
+            {
+                throw new ClientException((int)StatusCode.UserIDInvalid, "Invalid UID");
+            }
+
+            try
+            {
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Notification.GetInboxMessages(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, pageSize, pageIndex, convertedtypeIn, createdAtGreaterThanOrEqual, createdAtLessThanOrEqual);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetUserFeeder.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            if (response.InboxMessages != null && response.InboxMessages.Count > 0)
+            {
+                result = Mapper.Map<List<KalturaInboxMessage>>(response.InboxMessages);
+            }
+            ret = new KalturaInboxMessageResponse() { InboxMessages = result, TotalCount = response.TotalCount };
+
+            return ret;
+        }
+
+        internal bool UpdateInboxMessage(int groupId, string userId, KalturaInboxMessageStatus status)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal KalturaInboxMessage GetInboxMessage(int groupId, string userId, string id)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -1,0 +1,129 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Http;
+using WebAPI.ClientManagers.Client;
+using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
+using WebAPI.Models.General;
+using WebAPI.Models.Notification;
+using WebAPI.Utils;
+
+namespace WebAPI.Controllers
+{
+    [RoutePrefix("_service/inbox/action")]
+    public class InboxController : ApiController
+    {
+
+        /// <summary>
+        /// TBD
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes:       
+        /// 
+        /// </remarks>
+        /// <param name="id">message id</param>        
+        [Route("get"), HttpPost]
+        [ApiAuthorize]
+        public KalturaInboxMessage Get(string id)
+        {
+            KalturaInboxMessage response = null;
+
+            // parameters validation
+            if (string.IsNullOrEmpty(id))
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id cannot be empty");
+            }
+
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                string userId = KS.GetFromRequest().UserId;
+                // call client                
+                response = ClientsManager.NotificationClient().GetInboxMessage(groupId, userId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// TBD
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes:       
+        /// 
+        /// </remarks>
+        /// <param name="pager">Page size and index</param>        
+        /// <param name="filter">filter</param>        
+        [Route("list"), HttpPost]
+        [ApiAuthorize]
+        public KalturaInboxMessageResponse List(KalturaFilterPager pager = null, KalturaInboxMessageFilter filter = null)
+        {
+            KalturaInboxMessageResponse response = null;
+
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                string userId = KS.GetFromRequest().UserId;
+
+                if (pager == null)
+                    pager = new KalturaFilterPager();
+
+                if (filter == null)
+                    filter = new KalturaInboxMessageFilter() { TypeIn = new List<KalturaInboxMessageType>() };
+
+                if (!filter.CreatedAtGreaterThanOrEqual.HasValue)
+                {
+                    filter.CreatedAtGreaterThanOrEqual = 0;
+                }
+
+                if (!filter.CreatedAtLessThanOrEqual.HasValue)
+                {
+                    filter.CreatedAtLessThanOrEqual = 0;
+                }
+              
+                // call client                
+                response = ClientsManager.NotificationClient().GetInboxMessages(groupId, userId, pager.getPageSize(), pager.getPageIndex(), filter.TypeIn, filter.CreatedAtGreaterThanOrEqual.Value, filter.CreatedAtLessThanOrEqual.Value);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// TBD
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes:       
+        /// 
+        /// </remarks>
+        /// <param name="id"></param>        
+        /// <param name="status"></param>        
+        [Route("updateStatus"), HttpPost]
+        [ApiAuthorize]
+        public bool UpdateStatus(string id, KalturaInboxMessageStatus status)
+        {
+            bool response = false;
+
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                string userId = KS.GetFromRequest().UserId;
+
+                // call client                
+                response = ClientsManager.NotificationClient().UpdateInboxMessage(groupId, userId, status);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return response;
+        }
+    }
+}
