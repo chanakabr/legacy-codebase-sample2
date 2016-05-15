@@ -25,7 +25,7 @@ namespace CachingHelpers
                 {
                     if (instance == null)
                     {
-                        instance = new CdvrAdapterCache();
+                        instance = new CdvrAdapterCache("innercache");
                     }
                 }
             }
@@ -37,8 +37,8 @@ namespace CachingHelpers
 
         #region Ctor
 
-        private CdvrAdapterCache()
-            : base()
+        private CdvrAdapterCache(string cacheType)
+            : base(cacheType)
         {
 
         }

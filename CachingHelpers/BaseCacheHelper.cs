@@ -54,9 +54,9 @@ namespace CachingHelpers
                 cacheType = TVinciShared.WS_Utils.GetTcmConfigValue("GroupsCacheConfiguration");
             }
 
-            switch (cacheType)
+            switch (cacheType.ToLower())
             {
-                case "CouchBase":
+                case "couchbase":
                 {
                     cacheService = CouchBaseCache<T>.GetInstance("CACHE");
                     version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
@@ -65,13 +65,13 @@ namespace CachingHelpers
                     cacheTime = GetDocTTLSettings();
                     break;
                 }
-                case "InnerCache":
+                case "innercache":
                 {
                     cacheTime = GetDefaultCacheTimeInMinutes();
                     InitializeCachingService(GetCacheName(), cacheTime);
                     break;
                 }
-                case "Hybrid":
+                case "hybrid":
                 {
                     cacheTime = GetDefaultCacheTimeInMinutes();
                     string cacheName = GetCacheName();

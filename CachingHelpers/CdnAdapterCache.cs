@@ -25,7 +25,7 @@ namespace CachingHelpers
                 {
                     if (instance == null)
                     {
-                        instance = new CdnAdapterCache();
+                        instance = new CdnAdapterCache("innercache");
                     }
                 }
             }
@@ -37,8 +37,8 @@ namespace CachingHelpers
 
         #region Ctor
 
-        private CdnAdapterCache()
-            : base()
+        private CdnAdapterCache(string cacheType)
+            : base(cacheType)
         {
 
         }
