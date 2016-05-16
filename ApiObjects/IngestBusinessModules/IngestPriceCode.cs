@@ -8,7 +8,7 @@ namespace ApiObjects.IngestBusinessModules
 {
     public class IngestPriceCode
     {
-        public double Price;
+        public double? Price;
         public string Currency;
     }
 }

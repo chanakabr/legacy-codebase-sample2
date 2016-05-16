@@ -1701,6 +1701,7 @@ namespace ConditionalAccess
                                                 {"CustomData", sCustomData},
                                                 {"BillingTransactionID", nReciptCode},
                                                 {"Price", dPrice},
+                                                {"CouponCode", string.Empty},
                                             };
 
                                             if (!this.EnqueueEventRecord(NotifiedAction.ChargedSubscription, eventRecordData))
@@ -2533,6 +2534,8 @@ namespace ConditionalAccess
             ODBCWrapper.UpdateQuery updateQuery = null;
             ODBCWrapper.DirectQuery directQuery2 = null;
             ODBCWrapper.DirectQuery directQuery3 = null;
+            string sCustomData = string.Empty;
+
             try
             {
                 if (string.IsNullOrEmpty(sSiteGUID))
@@ -2601,7 +2604,6 @@ namespace ConditionalAccess
                         }
                         else if (theSub != null && theSub.m_oSubscriptionUsageModule != null)
                         {
-                            string sCustomData = string.Empty;
                             if (dPrice != 0)
                             {
                                 #region Init Billing web service
@@ -2776,13 +2778,13 @@ namespace ConditionalAccess
                             // free-trial converted to paid subscription, paid subscription was renewed
                             Dictionary<string, object> eventRecordData = new Dictionary<string, object>()
                                 {
-                                    {"SubscriptionCode", sSubscriptionCode},
-                                    {"SiteGUID", sSiteGUID},
-                                    {"StartDate", DateTime.UtcNow},
-                                    {"EndDate", endDate},
-                                    {"PurchaseId", nPurchaseID},
                                     {"BillingTransactionID", sReciept},
+                                    {"SiteGUID", sSiteGUID},
+                                    {"PaymentNumber", nPaymentNumber},
+                                    {"CustomData", sCustomData},
                                     {"Price", dPrice},
+                                    {"PurchaseID", nPurchaseID},
+                                    {"SubscriptionCode", sSubscriptionCode}
                                 };
 
                             if (!this.EnqueueEventRecord(NotifiedAction.ChargedSubscriptionRenewal, eventRecordData))
@@ -17669,5 +17671,79 @@ namespace ConditionalAccess
             return status;
         }
 
+        public ApiObjects.Response.Status RemovePaymentMethodHouseholdPaymentGateway(int groupId, int paymentGatewayId, string siteGuid, long householdId, int paymentMethodId)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+
+            try
+            {
+                // 1. validate user and household
+                //---------------------------------
+                status = Utils.ValidateUserAndDomain(m_nGroupID, siteGuid, ref householdId);
+                if (status.Code != (int)eResponseStatus.OK || householdId <= 0)
+                {
+                    return status;
+                }
+
+                DataSet ds = DAL.ConditionalAccessDAL.Get_RecurringSubscriptiosAndPendingPurchasesByPaymentMethod(groupId, (int)householdId, paymentGatewayId);
+                if (ds == null || ds.Tables == null || ds.Tables.Count < 3 || ds.Tables[0].Rows == null || ds.Tables[1].Rows == null || ds.Tables[2].Rows == null)
+                {
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Error getting recurring subscriptions from DB");
+                    log.ErrorFormat("RemovePaymentMethodHouseholdPaymentGateway: Error getting recurring subscriptions from DB. groupID={0}, paymentGatewayId={1}, siteGuid= {2}, paymentMethodId {3}, ex: {4}", groupId, paymentGatewayId, siteGuid, paymentMethodId);
+                    return status;
+                }
+
+                if (ds.Tables[0].Rows.Count > 0 || ds.Tables[1].Rows.Count > 0 || ds.Tables[2].Rows.Count > 0)
+                {
+                    log.ErrorFormat("RemovePaymentMethodHouseholdPaymentGateway: Error removing payment method, method is used by household. groupID={0}, paymentGatewayId={1}, siteGuid= {2}, paymentMethodId {3}", groupId, paymentGatewayId, siteGuid, paymentMethodId);
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentMethodIsUsedByHousehold, "Payment Method Is Used By Household");
+                    return status;
+                }
+
+                status = RemovePaymentMethodHouseholdInBilling(groupId, paymentGatewayId, siteGuid, householdId, paymentMethodId);
+
+                if (status.Code != (int) eResponseStatus.OK)
+                    log.ErrorFormat("RemovePaymentMethodHouseholdPaymentGateway: Error removing payment method. groupID={0}, paymentGatewayId={1}, siteGuid= {2}, paymentMethodId {3}, error: ({4}) {5}", groupId, paymentGatewayId, siteGuid, paymentMethodId, status.Code, status.Message);
+                else
+                    log.DebugFormat("RemovePaymentMethodHouseholdPaymentGateway: Removed payment method. groupID={0}, paymentGatewayId={1}, siteGuid= {2}, paymentMethodId {3}", groupId, paymentGatewayId, siteGuid, paymentMethodId);
+            }
+            catch (Exception ex)
+            {
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, ex.Message);
+                log.ErrorFormat("Failed groupID={0}, paymentGatewayId={1}, siteGuid= {2}, paymentMethodId {3}, ex: {4}", groupId, paymentGatewayId, siteGuid, paymentMethodId, ex);
+            }
+            return status;
+        }
+
+        private ApiObjects.Response.Status RemovePaymentMethodHouseholdInBilling(int groupId, int paymentGatewayId, string siteGuid, long householdId, int paymentMethodId)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+
+            string logString = string.Format("RemovePaymentMethodHouseholdInBilling billing service groupId={0}, paymentGatewayId={1}, siteGuid={2}, householdId={3}, paymentMethodId={4}",
+                                       groupId, paymentGatewayId, siteGuid, householdId, paymentMethodId);
+            log.Debug(logString);
+
+            try
+            {
+                string userName = string.Empty;
+                string password = string.Empty;
+                TvinciBilling.module wsBillingService = null;
+                InitializeBillingModule(ref wsBillingService, ref userName, ref password);
+
+                // call new billing method for charge adapter
+                var billingResponse = wsBillingService.RemovePaymentMethodHouseholdPaymentGateway(userName, password, paymentGatewayId, siteGuid, (int)householdId, paymentMethodId);
+                if (billingResponse == null)
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+                status = new ApiObjects.Response.Status((int)billingResponse.Code, billingResponse.Message);
+            }
+            catch (Exception ex)
+            {
+                log.Error(logString, ex);
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            }
+
+            return status;
+        }
     }
 }

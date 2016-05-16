@@ -3484,20 +3484,14 @@ namespace DAL
             return res;
         }
 
-        public static CDNAdapter GetCDNAdapter(int groupID, int adapterId, int? isActive = null, int status = 1)
+        public static CDNAdapter GetCDNAdapter(int adapterId)
         {
             CDNAdapter adapterResponse = null;
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CDNAdapter");
                 sp.SetConnectionKey("CONNECTION_STRING");
-                sp.AddParameter("@groupID", groupID);
                 sp.AddParameter("@id", adapterId);
-                sp.AddParameter("@status", status);
-                if (isActive.HasValue)
-                {
-                    sp.AddParameter("@isActive", isActive.Value);
-                }
 
                 DataSet ds = sp.ExecuteDataSet();
 
@@ -3744,6 +3738,37 @@ namespace DAL
             }
 
             return response;
+        }
+
+        public static int GetCdnRegularGroupId(int parentGroupId)
+        {
+            int regularGroupId = 0;
+            DataSetSelectQuery selectQuery = null;
+            try
+            {
+                selectQuery = new DataSetSelectQuery();
+                selectQuery += string.Format("SELECT top(1) max(GROUP_ID) group_id FROM dbo.media_files with (nolock) WHERE STATUS = 1 and IS_ACTIVE = 1 and GROUP_ID IN (SELECT cast(iSNULL(id,0) as bigint) as ID FROM dbo.F_Get_GroupsTree(203))={0}", parentGroupId);
+                selectQuery.SetCachedSec(0);
+
+                if (selectQuery.Execute("GetCdnRegularGroupIdQuery", true) != null)
+                {
+                    DataTable dt = selectQuery.Table("GetCdnRegularGroupIdQuery");
+                    if (dt != null && dt.Rows.Count == 1)
+                    {
+                        regularGroupId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "group_id", 0);
+                    }
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+
+                return regularGroupId;
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error occurred while trying to execute GetCdnRegularGroupId", ex);
+            }
+
+            return regularGroupId;        
         }
     }
 }

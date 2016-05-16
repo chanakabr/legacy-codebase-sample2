@@ -25,7 +25,7 @@ namespace CachingHelpers
                 {
                     if (instance == null)
                     {
-                        instance = new CdnAdapterCache();
+                        instance = new CdnAdapterCache("innercache");
                     }
                 }
             }
@@ -37,8 +37,8 @@ namespace CachingHelpers
 
         #region Ctor
 
-        private CdnAdapterCache()
-            : base()
+        private CdnAdapterCache(string cacheType)
+            : base(cacheType)
         {
 
         }
@@ -52,15 +52,17 @@ namespace CachingHelpers
             int adapterId = (int)parameters[0];
             int groupId = (int)parameters[1];
 
-            return DAL.ApiDAL.GetCDNAdapter(groupId, adapterId);
+            return DAL.ApiDAL.GetCDNAdapter(adapterId);
         }
 
         public CDNAdapter GetCdnAdapter(int groupId, int adapterId)
         {
-            string cacheKey = string.Format("{0}_cdn_adapter_{1}", version, adapterId);
-            string mutexName = string.Concat("Group CDNAdapter GID_", groupId);
+            //string cacheKey = string.Format("cdn_adapter_{0}", adapterId);
+            //string mutexName = string.Concat("Group CDNAdapter GID_", groupId);
 
-            return base.Get(cacheKey, mutexName, adapterId, groupId);
+            //return base.Get(cacheKey, mutexName, adapterId, groupId);
+
+            return DAL.ApiDAL.GetCDNAdapter(adapterId);
         }
 
         #endregion
