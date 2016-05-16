@@ -119,6 +119,9 @@ namespace Users
         [JsonProperty()]
         public int m_nRegion;
 
+        [JsonProperty()]
+        public int m_nQuotaModuleID;
+
 
         public Domain()
         {
@@ -143,6 +146,8 @@ namespace Users
             m_oLimitationsManager = new LimitationsManager();
 
             m_oUDIDToDeviceFamilyMapping = new Dictionary<string, int>();
+
+            m_nQuotaModuleID = 0;
 
         }
 
@@ -498,6 +503,8 @@ namespace Users
                 this.m_UsersIDs = domain.m_UsersIDs;
                 if (m_UsersIDs != null)
                     this.m_totalNumOfUsers = this.m_UsersIDs.Count();
+
+                this.m_nQuotaModuleID = domain.m_nQuotaModuleID;
 
                 return true;
             }
@@ -1601,11 +1608,13 @@ namespace Users
             int nDeviceRestriction = 0;
             int nGroupConcurrentLimit = 0;
             int regionId = 0;
+            int quotaModuleId = 0;
             DomainSuspentionStatus eSuspendStat = DomainSuspentionStatus.OK;
 
             bool res = DomainDal.GetDomainSettings(nDomainID, nGroupID, ref sName, ref sDescription, ref nDeviceLimitationModule, ref nDeviceLimit,
                 ref nUserLimit, ref nConcurrentLimit, ref nStatus, ref nIsActive, ref nFrequencyFlag, ref nDeviceMinPeriodId, ref nUserMinPeriodId,
-                ref dDeviceFrequencyLastAction, ref dUserFrequencyLastAction, ref sCoGuid, ref nDeviceRestriction, ref nGroupConcurrentLimit, ref eSuspendStat, ref regionId);
+                ref dDeviceFrequencyLastAction, ref dUserFrequencyLastAction, ref sCoGuid, ref nDeviceRestriction, ref nGroupConcurrentLimit,
+                ref eSuspendStat, ref regionId, ref quotaModuleId);
 
             if (res)
             {
@@ -1648,6 +1657,13 @@ namespace Users
                     {
                         m_NextUserActionFreq = Utils.GetEndDateTime(dUserFrequencyLastAction, m_minUserPeriodId);
                     }
+
+                    if (quotaModuleId == 0)
+                    {
+                        // get account quato 
+                        quotaModuleId = TvmDAL.GetQuotaMamagementModuleID(nGroupID);
+                    }
+                    m_nQuotaModuleID = quotaModuleId;
                 }
             }
             else // nothing return - DomainNotExists

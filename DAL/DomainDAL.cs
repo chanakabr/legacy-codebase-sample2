@@ -918,17 +918,18 @@ namespace DAL
             ref string sCoGuid, ref int nDomainRestriction, ref DomainSuspentionStatus eDomainSuspendStat, ref int regionId)
         {
             int nGroupConcurrentMaxLimit = 0;
+            int quotaModuleId = 0;
 
             return GetDomainSettings(nDomainID, nGroupID, ref sName, ref sDescription, ref nDeviceLimitationModule, ref nDeviceLimit,
                 ref nUserLimit, ref nConcurrentLimit, ref nStatus, ref nIsActive, ref nFrequencyFlag, ref nDeviceMinPeriodId, ref nUserMinPeriodId,
-                ref dDeviceFrequencyLastAction, ref dUserFrequencyLastAction, ref sCoGuid, ref nDomainID, ref nGroupConcurrentMaxLimit, ref eDomainSuspendStat, ref regionId);
+                ref dDeviceFrequencyLastAction, ref dUserFrequencyLastAction, ref sCoGuid, ref nDomainID, ref nGroupConcurrentMaxLimit, ref eDomainSuspendStat, ref regionId, ref quotaModuleId);
         }
 
 
         public static bool GetDomainSettings(int nDomainID, int nGroupID, ref string sName, ref string sDescription, ref int nDeviceLimitationModule,
             ref int nDeviceLimit, ref int nUserLimit, ref int nConcurrentLimit, ref int nStatus, ref int nIsActive, ref int nFrequencyFlag,
             ref int nDeviceMinPeriodId, ref int nUserMinPeriodId, ref DateTime dDeviceFrequencyLastAction, ref DateTime dUserFrequencyLastAction,
-            ref string sCoGuid, ref int nDomainRestriction, ref int nGroupConcurrentLimit, ref DomainSuspentionStatus suspendStatus, ref int regionId)
+            ref string sCoGuid, ref int nDomainRestriction, ref int nGroupConcurrentLimit, ref DomainSuspentionStatus suspendStatus, ref int regionId, ref int quotaModuleId)
         {
 
             bool res = false;
@@ -976,6 +977,7 @@ namespace DAL
                     suspendStatus = (DomainSuspentionStatus)suspendStatInt;
                 }
                 regionId = ODBCWrapper.Utils.GetIntSafeVal(dr, "REGION_ID");
+                quotaModuleId = ODBCWrapper.Utils.GetIntSafeVal(dr, "quota_module_id");
                 res = true;
             }
             return res;
