@@ -17178,7 +17178,7 @@ namespace ConditionalAccess
                     TstvRecordingStatus.Scheduled
                 };
 
-                List<Recording> recordingsWithValidStatus =
+                currentRecordings =
                     GetDomainRecordings(domainID, recordingStatuses, out recordingIdToDomainRecordingIdMap);
 
                 QuotaManager.Instance.CheckQuota(this.m_nGroupID, quotaManagerModelId, domainID, response.Recordings, currentRecordings);
