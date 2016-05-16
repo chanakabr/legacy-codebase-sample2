@@ -97,7 +97,7 @@ public partial class adm_cdn_settings : System.Web.UI.Page
         string groups = TVinciShared.PageUtils.GetAllGroupTreeStr(groupID);
 
         DataRecordDropDownField dr_vodAdapters = new DataRecordDropDownField("cdn_settings", "vod_adapter_id", "id", "", null, 60, true);
-        string sQuery = "select STREAMING_COMPANY_NAME as txt,id as id from streaming_companies where status=1 and ADAPTER_URL is not null is_active=1 and a and group_id " + groups;
+        string sQuery = "select STREAMING_COMPANY_NAME as txt,id as id from streaming_companies where status=1 and ADAPTER_URL is not null and is_active=1 and group_id " + groups;
         dr_vodAdapters.SetSelectsQuery(sQuery);
         dr_vodAdapters.Initialize("VOD CDN default adapter", "adm_table_header_nbg", "FormInput", "vod_adapter_id", false);
         dr_vodAdapters.SetDefaultVal("---");
@@ -114,6 +114,11 @@ public partial class adm_cdn_settings : System.Web.UI.Page
         dr_recordingAdapters.Initialize("Recordings CDN default adapter", "adm_table_header_nbg", "FormInput", "recording_adapter_id", false);
         dr_recordingAdapters.SetDefaultVal("---");
         theRecord.AddRecord(dr_recordingAdapters);
+
+        DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
+        dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
+        dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
+        theRecord.AddRecord(dr_groups);
 
         string sTable = theRecord.GetTableHTML("adm_cdn_settings.aspx?submited=1");
 
