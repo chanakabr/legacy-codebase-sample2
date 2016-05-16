@@ -526,6 +526,8 @@ public partial class adm_media : System.Web.UI.Page
         else // status sent is 1
         {
             eAction = eAction.Update;
+
+            ImporterImpl.UpdateNotificationsRequests(nGroupID, nId);
         }
 
         if (!ImporterImpl.UpdateIndex(idsToUpdate, nGroupID, eAction))

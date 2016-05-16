@@ -16,7 +16,18 @@ public partial class AjaxLogin : System.Web.UI.Page
     {
         string sErr = "";
         string sRet = "FAIL";
-        if (Request.Url.Host != "localhost" && Request.Url.Host != "127.0.0.1" && Request.Url.Scheme.ToUpper().Trim() != "HTTPS")
+        
+        // get value from tcm 
+
+        string loginMode = WS_Utils.GetTcmConfigValue("EnableHttpLogin");
+        bool http = false;
+        if (loginMode == "true")
+        {
+            http = true;
+        }
+    
+        
+        if (Request.Url.Host != "localhost" && Request.Url.Host != "127.0.0.1" && Request.Url.Scheme.ToUpper().Trim() != "HTTPS" && !http)
             sRet = "HTTPS_REQUIERED";
         else
         {

@@ -74,7 +74,7 @@ public partial class adm_notification_settings : System.Web.UI.Page
 
         object groupId = LoginManager.GetLoginGroupID();
         bool push = true;
-        bool push_sa = true;
+        bool push_sa = true;        
         int tableID = GetNotificationSettingsID(ODBCWrapper.Utils.GetIntSafeVal(groupId), ref push, ref push_sa);
         // check ig groupid is parent , if so show page with all filed else (not parent show a message)
         bool isParentGroup = IsParentGroup(ODBCWrapper.Utils.GetIntSafeVal(groupId));
@@ -115,6 +115,15 @@ public partial class adm_notification_settings : System.Web.UI.Page
             dr_end_time.Initialize("Push end hour", "adm_table_header_nbg", "FormInput", "push_end_hour", false);
             theRecord.AddRecord(dr_end_time);
 
+            DataRecordCheckBoxField is_inbox_enable = new DataRecordCheckBoxField(true);
+            is_inbox_enable.Initialize("Inbox enabled", "adm_table_header_nbg", "FormInput", "is_inbox_enable", false);
+            is_inbox_enable.SetDefault(0);            
+            theRecord.AddRecord(is_inbox_enable);
+
+            DataRecordShortIntField drTTL = new DataRecordShortIntField(true, 6, 6, 0, 90);
+            drTTL.Initialize("Inbox message TTL(days)", "adm_table_header_nbg", "FormInput", "message_ttl", false);
+            theRecord.AddRecord(drTTL);
+            
             sTable = theRecord.GetTableHTML("adm_notification_settings.aspx?submited=1");
         }
         return sTable;

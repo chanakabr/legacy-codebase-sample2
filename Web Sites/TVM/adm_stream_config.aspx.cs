@@ -27,6 +27,10 @@ public partial class adm_stream_config : System.Web.UI.Page
             Int32 nMenuID = 0;
             m_sMenu = TVinciShared.Menu.GetMainMenu(4, true, ref nMenuID);
             m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, false);
+            if (Request.QueryString["search_save"] != null)
+                Session["search_save"] = "1";
+            else
+                Session["search_save"] = null;
         }
     }
 
@@ -57,13 +61,15 @@ public partial class adm_stream_config : System.Web.UI.Page
     protected void FillTheTableEditor(ref DBTableWebEditor theTable, string sOrderBy)
     {
         Int32 nGroupID = LoginManager.GetLoginGroupID();
-        theTable += "select sc.status,sc.id as 'CDN ID' ,";
+        theTable += "select sc.status, sc.id as 'CDN ID', sc.alias, sc.STREAMING_COMPANY_NAME as 'Name' ,sc.id, case when sc.is_active is null then 1 else is_active end 'is_active', case when len(adapter_url)>0 then 'Yes' else 'No' end 'Is_Adapter' from streaming_companies sc where sc.status<>2 and";
+        theTable += ODBCWrapper.Parameter.NEW_PARAM("sc.group_id", "=", nGroupID);
+        /*
         if (LoginManager.GetLoginGroupID() == 1)
             theTable += "g.group_name as 'Group',";
-        theTable += " sc.STREAMING_COMPANY_NAME as 'Name' ,sc.id,lct.description_val as 'Action Code', sc.CDN_BASE_NOTIFY as 'Notify URL',lcs.description as 'State' from streaming_companies sc,lu_content_status lcs,lu_cdn_type lct";
+        theTable += " sc.STREAMING_COMPANY_NAME as 'Name' ,sc.id,  from streaming_companies sc";
         if (LoginManager.GetLoginGroupID() == 1)
             theTable += ",groups g";
-        theTable += "where lct.description=sc.CDN_STR_ID and lcs.id=sc.status and sc.status<>2 ";
+        theTable += "where sc.status<>2 ";
         if (LoginManager.GetLoginGroupID() == 1)
             theTable += " and g.id=sc.group_id";
         else
@@ -71,19 +77,27 @@ public partial class adm_stream_config : System.Web.UI.Page
             theTable += " and ";
             theTable += ODBCWrapper.Parameter.NEW_PARAM("sc.group_id", "=", nGroupID);
         }
+        */
         if (sOrderBy != "")
         {
             theTable += " order by ";
             theTable += sOrderBy;
         }
-        else if (LoginManager.GetLoginGroupID() == 1)
-            theTable += " order by g.group_name";
+        //else if (LoginManager.GetLoginGroupID() == 1)
+        //    theTable += " order by g.group_name";
         theTable.AddHiddenField("ID");
         theTable.AddHiddenField("status");
-        if (LoginManager.GetLoginGroupID() == 1)
-            theTable.AddOrderByColumn("Group", "g.GROUP_NAME");
+        theTable.AddHiddenField("is_active");
+        //if (LoginManager.GetLoginGroupID() == 1)
+        //    theTable.AddOrderByColumn("Group", "g.GROUP_NAME");
         theTable.AddOrderByColumn("Name", "sc.STREAMING_COMPANY_NAME");
-        theTable.AddOrderByColumn("State", "lcs.description");
+        theTable.AddOrderByColumn("Is_Adapter", "Is_Adapter");        
+        theTable.AddActivationField("streaming_companies");
+
+        DataTableLinkColumn linkColumnKeParams = new DataTableLinkColumn("adm_stream_config_settings.aspx", "Settings", "");
+        linkColumnKeParams.AddQueryStringValue("cdn_adapter_id", "field=id");
+        linkColumnKeParams.AddQueryCounterValue("select count(*) as val from streaming_companies_settings where ( status=1 or status = 4 )  and adapter_id=", "field=id");
+        theTable.AddLinkColumn(linkColumnKeParams);
 
         if (PageUtils.IsTvinciUser() == true)
         {
