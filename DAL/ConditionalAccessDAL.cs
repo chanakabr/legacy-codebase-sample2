@@ -2903,7 +2903,7 @@ namespace DAL
             }
 
             // TODO: Verify table name
-            DataRow row = ODBCWrapper.Utils.GetTableSingleRow("quota_management_models", quotaManagementModelId, string.Empty, 30, true);
+            DataRow row = ODBCWrapper.Utils.GetTableSingleRow("quota_modules", quotaManagementModelId, string.Empty, 30, true);
 
             if (row != null)
             {

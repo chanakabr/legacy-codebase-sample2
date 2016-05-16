@@ -17163,8 +17163,7 @@ namespace ConditionalAccess
                 // validate epgs entitlement and add to response
                 ValidateEpgForRecording(userID, domainID, ref response, epgs, validEpgsForRecording);
 
-                // TODO: Get module id from domain object
-                int quotaManagerModelId = 0;
+                int quotaManagerModelId = domain.m_nQuotaModuleID;
 
                 List<Recording> currentRecordings = new List<Recording>();
 
@@ -17178,7 +17177,7 @@ namespace ConditionalAccess
                     TstvRecordingStatus.Scheduled
                 };
 
-                List<Recording> recordingsWithValidStatus =
+                currentRecordings =
                     GetDomainRecordings(domainID, recordingStatuses, out recordingIdToDomainRecordingIdMap);
 
                 QuotaManager.Instance.CheckQuota(this.m_nGroupID, quotaManagerModelId, domainID, response.Recordings, currentRecordings);
