@@ -17415,6 +17415,7 @@ namespace ConditionalAccess
 
                 log.Error(sb.ToString(), ex);
             }
+
             return response;
         }
 
@@ -17789,6 +17790,47 @@ namespace ConditionalAccess
             }
 
             return status;
+        }
+
+        public ApiObjects.TimeShiftedTv.DomainQuotaResponse GetDomainQuota(int groupID, string userID, long domainID)
+        {
+            ApiObjects.TimeShiftedTv.DomainQuotaResponse response = new DomainQuotaResponse();
+
+            ConditionalAccess.TvinciDomains.Domain domain;
+            ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userID, ref domainID, out domain);
+
+            if (validationStatus.Code != (int)eResponseStatus.OK)
+            {
+                log.DebugFormat("User or Domain not valid, DomainID: {0}, UserID: {1}", domainID, userID);
+                response.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
+                return response;
+            }
+
+            int quotaManagerModelId = domain.m_nQuotaModuleID;
+
+            List<Recording> currentRecordings = new List<Recording>();
+
+            Dictionary<long, long> recordingIdToDomainRecordingIdMap;
+
+            List<TstvRecordingStatus> recordingStatuses = new List<TstvRecordingStatus>()
+                {
+                    TstvRecordingStatus.OK,
+                    TstvRecordingStatus.Recorded,
+                    TstvRecordingStatus.Recording,
+                    TstvRecordingStatus.Scheduled
+                };
+
+            currentRecordings =
+                GetDomainRecordings(domainID, recordingStatuses, out recordingIdToDomainRecordingIdMap);
+
+            int totalMinutes = 0;
+
+            int remainingMinutes = QuotaManager.Instance.GetDomainRemainingQuota(this.m_nGroupID, totalMinutes, domainID, currentRecordings);
+
+            response.TotalQuota = totalMinutes;
+            response.AvailableQuota = remainingMinutes;
+
+            return response;
         }
     }
 }

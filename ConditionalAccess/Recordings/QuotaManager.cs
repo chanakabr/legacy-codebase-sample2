@@ -117,6 +117,25 @@ namespace Recordings
             return status;
         }
 
+        public int GetDomainRemainingQuota(int groupId, int totalMinutes, long domainID, List<Recording> recordings)
+        {
+            int minutesLeft = totalMinutes;
+
+            // Now deduct the time of all the new/requested recordings
+            foreach (var recording in recordings)
+            {
+                int currentEpgMinutes = 0;
+
+                TimeSpan span = recording.EpgEndDate - recording.EpgStartDate;
+
+                currentEpgMinutes = (int)span.TotalMinutes;
+
+                minutesLeft -= currentEpgMinutes;
+            }
+
+            return minutesLeft;
+        }
+
         #endregion
         
     }
