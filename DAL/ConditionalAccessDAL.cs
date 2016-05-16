@@ -2885,5 +2885,15 @@ namespace DAL
             return fileIdsToEpgMap;
         }
 
+        public static DataSet Get_RecurringSubscriptiosAndPendingPurchasesByPaymentMethod(int groupId, int domainId, int paymentMethodId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_RecurringSubscriptiosAndPendingPurchasesByPaymentMethod");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupId);
+            sp.AddParameter("@DomainID", domainId);
+            sp.AddParameter("@PaymentMethodID", paymentMethodId);
+
+            return sp.ExecuteDataSet();            
+        }
     }
 }
