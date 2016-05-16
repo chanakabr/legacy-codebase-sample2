@@ -1657,12 +1657,6 @@ namespace Users
                     {
                         m_NextUserActionFreq = Utils.GetEndDateTime(dUserFrequencyLastAction, m_minUserPeriodId);
                     }
-
-                    if (quotaModuleId == 0)
-                    {
-                        // get account quato 
-                        quotaModuleId = TvmDAL.GetQuotaMamagementModuleID(nGroupID);
-                    }
                     m_nQuotaModuleID = quotaModuleId;
                 }
             }
@@ -2733,6 +2727,19 @@ namespace Users
                 oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Empty);
                 return false;
             }
+        }
+
+        internal void InitializeQuotaModule()
+        {
+            string key = string.Format("{0}_{1}", this.m_nGroupID, "DefaultQuotaModule");
+            int quotaModuleID = 0;
+            bool res = DomainsCache.GetItem<int>(key, out quotaModuleID);
+            if (!res || quotaModuleID == 0)
+            {
+                quotaModuleID = DomainDal.GetQuotaModuleID(this.m_nGroupID);
+                res = DomainsCache.AddItem(key, quotaModuleID);
+            }
+            this.m_nQuotaModuleID = quotaModuleID;
         }
     }
 }

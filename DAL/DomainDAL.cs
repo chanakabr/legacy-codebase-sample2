@@ -2018,5 +2018,14 @@ namespace DAL
 
             return sp.ExecuteReturnValue<int>();
         }
+
+        public static int GetQuotaModuleID(int groupID)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_QuotaModuleID");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupID);
+
+            return sp.ExecuteReturnValue<int>();
+        }
     }
 }
