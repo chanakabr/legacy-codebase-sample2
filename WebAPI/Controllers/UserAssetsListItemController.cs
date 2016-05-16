@@ -33,6 +33,11 @@ namespace WebAPI.Controllers
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "type and listType cannot be empty or all");
             }
 
+            if (string.IsNullOrEmpty(userAssetsListItem.Id))
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id cannot be empty");
+            }
+
             try
             {
                 response = ClientsManager.UsersClient().AddItemToUsersList(groupId, userId, userAssetsListItem);
@@ -48,7 +53,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Get an item from user’s private asset list
         /// </summary>
-        /// <param name="userAssetsListItem">A list item to add</param>
+        /// <param name="userAssetsListItem">A list item to get</param>
         /// <remarks>Possible status codes: 
         /// Item was not found in list = 2032</remarks>
         /// <returns></returns>
@@ -61,7 +66,10 @@ namespace WebAPI.Controllers
             int groupId = KS.GetFromRequest().GroupId;
             string userId = KS.GetFromRequest().UserId;
 
-            
+            if (string.IsNullOrEmpty(userAssetsListItem.Id))
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id cannot be empty");
+            }
 
             try
             {
@@ -78,7 +86,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Deletes an item from user’s private asset list
         /// </summary>
-        /// <param name="userAssetsListItem">A list item to add</param>
+        /// <param name="userAssetsListItem">A list item to delete</param>
         /// <remarks>Possible status codes: 
         /// Item was not found in list = 2032</remarks>
         /// <returns></returns>
@@ -94,6 +102,11 @@ namespace WebAPI.Controllers
             if (userAssetsListItem.ListType == KalturaUserAssetsListType.all || userAssetsListItem.Type == KalturaUserAssetsListItemType.all)
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "type and listType cannot be empty or all");
+            }
+
+            if (string.IsNullOrEmpty(userAssetsListItem.Id))
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id cannot be empty");
             }
 
             try
