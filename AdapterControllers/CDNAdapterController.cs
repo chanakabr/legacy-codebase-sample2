@@ -1,4 +1,5 @@
 ﻿using AdapterControllers.CdnAdapter;
+using ApiObjects;
 using ApiObjects.CDNAdapter;
 using ApiObjects.Response;
 using CachingHelpers;

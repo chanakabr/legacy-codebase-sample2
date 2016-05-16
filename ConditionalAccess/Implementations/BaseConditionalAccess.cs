@@ -1081,6 +1081,26 @@ namespace ConditionalAccess
                                         updateQuery += "where";
                                         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nID);
                                         updateQuery.Execute();
+
+
+                                        // # Event trigger: Purchase via Apple IAP (old engine) occurred, 
+                                        // Event data: username/ID, subscription details, is-free-trial, start and end-date
+                                        Dictionary<string, object> eventRecordData = new Dictionary<string, object>()
+                                            {
+                                                {"MediaFileId", nMediaFileID},
+                                                {"SiteGUID", sSiteGUID},
+                                                {"PurchaseId", nPurchaseID},
+                                                {"CustomData", sCustomData},
+                                                {"BillingTransactionID", sReciept},
+                                                {"PPVModuleCode", sPPVModuleCode},
+                                                {"CouponCode", sCouponCode},
+                                            };
+
+                                        if (!this.EnqueueEventRecord(NotifiedAction.ChargedMediaFile, eventRecordData))
+                                        {
+                                            log.ErrorFormat("Error while enqueue media file purchase record: mediaFile = {0}" +
+                                            "siteGuid = {1}", nMediaFileID, sSiteGUID);
+                                        }
                                     }
                                     else
                                     {
@@ -1232,7 +1252,6 @@ namespace ConditionalAccess
         protected TvinciBilling.BillingResponse InApp_BaseChargeUserForSubscription(string sSiteGUID, double dPrice, string sCurrency, string sProductCode, string sUserIP, string sExtraParams,
             string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string ReceiptData)
         {
-
             TvinciBilling.InAppBillingResponse InAppRes = new TvinciBilling.InAppBillingResponse();
             InAppRes.m_oBillingResponse = new TvinciBilling.BillingResponse();
 
@@ -1277,7 +1296,8 @@ namespace ConditionalAccess
                         TvinciPricing.Subscription theSub = Utils.GetSubscriptionBytProductCode(m_nGroupID, sProductCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, false);
                         string sSubscriptionCode = theSub.m_SubscriptionCode;
 
-                        TvinciPricing.Price p = Utils.GetSubscriptionFinalPrice(m_nGroupID, sSubscriptionCode, sSiteGUID, string.Empty, ref theReason, ref theSub, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                        TvinciPricing.Price p = Utils.GetSubscriptionFinalPrice(m_nGroupID, sSubscriptionCode, sSiteGUID, string.Empty, ref theReason, 
+                            ref theSub, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
 
                         if (theReason == PriceReason.ForPurchase)
                         {
@@ -1393,6 +1413,8 @@ namespace ConditionalAccess
                                             // First try with iOs 6
                                             if (InAppRes.m_oInAppReceipt.iOSVersion == "6")
                                             {
+                                                #region iOs 6
+
                                                 // If we have only one latest receipt info (in iOS 6, it should be)
                                                 if (InAppRes.m_oInAppReceipt.latest_receipt_info != null &&
                                                     InAppRes.m_oInAppReceipt.latest_receipt_info.Length == 1)
@@ -1421,10 +1443,13 @@ namespace ConditionalAccess
                                                     startDate = dt1970.AddMilliseconds(startMS);
                                                     endDate = dt1970.AddMilliseconds(endMS);
                                                 }
+
+                                                #endregion
                                             }
                                             // Then try with iOS 7
                                             else if (InAppRes.m_oInAppReceipt.iOSVersion == "7")
                                             {
+                                                #region iOs 7
                                                 if (InAppRes.m_oInAppReceipt.latest_receipt_info != null && InAppRes.m_oInAppReceipt.latest_receipt_info.Length > 0)
                                                 {
                                                     double startMS = 0;
@@ -1571,8 +1596,12 @@ namespace ConditionalAccess
                                                         }
                                                     }
                                                 }
+
+                                                #endregion
                                             }
 
+                                            #region Set start date and end date
+		
                                             // If we don't have a start or end date
                                             if (startDate == DateTime.MinValue ||
                                                 endDate == DateTime.MinValue)
@@ -1589,11 +1618,17 @@ namespace ConditionalAccess
                                             }
 
                                             if (startDate > DateTime.UtcNow)
+                                            {
                                                 startDate = DateTime.UtcNow;
+                                            }
+
+                                            #endregion
 
                                             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", endDate);
                                             insertQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", startDate);
                                             insertQuery.Execute();
+
+                                            #region Select subscription purchase
 
                                             Int32 nPurchaseID = 0;
                                             WriteToUserLog(sSiteGUID, "Subscription purchase (CC): " + sSubscriptionCode);
@@ -1642,6 +1677,8 @@ namespace ConditionalAccess
                                                 }
                                             }
 
+                                            #endregion
+
                                             if (nReciptCode > 0)
                                             {
                                                 updateQuery1 = new ODBCWrapper.UpdateQuery("billing_transactions");
@@ -1651,7 +1688,29 @@ namespace ConditionalAccess
                                                 updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nReciptCode);
                                                 updateQuery1.Execute();
                                             }
+
+                                            // # Event trigger: Purchase via Apple IAP (old engine) occurred, 
+                                            // Event data: username/ID, subscription details, is-free-trial, start and end-date
+                                            Dictionary<string, object> eventRecordData = new Dictionary<string, object>()
+                                            {
+                                                {"SubscriptionCode", sSubscriptionCode},
+                                                {"SiteGUID", sSiteGUID},
+                                                {"StartDate", startDate},
+                                                {"EndDate", endDate},
+                                                {"PurchaseId", nPurchaseID},
+                                                {"CustomData", sCustomData},
+                                                {"BillingTransactionID", nReciptCode},
+                                                {"Price", dPrice},
+                                                {"CouponCode", string.Empty},
+                                            };
+
+                                            if (!this.EnqueueEventRecord(NotifiedAction.ChargedSubscription, eventRecordData))
+                                            {
+                                                log.ErrorFormat("Error while enqueue subscription purchase record: subCode = {0}" +
+                                                "siteGuid = {1}", sSubscriptionCode, sSiteGUID);
+                                            }
                                         }
+
                                     }
                                     catch (Exception ex)
                                     {
@@ -2475,6 +2534,8 @@ namespace ConditionalAccess
             ODBCWrapper.UpdateQuery updateQuery = null;
             ODBCWrapper.DirectQuery directQuery2 = null;
             ODBCWrapper.DirectQuery directQuery3 = null;
+            string sCustomData = string.Empty;
+
             try
             {
                 if (string.IsNullOrEmpty(sSiteGUID))
@@ -2540,11 +2601,9 @@ namespace ConditionalAccess
                             directQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nPurchaseID);
                             directQuery.Execute();
                             #endregion
-
                         }
                         else if (theSub != null && theSub.m_oSubscriptionUsageModule != null)
                         {
-                            string sCustomData = string.Empty;
                             if (dPrice != 0)
                             {
                                 #region Init Billing web service
@@ -2558,7 +2617,6 @@ namespace ConditionalAccess
                                     bm.Url = sWSURL;
                                 }
                                 #endregion
-
 
                                 bool bIsRecurring = theSub.m_bIsRecurring;
 
@@ -2604,12 +2662,10 @@ namespace ConditionalAccess
                                 sCustomData += "</customdata>";
                                 #endregion
 
-
                                 ret = bm.InApp_ReneweInAppPurchase(sWSUserName, sWSPass, sSiteGUID, dPrice, sCurrency, sCustomData, nPaymentNumber, nRecPeriods, nInAppTransactionID);
-
-
                             }
                         }
+
                         if (ret.m_oBillingResponse.m_oStatus == ConditionalAccess.TvinciBilling.BillingResponseStatus.Success && theSub != null && theSub.m_oSubscriptionUsageModule != null)
                         {
                             Int32 nMaxVLC = theSub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle;
@@ -2622,6 +2678,8 @@ namespace ConditionalAccess
                             // First try with iOs 6
                             if (receipt.iOSVersion == "6")
                             {
+                                #region iOs 6
+
                                 // If we have only one latest receipt info (in iOS 6, it should be)
                                 if (receipt.latest_receipt_info != null &&
                                     receipt.latest_receipt_info.Length == 1)
@@ -2645,11 +2703,15 @@ namespace ConditionalAccess
                                     double endMS = double.Parse(receipt.receipt.expires_date);
 
                                     endDate = dt1970.AddMilliseconds(endMS);
-                                }
+                                } 
+
+                                #endregion
                             }
                             // Then try with iOS 7
                             else if (receipt.iOSVersion == "7")
                             {
+                                #region iOS 7
+
                                 if (receipt.latest_receipt_info != null)
                                 {
                                     double endMS = 0;
@@ -2675,7 +2737,9 @@ namespace ConditionalAccess
                                     {
                                         endDate = dt1970.AddMilliseconds(endMS);
                                     }
-                                }
+                                } 
+
+                                #endregion
                             }
 
                             // Check if there was a problem
@@ -2707,6 +2771,26 @@ namespace ConditionalAccess
                                 updateQuery += "where";
                                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nID);
                                 updateQuery.Execute();
+                            }
+
+                            // # Event trigger: Subscription renewal for Apple IAP (old engine) or Google IAP (new), 
+                            // Event data: username/ID, subscription details, start and end-date, action - user canceled, 
+                            // free-trial converted to paid subscription, paid subscription was renewed
+                            Dictionary<string, object> eventRecordData = new Dictionary<string, object>()
+                                {
+                                    {"BillingTransactionID", sReciept},
+                                    {"SiteGUID", sSiteGUID},
+                                    {"PaymentNumber", nPaymentNumber},
+                                    {"CustomData", sCustomData},
+                                    {"Price", dPrice},
+                                    {"PurchaseID", nPurchaseID},
+                                    {"SubscriptionCode", sSubscriptionCode}
+                                };
+
+                            if (!this.EnqueueEventRecord(NotifiedAction.ChargedSubscriptionRenewal, eventRecordData))
+                            {
+                                log.ErrorFormat("Error while enqueue subscription purchase record: subCode = {0}" +
+                                "siteGuid = {1}", sSubscriptionCode, sSiteGUID);
                             }
                         }
                         else
@@ -11696,8 +11780,8 @@ namespace ConditionalAccess
         /// <summary>
         /// Fire event to the queue
         /// </summary>
-        /// <param name="p_dicData"></param>
-        protected bool EnqueueEventRecord(NotifiedAction p_eAction, Dictionary<string, object> p_dicData)
+        /// <param name="dataDictionary"></param>
+        protected bool EnqueueEventRecord(NotifiedAction action, Dictionary<string, object> dataDictionary)
         {
             bool result = false;
 
@@ -11705,7 +11789,7 @@ namespace ConditionalAccess
             {
                 string task = Utils.GetValueFromConfig("ProfessionalServices.task");
 
-                PSNotificationData oNotification = new PSNotificationData(task, m_nGroupID, p_dicData, p_eAction);
+                PSNotificationData oNotification = new PSNotificationData(task, m_nGroupID, dataDictionary, action);
 
                 PSNotificationsQueue qNotificationQueue = new PSNotificationsQueue();
 

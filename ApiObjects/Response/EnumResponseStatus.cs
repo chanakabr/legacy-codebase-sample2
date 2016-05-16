@@ -166,6 +166,7 @@ namespace ApiObjects.Response
         TimeShiftedTvPartnerSettingsNotFound = 5022,
         TimeShiftedTvPartnerSettingsNotSent = 5023,
         TimeShiftedTvPartnerSettingsNegativeBufferSent = 5024,
+        CDNPartnerSettingsNotFound = 5025,
 
         // Billing 6000 - 6999
         IncorrectPrice = 6000,
@@ -227,7 +228,7 @@ namespace ApiObjects.Response
 
         // notification 8000-899
         NoNotificationSettingsSent = 8000,
-        PushNotificationFalse = 8001, //"push notification false can't comabin with push system announcements true";
+        PushNotificationFalse = 8001, //"push notification false can't combine with push system announcements true";
         NoNotificationPartnerSettings = 8002,
         NoNotificationSettings = 8003,        
         AnnouncementMessageIsEmpty = 8004,
@@ -244,6 +245,7 @@ namespace ApiObjects.Response
         DatetimeFormatIsInvalid = 8015,
         MessageTemplateNotFound = 8016,
         URLPlaceholdersInvalid = 8017,
+        InvalidMessageTTL = 8018,
 
 
         //Pricing 9000-9999

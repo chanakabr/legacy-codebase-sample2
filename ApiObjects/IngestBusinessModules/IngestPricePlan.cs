@@ -13,15 +13,15 @@ namespace ApiObjects
 
         public string ViewLifeCycle { get; set; }
 
-        public int MaxViews { get; set; }
+        public int? MaxViews { get; set; }
 
         public IngestPriceCode PriceCode { get; set; }
 
         public bool? IsRenewable { get; set; }
 
-        public int RecurringPeriods { get; set; }
+        public int? RecurringPeriods { get; set; }
 
-        public bool IsActive { get; set; }
+        public bool? IsActive { get; set; }
 
         public string Discount { get; set; } 
     }

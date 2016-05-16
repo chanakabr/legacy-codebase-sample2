@@ -102,6 +102,7 @@
     <Compile Include="CDNAdapter\CDNAdapterSettings.cs" />
     <Compile Include="CDNAdapter\CDNAdapterListResponse.cs" />
     <Compile Include="CDNAdapter\CDNAdapterResponse.cs" />
+    <Compile Include="CDNAdapter\CDNPartnerSettings.cs" />
     <Compile Include="CDNAdapter\LinkResult.cs" />
     <Compile Include="CDVRAdapter\CDVRAdapter.cs" />
     <Compile Include="CDVRAdapter\CDVRAdapterResponse.cs" />
@@ -117,8 +118,10 @@
     <Compile Include="IngestBusinessModules\IngestPriceCode.cs" />
     <Compile Include="Notification\Announcement.cs" />
     <Compile Include="Notification\AnnouncementSubscription.cs" />
+    <Compile Include="Notification\InboxMessageResponse.cs" />
     <Compile Include="Notification\DbAnnouncement.cs" />
     <Compile Include="Notification\DeviceNotificationData.cs" />
+    <Compile Include="Notification\InboxMessage.cs" />
     <Compile Include="Notification\MessageTemplate.cs" />
     <Compile Include="Notification\MessageTemplateResponse.cs" />
     <Compile Include="Notification\NotificationPartnerSettings.cs" />

@@ -1789,23 +1789,23 @@ namespace DAL
             switch (ruleType)
             {
                 case eGroupRuleType.Unknown:
-                break;
+                    break;
                 case eGroupRuleType.Parental:
-                {
-                    fieldName = "DEFAULT_PARENTAL_PIN";
-                    break;
-                }
+                    {
+                        fieldName = "DEFAULT_PARENTAL_PIN";
+                        break;
+                    }
                 case eGroupRuleType.Purchase:
-                {
-                    fieldName = "DEFAULT_PURCHASE_PIN";
-                    break;
-                }
+                    {
+                        fieldName = "DEFAULT_PURCHASE_PIN";
+                        break;
+                    }
                 case eGroupRuleType.Device:
-                break;
+                    break;
                 case eGroupRuleType.EPG:
-                break;
+                    break;
                 default:
-                break;
+                    break;
             }
 
             if (string.IsNullOrEmpty(fieldName))
@@ -3414,13 +3414,13 @@ namespace DAL
 
             catch (Exception ex)
             {
-                log.Error("Failed getting TimeShiftedTvPartnerSettings when running the stored procedure: GetTimeShiftedTvPartnerSettings", ex);                
+                log.Error("Failed getting TimeShiftedTvPartnerSettings when running the stored procedure: GetTimeShiftedTvPartnerSettings", ex);
             }
 
             return isUpdated;
         }
 
-        public static List<CDNAdapter> GetCDNAdapters(int groupID, int status = 1, bool? isActive = null)
+        public static List<CDNAdapter> GetCDNAdapters(int groupID)
         {
             List<CDNAdapter> res = new List<CDNAdapter>();
             try
@@ -3428,11 +3428,6 @@ namespace DAL
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CDNAdapters");
                 sp.SetConnectionKey("CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
-                sp.AddParameter("@status", status);
-                if (isActive.HasValue)
-                {
-                    sp.AddParameter("@isActive", isActive.Value);
-                }
                 DataSet ds = sp.ExecuteDataSet();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
@@ -3489,20 +3484,14 @@ namespace DAL
             return res;
         }
 
-        public static CDNAdapter GetCDNAdapter(int groupID, int adapterId, int? isActive = null, int status = 1)
+        public static CDNAdapter GetCDNAdapter(int adapterId)
         {
             CDNAdapter adapterResponse = null;
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CDNAdapter");
                 sp.SetConnectionKey("CONNECTION_STRING");
-                sp.AddParameter("@groupID", groupID);
                 sp.AddParameter("@id", adapterId);
-                sp.AddParameter("@status", status);
-                if (isActive.HasValue)
-                {
-                    sp.AddParameter("@isActive", isActive.Value);
-                }
 
                 DataSet ds = sp.ExecuteDataSet();
 
@@ -3691,5 +3680,95 @@ namespace DAL
             return adapterResponse;
         }
 
+        public static CDNPartnerSettings GetCdnSettings(int groupId)
+        {
+            CDNPartnerSettings response = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetCdnSettings");
+                sp.SetConnectionKey("CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                response = CreateCDNPartnerSettings(ds);
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return response;
+        }
+
+        private static CDNPartnerSettings CreateCDNPartnerSettings(DataSet ds)
+        {
+            CDNPartnerSettings response = null;
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            {
+                response = new CDNPartnerSettings();
+                response.DefaultVodAdapter = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "vod_adapter_id");
+                response.DefaultEpgAdapter = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "epg_adapter_id");
+                response.DefaultRecordingAdapter = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "recording_adapter_id");
+            }
+
+            return response;
+        }
+
+        public static CDNPartnerSettings UpdateCdnSettings(int groupId, int? defaultVodAdapterId, int? defaultEpgAdapterId, int? defaultRecordingAdapterId)
+        {
+            CDNPartnerSettings response = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetCdnSettings");
+                sp.SetConnectionKey("CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@VodAdapterId", defaultVodAdapterId);
+                sp.AddParameter("@EpgAdapterId", defaultEpgAdapterId);
+                sp.AddParameter("@RecordingAdapterId", defaultRecordingAdapterId);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                response = CreateCDNPartnerSettings(ds);
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+
+            return response;
+        }
+
+        public static int GetCdnRegularGroupId(int parentGroupId)
+        {
+            int regularGroupId = 0;
+            DataSetSelectQuery selectQuery = null;
+            try
+            {
+                selectQuery = new DataSetSelectQuery();
+                selectQuery += string.Format("SELECT top(1) max(GROUP_ID) group_id FROM dbo.media_files with (nolock) WHERE STATUS = 1 and IS_ACTIVE = 1 and GROUP_ID IN (SELECT cast(iSNULL(id,0) as bigint) as ID FROM dbo.F_Get_GroupsTree(203))={0}", parentGroupId);
+                selectQuery.SetCachedSec(0);
+
+                if (selectQuery.Execute("GetCdnRegularGroupIdQuery", true) != null)
+                {
+                    DataTable dt = selectQuery.Table("GetCdnRegularGroupIdQuery");
+                    if (dt != null && dt.Rows.Count == 1)
+                    {
+                        regularGroupId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "group_id", 0);
+                    }
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+
+                return regularGroupId;
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error occurred while trying to execute GetCdnRegularGroupId", ex);
+            }
+
+            return regularGroupId;        
+        }
     }
 }

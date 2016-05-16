@@ -4,11 +4,11 @@ namespace ApiObjects.Notification
 {
     public class NotificationPartnerSettings
     {
-        public bool? push_notification_enabled { get; set; }
-        public bool? push_system_announcements_enabled { get; set; }
+        public bool? IsPushNotificationEnabled { get; set; }
+        public bool? IsPushSystemAnnouncementsEnabled { get; set; }
         public int? PushStartHour { get; set; }
         public int? PushEndHour { get; set; }
-
-        public NotificationPartnerSettings() { }
+        public bool? IsInboxEnabled { get; set; }
+        public int? MessageTTL { get; set; }
     }
 }
