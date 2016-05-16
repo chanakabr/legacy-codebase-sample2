@@ -49,12 +49,12 @@ namespace DAL
 
         private static string GetInboxMessageKey(int groupId, long userId, string messageId)
         {
-            return string.Format("InboxMessage_{0}_{1}_{2}", groupId, userId, messageId);
+            return string.Format("inbox_message:{0}:{1}:{2}", groupId, userId, messageId);
         }
 
         private static string GetInboxSystemAnnouncementKey(int groupId, string messageId)
         {
-            return string.Format("System_inbox_{0}_{1}", groupId, messageId);
+            return string.Format("system_inbox:{0}:{1}", groupId, messageId);
         }
 
         /// <summary>
@@ -1669,7 +1669,7 @@ namespace DAL
             return userInboxMessage;
         }
 
-        public static bool SetUserInboxMessage(int groupId, int userId, string messageId, InboxMessage inboxMessage)
+        public static bool SetUserInboxMessage(int groupId, int userId, InboxMessage inboxMessage)
         {
             bool result = false;
             try
@@ -1677,7 +1677,7 @@ namespace DAL
                 int numOfTries = 0;
                 while (!result && numOfTries < NUM_OF_INSERT_TRIES)
                 {
-                    result = cbManager.Set(GetInboxMessageKey(groupId, userId, messageId), inboxMessage);
+                    result = cbManager.Set(GetInboxMessageKey(groupId, userId, inboxMessage.Id), inboxMessage);
 
                     if (!result)
                     {
@@ -1706,7 +1706,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while setting inbox message. GID: {0}, user ID: {1}, message ID: {2}, ex: {3}", groupId, userId, messageId, ex);
+                log.ErrorFormat("Error while setting inbox message. GID: {0}, user ID: {1}, message ID: {2}, ex: {3}", groupId, userId, inboxMessage.Id, ex);
             }
 
             return result;
@@ -1794,7 +1794,7 @@ namespace DAL
             return messageIds;
         }
 
-        public static bool SetSystemAnnouncementMessage(int groupId, int userId, string messageId, InboxMessage inboxMessage)
+        public static bool SetSystemAnnouncementMessage(int groupId, int userId, InboxMessage inboxMessage)
         {
             bool result = false;
             try
@@ -1802,7 +1802,7 @@ namespace DAL
                 int numOfTries = 0;
                 while (!result && numOfTries < NUM_OF_INSERT_TRIES)
                 {
-                    result = cbManager.Set(GetInboxSystemAnnouncementKey(groupId, messageId), inboxMessage);
+                    result = cbManager.Set(GetInboxSystemAnnouncementKey(groupId, inboxMessage.Id), inboxMessage);
 
                     if (!result)
                     {
@@ -1831,7 +1831,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while setting inbox system message. GID: {0}, user ID: {1}, message ID: {2}, ex: {3}", groupId, userId, messageId, ex);
+                log.ErrorFormat("Error while setting inbox system message. GID: {0}, user ID: {1}, message ID: {2}, ex: {3}", groupId, userId, inboxMessage.Id, ex);
             }
 
             return result;
