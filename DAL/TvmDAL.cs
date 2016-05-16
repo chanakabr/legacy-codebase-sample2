@@ -1136,33 +1136,7 @@ namespace DAL
             }
 
             return idFromTable;
-        }
-
-        public static int GetQuotaMamagementModuleID(int groupID)
-        {
-            int idFromTable = 0;
-            DataTable dt = null;
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_QuotaMamagementModuleID");
-                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-                sp.AddParameter("@GroupID", groupID);
-
-                dt = sp.Execute();
-
-                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                {
-                    idFromTable = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "id");
-                }
-            }
-
-            catch (Exception ex)
-            {
-                log.Error("Failed getting id from table on Get_QuotaMamagementModuleID", ex);
-            }
-
-            return idFromTable;
-        }
+        }      
     }
     
 }
