@@ -1423,7 +1423,7 @@ namespace Users
             try
             {
                 int parsedUserId = 0;
-                if (!int.TryParse(userId, out parsedUserId) || itemId == 0 || string.IsNullOrEmpty(userId) || listType == ListType.All || itemType == ItemType.All)
+                if (!int.TryParse(userId, out parsedUserId) || itemId == 0 || string.IsNullOrEmpty(userId))
                     return response;
 
                 DataTable dt = UsersDal.GetItemFromUserList(parsedUserId, itemId, (int)listType, (int)itemType, groupId);
