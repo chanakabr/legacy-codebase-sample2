@@ -1318,5 +1318,38 @@ namespace WebAPI.Clients
 
             return result;
         }
+
+        internal bool RemovePaymentMethodHouseholdPaymentGateway(int payment_gateway_id, int groupId, string userID, long householdId, int paymentMethodId)
+        {
+            WebAPI.ConditionalAccess.Status response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = ConditionalAccess.RemovePaymentMethodHouseholdPaymentGateway(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, payment_gateway_id, userID,
+                        (int)householdId, paymentMethodId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while RemovePaymentMethodHouseholdPaymentGateway.  groupID: {0}, paymentMethodId {1}, householdId {2},  exception: {3}", groupId,
+                    paymentMethodId, householdId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
     }
 }
