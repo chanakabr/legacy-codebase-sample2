@@ -17163,8 +17163,7 @@ namespace ConditionalAccess
                 // validate epgs entitlement and add to response
                 ValidateEpgForRecording(userID, domainID, ref response, epgs, validEpgsForRecording);
 
-                // TODO: Get module id from domain object
-                int quotaManagerModelId = 0;
+                int quotaManagerModelId = domain.m_nQuotaModuleID;
 
                 List<Recording> currentRecordings = new List<Recording>();
 
