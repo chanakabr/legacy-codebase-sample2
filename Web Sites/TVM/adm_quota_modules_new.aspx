@@ -1,29 +1,60 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="adm_quota_management.aspx.cs" Inherits="adm_quota_management" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="adm_quota_modules_new.aspx.cs" Inherits="adm_quota_modules_new" %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title><% TVinciShared.PageUtils.GetTitle(); %></title>
-<meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Content-Type" content="text/html; charset=windows-1255" />
+<meta content="" name="Description" />
+<meta content="all" name="robots" />
+<meta content="1 days" name="revisit-after" />
+<meta content="Guy Barkan" name="Author" />
+<meta content="<% TVinciShared.PageUtils.GetKeyWords(); %>" name="Keywords" />
+<meta http-equiv="Pragma" content="no-cache" />
 <link href="css/styles-en.css" type="text/css" rel="stylesheet" />
+<link href="components/duallist/css/duallist.css" type="text/css" rel="stylesheet" />
+<script language="JavaScript" src="js/jquery-1.10.2.min.js" type="text/javascript"></script>
+<script language="JavaScript" src="js/jquery-placeholder.js" type="text/javascript"></script>
+<script src="https://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
 <script language="JavaScript" src="js/rs.js" type="text/javascript"></script>
 <script language="JavaScript" src="js/adm_utils.js" type="text/javascript"></script>
 <script language="JavaScript" src="js/calendar.js" type="text/javascript"></script>
 <script language="JavaScript" src="js/AnchorPosition.js" type="text/javascript"></script>
 <script language="JavaScript" src="js/dom-drag.js" type="text/javascript"></script>
 <script language="JavaScript" src="js/FCKeditor/fckeditor.js" type="text/javascript"></script>
+<script language="JavaScript" src="js/ajaxFuncs.js" type="text/javascript"></script>
+<script type="text/javascript" src="js/SWFObj.js" language="javascript"></script>
+<script type="text/javascript" src="js/WMPInterface.js" language="javascript"></script>
+<script type="text/javascript" src="js/WMPObject.js" language="javascript"></script>
+<script type="text/javascript" src="js/FlashUtils.js" language="javascript"></script>
+<script type="text/javascript" src="js/Player.js" language="javascript"></script>
+<script type="text/javascript" src="js/VGObject.js" language="javascript"></script>
+<!-- dual list -->
+<script type="text/javascript" src="components/duallist/js/script.js"></script>
+<script type="text/javascript" src="components/duallist/js/info.js"></script>
+<script type="text/javascript" src="components/duallist/js/calender.js"></script>
+<script type="text/javascript" src="components/duallist/js/list.js"></script>
+<script type="text/javascript" src="components/duallist/js/duallist.js"></script>
+<!-- end dual list -->
 <script type="text/javascript">
+    var peek_date_string = '<%=Session["peek_date"]%>';
+    var Su = '<%=Session["Su"]%>';
+    var Mo = '<%=Session["Mo"]%>';
+    var Tu = '<%=Session["Tu"]%>';
+    var We = '<%=Session["We"]%>';
+    var Th = '<%=Session["Th"]%>';
+    var Fr = '<%=Session["Fr"]%>';
+    var Sa = '<%=Session["Sa"]%>';
+    MonthNumber = '<%=Session["MonthList"]%>';
+
     function GetPageTable(orderBy, pageNum) {
-        RS.Execute("adm_quota_management.aspx", "GetPageContent", orderBy, pageNum, callback_page_content_with_editor, errorCallback);
+        RS.Execute("adm_quota_modules_new.aspx", "GetPageContent", orderBy, pageNum, callback_page_content_with_editor, errorCallback);      
     }
 </script>
 </head>
 <body class="admin_body" onload="GetPageTable('' , 0);">
-<form id="form1" name="form1" action="" method="post" runat=server>
-<div class="floating_div" id="tag_collections_div"></div>
-<input type="file" runat=server id="file_marker" name="file_marker" style="width: 0px; height: 0px; display: none;" />
+<form id="form2" name="form1" action="" method="post" runat="server">
 	<table align=center cellpadding=0 cellspacing=0 class="admContainer">
 		<!-- top banner -->
 		<tr>
@@ -104,6 +135,7 @@
 								    <td id="page_content" width=100% nowrap=nowrap>
 								    </td>
 								</tr>
+                                <tr><td><div id="DualListPH"></div></td></tr>
 							</table>
 						</td>
 					</tr>
