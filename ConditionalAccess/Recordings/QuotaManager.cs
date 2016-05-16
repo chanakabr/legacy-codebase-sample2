@@ -45,7 +45,7 @@ namespace Recordings
 
         #region Public Methods
         
-        public Status CheckQuota(int groupId, int quotaManagerModelId, long householdId, 
+        public Status CheckQuotaByModel(int groupId, int quotaManagerModelId, long householdId, 
             List<Recording> newRecordings, List<Recording> currentRecordings)
         {
             Status status = new Status();
@@ -80,26 +80,37 @@ namespace Recordings
                     }
                 }
             }
-
+            
             // If there wasn't an error previously
             if (shouldContinue)
             {
-                // Now deduct the time of all the new/requested recordings
-                foreach (var recording in newRecordings)
+                status = CheckQuotaByAvailableMinutes(groupId, householdId, minutesLeft, newRecordings);
+            }
+
+            return status;
+        }
+
+        public Status CheckQuotaByAvailableMinutes(int groupId, long householdId, int availableMinutes, List<Recording> newRecordings)
+        {
+            Status status = null;
+
+            int minutesLeft = availableMinutes;
+
+            // Now deduct the time of all the new/requested recordings
+            foreach (var recording in newRecordings)
+            {
+                int currentEpgMinutes = 0;
+
+                TimeSpan span = recording.EpgEndDate - recording.EpgStartDate;
+
+                currentEpgMinutes = (int)span.TotalMinutes;
+
+                minutesLeft -= currentEpgMinutes;
+
+                // Mark this, current-specific, recording as failed
+                if (minutesLeft < 0)
                 {
-                    int currentEpgMinutes = 0;
-
-                    TimeSpan span = recording.EpgEndDate - recording.EpgStartDate;
-
-                    currentEpgMinutes = (int)span.TotalMinutes;
-
-                    minutesLeft -= currentEpgMinutes;
-
-                    // Mark this, current-specific, recording as failed
-                    if (minutesLeft < 0)
-                    {
-                        recording.Status = new Status((int)eResponseStatus.DomainExceededQuota);
-                    }
+                    recording.Status = new Status((int)eResponseStatus.DomainExceededQuota);
                 }
             }
 

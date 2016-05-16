@@ -17180,7 +17180,7 @@ namespace ConditionalAccess
                 currentRecordings =
                     GetDomainRecordings(domainID, recordingStatuses, out recordingIdToDomainRecordingIdMap);
 
-                QuotaManager.Instance.CheckQuota(this.m_nGroupID, quotaManagerModelId, domainID, response.Recordings, currentRecordings);
+                QuotaManager.Instance.CheckQuotaByModel(this.m_nGroupID, quotaManagerModelId, domainID, response.Recordings, currentRecordings);
                 
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 response.TotalItems = response.Recordings.Count;
