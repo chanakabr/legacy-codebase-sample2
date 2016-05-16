@@ -679,21 +679,18 @@ namespace TVPApiModule.Services
             MediaFileItemPricesContainer[] retVal = null;
             string wsUser = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultUser;
             string wsPass = ConfigManager.GetInstance().GetConfig(m_groupID, m_platform).PlatformServicesConfiguration.Data.ConditionalAccessService.DefaultPassword;
-            if (!string.IsNullOrEmpty(siteGuid))
+            try
             {
-                try
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
-                    {
-                        var res = m_Module.GetItemsPricesWithCoupons(wsUser, wsPass, nMediaFiles, sUserGUID, sCouponCode, bOnlyLowest, sCountryCd2, sLanguageCode3, sDeviceName, SiteHelper.GetClientIP());
-                        if (res != null)
-                            retVal = res.ItemsPrices;
-                    }
+                    var res = m_Module.GetItemsPricesWithCoupons(wsUser, wsPass, nMediaFiles, sUserGUID, sCouponCode, bOnlyLowest, sCountryCd2, sLanguageCode3, sDeviceName, SiteHelper.GetClientIP());
+                    if (res != null)
+                        retVal = res.ItemsPrices;
                 }
-                catch (Exception ex)
-                {
-                    logger.ErrorFormat("Error calling web service protocol : GetItemsPricesWithCoupons, Error Message: {0}, Parameters : SiteGuid: {1} sCouponCode : {2}", ex.Message, siteGuid, sCouponCode);
-                }
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("Error calling web service protocol : GetItemsPricesWithCoupons, Error Message: {0}, Parameters : SiteGuid: {1} sCouponCode : {2}", ex.Message, siteGuid, sCouponCode);
             }
             return retVal;
         }
