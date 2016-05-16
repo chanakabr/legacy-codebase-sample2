@@ -28,6 +28,11 @@ namespace WebAPI.Controllers
             int groupId = KS.GetFromRequest().GroupId;
             string userId = KS.GetFromRequest().UserId;
 
+            if (userAssetsListItem.ListType == KalturaUserAssetsListType.all || userAssetsListItem.Type == KalturaUserAssetsListItemType.all)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "type and listType cannot be empty or all");
+            }
+
             try
             {
                 response = ClientsManager.UsersClient().AddItemToUsersList(groupId, userId, userAssetsListItem);
@@ -56,6 +61,8 @@ namespace WebAPI.Controllers
             int groupId = KS.GetFromRequest().GroupId;
             string userId = KS.GetFromRequest().UserId;
 
+            
+
             try
             {
                 response = ClientsManager.UsersClient().GetItemFromUsersList(groupId, userId, userAssetsListItem);
@@ -83,6 +90,11 @@ namespace WebAPI.Controllers
 
             int groupId = KS.GetFromRequest().GroupId;
             string userId = KS.GetFromRequest().UserId;
+
+            if (userAssetsListItem.ListType == KalturaUserAssetsListType.all || userAssetsListItem.Type == KalturaUserAssetsListItemType.all)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "type and listType cannot be empty or all");
+            }
 
             try
             {
