@@ -1935,6 +1935,7 @@ namespace DAL
                     pghhpm.PaymentMethodExternalId = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "PAYMENT_METHOD_EXTERNAL_ID");
                     pghhpm.PaymentMethodId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "PAYMENT_METHOD_ID");
                     pghhpm.Id = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
+                    pghhpm.Selected = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "SELECTED") == 1 ? true : false;
                 }
             }
             catch (Exception ex)
@@ -2080,6 +2081,26 @@ namespace DAL
                 {
                     sp.AddParameter("@selected", selected.Value);
                 }
+
+                bool isSet = sp.ExecuteReturnValue<bool>();
+                return isSet;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public static bool RemovePaymentGatewayHouseholdPaymentMethod(int groupID, int paymentGatewayId, int householdId, int paymentMethodId)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Remove_PaymentGatewayHouseholdPaymentMethod");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupID);
+                sp.AddParameter("@paymentGatewayId", paymentGatewayId);
+                sp.AddParameter("@householdId", householdId);
+                sp.AddParameter("@paymentMethodId", paymentMethodId);
 
                 bool isSet = sp.ExecuteReturnValue<bool>();
                 return isSet;

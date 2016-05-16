@@ -112,7 +112,8 @@ namespace ApiObjects.Response
         ProgramNotInRecordingScheduleWindow = 3038,
         RecordingNotFound = 3039,
         RecordingFailed = 3040,
-        DomainExceededQuota = 3041,
+        PaymentMethodIsUsedByHousehold = 3041,
+        DomainExceededQuota = 3042,
 
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,
@@ -219,7 +220,8 @@ namespace ApiObjects.Response
         ErrorSavingPaymentGatewayHouseholdPaymentMethod = 6052,        
         PaymentMethodAlreadySetToHouseholdPaymentGateway = 6054,
         PaymentMethodNameRequired = 6055,
-        PaymentGatewayNotSupportPaymentMethod = 6056,        
+        PaymentGatewayNotSupportPaymentMethod = 6056,
+        ErrorRemovingPaymentGatewayHouseholdPaymentMethod = 6057,        
 
         // social 7000 - 7999
         Conflict = 7000,
