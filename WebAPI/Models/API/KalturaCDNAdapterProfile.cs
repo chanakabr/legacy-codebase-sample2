@@ -65,10 +65,10 @@ namespace WebAPI.Models.API
         /// <summary>
         /// CDN adapter alias
         /// </summary>
-        [DataMember(Name = "alias")]
-        [JsonProperty("alias")]
-        [XmlElement(ElementName = "alias")]
-        public string Alias { get; set; }
+        [DataMember(Name = "systemName")]
+        [JsonProperty("systemName")]
+        [XmlElement(ElementName = "systemName")]
+        public string SystemName { get; set; }
 
         /// <summary>
         /// CDN shared secret

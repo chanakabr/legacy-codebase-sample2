@@ -283,9 +283,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
                .ForMember(dest => dest.BaseUrl, opt => opt.MapFrom(src => src.BaseUrl))
-               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive.HasValue ? src.IsActive.Value : true))
                .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertCDNAdapterSettings(src.Settings)))
-               .ForMember(dest => dest.Alias, opt => opt.MapFrom(src => src.Alias))
+               .ForMember(dest => dest.Alias, opt => opt.MapFrom(src => src.SystemName))
                .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret));
 
             Mapper.CreateMap<WebAPI.Api.CDNAdapter, KalturaCDNAdapterProfile>()
@@ -295,11 +295,26 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.BaseUrl, opt => opt.MapFrom(src => src.BaseUrl))
               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
               .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertCDNAdapterSettings(src.Settings)))
-              .ForMember(dest => dest.Alias, opt => opt.MapFrom(src => src.Alias))
+              .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.Alias))
               .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret));
 
             #endregion
 
+            #region CDN Settings
+
+            //CDNPartnerSettings to KalturaCDNPartnerSettings
+            Mapper.CreateMap<CDNPartnerSettings, KalturaCDNPartnerSettings>()
+                .ForMember(dest => dest.DefaultEpgAdapterId, opt => opt.MapFrom(src => src.DefaultEpgAdapter))
+                .ForMember(dest => dest.DefaultRecordingAdapterId, opt => opt.MapFrom(src => src.DefaultRecordingAdapter))
+                .ForMember(dest => dest.DefaultVodAdapterId, opt => opt.MapFrom(src => src.DefaultVodAdapter));
+
+            //KalturaCDNPartnerSettings to CDNPartnerSettings 
+            Mapper.CreateMap<KalturaCDNPartnerSettings, CDNPartnerSettings>()
+                .ForMember(dest => dest.DefaultEpgAdapter, opt => opt.MapFrom(src => src.DefaultEpgAdapterId))
+                .ForMember(dest => dest.DefaultRecordingAdapter, opt => opt.MapFrom(src => src.DefaultRecordingAdapterId))
+                .ForMember(dest => dest.DefaultVodAdapter, opt => opt.MapFrom(src => src.DefaultVodAdapterId));
+
+            #endregion
         }
 
         private static List<KalturaPermissionItem> ConvertPermissionItems(PermissionItem[] permissionItems)

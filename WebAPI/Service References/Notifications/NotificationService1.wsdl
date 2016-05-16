@@ -181,6 +181,24 @@
   <wsdl:message name="INotificationService_GetUserFeeder_OutputMessage">
     <wsdl:part name="parameters" element="tns:GetUserFeederResponse" />
   </wsdl:message>
+  <wsdl:message name="INotificationService_UpdateInboxMessage_InputMessage">
+    <wsdl:part name="parameters" element="tns:UpdateInboxMessage" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_UpdateInboxMessage_OutputMessage">
+    <wsdl:part name="parameters" element="tns:UpdateInboxMessageResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_GetInboxMessage_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetInboxMessage" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_GetInboxMessage_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetInboxMessageResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_GetInboxMessages_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetInboxMessages" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_GetInboxMessages_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetInboxMessagesResponse" />
+  </wsdl:message>
   <wsdl:portType name="INotificationService">
     <wsdl:operation name="AddNotificationRequest">
       <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/AddNotificationRequest" message="tns:INotificationService_AddNotificationRequest_InputMessage" />
@@ -293,6 +311,18 @@
     <wsdl:operation name="GetUserFeeder">
       <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/GetUserFeeder" message="tns:INotificationService_GetUserFeeder_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/GetUserFeederResponse" message="tns:INotificationService_GetUserFeeder_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateInboxMessage">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/UpdateInboxMessage" message="tns:INotificationService_UpdateInboxMessage_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/UpdateInboxMessageResponse" message="tns:INotificationService_UpdateInboxMessage_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetInboxMessage">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/GetInboxMessage" message="tns:INotificationService_GetInboxMessage_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/GetInboxMessageResponse" message="tns:INotificationService_GetInboxMessage_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetInboxMessages">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/GetInboxMessages" message="tns:INotificationService_GetInboxMessages_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/GetInboxMessagesResponse" message="tns:INotificationService_GetInboxMessages_OutputMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="BasicHttpBinding_INotificationService" type="tns:INotificationService">
@@ -542,6 +572,33 @@
     </wsdl:operation>
     <wsdl:operation name="GetUserFeeder">
       <soap:operation soapAction="http://tempuri.org/INotificationService/GetUserFeeder" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateInboxMessage">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/UpdateInboxMessage" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetInboxMessage">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/GetInboxMessage" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetInboxMessages">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/GetInboxMessages" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>

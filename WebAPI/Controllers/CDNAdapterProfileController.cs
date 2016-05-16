@@ -45,7 +45,7 @@ namespace WebAPI.Controllers
         /// Delete CDN adapter by CDN adapter id
         /// </summary>
         /// <remarks>
-        /// Possible status codes: Adapter does not exist = 10000
+        /// Possible status codes: AdapterNotExists = 10000, AdapterIdentifierRequired = 10001
         /// </remarks>
         /// <param name="adapter_id">CDN adapter identifier</param>
         [Route("delete"), HttpPost]
@@ -74,7 +74,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:     
-        /// Adapter Name is required = 5005, Adapter URL is required = 5013, Alias must be unique = 5019, Alias is required = 5020
+        /// Adapter NameRequired = 5005, AdapterUrlRequired = 5013, AliasMustBeUnique = 5019, AliasRequired = 5020
         /// </remarks>
         /// <param name="adapter">CDN adapter object</param>
         [Route("add"), HttpPost]
@@ -102,13 +102,12 @@ namespace WebAPI.Controllers
         /// Update CDN adapter details
         /// </summary>
         /// <remarks>
-        /// Possible status codes:   
-        /// Adapter name is required = 5005, Adapter identifier is required = 10001, Adapter URL is required = 5013, Alias is required = 5020, Adapter does not exist = 10000
+        /// Possible status codes: AdapterNotExists = 10000, NameRequired = 5005, AdapterUrlRequired = 5013, AliasMustBeUnique = 5019, AliasRequired = 5020
         /// </remarks>
         /// <param name="adapter">CDN adapter Object</param>       
         [Route("update"), HttpPost]
         [ApiAuthorize]
-        public KalturaCDNAdapterProfile Update(KalturaCDNAdapterProfile adapter)
+        public KalturaCDNAdapterProfile Update(int adapterId, KalturaCDNAdapterProfile adapter)
         {
             KalturaCDNAdapterProfile response = null;
 
@@ -117,7 +116,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().SetCDNAdapter(groupId, adapter);
+                response = ClientsManager.ApiClient().SetCDNAdapter(groupId, adapter, adapterId);
             }
             catch (ClientException ex)
             {
@@ -132,12 +131,12 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:  
-        /// Adapter identifier is required = 10001, AdapterNotExists = 10000
+        /// AdapterIdentifierRequired = 10001, AdapterNotExists = 10000
         /// </remarks>
-        /// <param name="adapter_id">CDN adapter identifier</param>
+        /// <param name="adapterId">CDN adapter identifier</param>
         [Route("generateSharedSecret"), HttpPost]
         [ApiAuthorize]
-        public KalturaCDNAdapterProfile GenerateSharedSecret(int adapter_id)
+        public KalturaCDNAdapterProfile GenerateSharedSecret(int adapterId)
         {
             KalturaCDNAdapterProfile response = null;
 
@@ -146,7 +145,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().GenerateCDNSharedSecret(groupId, adapter_id);
+                response = ClientsManager.ApiClient().GenerateCDNSharedSecret(groupId, adapterId);
             }
             catch (ClientException ex)
             {

@@ -472,6 +472,9 @@
     <Content Include="Service References\Notifications\WebAPI.Notifications.IdListResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
+    <Content Include="Service References\Notifications\WebAPI.Notifications.InboxMessageResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
     <None Include="Web References\Api\api.disco" />
     <Content Include="Web References\Billing\AdyenBillingDetail.datasource">
       <DependentUpon>Reference.map</DependentUpon>
@@ -601,6 +604,9 @@
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <Content Include="Web References\Api\CDNAdapterResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\Api\CDNPartnerSettingsResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </Content>
     <None Include="Web References\Api\Reference.map">
@@ -1016,6 +1022,8 @@
     <Compile Include="Controllers\AssetController.cs" />
     <Compile Include="Controllers\CDNAdapterProfileController.cs" />
     <Compile Include="Controllers\CDVRAdapterProfileController.cs" />
+    <Compile Include="Controllers\CDNPartnerSettingsController.cs" />
+    <Compile Include="Controllers\InboxController.cs" />
     <Compile Include="Controllers\MessageTemplateController.cs" />
     <Compile Include="Controllers\FollowTvSeriesController.cs" />
     <Compile Include="Controllers\PersonalFeedController.cs" />
@@ -1083,6 +1091,7 @@
     <Compile Include="Managers\RolesManager.cs" />
     <Compile Include="Managers\Schema\ValidationException.cs" />
     <Compile Include="Managers\Schema\SchemaValidationType.cs" />
+    <Compile Include="Models\API\KalturaCDNPartnerSettings.cs" />
     <Compile Include="Models\API\KalturaCDNAdapterProfile.cs" />
     <Compile Include="Models\API\KalturaCDNAdapterProfileListResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaCDVRAdapterProfile.cs" />
@@ -1185,11 +1194,16 @@
     <Compile Include="Models\API\KalturaUserRole.cs" />
     <Compile Include="Models\General\KalturaValue.cs" />
     <Compile Include="Models\KalturaPlayerAssetData.cs" />
+    <Compile Include="Models\Notification\KalturaInboxMessageResponse.cs" />
     <Compile Include="Models\Notification\KalturaAnnouncement.cs" />
     <Compile Include="Models\Notification\KalturaAnnouncementRecipientsType.cs" />
     <Compile Include="Models\Notification\KalturaAnnouncementStatus.cs" />
     <Compile Include="Models\Notification\KalturaFeed.cs" />
     <Compile Include="Models\Notification\KalturaFollowDataTvSeries.cs" />
+    <Compile Include="Models\Notification\KalturaInboxMessage.cs" />
+    <Compile Include="Models\Notification\KalturaInboxMessageFilter.cs" />
+    <Compile Include="Models\Notification\KalturaInboxMessageStatus.cs" />
+    <Compile Include="Models\Notification\KalturaInboxMessageType.cs" />
     <Compile Include="Models\Notification\KalturaMessageTemplate.cs" />
     <Compile Include="Models\Notification\KalturaFollowDataBase.cs" />
     <Compile Include="Models\Notification\KalturaListFollowDataTvSeriesResponse.cs" />

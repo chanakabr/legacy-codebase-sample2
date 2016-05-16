@@ -2430,6 +2430,265 @@ namespace WebAPI.Notifications {
         RECOMMENDATION = -13,
     }
     
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="eMessageState", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects")]
+    public enum eMessageState : int {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Unread = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Read = 1,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Trashed = 2,
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="InboxMessageResponse", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification")]
+    [System.SerializableAttribute()]
+    public partial class InboxMessageResponse : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<WebAPI.Notifications.InboxMessage> InboxMessagesField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private WebAPI.Notifications.Status StatusField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int TotalCountField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<WebAPI.Notifications.InboxMessage> InboxMessages {
+            get {
+                return this.InboxMessagesField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.InboxMessagesField, value) != true)) {
+                    this.InboxMessagesField = value;
+                    this.RaisePropertyChanged("InboxMessages");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public WebAPI.Notifications.Status Status {
+            get {
+                return this.StatusField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.StatusField, value) != true)) {
+                    this.StatusField = value;
+                    this.RaisePropertyChanged("Status");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int TotalCount {
+            get {
+                return this.TotalCountField;
+            }
+            set {
+                if ((this.TotalCountField.Equals(value) != true)) {
+                    this.TotalCountField = value;
+                    this.RaisePropertyChanged("TotalCount");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="InboxMessage", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification")]
+    [System.SerializableAttribute()]
+    public partial class InboxMessage : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private WebAPI.Notifications.eMessageCategory CategoryField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private long CreatedAtSecField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string IdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string MessageField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private WebAPI.Notifications.eMessageState StateField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private long UpdatedAtSecField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string UrlField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private long UserIdField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public WebAPI.Notifications.eMessageCategory Category {
+            get {
+                return this.CategoryField;
+            }
+            set {
+                if ((this.CategoryField.Equals(value) != true)) {
+                    this.CategoryField = value;
+                    this.RaisePropertyChanged("Category");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public long CreatedAtSec {
+            get {
+                return this.CreatedAtSecField;
+            }
+            set {
+                if ((this.CreatedAtSecField.Equals(value) != true)) {
+                    this.CreatedAtSecField = value;
+                    this.RaisePropertyChanged("CreatedAtSec");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Id {
+            get {
+                return this.IdField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.IdField, value) != true)) {
+                    this.IdField = value;
+                    this.RaisePropertyChanged("Id");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Message {
+            get {
+                return this.MessageField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.MessageField, value) != true)) {
+                    this.MessageField = value;
+                    this.RaisePropertyChanged("Message");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public WebAPI.Notifications.eMessageState State {
+            get {
+                return this.StateField;
+            }
+            set {
+                if ((this.StateField.Equals(value) != true)) {
+                    this.StateField = value;
+                    this.RaisePropertyChanged("State");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public long UpdatedAtSec {
+            get {
+                return this.UpdatedAtSecField;
+            }
+            set {
+                if ((this.UpdatedAtSecField.Equals(value) != true)) {
+                    this.UpdatedAtSecField = value;
+                    this.RaisePropertyChanged("UpdatedAtSec");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Url {
+            get {
+                return this.UrlField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.UrlField, value) != true)) {
+                    this.UrlField = value;
+                    this.RaisePropertyChanged("Url");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public long UserId {
+            get {
+                return this.UserIdField;
+            }
+            set {
+                if ((this.UserIdField.Equals(value) != true)) {
+                    this.UserIdField = value;
+                    this.RaisePropertyChanged("UserId");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="eMessageCategory", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects")]
+    public enum eMessageCategory : int {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        SystemAnnouncement = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Followed = 1,
+    }
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="Notifications.INotificationService")]
     public interface INotificationService {
@@ -2603,6 +2862,24 @@ namespace WebAPI.Notifications {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetUserFeeder", ReplyAction="http://tempuri.org/INotificationService/GetUserFeederResponse")]
         System.Threading.Tasks.Task<WebAPI.Notifications.IdListResponse> GetUserFeederAsync(string sWSUserName, string sWSPassword, int userId, int pageSize, int pageIndex, WebAPI.Notifications.OrderObj orderObj);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateInboxMessage", ReplyAction="http://tempuri.org/INotificationService/UpdateInboxMessageResponse")]
+        WebAPI.Notifications.Status UpdateInboxMessage(string sWSUserName, string sWSPassword, int userId, string messageId, WebAPI.Notifications.eMessageState status);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateInboxMessage", ReplyAction="http://tempuri.org/INotificationService/UpdateInboxMessageResponse")]
+        System.Threading.Tasks.Task<WebAPI.Notifications.Status> UpdateInboxMessageAsync(string sWSUserName, string sWSPassword, int userId, string messageId, WebAPI.Notifications.eMessageState status);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetInboxMessage", ReplyAction="http://tempuri.org/INotificationService/GetInboxMessageResponse")]
+        WebAPI.Notifications.InboxMessageResponse GetInboxMessage(string sWSUserName, string sWSPassword, int userId, string messageId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetInboxMessage", ReplyAction="http://tempuri.org/INotificationService/GetInboxMessageResponse")]
+        System.Threading.Tasks.Task<WebAPI.Notifications.InboxMessageResponse> GetInboxMessageAsync(string sWSUserName, string sWSPassword, int userId, string messageId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetInboxMessages", ReplyAction="http://tempuri.org/INotificationService/GetInboxMessagesResponse")]
+        WebAPI.Notifications.InboxMessageResponse GetInboxMessages(string sWSUserName, string sWSPassword, int userId, int pageSize, int pageIndex, System.Collections.Generic.List<WebAPI.Notifications.eMessageCategory> messageCategorys, long CreatedAtGreaterThanOrEqual, long CreatedAtLessThanOrEqual);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetInboxMessages", ReplyAction="http://tempuri.org/INotificationService/GetInboxMessagesResponse")]
+        System.Threading.Tasks.Task<WebAPI.Notifications.InboxMessageResponse> GetInboxMessagesAsync(string sWSUserName, string sWSPassword, int userId, int pageSize, int pageIndex, System.Collections.Generic.List<WebAPI.Notifications.eMessageCategory> messageCategorys, long CreatedAtGreaterThanOrEqual, long CreatedAtLessThanOrEqual);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -2854,6 +3131,30 @@ namespace WebAPI.Notifications {
         
         public System.Threading.Tasks.Task<WebAPI.Notifications.IdListResponse> GetUserFeederAsync(string sWSUserName, string sWSPassword, int userId, int pageSize, int pageIndex, WebAPI.Notifications.OrderObj orderObj) {
             return base.Channel.GetUserFeederAsync(sWSUserName, sWSPassword, userId, pageSize, pageIndex, orderObj);
+        }
+        
+        public WebAPI.Notifications.Status UpdateInboxMessage(string sWSUserName, string sWSPassword, int userId, string messageId, WebAPI.Notifications.eMessageState status) {
+            return base.Channel.UpdateInboxMessage(sWSUserName, sWSPassword, userId, messageId, status);
+        }
+        
+        public System.Threading.Tasks.Task<WebAPI.Notifications.Status> UpdateInboxMessageAsync(string sWSUserName, string sWSPassword, int userId, string messageId, WebAPI.Notifications.eMessageState status) {
+            return base.Channel.UpdateInboxMessageAsync(sWSUserName, sWSPassword, userId, messageId, status);
+        }
+        
+        public WebAPI.Notifications.InboxMessageResponse GetInboxMessage(string sWSUserName, string sWSPassword, int userId, string messageId) {
+            return base.Channel.GetInboxMessage(sWSUserName, sWSPassword, userId, messageId);
+        }
+        
+        public System.Threading.Tasks.Task<WebAPI.Notifications.InboxMessageResponse> GetInboxMessageAsync(string sWSUserName, string sWSPassword, int userId, string messageId) {
+            return base.Channel.GetInboxMessageAsync(sWSUserName, sWSPassword, userId, messageId);
+        }
+        
+        public WebAPI.Notifications.InboxMessageResponse GetInboxMessages(string sWSUserName, string sWSPassword, int userId, int pageSize, int pageIndex, System.Collections.Generic.List<WebAPI.Notifications.eMessageCategory> messageCategorys, long CreatedAtGreaterThanOrEqual, long CreatedAtLessThanOrEqual) {
+            return base.Channel.GetInboxMessages(sWSUserName, sWSPassword, userId, pageSize, pageIndex, messageCategorys, CreatedAtGreaterThanOrEqual, CreatedAtLessThanOrEqual);
+        }
+        
+        public System.Threading.Tasks.Task<WebAPI.Notifications.InboxMessageResponse> GetInboxMessagesAsync(string sWSUserName, string sWSPassword, int userId, int pageSize, int pageIndex, System.Collections.Generic.List<WebAPI.Notifications.eMessageCategory> messageCategorys, long CreatedAtGreaterThanOrEqual, long CreatedAtLessThanOrEqual) {
+            return base.Channel.GetInboxMessagesAsync(sWSUserName, sWSPassword, userId, pageSize, pageIndex, messageCategorys, CreatedAtGreaterThanOrEqual, CreatedAtLessThanOrEqual);
         }
     }
 }

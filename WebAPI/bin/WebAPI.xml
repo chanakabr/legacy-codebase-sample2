@@ -256,7 +256,7 @@
             Delete CDN adapter by CDN adapter id
             </summary>
             <remarks>
-            Possible status codes: Adapter does not exist = 10000
+            Possible status codes: AdapterNotExists = 10000, AdapterIdentifierRequired = 10001
             </remarks>
             <param name="adapter_id">CDN adapter identifier</param>
         </member>
@@ -266,17 +266,16 @@
             </summary>
             <remarks>
             Possible status codes:     
-            Adapter Name is required = 5005, Adapter URL is required = 5013, Alias must be unique = 5019, Alias is required = 5020
+            Adapter NameRequired = 5005, AdapterUrlRequired = 5013, AliasMustBeUnique = 5019, AliasRequired = 5020
             </remarks>
             <param name="adapter">CDN adapter object</param>
         </member>
-        <member name="M:WebAPI.Controllers.CDNAdapterProfileController.Update(WebAPI.Models.API.KalturaCDNAdapterProfile)">
+        <member name="M:WebAPI.Controllers.CDNAdapterProfileController.Update(System.Int32,WebAPI.Models.API.KalturaCDNAdapterProfile)">
             <summary>
             Update CDN adapter details
             </summary>
             <remarks>
-            Possible status codes:   
-            Adapter name is required = 5005, Adapter identifier is required = 10001, Adapter URL is required = 5013, Alias is required = 5020, Adapter does not exist = 10000
+            Possible status codes: AdapterNotExists = 10000, NameRequired = 5005, AdapterUrlRequired = 5013, AliasMustBeUnique = 5019, AliasRequired = 5020
             </remarks>
             <param name="adapter">CDN adapter Object</param>       
         </member>
@@ -286,9 +285,9 @@
             </summary>
             <remarks>
             Possible status codes:  
-            Adapter identifier is required = 10001, AdapterNotExists = 10000
+            AdapterIdentifierRequired = 10001, AdapterNotExists = 10000
             </remarks>
-            <param name="adapter_id">CDN adapter identifier</param>
+            <param name="adapterId">CDN adapter identifier</param>
         </member>
         <member name="M:WebAPI.Controllers.CDVRAdapterProfileController.List">
             <summary>
@@ -336,6 +335,52 @@
             Adapter identifier is required = 10001, AdapterNotExists = 10000
             </remarks>
             <param name="adapter_id">C-DVR adapter identifier</param>
+        </member>
+        <member name="M:WebAPI.Controllers.CDNPartnerSettingsController.Get">
+            <summary>
+            Retrieve the partner’s CDN settings (default adapters)
+            </summary>
+            <returns></returns>
+            <remarks>Possible status codes: CDN partner settings not found = 5025</remarks>   
+        </member>
+        <member name="M:WebAPI.Controllers.CDNPartnerSettingsController.Update(WebAPI.Models.API.KalturaCDNPartnerSettings)">
+            <summary>
+            Configure the partner’s CDN settings (default adapters)
+            </summary>
+            <returns></returns>
+            <remarks>Possible status codes: CDN partner settings not found = 5025</remarks>   
+        </member>
+        <member name="M:WebAPI.Controllers.InboxController.Get(System.String)">
+            <summary>
+            TBD
+            </summary>
+            <remarks>
+            Possible status codes:       
+            
+            </remarks>
+            <param name="id">message id</param>        
+        </member>
+        <member name="M:WebAPI.Controllers.InboxController.List(WebAPI.Models.General.KalturaFilterPager,WebAPI.Models.Notification.KalturaInboxMessageFilter)">
+            <summary>
+            TBD
+            </summary>
+            <remarks>
+            Possible status codes:       
+            
+            </remarks>
+            <param name="pager">Page size and index</param>        
+            <param name="filter">filter</param>        
+        </member>
+        <member name="M:WebAPI.Controllers.InboxController.UpdateStatus(System.String,WebAPI.Models.Notification.KalturaInboxMessageStatus)">
+            <summary>
+            TBD
+            </summary>
+            <remarks>
+            Possible status codes:       
+            
+            </remarks>
+            <param name="id"></param>        
+            <param name="status"></param>        
         </member>
         <member name="M:WebAPI.Controllers.MessageTemplateController.Set(WebAPI.Models.Notification.KalturaMessageTemplate)">
             <summary>
@@ -515,8 +560,9 @@
             <summary>
             update the partner notification settings.      
             </summary>    
-            
             <remarks>        
+            Possible status codes: 
+            Push notification false = 8001, Invalid message ttl = 8018
             </remarks>
             <returns>The notification settings that apply for the partner</returns>
             
@@ -1811,14 +1857,29 @@
             <param name="usersGroup">list of users separated by ';'</param>
             <returns>True if the action is permitted, false otherwise, and a users group list (if exists) for this action</returns>
         </member>
-        <member name="T:WebAPI.Models.API.KalturaCDNAdapterProfile">
-            <summary>
-            CDN Adapter
-            </summary>
-        </member>
         <member name="T:WebAPI.Models.General.KalturaOTTObject">
             <summary>
             Base class
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaCDNPartnerSettings.DefaultVodAdapter">
+            <summary>
+            Default VOD CDN adapter identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaCDNPartnerSettings.DefaultEpgAdapter">
+            <summary>
+            Default live and catch-up CDN adapter identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaCDNPartnerSettings.DefaultRecordingAdapter">
+            <summary>
+            Default recording CDN adapter identifier
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaCDNAdapterProfile">
+            <summary>
+            CDN Adapter
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaCDNAdapterProfile.Id">
@@ -1851,7 +1912,7 @@
             CDN adapter settings
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaCDNAdapterProfile.Alias">
+        <member name="P:WebAPI.Models.API.KalturaCDNAdapterProfile.SystemName">
             <summary>
             CDN adapter alias
             </summary>
@@ -3312,6 +3373,12 @@
             Current Bitrate
             </summary>
         </member>
+        <member name="T:WebAPI.Models.Notification.KalturaInboxMessageResponse">
+            <summary>
+            List of inbox message.
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "P:WebAPI.Models.Notification.KalturaInboxMessageResponse.InboxMessages" -->
         <member name="P:WebAPI.Models.Notification.KalturaFollowDataBase.AnnouncementId">
             <summary>
             Announcement Id
@@ -3340,6 +3407,51 @@
         <member name="P:WebAPI.Models.Notification.KalturaFollowDataTvSeries.AssetId">
             <summary>
             Asset Id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaInboxMessage.Id">
+            <summary>
+            message id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaInboxMessage.Message">
+            <summary>
+            message
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaInboxMessage.Status">
+            <summary>
+            Status
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaInboxMessage.Type">
+            <summary>
+            Type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaInboxMessage.CreatedAt">
+            <summary>
+            Created at 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaInboxMessage.Url">
+            <summary>
+            url
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaInboxMessageFilter.TypeIn">
+            <summary>
+            List of inbox message types to search within.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaInboxMessageFilter.CreatedAtGreaterThanOrEqual">
+            <summary>
+            TODO:
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaInboxMessageFilter.CreatedAtLessThanOrEqual">
+            <summary>
+            TODO:
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaMessageTemplate.Message">
@@ -5858,13 +5970,13 @@
         <member name="M:WebAPI.Api.API.GenerateCDNSharedSecretAsync(System.String,System.String,System.Int32,System.Object)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.SetCDNAdapter(System.String,System.String,WebAPI.Api.CDNAdapter)">
+        <member name="M:WebAPI.Api.API.SetCDNAdapter(System.String,System.String,WebAPI.Api.CDNAdapter,System.Int32)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.SetCDNAdapterAsync(System.String,System.String,WebAPI.Api.CDNAdapter)">
+        <member name="M:WebAPI.Api.API.SetCDNAdapterAsync(System.String,System.String,WebAPI.Api.CDNAdapter,System.Int32)">
             <remarks/>
         </member>
-        <member name="M:WebAPI.Api.API.SetCDNAdapterAsync(System.String,System.String,WebAPI.Api.CDNAdapter,System.Object)">
+        <member name="M:WebAPI.Api.API.SetCDNAdapterAsync(System.String,System.String,WebAPI.Api.CDNAdapter,System.Int32,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.Api.API.SendCDNAdapterConfiguration(System.String,System.String,System.Int32)">
@@ -5874,6 +5986,24 @@
             <remarks/>
         </member>
         <member name="M:WebAPI.Api.API.SendCDNAdapterConfigurationAsync(System.String,System.String,System.Int32,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetCDNPartnerSettings(System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetCDNPartnerSettingsAsync(System.String,System.String)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetCDNPartnerSettingsAsync(System.String,System.String,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.UpdateCDNPartnerSettings(System.String,System.String,WebAPI.Api.CDNPartnerSettings)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.UpdateCDNPartnerSettingsAsync(System.String,System.String,WebAPI.Api.CDNPartnerSettings)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.UpdateCDNPartnerSettingsAsync(System.String,System.String,WebAPI.Api.CDNPartnerSettings,System.Object)">
             <remarks/>
         </member>
         <member name="M:WebAPI.Api.API.TVAPI_GetTvinciGUID(System.String,System.String,WebAPI.Api.InitializationObject)">
@@ -7107,6 +7237,12 @@
             <remarks/>
         </member>
         <member name="E:WebAPI.Api.API.SendCDNAdapterConfigurationCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.GetCDNPartnerSettingsCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.UpdateCDNPartnerSettingsCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.Api.API.TVAPI_GetTvinciGUIDCompleted">
@@ -8510,10 +8646,55 @@
         <member name="F:WebAPI.Api.eMailTemplateType.AddDeviceToDomain">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Api.ChangePasswordMailRequest">
+        <member name="T:WebAPI.Api.PurchaseMailRequest">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.ChangePasswordMailRequest.m_sToken">
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sPurchaseDate">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sItemName">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sPrice">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sTransactionNumber">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sPaymentMethod">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sTaxVal">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sTaxSubtotal">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sTaxAmount">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sInvoiceNum">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sExternalTransationNum">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sAddress">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sUserEmail">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.PreviewModuleCancelOrRefundRequest">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.PurchaseWithPreviewModuleRequest">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.PurchaseWithPreviewModuleRequest.m_sPreviewModuleEndDate">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.PurchaseFailRequest">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.AddDeviceMailRequest">
@@ -8603,55 +8784,10 @@
         <member name="P:WebAPI.Api.CinepolisRenewalFailMailRequest.m_sItemName">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Api.PurchaseMailRequest">
+        <member name="T:WebAPI.Api.ChangePasswordMailRequest">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sPurchaseDate">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sItemName">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sPrice">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sTransactionNumber">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sPaymentMethod">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sTaxVal">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sTaxSubtotal">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sTaxAmount">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sInvoiceNum">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sExternalTransationNum">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sAddress">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseMailRequest.m_sUserEmail">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.PreviewModuleCancelOrRefundRequest">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.PurchaseWithPreviewModuleRequest">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.PurchaseWithPreviewModuleRequest.m_sPreviewModuleEndDate">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.PurchaseFailRequest">
+        <member name="P:WebAPI.Api.ChangePasswordMailRequest.m_sToken">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.CinepolisPurchaseMailRequest">
@@ -9524,6 +9660,27 @@
         <member name="P:WebAPI.Api.InitializationObject.m_sAdminToken">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Api.CDNPartnerSettings">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.CDNPartnerSettings.DefaultVodAdapter">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.CDNPartnerSettings.DefaultEpgAdapter">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.CDNPartnerSettings.DefaultRecordingAdapter">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.CDNPartnerSettingsResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.CDNPartnerSettingsResponse.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.CDNPartnerSettingsResponse.CDNPartnerSettings">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Api.CDNAdapterResponse">
             <remarks/>
         </member>
@@ -10218,6 +10375,24 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.SendCDNAdapterConfigurationCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetCDNPartnerSettingsCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetCDNPartnerSettingsCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.GetCDNPartnerSettingsCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.UpdateCDNPartnerSettingsCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.UpdateCDNPartnerSettingsCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.UpdateCDNPartnerSettingsCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.TVAPI_GetTvinciGUIDCompletedEventHandler">
