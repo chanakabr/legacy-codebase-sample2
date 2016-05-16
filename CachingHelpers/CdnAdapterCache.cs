@@ -57,10 +57,12 @@ namespace CachingHelpers
 
         public CDNAdapter GetCdnAdapter(int groupId, int adapterId)
         {
-            string cacheKey = string.Format("cdn_adapter_{0}", adapterId);
-            string mutexName = string.Concat("Group CDNAdapter GID_", groupId);
+            //string cacheKey = string.Format("cdn_adapter_{0}", adapterId);
+            //string mutexName = string.Concat("Group CDNAdapter GID_", groupId);
 
-            return base.Get(cacheKey, mutexName, adapterId, groupId);
+            //return base.Get(cacheKey, mutexName, adapterId, groupId);
+
+            return DAL.ApiDAL.GetCDNAdapter(adapterId);
         }
 
         #endregion
