@@ -3721,7 +3721,7 @@ namespace DAL
             CDNPartnerSettings response = null;
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetCdnSettings");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateCdnSettings");
                 sp.SetConnectionKey("CONNECTION_STRING");
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@VodAdapterId", defaultVodAdapterId);
