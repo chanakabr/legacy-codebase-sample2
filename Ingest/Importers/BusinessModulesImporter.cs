@@ -568,7 +568,7 @@ namespace Ingest.Importers
                         // channels - mandatory
                         multiPricePlan.Channels = GetNodeStringArray(node, "channels/channel");
 
-                        if (multiPricePlan.Channels == null || multiPricePlan.Channels.Length == 0)
+                        if (multiPricePlan.Action == eIngestAction.Insert && (multiPricePlan.Channels == null || multiPricePlan.Channels.Length == 0))
                         {
                             log.ErrorFormat(LOG_MANDATORY_ERROR_FORMAT, MULTI_PRICE_PLAN, multiPricePlan.Code, "channels", reportId, multiPricePlan.Action.ToString().ToLower());
                             reportBuilder.AppendFormat(MANDATORY_ERROR_FORMAT, MULTI_PRICE_PLAN, multiPricePlan.Code, "channels", multiPricePlan.Action.ToString().ToLower());
