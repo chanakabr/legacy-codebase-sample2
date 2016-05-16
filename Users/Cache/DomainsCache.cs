@@ -185,6 +185,13 @@ namespace Users.Cache
                     DomainFactory.InitializeDLM(oDomain);
                 }
 
+                if (oDomain.m_nQuotaModuleID == 0)
+                {
+                    // get account quato 
+                    oDomain.InitializeQuotaModule();
+                }
+
+
                 return oDomain;
             }
             catch (Exception ex)
