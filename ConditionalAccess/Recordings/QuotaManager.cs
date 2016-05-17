@@ -48,7 +48,7 @@ namespace Recordings
         public Status CheckQuotaByModel(int groupId, int quotaManagerModelId, long householdId, 
             List<Recording> newRecordings, List<Recording> currentRecordings)
         {
-            Status status = new Status();
+            Status status = new Status((int)eResponseStatus.OK);
             bool shouldContinue = true;
 
             // Get model by Id/default of group
@@ -58,29 +58,8 @@ namespace Recordings
 
             int minutesLeft = quotaManagerModel.Minutes;
 
-            if (currentRecordings != null)
-            {
-                // Deduct minutes of EPGs that domain already previously recorded
-                foreach (var recording in currentRecordings)
-                {
-                    int currentEpgMinutes = 0;
+            status = DeductCurrentRecordings(currentRecordings, ref shouldContinue, ref minutesLeft);
 
-                    TimeSpan span = recording.EpgEndDate - recording.EpgStartDate;
-
-                    currentEpgMinutes = (int)span.TotalMinutes;
-
-                    minutesLeft -= currentEpgMinutes;
-
-                    // Mark the entire operation as failure, something here is completely wrong
-                    if (minutesLeft < 0)
-                    {
-                        status = new Status((int)eResponseStatus.DomainExceededQuota);
-                        shouldContinue = false;
-                        break;
-                    }
-                }
-            }
-            
             // If there wasn't an error previously
             if (shouldContinue)
             {
@@ -92,7 +71,7 @@ namespace Recordings
 
         public Status CheckQuotaByAvailableMinutes(int groupId, long householdId, int availableMinutes, List<Recording> newRecordings)
         {
-            Status status = null;
+            Status status = new Status((int)eResponseStatus.OK);
 
             int minutesLeft = availableMinutes;
 
@@ -136,7 +115,58 @@ namespace Recordings
             return minutesLeft;
         }
 
+        internal Status CheckQuotaByTotalMinutes(int groupId, long householdId, int totalMinutes, List<Recording> newRecordings, List<Recording> currentRecordings)
+        {
+            Status status = new Status((int)eResponseStatus.OK);
+            bool shouldContinue = true;
+
+            int minutesLeft = totalMinutes;
+
+            status = DeductCurrentRecordings(currentRecordings, ref shouldContinue, ref minutesLeft);
+
+            // If there wasn't an error previously
+            if (shouldContinue)
+            {
+                status = CheckQuotaByAvailableMinutes(groupId, householdId, minutesLeft, newRecordings);
+            }
+
+            return status;
+        }
+
         #endregion
-        
+
+        #region Private Methods
+
+        private static Status DeductCurrentRecordings(List<Recording> currentRecordings, ref bool shouldContinue, ref int minutesLeft)
+        {
+            Status status = new Status((int)eResponseStatus.OK);
+
+            if (currentRecordings != null)
+            {
+                // Deduct minutes of EPGs that domain already previously recorded
+                foreach (var recording in currentRecordings)
+                {
+                    int currentEpgMinutes = 0;
+
+                    TimeSpan span = recording.EpgEndDate - recording.EpgStartDate;
+
+                    currentEpgMinutes = (int)span.TotalMinutes;
+
+                    minutesLeft -= currentEpgMinutes;
+
+                    // Mark the entire operation as failure, something here is completely wrong
+                    if (minutesLeft < 0)
+                    {
+                        status = new Status((int)eResponseStatus.DomainExceededQuota);
+                        shouldContinue = false;
+                        break;
+                    }
+                }
+            }
+
+            return status;
+        }
+
+        #endregion
     }
 }

@@ -17163,6 +17163,8 @@ namespace ConditionalAccess
                 // validate epgs entitlement and add to response
                 ValidateEpgForRecording(userID, domainID, ref response, epgs, validEpgsForRecording);
 
+                int totalMinutes = Utils.GetQuota(this.m_nGroupID, domainID);
+
                 int quotaManagerModelId = domain.m_nQuotaModuleID;
 
                 List<Recording> currentRecordings = new List<Recording>();
@@ -17180,9 +17182,22 @@ namespace ConditionalAccess
                 currentRecordings =
                     GetDomainRecordings(domainID, recordingStatuses, out recordingIdToDomainRecordingIdMap);
 
-                QuotaManager.Instance.CheckQuotaByModel(this.m_nGroupID, quotaManagerModelId, domainID, response.Recordings, currentRecordings);
-                
+                var temporaryStatus =
+                    QuotaManager.Instance.CheckQuotaByTotalMinutes(this.m_nGroupID, domainID, totalMinutes, response.Recordings, currentRecordings);
+
+                if (temporaryStatus == null)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error);
+                    return response;
+                }
+                else if (temporaryStatus.Code != (int)eResponseStatus.OK)
+                {
+                    response.Status = temporaryStatus;
+                    return response;
+                }
+
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
                 response.TotalItems = response.Recordings.Count;
             }
 
@@ -17792,7 +17807,7 @@ namespace ConditionalAccess
             return status;
         }
 
-        public ApiObjects.TimeShiftedTv.DomainQuotaResponse GetDomainQuota(int groupID, string userID, long domainID)
+        public ApiObjects.TimeShiftedTv.DomainQuotaResponse GetDomainQuota(string userID, long domainID)
         {
             ApiObjects.TimeShiftedTv.DomainQuotaResponse response = new DomainQuotaResponse();
 
@@ -17823,7 +17838,7 @@ namespace ConditionalAccess
             currentRecordings =
                 GetDomainRecordings(domainID, recordingStatuses, out recordingIdToDomainRecordingIdMap);
 
-            int totalMinutes = 0;
+            int totalMinutes = Utils.GetQuota(this.m_nGroupID, domainID);
 
             int remainingMinutes = QuotaManager.Instance.GetDomainRemainingQuota(this.m_nGroupID, totalMinutes, domainID, currentRecordings);
 

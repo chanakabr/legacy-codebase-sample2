@@ -4551,7 +4551,7 @@ namespace ConditionalAccess
             return responseDictionary.Values.ToList();
         }
 
-        internal static int GetQuota(int groupID, int domainID)
+        internal static int GetQuota(int groupID, long domainID)
         {
             int QuotaInMinutes = 0;
             try
