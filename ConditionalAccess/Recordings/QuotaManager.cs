@@ -58,7 +58,7 @@ namespace Recordings
 
             int minutesLeft = quotaManagerModel.Minutes;
 
-            status = DeductCurrentRecordings(currentRecordings, ref shouldContinue, ref minutesLeft);
+            status = DeductRecordings(currentRecordings, ref shouldContinue, ref minutesLeft);
 
             // If there wasn't an error previously
             if (shouldContinue)
@@ -103,23 +103,8 @@ namespace Recordings
             int totalMinutes = ConditionalAccess.Utils.GetQuota(groupId, domainID);
             int minutesLeft = totalMinutes;
 
-            // Deduct the time of all the new/requested recordings
-            foreach (var recording in recordings)
-            {
-                int currentEpgMinutes = 0;
-
-                TimeSpan span = recording.EpgEndDate - recording.EpgStartDate;
-
-                currentEpgMinutes = (int)span.TotalMinutes;
-
-                minutesLeft -= currentEpgMinutes;
-
-                // Mark this, current-specific, recording as failed
-                if (minutesLeft < 0)
-                {
-                    status = new Status((int)eResponseStatus.DomainExceededQuota);
-                }
-            }
+            bool shouldContinue = false;
+            status = DeductRecordings(recordings, ref shouldContinue, ref minutesLeft);
 
             ApiObjects.TimeShiftedTv.DomainQuotaResponse response = new DomainQuotaResponse()
             {
@@ -138,7 +123,7 @@ namespace Recordings
 
             int minutesLeft = totalMinutes;
 
-            status = DeductCurrentRecordings(currentRecordings, ref shouldContinue, ref minutesLeft);
+            status = DeductRecordings(currentRecordings, ref shouldContinue, ref minutesLeft);
 
             // If there wasn't an error previously
             if (shouldContinue)
@@ -153,14 +138,14 @@ namespace Recordings
 
         #region Private Methods
 
-        private static Status DeductCurrentRecordings(List<Recording> currentRecordings, ref bool shouldContinue, ref int minutesLeft)
+        private static Status DeductRecordings(List<Recording> recordings, ref bool shouldContinue, ref int minutesLeft)
         {
             Status status = new Status((int)eResponseStatus.OK);
 
-            if (currentRecordings != null)
+            if (recordings != null)
             {
                 // Deduct minutes of EPGs that domain already previously recorded
-                foreach (var recording in currentRecordings)
+                foreach (var recording in recordings)
                 {
                     int currentEpgMinutes = 0;
 
