@@ -4551,5 +4551,26 @@ namespace ConditionalAccess
             return responseDictionary.Values.ToList();
         }
 
+        internal static int GetQuota(int groupID, int domainID)
+        {
+            int QuotaInMinutes = 0;
+            try
+            {
+                string key = string.Format("{0}_{1}", groupID, "DefaultQuotaMinutes");
+                int quotaModuleID = 0;
+                bool res = ConditionalAccessCache.GetItem<int>(key, out QuotaInMinutes);
+                if (!res || quotaModuleID == 0)
+                {
+                    quotaModuleID = ConditionalAccessDAL.GetQuotaMinutes(groupID);
+                    res = ConditionalAccessCache.AddItem(key, QuotaInMinutes);
+                }                
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("failed to get quoata in minutes for domainID = {0}, groupID = {1} , ex = {2}", domainID, groupID, ex.Message);
+                QuotaInMinutes = 0;
+            }
+            return QuotaInMinutes;
+        }
     }
 }

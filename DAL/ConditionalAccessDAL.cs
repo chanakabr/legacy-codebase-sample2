@@ -2933,5 +2933,14 @@ namespace DAL
 
             return sp.ExecuteDataSet();            
         }
+
+        public static int GetQuotaMinutes(int groupID)
+        {
+            StoredProcedure sp = new StoredProcedure("Get_QuotaMinutes");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupID);
+
+            return sp.ExecuteReturnValue<int>();
+        }
     }
 }
