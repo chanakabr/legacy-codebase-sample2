@@ -17810,24 +17810,23 @@ namespace ConditionalAccess
         public ApiObjects.TimeShiftedTv.DomainQuotaResponse GetDomainQuota(string userID, long domainID)
         {
             ApiObjects.TimeShiftedTv.DomainQuotaResponse response = new DomainQuotaResponse();
-
-            ConditionalAccess.TvinciDomains.Domain domain;
-            ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userID, ref domainID, out domain);
-
-            if (validationStatus.Code != (int)eResponseStatus.OK)
+            try
             {
-                log.DebugFormat("User or Domain not valid, DomainID: {0}, UserID: {1}", domainID, userID);
-                response.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
-                return response;
-            }
 
-            int quotaManagerModelId = domain.m_nQuotaModuleID;
+                ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userID, ref domainID);
 
-            List<Recording> currentRecordings = new List<Recording>();
+                if (validationStatus.Code != (int)eResponseStatus.OK)
+                {
+                    log.DebugFormat("User or Domain not valid, DomainID: {0}, UserID: {1}", domainID, userID);
+                    response.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
+                    return response;
+                }
 
-            Dictionary<long, long> recordingIdToDomainRecordingIdMap;
+                List<Recording> currentRecordings = new List<Recording>();
 
-            List<TstvRecordingStatus> recordingStatuses = new List<TstvRecordingStatus>()
+                Dictionary<long, long> recordingIdToDomainRecordingIdMap;
+
+                List<TstvRecordingStatus> recordingStatuses = new List<TstvRecordingStatus>()
                 {
                     TstvRecordingStatus.OK,
                     TstvRecordingStatus.Recorded,
@@ -17835,15 +17834,18 @@ namespace ConditionalAccess
                     TstvRecordingStatus.Scheduled
                 };
 
-            currentRecordings =
-                GetDomainRecordings(domainID, recordingStatuses, out recordingIdToDomainRecordingIdMap);
+                currentRecordings =
+                    GetDomainRecordings(domainID, recordingStatuses, out recordingIdToDomainRecordingIdMap);
 
-            int totalMinutes = Utils.GetQuota(this.m_nGroupID, domainID);
-
-            int remainingMinutes = QuotaManager.Instance.GetDomainRemainingQuota(this.m_nGroupID, totalMinutes, domainID, currentRecordings);
-
-            response.TotalQuota = totalMinutes;
-            response.AvailableQuota = remainingMinutes;
+                response = QuotaManager.Instance.GetDomainQuota(this.m_nGroupID, domainID, currentRecordings);
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error when getting domain quota: domain = {0}, user = {1}, ex = {2}",
+                    domainID, userID, ex);
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error);
+            }
 
             return response;
         }

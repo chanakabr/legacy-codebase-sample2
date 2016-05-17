@@ -96,11 +96,14 @@ namespace Recordings
             return status;
         }
 
-        public int GetDomainRemainingQuota(int groupId, int totalMinutes, long domainID, List<Recording> recordings)
+        public ApiObjects.TimeShiftedTv.DomainQuotaResponse GetDomainQuota(int groupId, long domainID, List<Recording> recordings)
         {
+            Status status = new Status((int)eResponseStatus.OK);
+
+            int totalMinutes = ConditionalAccess.Utils.GetQuota(groupId, domainID);
             int minutesLeft = totalMinutes;
 
-            // Now deduct the time of all the new/requested recordings
+            // Deduct the time of all the new/requested recordings
             foreach (var recording in recordings)
             {
                 int currentEpgMinutes = 0;
@@ -110,9 +113,22 @@ namespace Recordings
                 currentEpgMinutes = (int)span.TotalMinutes;
 
                 minutesLeft -= currentEpgMinutes;
+
+                // Mark this, current-specific, recording as failed
+                if (minutesLeft < 0)
+                {
+                    status = new Status((int)eResponseStatus.DomainExceededQuota);
+                }
             }
 
-            return minutesLeft;
+            ApiObjects.TimeShiftedTv.DomainQuotaResponse response = new DomainQuotaResponse()
+            {
+                Status = status,
+                TotalQuota = totalMinutes,
+                AvailableQuota = minutesLeft
+            };
+
+            return response;
         }
 
         internal Status CheckQuotaByTotalMinutes(int groupId, long householdId, int totalMinutes, List<Recording> newRecordings, List<Recording> currentRecordings)
