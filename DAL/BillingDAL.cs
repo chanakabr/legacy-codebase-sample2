@@ -2091,16 +2091,13 @@ namespace DAL
             }
         }
 
-        public static bool RemovePaymentGatewayHouseholdPaymentMethod(int groupID, int paymentGatewayId, int householdId, int paymentMethodId)
+        public static bool RemovePaymentGatewayHouseholdPaymentMethod(int paymentMethodId)
         {
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Remove_PaymentGatewayHouseholdPaymentMethod");
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");
-                sp.AddParameter("@groupId", groupID);
-                sp.AddParameter("@paymentGatewayId", paymentGatewayId);
-                sp.AddParameter("@householdId", householdId);
-                sp.AddParameter("@paymentMethodId", paymentMethodId);
+                sp.AddParameter("@ID", paymentMethodId);
 
                 bool isSet = sp.ExecuteReturnValue<bool>();
                 return isSet;

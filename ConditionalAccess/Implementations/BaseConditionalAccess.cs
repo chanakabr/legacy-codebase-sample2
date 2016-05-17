@@ -17734,7 +17734,7 @@ namespace ConditionalAccess
                 DataSet ds = DAL.ConditionalAccessDAL.Get_RecurringSubscriptiosAndPendingPurchasesByPaymentMethod(groupId, (int)householdId, paymentGatewayId);
                 if (ds == null || ds.Tables == null || ds.Tables.Count < 3 || ds.Tables[0].Rows == null || ds.Tables[1].Rows == null || ds.Tables[2].Rows == null)
                 {
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Error getting recurring subscriptions from DB");
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Internal Error");
                     log.ErrorFormat("RemovePaymentMethodHouseholdPaymentGateway: Error getting recurring subscriptions from DB. groupID={0}, paymentGatewayId={1}, siteGuid= {2}, paymentMethodId {3}, ex: {4}", groupId, paymentGatewayId, siteGuid, paymentMethodId);
                     return status;
                 }
