@@ -1794,7 +1794,7 @@ namespace DAL
             return messageIds;
         }
 
-        public static bool SetSystemAnnouncementMessage(int groupId, int userId, InboxMessage inboxMessage)
+        public static bool SetSystemAnnouncementMessage(int groupId, InboxMessage inboxMessage)
         {
             bool result = false;
             try
@@ -1807,11 +1807,10 @@ namespace DAL
                     if (!result)
                     {
                         numOfTries++;
-                        log.ErrorFormat("Error while setting inbox system message. number of tries: {0}/{1}. GID: {2}, user ID: {3}. data: {4}",
+                        log.ErrorFormat("Error while setting inbox system message. number of tries: {0}/{1}. GID: {2}. data: {3}",
                              numOfTries,
                             NUM_OF_INSERT_TRIES,
                             groupId,
-                            userId,
                             JsonConvert.SerializeObject(inboxMessage));
                         Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
                     }
@@ -1831,7 +1830,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while setting inbox system message. GID: {0}, user ID: {1}, message ID: {2}, ex: {3}", groupId, userId, inboxMessage.Id, ex);
+                log.ErrorFormat("Error while setting inbox system message. GID: {0}, message ID: {1}, ex: {2}", groupId, inboxMessage.Id, ex);
             }
 
             return result;
