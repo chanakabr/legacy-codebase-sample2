@@ -891,15 +891,24 @@ namespace Catalog
 							{
 								if (isTagOrMeta)
 								{
-									List<BooleanPhraseNode> newList = new List<BooleanPhraseNode>();
+                                    List<BooleanPhraseNode> newList = new List<BooleanPhraseNode>();
 
-									// Split the single leaf into several brothers connected with an "or" operand
-									foreach (var searchKey in searchKeys)
-									{
-										newList.Add(new BooleanLeaf(searchKey, leaf.value, leaf.valueType, leaf.operand));
-									}
+                                    // Split the single leaf into several brothers connected with:
+                                    // "or" operand (if it positive)
+                                    // "and" operand (if it negative)
+                                    foreach (var searchKey in searchKeys)
+                                    {
+                                        newList.Add(new BooleanLeaf(searchKey, leaf.value, leaf.valueType, leaf.operand));
+                                    }
 
-									BooleanPhrase newPhrase = new BooleanPhrase(newList, eCutType.Or);
+                                    eCutType cutType = eCutType.Or;
+
+                                    if (leaf.operand == ComparisonOperator.NotContains || leaf.operand == ComparisonOperator.NotEquals)
+                                    {
+                                        cutType = eCutType.And;
+                                    }
+
+                                    BooleanPhrase newPhrase = new BooleanPhrase(newList, cutType);
 
 									Catalog.ReplaceLeafWithPhrase(request, parentMapping, leaf, newPhrase);
 								}
