@@ -6,6 +6,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.API;
 using WebAPI.Models.Billing;
 using WebAPI.Utils;
@@ -48,10 +49,11 @@ namespace WebAPI.Controllers
         /// Possible status codes:   
         /// external channel not exist = 4011, external channel identifier required = 4013
         /// </remarks>
-        /// <param name="external_channel_id">External channel identifier</param>
+        /// <param name="externalChannelId">External channel identifier</param>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        public bool Delete(int external_channel_id)
+        [OldStandard("externalChannelId", "external_channel_id")]
+        public bool Delete(int externalChannelId)
         {
             bool response = false;
 
@@ -60,7 +62,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().DeleteExternalChannel(groupId, external_channel_id);
+                response = ClientsManager.ApiClient().DeleteExternalChannel(groupId, externalChannelId);
             }
             catch (ClientException ex)
             {
@@ -78,10 +80,11 @@ namespace WebAPI.Controllers
         /// recommendation engine not exist = 4007, recommendation engine identifier required = 4008, inactive external channel enrichment = 4016, 
         /// name required = 5005, external identifier required = 6016, external identifier must be unique = 6040
         /// </remarks>
-        /// <param name="external_channel">External channel Object</param>
+        /// <param name="externalChannel">External channel Object</param>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        public KalturaExternalChannelProfile Add(KalturaExternalChannelProfile external_channel)
+        [OldStandard("externalChannel", "external_channel")]
+        public KalturaExternalChannelProfile Add(KalturaExternalChannelProfile externalChannel)
         {
             KalturaExternalChannelProfile response = null;
 
@@ -90,7 +93,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().InsertExternalChannel(groupId, external_channel);
+                response = ClientsManager.ApiClient().InsertExternalChannel(groupId, externalChannel);
             }
             catch (ClientException ex)
             {

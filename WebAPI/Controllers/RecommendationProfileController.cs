@@ -3,6 +3,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.API;
 using WebAPI.Utils;
 
@@ -75,10 +76,11 @@ namespace WebAPI.Controllers
         /// Possible status codes:       
         /// name required = 5005, adapter url required = 5013, external identifier required = 6016, external identifier must be unique = 6040
         /// </remarks>
-        /// <param name="recommendation_engine">recommendation engine Object</param>
+        /// <param name="recommendationEngine">recommendation engine Object</param>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        public KalturaRecommendationProfile Add(KalturaRecommendationProfile recommendation_engine)
+        [OldStandard("recommendationEngine", "recommendation_engine")]
+        public KalturaRecommendationProfile Add(KalturaRecommendationProfile recommendationEngine)
         {
             KalturaRecommendationProfile response = null;
 
@@ -87,7 +89,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().InsertRecommendationEngine(groupId, recommendation_engine);
+                response = ClientsManager.ApiClient().InsertRecommendationEngine(groupId, recommendationEngine);
             }
             catch (ClientException ex)
             {

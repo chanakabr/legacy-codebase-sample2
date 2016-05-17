@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
@@ -12,6 +13,11 @@ namespace WebAPI.Models.ConditionalAccess
     /// <summary>
     /// C-DVR Adapter
     /// </summary>
+    [OldStandard("isActive", "is_active")]
+    [OldStandard("adapterUrl", "adapter_url")]
+    [OldStandard("externalIdentifier", "external_identifier")]
+    [OldStandard("sharedSecret", "shared_secret")]
+    [OldStandard("dynamicLinksSupport", "dynamic_links_support")]
     public class KalturaCDVRAdapterProfile : KalturaOTTObject
     {
         /// <summary>
@@ -33,17 +39,17 @@ namespace WebAPI.Models.ConditionalAccess
         /// <summary>
         /// C-DVR adapter active status
         /// </summary>
-        [DataMember(Name = "is_active")]
-        [JsonProperty("is_active")]
-        [XmlElement(ElementName = "is_active")]
+        [DataMember(Name = "isActive")]
+        [JsonProperty("isActive")]
+        [XmlElement(ElementName = "isActive")]
         public bool? IsActive { get; set; }
 
         /// <summary>
         /// C-DVR adapter adapter URL
         /// </summary>
-        [DataMember(Name = "adapter_url")]
-        [JsonProperty("adapter_url")]
-        [XmlElement(ElementName = "adapter_url")]
+        [DataMember(Name = "adapterUrl")]
+        [JsonProperty("adapterUrl")]
+        [XmlElement(ElementName = "adapterUrl")]
         public string AdapterUrl { get; set; }
                
         /// <summary>
@@ -57,25 +63,25 @@ namespace WebAPI.Models.ConditionalAccess
         /// <summary>
         /// C-DVR adapter external identifier
         /// </summary>
-        [DataMember(Name = "external_identifier")]
-        [JsonProperty("external_identifier")]
-        [XmlElement(ElementName = "external_identifier")]
+        [DataMember(Name = "externalIdentifier")]
+        [JsonProperty("externalIdentifier")]
+        [XmlElement(ElementName = "externalIdentifier")]
         public string ExternalIdentifier { get; set; }
 
         /// <summary>
         /// C-DVR shared secret
         /// </summary>
-        [DataMember(Name = "shared_secret")]
-        [JsonProperty("shared_secret")]
-        [XmlElement(ElementName = "shared_secret")]
+        [DataMember(Name = "sharedSecret")]
+        [JsonProperty("sharedSecret")]
+        [XmlElement(ElementName = "sharedSecret")]
         public string SharedSecret { get; set; }
 
         /// <summary>
         /// Indicates whether the C-DVR adapter supports dynamic URLs
         /// </summary>
-        [DataMember(Name = "dynamic_links_support")]
-        [JsonProperty("dynamic_links_support")]
-        [XmlElement(ElementName = "dynamic_links_support")]
+        [DataMember(Name = "dynamicLinksSupport")]
+        [JsonProperty("dynamicLinksSupport")]
+        [XmlElement(ElementName = "dynamicLinksSupport")]
         public bool? DynamicLinksSupport { get; set; }
     }
 }

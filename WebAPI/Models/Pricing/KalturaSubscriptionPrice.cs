@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
@@ -12,14 +13,15 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Subscription price details
     /// </summary>
+    [OldStandard("purchaseStatus", "purchase_status")]
     public class KalturaSubscriptionPrice : KalturaProductPrice
     {
         /// <summary>
         /// Subscription purchase status  
         /// </summary>
-        [DataMember(Name = "purchase_status")]
-        [JsonProperty("purchase_status")]
-        [XmlElement(ElementName = "purchase_status")]
+        [DataMember(Name = "purchaseStatus")]
+        [JsonProperty("purchaseStatus")]
+        [XmlElement(ElementName = "purchaseStatus")]
         public KalturaPurchaseStatus PurchaseStatus { get; set; }
 
         /// <summary>

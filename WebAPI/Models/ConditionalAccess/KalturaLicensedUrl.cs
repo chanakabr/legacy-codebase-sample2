@@ -6,25 +6,28 @@ using System.Web;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
 using WebAPI.Models.General;
+using WebAPI.Managers.Schema;
 
 namespace WebAPI.Models.ConditionalAccess
 {
+    [OldStandard("mainUrl", "main_url")]
+    [OldStandard("altUrl", "alt_url")]
     public class KalturaLicensedUrl : KalturaOTTObject
     {
         /// <summary>
         /// Main licensed URL
         /// </summary>
-        [DataMember(Name = "main_url")]
-        [JsonProperty("main_url")]
-        [XmlElement(ElementName = "main_url")]
+        [DataMember(Name = "mainUrl")]
+        [JsonProperty("mainUrl")]
+        [XmlElement(ElementName = "mainUrl")]
         public string MainUrl { get; set; }
 
         /// <summary>
         /// An alternate URL to use in case the main fails
         /// </summary>
-        [DataMember(Name = "alt_url")]
-        [JsonProperty("alt_url")]
-        [XmlElement(ElementName = "alt_url")]
+        [DataMember(Name = "altUrl")]
+        [JsonProperty("altUrl")]
+        [XmlElement(ElementName = "altUrl")]
         public string AltUrl { get; set; }
     }
 }

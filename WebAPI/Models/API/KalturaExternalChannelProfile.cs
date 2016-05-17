@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
@@ -12,6 +13,10 @@ namespace WebAPI.Models.API
     /// <summary>
     /// OSS Adapter
     /// </summary>
+    [OldStandard("isActive", "is_active")]
+    [OldStandard("externalIdentifier", "external_identifier")]
+    [OldStandard("filterExpression", "filter_expression")]
+    [OldStandard("recommendationEngineId", "recommendation_engine_id")]
     public class KalturaExternalChannelProfile : KalturaOTTObject
     {
         /// <summary>
@@ -33,33 +38,33 @@ namespace WebAPI.Models.API
         /// <summary>
         /// External channel active status
         /// </summary>
-        [DataMember(Name = "is_active")]
-        [JsonProperty("is_active")]
-        [XmlElement(ElementName = "is_active")]
+        [DataMember(Name = "isActive")]
+        [JsonProperty("isActive")]
+        [XmlElement(ElementName = "isActive")]
         public bool? IsActive { get; set; }
 
         /// <summary>
         /// External channel external identifier
         /// </summary>
-        [DataMember(Name = "external_identifier")]
-        [JsonProperty("external_identifier")]
-        [XmlElement(ElementName = "external_identifier")]
+        [DataMember(Name = "externalIdentifier")]
+        [JsonProperty("externalIdentifier")]
+        [XmlElement(ElementName = "externalIdentifier")]
         public string ExternalIdentifier { get; set; }
 
         /// <summary>
         /// Filter expression
         /// </summary>
-        [DataMember(Name = "filter_expression")]
-        [JsonProperty("filter_expression")]
-        [XmlElement(ElementName = "filter_expression")]
+        [DataMember(Name = "filterExpression")]
+        [JsonProperty("filterExpression")]
+        [XmlElement(ElementName = "filterExpression")]
         public string FilterExpression { get; set; }
 
         /// <summary>
         /// Recommendation engine id
         /// </summary>
-        [DataMember(Name = "recommendation_engine_id")]
-        [JsonProperty("recommendation_engine_id")]
-        [XmlElement(ElementName = "recommendation_engine_id")]
+        [DataMember(Name = "recommendationEngineId")]
+        [JsonProperty("recommendationEngineId")]
+        [XmlElement(ElementName = "recommendationEngineId")]
         public int? RecommendationEngineId { get; set; }
 
         /// <summary>

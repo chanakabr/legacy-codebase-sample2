@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 
@@ -14,6 +15,8 @@ namespace WebAPI.Models.Catalog
     /// Filtering epg channels
     /// </summary>
     [Serializable]
+    [OldStandard("startTime", "start_time")]
+    [OldStandard("endTime", "end_time")]
     public class KalturaEpgChannelFilter : KalturaOTTObject
     {
         /// <summary>
@@ -28,17 +31,17 @@ namespace WebAPI.Models.Catalog
         /// <summary>
         /// Start Time
         /// </summary>
-        [DataMember(Name = "start_time")]
-        [JsonProperty(PropertyName = "start_time")]
-        [XmlElement("start_time")]
+        [DataMember(Name = "startTime")]
+        [JsonProperty(PropertyName = "startTime")]
+        [XmlElement("startTime")]
         public long? StartTime { get; set; }
 
         /// <summary>
         /// End Time
         /// </summary>
-        [DataMember(Name = "end_time")]
-        [JsonProperty(PropertyName = "end_time")]
-        [XmlElement("end_time")]
+        [DataMember(Name = "endTime")]
+        [JsonProperty(PropertyName = "endTime")]
+        [XmlElement("endTime")]
         public long? EndTime { get; set; }
 
         internal long getStartTime()

@@ -6,6 +6,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 using WebAPI.Models.Notification;
 using WebAPI.Models.Notifications;
@@ -83,6 +84,7 @@ namespace WebAPI.Controllers
         /// <remarks>AnnouncementNotFound = 8006, AnnouncementUpdateNotAllowed = 8007, FeatureDisabled = 8009</remarks>
         [Route("updateStatus"), HttpPost]
         [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
         public bool UpdateStatus(long id, bool status)
         {
             bool response = false;

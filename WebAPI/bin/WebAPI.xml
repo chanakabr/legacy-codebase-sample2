@@ -258,7 +258,7 @@
             <remarks>
             Possible status codes: AdapterNotExists = 10000, AdapterIdentifierRequired = 10001
             </remarks>
-            <param name="adapter_id">CDN adapter identifier</param>
+            <param name="adapterId">CDN adapter identifier</param>
         </member>
         <member name="M:WebAPI.Controllers.CDNAdapterProfileController.Add(WebAPI.Models.API.KalturaCDNAdapterProfile)">
             <summary>
@@ -277,6 +277,7 @@
             <remarks>
             Possible status codes: AdapterNotExists = 10000, NameRequired = 5005, AdapterUrlRequired = 5013, AliasMustBeUnique = 5019, AliasRequired = 5020
             </remarks>
+            <param name="adapterId">CDN adapter id to update</param>       
             <param name="adapter">CDN adapter Object</param>       
         </member>
         <member name="M:WebAPI.Controllers.CDNAdapterProfileController.GenerateSharedSecret(System.Int32)">
@@ -304,7 +305,7 @@
             <remarks>
             Possible status codes: Adapter does not exist = 10000
             </remarks>
-            <param name="adapter_id">C-DVR adapter identifier</param>
+            <param name="adapterId">C-DVR adapter identifier</param>
         </member>
         <member name="M:WebAPI.Controllers.CDVRAdapterProfileController.Add(WebAPI.Models.ConditionalAccess.KalturaCDVRAdapterProfile)">
             <summary>
@@ -336,14 +337,14 @@
             </remarks>
             <param name="adapter_id">C-DVR adapter identifier</param>
         </member>
-        <member name="M:WebAPI.Controllers.CDNPartnerSettingsController.Get">
+        <member name="M:WebAPI.Controllers.CdnPartnerSettingsController.Get">
             <summary>
             Retrieve the partner’s CDN settings (default adapters)
             </summary>
             <returns></returns>
             <remarks>Possible status codes: CDN partner settings not found = 5025</remarks>   
         </member>
-        <member name="M:WebAPI.Controllers.CDNPartnerSettingsController.Update(WebAPI.Models.API.KalturaCDNPartnerSettings)">
+        <member name="M:WebAPI.Controllers.CdnPartnerSettingsController.Update(WebAPI.Models.API.KalturaCDNPartnerSettings)">
             <summary>
             Configure the partner’s CDN settings (default adapters)
             </summary>
@@ -416,7 +417,7 @@
             Delete a user's tv series follow.
             <remarks>Possible status codes: UserNotFollowing = 8012, NotFound = 500007, InvalidAssetId = 4024, AnnouncementNotFound = 8006</remarks>
             </summary>
-            <param name="asset_id"></param>
+            <param name="assetId"></param>
             <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.FollowTvSeriesController.Add(System.Int32)">
@@ -499,7 +500,7 @@
             <summary>
             Add a new home network to a household
             </summary>
-            <param name="home_network">Home network to add</param>
+            <param name="homeNetwork">Home network to add</param>
             <remarks>
             Possible status codes:
             Home network already exists = 1031, Home network limitation = 1032, External identifier is required = 6016
@@ -612,8 +613,8 @@
             <summary>
             TBD
             </summary>
-            <param name="payment_gateway_id">Payment gateway identifier to update the payment method for</param>
-            <param name="payment_method">Payment method to update</param>
+            <param name="paymentGatewayId">Payment gateway identifier to update the payment method for</param>
+            <param name="paymentMethod">Payment method to update</param>
             <remarks>
             Possible status codes: 
             Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method does not exist = 6049, Payment method ID is required = 6050      
@@ -757,7 +758,7 @@
             Possible status codes:   
             external channel not exist = 4011, external channel identifier required = 4013
             </remarks>
-            <param name="external_channel_id">External channel identifier</param>
+            <param name="externalChannelId">External channel identifier</param>
         </member>
         <member name="M:WebAPI.Controllers.ExternalChannelProfileController.Add(WebAPI.Models.API.KalturaExternalChannelProfile)">
             <summary>
@@ -768,7 +769,7 @@
             recommendation engine not exist = 4007, recommendation engine identifier required = 4008, inactive external channel enrichment = 4016, 
             name required = 5005, external identifier required = 6016, external identifier must be unique = 6040
             </remarks>
-            <param name="external_channel">External channel Object</param>
+            <param name="externalChannel">External channel Object</param>
         </member>
         <member name="M:WebAPI.Controllers.ExternalChannelProfileController.Update(WebAPI.Models.API.KalturaExternalChannelProfile)">
             <summary>
@@ -914,7 +915,7 @@
             Possible status codes:       
             oss adapter identifier required = 5007, oss adapter not exist = 5008,  action is not allowed = 5011
             </remarks>
-            <param name="oss_adapter_id">OSS adapter identifier</param>
+            <param name="ossAdapterId">OSS adapter identifier</param>
         </member>
         <member name="M:WebAPI.Controllers.OssAdapterProfileController.Add(WebAPI.Models.API.KalturaOSSAdapterProfile)">
             <summary>
@@ -924,7 +925,7 @@
             Possible status codes:     
             no oss adapter to insert = 5004, name required = 5005, adapter url required = 5013, external identifier required = 6016, external identifier must be unique = 6040  
             </remarks>
-            <param name="oss_adapter">OSS adapter Object</param>
+            <param name="ossAdapter">OSS adapter Object</param>
         </member>
         <member name="M:WebAPI.Controllers.OssAdapterProfileController.Update(WebAPI.Models.API.KalturaOSSAdapterProfile)">
             <summary>
@@ -983,7 +984,7 @@
             Possible status codes:       
             name required = 5005, adapter url required = 5013, external identifier required = 6016, external identifier must be unique = 6040
             </remarks>
-            <param name="recommendation_engine">recommendation engine Object</param>
+            <param name="recommendationEngine">recommendation engine Object</param>
         </member>
         <member name="M:WebAPI.Controllers.RecommendationProfileController.Update(WebAPI.Models.API.KalturaRecommendationProfile)">
             <summary>
@@ -1010,7 +1011,7 @@
             <summary>
             Parses KS
             </summary>
-            <param name="ks_to_parse">Additional KS to parse, if not passed the user's KS will be parsed</param>
+            <param name="session">Additional KS to parse, if not passed the user's KS will be parsed</param>
         </member>
         <member name="M:WebAPI.Controllers.SessionController.SwitchUser(System.String)">
             <summary>
@@ -1144,7 +1145,7 @@
             <summary>
             Removes a user from household   
             </summary>                
-            <param name="user_id_to_delete">The identifier of the user to delete</param>
+            <param name="userId">The identifier of the user to delete</param>
             <remarks>Possible status codes: 
             Household does not exists = 1006, Limitation period = 1014, User not exists in household = 1020, Invalid user = 1026, 
             Household suspended = 1009, No users in household = 1017, User not allowed = 1027</remarks>
@@ -1213,7 +1214,7 @@
             IdentifierRequired = 4017,
             ObjectNotExist = 4018
             </remarks>
-            <param name="channel_id">channel identifier</param>
+            <param name="channelId">channel identifier</param>
         </member>
         <member name="M:WebAPI.Controllers.ChannelController.Add(WebAPI.Models.API.KalturaChannelProfile)">
             <summary>
@@ -1435,7 +1436,7 @@
             user suspended = 2001, payment gateway identifier is missing = 6005, payment gateway not exist = 6008, household not set to payment gateway = 6027
             payment gateway selection is disabled = 6028, service forbidden = 500004
             </remarks>
-            <param name="payment_gateway_id">Payment Gateway Identifier</param>
+            <param name="paymentGatewayId">Payment Gateway Identifier</param>
         </member>
         <member name="M:WebAPI.Controllers.PaymentGatewayController.SetPaymentMethod(System.Int32,System.Int32)">
             <summary>
@@ -1466,7 +1467,7 @@
             Possible status codes:       
             Payment gateway not exist = 6008
             </remarks>
-            <param name="payment_gateway_id">Payment Gateway Identifier</param>
+            <param name="paymentGatewayId">Payment Gateway Identifier</param>
         </member>
         <member name="M:WebAPI.Controllers.PaymentGatewayProfileController.Add(WebAPI.Models.Billing.KalturaPaymentGatewayProfile)">
             <summary>
@@ -1476,7 +1477,7 @@
             Possible status codes:       
               External identifier is required = 6016, Name is required = 6020, Shared secret is required = 6021, External identifier must be unique = 6040, No payment gateway to insert = 6041
             </remarks>
-            <param name="payment_gateway">Payment Gateway Object</param>
+            <param name="paymentGateway">Payment Gateway Object</param>
         </member>
         <member name="M:WebAPI.Controllers.PaymentGatewayProfileController.Update(System.Int32,WebAPI.Models.Billing.KalturaPaymentGatewayProfile)">
             <summary>
@@ -1862,17 +1863,17 @@
             Base class
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaCDNPartnerSettings.DefaultVodAdapter">
+        <member name="P:WebAPI.Models.API.KalturaCDNPartnerSettings.DefaultVodAdapterId">
             <summary>
             Default VOD CDN adapter identifier
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaCDNPartnerSettings.DefaultEpgAdapter">
+        <member name="P:WebAPI.Models.API.KalturaCDNPartnerSettings.DefaultEpgAdapterId">
             <summary>
             Default live and catch-up CDN adapter identifier
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaCDNPartnerSettings.DefaultRecordingAdapter">
+        <member name="P:WebAPI.Models.API.KalturaCDNPartnerSettings.DefaultRecordingAdapterId">
             <summary>
             Default recording CDN adapter identifier
             </summary>
@@ -5366,7 +5367,7 @@
             User does not exist = 2000
             </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.OttUserController.Add(System.Int32,WebAPI.Models.Users.KalturaOTTUser,System.String)">
+        <member name="M:WebAPI.Controllers.OttUserController.Register(System.Int32,WebAPI.Models.Users.KalturaOTTUser,System.String)">
             <summary>
             Sign up a new user.      
             </summary>        
@@ -5402,7 +5403,7 @@
             <param name="token">token</param>
             <remarks>Possible status codes: 2000 = User does not exist</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.OttUserController.ChangePassword(System.String,System.String,System.String)">
+        <member name="M:WebAPI.Controllers.OttUserController.UpdateLoginData(System.String,System.String,System.String)">
             <summary>
             Given a user name and existing password, change to a new password.        
             </summary>        

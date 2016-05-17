@@ -5,10 +5,12 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
+    [OldStandard("channelId", "channel_id")]
     public class KalturaEPGChannelAssets : KalturaListResponse
     {
         /// <summary>
@@ -23,9 +25,9 @@ namespace WebAPI.Models.Catalog
         /// <summary>
         /// Channel identifier
         /// </summary>
-        [DataMember(Name = "channel_id")]
-        [JsonProperty(PropertyName = "channel_id")]
-        [XmlElement(ElementName = "channel_id")]
+        [DataMember(Name = "channelId")]
+        [JsonProperty(PropertyName = "channelId")]
+        [XmlElement(ElementName = "channelId")]
         public int? ChannelID { get; set; }
 
     }

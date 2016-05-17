@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Billing
@@ -12,102 +13,114 @@ namespace WebAPI.Models.Billing
     /// <summary>
     /// Payment gateway profile 
     /// </summary>
+    [OldStandard("isActive", "is_active")]
+    [OldStandard("adapterUrl", "adapter_url")]
+    [OldStandard("transactUrl", "transact_url")]
+    [OldStandard("statusUrl", "status_url")]
+    [OldStandard("renewUrl", "renew_url")]
+    [OldStandard("paymentGatewayeSettings", "payment_gatewaye_settings")]
+    [OldStandard("externalIdentifier", "external_identifier")]
+    [OldStandard("pendingInterval", "pending_interval")]
+    [OldStandard("pendingRetries", "pending_retries")]
+    [OldStandard("sharedSecret", "shared_secret")]
+    [OldStandard("renewIntervalMinutes", "renew_interval_minutes")]
+    [OldStandard("renewStartMinutes", "renew_start_minutes")]
     public class KalturaPaymentGatewayProfile : KalturaPaymentGatewayBaseProfile
     {
         /// <summary>
         /// Payment gateway is active status
         /// </summary>
-        [DataMember(Name = "is_active")]
-        [JsonProperty("is_active")]
-        [XmlElement(ElementName = "is_active")]
+        [DataMember(Name = "isActive")]
+        [JsonProperty("isActive")]
+        [XmlElement(ElementName = "isActive")]
         public int? IsActive { get; set; }
 
         /// <summary>
         /// Payment gateway adapter URL
         /// </summary>
-        [DataMember(Name = "adapter_url")]
-        [JsonProperty("adapter_url")]
-        [XmlElement(ElementName = "adapter_url")]
+        [DataMember(Name = "adapterUrl")]
+        [JsonProperty("adapterUrl")]
+        [XmlElement(ElementName = "adapterUrl")]
         public string AdapterUrl { get; set; }
 
         /// <summary>
         /// Payment gateway transact URL
         /// </summary>
-        [DataMember(Name = "transact_url")]
-        [JsonProperty("transact_url")]
-        [XmlElement(ElementName = "transact_url")]
+        [DataMember(Name = "transactUrl")]
+        [JsonProperty("transactUrl")]
+        [XmlElement(ElementName = "transactUrl")]
         public string TransactUrl { get; set; }
 
         /// <summary>
         /// Payment gateway status URL
         /// </summary>
-        [DataMember(Name = "status_url")]
-        [JsonProperty("status_url")]
-        [XmlElement(ElementName = "status_url")]
+        [DataMember(Name = "statusUrl")]
+        [JsonProperty("statusUrl")]
+        [XmlElement(ElementName = "statusUrl")]
         public string StatusUrl { get; set; }
 
         /// <summary>
         /// Payment gateway renew URL
         /// </summary>
-        [DataMember(Name = "renew_url")]
-        [JsonProperty("renew_url")]
-        [XmlElement(ElementName = "renew_url")]
+        [DataMember(Name = "renewUrl")]
+        [JsonProperty("renewUrl")]
+        [XmlElement(ElementName = "renewUrl")]
         public string RenewUrl { get; set; }
 
         /// <summary>
         /// Payment gateway extra parameters
         /// </summary>
-        [DataMember(Name = "payment_gatewaye_settings")]
-        [JsonProperty("payment_gatewaye_settings")]
-        [XmlElement(ElementName = "payment_gatewaye_settings", IsNullable = true)]
+        [DataMember(Name = "paymentGatewayeSettings")]
+        [JsonProperty("paymentGatewayeSettings")]
+        [XmlElement(ElementName = "paymentGatewayeSettings", IsNullable = true)]
         public SerializableDictionary<string, KalturaStringValue> Settings { get; set; }
 
         /// <summary>
         /// Payment gateway external identifier
         /// </summary>
-        [DataMember(Name = "external_identifier")]
-        [JsonProperty("external_identifier")]
-        [XmlElement(ElementName = "external_identifier")]
+        [DataMember(Name = "externalIdentifier")]
+        [JsonProperty("externalIdentifier")]
+        [XmlElement(ElementName = "externalIdentifier")]
         public string ExternalIdentifier { get; set; }
 
         /// <summary>
         /// Pending Interval in minutes
         /// </summary>
-        [DataMember(Name = "pending_interval")]
-        [JsonProperty("pending_interval")]
-        [XmlElement(ElementName = "pending_interval")]
+        [DataMember(Name = "pendingInterval")]
+        [JsonProperty("pendingInterval")]
+        [XmlElement(ElementName = "pendingInterval")]
         public int? PendingInterval { get; set; }
 
         /// <summary>
         /// Pending Retries
         /// </summary>
-        [DataMember(Name = "pending_retries")]
-        [JsonProperty("pending_retries")]
-        [XmlElement(ElementName = "pending_retries")]
+        [DataMember(Name = "pendingRetries")]
+        [JsonProperty("pendingRetries")]
+        [XmlElement(ElementName = "pendingRetries")]
         public int? PendingRetries { get; set; }
 
         /// <summary>
         /// Shared Secret
         /// </summary>
-        [DataMember(Name = "shared_secret")]
-        [JsonProperty("shared_secret")]
-        [XmlElement(ElementName = "shared_secret")]
+        [DataMember(Name = "sharedSecret")]
+        [JsonProperty("sharedSecret")]
+        [XmlElement(ElementName = "sharedSecret")]
         public string SharedSecret { get; set; }
 
         /// <summary>
         /// Renew Interval Minutes
         /// </summary>
-        [DataMember(Name = "renew_interval_minutes")]
-        [JsonProperty("renew_interval_minutes")]
-        [XmlElement(ElementName = "renew_interval_minutes")]
+        [DataMember(Name = "renewIntervalMinutes")]
+        [JsonProperty("renewIntervalMinutes")]
+        [XmlElement(ElementName = "renewIntervalMinutes")]
         public int? RenewIntervalMinutes { get; set; }
 
         /// <summary>
         /// Renew Start Minutes
         /// </summary>
-        [DataMember(Name = "renew_start_minutes")]
-        [JsonProperty("renew_start_minutes")]
-        [XmlElement(ElementName = "renew_start_minutes")]
+        [DataMember(Name = "renewStartMinutes")]
+        [JsonProperty("renewStartMinutes")]
+        [XmlElement(ElementName = "renewStartMinutes")]
         public int? RenewStartMinutes { get; set; }
     }
 }

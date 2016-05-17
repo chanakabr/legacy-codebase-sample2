@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
@@ -12,14 +13,15 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Coupon details container
     /// </summary>
+    [OldStandard("couponsGroup", "coupons_group")]
     public class KalturaCoupon : KalturaOTTObject
     {
         /// <summary>
         /// Coupons group details 
         /// </summary>
-        [DataMember(Name = "coupons_group")]
-        [JsonProperty("coupons_group")]
-        [XmlElement(ElementName = "coupons_group", IsNullable = true)]
+        [DataMember(Name = "couponsGroup")]
+        [JsonProperty("couponsGroup")]
+        [XmlElement(ElementName = "couponsGroup", IsNullable = true)]
         public KalturaCouponsGroup CouponsGroup { get; set; }
 
         /// <summary>

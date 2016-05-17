@@ -15,9 +15,65 @@ using WebAPI.Models;
 using WebAPI.Models.General;
 using WebAPI.Managers.Models;
 using KLogMonitor;
+using WebAPI.Managers.Schema;
+using System.Dynamic;
+using Newtonsoft.Json;
 
 namespace WebAPI.Utils
 {
+    class OldStandardObject : DynamicObject
+    {
+        private readonly Dictionary<string, object> _fields = new Dictionary<string, object>();
+
+        [JsonIgnore]
+        public Dictionary<string, object> Extra { get { return _fields; } }
+
+        public OldStandardObject(KalturaOTTObject ottObject)
+        {
+            Type type = ottObject.GetType();
+            Dictionary<string, string> oldStandardProperties = OldStandardAttribute.getOldMembers(type);
+
+            var properties = type.GetProperties();
+            foreach (PropertyInfo property in properties)
+            {
+                string name = getApiName(property);
+                _fields[name] = property.GetValue(ottObject);
+                if (oldStandardProperties.ContainsKey(name))
+                {
+                    _fields[oldStandardProperties[name]] = _fields[name];
+                }
+            }
+        }
+
+        private string getApiName(PropertyInfo property)
+        {
+            System.Runtime.Serialization.DataMemberAttribute dataMember = property.GetCustomAttribute<System.Runtime.Serialization.DataMemberAttribute>();
+            if (dataMember == null)
+                return null;
+
+            return dataMember.Name;
+        }
+
+        public override IEnumerable<string> GetDynamicMemberNames()
+        {
+            var membersNames = GetType().GetProperties().Where(propInfo => propInfo.CustomAttributes
+                .All(ca => ca.AttributeType != typeof(JsonIgnoreAttribute)))
+                .Select(propInfo => propInfo.Name);
+            return Extra.Keys.Union(membersNames);
+        }
+
+        public override bool TryGetMember(GetMemberBinder binder, out object result)
+        {
+            return _fields.TryGetValue(binder.Name, out result);
+        }
+
+        public override bool TrySetMember(SetMemberBinder binder, object value)
+        {
+            _fields[binder.Name] = value;
+            return true;
+        }
+    }
+
     public class JilFormatter : MediaTypeFormatter
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -77,6 +133,20 @@ namespace WebAPI.Utils
         {
             using (TextWriter streamWriter = new StreamWriter(writeStream))
             {
+                if (type == typeof(StatusWrapper) && ((StatusWrapper)value).Result.GetType().IsSubclassOf(typeof(KalturaOTTObject)))
+                {
+                    var result = ((StatusWrapper)value).Result;
+                    if (result.GetType().IsSubclassOf(typeof(KalturaOTTObject)))
+                    {
+                        Dictionary<string, string> oldStandardProperties = OldStandardAttribute.getOldMembers(result.GetType());
+                        if (oldStandardProperties != null)
+                        {
+                            dynamic oldStandardObject = new OldStandardObject((KalturaOTTObject)result);
+                            JSON.SerializeDynamic(oldStandardObject, streamWriter, _jilOptions);
+                            return Task.FromResult(writeStream);
+                        }
+                    }
+                }
                 JSON.Serialize(value, streamWriter, _jilOptions);
                 return Task.FromResult(writeStream);
             }

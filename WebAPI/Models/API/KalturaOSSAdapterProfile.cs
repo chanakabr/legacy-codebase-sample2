@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
@@ -12,46 +13,51 @@ namespace WebAPI.Models.API
     /// <summary>
     /// OSS Adapter
     /// </summary>
+    [OldStandard("isActive", "is_active")]
+    [OldStandard("adapterUrl", "adapter_url")]
+    [OldStandard("ossAdapterSettings", "oss_adapter_settings")]
+    [OldStandard("externalIdentifier", "external_identifier")]
+    [OldStandard("sharedSecret", "shared_secret")]
     public class KalturaOSSAdapterProfile : KalturaOSSAdapterBaseProfile
     {
         /// <summary>
         /// OSS adapter active status
         /// </summary>
-        [DataMember(Name = "is_active")]
-        [JsonProperty("is_active")]
-        [XmlElement(ElementName = "is_active")]
+        [DataMember(Name = "isActive")]
+        [JsonProperty("isActive")]
+        [XmlElement(ElementName = "isActive")]
         public bool? IsActive { get; set; }
 
         /// <summary>
         /// OSS adapter adapter URL
         /// </summary>
-        [DataMember(Name = "adapter_url")]
-        [JsonProperty("adapter_url")]
-        [XmlElement(ElementName = "adapter_url")]
+        [DataMember(Name = "adapterUrl")]
+        [JsonProperty("adapterUrl")]
+        [XmlElement(ElementName = "adapterUrl")]
         public string AdapterUrl { get; set; }
                
         /// <summary>
         /// OSS adapter extra parameters
         /// </summary>
-        [DataMember(Name = "oss_adapter_settings")]
-        [JsonProperty("oss_adapter_settings")]        
-        [XmlElement("oss_adapter_settings", IsNullable = true)]
+        [DataMember(Name = "ossAdapterSettings")]
+        [JsonProperty("ossAdapterSettings")]
+        [XmlElement("ossAdapterSettings", IsNullable = true)]
         public SerializableDictionary<string, KalturaStringValue> Settings { get; set; }
 
         /// <summary>
         /// OSS adapter external identifier
         /// </summary>
-        [DataMember(Name = "external_identifier")]
-        [JsonProperty("external_identifier")]
-        [XmlElement(ElementName = "external_identifier")]
+        [DataMember(Name = "externalIdentifier")]
+        [JsonProperty("externalIdentifier")]
+        [XmlElement(ElementName = "externalIdentifier")]
         public string ExternalIdentifier { get; set; }
 
         /// <summary>
         /// Shared Secret
         /// </summary>
-        [DataMember(Name = "shared_secret")]
-        [JsonProperty("shared_secret")]
-        [XmlElement(ElementName = "shared_secret")]
+        [DataMember(Name = "sharedSecret")]
+        [JsonProperty("sharedSecret")]
+        [XmlElement(ElementName = "sharedSecret")]
         public string SharedSecret { get; set; }
     }
 }

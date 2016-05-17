@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
@@ -12,14 +13,15 @@ namespace WebAPI.Models.ConditionalAccess
     /// <summary>
     /// Entitlements filter 
     /// </summary>
+    [OldStandard("entitlementType", "entitlement_type")]
     public class KalturaEntitlementsFilter : KalturaOTTObject
     {
         /// <summary>
         ///The type of the entitlements to return
         /// </summary>
-        [DataMember(Name = "entitlement_type")]
-        [JsonProperty("entitlement_type")]
-        [XmlElement(ElementName = "entitlement_type")]
+        [DataMember(Name = "entitlementType")]
+        [JsonProperty("entitlementType")]
+        [XmlElement(ElementName = "entitlementType")]
         public KalturaTransactionType EntitlementType { get; set; }
 
         /// <summary>

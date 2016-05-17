@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
@@ -12,22 +13,24 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// PPV price details
     /// </summary>
+    [OldStandard("fileId", "file_id")]
+    [OldStandard("ppvPriceDetails", "ppv_price_details")]
     public class KalturaItemPrice : KalturaProductPrice
     {
         /// <summary>
         /// Media file identifier  
         /// </summary>
-        [DataMember(Name = "file_id")]
-        [JsonProperty("file_id")]
-        [XmlElement(ElementName = "file_id")]
+        [DataMember(Name = "fileId")]
+        [JsonProperty("fileId")]
+        [XmlElement(ElementName = "fileId")]
         public int? FileId { get; set; }
 
         /// <summary>
         /// PPV price details
         /// </summary>
-        [DataMember(Name = "ppv_price_details")]
-        [JsonProperty("ppv_price_details")]
-        [XmlArray(ElementName = "ppv_price_details", IsNullable = true)]
+        [DataMember(Name = "ppvPriceDetails")]
+        [JsonProperty("ppvPriceDetails")]
+        [XmlArray(ElementName = "ppvPriceDetails", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaPPVItemPriceDetails> PPVPriceDetails { get; set; }
     }

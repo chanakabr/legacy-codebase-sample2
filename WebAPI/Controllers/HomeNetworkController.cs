@@ -6,6 +6,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.Domains;
 using WebAPI.Models.General;
 using WebAPI.Models.Users;
@@ -19,7 +20,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Add a new home network to a household
         /// </summary>
-        /// <param name="home_network">Home network to add</param>
+        /// <param name="homeNetwork">Home network to add</param>
         /// <remarks>
         /// Possible status codes:
         /// Home network already exists = 1031, Home network limitation = 1032, External identifier is required = 6016
@@ -27,7 +28,8 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        public KalturaHomeNetwork Add(KalturaHomeNetwork home_network)
+        [OldStandard("homeNetwork", "home_network")]
+        public KalturaHomeNetwork Add(KalturaHomeNetwork homeNetwork)
         {
             KalturaHomeNetwork response = null;
 
@@ -36,7 +38,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.DomainsClient().AddDomainHomeNetwork(groupId, householdId, home_network.ExternalId, home_network.Name, home_network.Description, home_network.getIsActive());
+                response = ClientsManager.DomainsClient().AddDomainHomeNetwork(groupId, householdId, homeNetwork.ExternalId, homeNetwork.Name, homeNetwork.Description, homeNetwork.getIsActive());
             }
             catch (ClientException ex)
             {

@@ -6,6 +6,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.API;
 using WebAPI.Models.Billing;
 using WebAPI.Utils;
@@ -48,10 +49,11 @@ namespace WebAPI.Controllers
         /// Possible status codes:       
         /// oss adapter identifier required = 5007, oss adapter not exist = 5008,  action is not allowed = 5011
         /// </remarks>
-        /// <param name="oss_adapter_id">OSS adapter identifier</param>
+        /// <param name="ossAdapterId">OSS adapter identifier</param>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        public bool Delete(int oss_adapter_id)
+        [OldStandard("ossAdapterId", "oss_adapter_id")]
+        public bool Delete(int ossAdapterId)
         {
             bool response = false;
             
@@ -60,7 +62,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().DeleteOSSAdapter(groupId, oss_adapter_id);
+                response = ClientsManager.ApiClient().DeleteOSSAdapter(groupId, ossAdapterId);
             }
             catch (ClientException ex)
             {
@@ -77,10 +79,11 @@ namespace WebAPI.Controllers
         /// Possible status codes:     
         /// no oss adapter to insert = 5004, name required = 5005, adapter url required = 5013, external identifier required = 6016, external identifier must be unique = 6040  
         /// </remarks>
-        /// <param name="oss_adapter">OSS adapter Object</param>
+        /// <param name="ossAdapter">OSS adapter Object</param>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        public KalturaOSSAdapterProfile Add(KalturaOSSAdapterProfile oss_adapter)
+        [OldStandard("ossAdapter", "oss_adapter")]
+        public KalturaOSSAdapterProfile Add(KalturaOSSAdapterProfile ossAdapter)
         {
             KalturaOSSAdapterProfile response = null;
 
@@ -89,7 +92,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().InsertOSSAdapter(groupId, oss_adapter);
+                response = ClientsManager.ApiClient().InsertOSSAdapter(groupId, ossAdapter);
             }
             catch (ClientException ex)
             {

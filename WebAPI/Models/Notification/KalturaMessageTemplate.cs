@@ -5,11 +5,14 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Notification
 {
     [Serializable]
+    [OldStandard("dateFormat", "date_format")]
+    [OldStandard("assetType", "asset_type")]
     public class KalturaMessageTemplate : KalturaOTTObject
     {
         /// <summary>
@@ -20,18 +23,18 @@ namespace WebAPI.Models.Notification
         [XmlElement(ElementName = "message")]
         public string Message { get; set; }
 
-        [DataMember(Name = "date_format")]
-        [JsonProperty(PropertyName = "date_format")]
-        [XmlElement(ElementName = "date_format")]
+        [DataMember(Name = "dateFormat")]
+        [JsonProperty(PropertyName = "dateFormat")]
+        [XmlElement(ElementName = "dateFormat")]
         public string DateFormat { get; set; }
 
         /// <summary>
         /// OTT asset type
         /// Possible values: Series
         /// </summary>
-        [DataMember(Name = "asset_type")]
-        [JsonProperty(PropertyName = "asset_type")]
-        [XmlElement(ElementName = "asset_type")]
+        [DataMember(Name = "assetType")]
+        [JsonProperty(PropertyName = "assetType")]
+        [XmlElement(ElementName = "assetType")]
         public KalturaOTTAssetType AssetType { get; set; }
 
         [DataMember(Name = "sound")]

@@ -5,10 +5,13 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
+    [OldStandard("filterTypes", "filter_types")]
+    [OldStandard("filterStatus", "filter_status")]
     public class KalturaAssetHistoryFilter : KalturaOTTObject
     {
         /// <summary>
@@ -16,9 +19,9 @@ namespace WebAPI.Models.Catalog
         /// Possible values: 0 – EPG linear programs entries, any media type ID (according to media type IDs defined dynamically in the system).
         /// If omitted – all types should be included.
         /// </summary>
-        [DataMember(Name = "filter_types")]
-        [JsonProperty(PropertyName = "filter_types")]
-        [XmlArray(ElementName = "filter_types", IsNullable = true)]
+        [DataMember(Name = "filterTypes")]
+        [JsonProperty(PropertyName = "filterTypes")]
+        [XmlArray(ElementName = "filterTypes", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
         public KalturaIntegerValue[] filter_types { get; set; }
 
@@ -27,9 +30,9 @@ namespace WebAPI.Models.Catalog
         /// If omitted or specified filter = all – return all types.
         /// Allowed values: progress – return medias that are in-progress, done – return medias that finished watching.
         /// </summary>
-        [DataMember(Name = "filter_status")]
-        [JsonProperty(PropertyName = "filter_status")]
-        [XmlElement(ElementName = "filter_status", IsNullable = true)]
+        [DataMember(Name = "filterStatus")]
+        [JsonProperty(PropertyName = "filterStatus")]
+        [XmlElement(ElementName = "filterStatus", IsNullable = true)]
         public KalturaWatchStatus? filter_status { get; set; }
 
         /// <summary>

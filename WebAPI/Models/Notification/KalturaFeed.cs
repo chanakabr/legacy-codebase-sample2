@@ -2,16 +2,18 @@
 using System;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Notification
 {
     [Serializable]
+    [OldStandard("assetId", "asset_id")]
     public class KalturaFeed : KalturaOTTObject
     {
-        [DataMember(Name = "asset_id")]
-        [JsonProperty(PropertyName = "asset_id")]
-        [XmlElement(ElementName = "asset_id")]
+        [DataMember(Name = "assetId")]
+        [JsonProperty(PropertyName = "assetId")]
+        [XmlElement(ElementName = "assetId")]
         public long AssetId{ get; set; }
        
     }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 
@@ -14,6 +15,9 @@ namespace WebAPI.Models.Users
     /// An item of user asset list
     /// </summary>
     [Serializable]
+    [OldStandard("orderIndex", "order_index")]
+    [OldStandard("userId", "user_id")]
+    [OldStandard("listType", "list_type")]
     public class KalturaUserAssetsListItem : KalturaOTTObject
     {
         /// <summary>
@@ -27,9 +31,9 @@ namespace WebAPI.Models.Users
         /// <summary>
         ///The order index of the asset in the list
         /// </summary>
-        [DataMember(Name = "order_index")]
-        [JsonProperty("order_index")]
-        [XmlElement(ElementName = "order_index")]
+        [DataMember(Name = "orderIndex")]
+        [JsonProperty("orderIndex")]
+        [XmlElement(ElementName = "orderIndex")]
         public int? OrderIndex { get; set; }
 
         /// <summary>
@@ -43,17 +47,17 @@ namespace WebAPI.Models.Users
         /// <summary>
         ///The identifier of the user who added the item to the list
         /// </summary>
-        [DataMember(Name = "user_id")]
-        [JsonProperty("user_id")]
-        [XmlElement(ElementName = "user_id")]
+        [DataMember(Name = "userId")]
+        [JsonProperty("userId")]
+        [XmlElement(ElementName = "userId")]
         public string UserId { get; set; }
 
         /// <summary>
         ///The type of the list
         /// </summary>
-        [DataMember(Name = "list_type")]
-        [JsonProperty("list_type")]
-        [XmlElement(ElementName = "list_type")]
+        [DataMember(Name = "listType")]
+        [JsonProperty("listType")]
+        [XmlElement(ElementName = "listType")]
         public KalturaUserAssetsListType ListType { get; set; }
 
     }

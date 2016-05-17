@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 using WebAPI.Models.Users;
 
@@ -13,6 +14,19 @@ namespace WebAPI.Models.Domains
     /// <summary>
     /// Household details
     /// </summary>
+    [OldStandard("externalId", "external_id")]
+    [OldStandard("householdLimitationsId", "household_limitations_id")]
+    [OldStandard("devicesLimit", "devices_limit")]
+    [OldStandard("usersLimit", "users_limit")]
+    [OldStandard("concurrentLimit", "concurrent_limit")]
+    [OldStandard("masterUsers", "master_users")]
+    [OldStandard("defaultUsers", "default_users")]
+    [OldStandard("pendingUsers", "pending_users")]
+    [OldStandard("regionId", "region_id")]
+    [OldStandard("isFrequencyEnabled", "is_frequency_enabled")]
+    [OldStandard("frequencyNextDeviceAction", "frequency_next_device_action")]
+    [OldStandard("frequencyNextUserAction", "frequency_next_user_action")]
+    [OldStandard("deviceFamilies", "device_families")]
     public class KalturaHousehold : KalturaOTTObject
     {
         /// <summary>
@@ -42,41 +56,41 @@ namespace WebAPI.Models.Domains
         /// <summary>
         /// Household external identifier
         /// </summary>
-        [DataMember(Name = "external_id")]
-        [JsonProperty("external_id")]
-        [XmlElement(ElementName = "external_id")]
+        [DataMember(Name = "externalId")]
+        [JsonProperty("externalId")]
+        [XmlElement(ElementName = "externalId")]
         public string ExternalId { get; set; }
 
         /// <summary>
         /// Household limitation module identifier
         /// </summary>
-        [DataMember(Name = "household_limitations_id")]
-        [JsonProperty("household_limitations_id")]
-        [XmlElement(ElementName = "household_limitations_id")]
+        [DataMember(Name = "householdLimitationsId")]
+        [JsonProperty("householdLimitationsId")]
+        [XmlElement(ElementName = "householdLimitationsId")]
         public int? HouseholdLimitationsId { get; set; }
 
         /// <summary>
         /// The max number of the devices that can be added to the household
         /// </summary>
-        [DataMember(Name = "devices_limit")]
-        [JsonProperty("devices_limit")]
-        [XmlElement(ElementName = "devices_limit")]
+        [DataMember(Name = "devicesLimit")]
+        [JsonProperty("devicesLimit")]
+        [XmlElement(ElementName = "devicesLimit")]
         public int? DevicesLimit { get; set; }
 
         /// <summary>
         /// The max number of the users that can be added to the household
         /// </summary>
-        [DataMember(Name = "users_limit")]
-        [JsonProperty("users_limit")]
-        [XmlElement(ElementName = "users_limit")]
+        [DataMember(Name = "usersLimit")]
+        [JsonProperty("usersLimit")]
+        [XmlElement(ElementName = "usersLimit")]
         public int? UsersLimit { get; set; }
 
         /// <summary>
         /// The max number of concurrent streams in the household
         /// </summary>
-        [DataMember(Name = "concurrent_limit")]
-        [JsonProperty("concurrent_limit")]
-        [XmlElement(ElementName = "concurrent_limit")]
+        [DataMember(Name = "concurrentLimit")]
+        [JsonProperty("concurrentLimit")]
+        [XmlElement(ElementName = "concurrentLimit")]
         public int? ConcurrentLimit { get; set; }
 
         /// <summary>
@@ -91,36 +105,36 @@ namespace WebAPI.Models.Domains
         /// <summary>
         /// List of master users identifiers 
         /// </summary>
-        [DataMember(Name = "master_users")]
-        [JsonProperty("master_users")]
-        [XmlArray(ElementName = "master_users", IsNullable = true)]
+        [DataMember(Name = "masterUsers")]
+        [JsonProperty("masterUsers")]
+        [XmlArray(ElementName = "masterUsers", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaBaseOTTUser> MasterUsers { get; set; }
 
         /// <summary>
         /// List of default users identifiers 
         /// </summary>
-        [DataMember(Name = "default_users")]
-        [JsonProperty("default_users")]
-        [XmlArray(ElementName = "default_users", IsNullable = true)]
+        [DataMember(Name = "defaultUsers")]
+        [JsonProperty("defaultUsers")]
+        [XmlArray(ElementName = "defaultUsers", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaBaseOTTUser> DefaultUsers { get; set; }
 
         /// <summary>
         /// List of pending users identifiers 
         /// </summary>
-        [DataMember(Name = "pending_users")]
-        [JsonProperty("pending_users")]
-        [XmlArray(ElementName = "pending_users", IsNullable = true)]
+        [DataMember(Name = "pendingUsers")]
+        [JsonProperty("pendingUsers")]
+        [XmlArray(ElementName = "pendingUsers", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaBaseOTTUser> PendingUsers { get; set; }
 
         /// <summary>
         /// The households region identifier
         /// </summary>
-        [DataMember(Name = "region_id")]
-        [JsonProperty("region_id")]
-        [XmlElement(ElementName = "region_id")]
+        [DataMember(Name = "regionId")]
+        [JsonProperty("regionId")]
+        [XmlElement(ElementName = "regionId")]
         public int? RegionId { get; set; }
 
         /// <summary>
@@ -134,25 +148,25 @@ namespace WebAPI.Models.Domains
         /// <summary>
         /// Is household frequency enabled
         /// </summary>
-        [DataMember(Name = "is_frequency_enabled")]
-        [JsonProperty("is_frequency_enabled")]
-        [XmlElement(ElementName = "is_frequency_enabled")]
+        [DataMember(Name = "isFrequencyEnabled")]
+        [JsonProperty("isFrequencyEnabled")]
+        [XmlElement(ElementName = "isFrequencyEnabled")]
         public bool? IsFrequencyEnabled { get; set; }
 
         /// <summary>
         /// The next time a device is allowed to be removed from the household (epoch)
         /// </summary>
-        [DataMember(Name = "frequency_next_device_action")]
-        [JsonProperty("frequency_next_device_action")]
-        [XmlElement(ElementName = "frequency_next_device_action")]
+        [DataMember(Name = "frequencyNextDeviceAction")]
+        [JsonProperty("frequencyNextDeviceAction")]
+        [XmlElement(ElementName = "frequencyNextDeviceAction")]
         public long? FrequencyNextDeviceAction { get; set; }
 
         /// <summary>
         /// The next time a user is allowed to be removed from the household (epoch)
         /// </summary>
-        [DataMember(Name = "frequency_next_user_action")]
-        [JsonProperty("frequency_next_user_action")]
-        [XmlElement(ElementName = "frequency_next_user_action")]
+        [DataMember(Name = "frequencyNextUserAction")]
+        [JsonProperty("frequencyNextUserAction")]
+        [XmlElement(ElementName = "frequencyNextUserAction")]
         public long? FrequencyNextUserAction { get; set; }
 
         /// <summary>
@@ -166,9 +180,9 @@ namespace WebAPI.Models.Domains
         /// <summary>
         /// Household device families
         /// </summary>
-        [DataMember(Name = "device_families")]
-        [JsonProperty("device_families")]
-        [XmlArray(ElementName = "device_families", IsNullable = true)]
+        [DataMember(Name = "deviceFamilies")]
+        [JsonProperty("deviceFamilies")]
+        [XmlArray(ElementName = "deviceFamilies", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaDeviceFamily> DeviceFamilies { get; set; }
 

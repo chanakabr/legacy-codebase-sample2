@@ -24,6 +24,8 @@ namespace WebAPI.Controllers
     /// 
     /// </summary>
     [RoutePrefix("_service/ottUser/action")]
+    [OldStandard("register", "add")]
+    [OldStandard("updateLoginData", "changePassword")]
     public class OttUserController : ApiController
     {
         /// <summary>
@@ -197,8 +199,9 @@ namespace WebAPI.Controllers
         /// <remarks>        
         /// Wrong username or password = 1011, User exists = 2014
         /// </remarks>
-        [Route("add"), HttpPost]
-        public KalturaOTTUser Add(int partnerId, KalturaOTTUser user, string password)
+        [Route("register"), HttpPost]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        public KalturaOTTUser Register(int partnerId, KalturaOTTUser user, string password)
         {
             KalturaOTTUser response = null;
 
@@ -335,9 +338,10 @@ namespace WebAPI.Controllers
         /// <param name="old_password">old password</param>
         /// <param name="new_password">new password</param>
         /// <remarks>Possible status codes: Wrong username or password = 1011, User does not exist = 2000, Inside lock time = 2015, User already logged in = 2017</remarks>
-        [Route("changePassword"), HttpPost]
+        [Route("updateLoginData"), HttpPost]
         [ApiAuthorize]
-        public bool ChangePassword(string username, string old_password, string new_password)
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        public bool UpdateLoginData(string username, string old_password, string new_password)
         {
             bool response = false;
 
@@ -372,6 +376,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>        
         [Route("get"), HttpPost]
         [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
         public KalturaOTTUserListResponse Get()
         {
             List<KalturaOTTUser> response = null;
@@ -405,6 +410,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("update"), HttpPost]
         [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
         public KalturaOTTUser Update(KalturaOTTUser user)
         {
             KalturaOTTUser response = null;
@@ -469,6 +475,7 @@ namespace WebAPI.Controllers
         /// </remarks>        
         [Route("delete"), HttpPost]
         [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
         public bool Delete()
         {
             bool response = false;

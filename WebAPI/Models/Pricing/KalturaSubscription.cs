@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
@@ -15,6 +16,27 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Subscription details
     /// </summary>
+    [OldStandard("startDate", "start_date")]
+    [OldStandard("endDate", "end_date")]
+    [OldStandard("fileTypes", "file_types")]
+    [OldStandard("isRenewable", "is_renewable")]
+    [OldStandard("renewalsNumber", "renewals_number")]
+    [OldStandard("isInfiniteRenewal", "is_infinite_renewal")]
+    [OldStandard("discountModule", "discount_module")]
+    [OldStandard("couponsGroup", "coupons_group")]
+    [OldStandard("mediaId", "media_id")]
+    [OldStandard("prorityInOrder", "prority_in_order")]
+    [OldStandard("productCode", "product_code")]
+    [OldStandard("pricePlans", "price_plans")]
+    [OldStandard("previewModule", "preview_module")]
+    [OldStandard("householdLimitationsId", "household_limitations_id")]
+    [OldStandard("gracePeriodMinutes", "grace_period_minutes")]
+    [OldStandard("premiumServices", "premium_services")]
+    [OldStandard("maxViewsNumber", "max_views_number")]
+    [OldStandard("viewLifeCycle", "view_life_cycle")]
+    [OldStandard("waiverPeriod", "waiver_period")]
+    [OldStandard("isWaiverEnabled", "is_waiver_enabled")]
+    [OldStandard("userTypes", "user_types")]
     public class KalturaSubscription : KalturaOTTObject
     {
         /// <summary>
@@ -37,50 +59,50 @@ namespace WebAPI.Models.Pricing
         /// <summary>
         /// The first date the subscription is available for purchasing 
         /// </summary>
-        [DataMember(Name = "start_date")]
-        [JsonProperty("start_date")]
-        [XmlElement(ElementName = "start_date")]
+        [DataMember(Name = "startDate")]
+        [JsonProperty("startDate")]
+        [XmlElement(ElementName = "startDate")]
         public long? StartDate { get; set; }
 
         /// <summary>
         /// The last date the subscription is available for purchasing
         /// </summary>
-        [DataMember(Name = "end_date")]
-        [JsonProperty("end_date")]
-        [XmlElement(ElementName = "end_date")]
+        [DataMember(Name = "endDate")]
+        [JsonProperty("endDate")]
+        [XmlElement(ElementName = "endDate")]
         public long? EndDate { get; set; }
 
         /// <summary>
         /// A list of file types identifiers that are supported in this subscription
         /// </summary>
-        [DataMember(Name = "file_types")]
-        [JsonProperty("file_types")]
-        [XmlArray(ElementName = "file_types", IsNullable = true)]
+        [DataMember(Name = "fileTypes")]
+        [JsonProperty("fileTypes")]
+        [XmlArray(ElementName = "fileTypes", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaIntegerValue> FileTypes { get; set; }
 
         /// <summary>
         /// Denotes whether or not this subscription can be renewed
         /// </summary>
-        [DataMember(Name = "is_renewable")]
-        [JsonProperty("is_renewable")]
-        [XmlElement(ElementName = "is_renewable")]
+        [DataMember(Name = "isRenewable")]
+        [JsonProperty("isRenewable")]
+        [XmlElement(ElementName = "isRenewable")]
         public bool? IsRenewable { get; set; }
 
         /// <summary>
         /// Defines the number of times this subscription will be renewed
         /// </summary>
-        [DataMember(Name = "renewals_number")]
-        [JsonProperty("renewals_number")]
-        [XmlElement(ElementName = "renewals_number")]
+        [DataMember(Name = "renewalsNumber")]
+        [JsonProperty("renewalsNumber")]
+        [XmlElement(ElementName = "renewalsNumber")]
         public int? RenewalsNumber { get; set; }
 
         /// <summary>
         /// Indicates whether the subscription will renew forever
         /// </summary>
-        [DataMember(Name = "is_infinite_renewal")]
-        [JsonProperty("is_infinite_renewal")]
-        [XmlElement(ElementName = "is_infinite_renewal")]
+        [DataMember(Name = "isInfiniteRenewal")]
+        [JsonProperty("isInfiniteRenewal")]
+        [XmlElement(ElementName = "isInfiniteRenewal")]
         public bool? IsInfiniteRenewal { get; set; }
 
         /// <summary>
@@ -94,17 +116,17 @@ namespace WebAPI.Models.Pricing
         /// <summary>
         /// The internal discount module for the subscription
         /// </summary>
-        [DataMember(Name = "discount_module")]
-        [JsonProperty("discount_module")]
-        [XmlElement(ElementName = "discount_module", IsNullable = true)]
+        [DataMember(Name = "discountModule")]
+        [JsonProperty("discountModule")]
+        [XmlElement(ElementName = "discountModule", IsNullable = true)]
         public KalturaDiscountModule DiscountModule { get; set; }
 
         /// <summary>
         /// Coupons group for the subscription
         /// </summary>
-        [DataMember(Name = "coupons_group")]
-        [JsonProperty("coupons_group")]
-        [XmlElement(ElementName = "coupons_group", IsNullable = true)]
+        [DataMember(Name = "couponsGroup")]
+        [JsonProperty("couponsGroup")]
+        [XmlElement(ElementName = "couponsGroup", IsNullable = true)]
         public KalturaCouponsGroup CouponsGroup { get; set; }
 
         /// <summary>
@@ -128,66 +150,66 @@ namespace WebAPI.Models.Pricing
         /// <summary>
         /// Identifier of the media associated with the subscription
         /// </summary>
-        [DataMember(Name = "media_id")]
-        [JsonProperty("media_id")]
-        [XmlElement(ElementName = "media_id")]
+        [DataMember(Name = "mediaId")]
+        [JsonProperty("mediaId")]
+        [XmlElement(ElementName = "mediaId")]
         public int? MediaId { get; set; }
 
         /// <summary>
         /// Subscription order (when returned in methods that retrieve subscriptions)
         /// </summary>
-        [DataMember(Name = "prority_in_order")]
-        [JsonProperty("prority_in_order")]
-        [XmlElement(ElementName = "prority_in_order")]
+        [DataMember(Name = "prorityInOrder")]
+        [JsonProperty("prorityInOrder")]
+        [XmlElement(ElementName = "prorityInOrder")]
         public long? ProrityInOrder { get; set; }
 
         /// <summary>
         /// Product code for the subscription
         /// </summary>
-        [DataMember(Name = "product_code")]
-        [JsonProperty("product_code")]
-        [XmlElement(ElementName = "product_code")]
+        [DataMember(Name = "productCode")]
+        [JsonProperty("productCode")]
+        [XmlElement(ElementName = "productCode")]
         public string ProductCode { get; set; }
 
         /// <summary>
         /// Subscription price plans
         /// </summary>
-        [DataMember(Name = "price_plans")]
-        [JsonProperty("price_plans")]
-        [XmlArray(ElementName = "price_plans", IsNullable = true)]
+        [DataMember(Name = "pricePlans")]
+        [JsonProperty("pricePlans")]
+        [XmlArray(ElementName = "pricePlans", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaPricePlan> PricePlans { get; set; }
 
         /// <summary>
         /// Subscription preview module
         /// </summary>
-        [DataMember(Name = "preview_module")]
-        [JsonProperty("preview_module")]
-        [XmlElement(ElementName = "preview_module", IsNullable = true)]
+        [DataMember(Name = "previewModule")]
+        [JsonProperty("previewModule")]
+        [XmlElement(ElementName = "previewModule", IsNullable = true)]
         public KalturaPreviewModule PreviewModule { get; set; }
 
         /// <summary>
         /// The household limitation module identifier associated with this subscription
         /// </summary>
-        [DataMember(Name = "household_limitations_id")]
-        [JsonProperty("household_limitations_id")]
-        [XmlElement(ElementName = "household_limitations_id")]
+        [DataMember(Name = "householdLimitationsId")]
+        [JsonProperty("householdLimitationsId")]
+        [XmlElement(ElementName = "householdLimitationsId")]
         public int? HouseholdLimitationsId { get; set; }
 
         /// <summary>
         /// The subscription grace period in minutes
         /// </summary>
-        [DataMember(Name = "grace_period_minutes")]
-        [JsonProperty("grace_period_minutes")]
-        [XmlElement(ElementName = "grace_period_minutes")]
+        [DataMember(Name = "gracePeriodMinutes")]
+        [JsonProperty("gracePeriodMinutes")]
+        [XmlElement(ElementName = "gracePeriodMinutes")]
         public int? GracePeriodMinutes { get; set; }
 
         /// <summary>
         /// List of premium services included in the subscription
         /// </summary>
-        [DataMember(Name = "premium_services")]
-        [JsonProperty("premium_services")]
-        [XmlArray(ElementName = "premium_services", IsNullable = true)]
+        [DataMember(Name = "premiumServices")]
+        [JsonProperty("premiumServices")]
+        [XmlArray(ElementName = "premiumServices", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaPremiumService> PremiumServices { get; set; }
 
@@ -196,41 +218,41 @@ namespace WebAPI.Models.Pricing
         /// <summary>
         /// The maximum number of times an item in this usage module can be viewed
         /// </summary>
-        [DataMember(Name = "max_views_number")]
-        [JsonProperty("max_views_number")]
-        [XmlElement(ElementName = "max_views_number")]
+        [DataMember(Name = "maxViewsNumber")]
+        [JsonProperty("maxViewsNumber")]
+        [XmlElement(ElementName = "maxViewsNumber")]
         public int? MaxViewsNumber { get; set; }
 
         /// <summary>
         /// The amount time an item is available for viewing since a user started watching the item
         /// </summary>
-        [DataMember(Name = "view_life_cycle")]
-        [JsonProperty("view_life_cycle")]
-        [XmlElement(ElementName = "view_life_cycle")]
+        [DataMember(Name = "viewLifeCycle")]
+        [JsonProperty("viewLifeCycle")]
+        [XmlElement(ElementName = "viewLifeCycle")]
         public int? ViewLifeCycle { get; set; }
 
         /// <summary>
         /// Time period during which the end user can waive his rights to cancel a purchase. When the time period is passed, the purchase can no longer be cancelled
         /// </summary>
-        [DataMember(Name = "waiver_period")]
-        [JsonProperty("waiver_period")]
-        [XmlElement(ElementName = "waiver_period")]
+        [DataMember(Name = "waiverPeriod")]
+        [JsonProperty("waiverPeriod")]
+        [XmlElement(ElementName = "waiverPeriod")]
         public int? WaiverPeriod { get; set; }
 
         /// <summary>
         /// Indicates whether or not the end user has the right to waive his rights to cancel a purchase
         /// </summary>
-        [DataMember(Name = "is_waiver_enabled")]
-        [JsonProperty("is_waiver_enabled")]
-        [XmlElement(ElementName = "is_waiver_enabled")]
+        [DataMember(Name = "isWaiverEnabled")]
+        [JsonProperty("isWaiverEnabled")]
+        [XmlElement(ElementName = "isWaiverEnabled")]
         public bool? IsWaiverEnabled { get; set; }
 
         /// <summary>
         /// List of permitted user types for the subscription
         /// </summary>
-        [DataMember(Name = "user_types")]
-        [JsonProperty("user_types")]
-        [XmlArray(ElementName = "user_types", IsNullable = true)]
+        [DataMember(Name = "userTypes")]
+        [JsonProperty("userTypes")]
+        [XmlArray(ElementName = "userTypes", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaOTTUserType> UserTypes { get; set; }
 

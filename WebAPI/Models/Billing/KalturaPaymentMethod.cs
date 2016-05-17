@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Billing
@@ -9,6 +10,8 @@ namespace WebAPI.Models.Billing
     /// <summary>
     /// payment method
     /// </summary>
+    [OldStandard("allowMultiInstance", "allow_multi_instance")]
+    [OldStandard("householdPaymentMethods", "household_payment_methods")]
     public class KalturaPaymentMethod : KalturaOTTObject
     {
         /// <summary>
@@ -30,16 +33,16 @@ namespace WebAPI.Models.Billing
         /// <summary>
         /// Indicates whether the payment method allow multiple instances 
         /// </summary>
-        [DataMember(Name = "allow_multi_instance")]
-        [JsonProperty("allow_multi_instance")]
-        [XmlElement(ElementName = "allow_multi_instance")]
+        [DataMember(Name = "allowMultiInstance")]
+        [JsonProperty("allowMultiInstance")]
+        [XmlElement(ElementName = "allowMultiInstance")]
         public bool? AllowMultiInstance { get; set; }
 
         /// <summary>
         /// Payment method name
         /// </summary>
-        [DataMember(Name = "household_payment_methods")]
-        [JsonProperty("household_payment_methods")]
+        [DataMember(Name = "householdPaymentMethods")]
+        [JsonProperty("householdPaymentMethods")]
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
         public List<KalturaHouseholdPaymentMethod> HouseholdPaymentMethods { get; set; }

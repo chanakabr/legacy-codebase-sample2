@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
@@ -12,22 +13,24 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Generic rule filter
     /// </summary>
+    [OldStandard("assetId", "asset_id")]
+    [OldStandard("assetType", "asset_type")]
     public class KalturaGenericRuleFilter : KalturaOTTObject
     {
         /// <summary>
         /// Asset identifier to filter by
         /// </summary>
-        [DataMember(Name = "asset_id")]
-        [JsonProperty("asset_id")]
-        [XmlElement(ElementName = "asset_id")]
+        [DataMember(Name = "assetId")]
+        [JsonProperty("assetId")]
+        [XmlElement(ElementName = "assetId")]
         public long? AssetId{ get; set; }
 
         /// <summary>
         /// Asset type to filter by - 0 = EPG, 1 = media
         /// </summary>
-        [DataMember(Name = "asset_type")]
-        [JsonProperty("asset_type")]
-        [XmlElement(ElementName = "asset_type")]
+        [DataMember(Name = "assetType")]
+        [JsonProperty("assetType")]
+        [XmlElement(ElementName = "assetType")]
         public int? AssetType { get; set; }
 
         internal long getAssetId()

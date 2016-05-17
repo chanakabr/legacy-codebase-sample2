@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Billing
@@ -12,6 +13,9 @@ namespace WebAPI.Models.Billing
     /// <summary>
     /// Payment gateway base profile
     /// </summary>
+    [OldStandard("isDefault", "is_default")]
+    [OldStandard("selectedBy", "selectedBy")]
+    [OldStandard("paymentMethods", "payment_methods")]
     public class KalturaPaymentGatewayBaseProfile : KalturaOTTObject
     {
         /// <summary>
@@ -33,24 +37,24 @@ namespace WebAPI.Models.Billing
         /// <summary>
         /// Payment gateway default (true/false)
         /// </summary>
-        [DataMember(Name = "is_default")]
-        [JsonProperty("is_default")]
-        [XmlElement(ElementName = "is_default")]
+        [DataMember(Name = "isDefault")]
+        [JsonProperty("isDefault")]
+        [XmlElement(ElementName = "isDefault")]
         public bool? IsDefault { get; set; }
 
         /// <summary>
         /// distinction payment gateway selected by account or household
         /// </summary>
-        [DataMember(Name = "selected_by")]
-        [JsonProperty("selected_by")]
-        [XmlElement(ElementName = "selected_by", IsNullable = true)]
+        [DataMember(Name = "selectedBy")]
+        [JsonProperty("selectedBy")]
+        [XmlElement(ElementName = "selectedBy", IsNullable = true)]
         public KalturaHouseholdPaymentGatewaySelectedBy selectedBy { get; set; }
 
         /// <summary>
         /// payment method
         /// </summary>
-        [DataMember(Name = "payment_methods")]
-        [JsonProperty("payment_methods")]
+        [DataMember(Name = "paymentMethods")]
+        [JsonProperty("paymentMethods")]
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
         public List<KalturaPaymentMethod> PaymentMethods { get; set; }

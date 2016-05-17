@@ -9,6 +9,7 @@ namespace WebAPI.Managers.Schema
     {
         NULLABLE,
         ACTION_NAME,
-        FILTER_SUFFIX
+        FILTER_SUFFIX,
+        ACTION_ARGUMENTS
     }
 }

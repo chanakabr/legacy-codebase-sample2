@@ -1,0 +1,1 @@
+[{"action":"delete","name":"delete","label":"delete"},{"action":"register","name":"register","label":"register"},{"action":"resetPassword","name":"resetPassword","label":"resetPassword"},{"action":"update","name":"update","label":"update"},{"action":"validateToken","name":"validateToken","label":"validateToken"}]

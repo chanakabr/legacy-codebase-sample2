@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Users
@@ -12,14 +13,16 @@ namespace WebAPI.Models.Users
     /// <summary>
     /// Favorite request filter 
     /// </summary>
+    [OldStandard("mediaType", "media_type")]
+    [OldStandard("mediaIds", "media_ids")]
     public class KalturaFavoriteFilter : KalturaOTTObject
     {
         /// <summary>
         /// Media type to filter by the favorite assets
         /// </summary>
-        [DataMember(Name = "media_type")]
-        [JsonProperty(PropertyName = "media_type")]
-        [XmlElement(ElementName = "media_type")]
+        [DataMember(Name = "mediaType")]
+        [JsonProperty(PropertyName = "mediaType")]
+        [XmlElement(ElementName = "mediaType")]
         public int? MediaType { get; set; }
 
         /// <summary>
@@ -33,9 +36,9 @@ namespace WebAPI.Models.Users
         /// <summary>
         /// Media identifiers from which to filter the favorite assets
         /// </summary>
-        [DataMember(Name = "media_ids")]
-        [JsonProperty(PropertyName = "media_ids")]
-        [XmlArray(ElementName = "media_ids", IsNullable = true)]
+        [DataMember(Name = "mediaIds")]
+        [JsonProperty(PropertyName = "mediaIds")]
+        [XmlArray(ElementName = "mediaIds", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaIntegerValue> MediaIds { get; set; }
     }

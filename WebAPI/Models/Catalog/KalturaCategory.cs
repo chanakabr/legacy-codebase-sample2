@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
@@ -12,6 +13,8 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Category details
     /// </summary>
+    [OldStandard("parentCategoryId", "parent_category_id")]
+    [OldStandard("childCategories", "child_categories")]
     public class KalturaOTTCategory : KalturaOTTObject
     {
         /// <summary>
@@ -33,17 +36,17 @@ namespace WebAPI.Models.Catalog
         /// <summary>
         /// Category parent identifier 
         /// </summary>
-        [DataMember(Name = "parent_category_id")]
-        [JsonProperty(PropertyName = "parent_category_id")]
-        [XmlElement(ElementName = "parent_category_id")]
+        [DataMember(Name = "parentCategoryId")]
+        [JsonProperty(PropertyName = "parentCategoryId")]
+        [XmlElement(ElementName = "parentCategoryId")]
         public long? ParentCategoryId { get; set; }
 
         /// <summary>
         /// Child categories 
         /// </summary>
-        [DataMember(Name = "child_categories")]
-        [JsonProperty(PropertyName = "child_categories")]
-        [XmlArray(ElementName = "child_categories", IsNullable = true)]
+        [DataMember(Name = "childCategories")]
+        [JsonProperty(PropertyName = "childCategories")]
+        [XmlArray(ElementName = "childCategories", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaOTTCategory> ChildCategories { get; set; }
 

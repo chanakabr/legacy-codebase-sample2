@@ -5,19 +5,22 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Notification
 {
     [Serializable]
+    [OldStandard("announcementId", "announcement_id")]
+    [OldStandard("followPhrase", "follow_phrase")]
     public class KalturaFollowDataBase : KalturaOTTObject
     {
         /// <summary>
         /// Announcement Id
         /// </summary>
-        [DataMember(Name = "announcement_id")]
-        [JsonProperty(PropertyName = "announcement_id")]
-        [XmlElement(ElementName = "announcement_id")]
+        [DataMember(Name = "announcementId")]
+        [JsonProperty(PropertyName = "announcementId")]
+        [XmlElement(ElementName = "announcementId")]
         public long AnnouncementId { get; set; }
 
         /// <summary>
@@ -47,9 +50,9 @@ namespace WebAPI.Models.Notification
         /// <summary>
         /// Follow Phrase
         /// </summary>
-        [DataMember(Name = "follow_phrase")]
-        [JsonProperty(PropertyName = "follow_phrase")]
-        [XmlElement(ElementName = "follow_phrase")]
+        [DataMember(Name = "followPhrase")]
+        [JsonProperty(PropertyName = "followPhrase")]
+        [XmlElement(ElementName = "followPhrase")]
         public string FollowPhrase { get; set; }
     }
 }

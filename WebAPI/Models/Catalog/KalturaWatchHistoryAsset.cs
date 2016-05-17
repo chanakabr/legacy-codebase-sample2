@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
@@ -34,6 +35,8 @@ namespace WebAPI.Models.Catalog
     /// Watch history asset info
     /// </summary>
     [Serializable]
+    [OldStandard("watchedDate", "watched_date")]
+    [OldStandard("finishedWatching", "finished_watching")]
     public class KalturaWatchHistoryAsset : KalturaOTTObject
     {
         /// <summary>
@@ -63,17 +66,17 @@ namespace WebAPI.Models.Catalog
         /// <summary>
         /// The date when the media was last watched
         /// </summary>
-        [DataMember(Name = "watched_date")]
-        [JsonProperty(PropertyName = "watched_date")]
-        [XmlElement(ElementName = "watched_date")]
+        [DataMember(Name = "watchedDate")]
+        [JsonProperty(PropertyName = "watchedDate")]
+        [XmlElement(ElementName = "watchedDate")]
         public long? LastWatched { get; set; }
 
         /// <summary>
         /// Boolean which specifies whether the user finished watching the movie or not
         /// </summary>
-        [DataMember(Name = "finished_watching")]
-        [JsonProperty(PropertyName = "finished_watching")]
-        [XmlElement(ElementName = "finished_watching")]
+        [DataMember(Name = "finishedWatching")]
+        [JsonProperty(PropertyName = "finishedWatching")]
+        [XmlElement(ElementName = "finishedWatching")]
         public bool? IsFinishedWatching { get; set; }
     }
 }

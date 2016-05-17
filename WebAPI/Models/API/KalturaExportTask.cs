@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
@@ -12,6 +13,11 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Bulk export task
     /// </summary>
+    [OldStandard("dataType", "data_type")]
+    [OldStandard("exportType", "export_type")]
+    [OldStandard("notificationUrl", "notification_url")]
+    [OldStandard("vodTypes", "vod_types")]
+    [OldStandard("isActive", "is_active")]
     public class KalturaExportTask : KalturaOTTObject
     {
         /// <summary>
@@ -41,9 +47,9 @@ namespace WebAPI.Models.API
         /// <summary>
         /// The data type exported in this task
         /// </summary>
-        [DataMember(Name = "data_type")]
-        [JsonProperty("data_type")]
-        [XmlElement(ElementName = "data_type")]
+        [DataMember(Name = "dataType")]
+        [JsonProperty("dataType")]
+        [XmlElement(ElementName = "dataType")]
         public KalturaExportDataType DataType { get; set; }
 
         /// <summary>
@@ -59,9 +65,9 @@ namespace WebAPI.Models.API
         /// <summary>
         /// Type of export batch – full or incremental
         /// </summary>
-        [DataMember(Name = "export_type")]
-        [JsonProperty("export_type")]
-        [XmlElement(ElementName = "export_type")]
+        [DataMember(Name = "exportType")]
+        [JsonProperty("exportType")]
+        [XmlElement(ElementName = "exportType")]
         public KalturaExportType ExportType { get; set; }
 
         /// <summary>
@@ -75,16 +81,16 @@ namespace WebAPI.Models.API
         /// <summary>
         /// The URL for sending a notification when the task's export process is done
         /// </summary>
-        [DataMember(Name = "notification_url")]
-        [JsonProperty("notification_url")]
-        [XmlElement(ElementName = "notification_url")]
+        [DataMember(Name = "notificationUrl")]
+        [JsonProperty("notificationUrl")]
+        [XmlElement(ElementName = "notificationUrl")]
         public string NotificationUrl { get; set; }
 
         /// <summary>
         /// List of media type identifiers (as configured in TVM) to export. used only in case data_type = vod
         /// </summary>
-        [DataMember(Name = "vod_types")]
-        [JsonProperty("vod_types")]
+        [DataMember(Name = "vodTypes")]
+        [JsonProperty("vodTypes")]
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
         public List<KalturaIntegerValue> VodTypes { get; set; }
@@ -92,9 +98,9 @@ namespace WebAPI.Models.API
         /// <summary>
         /// Indicates if the task is active or not
         /// </summary>
-        [DataMember(Name = "is_active")]
-        [JsonProperty("is_active")]
-        [XmlElement(ElementName = "is_active", IsNullable = true)]
+        [DataMember(Name = "isActive")]
+        [JsonProperty("isActive")]
+        [XmlElement(ElementName = "isActive", IsNullable = true)]
         public bool? IsActive { get; set; }
 
         internal long getFrequency()

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 
@@ -13,6 +14,7 @@ namespace WebAPI.Models.Users
     /// <summary>
     /// Favorite details
     /// </summary>
+    [OldStandard("extraData", "extra_data")]
     public class KalturaFavorite : KalturaOTTObject
     {
         /// <summary>
@@ -26,9 +28,9 @@ namespace WebAPI.Models.Users
         /// <summary>
         /// Extra Value
         /// </summary>
-        [DataMember(Name = "extra_data")]
-        [JsonProperty("extra_data")]
-        [XmlElement(ElementName = "extra_data")]
+        [DataMember(Name = "extraData")]
+        [JsonProperty("extraData")]
+        [XmlElement(ElementName = "extraData")]
         public string ExtraData { get; set; }
 
     }

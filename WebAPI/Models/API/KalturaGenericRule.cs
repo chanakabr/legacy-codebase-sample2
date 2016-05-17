@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
@@ -12,6 +13,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Generic rule - representing different type of rules (Parental, Geo, User Type, Device)
     /// </summary>
+    [OldStandard("ruleType", "rule_type")]
     public class KalturaGenericRule : KalturaOTTObject
     {
         /// <summary>
@@ -25,9 +27,9 @@ namespace WebAPI.Models.API
         /// <summary>
         /// Rule type - possible values: Rule type – Parental, Geo, UserType, Device
         /// </summary>
-        [DataMember(Name = "rule_type")]
-        [JsonProperty("rule_type")]
-        [XmlElement(ElementName = "rule_type", IsNullable = true)]
+        [DataMember(Name = "ruleType")]
+        [JsonProperty("ruleType")]
+        [XmlElement(ElementName = "ruleType", IsNullable = true)]
         public KalturaRuleType RuleType { get; set; }
 
         /// <summary>

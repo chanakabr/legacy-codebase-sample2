@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Users
@@ -13,6 +14,8 @@ namespace WebAPI.Models.Users
     /// A user list of assets
     /// </summary>
     [Serializable]
+    [OldStandard("listType", "list_type")]
+    [OldStandard("assetType", "asset_type")]
     public class KalturaUserAssetsListFilter : KalturaOTTObject
     {
         /// <summary>
@@ -26,17 +29,17 @@ namespace WebAPI.Models.Users
         /// <summary>
         /// The requested list type
         /// </summary>
-        [DataMember(Name = "list_type")]
-        [JsonProperty("list_type")]
-        [XmlElement(ElementName = "list_type")]
+        [DataMember(Name = "listType")]
+        [JsonProperty("listType")]
+        [XmlElement(ElementName = "listType")]
         public KalturaUserAssetsListType ListType { get; set; }
 
         /// <summary>
         /// The requested asset type
         /// </summary>
-        [DataMember(Name = "asset_type")]
-        [JsonProperty("asset_type")]
-        [XmlElement(ElementName = "asset_type")]
+        [DataMember(Name = "assetType")]
+        [JsonProperty("assetType")]
+        [XmlElement(ElementName = "assetType")]
         public KalturaUserAssetsListItemType AssetType { get; set; }
     }
 }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Domains
@@ -12,6 +13,8 @@ namespace WebAPI.Models.Domains
     /// <summary>
     /// Device details
     /// </summary>
+    [OldStandard("brandId", "brand_id")]
+    [OldStandard("activatedOn", "activated_on")]
     public class KalturaDevice : KalturaOTTObject
     {
         /// <summary>
@@ -41,17 +44,17 @@ namespace WebAPI.Models.Domains
         /// <summary>
         /// Device brand identifier
         /// </summary>
-        [DataMember(Name = "brand_id")]
-        [JsonProperty("brand_id")]
-        [XmlElement(ElementName = "brand_id")]
+        [DataMember(Name = "brandId")]
+        [JsonProperty("brandId")]
+        [XmlElement(ElementName = "brandId")]
         public int? BrandId { get; set; }
 
         /// <summary>
         /// Device activation date (epoch)
         /// </summary>
-        [DataMember(Name = "activated_on")]
-        [JsonProperty("activated_on")]
-        [XmlElement(ElementName = "activated_on")]
+        [DataMember(Name = "activatedOn")]
+        [JsonProperty("activatedOn")]
+        [XmlElement(ElementName = "activatedOn")]
         public long? ActivatedOn { get; set; }
 
         /// <summary>

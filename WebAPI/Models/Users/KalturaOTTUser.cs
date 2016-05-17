@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Users
@@ -13,14 +14,25 @@ namespace WebAPI.Models.Users
     /// User
     /// </summary>
     [DataContract(Name = "user")]
+    [OldStandard("householdId", "household_id")]
+    [OldStandard("facebookId", "facebook_id")]
+    [OldStandard("facebookImage", "facebook_image")]
+    [OldStandard("affiliateCode", "affiliate_code")]
+    [OldStandard("facebookToken", "facebook_token")]
+    [OldStandard("externalId", "external_id")]
+    [OldStandard("userType", "user_type")]
+    [OldStandard("dynamicData", "dynamic_data")]
+    [OldStandard("isHouseholdMaster", "is_household_master")]
+    [OldStandard("suspentionState", "suspention_state")]
+    [OldStandard("userState", "user_state")]
     public class KalturaOTTUser : KalturaBaseOTTUser
     {
         /// <summary>
         /// Household identifier
         /// </summary>
-        [DataMember(Name = "household_id")]
-        [JsonProperty("household_id")]
-        [XmlElement(ElementName = "household_id")]
+        [DataMember(Name = "householdId")]
+        [JsonProperty("householdId")]
+        [XmlElement(ElementName = "householdId")]
         public int? HouseholdID { get; set; }
 
         /// <summary>
@@ -74,81 +86,81 @@ namespace WebAPI.Models.Users
         /// <summary>
         /// Facebook identifier
         /// </summary>
-        [DataMember(Name = "facebook_id")]
-        [JsonProperty("facebook_id")]
-        [XmlElement(ElementName = "facebook_id")]
+        [DataMember(Name = "facebookId")]
+        [JsonProperty("facebookId")]
+        [XmlElement(ElementName = "facebookId")]
         public string FacebookId { get; set; }
 
         /// <summary>
         /// Facebook image
         /// </summary>
-        [DataMember(Name = "facebook_image")]
-        [JsonProperty("facebook_image")]
-        [XmlElement(ElementName = "facebook_image")]
+        [DataMember(Name = "facebookImage")]
+        [JsonProperty("facebookImage")]
+        [XmlElement(ElementName = "facebookImage")]
         public string FacebookImage { get; set; }
 
         /// <summary>
         /// Affiliate code
         /// </summary>
-        [DataMember(Name = "affiliate_code")]
-        [JsonProperty("affiliate_code")]
-        [XmlElement(ElementName = "affiliate_code")]
+        [DataMember(Name = "affiliateCode")]
+        [JsonProperty("affiliateCode")]
+        [XmlElement(ElementName = "affiliateCode")]
         public string AffiliateCode { get; set; }
 
         /// <summary>
         /// Facebook token
         /// </summary>
-        [DataMember(Name = "facebook_token")]
-        [JsonProperty("facebook_token")]
-        [XmlElement(ElementName = "facebook_token")]
+        [DataMember(Name = "facebookToken")]
+        [JsonProperty("facebookToken")]
+        [XmlElement(ElementName = "facebookToken")]
         public string FacebookToken { get; set; }
 
         /// <summary>
         /// External user identifier
         /// </summary>
-        [DataMember(Name = "external_id")]
-        [JsonProperty("external_id")]
-        [XmlElement(ElementName = "external_id")]
+        [DataMember(Name = "externalId")]
+        [JsonProperty("externalId")]
+        [XmlElement(ElementName = "externalId")]
         public string ExternalId { get; set; }
 
         /// <summary>
         /// User type
         /// </summary>
-        [DataMember(Name = "user_type")]
-        [JsonProperty("user_type")]
-        [XmlElement(ElementName = "user_type", IsNullable = true)]
+        [DataMember(Name = "userType")]
+        [JsonProperty("userType")]
+        [XmlElement(ElementName = "userType", IsNullable = true)]
         public KalturaOTTUserType UserType { get; set; }
 
         /// <summary>
         /// Dynamic data
         /// </summary>
-        [DataMember(Name = "dynamic_data")]
-        [JsonProperty("dynamic_data")]
-        [XmlElement(ElementName = "dynamic_data", IsNullable = true)]
+        [DataMember(Name = "dynamicData")]
+        [JsonProperty("dynamicData")]
+        [XmlElement(ElementName = "dynamicData", IsNullable = true)]
         public SerializableDictionary<string, KalturaStringValue> DynamicData { get; set; }
 
         /// <summary>
         /// Is the user the household master
         /// </summary>
-        [DataMember(Name = "is_household_master")]
-        [JsonProperty("is_household_master")]
-        [XmlElement(ElementName = "is_household_master")]
+        [DataMember(Name = "isHouseholdMaster")]
+        [JsonProperty("isHouseholdMaster")]
+        [XmlElement(ElementName = "isHouseholdMaster")]
         public bool? IsHouseholdMaster { get; set; }
 
         /// <summary>
         /// Suspention state
         /// </summary>
-        [DataMember(Name = "suspention_state")]
-        [JsonProperty("suspention_state")]
-        [XmlElement(ElementName = "suspention_state")]
+        [DataMember(Name = "suspentionState")]
+        [JsonProperty("suspentionState")]
+        [XmlElement(ElementName = "suspentionState")]
         public KalturaHouseholdSuspentionState SuspentionState { get; set; }
 
         /// <summary>
         /// User state
         /// </summary>
-        [DataMember(Name = "user_state")]
-        [JsonProperty("user_state")]
-        [XmlElement(ElementName = "user_state")]
+        [DataMember(Name = "userState")]
+        [JsonProperty("userState")]
+        [XmlElement(ElementName = "userState")]
         public KalturaUserState UserState { get; set; }
 
         internal int getHouseholdID()

@@ -1,0 +1,1 @@
+{"actionParams":[{"type":"int","isSimpleType":true,"isComplexType":false,"isFile":false,"isEnum":false,"isStringEnum":false,"isArray":false,"isAbstract":false,"description":"channel identifier","name":"channelId","isOptional":false}],"description":"Delete channel by its channel id"}

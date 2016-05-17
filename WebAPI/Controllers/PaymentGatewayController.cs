@@ -6,6 +6,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Schema;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -89,10 +90,11 @@ namespace WebAPI.Controllers
         /// user suspended = 2001, payment gateway identifier is missing = 6005, payment gateway not exist = 6008, household not set to payment gateway = 6027
         /// payment gateway selection is disabled = 6028, service forbidden = 500004
         /// </remarks>
-        /// <param name="payment_gateway_id">Payment Gateway Identifier</param>
+        /// <param name="paymentGatewayId">Payment Gateway Identifier</param>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        public bool Delete(int payment_gateway_id)
+        [OldStandard("paymentGatewayId", "payment_gateway_id")]
+        public bool Delete(int paymentGatewayId)
         {
             bool response = false;
 
@@ -106,7 +108,7 @@ namespace WebAPI.Controllers
                 var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
                 // call client
-                response = ClientsManager.BillingClient().DeleteHouseholdPaymentGateway(groupId, payment_gateway_id, userID, domainId);
+                response = ClientsManager.BillingClient().DeleteHouseholdPaymentGateway(groupId, paymentGatewayId, userID, domainId);
             }
             catch (ClientException ex)
             {

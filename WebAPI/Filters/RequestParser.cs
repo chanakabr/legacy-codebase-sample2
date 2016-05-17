@@ -21,6 +21,8 @@ using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.Managers;
+using WebAPI.Managers.Schema;
+using System.Runtime.Serialization;
 
 namespace WebAPI.Filters
 {
@@ -63,6 +65,7 @@ namespace WebAPI.Filters
         }
 
         public const string REQUEST_METHOD_PARAMETERS = "requestMethodParameters";
+        public const string REQUEST_VERSION = "requestVersion";
 
         public static object GetRequestPayload()
         {
@@ -82,6 +85,10 @@ namespace WebAPI.Filters
                 return false;
             }
 
+            Dictionary<string, string> oldStandardActions = OldStandardAttribute.getOldMembers(controller);
+            if (oldStandardActions != null && oldStandardActions.ContainsValue(actionName))
+                actionName = oldStandardActions.FirstOrDefault(value => value.Value == actionName).Key;
+            
             methodInfo = controller.GetMethod(actionName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
 
             if (methodInfo == null)
@@ -128,9 +135,6 @@ namespace WebAPI.Filters
             object classInstance = null;
             Assembly asm = Assembly.GetExecutingAssembly();
 
-            if (!createMethodInvoker(actionContext, currentController, currentAction, asm, out methodInfo, out classInstance))
-                return;
-
             if (actionContext.Request.Method == HttpMethod.Post)
             {
                 string result = await actionContext.Request.Content.ReadAsStringAsync();
@@ -149,6 +153,15 @@ namespace WebAPI.Filters
                                 HttpContext.Current.Items[Constants.CLIENT_TAG] = reqParams["clientTag"];
                             }
 
+                            if (reqParams["apiVersion"] != null)
+                            {
+                                //For logging and to parse old standard
+                                HttpContext.Current.Items[REQUEST_VERSION] = (string) reqParams["apiVersion"];
+                            }
+
+                            if (!createMethodInvoker(actionContext, currentController, currentAction, asm, out methodInfo, out classInstance))
+                                return;
+
                             // ks
                             if (reqParams["ks"] != null)
                                 InitKS(actionContext, reqParams["ks"].ToObject<string>());
@@ -159,21 +172,26 @@ namespace WebAPI.Filters
 
                             //Running on the expected method parameters
                             ParameterInfo[] parameters = methodInfo.GetParameters();
+                            Dictionary<string, string> oldStandardParameters = OldStandardAttribute.getOldMembers(methodInfo);
 
                             List<Object> methodParams = new List<object>();
                             foreach (var p in parameters)
                             {
-                                if (reqParams[p.Name] == null && p.IsOptional)
+                                string name = p.Name;
+                                if (reqParams[name] == null && oldStandardParameters != null && oldStandardParameters.ContainsKey(name))
+                                    name = oldStandardParameters[name];
+
+                                if (reqParams[name] == null && p.IsOptional)
                                 {
                                     methodParams.Add(Type.Missing);
                                     continue;
                                 }
-                                else if (reqParams[p.Name] == null && p.ParameterType.IsGenericType && p.ParameterType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                                else if (reqParams[name] == null && p.ParameterType.IsGenericType && p.ParameterType.GetGenericTypeDefinition() == typeof(Nullable<>))
                                 {
                                     methodParams.Add(null);
                                     continue;
                                 }
-                                else if (reqParams[p.Name] == null)
+                                else if (reqParams[name] == null)
                                 {
                                     createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidActionParameters, string.Format("Missing parameter {0}", p.Name));
                                     return;
@@ -183,7 +201,7 @@ namespace WebAPI.Filters
                                 {
                                     Type t = p.ParameterType;
 
-                                    var objType = reqParams[p.Name].SelectToken("objectType");
+                                    var objType = reqParams[name].SelectToken("objectType");
 
                                     if (objType != null)
                                     {
@@ -204,7 +222,7 @@ namespace WebAPI.Filters
                                     Type u = Nullable.GetUnderlyingType(t);
                                     if (t.IsEnum)
                                     {
-                                        var paramAsString = reqParams[p.Name].ToString();
+                                        var paramAsString = reqParams[name].ToString();
                                         var names = t.GetEnumNames().ToList();
                                         if (names.Contains(paramAsString))
                                         {
@@ -214,7 +232,7 @@ namespace WebAPI.Filters
                                     // nullable enum
                                     else if (u != null && u.IsEnum)
                                     {
-                                        var paramAsString = reqParams[p.Name] != null ? reqParams[p.Name].ToString() : null;
+                                        var paramAsString = reqParams[name] != null ? reqParams[name].ToString() : null;
                                         if (paramAsString != null)
                                         {
                                             var names = u.GetEnumNames().ToList();
@@ -228,9 +246,14 @@ namespace WebAPI.Filters
                                             methodParams.Add(null);
                                         }
                                     }
+                                    else if (t.IsSubclassOf(typeof(KalturaOTTObject)))
+                                    {
+                                        var res = buildObject(t, reqParams[name].ToObject<Dictionary<string, object>>(), name, actionContext);
+                                        methodParams.Add(res);
+                                    }
                                     else
                                     {
-                                        methodParams.Add(reqParams[p.Name].ToObject(t));
+                                        methodParams.Add(reqParams[name].ToObject(t));
                                     }
                                 }
                                 catch (Exception ex)
@@ -271,11 +294,19 @@ namespace WebAPI.Filters
                 if (tokens["ks"] != null)
                     InitKS(actionContext, tokens["ks"]);
 
+                if (tokens["apiVersion"] != null)
+                {
+                    //For logging and to parse old standard
+                    HttpContext.Current.Items[REQUEST_VERSION] = tokens["apiVersion"];
+                }
+
+                if (!createMethodInvoker(actionContext, currentController, currentAction, asm, out methodInfo, out classInstance))
+                    return;
+
                 //Running on the expected method parameters
-                ParameterInfo[] parameters = methodInfo.GetParameters();
                 var groupedParams = groupParams(tokens);
 
-                List<Object> methodParams = buildActionArguments(parameters, groupedParams, actionContext);
+                List<Object> methodParams = buildActionArguments(methodInfo, groupedParams, actionContext);
 
                 HttpContext.Current.Items.Add(REQUEST_METHOD_PARAMETERS, methodParams);
             }
@@ -297,13 +328,18 @@ namespace WebAPI.Filters
             return paramsDic;
         }
 
-        public List<object> buildActionArguments(ParameterInfo[] actionParams, Dictionary<string, object> paramsGrouped, HttpActionContext actionContext)
+        private List<object> buildActionArguments(MethodInfo methodInfo, Dictionary<string, object> paramsGrouped, HttpActionContext actionContext)
         {
+            ParameterInfo[] actionParams = methodInfo.GetParameters();
             List<object> serviceArguments = new List<object>();
+            Dictionary<string, string> oldStandardParameters = OldStandardAttribute.getOldMembers(methodInfo);
             foreach (var actionParam in actionParams)
             {
                 var type = actionParam.ParameterType;
                 var name = actionParam.Name;
+
+                if (oldStandardParameters != null && oldStandardParameters.ContainsKey(name))
+                    name = oldStandardParameters[name];
 
                 //$this->disableRelativeTime = $actionParam->getDisableRelativeTime();
 
@@ -373,7 +409,7 @@ namespace WebAPI.Filters
                             res = Activator.CreateInstance(makeme);
                             foreach (var kv in (Dictionary<string, object>)paramsGrouped[name])
                             {
-                                ((IDictionary)res).Add(name, buildObject(type.GetGenericArguments()[0], (Dictionary<string, object>)kv.Value, name, actionContext));
+                                ((IDictionary)res).Add(actionParam.Name, buildObject(type.GetGenericArguments()[0], (Dictionary<string, object>)kv.Value, name, actionContext));
                             }
                         }
 
@@ -398,7 +434,7 @@ namespace WebAPI.Filters
 
                 if (paramsGrouped.ContainsKey(name)) // object 
                 {
-                    var res = buildObject(actionParam.ParameterType, (Dictionary<string, object>)paramsGrouped[name], name, actionContext);
+                    var res = buildObject(actionParam.ParameterType, (Dictionary<string, object>)paramsGrouped[name], actionParam.Name, actionContext);
                     serviceArguments.Add(res);
                     continue;
                 }
@@ -413,6 +449,15 @@ namespace WebAPI.Filters
             }
 
             return serviceArguments;
+        }
+
+        private static string getApiName(PropertyInfo property)
+        {
+            DataMemberAttribute dataMember = property.GetCustomAttribute<DataMemberAttribute>();
+            if (dataMember == null)
+                return null;
+
+            return dataMember.Name;
         }
 
         private object buildObject(Type type, Dictionary<string, object> parameters, string name, HttpActionContext actionContext)
@@ -437,32 +482,29 @@ namespace WebAPI.Filters
             }
 
             var classProperties = type.GetProperties();
+            Dictionary<string, string> oldStandardProperties = OldStandardAttribute.getOldMembers(type);
             object instance = Activator.CreateInstance(type);
-            foreach (var kv in parameters)
+            foreach (PropertyInfo property in classProperties)
             {
-                var property = classProperties.Where(x => x.Name == kv.Key).FirstOrDefault();
-                if (property == null)
-                {
-                    continue;
-                }
+                var parameterName = getApiName(property);
+                if (!parameters.ContainsKey(parameterName) && oldStandardProperties != null && oldStandardProperties.ContainsKey(parameterName))
+                    parameterName = oldStandardProperties[parameterName];
 
-                PropertyInfo prop = instance.GetType().GetProperty(kv.Key, BindingFlags.Public | BindingFlags.Instance);
-                if (prop == null || !prop.CanWrite)
+                if (!parameters.ContainsKey(parameterName) || !property.CanWrite)
                 {
-                    //XXX: See if we want to throw something here
                     continue;
                 }
 
                 if (property.PropertyType.IsPrimitive || property.PropertyType == typeof(string))
                 {
-                    prop.SetValue(instance, Convert.ChangeType(kv.Value, property.PropertyType), null);
+                    property.SetValue(instance, Convert.ChangeType(parameters[parameterName], property.PropertyType), null);
                     continue;
                 }
 
                 if (property.PropertyType.IsEnum)
                 {
-                    var eValue = Enum.Parse(property.PropertyType, kv.Value.ToString());
-                    prop.SetValue(instance, eValue, null);
+                    var eValue = Enum.Parse(property.PropertyType, parameters[parameterName].ToString());
+                    property.SetValue(instance, eValue, null);
                     continue;
                 }
 
@@ -471,27 +513,35 @@ namespace WebAPI.Filters
                     Type dictType = typeof(SerializableDictionary<,>);
                     object res = null;
 
-                    //if list
                     if (property.PropertyType.GetGenericArguments().Count() == 1)
                     {
-                        res = buildObject(property.PropertyType.GetGenericArguments()[0], (Dictionary<string, object>)kv.Value, name, actionContext);
-
+                        // if nullable
+                        if (property.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                        {
+                            Type underlyingType = Nullable.GetUnderlyingType(property.PropertyType);
+                            res = Convert.ChangeType(parameters[parameterName], underlyingType);
+                        }
+                        else // list
+                        {
+                            res = buildObject(property.PropertyType.GetGenericArguments()[0], (Dictionary<string, object>)parameters[parameterName], name, actionContext);
+                        }
                     }
+
                     //if Dictionary
                     else if (property.PropertyType.GetGenericArguments().Count() == 2 &&
                         dictType.GetGenericArguments().Length == type.GetGenericArguments().Length &&
                         dictType.MakeGenericType(type.GetGenericArguments()) == property.PropertyType)
                     {
-                        res = buildObject(property.PropertyType.GetGenericArguments()[0], (Dictionary<string, object>)kv.Value, name, actionContext);
+                        res = buildObject(property.PropertyType.GetGenericArguments()[0], (Dictionary<string, object>)parameters[parameterName], name, actionContext);
                     }
 
-                    prop.SetValue(instance, res, null);
+                    property.SetValue(instance, res, null);
                     continue;
                 }
 
                 //If object
-                var classRes = buildObject(property.PropertyType, (Dictionary<string, object>)kv.Value, name, actionContext);
-                prop.SetValue(instance, classRes, null);
+                var classRes = buildObject(property.PropertyType, (Dictionary<string, object>)parameters[parameterName], name, actionContext);
+                property.SetValue(instance, classRes, null);
                 continue;
 
             }

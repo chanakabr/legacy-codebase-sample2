@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 
@@ -13,6 +14,9 @@ namespace WebAPI.Models.API
     /// <summary>
     /// KSQL Channel
     /// </summary>
+    [OldStandard("isActive", "is_active")]
+    [OldStandard("filterExpression", "filter_expression")]
+    [OldStandard("assetTypes", "asset_types")]
     public class KalturaChannelProfile : KalturaOTTObject
     {
         /// <summary>
@@ -54,9 +58,9 @@ namespace WebAPI.Models.API
         /// <summary>
         /// active status
         /// </summary>
-        [DataMember(Name = "is_active")]
-        [JsonProperty("is_active")]
-        [XmlElement(ElementName = "is_active")]
+        [DataMember(Name = "isActive")]
+        [JsonProperty("isActive")]
+        [XmlElement(ElementName = "isActive")]
         public bool? IsActive
         {
             get;
@@ -66,9 +70,9 @@ namespace WebAPI.Models.API
         /// <summary>
         /// Filter expression
         /// </summary>
-        [DataMember(Name = "filter_expression")]
-        [JsonProperty("filter_expression")]
-        [XmlElement(ElementName = "filter_expression")]
+        [DataMember(Name = "filterExpression")]
+        [JsonProperty("filterExpression")]
+        [XmlElement(ElementName = "filterExpression")]
         public string FilterExpression
         {
             get;
@@ -78,10 +82,10 @@ namespace WebAPI.Models.API
         /// <summary>
         /// Asset types. Media types - taken from group's definition. EPG is -26.
         /// </summary>
-        [DataMember(Name = "asset_types")]
-        [JsonProperty("asset_types")]
-        [XmlArray(ElementName = "asset_types", IsNullable = true)]
-        [XmlArrayItem("asset_types")]
+        [DataMember(Name = "assetTypes")]
+        [JsonProperty("assetTypes")]
+        [XmlArray(ElementName = "assetTypes", IsNullable = true)]
+        [XmlArrayItem("assetTypes")]
         public List<int> AssetTypes
         {
             get;

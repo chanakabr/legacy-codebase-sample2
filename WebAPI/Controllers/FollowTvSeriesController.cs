@@ -6,6 +6,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.Models.Notification;
@@ -51,23 +52,24 @@ namespace WebAPI.Controllers
         /// Delete a user's tv series follow.
         /// <remarks>Possible status codes: UserNotFollowing = 8012, NotFound = 500007, InvalidAssetId = 4024, AnnouncementNotFound = 8006</remarks>
         /// </summary>
-        /// <param name="asset_id"></param>
+        /// <param name="assetId"></param>
         /// <returns></returns>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        public bool Delete(int asset_id)
+        [OldStandard("assetId", "asset_id")]
+        public bool Delete(int assetId)
         {
             bool response = false;
 
             int groupId = KS.GetFromRequest().GroupId;
             string userID = KS.GetFromRequest().UserId;
 
-            if (asset_id <= 0)
+            if (assetId <= 0)
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal asset ID");
 
             try
             {
-                response = ClientsManager.NotificationClient().DeleteUserTvSeriesFollow(groupId, userID, asset_id);
+                response = ClientsManager.NotificationClient().DeleteUserTvSeriesFollow(groupId, userID, assetId);
             }
             catch (ClientException ex)
             {

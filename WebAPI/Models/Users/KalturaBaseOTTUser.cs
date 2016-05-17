@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Users
@@ -12,6 +13,8 @@ namespace WebAPI.Models.Users
     /// <summary>
     /// Slim user data
     /// </summary>
+    [OldStandard("firstName", "first_name")]
+    [OldStandard("lastName", "last_name")]
     public class KalturaBaseOTTUser : KalturaOTTObject
     {
         /// <summary>
@@ -33,17 +36,17 @@ namespace WebAPI.Models.Users
         /// <summary>
         /// First name
         /// </summary>
-        [DataMember(Name = "first_name")]
-        [JsonProperty("first_name")]
-        [XmlElement(ElementName = "first_name")]
+        [DataMember(Name = "firstName")]
+        [JsonProperty("firstName")]
+        [XmlElement(ElementName = "firstName")]
         public string FirstName { get; set; }
 
         /// <summary>
         /// Last name
         /// </summary>
-        [DataMember(Name = "last_name")]
-        [JsonProperty("last_name")]
-        [XmlElement(ElementName = "last_name")]
+        [DataMember(Name = "lastName")]
+        [JsonProperty("lastName")]
+        [XmlElement(ElementName = "lastName")]
         public string LastName { get; set; }
     }
 }
