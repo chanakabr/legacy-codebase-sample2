@@ -4556,12 +4556,11 @@ namespace ConditionalAccess
             int QuotaInMinutes = 0;
             try
             {
-                string key = string.Format("{0}_{1}", groupID, "DefaultQuotaMinutes");
-                int quotaModuleID = 0;
+                string key = string.Format("{0}_{1}", groupID, "DefaultQuotaMinutes");              
                 bool res = ConditionalAccessCache.GetItem<int>(key, out QuotaInMinutes);
-                if (!res || quotaModuleID == 0)
+                if (!res || QuotaInMinutes == 0)
                 {
-                    quotaModuleID = ConditionalAccessDAL.GetQuotaMinutes(groupID);
+                    QuotaInMinutes = ConditionalAccessDAL.GetQuotaMinutes(groupID);
                     res = ConditionalAccessCache.AddItem(key, QuotaInMinutes);
                 }                
             }
