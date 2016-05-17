@@ -1531,7 +1531,7 @@ namespace TvinciImporter
 
         }
 
-        static protected bool ProcessItem(XmlNode theItem, ref string sCoGuid, ref Int32 nMediaID, ref string sErrorMessage, Int32 nGroupID)
+        static protected bool ProcessItem(XmlNode theItem, ref string sCoGuid, ref Int32 nMediaID, ref string sErrorMessage, Int32 nGroupID, ref bool isActive)
         {
             log.DebugFormat("ProcessItem - Start groupId {0} ", nGroupID);
             bool bOK = true;
@@ -1545,6 +1545,7 @@ namespace TvinciImporter
             string entryId = GetItemParameterVal(ref theItem, "entry_id");
             string sAction = GetItemParameterVal(ref theItem, "action").Trim().ToLower();
             string sIsActive = GetItemParameterVal(ref theItem, "is_active").Trim().ToLower();
+            isActive = sIsActive.Trim().ToLower() == "true";
             if (sAction == "delete")
             {
 
@@ -1639,7 +1640,7 @@ namespace TvinciImporter
 
                 UpdateInsertBasicMainLangData(nGroupID, ref nMediaID, nItemType, sCoGuid, sEpgIdentifier, nWatchPerRule, nGeoBlockRule,
                     nPlayersRule, nDeviceRule, dCatalogStartDate, dStartDate, dCatalogEndDate, dFinalEndDate, sMainLang, ref theItemName,
-                    ref theItemDesc, sIsActive, dCreate, entryId);
+                    ref theItemDesc, isActive, dCreate, entryId);
 
                 // get all ratio and ratio's pic url from input xml
                 Dictionary<string, string> ratioStrThumb = SetRatioStrThumb(thePicRatios);
@@ -2605,7 +2606,7 @@ namespace TvinciImporter
 
             if (picSizes == null)
             {
-                picSizes = GetMediaPicSizes(bSetMediaThumb, nGroupID, ratioID);                
+                picSizes = GetMediaPicSizes(bSetMediaThumb, nGroupID, ratioID);
             }
             //generate PictureData and send to Queue 
             string sPicNewName = getNewUninqueName(ratioID, nMediaID); //the unique name            
@@ -3341,7 +3342,7 @@ namespace TvinciImporter
                         string ParsedPPVModuleName = string.Empty;
                         DateTime? ppvStartDate = null;
                         DateTime? ppvEndDate = null;
-                        
+
                         //ppvModuleName = ppvModuleName.Substring(0, ppvModuleName.Length - 1);
                         string[] parameters = ppvModuleName.Split(';');
 
@@ -4381,7 +4382,7 @@ namespace TvinciImporter
         static protected bool UpdateInsertBasicMainLangData(Int32 nGroupID, ref Int32 nMediaID, Int32 nItemType, string sCoGuid,
             string sEpgIdentifier, Int32 nWatchPerRule, Int32 nGeoBlockRule, Int32 nPlayersRule, Int32 nDeviceRule,
             DateTime dCatalogStartDate, DateTime dStartDate, DateTime dCatalogEndDate, DateTime dFinalEndDate, string sMainLang,
-            ref XmlNode theItemNames, ref XmlNode theItemDesc, string sIsActive, DateTime dCreate, string entryId)
+            ref XmlNode theItemNames, ref XmlNode theItemDesc, bool isActive, DateTime dCreate, string entryId)
         {
             string sName = GetMultiLangValue(sMainLang, ref theItemNames);
             string sDescription = GetMultiLangValue(sMainLang, ref theItemDesc);
@@ -4411,7 +4412,7 @@ namespace TvinciImporter
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CREATE_DATE", "=", dCreate);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("EDITOR_REMARKS", "=", "Created by auto importer process");
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
-                if (sIsActive.Trim().ToLower() == "true")
+                if (isActive)
                     insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("device_rule_id", "=", nDeviceRule);
@@ -4450,7 +4451,7 @@ namespace TvinciImporter
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("FINAL_END_DATE", "=", dFinalEndDate);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("EDITOR_REMARKS", "=", "Created by auto importer process");
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
-                if (sIsActive.Trim().ToLower() == "true")
+                if (isActive)
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
                 else
                     updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 0); // ask Ira
@@ -4636,7 +4637,8 @@ namespace TvinciImporter
                     string sCoGuid = "";
                     string sErrorMessage = "";
                     Int32 nMediaID = 0;
-                    bool bProcess = ProcessItem(theItems[i], ref sCoGuid, ref nMediaID, ref sErrorMessage, nGroupID);
+                    bool isActive = false;
+                    bool bProcess = ProcessItem(theItems[i], ref sCoGuid, ref nMediaID, ref sErrorMessage, nGroupID, ref isActive);
                     log.Debug("Import finished - Index: " + i.ToString());
                     if (bProcess == false)
                     {
@@ -4649,10 +4651,11 @@ namespace TvinciImporter
 
                         // Update record in Catalog (see the flow inside Update Index
                         bool resultMQ = ImporterImpl.UpdateIndex(new List<int>() { nMediaID }, nParentGroupID, eAction.Update);
-                        // update notification 
-                        UpdateNotificationsRequests(nGroupID, nMediaID);
-                    }
 
+                        // update notification 
+                        if (isActive)
+                            UpdateNotificationsRequests(nGroupID, nMediaID);
+                    }
                 }
                 if (uploadDirectory)
                 {
@@ -4942,7 +4945,7 @@ namespace TvinciImporter
 
         static public ApiObjects.Response.Status AddMessageAnnouncement(int groupID, bool Enabled, string name, string message, int Recipients, DateTime date, string timezone, ref int id)
         {
-            AddMessageAnnouncementResponse response =null;
+            AddMessageAnnouncementResponse response = null;
             try
             {
                 //Call Notifications WCF service
@@ -4966,14 +4969,14 @@ namespace TvinciImporter
                 response = service.AddMessageAnnouncement(sWSUserName, sWSPass, announcement);
                 if (response != null && response.Status.Code == (int)ApiObjects.Response.eResponseStatus.OK)
                 {
-                    id = response.Id;                    
-                }                
+                    id = response.Id;
+                }
                 return response.Status;
             }
             catch (Exception ex)
             {
                 return new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
-            }           
+            }
         }
 
         static public ApiObjects.Response.Status UpdateMessageAnnouncement(int groupID, int id, bool Enabled, string name, string message, int Recipients, DateTime date, string timezone)
@@ -5000,7 +5003,7 @@ namespace TvinciImporter
                 announcement.MessageAnnouncementId = id;
                 announcement.Enabled = Enabled;
                 ApiObjects.Response.Status response = service.UpdateMessageAnnouncement(sWSUserName, sWSPass, announcement);
-                return response;               
+                return response;
             }
             catch (Exception)
             {
@@ -5024,7 +5027,7 @@ namespace TvinciImporter
                 string sWSPass = "";
                 int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupID);
                 TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "", "notifications", sIP, ref sWSUserName, ref sWSPass);
-              
+
                 ApiObjects.Response.Status response = service.UpdateMessageAnnouncementStatus(sWSUserName, sWSPass, id, status);
                 if (response != null && response.Code == (int)ApiObjects.Response.eResponseStatus.OK)
                 {
@@ -5087,7 +5090,7 @@ namespace TvinciImporter
         //            {
         //                dt.Rows.Add(  ma.MessageAnnouncementId, (int)ma.Recipients, 1, ma.Enabled, ma.Name, ma.Message, ma.StartTime, (int)ma.Status
         //                    ma.Message, ma.Name, ma.MessageAnnouncementId);
-                        
+
         //            }
         //        }
         //    }
@@ -5164,7 +5167,7 @@ namespace TvinciImporter
                 {
                     AssetType = messageTemplate.AssetType,
                     Message = messageTemplate.Message,
-                    Sound    = messageTemplate.Sound,
+                    Sound = messageTemplate.Sound,
                     Action = messageTemplate.Action,
                     URL = messageTemplate.URL,
                     Id = messageTemplate.Id,
@@ -5174,7 +5177,8 @@ namespace TvinciImporter
                 response = service.SetMessageTemplate(sWSUserName, sWSPass, wcfMessageTemplate);
                 if (response != null && response.Status.Code == (int)ApiObjects.Response.eResponseStatus.OK)
                 {
-                    messageTemplate = new ApiObjects.Notification.MessageTemplate() {
+                    messageTemplate = new ApiObjects.Notification.MessageTemplate()
+                    {
                         Id = response.MessageTemplate.Id,
                         Message = response.MessageTemplate.Message,
                         DateFormat = response.MessageTemplate.DateFormat,
@@ -5275,25 +5279,25 @@ namespace TvinciImporter
                                     switch (eAction)
                                     {
                                         case eAction.Off:
-                                        actionCatalog = WSCatalog.eAction.Off;
-                                        break;
+                                            actionCatalog = WSCatalog.eAction.Off;
+                                            break;
                                         case eAction.On:
-                                        actionCatalog = WSCatalog.eAction.On;
-                                        break;
+                                            actionCatalog = WSCatalog.eAction.On;
+                                            break;
                                         case eAction.Update:
-                                        actionCatalog = WSCatalog.eAction.Update;
-                                        break;
+                                            actionCatalog = WSCatalog.eAction.Update;
+                                            break;
                                         case eAction.Delete:
-                                        actionCatalog = WSCatalog.eAction.Delete;
-                                        break;
+                                            actionCatalog = WSCatalog.eAction.Delete;
+                                            break;
                                         case eAction.Rebuild:
-                                        actionCatalog = WSCatalog.eAction.Rebuild;
-                                        break;
+                                            actionCatalog = WSCatalog.eAction.Rebuild;
+                                            break;
                                         default:
-                                        break;
+                                            break;
                                     }
                                     isUpdateIndexSucceeded = wsCatalog.UpdateIndex(
-                                        arrMediaIds, 
+                                        arrMediaIds,
                                         nParentGroupID, actionCatalog);
 
                                     string sInfo = isUpdateIndexSucceeded == true ? "succeeded" : "not succeeded";
@@ -5319,7 +5323,7 @@ namespace TvinciImporter
                 {
                     wsCatalog.Close();
                 }
-            }            
+            }
 
             return isUpdateIndexSucceeded;
         }
@@ -5358,26 +5362,26 @@ namespace TvinciImporter
                                         switch (eAction)
                                         {
                                             case eAction.Off:
-                                            actionCatalog = WSCatalog.eAction.Off;
-                                            break;
+                                                actionCatalog = WSCatalog.eAction.Off;
+                                                break;
                                             case eAction.On:
-                                            actionCatalog = WSCatalog.eAction.On;
-                                            break;
+                                                actionCatalog = WSCatalog.eAction.On;
+                                                break;
                                             case eAction.Update:
-                                            actionCatalog = WSCatalog.eAction.Update;
-                                            break;
+                                                actionCatalog = WSCatalog.eAction.Update;
+                                                break;
                                             case eAction.Delete:
-                                            actionCatalog = WSCatalog.eAction.Delete;
-                                            break;
+                                                actionCatalog = WSCatalog.eAction.Delete;
+                                                break;
                                             case eAction.Rebuild:
-                                            actionCatalog = WSCatalog.eAction.Rebuild;
-                                            break;
+                                                actionCatalog = WSCatalog.eAction.Rebuild;
+                                                break;
                                             default:
-                                            break;
+                                                break;
                                         }
 
                                         isUpdateChannelIndexSucceeded = wsCatalog.UpdateChannelIndex(
-                                            arrChannelIds, 
+                                            arrChannelIds,
                                             nParentGroupID, actionCatalog);
 
                                         string sInfo = isUpdateChannelIndexSucceeded == true ? "succeeded" : "not succeeded";
@@ -5446,19 +5450,19 @@ namespace TvinciImporter
                                 switch (oe)
                                 {
                                     case eOperatorEvent.ChannelAddedToSubscription:
-                                    oeCatalog = WSCatalog.eOperatorEvent.ChannelAddedToSubscription;
-                                    break;
+                                        oeCatalog = WSCatalog.eOperatorEvent.ChannelAddedToSubscription;
+                                        break;
                                     case eOperatorEvent.ChannelRemovedFromSubscription:
-                                    oeCatalog = WSCatalog.eOperatorEvent.ChannelRemovedFromSubscription;
-                                    break;
+                                        oeCatalog = WSCatalog.eOperatorEvent.ChannelRemovedFromSubscription;
+                                        break;
                                     case eOperatorEvent.SubscriptionAddedToOperator:
-                                    oeCatalog = WSCatalog.eOperatorEvent.SubscriptionAddedToOperator;
-                                    break;
+                                        oeCatalog = WSCatalog.eOperatorEvent.SubscriptionAddedToOperator;
+                                        break;
                                     case eOperatorEvent.SubscriptionRemovedFromOperator:
-                                    oeCatalog = WSCatalog.eOperatorEvent.SubscriptionRemovedFromOperator;
-                                    break;
+                                        oeCatalog = WSCatalog.eOperatorEvent.SubscriptionRemovedFromOperator;
+                                        break;
                                     default:
-                                    break;
+                                        break;
                                 }
                                 res &= wsCatalog.UpdateOperator(nParentGroupID, nOperatorID, nSubscriptionID, lChannelID, oeCatalog);
 
@@ -5567,22 +5571,22 @@ namespace TvinciImporter
                                     switch (action)
                                     {
                                         case eAction.Off:
-                                        actionCatalog = WSCatalog.eAction.Off;
-                                        break;
+                                            actionCatalog = WSCatalog.eAction.Off;
+                                            break;
                                         case eAction.On:
-                                        actionCatalog = WSCatalog.eAction.On;
-                                        break;
+                                            actionCatalog = WSCatalog.eAction.On;
+                                            break;
                                         case eAction.Update:
-                                        actionCatalog = WSCatalog.eAction.Update;
-                                        break;
+                                            actionCatalog = WSCatalog.eAction.Update;
+                                            break;
                                         case eAction.Delete:
-                                        actionCatalog = WSCatalog.eAction.Delete;
-                                        break;
+                                            actionCatalog = WSCatalog.eAction.Delete;
+                                            break;
                                         case eAction.Rebuild:
-                                        actionCatalog = WSCatalog.eAction.Rebuild;
-                                        break;
+                                            actionCatalog = WSCatalog.eAction.Rebuild;
+                                            break;
                                         default:
-                                        break;
+                                            break;
                                     }
 
                                     isUpdateIndexSucceeded = wsCatalog.UpdateEpgIndex(
@@ -5635,22 +5639,22 @@ namespace TvinciImporter
                     switch (action)
                     {
                         case eAction.Off:
-                        casAction = WS_ConditionalAccess.eAction.Off;
-                        break;
+                            casAction = WS_ConditionalAccess.eAction.Off;
+                            break;
                         case eAction.On:
-                        casAction = WS_ConditionalAccess.eAction.On;
-                        break;
+                            casAction = WS_ConditionalAccess.eAction.On;
+                            break;
                         case eAction.Update:
-                        casAction = WS_ConditionalAccess.eAction.Update;
-                        break;
+                            casAction = WS_ConditionalAccess.eAction.Update;
+                            break;
                         case eAction.Delete:
-                        casAction = WS_ConditionalAccess.eAction.Delete;
-                        break;
+                            casAction = WS_ConditionalAccess.eAction.Delete;
+                            break;
                         case eAction.Rebuild:
-                        casAction = WS_ConditionalAccess.eAction.Rebuild;
-                        break;
+                            casAction = WS_ConditionalAccess.eAction.Rebuild;
+                            break;
                         default:
-                        break;
+                            break;
                     }
 
                     var status = cas.UpdateRecording(sWSUserName, sWSPassword, epgIds.Select(i => (long)i).ToArray(), casAction);
@@ -5824,7 +5828,7 @@ namespace TvinciImporter
 
 
 
-        
+
     }
 }
 
