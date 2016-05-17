@@ -789,13 +789,22 @@ namespace Catalog
                                 {
                                     List<BooleanPhraseNode> newList = new List<BooleanPhraseNode>();
 
-                                    // Split the single leaf into several brothers connected with an "or" operand
+                                    // Split the single leaf into several brothers connected with:
+                                    // "or" operand (if it positive)
+                                    // "and" operand (if it negative)
                                     foreach (var searchKey in searchKeys)
                                     {
                                         newList.Add(new BooleanLeaf(searchKey, leaf.value, leaf.valueType, leaf.operand));
                                     }
 
-                                    BooleanPhrase newPhrase = new BooleanPhrase(newList, eCutType.Or);
+                                    eCutType cutType = eCutType.Or;
+
+                                    if (leaf.operand == ComparisonOperator.NotContains || leaf.operand == ComparisonOperator.NotEquals)
+                                    {
+                                        cutType = eCutType.And;
+                                    }
+
+                                    BooleanPhrase newPhrase = new BooleanPhrase(newList, cutType);
 
                                     // If there is a parent to this leaf - remove the old leaf and add the new phrase instead of it
                                     if (parentMapping.ContainsKey(leaf))
