@@ -412,24 +412,18 @@ namespace Ingest.Importers
                             continue;
 
                         // price code (price) - mandatory
-                        if (GetNodeDoublePositiveValue(node, "price_code/price", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, pricePlan.Action.ToString().ToLower(), out dVal))
+                        if (GetPriceCodeNode(node, "price_code", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, pricePlan.Action.ToString().ToLower(), out dVal, out strVal))                        
                         {
-                            pricePlan.PriceCode = new IngestPriceCode();
-                            pricePlan.PriceCode.Price = dVal;
-                        }
-                        else
-                            continue;
-
-                        // price code (currency) - mandatory
-                        if (GetNodeStrValue(node, "price_code/currency", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, pricePlan.Action.ToString().ToLower(), out strVal))
-                        {
-                            if (pricePlan.PriceCode == null)
+                            if (dVal != null && !string.IsNullOrEmpty(strVal))
+                            {
                                 pricePlan.PriceCode = new IngestPriceCode();
-                            pricePlan.PriceCode.Currency = strVal;
+                                pricePlan.PriceCode.Price = dVal;
+                                pricePlan.PriceCode.Currency = strVal;
+                            }
                         }
                         else
                             continue;
-
+                        
                         // recurring periods - mandatory
                         if (GetNodeIntValue(node, "recurring_periods", PRICE_PLAN, pricePlan.Code, ref reportBuilder, reportId, pricePlan.Action.ToString().ToLower(), out intVal))
                             pricePlan.RecurringPeriods = intVal;
@@ -458,6 +452,8 @@ namespace Ingest.Importers
             WriteReportLogToFile(reportBuilder.ToString(), reportId, groupId);
             return pricePlans;
         }
+
+
 
         private static List<IngestMultiPricePlan> ParseMultiPricePlansXml(XmlDocument doc, string reportId, int groupId)
         {
@@ -699,22 +695,16 @@ namespace Ingest.Importers
                             ppv.FirstDeviceLimitation = boolVal;
                         else
                             continue;
-
+                                                
                         // price code (price) - mandatory
-                        if (GetNodeDoublePositiveValue(node, "price_code/price", PRICE_PLAN, ppv.Code, ref reportBuilder, reportId, ppv.Action.ToString().ToLower(), out dVal))
+                        if (GetPriceCodeNode(node, "price_code", PRICE_PLAN, ppv.Code, ref reportBuilder, reportId, ppv.Action.ToString().ToLower(), out dVal, out strVal))
                         {
-                            ppv.PriceCode = new IngestPriceCode();
-                            ppv.PriceCode.Price = dVal;
-                        }
-                        else
-                            continue;
-
-                        // price code (currency) - mandatory
-                        if (GetNodeStrValue(node, "price_code/currency", PRICE_PLAN, ppv.Code, ref reportBuilder, reportId, ppv.Action.ToString().ToLower(), out strVal))
-                        {
-                            if (ppv.PriceCode == null)
+                            if (dVal != null && !string.IsNullOrEmpty(strVal))
+                            {
                                 ppv.PriceCode = new IngestPriceCode();
-                            ppv.PriceCode.Currency = strVal;
+                                ppv.PriceCode.Price = dVal;
+                                ppv.PriceCode.Currency = strVal;
+                            }
                         }
                         else
                             continue;
@@ -1099,6 +1089,28 @@ namespace Ingest.Importers
 
             return true;
         }
-            
+
+        private static bool GetPriceCodeNode(XmlNode node, string nodeName, string moduleName, string moduleCode, ref StringBuilder report, string reportId, string action, out double? dVal, out string strVal)
+        {
+            XmlNodeList nodeList = node.SelectNodes("price_code");
+            strVal = string.Empty;
+            dVal = null;
+            if (nodeList != null && nodeList.Count > 0)
+            {
+                if (!GetNodeDoublePositiveValue(node, "price_code/price", PRICE_PLAN, moduleCode, ref report, reportId, action, out dVal))
+                    return false;
+
+                // price code (currency) - mandatory
+                if (!GetNodeStrValue(node, "price_code/currency", PRICE_PLAN, moduleCode, ref report, reportId, action, out strVal))
+                    return false;
+            }
+            else if (action == eIngestAction.Insert.ToString().ToLower())
+            {
+                log.ErrorFormat(LOG_FORMAT_ERROR_FORMAT, moduleName, moduleCode, nodeName, reportId, action);
+                report.AppendFormat(FORMAT_ERROR_FORMAT, moduleName, moduleCode, nodeName, action);
+                return false;
+            }
+            return true;
+        }
     }
 }
