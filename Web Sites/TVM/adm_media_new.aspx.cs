@@ -40,7 +40,11 @@ public partial class adm_media_new : System.Web.UI.Page
                     {
                         log.Error(string.Format("Failed updating index for mediaID: {0}, groupID: {1}", nID, nGroupId));
                     }
-                    ImporterImpl.UpdateNotificationsRequests(LoginManager.GetLoginGroupID(), nID);//Notification                     
+
+                    // update notification                     
+                    object isActiveAsset = ODBCWrapper.Utils.GetTableSingleVal("media", "is_active", nID);
+                    if (isActiveAsset != null && isActiveAsset != DBNull.Value && isActiveAsset.ToString().Equals("1"))
+                        ImporterImpl.UpdateNotificationsRequests(LoginManager.GetLoginGroupID(), nID);
                 }
 
                 try
