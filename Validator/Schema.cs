@@ -89,7 +89,21 @@ namespace Validator.Managers.Schema
                     {
                         LoadType(param.ParameterType, loadAll);
                     }
+
+                    if (method.ReturnType != null)
+                    {
+                        LoadType(method.ReturnType, loadAll);
+                    }
                 };
+            }
+
+            var filters = assembly.GetTypes().Where(myType => myType.IsClass && myType.IsSubclassOf(typeof(KalturaFilter)));
+            foreach (var filter in filters)
+            {
+                var orderByName = filter.Name.Replace("Filter", "OrderBy");
+                var orderBys = assembly.GetTypes().Where(myType => myType.IsEnum && myType.Name == orderByName);
+                foreach(var orderBy in orderBys)
+                    enums.Add(orderBy);
             }
 
             List<Field> fields = new List<Field>();
@@ -396,7 +410,7 @@ namespace Validator.Managers.Schema
 
             writer.WriteStartElement("service");
             writer.WriteAttributeString("name", serviceId);
-            writer.WriteAttributeString("id", serviceId);
+            writer.WriteAttributeString("id", serviceId.ToLower());
 
             var methods = controller.GetMethods().OrderBy(method => method.Name);
             foreach (var method in methods)

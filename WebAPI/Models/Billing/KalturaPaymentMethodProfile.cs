@@ -1,10 +1,12 @@
 ﻿using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Billing
 {
+    [OldStandard("allowMultiInstance", "allow_multi_instance")]
     public class KalturaPaymentMethodProfile : KalturaOTTObject
     {
         /// <summary>
@@ -26,9 +28,9 @@ namespace WebAPI.Models.Billing
         /// <summary>
         /// Indicates whether the payment method allow multiple instances 
         /// </summary>
-        [DataMember(Name = "allow_multi_instance")]
-        [JsonProperty("allow_multi_instance")]
-        [XmlElement(ElementName = "allow_multi_instance")]
+        [DataMember(Name = "allowMultiInstance")]
+        [JsonProperty("allowMultiInstance")]
+        [XmlElement(ElementName = "allowMultiInstance")]
         public bool? AllowMultiInstance { get; set; }
 
         internal bool getAllowMultiInstance()

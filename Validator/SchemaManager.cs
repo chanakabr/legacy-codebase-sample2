@@ -215,7 +215,7 @@ namespace Validator.Managers.Schema
 
             foreach (PropertyInfo property in type.GetProperties())
             {
-                if (hasValidationException(property, SchemaValidationType.FILTER_SUFFIX))
+                if (property.DeclaringType != type || hasValidationException(property, SchemaValidationType.FILTER_SUFFIX))
                     continue;
 
                 JsonPropertyAttribute jsonProperty = property.GetCustomAttribute<JsonPropertyAttribute>(true);
@@ -249,9 +249,9 @@ namespace Validator.Managers.Schema
         {
             bool valid = true;
             
-            if (type.Name.EndsWith("ListResponse"))
+            if (type != typeof(KalturaListResponse) && type.Name.EndsWith("ListResponse"))
             {
-                if (type != typeof(KalturaListResponse) && !type.IsSubclassOf(typeof(KalturaListResponse)))
+                if (!type.IsSubclassOf(typeof(KalturaListResponse)))
                 {
                     logError("Error", type, string.Format("List response {0} must inherit KalturaListResponse", type.Name));
                     valid = false;
@@ -260,8 +260,9 @@ namespace Validator.Managers.Schema
                 PropertyInfo objectsProperty = getObjectsProperty(type);
                 if (objectsProperty == null)
                 {
-                    logError("Error", type, string.Format("List response {0} must implement objects attribute", type.Name));
-                    valid = false;
+                    logError("Warning", type, string.Format("List response {0} must implement objects attribute", type.Name));
+                    if (strict)
+                        valid = false;
                 }
             }
 
@@ -276,7 +277,7 @@ namespace Validator.Managers.Schema
             {
                 valid = ValidateFilter(type, strict) && valid;
             }
-            else if (type.Name.EndsWith("Filter"))
+            else if (type != typeof(KalturaFilter) && type.Name.EndsWith("Filter"))
             {
                 logError("Warning", type, string.Format("Filter {0} must inherit KalturaFilter", type.Name));
                 if (strict)
@@ -455,9 +456,9 @@ namespace Validator.Managers.Schema
                     valid = false;
             }
 
+            string expectedObjectType = string.Format("Kaltura{0}", FirstCharacterToUpper(serviceId));
             if (actionId == "get" || actionId == "add" || actionId == "update")
             {
-                string expectedObjectType = string.Format("Kaltura{0}", FirstCharacterToUpper(serviceId));
                 if (action.ReturnType.Name != expectedObjectType)
                 {
                     logError("Warning", controller, string.Format("Action {0}.{1} ({2}) returned type is {3}, expected {4}", serviceId, actionId, controller.Name, action.ReturnType.Name, expectedObjectType));
@@ -466,9 +467,121 @@ namespace Validator.Managers.Schema
                 }
             }
 
+            var parameters = action.GetParameters();
+
+            if (!hasValidationException(action, SchemaValidationType.ACTION_ARGUMENTS))
+            {
+                if (actionId == "get" || actionId == "delete")
+                {
+                    if (parameters.Length > 1)
+                    {
+                        logError("Warning", controller, string.Format("Action {0}.{1} ({2}) only one id arguments is expected", serviceId, actionId, controller.Name));
+                        if (strict)
+                            valid = false;
+                    }
+                    else if (parameters.Length == 0)
+                    {
+                        logError("Warning", controller, string.Format("Action {0}.{1} ({2}) id arguments is expected", serviceId, actionId, controller.Name));
+                        if (strict)
+                            valid = false;
+                    }
+                    else
+                    {
+                        var idParam = parameters[0];
+                        if (!idParam.ParameterType.IsPrimitive)
+                        {
+                            logError("Warning", controller, string.Format("Action {0}.{1} ({2}) id argument type is {3}, primitive is expected", serviceId, actionId, controller.Name, idParam.ParameterType.Name));
+                            if (strict)
+                                valid = false;
+                        }
+                    }
+                }
+
+                if (actionId == "add")
+                {
+                    if (parameters.Length != 1)
+                    {
+                        logError("Warning", controller, string.Format("Action {0}.{1} ({2}) only one argument is expected", serviceId, actionId, controller.Name));
+                        if (strict)
+                            valid = false;
+                    }
+                    else
+                    {
+                        var objectParam = parameters[0];
+                        if (objectParam.ParameterType.Name != expectedObjectType)
+                        {
+                            logError("Warning", controller, string.Format("Action {0}.{1} ({2}) argument type is {3}, expected {4}", serviceId, actionId, controller.Name, objectParam.ParameterType.Name, expectedObjectType));
+                            if (strict)
+                                valid = false;
+                        }
+                    }
+                }
+
+                if (actionId == "update")
+                {
+                    if (parameters.Length != 2)
+                    {
+                        logError("Warning", controller, string.Format("Action {0}.{1} ({2}) two arguments, id and object are expected", serviceId, actionId, controller.Name));
+                        if (strict)
+                            valid = false;
+                    }
+                    else
+                    {
+                        var idParam = parameters[1];
+                        if (!idParam.ParameterType.IsPrimitive)
+                        {
+                            logError("Warning", controller, string.Format("Action {0}.{1} ({2}) id argument type is {3}, primitive is expected", serviceId, actionId, controller.Name, idParam.ParameterType.Name));
+                            if (strict)
+                                valid = false;
+                        }
+
+                        var objectParam = parameters[1];
+                        if (objectParam.ParameterType.Name != expectedObjectType)
+                        {
+                            logError("Warning", controller, string.Format("Action {0}.{1} ({2}) object argument type is {3}, expected {4}", serviceId, actionId, controller.Name, objectParam.ParameterType.Name, expectedObjectType));
+                            if (strict)
+                                valid = false;
+                        }
+                    }
+                }
+
+                if (actionId == "list")
+                {
+                    if (parameters.Length > 0)
+                    {
+                        string expectedFilterType = string.Format("Kaltura{0}Filter", FirstCharacterToUpper(serviceId));
+
+                        var filterParam = parameters[0];
+                        if (filterParam.ParameterType.Name != expectedFilterType)
+                        {
+                            logError("Warning", controller, string.Format("Action {0}.{1} ({2}) first argument type is {3}, expected {4}", serviceId, actionId, controller.Name, filterParam.ParameterType.Name, expectedFilterType));
+                            if (strict)
+                                valid = false;
+                        }
+                    }
+
+                    if (parameters.Length > 1)
+                    {
+                        var pagerParam = parameters[1];
+                        if (pagerParam.ParameterType != typeof(KalturaFilterPager))
+                        {
+                            logError("Warning", controller, string.Format("Action {0}.{1} ({2}) second argument type is {3}, expected KalturaFilterPager", serviceId, actionId, controller.Name, pagerParam.ParameterType.Name));
+                            if (strict)
+                                valid = false;
+                        }
+                    }
+
+                    if (parameters.Length > 2)
+                    {
+                        logError("Warning", controller, string.Format("Action {0}.{1} ({2}) only filter and pager arguments are expected", serviceId, actionId, controller.Name));
+                        if (strict)
+                            valid = false;
+                    }
+                }
+            }
+
             if (actionId == "list")
             {
-                string expectedObjectType = string.Format("Kaltura{0}", FirstCharacterToUpper(serviceId));
                 string expectedResponseType = string.Format("Kaltura{0}ListResponse", FirstCharacterToUpper(serviceId));
                 if (action.ReturnType.Name != expectedResponseType)
                 {
@@ -489,7 +602,7 @@ namespace Validator.Managers.Schema
                 }
             }
 
-            foreach (var param in action.GetParameters())
+            foreach (var param in parameters)
             {
                 valid = ValidateParameter(action, param, strict) && valid;
             }

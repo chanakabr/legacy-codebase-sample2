@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.Partner;
 
 namespace WebAPI.Models.Partner
@@ -8,6 +9,7 @@ namespace WebAPI.Models.Partner
     /// <summary>
     /// Partner billing configuration
     /// </summary>
+    [OldStandard("partnerConfigurationType", "partner_configuration_type")]
     public class KalturaBillingPartnerConfig : KalturaPartnerConfiguration
     {
         /// <summary>
@@ -21,9 +23,9 @@ namespace WebAPI.Models.Partner
         /// <summary>
         /// partner configuration type
         /// </summary>
-        [DataMember(Name = "partner_configuration_type")]
-        [JsonProperty("partner_configuration_type")]
-        [XmlElement(ElementName = "partner_configuration_type", IsNullable=true)]
+        [DataMember(Name = "partnerConfigurationType")]
+        [JsonProperty("partnerConfigurationType")]
+        [XmlElement(ElementName = "partnerConfigurationType", IsNullable = true)]
         public KalturaPartnerConfigurationHolder Type { get; set; }
     }
 }

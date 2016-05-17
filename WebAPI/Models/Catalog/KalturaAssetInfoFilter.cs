@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 
@@ -14,6 +15,7 @@ namespace WebAPI.Models.Catalog
     /// Filtering assets
     /// </summary>
     [Serializable]
+    [OldStandard("referenceType", "reference_type")]
     public class KalturaAssetInfoFilter : KalturaOTTObject
     {
         /// <summary>
@@ -37,9 +39,9 @@ namespace WebAPI.Models.Catalog
         /// <summary>
         /// Reference type of the given IDs
         /// </summary>
-        [DataMember(Name = "reference_type")]
-        [JsonProperty("reference_type")]
-        [XmlElement(ElementName = "reference_type")]
+        [DataMember(Name = "referenceType")]
+        [JsonProperty("referenceType")]
+        [XmlElement(ElementName = "referenceType")]
         public KalturaCatalogReferenceBy ReferenceType { get; set; }
     }
 }

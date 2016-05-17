@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
@@ -12,6 +13,7 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Image details
     /// </summary>
+    [OldStandard("isDefault", "is_default")]
     public class KalturaMediaImage : KalturaOTTObject
     {
         /// <summary>
@@ -65,9 +67,9 @@ namespace WebAPI.Models.Catalog
         /// <summary>
         /// Determined whether image was taken from default configuration or not 
         /// </summary>
-        [DataMember(Name = "is_default")]
-        [JsonProperty(PropertyName = "is_default")]
-        [XmlElement(ElementName = "is_default")]
+        [DataMember(Name = "isDefault")]
+        [JsonProperty(PropertyName = "isDefault")]
+        [XmlElement(ElementName = "isDefault")]
         public bool? IsDefault { get; set; }
     }
 }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
@@ -12,6 +13,8 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Channel details
     /// </summary>
+    [OldStandard("assetTypes", "asset_types")]
+    [OldStandard("filterExpression", "filter_expression")]
     public class KalturaChannel : KalturaBaseChannel
     {
         /// <summary>
@@ -35,18 +38,18 @@ namespace WebAPI.Models.Catalog
         /// Asset types in the channel.
         /// -26 is EPG
         /// </summary>
-        [DataMember(Name = "asset_types")]
-        [JsonProperty(PropertyName = "asset_types")]
-        [XmlArray(ElementName = "asset_types", IsNullable = true)]
+        [DataMember(Name = "assetTypes")]
+        [JsonProperty(PropertyName = "assetTypes")]
+        [XmlArray(ElementName = "assetTypes", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaIntegerValue> AssetTypes { get; set; }
 
         /// <summary>
         /// Filter expression
         /// </summary>
-        [DataMember(Name = "filter_expression")]
-        [JsonProperty("filter_expression")]
-        [XmlElement(ElementName = "filter_expression")]
+        [DataMember(Name = "filterExpression")]
+        [JsonProperty("filterExpression")]
+        [XmlElement(ElementName = "filterExpression")]
         public string FilterExpression
         {
             get;

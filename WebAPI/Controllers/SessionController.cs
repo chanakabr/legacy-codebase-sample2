@@ -9,6 +9,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.Models.Users;
@@ -22,16 +23,17 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Parses KS
         /// </summary>
-        /// <param name="ks_to_parse">Additional KS to parse, if not passed the user's KS will be parsed</param>
+        /// <param name="session">Additional KS to parse, if not passed the user's KS will be parsed</param>
         [Route("get"), HttpPost]
         [ApiAuthorize]
-        public KalturaSessionInfo Get(string ks_to_parse = null)
+        [OldStandard("session", "ks_to_parse")]
+        public KalturaSessionInfo Get(string session = null)
         {
             KS ks;
-            
-            if (ks_to_parse != null)
+
+            if (session != null)
             {
-                StringBuilder sb = new StringBuilder(ks_to_parse);
+                StringBuilder sb = new StringBuilder(session);
                 sb = sb.Replace("-", "+");
                 sb = sb.Replace("_", "/");
 
@@ -70,7 +72,7 @@ namespace WebAPI.Controllers
                 string adminSecret = group.UserSecret;
 
                 // build KS
-                ks = KS.CreateKSFromEncoded(encryptedData, groupId, adminSecret, ks_to_parse, KS.KSVersion.V2);
+                ks = KS.CreateKSFromEncoded(encryptedData, groupId, adminSecret, session, KS.KSVersion.V2);
             }
             else
             {
@@ -95,6 +97,7 @@ namespace WebAPI.Controllers
         /// <param name="userIdToSwitch">The identifier of the user to change</param>
         [Route("switchUser"), HttpPost]
         [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
         public KalturaLoginSession SwitchUser(string userIdToSwitch)
         {
             int groupId = KS.GetFromRequest().GroupId;

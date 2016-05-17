@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
@@ -13,6 +14,7 @@ namespace WebAPI.Models.Catalog
     /// Asset info wrapper
     /// </summary>
     [Serializable]
+    [OldStandard("requestId", "request_id")]
     public class KalturaAssetInfoListResponse : KalturaListResponse
     {
         /// <summary>
@@ -24,9 +26,9 @@ namespace WebAPI.Models.Catalog
         [XmlArrayItem("item")]
         public List<KalturaAssetInfo> Objects { get; set; }
 
-        [DataMember(Name = "request_id")]
-        [JsonProperty(PropertyName = "request_id")]
-        [XmlElement("request_id", IsNullable = true)]
+        [DataMember(Name = "requestId")]
+        [JsonProperty(PropertyName = "requestId")]
+        [XmlElement("requestId", IsNullable = true)]
         public string RequestId { get; set; }
     }
 
@@ -34,6 +36,9 @@ namespace WebAPI.Models.Catalog
     /// Asset info
     /// </summary>
     [Serializable]
+    [OldStandard("startDate", "start_date")]
+    [OldStandard("endDate", "end_date")]
+    [OldStandard("extraParams", "extra_params")]
     public class KalturaAssetInfo : KalturaBaseAssetInfo, KalturaIAssetable
     {
         /// <summary>
@@ -55,17 +60,17 @@ namespace WebAPI.Models.Catalog
         /// <summary>
         /// Date and time represented as epoch. For VOD – since when the asset is available in the catalog. For EPG/Linear – when the program is aired (can be in the future).
         /// </summary>
-        [DataMember(Name = "start_date")]
-        [JsonProperty(PropertyName = "start_date")]
-        [XmlElement(ElementName = "start_date")]
+        [DataMember(Name = "startDate")]
+        [JsonProperty(PropertyName = "startDate")]
+        [XmlElement(ElementName = "startDate")]
         public long? StartDate { get; set; }
 
         /// <summary>
         /// Date and time represented as epoch. For VOD – till when the asset be available in the catalog. For EPG/Linear – program end time and date
         /// </summary>
-        [DataMember(Name = "end_date")]
-        [JsonProperty(PropertyName = "end_date")]
-        [XmlElement(ElementName = "end_date")]
+        [DataMember(Name = "endDate")]
+        [JsonProperty(PropertyName = "endDate")]
+        [XmlElement(ElementName = "endDate")]
         public long? EndDate { get; set; }
 
         /// <summary>
@@ -73,9 +78,9 @@ namespace WebAPI.Models.Catalog
         /// For 0 (EPG linear programs): epg_channel_id - The EPG channel ID, epg_id - The EPG identifier, related_media_id - The linear media ID.
         /// For other : start_date, final_date, external_ids
         /// </summary>
-        [DataMember(Name = "extra_params", EmitDefaultValue = true)]
-        [JsonProperty(PropertyName = "extra_params", NullValueHandling = NullValueHandling.Ignore)]
-        [XmlElement("extra_params", IsNullable = true)]
+        [DataMember(Name = "extraParams", EmitDefaultValue = true)]
+        [JsonProperty(PropertyName = "extraParams", NullValueHandling = NullValueHandling.Ignore)]
+        [XmlElement("extraParams", IsNullable = true)]
         public SerializableDictionary<string, KalturaStringValue> ExtraParams { get; set; }
     }
 }

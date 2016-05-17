@@ -6,6 +6,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Schema;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -16,13 +17,14 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Removes a user from household   
         /// </summary>                
-        /// <param name="user_id_to_delete">The identifier of the user to delete</param>
+        /// <param name="userId">The identifier of the user to delete</param>
         /// <remarks>Possible status codes: 
         /// Household does not exists = 1006, Limitation period = 1014, User not exists in household = 1020, Invalid user = 1026, 
         /// Household suspended = 1009, No users in household = 1017, User not allowed = 1027</remarks>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        public bool Delete(string user_id_to_delete)
+        [OldStandard("userId", "user_id_to_delete")]
+        public bool Delete(string userId)
         {
             int groupId = KS.GetFromRequest().GroupId;
             string masterUserId = KS.GetFromRequest().UserId;
@@ -30,11 +32,11 @@ namespace WebAPI.Controllers
             try
             {                
                 int household_id = 0;
-                string userID = KS.GetFromRequest().UserId;
+                string requestUserId = KS.GetFromRequest().UserId;
 
                 // get domain       
-                var domain = ClientsManager.DomainsClient().GetDomainByUser(groupId, userID);
-                if (userID != "0")
+                var domain = ClientsManager.DomainsClient().GetDomainByUser(groupId, requestUserId);
+                if (requestUserId != "0")
                     household_id = (int) domain.Id;
         
                 // check if the user performing the action is domain master
@@ -44,7 +46,7 @@ namespace WebAPI.Controllers
                 }
 
                 // call client
-                return ClientsManager.DomainsClient().RemoveUserFromDomain(groupId, household_id, user_id_to_delete);
+                return ClientsManager.DomainsClient().RemoveUserFromDomain(groupId, household_id, userId);
             }
             catch (ClientException ex)
             {

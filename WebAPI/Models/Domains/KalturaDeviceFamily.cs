@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Domains
@@ -12,6 +13,8 @@ namespace WebAPI.Models.Domains
     /// <summary>
     /// Device family details
     /// </summary>
+    [OldStandard("deviceLimit", "device_limit")]
+    [OldStandard("concurrentLimit", "concurrent_limit")]
     public class KalturaDeviceFamilyBase : KalturaOTTObject
     {
         /// <summary>
@@ -33,17 +36,17 @@ namespace WebAPI.Models.Domains
         /// <summary>
         /// Max number of devices allowed for this family
         /// </summary>
-        [DataMember(Name = "device_limit")]
-        [JsonProperty("device_limit")]
-        [XmlElement(ElementName = "device_limit")]
+        [DataMember(Name = "deviceLimit")]
+        [JsonProperty("deviceLimit")]
+        [XmlElement(ElementName = "deviceLimit")]
         public int? DeviceLimit { get; set; }
 
         /// <summary>
         /// Max number of streams allowed for this family
         /// </summary>
-        [DataMember(Name = "concurrent_limit")]
-        [JsonProperty("concurrent_limit")]
-        [XmlElement(ElementName = "concurrent_limit")]
+        [DataMember(Name = "concurrentLimit")]
+        [JsonProperty("concurrentLimit")]
+        [XmlElement(ElementName = "concurrentLimit")]
         public int? ConcurrentLimit { get; set; }
     }
 

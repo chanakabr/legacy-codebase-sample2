@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
@@ -12,6 +13,8 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Preview module
     /// </summary>
+    [OldStandard("lifeCycle", "life_cycle")]
+    [OldStandard("nonRenewablePeriod", "non_renewable_period")]
     public class KalturaPreviewModule : KalturaOTTObject
     {
         /// <summary>
@@ -33,17 +36,17 @@ namespace WebAPI.Models.Pricing
         /// <summary>
         /// Preview module life cycle - for how long the preview module is active
         /// </summary>
-        [DataMember(Name = "life_cycle")]
-        [JsonProperty("life_cycle")]
-        [XmlElement(ElementName = "life_cycle")]
+        [DataMember(Name = "lifeCycle")]
+        [JsonProperty("lifeCycle")]
+        [XmlElement(ElementName = "lifeCycle")]
         public int? LifeCycle { get; set; }
 
         /// <summary>
         /// The time you can't buy the item to which the preview module is assigned to again
         /// </summary>
-        [DataMember(Name = "non_renewable_period")]
-        [JsonProperty("non_renewable_period")]
-        [XmlElement(ElementName = "non_renewable_period")]
+        [DataMember(Name = "nonRenewablePeriod")]
+        [JsonProperty("nonRenewablePeriod")]
+        [XmlElement(ElementName = "nonRenewablePeriod")]
         public int? NonRenewablePeriod { get; set; }
 
         

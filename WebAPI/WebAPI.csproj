@@ -47,13 +47,13 @@
       <HintPath>..\packages\AutoMapper.4.0.0-ci1036\lib\net40\AutoMapper.dll</HintPath>
     </Reference>
     <Reference Include="Couchbase.NetClient">
-      <HintPath>..\..\TVinciCommon\External\Couchbase-Net-Client-2.2.6\Couchbase.NetClient.dll</HintPath>
+      <HintPath>..\..\tvincicommon\External\Couchbase-2.2.5\Couchbase.NetClient.dll</HintPath>
     </Reference>
     <Reference Include="CouchbaseManager">
       <HintPath>..\..\tvincicommon\External\4.5\CouchbaseManager.dll</HintPath>
     </Reference>
     <Reference Include="Enyim.Caching">
-      <HintPath>..\..\TVinciCommon\External\Couchbase-Net-Client-2.2.6\Enyim.Caching.dll</HintPath>
+      <HintPath>..\..\tvincicommon\External\Couchbase-2.2.5\Enyim.Caching.dll</HintPath>
     </Reference>
     <Reference Include="Jil, Version=2.10.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -80,7 +80,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\TVinciCommon\External\Couchbase-Net-Client-2.2.6\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\tvincicommon\External\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Sigil, Version=4.4.0.0, Culture=neutral, PublicKeyToken=2d06c3494341c8ab, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -1089,6 +1089,7 @@
     <Compile Include="Managers\Models\AppToken.cs" />
     <Compile Include="Managers\Models\KSUtils.cs" />
     <Compile Include="Managers\RolesManager.cs" />
+    <Compile Include="Managers\Schema\OldStandard.cs" />
     <Compile Include="Managers\Schema\ValidationException.cs" />
     <Compile Include="Managers\Schema\SchemaValidationType.cs" />
     <Compile Include="Models\API\KalturaCDNPartnerSettings.cs" />

@@ -6,6 +6,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
 using WebAPI.Utils;
@@ -64,10 +65,11 @@ namespace WebAPI.Controllers
         /// IdentifierRequired = 4017,
         /// ObjectNotExist = 4018
         /// </remarks>
-        /// <param name="channel_id">channel identifier</param>
+        /// <param name="channelId">channel identifier</param>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        public bool Delete(int channel_id)
+        [OldStandard("channelId", "channel_id")]
+        public bool Delete(int channelId)
         {
             bool response = false;
 
@@ -76,7 +78,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().DeleteKSQLChannel(groupId, channel_id);
+                response = ClientsManager.ApiClient().DeleteKSQLChannel(groupId, channelId);
             }
             catch (ClientException ex)
             {

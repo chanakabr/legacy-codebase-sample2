@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 using WebAPI.Models.Pricing;
 
@@ -13,22 +14,39 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// PPV item price details
     /// </summary>
+    [OldStandard("ppvModuleId", "ppv_module_id")]
+    [OldStandard("isSubscriptionOnly", "is_subscription_only")]
+    [OldStandard("fullPrice", "full_price")]
+    [OldStandard("purchaseStatus", "purchase_status")]
+    [OldStandard("subscriptionId", "subscription_id")]
+    [OldStandard("collectionId", "collection_id")]
+    [OldStandard("prePaidId", "pre_paid_id")]
+    [OldStandard("ppvDescriptions", "ppv_descriptions")]
+    [OldStandard("purchaseUserId", "purchase_user_id")]
+    [OldStandard("purchasedMediaFileId", "purchased_media_file_id")]
+    [OldStandard("relatedMediaFileIds", "related_media_file_ids")]
+    [OldStandard("startDate", "start_date")]
+    [OldStandard("endDate", "end_date")]
+    [OldStandard("discountEndDate", "discount_end_date")]
+    [OldStandard("firstDeviceName", "first_device_name")]
+    [OldStandard("isInCancelationPeriod", "is_in_cancelation_period")]
+    [OldStandard("ppvProductCode", "ppv_product_code")]
     public class KalturaPPVItemPriceDetails : KalturaOTTObject
     {
         /// <summary>
         /// The associated PPV module identifier  
         /// </summary>
-        [DataMember(Name = "ppv_module_id")]
-        [JsonProperty("ppv_module_id")]
-        [XmlElement(ElementName = "ppv_module_id")]
+        [DataMember(Name = "ppvModuleId")]
+        [JsonProperty("ppvModuleId")]
+        [XmlElement(ElementName = "ppvModuleId")]
         public string PPVModuleId { get; set; }
 
         /// <summary>
         /// Denotes whether this object is available only as part of a subscription or can be sold separately
         /// </summary>
-        [DataMember(Name = "is_subscription_only")]
-        [JsonProperty("is_subscription_only")]
-        [XmlElement(ElementName = "is_subscription_only")]
+        [DataMember(Name = "isSubscriptionOnly")]
+        [JsonProperty("isSubscriptionOnly")]
+        [XmlElement(ElementName = "isSubscriptionOnly")]
         public bool? IsSubscriptionOnly { get; set; }
 
         /// <summary>
@@ -42,123 +60,123 @@ namespace WebAPI.Models.Pricing
         /// <summary>
         /// The full price of the item (with no discounts)
         /// </summary>
-        [DataMember(Name = "full_price")]
-        [JsonProperty("full_price")]
-        [XmlElement(ElementName = "full_price", IsNullable = true)]
+        [DataMember(Name = "fullPrice")]
+        [JsonProperty("fullPrice")]
+        [XmlElement(ElementName = "fullPrice", IsNullable = true)]
         public KalturaPrice FullPrice { get; set; }
 
         /// <summary>
         /// Subscription purchase status
         /// </summary>
-        [DataMember(Name = "purchase_status")]
-        [JsonProperty("purchase_status")]
-        [XmlElement(ElementName = "purchase_status")]
+        [DataMember(Name = "purchaseStatus")]
+        [JsonProperty("purchaseStatus")]
+        [XmlElement(ElementName = "purchaseStatus")]
         public KalturaPurchaseStatus PurchaseStatus { get; set; }
 
         /// <summary>
         /// The identifier of the relevant subscription
         /// </summary>
-        [DataMember(Name = "subscription_id")]
-        [JsonProperty("subscription_id")]
-        [XmlElement(ElementName = "subscription_id")]
+        [DataMember(Name = "subscriptionId")]
+        [JsonProperty("subscriptionId")]
+        [XmlElement(ElementName = "subscriptionId")]
         public string SubscriptionId { get; set; }
 
         /// <summary>
         /// The identifier of the relevant collection
         /// </summary>
-        [DataMember(Name = "collection_id")]
-        [JsonProperty("collection_id")]
-        [XmlElement(ElementName = "collection_id")]
+        [DataMember(Name = "collectionId")]
+        [JsonProperty("collectionId")]
+        [XmlElement(ElementName = "collectionId")]
         public string CollectionId { get; set; }
 
         /// <summary>
         /// The identifier of the relevant pre paid
         /// </summary>
-        [DataMember(Name = "pre_paid_id")]
-        [JsonProperty("pre_paid_id")]
-        [XmlElement(ElementName = "pre_paid_id")]
+        [DataMember(Name = "prePaidId")]
+        [JsonProperty("prePaidId")]
+        [XmlElement(ElementName = "prePaidId")]
         public string PrePaidId { get; set; }
 
         /// <summary>
         /// A list of the descriptions of the PPV module on different languages (language code and translation)
         /// </summary>
-        [DataMember(Name = "ppv_descriptions")]
-        [JsonProperty("ppv_descriptions")]
-        [XmlArray(ElementName = "ppv_descriptions", IsNullable = true)]
+        [DataMember(Name = "ppvDescriptions")]
+        [JsonProperty("ppvDescriptions")]
+        [XmlArray(ElementName = "ppvDescriptions", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaTranslationToken> PPVDescriptions { get; set; }
 
         /// <summary>
         /// If the item already purchased - the identifier of the user (in the household) who purchased this item 
         /// </summary>
-        [DataMember(Name = "purchase_user_id")]
-        [JsonProperty("purchase_user_id")]
-        [XmlElement(ElementName = "purchase_user_id")]
+        [DataMember(Name = "purchaseUserId")]
+        [JsonProperty("purchaseUserId")]
+        [XmlElement(ElementName = "purchaseUserId")]
         public string PurchaseUserId { get; set; }
 
         /// <summary>
         /// If the item already purchased - the identifier of the purchased file
         /// </summary>
-        [DataMember(Name = "purchased_media_file_id")]
-        [JsonProperty("purchased_media_file_id")]
-        [XmlElement(ElementName = "purchased_media_file_id")]
+        [DataMember(Name = "purchasedMediaFileId")]
+        [JsonProperty("purchasedMediaFileId")]
+        [XmlElement(ElementName = "purchasedMediaFileId")]
         public int? PurchasedMediaFileId { get; set; }
 
         /// <summary>
         /// Related media files identifiers (different types)
         /// </summary>
-        [DataMember(Name = "related_media_file_ids")]
-        [JsonProperty("related_media_file_ids")]
-        [XmlArray(ElementName = "related_media_file_ids", IsNullable = true)]
+        [DataMember(Name = "relatedMediaFileIds")]
+        [JsonProperty("relatedMediaFileIds")]
+        [XmlArray(ElementName = "relatedMediaFileIds", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaIntegerValue> RelatedMediaFileIds { get; set; }
 
         /// <summary>
         /// If the item already purchased - since when the user can start watching the item
         /// </summary>
-        [DataMember(Name = "start_date")]
-        [JsonProperty("start_date")]
-        [XmlElement(ElementName = "start_date")]
+        [DataMember(Name = "startDate")]
+        [JsonProperty("startDate")]
+        [XmlElement(ElementName = "startDate")]
         public long? StartDate { get; set; }
 
         /// <summary>
         /// If the item already purchased - until when the user can watch the item
         /// </summary>
-        [DataMember(Name = "end_date")]
-        [JsonProperty("end_date")]
-        [XmlElement(ElementName = "end_date")]
+        [DataMember(Name = "endDate")]
+        [JsonProperty("endDate")]
+        [XmlElement(ElementName = "endDate")]
         public long? EndDate { get; set; }
 
         /// <summary>
         /// Discount end date
         /// </summary>
-        [DataMember(Name = "discount_end_date")]
-        [JsonProperty("discount_end_date")]
-        [XmlElement(ElementName = "discount_end_date")]
+        [DataMember(Name = "discountEndDate")]
+        [JsonProperty("discountEndDate")]
+        [XmlElement(ElementName = "discountEndDate")]
         public long? DiscountEndDate { get; set; }
 
         /// <summary>
         /// If the item already purchased and played - the name of the device on which it was first played 
         /// </summary>
-        [DataMember(Name = "first_device_name")]
-        [JsonProperty("first_device_name")]
-        [XmlElement(ElementName = "first_device_name")]
+        [DataMember(Name = "firstDeviceName")]
+        [JsonProperty("firstDeviceName")]
+        [XmlElement(ElementName = "firstDeviceName")]
         public string FirstDeviceName { get; set; }
 
         /// <summary>
         /// If waiver period is enabled - donates whether the user is still in the cancelation window
         /// </summary>
-        [DataMember(Name = "is_in_cancelation_period")]
-        [JsonProperty("is_in_cancelation_period")]
-        [XmlElement(ElementName = "is_in_cancelation_period")]
+        [DataMember(Name = "isInCancelationPeriod")]
+        [JsonProperty("isInCancelationPeriod")]
+        [XmlElement(ElementName = "isInCancelationPeriod")]
         public bool? IsInCancelationPeriod { get; set; }
 
         /// <summary>
         /// The PPV product code
         /// </summary>
-        [DataMember(Name = "ppv_product_code")]
-        [JsonProperty("ppv_product_code")]
-        [XmlElement(ElementName = "ppv_product_code")]
+        [DataMember(Name = "ppvProductCode")]
+        [JsonProperty("ppvProductCode")]
+        [XmlElement(ElementName = "ppvProductCode")]
         public string ProductCode { get; set; }
     }
 }

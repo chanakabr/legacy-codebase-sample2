@@ -6,6 +6,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Utils;
 
@@ -47,10 +48,11 @@ namespace WebAPI.Controllers
         /// <remarks>
         /// Possible status codes: Adapter does not exist = 10000
         /// </remarks>
-        /// <param name="adapter_id">C-DVR adapter identifier</param>
+        /// <param name="adapterId">C-DVR adapter identifier</param>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        public bool Delete(int adapter_id)
+        [OldStandard("adapterId", "adapter_id")]
+        public bool Delete(int adapterId)
         {
             bool response = false;
             
@@ -59,7 +61,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().DeleteCDVRAdapter(groupId, adapter_id);
+                response = ClientsManager.ConditionalAccessClient().DeleteCDVRAdapter(groupId, adapterId);
             }
             catch (ClientException ex)
             {

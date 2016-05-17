@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
@@ -13,6 +14,7 @@ namespace WebAPI.Models.Pricing
     /// Price 
     /// </summary>
     [Serializable]
+    [OldStandard("currencySign", "currency_sign")]
     public class KalturaPrice : KalturaOTTObject
     {
         /// <summary>
@@ -34,9 +36,9 @@ namespace WebAPI.Models.Pricing
         /// <summary>
         ///Currency Sign
         /// </summary>
-        [DataMember(Name = "currency_sign")]
-        [JsonProperty("currency_sign")]
-        [XmlElement(ElementName = "currency_sign")]
+        [DataMember(Name = "currencySign")]
+        [JsonProperty("currencySign")]
+        [XmlElement(ElementName = "currencySign")]
         public string CurrencySign { get; set; }
     }
 }

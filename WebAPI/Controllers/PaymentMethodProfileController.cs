@@ -3,6 +3,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Schema;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -77,15 +78,17 @@ namespace WebAPI.Controllers
         /// <summary>
         /// TBD
         /// </summary>
-        /// <param name="payment_gateway_id">Payment gateway identifier to update the payment method for</param>
-        /// <param name="payment_method">Payment method to update</param>
+        /// <param name="paymentGatewayId">Payment gateway identifier to update the payment method for</param>
+        /// <param name="paymentMethod">Payment method to update</param>
         /// <remarks>
         /// Possible status codes: 
         /// Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method does not exist = 6049, Payment method ID is required = 6050      
         /// </remarks>
         [Route("update"), HttpPost]
         [ApiAuthorize]
-        public bool Update(int payment_gateway_id, WebAPI.Models.Billing.KalturaPaymentMethodProfile payment_method)
+        [OldStandard("paymentGatewayId", "payment_gateway_id")]
+        [OldStandard("paymentMethod", "payment_method")]
+        public bool Update(int paymentGatewayId, WebAPI.Models.Billing.KalturaPaymentMethodProfile paymentMethod)
         {
             bool response = false;
 
@@ -94,7 +97,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().UpdatePaymentGatewayPaymentMethod(groupId, payment_gateway_id, payment_method.getId(), payment_method.Name, payment_method.getAllowMultiInstance());
+                response = ClientsManager.BillingClient().UpdatePaymentGatewayPaymentMethod(groupId, paymentGatewayId, paymentMethod.getId(), paymentMethod.Name, paymentMethod.getAllowMultiInstance());
             }
             catch (ClientException ex)
             {

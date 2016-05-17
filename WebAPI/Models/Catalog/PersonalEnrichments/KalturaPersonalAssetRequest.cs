@@ -5,10 +5,12 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
+    [OldStandard("fileIds", "file_ids")]
     public class KalturaPersonalAssetRequest : KalturaOTTObject
     {
         /// <summary>
@@ -38,9 +40,9 @@ namespace WebAPI.Models.Catalog
         /// <summary>
         /// Files of the current asset
         /// </summary>
-        [DataMember(Name = "file_ids")]
-        [JsonProperty(PropertyName = "file_ids")]
-        [XmlArray(ElementName = "file_ids", IsNullable = true)]
+        [DataMember(Name = "fileIds")]
+        [JsonProperty(PropertyName = "fileIds")]
+        [XmlArray(ElementName = "fileIds", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<long> FileIds
         {

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
@@ -12,14 +13,17 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Asset statistics
     /// </summary>
+    [OldStandard("assetId", "asset_id")]
+    [OldStandard("ratingCount", "rating_count")]
+    [OldStandard("buzzScore", "buzz_score")]
     public class KalturaAssetStatistics : KalturaOTTObject
     {
         /// <summary>
         /// Unique identifier for the asset
         /// </summary>
-        [DataMember(Name = "asset_id")]
-        [JsonProperty(PropertyName = "asset_id")]
-        [XmlElement(ElementName = "asset_id")]
+        [DataMember(Name = "assetId")]
+        [JsonProperty(PropertyName = "assetId")]
+        [XmlElement(ElementName = "assetId")]
         public int? AssetId { get; set; }
 
         /// <summary>
@@ -41,9 +45,9 @@ namespace WebAPI.Models.Catalog
         /// <summary>
         /// Number of people that rated the asset
         /// </summary>
-        [DataMember(Name = "rating_count")]
-        [JsonProperty(PropertyName = "rating_count")]
-        [XmlElement(ElementName = "rating_count")]
+        [DataMember(Name = "ratingCount")]
+        [JsonProperty(PropertyName = "ratingCount")]
+        [XmlElement(ElementName = "ratingCount")]
         public int? RatingCount { get; set; }
 
         /// <summary>
@@ -57,9 +61,9 @@ namespace WebAPI.Models.Catalog
         /// <summary>
         /// Buzz score
         /// </summary>
-        [DataMember(Name = "buzz_score")]
-        [JsonProperty(PropertyName = "buzz_score")]
-        [XmlElement(ElementName = "buzz_score", IsNullable = true)]
+        [DataMember(Name = "buzzScore")]
+        [JsonProperty(PropertyName = "buzzScore")]
+        [XmlElement(ElementName = "buzzScore", IsNullable = true)]
         public KalturaBuzzScore BuzzAvgScore { get; set; }
     }
 }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
@@ -12,6 +13,10 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Coupons group details
     /// </summary>
+    [OldStandard("startDate", "start_date")]
+    [OldStandard("endDate", "end_date")]
+    [OldStandard("maxUsesNumber", "max_uses_number")]
+    [OldStandard("maxUsesNumberOnRenewableSub", "max_uses_number_on_renewable_sub")]
     public class KalturaCouponsGroup : KalturaOTTObject
     {
         /// <summary>
@@ -42,33 +47,33 @@ namespace WebAPI.Models.Pricing
         /// <summary>
         /// The first date the coupons in this coupons group are valid
         /// </summary>
-        [DataMember(Name = "start_date")]
-        [JsonProperty("start_date")]
-        [XmlElement(ElementName = "start_date")]
+        [DataMember(Name = "startDate")]
+        [JsonProperty("startDate")]
+        [XmlElement(ElementName = "startDate")]
         public long? StartDate { get; set; }
 
         /// <summary>
         /// The last date the coupons in this coupons group are valid
         /// </summary>
-        [DataMember(Name = "end_date")]
-        [JsonProperty("end_date")]
-        [XmlElement(ElementName = "end_date")]
+        [DataMember(Name = "endDate")]
+        [JsonProperty("endDate")]
+        [XmlElement(ElementName = "endDate")]
         public long? EndDate { get; set; }
 
         /// <summary>
         /// Maximum number of uses for each coupon in the group
         /// </summary>
-        [DataMember(Name = "max_uses_number")]
-        [JsonProperty("max_uses_number")]
-        [XmlElement(ElementName = "max_uses_number")]
+        [DataMember(Name = "maxUsesNumber")]
+        [JsonProperty("maxUsesNumber")]
+        [XmlElement(ElementName = "maxUsesNumber")]
         public int? MaxUsesNumber { get; set; }
 
         /// <summary>
         /// Maximum number of uses for each coupon in the group on a renewable subscription
         /// </summary>
-        [DataMember(Name = "max_uses_number_on_renewable_sub")]
-        [JsonProperty("max_uses_number_on_renewable_sub")]
-        [XmlElement(ElementName = "max_uses_number_on_renewable_sub")]
+        [DataMember(Name = "maxUsesNumberOnRenewableSub")]
+        [JsonProperty("maxUsesNumberOnRenewableSub")]
+        [XmlElement(ElementName = "maxUsesNumberOnRenewableSub")]
         public int? MaxUsesNumberOnRenewableSub { get; set; }
     }
 }

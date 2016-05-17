@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
@@ -29,46 +30,59 @@ namespace WebAPI.Models.ConditionalAccess
     /// Billing Transaction
     /// </summary>
     [Serializable]
+    [OldStandard("recieptCode", "reciept_code")]
+    [OldStandard("purchasedItemName", "purchased_item_name")]
+    [OldStandard("purchasedItemCode", "purchased_item_code")]
+    [OldStandard("itemType", "item_type")]
+    [OldStandard("billingAction", "billing_action")]
+    [OldStandard("actionDate", "action_date")]
+    [OldStandard("startDate", "start_date")]
+    [OldStandard("endDate", "end_date")]
+    [OldStandard("paymentMethod", "payment_method")]
+    [OldStandard("paymentMethodExtraDetails", "payment_method_extra_details")]
+    [OldStandard("isRecurring", "is_recurring")]
+    [OldStandard("billingProviderRef", "billing_provider_ref")]
+    [OldStandard("purchaseId", "purchase_id")]
     public class KalturaBillingTransaction : KalturaOTTObject
     {
         /// <summary>
         ///Reciept Code
         /// </summary>
-        [DataMember(Name = "reciept_code")]
-        [JsonProperty("reciept_code")]
-        [XmlElement(ElementName = "reciept_code")]
+        [DataMember(Name = "recieptCode")]
+        [JsonProperty("recieptCode")]
+        [XmlElement(ElementName = "recieptCode")]
         public string recieptCode { get; set; }
 
         /// <summary>
         ///Purchased Item Name
         /// </summary>
-        [DataMember(Name = "purchased_item_name")]
-        [JsonProperty("purchased_item_name")]
-        [XmlElement(ElementName = "purchased_item_name")]
+        [DataMember(Name = "purchasedItemName")]
+        [JsonProperty("purchasedItemName")]
+        [XmlElement(ElementName = "purchasedItemName")]
         public string purchasedItemName { get; set; }
 
         /// <summary>
         ///Purchased Item Code
         /// </summary>
-        [DataMember(Name = "purchased_item_code")]
-        [JsonProperty("purchased_item_code")]
-        [XmlElement(ElementName = "purchased_item_code")]
+        [DataMember(Name = "purchasedItemCode")]
+        [JsonProperty("purchasedItemCode")]
+        [XmlElement(ElementName = "purchasedItemCode")]
         public string purchasedItemCode { get; set; }
 
         /// <summary>
         ///Item Type
         /// </summary>
-        [DataMember(Name = "item_type")]
-        [JsonProperty("item_type")]
-        [XmlElement(ElementName = "item_type")]
+        [DataMember(Name = "itemType")]
+        [JsonProperty("itemType")]
+        [XmlElement(ElementName = "itemType")]
         public KalturaBillingItemsType itemType { get; set; }
 
         /// <summary>
         ///Billing Action
         /// </summary>
-        [DataMember(Name = "billing_action")]
-        [JsonProperty("billing_action")]
-        [XmlElement(ElementName = "billing_action", IsNullable = true)]
+        [DataMember(Name = "billingAction")]
+        [JsonProperty("billingAction")]
+        [XmlElement(ElementName = "billingAction", IsNullable = true)]
         public KalturaBillingAction billingAction { get; set; }
 
         /// <summary>
@@ -82,65 +96,65 @@ namespace WebAPI.Models.ConditionalAccess
         /// <summary>
         ///Action Date
         /// </summary>
-        [DataMember(Name = "action_date")]
-        [JsonProperty("action_date")]
-        [XmlElement(ElementName = "action_date")]
+        [DataMember(Name = "actionDate")]
+        [JsonProperty("actionDate")]
+        [XmlElement(ElementName = "actionDate")]
         public long? actionDate { get; set; }
 
         /// <summary>
         ///Start Date
         /// </summary>
-        [DataMember(Name = "start_date")]
-        [JsonProperty("start_date")]
-        [XmlElement(ElementName = "start_date")]
+        [DataMember(Name = "startDate")]
+        [JsonProperty("startDate")]
+        [XmlElement(ElementName = "startDate")]
         public long? startDate { get; set; }
 
         /// <summary>
         /// End Date
         /// </summary>
-        [DataMember(Name = "end_date")]
-        [JsonProperty("end_date")]
-        [XmlElement(ElementName = "end_date")]
+        [DataMember(Name = "endDate")]
+        [JsonProperty("endDate")]
+        [XmlElement(ElementName = "endDate")]
         public long? endDate { get; set; }
 
         /// <summary>
         ///Payment Method
         /// </summary>
-        [DataMember(Name = "payment_method")]
-        [JsonProperty("payment_method")]
-        [XmlElement(ElementName = "payment_method", IsNullable = true)]
+        [DataMember(Name = "paymentMethod")]
+        [JsonProperty("paymentMethod")]
+        [XmlElement(ElementName = "paymentMethod", IsNullable = true)]
         public KalturaPaymentMethod paymentMethod { get; set; }
 
         /// <summary>
         ///Payment Method Extra Details
         /// </summary>
-        [DataMember(Name = "payment_method_extra_details")]
-        [JsonProperty("payment_method_extra_details")]
-        [XmlElement(ElementName = "payment_method_extra_details")]
+        [DataMember(Name = "paymentMethodExtraDetails")]
+        [JsonProperty("paymentMethodExtraDetails")]
+        [XmlElement(ElementName = "paymentMethodExtraDetails")]
         public string paymentMethodExtraDetails { get; set; }
 
         /// <summary>
         ///Is Recurring
         /// </summary>
-        [DataMember(Name = "is_recurring")]
-        [JsonProperty("is_recurring")]
-        [XmlElement(ElementName = "is_recurring")]
+        [DataMember(Name = "isRecurring")]
+        [JsonProperty("isRecurring")]
+        [XmlElement(ElementName = "isRecurring")]
         public bool? isRecurring { get; set; }
 
         /// <summary>
         ///Billing Provider Ref
         /// </summary>
-        [DataMember(Name = "billing_provider_ref")]
-        [JsonProperty("billing_provider_ref")]
-        [XmlElement(ElementName = "billing_provider_ref")]
+        [DataMember(Name = "billingProviderRef")]
+        [JsonProperty("billingProviderRef")]
+        [XmlElement(ElementName = "billingProviderRef")]
         public Int32? billingProviderRef { get; set; }
 
         /// <summary>
         ///Purchase ID
         /// </summary>
-        [DataMember(Name = "purchase_id")]
-        [JsonProperty("purchase_id")]
-        [XmlElement(ElementName = "purchase_id")]
+        [DataMember(Name = "purchaseId")]
+        [JsonProperty("purchaseId")]
+        [XmlElement(ElementName = "purchaseId")]
         public Int32? purchaseID { get; set; }
 
         /// <summary>
@@ -156,20 +170,22 @@ namespace WebAPI.Models.ConditionalAccess
     /// Billing transactions of single user
     /// </summary>
     [Serializable]
+    [OldStandard("userId", "user_id")]
+    [OldStandard("userFullName", "user_full_name")]
     public class KalturaUserBillingTransaction : KalturaBillingTransaction
     {
-        [DataMember(Name = "user_id")]
-        [JsonProperty("user_id")]
-        [XmlElement(ElementName = "user_id")]
+        [DataMember(Name = "userId")]
+        [JsonProperty("userId")]
+        [XmlElement(ElementName = "userId")]
         public string UserID
         {
             get;
             set;
         }
 
-        [DataMember(Name = "user_full_name")]
-        [JsonProperty("user_full_name")]
-        [XmlElement(ElementName = "user_full_name")]
+        [DataMember(Name = "userFullNName")]
+        [JsonProperty("userFullName")]
+        [XmlElement(ElementName = "userFullName")]
         public string UserFullName { get; set; }
     }
 

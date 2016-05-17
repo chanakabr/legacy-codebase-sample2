@@ -5,11 +5,13 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Notifications
 {
     [Serializable]
+    [OldStandard("startTime", "start_time")]
     public class KalturaAnnouncement : KalturaOTTObject
     {
         [DataMember(Name = "name")]
@@ -27,9 +29,9 @@ namespace WebAPI.Models.Notifications
         [XmlElement(ElementName = "enabled")]
         public bool? Enabled { get; set; }
 
-        [DataMember(Name = "start_time")]
-        [JsonProperty(PropertyName = "start_time")]
-        [XmlElement(ElementName = "start_time")]
+        [DataMember(Name = "startTime")]
+        [JsonProperty(PropertyName = "startTime")]
+        [XmlElement(ElementName = "startTime")]
         public long? StartTime { get; set; }
 
         [DataMember(Name = "timezone")]

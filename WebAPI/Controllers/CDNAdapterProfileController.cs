@@ -6,6 +6,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.API;
 using WebAPI.Utils;
 
@@ -47,10 +48,11 @@ namespace WebAPI.Controllers
         /// <remarks>
         /// Possible status codes: AdapterNotExists = 10000, AdapterIdentifierRequired = 10001
         /// </remarks>
-        /// <param name="adapter_id">CDN adapter identifier</param>
+        /// <param name="adapterId">CDN adapter identifier</param>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        public bool Delete(int adapter_id)
+        [OldStandard("adapterId", "adapter_id")]
+        public bool Delete(int adapterId)
         {
             bool response = false;
 
@@ -59,7 +61,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().DeleteCDNAdapter(groupId, adapter_id);
+                response = ClientsManager.ApiClient().DeleteCDNAdapter(groupId, adapterId);
             }
             catch (ClientException ex)
             {
@@ -104,6 +106,7 @@ namespace WebAPI.Controllers
         /// <remarks>
         /// Possible status codes: AdapterNotExists = 10000, NameRequired = 5005, AdapterUrlRequired = 5013, AliasMustBeUnique = 5019, AliasRequired = 5020
         /// </remarks>
+        /// <param name="adapterId">CDN adapter id to update</param>       
         /// <param name="adapter">CDN adapter Object</param>       
         [Route("update"), HttpPost]
         [ApiAuthorize]

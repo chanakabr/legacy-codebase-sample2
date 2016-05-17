@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 using WebAPI.Models.Users;
 
@@ -14,6 +15,8 @@ namespace WebAPI.Models.Catalog
     /// The last position in a media / NPVR / EPG asset which a user watched  
     /// </summary>
     [Serializable]
+    [OldStandard("positionOwner", "position_owner")]
+    [OldStandard("finishedWatching", "finished_watching")]
     public class KalturaAssetBookmark : KalturaOTTObject
     {
         /// <summary>
@@ -35,17 +38,17 @@ namespace WebAPI.Models.Catalog
         /// <summary>
         ///Indicates who is the owner of this position
         /// </summary>
-        [DataMember(Name = "position_owner")]
-        [JsonProperty("position_owner")]
-        [XmlElement(ElementName = "position_owner", IsNullable = true)]
+        [DataMember(Name = "positionOwner")]
+        [JsonProperty("positionOwner")]
+        [XmlElement(ElementName = "positionOwner", IsNullable = true)]
         public KalturaPositionOwner PositionOwner { get; set; }
 
         /// <summary>
         ///Specifies whether the user's current position exceeded 95% of the duration
         /// </summary>
-        [DataMember(Name = "finished_watching")]
-        [JsonProperty("finished_watching")]
-        [XmlElement(ElementName = "finished_watching")]
+        [DataMember(Name = "finishedWatching")]
+        [JsonProperty("finishedWatching")]
+        [XmlElement(ElementName = "finishedWatching")]
         public bool? IsFinishedWatching { get; set; }
 
     }

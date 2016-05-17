@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
@@ -27,6 +28,7 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Slim asset info
     /// </summary>
+    [OldStandard("mediaFiles", "media_files")]
     public class KalturaBaseAssetInfo : KalturaOTTObject, KalturaIAssetable
     {
         /// <summary>
@@ -74,9 +76,9 @@ namespace WebAPI.Models.Catalog
         /// <summary>
         /// Files
         /// </summary>
-        [DataMember(Name = "media_files", EmitDefaultValue = true)]
-        [JsonProperty(PropertyName = "media_files", NullValueHandling = NullValueHandling.Ignore)]
-        [XmlArray(ElementName = "media_files", IsNullable = true)]
+        [DataMember(Name = "mediaFiles", EmitDefaultValue = true)]
+        [JsonProperty(PropertyName = "mediaFiles", NullValueHandling = NullValueHandling.Ignore)]
+        [XmlArray(ElementName = "mediaFiles", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaMediaFile> MediaFiles { get; set; }
 

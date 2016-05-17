@@ -13,6 +13,7 @@ using WebAPI.Utils;
 using WebAPI.Catalog;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
+using WebAPI.Managers.Schema;
 
 namespace WebAPI.Controllers
 {
@@ -90,6 +91,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("clean"), HttpPost]
         [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
         public bool Clean(KalturaAssetsFilter filter = null)
         {
             var ks = KS.GetFromRequest();

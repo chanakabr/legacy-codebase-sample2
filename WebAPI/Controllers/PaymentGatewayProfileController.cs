@@ -6,6 +6,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.Billing;
 using WebAPI.Models.General;
 using WebAPI.Utils;
@@ -50,10 +51,11 @@ namespace WebAPI.Controllers
         /// Possible status codes:       
         /// Payment gateway not exist = 6008
         /// </remarks>
-        /// <param name="payment_gateway_id">Payment Gateway Identifier</param>
+        /// <param name="paymentGatewayId">Payment Gateway Identifier</param>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        public bool Delete(int payment_gateway_id)
+        [OldStandard("paymentGatewayId", "payment_gateway_id")]
+        public bool Delete(int paymentGatewayId)
         {
             bool response = false;
             
@@ -62,7 +64,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().DeletePaymentGateway(groupId, payment_gateway_id);
+                response = ClientsManager.BillingClient().DeletePaymentGateway(groupId, paymentGatewayId);
             }
             catch (ClientException ex)
             {
@@ -79,10 +81,11 @@ namespace WebAPI.Controllers
         /// Possible status codes:       
         ///   External identifier is required = 6016, Name is required = 6020, Shared secret is required = 6021, External identifier must be unique = 6040, No payment gateway to insert = 6041
         /// </remarks>
-        /// <param name="payment_gateway">Payment Gateway Object</param>
+        /// <param name="paymentGateway">Payment Gateway Object</param>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        public bool Add(KalturaPaymentGatewayProfile payment_gateway)
+        [OldStandard("paymentGateway", "payment_gateway")]
+        public bool Add(KalturaPaymentGatewayProfile paymentGateway)
         {
             bool response = false;
 
@@ -91,7 +94,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.BillingClient().InsertPaymentGateway(groupId, payment_gateway);
+                response = ClientsManager.BillingClient().InsertPaymentGateway(groupId, paymentGateway);
             }
             catch (ClientException ex)
             {

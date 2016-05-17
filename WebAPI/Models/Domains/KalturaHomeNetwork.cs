@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Domains
@@ -12,14 +13,16 @@ namespace WebAPI.Models.Domains
     /// <summary>
     /// Home network details
     /// </summary>
+    [OldStandard("externalId", "external_id")]
+    [OldStandard("isActive", "is_active")]
     public class KalturaHomeNetwork : KalturaOTTObject
     {
         /// <summary>
         /// Home network identifier
         /// </summary>
-        [DataMember(Name = "external_id")]
-        [JsonProperty("external_id")]
-        [XmlElement(ElementName = "external_id")]
+        [DataMember(Name = "externalId")]
+        [JsonProperty("externalId")]
+        [XmlElement(ElementName = "externalId")]
         public string ExternalId { get; set; }
 
         /// <summary>
@@ -41,9 +44,9 @@ namespace WebAPI.Models.Domains
         /// <summary>
         /// Is home network is active
         /// </summary>
-        [DataMember(Name = "is_active")]
-        [JsonProperty("is_active")]
-        [XmlElement(ElementName = "is_active")]
+        [DataMember(Name = "isActive")]
+        [JsonProperty("isActive")]
+        [XmlElement(ElementName = "isActive")]
         public bool? IsActive { get; set; }
 
         internal bool getIsActive()

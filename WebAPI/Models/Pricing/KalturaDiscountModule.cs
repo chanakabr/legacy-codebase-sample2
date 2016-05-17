@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
@@ -12,6 +13,8 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Discount module
     /// </summary>
+    [OldStandard("startDate", "start_date")]
+    [OldStandard("endDate", "end_date")]
     public class KalturaDiscountModule : KalturaOTTObject
     {
         /// <summary>
@@ -25,17 +28,17 @@ namespace WebAPI.Models.Pricing
         /// <summary>
         /// The first date the discount is available
         /// </summary>
-        [DataMember(Name = "start_date")]
-        [JsonProperty("start_date")]
-        [XmlElement(ElementName = "start_date")]
+        [DataMember(Name = "startDate")]
+        [JsonProperty("startDate")]
+        [XmlElement(ElementName = "startDate")]
         public long? StartDate { get; set; }
 
         /// <summary>
         /// The last date the discount is available
         /// </summary>
-        [DataMember(Name = "end_date")]
-        [JsonProperty("end_date")]
-        [XmlElement(ElementName = "end_date")]
+        [DataMember(Name = "endDate")]
+        [JsonProperty("endDate")]
+        [XmlElement(ElementName = "endDate")]
         public long? EndDate { get; set; }
     }
 }

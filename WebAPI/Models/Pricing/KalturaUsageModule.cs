@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
@@ -12,6 +13,13 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Pricing usage module
     /// </summary>
+    [OldStandard("maxViewsNumber", "max_views_number")]
+    [OldStandard("viewLifeCycle", "view_life_cycle")]
+    [OldStandard("fullLifeCycle", "full_life_cycle")]
+    [OldStandard("couponId", "coupon_id")]
+    [OldStandard("waiverPeriod", "waiver_period")]
+    [OldStandard("isWaiverEnabled", "is_waiver_enabled")]
+    [OldStandard("isOfflinePlayback", "is_offline_playback")]
     public class KalturaUsageModule : KalturaOTTObject
     {
         /// <summary>
@@ -33,57 +41,57 @@ namespace WebAPI.Models.Pricing
         /// <summary>
         /// The maximum number of times an item in this usage module can be viewed
         /// </summary>
-        [DataMember(Name = "max_views_number")]
-        [JsonProperty("max_views_number")]
-        [XmlElement(ElementName = "max_views_number")]
+        [DataMember(Name = "maxViewsNumber")]
+        [JsonProperty("maxViewsNumber")]
+        [XmlElement(ElementName = "maxViewsNumber")]
         public int? MaxViewsNumber { get; set; }
 
         /// <summary>
         /// The amount time an item is available for viewing since a user started watching the item
         /// </summary>
-        [DataMember(Name = "view_life_cycle")]
-        [JsonProperty("view_life_cycle")]
-        [XmlElement(ElementName = "view_life_cycle")]
+        [DataMember(Name = "viewLifeCycle")]
+        [JsonProperty("viewLifeCycle")]
+        [XmlElement(ElementName = "viewLifeCycle")]
         public int? ViewLifeCycle { get; set; }
 
         /// <summary>
         /// The amount time an item is available for viewing
         /// </summary>
-        [DataMember(Name = "full_life_cycle")]
-        [JsonProperty("full_life_cycle")]
-        [XmlElement(ElementName = "full_life_cycle")]
+        [DataMember(Name = "fullLifeCycle")]
+        [JsonProperty("fullLifeCycle")]
+        [XmlElement(ElementName = "fullLifeCycle")]
         public int? FullLifeCycle { get; set; }
 
         /// <summary>
         /// Identifies a specific coupon linked to this object
         /// </summary>
-        [DataMember(Name = "coupon_id")]
-        [JsonProperty("coupon_id")]
-        [XmlElement(ElementName = "coupon_id")]
+        [DataMember(Name = "couponId")]
+        [JsonProperty("couponId")]
+        [XmlElement(ElementName = "couponId")]
         public int? CouponId { get; set; }
                 
         /// <summary>
         /// Time period during which the end user can waive his rights to cancel a purchase. When the time period is passed, the purchase can no longer be cancelled
         /// </summary>
-        [DataMember(Name = "waiver_period")]
-        [JsonProperty("waiver_period")]
-        [XmlElement(ElementName = "waiver_period")]
+        [DataMember(Name = "waiverPeriod")]
+        [JsonProperty("waiverPeriod")]
+        [XmlElement(ElementName = "waiverPeriod")]
         public int? WaiverPeriod { get; set; }
 
         /// <summary>
         /// Indicates whether or not the end user has the right to waive his rights to cancel a purchase
         /// </summary>
-        [DataMember(Name = "is_waiver_enabled")]
-        [JsonProperty("is_waiver_enabled")]
-        [XmlElement(ElementName = "is_waiver_enabled")]
+        [DataMember(Name = "isWaiverEnabled")]
+        [JsonProperty("isWaiverEnabled")]
+        [XmlElement(ElementName = "isWaiverEnabled")]
         public bool? IsWaiverEnabled { get; set; }
 
         /// <summary>
         /// Indicates that usage is targeted for offline playback
         /// </summary>
-        [DataMember(Name = "is_offline_playback")]
-        [JsonProperty("is_offline_playback")]
-        [XmlElement(ElementName = "is_offline_playback")]
+        [DataMember(Name = "isOfflinePlayback")]
+        [JsonProperty("isOfflinePlayback")]
+        [XmlElement(ElementName = "isOfflinePlayback")]
         public bool? IsOfflinePlayback { get; set; }
     }
 }
