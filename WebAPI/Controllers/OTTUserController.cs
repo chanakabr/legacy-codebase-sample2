@@ -340,6 +340,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: Wrong username or password = 1011, User does not exist = 2000, Inside lock time = 2015, User already logged in = 2017</remarks>
         [Route("updateLoginData"), HttpPost]
         [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
         public bool UpdateLoginData(string username, string old_password, string new_password)
         {
             bool response = false;
@@ -474,6 +475,7 @@ namespace WebAPI.Controllers
         /// </remarks>        
         [Route("delete"), HttpPost]
         [ApiAuthorize]
+        [ValidationException(SchemaValidationType.ACTION_ARGUMENTS)]
         public bool Delete()
         {
             bool response = false;

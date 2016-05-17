@@ -336,15 +336,16 @@ namespace Validator.Managers.Schema
             }
 
             var methods = controller.GetMethods().OrderBy(method => method.Name);
+            var hasValidActions = false;
             foreach (MethodInfo method in methods)
             {
                 if (!method.IsPublic || method.DeclaringType.Namespace != "WebAPI.Controllers")
                     continue;
 
-                valid = Validate(method, strict) && valid;
+                hasValidActions = Validate(method, strict) || hasValidActions;
             };
 
-            return valid;
+            return valid && hasValidActions;
         }
 
         private static bool ValidateAttribute(Type declaringClass, Type attribute, string description, bool strict)
@@ -459,7 +460,7 @@ namespace Validator.Managers.Schema
             string expectedObjectType = string.Format("Kaltura{0}", FirstCharacterToUpper(serviceId));
             if (actionId == "get" || actionId == "add" || actionId == "update")
             {
-                if (action.ReturnType.Name != expectedObjectType)
+                if (action.ReturnType.Name.ToLower() != expectedObjectType.ToLower())
                 {
                     logError("Warning", controller, string.Format("Action {0}.{1} ({2}) returned type is {3}, expected {4}", serviceId, actionId, controller.Name, action.ReturnType.Name, expectedObjectType));
                     if (strict)
@@ -467,7 +468,15 @@ namespace Validator.Managers.Schema
                 }
             }
 
+            if (action.ReturnType != null && action.ReturnType.IsSubclassOf(typeof(KalturaOTTObject)) && !Validate(action.ReturnType, strict))
+                valid = false;
+
             var parameters = action.GetParameters();
+            foreach (var parameter in parameters)
+            {
+                if (parameter.ParameterType.IsSubclassOf(typeof(KalturaOTTObject)) && !Validate(parameter.ParameterType, strict))
+                    valid = false;
+            }
 
             if (!hasValidationException(action, SchemaValidationType.ACTION_ARGUMENTS))
             {
@@ -508,7 +517,7 @@ namespace Validator.Managers.Schema
                     else
                     {
                         var objectParam = parameters[0];
-                        if (objectParam.ParameterType.Name != expectedObjectType)
+                        if (objectParam.ParameterType.Name.ToLower() != expectedObjectType.ToLower())
                         {
                             logError("Warning", controller, string.Format("Action {0}.{1} ({2}) argument type is {3}, expected {4}", serviceId, actionId, controller.Name, objectParam.ParameterType.Name, expectedObjectType));
                             if (strict)
@@ -536,7 +545,7 @@ namespace Validator.Managers.Schema
                         }
 
                         var objectParam = parameters[1];
-                        if (objectParam.ParameterType.Name != expectedObjectType)
+                        if (objectParam.ParameterType.Name.ToLower() != expectedObjectType.ToLower())
                         {
                             logError("Warning", controller, string.Format("Action {0}.{1} ({2}) object argument type is {3}, expected {4}", serviceId, actionId, controller.Name, objectParam.ParameterType.Name, expectedObjectType));
                             if (strict)
@@ -552,7 +561,7 @@ namespace Validator.Managers.Schema
                         string expectedFilterType = string.Format("Kaltura{0}Filter", FirstCharacterToUpper(serviceId));
 
                         var filterParam = parameters[0];
-                        if (filterParam.ParameterType.Name != expectedFilterType)
+                        if (filterParam.ParameterType.Name.ToLower() != expectedFilterType.ToLower())
                         {
                             logError("Warning", controller, string.Format("Action {0}.{1} ({2}) first argument type is {3}, expected {4}", serviceId, actionId, controller.Name, filterParam.ParameterType.Name, expectedFilterType));
                             if (strict)
@@ -583,7 +592,7 @@ namespace Validator.Managers.Schema
             if (actionId == "list")
             {
                 string expectedResponseType = string.Format("Kaltura{0}ListResponse", FirstCharacterToUpper(serviceId));
-                if (action.ReturnType.Name != expectedResponseType)
+                if (action.ReturnType.Name.ToLower() != expectedResponseType.ToLower())
                 {
                     logError("Warning", controller, string.Format("Action {0}.{1} ({2}) returned type is {3}, expected {4}", serviceId, actionId, controller.Name, action.ReturnType.Name, expectedResponseType));
                     if (strict)
@@ -593,7 +602,7 @@ namespace Validator.Managers.Schema
                 {
                     PropertyInfo objectsProperty = getObjectsProperty(action.ReturnType);
                     Type arrayType = objectsProperty.PropertyType.GetGenericArguments()[0];
-                    if (arrayType.Name != expectedObjectType)
+                    if (arrayType.Name.ToLower() != expectedObjectType.ToLower())
                     {
                         logError("Warning", controller, string.Format("Action {0}.{1} ({2}) returned list-response contains array of {3}, expected {4}", serviceId, actionId, controller.Name, arrayType.Name, expectedObjectType));
                         if (strict)

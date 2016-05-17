@@ -12,8 +12,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/cDNPartnerSettings/action")]
-    public class CDNPartnerSettingsController : ApiController
+    [RoutePrefix("_service/cdnPartnerSettings/action")]
+    public class CdnPartnerSettingsController : ApiController
     {
 
         /// <summary>

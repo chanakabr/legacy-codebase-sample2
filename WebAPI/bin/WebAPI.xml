@@ -337,14 +337,14 @@
             </remarks>
             <param name="adapter_id">C-DVR adapter identifier</param>
         </member>
-        <member name="M:WebAPI.Controllers.CDNPartnerSettingsController.Get">
+        <member name="M:WebAPI.Controllers.CdnPartnerSettingsController.Get">
             <summary>
             Retrieve the partner’s CDN settings (default adapters)
             </summary>
             <returns></returns>
             <remarks>Possible status codes: CDN partner settings not found = 5025</remarks>   
         </member>
-        <member name="M:WebAPI.Controllers.CDNPartnerSettingsController.Update(WebAPI.Models.API.KalturaCDNPartnerSettings)">
+        <member name="M:WebAPI.Controllers.CdnPartnerSettingsController.Update(WebAPI.Models.API.KalturaCDNPartnerSettings)">
             <summary>
             Configure the partner’s CDN settings (default adapters)
             </summary>
