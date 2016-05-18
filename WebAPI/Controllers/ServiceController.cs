@@ -19,6 +19,7 @@ using WebAPI.ClientManagers;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Schema;
 
 namespace WebAPI.Controllers
 {
@@ -36,6 +37,10 @@ namespace WebAPI.Controllers
             if (controller == null)
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.InvalidService, "Service doesn't exist");
 
+            Dictionary<string, string> oldStandardActions = OldStandardAttribute.getOldMembers(controller);
+            if (oldStandardActions != null && oldStandardActions.ContainsValue(actionName))
+                actionName = oldStandardActions.FirstOrDefault(value => value.Value == actionName).Key;
+            
             methodInfo = controller.GetMethod(actionName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
 
             if (methodInfo == null)
