@@ -28,6 +28,7 @@ namespace DAL
         private const string SP_UPDATE_NOTIFICATION_MESSAGE_VIEW_STATUS = "UpdateNotificationMessageViewStatus";
         private const int NUM_OF_INSERT_TRIES = 10;
         private const int SLEEP_BETWEEN_RETRIES_MILLI = 1000;
+        private const double INBOX_MESSAGES_TTL_DAYS = 90;
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.NOTIFICATION);
@@ -1677,7 +1678,7 @@ namespace DAL
                 int numOfTries = 0;
                 while (!result && numOfTries < NUM_OF_INSERT_TRIES)
                 {
-                    result = cbManager.Set(GetInboxMessageKey(groupId, inboxMessage.UserId, inboxMessage.Id), inboxMessage);
+                    result = cbManager.Set(GetInboxMessageKey(groupId, inboxMessage.UserId, inboxMessage.Id), inboxMessage, (uint)TimeSpan.FromDays(INBOX_MESSAGES_TTL_DAYS).TotalSeconds);
 
                     if (!result)
                     {
@@ -1802,7 +1803,7 @@ namespace DAL
                 int numOfTries = 0;
                 while (!result && numOfTries < NUM_OF_INSERT_TRIES)
                 {
-                    result = cbManager.Set(GetInboxSystemAnnouncementKey(groupId, inboxMessage.Id), inboxMessage);
+                    result = cbManager.Set(GetInboxSystemAnnouncementKey(groupId, inboxMessage.Id), inboxMessage, (uint)TimeSpan.FromDays(INBOX_MESSAGES_TTL_DAYS).TotalSeconds);
 
                     if (!result)
                     {
@@ -1834,6 +1835,31 @@ namespace DAL
             }
 
             return result;
+        }
+
+        public static List<InboxMessage> GetSystemInboxMessages(int groupId, List<string> messageIds)
+        {
+            IDictionary<string, InboxMessage> systemInboxMessages = null;
+            List<string> requestKeys = new List<string>();
+            try
+            {
+                // create CB requested key list
+                foreach (var messageId in messageIds)
+                    requestKeys.Add(GetInboxSystemAnnouncementKey(groupId, messageId));
+
+                // get CB documents
+                systemInboxMessages = cbManager.GetValues<InboxMessage>(requestKeys, true);
+                if (systemInboxMessages == null || systemInboxMessages.Count == 0)
+                    log.DebugFormat("user system messages list wasn't found GID: {0}, messageIds: {1}", groupId, string.Join(",", requestKeys));
+                else
+                    return systemInboxMessages.Values.ToList();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to get user system messages. messageIds: {0}, ex: {1}", messageIds != null ? string.Join(",", messageIds) : string.Empty, ex);
+            }
+
+            return null;
         }
     }
 }
