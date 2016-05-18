@@ -113,6 +113,7 @@ namespace ApiObjects.Response
         RecordingNotFound = 3039,
         RecordingFailed = 3040,
         PaymentMethodIsUsedByHousehold = 3041,
+        DomainExceededQuota = 3042,
 
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,
@@ -245,7 +246,8 @@ namespace ApiObjects.Response
         MessageTemplateNotFound = 8016,
         URLPlaceholdersInvalid = 8017,
         InvalidMessageTTL = 8018,
-
+        MessageIdentifierRequired = 8019,
+        UserInboxMessageNotExist = 8020,
 
         //Pricing 9000-9999
         InvalidPriceCode = 9000,

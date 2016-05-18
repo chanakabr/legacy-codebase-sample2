@@ -3454,8 +3454,10 @@ namespace ConditionalAccess
         /// <param name="groupId"></param>
         /// <param name="domainId"></param>
         /// <returns></returns>
-        public static ApiObjects.Response.Status ValidateDomain(int groupId, int domainId)
+        public static ApiObjects.Response.Status ValidateDomain(int groupId, int domainId, out Domain domain)
         {
+            domain = null;
+
             ApiObjects.Response.Status status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = "Error validating domain" };
 
             string username = string.Empty;
@@ -3474,6 +3476,8 @@ namespace ConditionalAccess
             {
                 DomainResponse response = domainsService.GetDomainInfo(username, password, domainId);
                 status = new ApiObjects.Response.Status(response.Status.Code, response.Status.Message);
+
+                domain = response.Domain;
             }
             catch (Exception ex)
             {
@@ -4055,10 +4059,11 @@ namespace ConditionalAccess
             return isContained;
         }
 
-        internal static ApiObjects.Response.Status ValidateUserAndDomain(int groupId, string siteGuid, ref long householdId)
+        internal static ApiObjects.Response.Status ValidateUserAndDomain(int groupId, string siteGuid, ref long householdId, out Domain domain)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
             status.Code = -1;
+            domain = null;
 
             // If no user - go immediately to domain validation
             if (string.IsNullOrEmpty(siteGuid))
@@ -4123,9 +4128,15 @@ namespace ConditionalAccess
             if (status.Code == (int)eResponseStatus.OK && householdId != 0)
             {
                 //Get response from domains WS                
-                status = ValidateDomain(groupId, (int)householdId);
+                status = ValidateDomain(groupId, (int)householdId, out domain);
             }
             return status;
+        }
+
+        internal static ApiObjects.Response.Status ValidateUserAndDomain(int groupId, string siteGuid, ref long householdId)
+        {
+            Domain domain;
+            return ValidateUserAndDomain(groupId, siteGuid, ref householdId, out domain);
         }
 
         internal static List<int> GetChannelsListFromSubscriptions(List<Subscription> subscriptions)
@@ -4540,5 +4551,25 @@ namespace ConditionalAccess
             return responseDictionary.Values.ToList();
         }
 
+        internal static int GetQuota(int groupID, long domainID)
+        {
+            int QuotaInMinutes = 0;
+            try
+            {
+                string key = string.Format("{0}_{1}", groupID, "DefaultQuotaMinutes");              
+                bool res = ConditionalAccessCache.GetItem<int>(key, out QuotaInMinutes);
+                if (!res || QuotaInMinutes == 0)
+                {
+                    QuotaInMinutes = ConditionalAccessDAL.GetQuotaMinutes(groupID);
+                    res = ConditionalAccessCache.AddItem(key, QuotaInMinutes);
+                }                
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("failed to get quoata in minutes for domainID = {0}, groupID = {1} , ex = {2}", domainID, groupID, ex.Message);
+                QuotaInMinutes = 0;
+            }
+            return QuotaInMinutes;
+        }
     }
 }

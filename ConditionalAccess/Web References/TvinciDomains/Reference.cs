@@ -1966,6 +1966,8 @@ namespace ConditionalAccess.TvinciDomains {
         
         private int m_nRegionField;
         
+        private int m_nQuotaModuleIDField;
+        
         /// <remarks/>
         public string m_sName {
             get {
@@ -2203,6 +2205,16 @@ namespace ConditionalAccess.TvinciDomains {
             }
             set {
                 this.m_nRegionField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int m_nQuotaModuleID {
+            get {
+                return this.m_nQuotaModuleIDField;
+            }
+            set {
+                this.m_nQuotaModuleIDField = value;
             }
         }
     }

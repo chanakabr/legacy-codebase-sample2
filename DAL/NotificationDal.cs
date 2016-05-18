@@ -1589,10 +1589,10 @@ namespace DAL
             try
             {
                 var startKey = new object[] { groupId, userId, 0, fromDate };
-                var endKey = new object[] { groupId, userId, 1, fromDate };
+                var endKey = new object[] { groupId, userId, 1, "\uefff" };
 
                 if (onlyUnread)
-                    endKey = new object[] { groupId, userId, 0, fromDate };
+                    endKey = new object[] { groupId, userId, 0, "\uefff" };
 
                 // prepare view request
                 ViewManager viewManager = new ViewManager("inbox", "get_user_messages")
@@ -1669,7 +1669,7 @@ namespace DAL
             return userInboxMessage;
         }
 
-        public static bool SetUserInboxMessage(int groupId, InboxMessage inboxMessage)
+        public static bool SetUserInboxMessage(int groupId, InboxMessage inboxMessage, int ttlDays)
         {
             bool result = false;
             try
@@ -1677,7 +1677,7 @@ namespace DAL
                 int numOfTries = 0;
                 while (!result && numOfTries < NUM_OF_INSERT_TRIES)
                 {
-                    result = cbManager.Set(GetInboxMessageKey(groupId, inboxMessage.UserId, inboxMessage.Id), inboxMessage);
+                    result = cbManager.Set(GetInboxMessageKey(groupId, inboxMessage.UserId, inboxMessage.Id), inboxMessage, (uint)TimeSpan.FromDays(ttlDays).TotalSeconds);
 
                     if (!result)
                     {
@@ -1794,7 +1794,7 @@ namespace DAL
             return messageIds;
         }
 
-        public static bool SetSystemAnnouncementMessage(int groupId, InboxMessage inboxMessage)
+        public static bool SetSystemAnnouncementMessage(int groupId, InboxMessage inboxMessage, int ttlDays)
         {
             bool result = false;
             try
@@ -1802,7 +1802,7 @@ namespace DAL
                 int numOfTries = 0;
                 while (!result && numOfTries < NUM_OF_INSERT_TRIES)
                 {
-                    result = cbManager.Set(GetInboxSystemAnnouncementKey(groupId, inboxMessage.Id), inboxMessage);
+                    result = cbManager.Set(GetInboxSystemAnnouncementKey(groupId, inboxMessage.Id), inboxMessage, (uint)TimeSpan.FromDays(ttlDays).TotalSeconds);
 
                     if (!result)
                     {
@@ -1834,6 +1834,31 @@ namespace DAL
             }
 
             return result;
+        }
+
+        public static List<InboxMessage> GetSystemInboxMessages(int groupId, List<string> messageIds)
+        {
+            IDictionary<string, InboxMessage> systemInboxMessages = null;
+            List<string> requestKeys = new List<string>();
+            try
+            {
+                // create CB requested key list
+                foreach (var messageId in messageIds)
+                    requestKeys.Add(GetInboxSystemAnnouncementKey(groupId, messageId));
+
+                // get CB documents
+                systemInboxMessages = cbManager.GetValues<InboxMessage>(requestKeys, true);
+                if (systemInboxMessages == null || systemInboxMessages.Count == 0)
+                    log.DebugFormat("user system messages list wasn't found GID: {0}, messageIds: {1}", groupId, string.Join(",", requestKeys));
+                else
+                    return systemInboxMessages.Values.ToList();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to get user system messages. messageIds: {0}, ex: {1}", messageIds != null ? string.Join(",", messageIds) : string.Empty, ex);
+            }
+
+            return null;
         }
     }
 }

@@ -1185,7 +1185,6 @@ namespace DAL
                     if (userDetails != null && userDetails.Rows != null && userDetails.Rows.Count > 0)
                     {
                         DataRow dr = userDetails.Rows[0];
-                        int state = ODBCWrapper.Utils.GetIntSafeVal(dr, "STATE");
                         if (nUserID <= 0)
                         {
                             nUserID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
@@ -1198,21 +1197,18 @@ namespace DAL
                             sUserName = ODBCWrapper.Utils.GetSafeStr(dr, "USERNAME");
                         }
                         DateTime createDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
-                        if (activateStatus == 1 || !string.IsNullOrEmpty(facebookbId))
+                        if (isActivationNeeded == 0 || activateStatus == 1 || !string.IsNullOrEmpty(facebookbId))
                         {
                             res = DALUserActivationState.Activated;
                         }
-                        else if (isActivationNeeded == 1)
+                        else if (isActivationNeeded == 1 && createDate.AddHours(nActivationMustHours) > DateTime.UtcNow)
                         {
-                            if (createDate.AddHours(nActivationMustHours) < DateTime.UtcNow)
-                            {
-                                res = DALUserActivationState.NotActivated;
-                            }
-                            else
-                            {
-                                res = DALUserActivationState.Activated;
-                                isGracePeriod = true;
-                            }
+                            res = DALUserActivationState.Activated;
+                            isGracePeriod = true;
+                        }
+                        else
+                        {
+                            res = DALUserActivationState.NotActivated;
                         }
 
                         if (domainDetails != null && domainDetails.Rows != null && domainDetails.Rows.Count > 0)

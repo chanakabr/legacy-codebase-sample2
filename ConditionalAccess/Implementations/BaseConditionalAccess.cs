@@ -16315,6 +16315,7 @@ namespace ConditionalAccess
                 // 1. validate user and household
                 //---------------------------------
                 status = Utils.ValidateUserAndDomain(m_nGroupID, userId, ref householdId);
+
                 if (status.Code != (int)eResponseStatus.OK || householdId <= 0)
                 {
                     return status;
@@ -17214,7 +17215,9 @@ namespace ConditionalAccess
             RecordingResponse response = new RecordingResponse();
             try
             {
-                ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userID, ref domainID);
+                ConditionalAccess.TvinciDomains.Domain domain;
+                ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userID, ref domainID, out domain);
+
                 if (validationStatus.Code != (int)eResponseStatus.OK)
                 {
                     log.DebugFormat("User or Domain not valid, DomainID: {0}, UserID: {1}", domainID, userID);
@@ -17273,10 +17276,40 @@ namespace ConditionalAccess
                 // validate epgs entitlement and add to response
                 ValidateEpgForRecording(userID, domainID, ref response, epgs, validEpgsForRecording);
 
+                int totalMinutes = Utils.GetQuota(this.m_nGroupID, domainID);
+
+                int quotaManagerModelId = domain.m_nQuotaModuleID;
+
+                List<TstvRecordingStatus> recordingStatuses = new List<TstvRecordingStatus>()
+                {
+                    TstvRecordingStatus.OK,
+                    TstvRecordingStatus.Recorded,
+                    TstvRecordingStatus.Recording,
+                    TstvRecordingStatus.Scheduled
+                };
+
+                List<Recording> currentRecordings = GetDomainRecordings(domainID, recordingStatuses);
+                List<Recording> recordingsToCheckQuota = response.Recordings.Where(
+                    recording => recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK).ToList();
+
+                var temporaryStatus =
+                    QuotaManager.Instance.CheckQuotaByTotalMinutes(this.m_nGroupID, domainID, totalMinutes, recordingsToCheckQuota, currentRecordings);
+
+                if (temporaryStatus == null)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error);
+                    return response;
+                }
+                else if (temporaryStatus.Code != (int)eResponseStatus.OK)
+                {
+                    response.Status = temporaryStatus;
+                    return response;
+                }
+
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
                 response.TotalItems = response.Recordings.Count;
             }
-
             catch (Exception ex)
             {
                 StringBuilder sb = new StringBuilder("Exception at QueryRecords. ");
@@ -17425,7 +17458,8 @@ namespace ConditionalAccess
             return response;
         }
 
-        public RecordingResponse SerachDomainRecordings(string userID, long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses, string filter, int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy)
+        public RecordingResponse SerachDomainRecordings(string userID, long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses, 
+            string filter, int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy)
         {
             RecordingResponse response = new RecordingResponse();
             try
@@ -17434,8 +17468,14 @@ namespace ConditionalAccess
                 {
                     //Create recording statuses list (without deleted)
                     log.DebugFormat("RecordingStatuses is null or empty, creating status list, DomainID: {0}, UserID: {1}", domainID, userID);
-                    recordingStatuses = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recorded, TstvRecordingStatus.Recording,
-                                                                          TstvRecordingStatus.Scheduled, TstvRecordingStatus.Failed, TstvRecordingStatus.Canceled };
+                    recordingStatuses = new List<TstvRecordingStatus>() 
+                        { 
+                            TstvRecordingStatus.Recorded, 
+                            TstvRecordingStatus.Recording,
+                            TstvRecordingStatus.Scheduled, 
+                            TstvRecordingStatus.Failed, 
+                            TstvRecordingStatus.Canceled 
+                        };
                 }
 
                 ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userID, ref domainID);
@@ -17445,35 +17485,35 @@ namespace ConditionalAccess
                     response.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
                     return response;
                 }
+                
+                Dictionary<long, long> recordingIdToDomainRecordingIdMap;
 
-                Dictionary<long, long> recordingIdToDomainRecordingIdMap = ConditionalAccessDAL.GetRecordingsMapingByRecordingStatuses(m_nGroupID, domainID, Utils.ConvertToDomainRecordingStatus(recordingStatuses));
+                List<Recording> recordingsWithValidStatus =
+                    GetDomainRecordings(domainID, recordingStatuses, out recordingIdToDomainRecordingIdMap);
 
-                if (recordingIdToDomainRecordingIdMap != null && recordingIdToDomainRecordingIdMap.Count > 0)
+                if (recordingsWithValidStatus != null && recordingsWithValidStatus.Count > 0)
                 {
-                    List<Recording> recordingsWithValidStatus = RecordingsManager.Instance.GetRecordingsByIdsAndStatuses(m_nGroupID, recordingIdToDomainRecordingIdMap.Keys.ToList(), recordingStatuses);                    
-                    if (recordingsWithValidStatus != null && recordingsWithValidStatus.Count > 0)
+                    Dictionary<long, Recording> recordingIdToValidRecordingsMap = new Dictionary<long, Recording>();
+                    foreach (Recording recording in recordingsWithValidStatus)
                     {
-                        Dictionary<long, Recording> recordingIdToValidRecordingsMap = new Dictionary<long, Recording>();
-                        foreach (Recording recording in recordingsWithValidStatus)
+                        if (!recordingIdToValidRecordingsMap.ContainsKey(recording.Id))
                         {
-                            if (!recordingIdToValidRecordingsMap.ContainsKey(recording.Id))
-                            {
-                                recordingIdToValidRecordingsMap.Add(recording.Id, recording);
-                            }
-                        }
-                        int totalResults = 0;                        
-                        List<Recording> searchRecordings = Utils.SearchDomainRecordingIDsByFilter(m_nGroupID, userID, domainID, recordingIdToDomainRecordingIdMap, filter,
-                                                                                                    recordingIdToValidRecordingsMap, pageIndex, pageSize, orderBy, ref totalResults);
-                        if (searchRecordings != null)
-                        {
-                            response.Recordings = searchRecordings;
-                            response.TotalItems = totalResults;
-                        }
-                        else
-                        {
-                            log.DebugFormat("Failed SearchDomainRecordingIDsByFilter, recordingIDs is null, DomainID: {0}, UserID: {1}, pageIndex: {2}, pageSize: {3}, filter: {4}", domainID, userID, pageIndex, pageSize, filter);
+                            recordingIdToValidRecordingsMap.Add(recording.Id, recording);
                         }
                     }
+                    int totalResults = 0;
+                    List<Recording> searchRecordings = Utils.SearchDomainRecordingIDsByFilter(m_nGroupID, userID, domainID, recordingIdToDomainRecordingIdMap, filter,
+                                                                                                recordingIdToValidRecordingsMap, pageIndex, pageSize, orderBy, ref totalResults);
+                    if (searchRecordings != null)
+                    {
+                        response.Recordings = searchRecordings;
+                        response.TotalItems = totalResults;
+                    }
+                    else
+                    {
+                        log.DebugFormat("Failed SearchDomainRecordingIDsByFilter, recordingIDs is null, DomainID: {0}, UserID: {1}, pageIndex: {2}, pageSize: {3}, filter: {4}", domainID, userID, pageIndex, pageSize, filter);
+                    }
+
                 }
                 else
                 {
@@ -17499,7 +17539,31 @@ namespace ConditionalAccess
 
                 log.Error(sb.ToString(), ex);
             }
+
             return response;
+        }
+
+        private List<Recording> GetDomainRecordings(long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses)
+        {
+            Dictionary<long, long> recordingIdToDomainRecordingIdMap;
+
+            return GetDomainRecordings(domainID, recordingStatuses, out recordingIdToDomainRecordingIdMap);
+        }
+
+        private List<Recording> GetDomainRecordings(long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses, out Dictionary<long, long> recordingIdToDomainRecordingIdMap)
+        {
+            List<Recording> recordingsWithValidStatus = null;
+
+            recordingIdToDomainRecordingIdMap =
+                ConditionalAccessDAL.GetRecordingsMapingByRecordingStatuses(m_nGroupID, domainID, Utils.ConvertToDomainRecordingStatus(recordingStatuses));
+
+            if (recordingIdToDomainRecordingIdMap != null && recordingIdToDomainRecordingIdMap.Count > 0)
+            {
+                recordingsWithValidStatus =
+                    RecordingsManager.Instance.GetRecordingsByIdsAndStatuses(m_nGroupID, recordingIdToDomainRecordingIdMap.Keys.ToList(), recordingStatuses);
+            }
+
+            return recordingsWithValidStatus;
         }
 
         public RecordingResponse GetRecordingsByIDs(List<long> recordingIDs, long domainID)
@@ -17784,7 +17848,7 @@ namespace ConditionalAccess
             return status;
         }
 
-        public ApiObjects.Response.Status RemovePaymentMethodHouseholdPaymentGateway(int groupId, int paymentGatewayId, string siteGuid, long householdId, int paymentMethodId)
+        public ApiObjects.Response.Status RemovePaymentMethodHouseholdPaymentGateway(int groupId, int paymentGatewayId, string siteGuid, long householdId, int paymentMethodId, bool force)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
 
@@ -17798,22 +17862,25 @@ namespace ConditionalAccess
                     return status;
                 }
 
-                DataSet ds = DAL.ConditionalAccessDAL.Get_RecurringSubscriptiosAndPendingPurchasesByPaymentMethod(groupId, (int)householdId, paymentGatewayId);
-                if (ds == null || ds.Tables == null || ds.Tables.Count < 3 || ds.Tables[0].Rows == null || ds.Tables[1].Rows == null || ds.Tables[2].Rows == null)
+                if (!force)
                 {
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Internal Error");
-                    log.ErrorFormat("RemovePaymentMethodHouseholdPaymentGateway: Error getting recurring subscriptions from DB. groupID={0}, paymentGatewayId={1}, siteGuid= {2}, paymentMethodId {3}, ex: {4}", groupId, paymentGatewayId, siteGuid, paymentMethodId);
-                    return status;
+                    DataSet ds = DAL.ConditionalAccessDAL.Get_RecurringSubscriptiosAndPendingPurchasesByPaymentMethod(groupId, (int)householdId, paymentGatewayId);
+                    if (ds == null || ds.Tables == null || ds.Tables.Count < 3 || ds.Tables[0].Rows == null || ds.Tables[1].Rows == null || ds.Tables[2].Rows == null)
+                    {
+                        status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Internal Error");
+                        log.ErrorFormat("RemovePaymentMethodHouseholdPaymentGateway: Error getting recurring subscriptions from DB. groupID={0}, paymentGatewayId={1}, siteGuid= {2}, paymentMethodId {3}, ex: {4}", groupId, paymentGatewayId, siteGuid, paymentMethodId);
+                        return status;
+                    }
+
+                    if (ds.Tables[0].Rows.Count > 0 || ds.Tables[1].Rows.Count > 0 || ds.Tables[2].Rows.Count > 0)
+                    {
+                        log.ErrorFormat("RemovePaymentMethodHouseholdPaymentGateway: Error removing payment method, method is used by household. groupID={0}, paymentGatewayId={1}, siteGuid= {2}, paymentMethodId {3}", groupId, paymentGatewayId, siteGuid, paymentMethodId);
+                        status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentMethodIsUsedByHousehold, "Payment Method Is Used By Household");
+                        return status;
+                    }
                 }
 
-                if (ds.Tables[0].Rows.Count > 0 || ds.Tables[1].Rows.Count > 0 || ds.Tables[2].Rows.Count > 0)
-                {
-                    log.ErrorFormat("RemovePaymentMethodHouseholdPaymentGateway: Error removing payment method, method is used by household. groupID={0}, paymentGatewayId={1}, siteGuid= {2}, paymentMethodId {3}", groupId, paymentGatewayId, siteGuid, paymentMethodId);
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentMethodIsUsedByHousehold, "Payment Method Is Used By Household");
-                    return status;
-                }
-
-                status = RemovePaymentMethodHouseholdInBilling(groupId, paymentGatewayId, siteGuid, householdId, paymentMethodId);
+                status = RemovePaymentMethodHouseholdInBilling(groupId, paymentGatewayId, siteGuid, householdId, paymentMethodId, force);
 
                 if (status.Code != (int) eResponseStatus.OK)
                     log.ErrorFormat("RemovePaymentMethodHouseholdPaymentGateway: Error removing payment method. groupID={0}, paymentGatewayId={1}, siteGuid= {2}, paymentMethodId {3}, error: ({4}) {5}", groupId, paymentGatewayId, siteGuid, paymentMethodId, status.Code, status.Message);
@@ -17828,7 +17895,7 @@ namespace ConditionalAccess
             return status;
         }
 
-        private ApiObjects.Response.Status RemovePaymentMethodHouseholdInBilling(int groupId, int paymentGatewayId, string siteGuid, long householdId, int paymentMethodId)
+        private ApiObjects.Response.Status RemovePaymentMethodHouseholdInBilling(int groupId, int paymentGatewayId, string siteGuid, long householdId, int paymentMethodId, bool force)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
 
@@ -17844,7 +17911,7 @@ namespace ConditionalAccess
                 InitializeBillingModule(ref wsBillingService, ref userName, ref password);
 
                 // call new billing method for charge adapter
-                var billingResponse = wsBillingService.RemovePaymentMethodHouseholdPaymentGateway(userName, password, paymentGatewayId, siteGuid, (int)householdId, paymentMethodId);
+                var billingResponse = wsBillingService.RemovePaymentMethodHouseholdPaymentGateway(userName, password, paymentGatewayId, siteGuid, (int)householdId, paymentMethodId, force);
                 if (billingResponse == null)
                     status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -17857,6 +17924,49 @@ namespace ConditionalAccess
             }
 
             return status;
+        }
+
+        public ApiObjects.TimeShiftedTv.DomainQuotaResponse GetDomainQuota(string userID, long domainID)
+        {
+            ApiObjects.TimeShiftedTv.DomainQuotaResponse response = new DomainQuotaResponse();
+            try
+            {
+
+                ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userID, ref domainID);
+
+                if (validationStatus.Code != (int)eResponseStatus.OK)
+                {
+                    log.DebugFormat("User or Domain not valid, DomainID: {0}, UserID: {1}", domainID, userID);
+                    response.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
+                    return response;
+                }
+
+                List<Recording> currentRecordings = new List<Recording>();
+
+                Dictionary<long, long> recordingIdToDomainRecordingIdMap;
+
+                List<TstvRecordingStatus> recordingStatuses = new List<TstvRecordingStatus>()
+                {
+                    TstvRecordingStatus.OK,
+                    TstvRecordingStatus.Recorded,
+                    TstvRecordingStatus.Recording,
+                    TstvRecordingStatus.Scheduled
+                };
+
+                currentRecordings =
+                    GetDomainRecordings(domainID, recordingStatuses, out recordingIdToDomainRecordingIdMap);
+
+                response = QuotaManager.Instance.GetDomainQuota(this.m_nGroupID, domainID, currentRecordings);
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error when getting domain quota: domain = {0}, user = {1}, ex = {2}",
+                    domainID, userID, ex);
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error);
+            }
+
+            return response;
         }
     }
 }
