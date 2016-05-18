@@ -82,7 +82,7 @@ namespace WebAPI.Controllers
         /// <param name="partnerId">Partner identifier</param>
         /// <param name="username">user name</param>
         /// <param name="password">password</param>
-        /// <param name="extra_params">extra params</param>
+        /// <param name="extraParams">extra params</param>
         /// <param name="udid">Device UDID</param>
         /// <remarks>        
         /// UserNotInHousehold = 1005, Wrong username or password = 1011, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
@@ -90,7 +90,8 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("login"), HttpPost]
         [ValidationException(SchemaValidationType.ACTION_NAME)]
-        public KalturaLoginResponse Login(int partnerId, string username = null, string password = null, SerializableDictionary<string, KalturaStringValue> extra_params = null,
+        [OldStandard("extraParams", "extra_params")]
+        public KalturaLoginResponse Login(int partnerId, string username = null, string password = null, SerializableDictionary<string, KalturaStringValue> extraParams = null,
             string udid = null)
         {
             KalturaOTTUser response = null;
@@ -102,8 +103,8 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                // add header. if key exists use extra_params
-                response = ClientsManager.UsersClient().Login(partnerId, username, password, udid, extra_params, System.Web.HttpContext.Current.Request.Headers);
+                // add header. if key exists use extraParams
+                response = ClientsManager.UsersClient().Login(partnerId, username, password, udid, extraParams, System.Web.HttpContext.Current.Request.Headers);
             }
             catch (ClientException ex)
             {
@@ -335,19 +336,21 @@ namespace WebAPI.Controllers
         /// Given a user name and existing password, change to a new password.        
         /// </summary>        
         /// <param name="username">user name</param>
-        /// <param name="old_password">old password</param>
-        /// <param name="new_password">new password</param>
+        /// <param name="oldPassword">old password</param>
+        /// <param name="newPassword">new password</param>
         /// <remarks>Possible status codes: Wrong username or password = 1011, User does not exist = 2000, Inside lock time = 2015, User already logged in = 2017</remarks>
         [Route("updateLoginData"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemaValidationType.ACTION_NAME)]
-        public bool UpdateLoginData(string username, string old_password, string new_password)
+        [OldStandard("oldPassword", "old_password")]
+        [OldStandard("newPassword", "new_password")]
+        public bool UpdateLoginData(string username, string oldPassword, string newPassword)
         {
             bool response = false;
 
             int groupId = KS.GetFromRequest().GroupId;
 
-            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(old_password) || string.IsNullOrEmpty(new_password))
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(oldPassword) || string.IsNullOrEmpty(newPassword))
             {
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "user name or password is empty");
             }
@@ -355,7 +358,7 @@ namespace WebAPI.Controllers
             {
                 //TODO: get username by user id
                 // call client
-                response = ClientsManager.UsersClient().ChangeUserPassword(groupId, username, old_password, new_password);
+                response = ClientsManager.UsersClient().ChangeUserPassword(groupId, username, oldPassword, newPassword);
             }
             catch (ClientException ex)
             {
