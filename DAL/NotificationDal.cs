@@ -1590,10 +1590,10 @@ namespace DAL
             try
             {
                 var startKey = new object[] { groupId, userId, 0, fromDate };
-                var endKey = new object[] { groupId, userId, 1, fromDate };
+                var endKey = new object[] { groupId, userId, 1, "\uefff" };
 
                 if (onlyUnread)
-                    endKey = new object[] { groupId, userId, 0, fromDate };
+                    endKey = new object[] { groupId, userId, 0, "\uefff" };
 
                 // prepare view request
                 ViewManager viewManager = new ViewManager("inbox", "get_user_messages")
