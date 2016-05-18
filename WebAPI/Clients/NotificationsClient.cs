@@ -893,16 +893,21 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
             if (response.Status.Code != (int)StatusCode.OK)
             {
-                // Bad response received from WS
-                throw new ClientException(response.Status.Code, response.Status.Message);
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
             }
 
             if (response.InboxMessages != null && response.InboxMessages.Count > 0)
             {
-                result = AutoMapper.Mapper.Map<KalturaInboxMessage>(response.InboxMessages[0]);
+                result = AutoMapper.Mapper.Map<KalturaInboxMessage>(response.InboxMessages[0]);                
             }
+
             return result;
         }
     }
