@@ -28,7 +28,6 @@ namespace DAL
         private const string SP_UPDATE_NOTIFICATION_MESSAGE_VIEW_STATUS = "UpdateNotificationMessageViewStatus";
         private const int NUM_OF_INSERT_TRIES = 10;
         private const int SLEEP_BETWEEN_RETRIES_MILLI = 1000;
-        private const double INBOX_MESSAGES_TTL_DAYS = 90;
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.NOTIFICATION);
@@ -1670,7 +1669,7 @@ namespace DAL
             return userInboxMessage;
         }
 
-        public static bool SetUserInboxMessage(int groupId, InboxMessage inboxMessage)
+        public static bool SetUserInboxMessage(int groupId, InboxMessage inboxMessage, int ttlDays)
         {
             bool result = false;
             try
@@ -1678,7 +1677,7 @@ namespace DAL
                 int numOfTries = 0;
                 while (!result && numOfTries < NUM_OF_INSERT_TRIES)
                 {
-                    result = cbManager.Set(GetInboxMessageKey(groupId, inboxMessage.UserId, inboxMessage.Id), inboxMessage, (uint)TimeSpan.FromDays(INBOX_MESSAGES_TTL_DAYS).TotalSeconds);
+                    result = cbManager.Set(GetInboxMessageKey(groupId, inboxMessage.UserId, inboxMessage.Id), inboxMessage, (uint)TimeSpan.FromDays(ttlDays).TotalSeconds);
 
                     if (!result)
                     {
@@ -1795,7 +1794,7 @@ namespace DAL
             return messageIds;
         }
 
-        public static bool SetSystemAnnouncementMessage(int groupId, InboxMessage inboxMessage)
+        public static bool SetSystemAnnouncementMessage(int groupId, InboxMessage inboxMessage, int ttlDays)
         {
             bool result = false;
             try
@@ -1803,7 +1802,7 @@ namespace DAL
                 int numOfTries = 0;
                 while (!result && numOfTries < NUM_OF_INSERT_TRIES)
                 {
-                    result = cbManager.Set(GetInboxSystemAnnouncementKey(groupId, inboxMessage.Id), inboxMessage, (uint)TimeSpan.FromDays(INBOX_MESSAGES_TTL_DAYS).TotalSeconds);
+                    result = cbManager.Set(GetInboxSystemAnnouncementKey(groupId, inboxMessage.Id), inboxMessage, (uint)TimeSpan.FromDays(ttlDays).TotalSeconds);
 
                     if (!result)
                     {
