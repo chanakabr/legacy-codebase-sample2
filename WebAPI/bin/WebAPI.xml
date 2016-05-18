@@ -5341,7 +5341,7 @@
             <param name="partnerId">Partner identifier</param>
             <param name="username">user name</param>
             <param name="password">password</param>
-            <param name="extra_params">extra params</param>
+            <param name="extraParams">extra params</param>
             <param name="udid">Device UDID</param>
             <remarks>        
             UserNotInHousehold = 1005, Wrong username or password = 1011, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
@@ -5408,8 +5408,8 @@
             Given a user name and existing password, change to a new password.        
             </summary>        
             <param name="username">user name</param>
-            <param name="old_password">old password</param>
-            <param name="new_password">new password</param>
+            <param name="oldPassword">old password</param>
+            <param name="newPassword">new password</param>
             <remarks>Possible status codes: Wrong username or password = 1011, User does not exist = 2000, Inside lock time = 2015, User already logged in = 2017</remarks>
         </member>
         <member name="M:WebAPI.Controllers.OttUserController.Get">
