@@ -23,6 +23,7 @@ using WebAPI.Models.General;
 using WebAPI.Managers;
 using WebAPI.Managers.Schema;
 using System.Runtime.Serialization;
+using WebAPI.Models.Billing;
 
 namespace WebAPI.Filters
 {
@@ -465,7 +466,14 @@ namespace WebAPI.Filters
             // if objectType was specified, we will use it only if the anotation type is it's base type
             if (parameters.ContainsKey("objectType"))
             {
-                var possibleType = Type.GetType(parameters["objectType"].ToString());
+                var possibleTypeName = parameters["objectType"].ToString();
+                var possibleType = Type.GetType(string.Format("{0},WebAPI", possibleTypeName));
+                if (possibleType == null)
+                {
+                    Assembly assembly = Assembly.GetExecutingAssembly();
+                    var possibleTypes = assembly.GetTypes().Where(myType => myType.Name == possibleTypeName);
+                    possibleType = possibleTypes.First();
+                }
                 if (possibleType.Name.ToLower() != type.Name.ToLower()) // reflect only if type is different
                 {
                     if (possibleType.IsSubclassOf(type)) // we know that the objectType that came from the user is right, and we can use it to initiate the object\
