@@ -17671,7 +17671,7 @@ namespace ConditionalAccess
             return status;
         }
 
-        public ApiObjects.Response.Status RemovePaymentMethodHouseholdPaymentGateway(int groupId, int paymentGatewayId, string siteGuid, long householdId, int paymentMethodId)
+        public ApiObjects.Response.Status RemovePaymentMethodHouseholdPaymentGateway(int groupId, int paymentGatewayId, string siteGuid, long householdId, int paymentMethodId, bool force)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
 
@@ -17685,22 +17685,25 @@ namespace ConditionalAccess
                     return status;
                 }
 
-                DataSet ds = DAL.ConditionalAccessDAL.Get_RecurringSubscriptiosAndPendingPurchasesByPaymentMethod(groupId, (int)householdId, paymentGatewayId);
-                if (ds == null || ds.Tables == null || ds.Tables.Count < 3 || ds.Tables[0].Rows == null || ds.Tables[1].Rows == null || ds.Tables[2].Rows == null)
+                if (!force)
                 {
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Internal Error");
-                    log.ErrorFormat("RemovePaymentMethodHouseholdPaymentGateway: Error getting recurring subscriptions from DB. groupID={0}, paymentGatewayId={1}, siteGuid= {2}, paymentMethodId {3}, ex: {4}", groupId, paymentGatewayId, siteGuid, paymentMethodId);
-                    return status;
+                    DataSet ds = DAL.ConditionalAccessDAL.Get_RecurringSubscriptiosAndPendingPurchasesByPaymentMethod(groupId, (int)householdId, paymentGatewayId);
+                    if (ds == null || ds.Tables == null || ds.Tables.Count < 3 || ds.Tables[0].Rows == null || ds.Tables[1].Rows == null || ds.Tables[2].Rows == null)
+                    {
+                        status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Internal Error");
+                        log.ErrorFormat("RemovePaymentMethodHouseholdPaymentGateway: Error getting recurring subscriptions from DB. groupID={0}, paymentGatewayId={1}, siteGuid= {2}, paymentMethodId {3}, ex: {4}", groupId, paymentGatewayId, siteGuid, paymentMethodId);
+                        return status;
+                    }
+
+                    if (ds.Tables[0].Rows.Count > 0 || ds.Tables[1].Rows.Count > 0 || ds.Tables[2].Rows.Count > 0)
+                    {
+                        log.ErrorFormat("RemovePaymentMethodHouseholdPaymentGateway: Error removing payment method, method is used by household. groupID={0}, paymentGatewayId={1}, siteGuid= {2}, paymentMethodId {3}", groupId, paymentGatewayId, siteGuid, paymentMethodId);
+                        status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentMethodIsUsedByHousehold, "Payment Method Is Used By Household");
+                        return status;
+                    }
                 }
 
-                if (ds.Tables[0].Rows.Count > 0 || ds.Tables[1].Rows.Count > 0 || ds.Tables[2].Rows.Count > 0)
-                {
-                    log.ErrorFormat("RemovePaymentMethodHouseholdPaymentGateway: Error removing payment method, method is used by household. groupID={0}, paymentGatewayId={1}, siteGuid= {2}, paymentMethodId {3}", groupId, paymentGatewayId, siteGuid, paymentMethodId);
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentMethodIsUsedByHousehold, "Payment Method Is Used By Household");
-                    return status;
-                }
-
-                status = RemovePaymentMethodHouseholdInBilling(groupId, paymentGatewayId, siteGuid, householdId, paymentMethodId);
+                status = RemovePaymentMethodHouseholdInBilling(groupId, paymentGatewayId, siteGuid, householdId, paymentMethodId, force);
 
                 if (status.Code != (int) eResponseStatus.OK)
                     log.ErrorFormat("RemovePaymentMethodHouseholdPaymentGateway: Error removing payment method. groupID={0}, paymentGatewayId={1}, siteGuid= {2}, paymentMethodId {3}, error: ({4}) {5}", groupId, paymentGatewayId, siteGuid, paymentMethodId, status.Code, status.Message);
@@ -17715,7 +17718,7 @@ namespace ConditionalAccess
             return status;
         }
 
-        private ApiObjects.Response.Status RemovePaymentMethodHouseholdInBilling(int groupId, int paymentGatewayId, string siteGuid, long householdId, int paymentMethodId)
+        private ApiObjects.Response.Status RemovePaymentMethodHouseholdInBilling(int groupId, int paymentGatewayId, string siteGuid, long householdId, int paymentMethodId, bool force)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
 
@@ -17731,7 +17734,7 @@ namespace ConditionalAccess
                 InitializeBillingModule(ref wsBillingService, ref userName, ref password);
 
                 // call new billing method for charge adapter
-                var billingResponse = wsBillingService.RemovePaymentMethodHouseholdPaymentGateway(userName, password, paymentGatewayId, siteGuid, (int)householdId, paymentMethodId);
+                var billingResponse = wsBillingService.RemovePaymentMethodHouseholdPaymentGateway(userName, password, paymentGatewayId, siteGuid, (int)householdId, paymentMethodId, force);
                 if (billingResponse == null)
                     status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
