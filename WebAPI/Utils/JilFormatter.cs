@@ -36,12 +36,16 @@ namespace WebAPI.Utils
             var properties = type.GetProperties();
             foreach (PropertyInfo property in properties)
             {
-                string name = getApiName(property);
                 object value = property.GetValue(ottObject);
+                if (value == null)
+                    continue;
+
+                string name = getApiName(property);
 
                 if (property.PropertyType.IsSubclassOf(typeof(KalturaOTTObject)))
                 {
-                    value = new OldStandardObject((KalturaOTTObject)value);
+                    if (OldStandardAttribute.getOldMembers(value.GetType()) != null)
+                        value = new OldStandardObject((KalturaOTTObject)value);
                 }
                 else if (property.PropertyType.IsArray || property.PropertyType.IsGenericType)
                 {
@@ -50,18 +54,28 @@ namespace WebAPI.Utils
                         var array = new List<OldStandardObject>();
                         foreach(KalturaOTTObject item in (IEnumerable<KalturaOTTObject>)value)
                         {
+                            if (OldStandardAttribute.getOldMembers(item.GetType()) == null)
+                            {
+                                break;
+                            }
                             array.Add(new OldStandardObject(item));
                         }
-                        value = array;
+                        if (array.Count > 0)
+                            value = array;
                     }
                     else if (property.PropertyType.GetGenericArguments().Count() == 2 && property.PropertyType.GetGenericArguments()[1].IsSubclassOf(typeof(KalturaOTTObject)))
                     {
                         var dictionary = new Dictionary<string, OldStandardObject>();
-                        foreach(KeyValuePair<string, KalturaOTTObject> item in (IDictionary<string, KalturaOTTObject>)value)
+                        foreach (KeyValuePair<string, KalturaOTTObject> item in (dynamic) value)
                         {
+                            if (OldStandardAttribute.getOldMembers(item.Value.GetType()) == null)
+                            {
+                                break;
+                            }
                             dictionary.Add(item.Key, new OldStandardObject(item.Value));
                         }
-                        value = dictionary;
+                        if (dictionary.Count > 0)
+                            value = dictionary;
                     }
                 }
 
