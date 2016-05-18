@@ -918,6 +918,7 @@ namespace DAL
             ref string sCoGuid, ref int nDomainRestriction, ref DomainSuspentionStatus eDomainSuspendStat, ref int regionId)
         {
             int nGroupConcurrentMaxLimit = 0;
+           
 
             return GetDomainSettings(nDomainID, nGroupID, ref sName, ref sDescription, ref nDeviceLimitationModule, ref nDeviceLimit,
                 ref nUserLimit, ref nConcurrentLimit, ref nStatus, ref nIsActive, ref nFrequencyFlag, ref nDeviceMinPeriodId, ref nUserMinPeriodId,
@@ -2016,5 +2017,6 @@ namespace DAL
 
             return sp.ExecuteReturnValue<int>();
         }
+
     }
 }

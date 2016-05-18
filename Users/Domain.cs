@@ -119,7 +119,7 @@ namespace Users
         [JsonProperty()]
         public int m_nRegion;
 
-
+       
         public Domain()
         {
             m_sName = string.Empty;
@@ -143,7 +143,7 @@ namespace Users
             m_oLimitationsManager = new LimitationsManager();
 
             m_oUDIDToDeviceFamilyMapping = new Dictionary<string, int>();
-
+            
         }
 
         public Domain(int nDomainID)
@@ -497,7 +497,7 @@ namespace Users
                 this.m_totalNumOfDevices = domain.m_totalNumOfDevices;
                 this.m_UsersIDs = domain.m_UsersIDs;
                 if (m_UsersIDs != null)
-                    this.m_totalNumOfUsers = this.m_UsersIDs.Count();
+                    this.m_totalNumOfUsers = this.m_UsersIDs.Count();             
 
                 return true;
             }
@@ -1601,11 +1601,13 @@ namespace Users
             int nDeviceRestriction = 0;
             int nGroupConcurrentLimit = 0;
             int regionId = 0;
+          
             DomainSuspentionStatus eSuspendStat = DomainSuspentionStatus.OK;
 
             bool res = DomainDal.GetDomainSettings(nDomainID, nGroupID, ref sName, ref sDescription, ref nDeviceLimitationModule, ref nDeviceLimit,
                 ref nUserLimit, ref nConcurrentLimit, ref nStatus, ref nIsActive, ref nFrequencyFlag, ref nDeviceMinPeriodId, ref nUserMinPeriodId,
-                ref dDeviceFrequencyLastAction, ref dUserFrequencyLastAction, ref sCoGuid, ref nDeviceRestriction, ref nGroupConcurrentLimit, ref eSuspendStat, ref regionId);
+                ref dDeviceFrequencyLastAction, ref dUserFrequencyLastAction, ref sCoGuid, ref nDeviceRestriction, ref nGroupConcurrentLimit,
+                ref eSuspendStat, ref regionId);
 
             if (res)
             {
@@ -2718,5 +2720,7 @@ namespace Users
                 return false;
             }
         }
+
+       
     }
 }
