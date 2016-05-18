@@ -469,13 +469,19 @@ namespace Validator.Managers.Schema
             }
 
             if (action.ReturnType != null && action.ReturnType.IsSubclassOf(typeof(KalturaOTTObject)) && !Validate(action.ReturnType, strict))
+            {
+                logError("Warning", controller, string.Format("Action {0}.{1} ({2}) returned type ({3}) failed validation", serviceId, actionId, controller.Name, action.ReturnType.Name));
                 valid = false;
+            }
 
             var parameters = action.GetParameters();
             foreach (var parameter in parameters)
             {
                 if (parameter.ParameterType.IsSubclassOf(typeof(KalturaOTTObject)) && !Validate(parameter.ParameterType, strict))
+                {
+                    logError("Warning", controller, string.Format("Action {0}.{1} ({2}) parameter {3} ({4}) failed validation", serviceId, actionId, controller.Name, parameter.Name, parameter.ParameterType.Name));
                     valid = false;
+                }
             }
 
             if (!hasValidationException(action, SchemaValidationType.ACTION_ARGUMENTS))
