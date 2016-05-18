@@ -65,14 +65,18 @@ namespace WebAPI.Utils
                     }
                     else if (property.PropertyType.GetGenericArguments().Count() == 2 && property.PropertyType.GetGenericArguments()[1].IsSubclassOf(typeof(KalturaOTTObject)))
                     {
+                        Type itemType = property.PropertyType.GetGenericArguments()[1];
                         var dictionary = new Dictionary<string, OldStandardObject>();
-                        foreach (KeyValuePair<string, KalturaOTTObject> item in (dynamic) value)
+                        foreach (dynamic item in (dynamic)value)
                         {
-                            if (OldStandardAttribute.getOldMembers(item.Value.GetType()) == null)
+                            string itemKey = item.Key;
+                            KalturaOTTObject itemValue = item.Value;
+
+                            if (OldStandardAttribute.getOldMembers(itemValue.GetType()) == null)
                             {
                                 break;
                             }
-                            dictionary.Add(item.Key, new OldStandardObject(item.Value));
+                            dictionary.Add(itemKey, new OldStandardObject(itemValue));
                         }
                         if (dictionary.Count > 0)
                             value = dictionary;
@@ -85,6 +89,11 @@ namespace WebAPI.Utils
                     _fields[oldStandardProperties[name]] = value;
                 }
             }
+        }
+
+        private KeyValuePair<string, T> castPair<T>(T type, object value)
+        {
+            return (KeyValuePair<string, T>)value;
         }
 
         private string getApiName(PropertyInfo property)
