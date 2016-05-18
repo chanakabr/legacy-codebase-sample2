@@ -44,8 +44,7 @@ namespace WebAPI.Utils
 
                 if (property.PropertyType.IsSubclassOf(typeof(KalturaOTTObject)))
                 {
-                    if (OldStandardAttribute.getOldMembers(value.GetType()) != null)
-                        value = new OldStandardObject((KalturaOTTObject)value);
+                    value = new OldStandardObject((KalturaOTTObject)value);
                 }
                 else if (property.PropertyType.IsArray || property.PropertyType.IsGenericType)
                 {
@@ -54,14 +53,9 @@ namespace WebAPI.Utils
                         var array = new List<OldStandardObject>();
                         foreach(KalturaOTTObject item in (IEnumerable<KalturaOTTObject>)value)
                         {
-                            if (OldStandardAttribute.getOldMembers(item.GetType()) == null)
-                            {
-                                break;
-                            }
                             array.Add(new OldStandardObject(item));
                         }
-                        if (array.Count > 0)
-                            value = array;
+                        value = array;
                     }
                     else if (property.PropertyType.GetGenericArguments().Count() == 2 && property.PropertyType.GetGenericArguments()[1].IsSubclassOf(typeof(KalturaOTTObject)))
                     {
@@ -71,20 +65,14 @@ namespace WebAPI.Utils
                         {
                             string itemKey = item.Key;
                             KalturaOTTObject itemValue = item.Value;
-
-                            if (OldStandardAttribute.getOldMembers(itemValue.GetType()) == null)
-                            {
-                                break;
-                            }
                             dictionary.Add(itemKey, new OldStandardObject(itemValue));
                         }
-                        if (dictionary.Count > 0)
-                            value = dictionary;
+                        value = dictionary;
                     }
                 }
 
                 _fields[name] = value;
-                if (oldStandardProperties.ContainsKey(name))
+                if (oldStandardProperties != null && oldStandardProperties.ContainsKey(name))
                 {
                     _fields[oldStandardProperties[name]] = value;
                 }
@@ -186,12 +174,10 @@ namespace WebAPI.Utils
             {
                 if (type == typeof(StatusWrapper) && ((StatusWrapper)value).Result.GetType().IsSubclassOf(typeof(KalturaOTTObject)))
                 {
-                    StatusWrapper statusWrapper = ((StatusWrapper)value);
-                    KalturaOTTObject result = (KalturaOTTObject)statusWrapper.Result;
-                    Dictionary<string, string> oldStandardProperties = OldStandardAttribute.getOldMembers(result.GetType());
-                    if (oldStandardProperties != null)
+                    if (OldStandardAttribute.isCurrentRequestOldVersion())
                     {
-                        dynamic oldStandardObject = new OldStandardObject((KalturaOTTObject)result);
+                        StatusWrapper statusWrapper = ((StatusWrapper)value);
+                        dynamic oldStandardObject = new OldStandardObject((KalturaOTTObject)statusWrapper.Result);
                         statusWrapper.Result = oldStandardObject;
                     }
                 }
