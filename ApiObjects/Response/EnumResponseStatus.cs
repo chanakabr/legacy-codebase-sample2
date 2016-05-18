@@ -247,6 +247,7 @@ namespace ApiObjects.Response
         URLPlaceholdersInvalid = 8017,
         InvalidMessageTTL = 8018,
         MessageIdentifierRequired = 8019,
+        UserInboxMessageNotExist = 8020,
 
         //Pricing 9000-9999
         InvalidPriceCode = 9000,
