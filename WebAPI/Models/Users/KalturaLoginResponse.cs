@@ -5,10 +5,12 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Users
 {
+    [OldStandard("loginSession", "login_session")]
     public class KalturaLoginResponse : KalturaOTTObject
     {
         /// <summary>
@@ -22,9 +24,9 @@ namespace WebAPI.Models.Users
         /// <summary>
         /// Kaltura login session details
         /// </summary>
-        [DataMember(Name = "login_session")]
-        [JsonProperty("login_session")]
-        [XmlElement(ElementName = "login_session", IsNullable = true)]
+        [DataMember(Name = "loginSession")]
+        [JsonProperty("loginSession")]
+        [XmlElement(ElementName = "loginSession", IsNullable = true)]
         public KalturaLoginSession LoginSession { get; set; }
     }
 }
