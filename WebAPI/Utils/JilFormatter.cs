@@ -184,7 +184,7 @@ namespace WebAPI.Utils
         {
             using (TextWriter streamWriter = new StreamWriter(writeStream))
             {
-                if (type == typeof(StatusWrapper) && ((StatusWrapper)value).Result.GetType().IsSubclassOf(typeof(KalturaOTTObject)))
+                if (type == typeof(StatusWrapper) && ((StatusWrapper)value).Result != null && ((StatusWrapper)value).Result.GetType().IsSubclassOf(typeof(KalturaOTTObject)))
                 {
                     StatusWrapper statusWrapper = ((StatusWrapper)value);
                     KalturaOTTObject result = (KalturaOTTObject)statusWrapper.Result;
