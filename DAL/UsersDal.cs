@@ -1201,17 +1201,14 @@ namespace DAL
                         {
                             res = DALUserActivationState.Activated;
                         }
-                        else if (isActivationNeeded == 1)
+                        else if (isActivationNeeded == 1 && createDate.AddHours(nActivationMustHours) > DateTime.UtcNow)
                         {
-                            if (createDate.AddHours(nActivationMustHours) < DateTime.UtcNow)
-                            {
-                                res = DALUserActivationState.NotActivated;
-                            }
-                            else
-                            {
-                                res = DALUserActivationState.Activated;
-                                isGracePeriod = true;
-                            }
+                            res = DALUserActivationState.Activated;
+                            isGracePeriod = true;
+                        }
+                        else
+                        {
+                            res = DALUserActivationState.NotActivated;
                         }
 
                         if (domainDetails != null && domainDetails.Rows != null && domainDetails.Rows.Count > 0)
