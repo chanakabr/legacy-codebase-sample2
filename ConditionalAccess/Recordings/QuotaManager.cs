@@ -89,7 +89,9 @@ namespace Recordings
                 // Mark this, current-specific, recording as failed
                 if (minutesLeft < 0)
                 {
-                    recording.Status = new Status((int)eResponseStatus.DomainExceededQuota);
+                    recording.Status = new Status((int)eResponseStatus.DomainExceededQuota,
+                        string.Format("Requested EPG exceeds domain's quota. EPG duration is {0} minutes and there are {1} minutes available.",
+                        minutesLeft, currentEpgMinutes));
                 }
             }
 

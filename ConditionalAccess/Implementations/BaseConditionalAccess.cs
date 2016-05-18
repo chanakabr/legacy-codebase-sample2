@@ -17167,10 +17167,6 @@ namespace ConditionalAccess
 
                 int quotaManagerModelId = domain.m_nQuotaModuleID;
 
-                List<Recording> currentRecordings = new List<Recording>();
-
-                Dictionary<long, long> recordingIdToDomainRecordingIdMap;
-
                 List<TstvRecordingStatus> recordingStatuses = new List<TstvRecordingStatus>()
                 {
                     TstvRecordingStatus.OK,
@@ -17179,11 +17175,12 @@ namespace ConditionalAccess
                     TstvRecordingStatus.Scheduled
                 };
 
-                currentRecordings =
-                    GetDomainRecordings(domainID, recordingStatuses, out recordingIdToDomainRecordingIdMap);
+                List<Recording> currentRecordings = GetDomainRecordings(domainID, recordingStatuses);
+                List<Recording> recordingsToCheckQuota = response.Recordings.Where(
+                    recording => recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK).ToList();
 
                 var temporaryStatus =
-                    QuotaManager.Instance.CheckQuotaByTotalMinutes(this.m_nGroupID, domainID, totalMinutes, response.Recordings, currentRecordings);
+                    QuotaManager.Instance.CheckQuotaByTotalMinutes(this.m_nGroupID, domainID, totalMinutes, recordingsToCheckQuota, currentRecordings);
 
                 if (temporaryStatus == null)
                 {
@@ -17200,7 +17197,6 @@ namespace ConditionalAccess
 
                 response.TotalItems = response.Recordings.Count;
             }
-
             catch (Exception ex)
             {
                 StringBuilder sb = new StringBuilder("Exception at QueryRecords. ");
@@ -17432,6 +17428,13 @@ namespace ConditionalAccess
             }
 
             return response;
+        }
+
+        private List<Recording> GetDomainRecordings(long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses)
+        {
+            Dictionary<long, long> recordingIdToDomainRecordingIdMap;
+
+            return GetDomainRecordings(domainID, recordingStatuses, out recordingIdToDomainRecordingIdMap);
         }
 
         private List<Recording> GetDomainRecordings(long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses, out Dictionary<long, long> recordingIdToDomainRecordingIdMap)
