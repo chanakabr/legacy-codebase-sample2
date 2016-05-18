@@ -22,7 +22,7 @@ namespace WebAPI.Managers.Schema
 
         public string oldMember { get; set; }
 
-        private static bool isCurrentRequestOldVersion()
+        public static bool isCurrentRequestOldVersion()
         {
             if (string.IsNullOrEmpty((string)HttpContext.Current.Items[RequestParser.REQUEST_VERSION]))
                 return true;
