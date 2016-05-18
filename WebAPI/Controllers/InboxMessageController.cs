@@ -12,8 +12,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/inbox/action")]
-    public class InboxController : ApiController
+    [RoutePrefix("_service/inboxMessage/action")]
+    public class InboxMessageController : ApiController
     {
 
         /// <summary>

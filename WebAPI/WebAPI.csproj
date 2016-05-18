@@ -1755,7 +1755,7 @@
     <Compile Include="Controllers\CDNAdapterProfileController.cs" />
     <Compile Include="Controllers\CDVRAdapterProfileController.cs" />
     <Compile Include="Controllers\CDNPartnerSettingsController.cs" />
-    <Compile Include="Controllers\InboxController.cs" />
+    <Compile Include="Controllers\InboxMessageController.cs" />
     <Compile Include="Controllers\MessageTemplateController.cs" />
     <Compile Include="Controllers\FollowTvSeriesController.cs" />
     <Compile Include="Controllers\PersonalFeedController.cs" />

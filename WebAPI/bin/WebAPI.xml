@@ -351,7 +351,7 @@
             <returns></returns>
             <remarks>Possible status codes: CDN partner settings not found = 5025</remarks>   
         </member>
-        <member name="M:WebAPI.Controllers.InboxController.Get(System.String)">
+        <member name="M:WebAPI.Controllers.InboxMessageController.Get(System.String)">
             <summary>
             TBD
             </summary>
@@ -361,7 +361,7 @@
             </remarks>
             <param name="id">message id</param>        
         </member>
-        <member name="M:WebAPI.Controllers.InboxController.List(WebAPI.Models.General.KalturaFilterPager,WebAPI.Models.Notification.KalturaInboxMessageFilter)">
+        <member name="M:WebAPI.Controllers.InboxMessageController.List(WebAPI.Models.General.KalturaFilterPager,WebAPI.Models.Notification.KalturaInboxMessageFilter)">
             <summary>
             TBD
             </summary>
@@ -372,7 +372,7 @@
             <param name="pager">Page size and index</param>        
             <param name="filter">filter</param>        
         </member>
-        <member name="M:WebAPI.Controllers.InboxController.UpdateStatus(System.String,WebAPI.Models.Notification.KalturaInboxMessageStatus)">
+        <member name="M:WebAPI.Controllers.InboxMessageController.UpdateStatus(System.String,WebAPI.Models.Notification.KalturaInboxMessageStatus)">
             <summary>
             TBD
             </summary>
