@@ -665,7 +665,7 @@
             <summary>
             Get an item from user’s private asset list
             </summary>
-            <param name="userAssetsListItem">A list item to add</param>
+            <param name="userAssetsListItem">A list item to get</param>
             <remarks>Possible status codes: 
             Item was not found in list = 2032</remarks>
             <returns></returns>
@@ -674,7 +674,7 @@
             <summary>
             Deletes an item from user’s private asset list
             </summary>
-            <param name="userAssetsListItem">A list item to add</param>
+            <param name="userAssetsListItem">A list item to delete</param>
             <remarks>Possible status codes: 
             Item was not found in list = 2032</remarks>
             <returns></returns>
@@ -1449,6 +1449,32 @@
             </remarks>
             <param name="payment_gateway_id">Payment Gateway Identifier</param> 
             <param name="payment_method_id">Payment method Identifier</param> 
+        </member>
+        <member name="M:WebAPI.Controllers.PaymentGatewayController.RemovePaymentMethod(System.Int32,System.Int32)">
+            <summary>
+            Removes a payment method of the household. 
+            </summary>
+            <remarks>
+            Possible status codes:  
+            Payment method not set for household = 6048, PaymentMethodIsUsedByHousehold = 3041, Error removing payment gateway household payment method = 6057,
+            PaymentGatewayNotExist = 6008, PaymentGatewayNotSetForHousehold = 6007,
+            </remarks>
+            <param name="payment_gateway_id">Payment Gateway Identifier</param> 
+            <param name="payment_method_id">Payment method Identifier</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.PaymentGatewayController.ForceRemovePaymentMethod(System.Int32,System.Int32)">
+            <summary>
+            Force remove of a payment method of the household. 
+            </summary>
+            <remarks>
+            Possible status codes:  
+            Payment method not set for household = 6048, Error removing payment gateway household payment method = 6057,
+            PaymentGatewayNotExist = 6008, PaymentGatewayNotSetForHousehold = 6007
+            </remarks>
+            <param name="payment_gateway_id">Payment Gateway Identifier</param> 
+            <param name="payment_method_id">Payment method Identifier</param>
+            <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.PaymentGatewayProfileController.List">
             <summary>
@@ -13534,6 +13560,15 @@
         <member name="M:WebAPI.ConditionalAccess.module.RecoverRecordingMessagesAsync(System.String,System.String,System.Object)">
             <remarks/>
         </member>
+        <member name="M:WebAPI.ConditionalAccess.module.RemovePaymentMethodHouseholdPaymentGateway(System.String,System.String,System.Int32,System.String,System.Int32,System.Int32,System.Boolean)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.RemovePaymentMethodHouseholdPaymentGatewayAsync(System.String,System.String,System.Int32,System.String,System.Int32,System.Int32,System.Boolean)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.RemovePaymentMethodHouseholdPaymentGatewayAsync(System.String,System.String,System.Int32,System.String,System.Int32,System.Int32,System.Boolean,System.Object)">
+            <remarks/>
+        </member>
         <member name="M:WebAPI.ConditionalAccess.module.GetUserPermittedItems(System.String,System.String,System.String)">
             <remarks/>
         </member>
@@ -14384,6 +14419,9 @@
             <remarks/>
         </member>
         <member name="E:WebAPI.ConditionalAccess.module.RecoverRecordingMessagesCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.ConditionalAccess.module.RemovePaymentMethodHouseholdPaymentGatewayCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.ConditionalAccess.module.GetUserPermittedItemsCompleted">
@@ -16649,6 +16687,15 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.ConditionalAccess.RecoverRecordingMessagesCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.RemovePaymentMethodHouseholdPaymentGatewayCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.RemovePaymentMethodHouseholdPaymentGatewayCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.RemovePaymentMethodHouseholdPaymentGatewayCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.GetUserPermittedItemsCompletedEventHandler">
