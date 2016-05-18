@@ -246,7 +246,7 @@ namespace ApiObjects.Response
         MessageTemplateNotFound = 8016,
         URLPlaceholdersInvalid = 8017,
         InvalidMessageTTL = 8018,
-
+        MessageIdentifierRequired = 8019,
 
         //Pricing 9000-9999
         InvalidPriceCode = 9000,
