@@ -1319,7 +1319,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal bool RemovePaymentMethodHouseholdPaymentGateway(int payment_gateway_id, int groupId, string userID, long householdId, int paymentMethodId)
+        internal bool RemovePaymentMethodHouseholdPaymentGateway(int payment_gateway_id, int groupId, string userID, long householdId, int paymentMethodId, bool force = false)
         {
             WebAPI.ConditionalAccess.Status response = null;
             Group group = GroupsManager.GetGroup(groupId);
@@ -1329,7 +1329,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = ConditionalAccess.RemovePaymentMethodHouseholdPaymentGateway(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, payment_gateway_id, userID,
-                        (int)householdId, paymentMethodId);
+                        (int)householdId, paymentMethodId, force);
                 }
             }
             catch (Exception ex)
