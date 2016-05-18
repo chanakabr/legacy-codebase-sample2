@@ -13,6 +13,7 @@ using KLogMonitor;
 using ConditionalAccess.TvinciPricing;
 using ConditionalAccess.Response;
 using ApiObjects.Billing;
+using AdapterControllers;
 
 
 namespace ConditionalAccess
@@ -31,13 +32,14 @@ namespace ConditionalAccess
         {
         }
 
-        protected override string GetLicensedLink(int nStreamingCompany, Dictionary<string, string> dParams)
+        protected override string GetLicensedLink(int streamingCompany, Dictionary<string, string> dParams)
         {
+            string response = null;
 
-            CDNTokenizers.Tokenizers.ICDNTokenizer tokenizer = CDNTokenizers.CDNTokenizerFactory.GetTokenizerInstance(m_nGroupID, nStreamingCompany);
-            string sLicenseLink = tokenizer == null ? string.Empty : tokenizer.GenerateToken(dParams);
+            CDNTokenizers.Tokenizers.ICDNTokenizer tokenizer = CDNTokenizers.CDNTokenizerFactory.GetTokenizerInstance(m_nGroupID, streamingCompany);
+            response = tokenizer == null ? string.Empty : tokenizer.GenerateToken(dParams);
 
-            return sLicenseLink;
+            return response;
         }
 
         protected override bool GetUserCASubStatus(string sSiteGUID, ref UserCAStatus oUserCAStatus)

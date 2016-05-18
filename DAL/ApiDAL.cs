@@ -3490,7 +3490,7 @@ namespace DAL
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CDNAdapter");
-                sp.SetConnectionKey("CONNECTION_STRING");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@id", adapterId);
 
                 DataSet ds = sp.ExecuteDataSet();

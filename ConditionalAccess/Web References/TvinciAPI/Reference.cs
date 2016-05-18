@@ -59,6 +59,38 @@ namespace ConditionalAccess.TvinciAPI {
         
         private System.Threading.SendOrPostCallback ModifyCBOperationCompleted;
         
+        private System.Threading.SendOrPostCallback GetAllRegistryOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetGroupIdByUsernamePasswordOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback InitializeFreeItemsUpdateOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback UpdateFreeFileTypeOfModuleOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetTimeShiftedTvPartnerSettingsOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback UpdateTimeShiftedTvPartnerSettingsOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetCDNAdaptersOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback DeleteCDNAdapterOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback InsertCDNAdapterOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GenerateCDNSharedSecretOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback SetCDNAdapterOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback SendCDNAdapterConfigurationOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetCDNPartnerSettingsOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback UpdateCDNPartnerSettingsOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetCDNAdapterOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetGroupDefaultCDNAdapterOperationCompleted;
+        
         private System.Threading.SendOrPostCallback TVAPI_GetTvinciGUIDOperationCompleted;
         
         private System.Threading.SendOrPostCallback TVAPI_GetMediasOperationCompleted;
@@ -394,6 +426,54 @@ namespace ConditionalAccess.TvinciAPI {
         
         /// <remarks/>
         public event ModifyCBCompletedEventHandler ModifyCBCompleted;
+        
+        /// <remarks/>
+        public event GetAllRegistryCompletedEventHandler GetAllRegistryCompleted;
+        
+        /// <remarks/>
+        public event GetGroupIdByUsernamePasswordCompletedEventHandler GetGroupIdByUsernamePasswordCompleted;
+        
+        /// <remarks/>
+        public event InitializeFreeItemsUpdateCompletedEventHandler InitializeFreeItemsUpdateCompleted;
+        
+        /// <remarks/>
+        public event UpdateFreeFileTypeOfModuleCompletedEventHandler UpdateFreeFileTypeOfModuleCompleted;
+        
+        /// <remarks/>
+        public event GetTimeShiftedTvPartnerSettingsCompletedEventHandler GetTimeShiftedTvPartnerSettingsCompleted;
+        
+        /// <remarks/>
+        public event UpdateTimeShiftedTvPartnerSettingsCompletedEventHandler UpdateTimeShiftedTvPartnerSettingsCompleted;
+        
+        /// <remarks/>
+        public event GetCDNAdaptersCompletedEventHandler GetCDNAdaptersCompleted;
+        
+        /// <remarks/>
+        public event DeleteCDNAdapterCompletedEventHandler DeleteCDNAdapterCompleted;
+        
+        /// <remarks/>
+        public event InsertCDNAdapterCompletedEventHandler InsertCDNAdapterCompleted;
+        
+        /// <remarks/>
+        public event GenerateCDNSharedSecretCompletedEventHandler GenerateCDNSharedSecretCompleted;
+        
+        /// <remarks/>
+        public event SetCDNAdapterCompletedEventHandler SetCDNAdapterCompleted;
+        
+        /// <remarks/>
+        public event SendCDNAdapterConfigurationCompletedEventHandler SendCDNAdapterConfigurationCompleted;
+        
+        /// <remarks/>
+        public event GetCDNPartnerSettingsCompletedEventHandler GetCDNPartnerSettingsCompleted;
+        
+        /// <remarks/>
+        public event UpdateCDNPartnerSettingsCompletedEventHandler UpdateCDNPartnerSettingsCompleted;
+        
+        /// <remarks/>
+        public event GetCDNAdapterCompletedEventHandler GetCDNAdapterCompleted;
+        
+        /// <remarks/>
+        public event GetGroupDefaultCDNAdapterCompletedEventHandler GetGroupDefaultCDNAdapterCompleted;
         
         /// <remarks/>
         public event TVAPI_GetTvinciGUIDCompletedEventHandler TVAPI_GetTvinciGUIDCompleted;
@@ -1264,6 +1344,522 @@ namespace ConditionalAccess.TvinciAPI {
             if ((this.ModifyCBCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.ModifyCBCompleted(this, new ModifyCBCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetAllRegistry", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public RegistryResponse GetAllRegistry(string sWSUserName, string sWSPassword) {
+            object[] results = this.Invoke("GetAllRegistry", new object[] {
+                        sWSUserName,
+                        sWSPassword});
+            return ((RegistryResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetAllRegistryAsync(string sWSUserName, string sWSPassword) {
+            this.GetAllRegistryAsync(sWSUserName, sWSPassword, null);
+        }
+        
+        /// <remarks/>
+        public void GetAllRegistryAsync(string sWSUserName, string sWSPassword, object userState) {
+            if ((this.GetAllRegistryOperationCompleted == null)) {
+                this.GetAllRegistryOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetAllRegistryOperationCompleted);
+            }
+            this.InvokeAsync("GetAllRegistry", new object[] {
+                        sWSUserName,
+                        sWSPassword}, this.GetAllRegistryOperationCompleted, userState);
+        }
+        
+        private void OnGetAllRegistryOperationCompleted(object arg) {
+            if ((this.GetAllRegistryCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetAllRegistryCompleted(this, new GetAllRegistryCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetGroupIdByUsernamePassword", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public int GetGroupIdByUsernamePassword(string username, string password) {
+            object[] results = this.Invoke("GetGroupIdByUsernamePassword", new object[] {
+                        username,
+                        password});
+            return ((int)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetGroupIdByUsernamePasswordAsync(string username, string password) {
+            this.GetGroupIdByUsernamePasswordAsync(username, password, null);
+        }
+        
+        /// <remarks/>
+        public void GetGroupIdByUsernamePasswordAsync(string username, string password, object userState) {
+            if ((this.GetGroupIdByUsernamePasswordOperationCompleted == null)) {
+                this.GetGroupIdByUsernamePasswordOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetGroupIdByUsernamePasswordOperationCompleted);
+            }
+            this.InvokeAsync("GetGroupIdByUsernamePassword", new object[] {
+                        username,
+                        password}, this.GetGroupIdByUsernamePasswordOperationCompleted, userState);
+        }
+        
+        private void OnGetGroupIdByUsernamePasswordOperationCompleted(object arg) {
+            if ((this.GetGroupIdByUsernamePasswordCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetGroupIdByUsernamePasswordCompleted(this, new GetGroupIdByUsernamePasswordCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/InitializeFreeItemsUpdate", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public bool InitializeFreeItemsUpdate(string userName, string password) {
+            object[] results = this.Invoke("InitializeFreeItemsUpdate", new object[] {
+                        userName,
+                        password});
+            return ((bool)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void InitializeFreeItemsUpdateAsync(string userName, string password) {
+            this.InitializeFreeItemsUpdateAsync(userName, password, null);
+        }
+        
+        /// <remarks/>
+        public void InitializeFreeItemsUpdateAsync(string userName, string password, object userState) {
+            if ((this.InitializeFreeItemsUpdateOperationCompleted == null)) {
+                this.InitializeFreeItemsUpdateOperationCompleted = new System.Threading.SendOrPostCallback(this.OnInitializeFreeItemsUpdateOperationCompleted);
+            }
+            this.InvokeAsync("InitializeFreeItemsUpdate", new object[] {
+                        userName,
+                        password}, this.InitializeFreeItemsUpdateOperationCompleted, userState);
+        }
+        
+        private void OnInitializeFreeItemsUpdateOperationCompleted(object arg) {
+            if ((this.InitializeFreeItemsUpdateCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.InitializeFreeItemsUpdateCompleted(this, new InitializeFreeItemsUpdateCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/UpdateFreeFileTypeOfModule", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public bool UpdateFreeFileTypeOfModule(int groupID, int moduleID) {
+            object[] results = this.Invoke("UpdateFreeFileTypeOfModule", new object[] {
+                        groupID,
+                        moduleID});
+            return ((bool)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void UpdateFreeFileTypeOfModuleAsync(int groupID, int moduleID) {
+            this.UpdateFreeFileTypeOfModuleAsync(groupID, moduleID, null);
+        }
+        
+        /// <remarks/>
+        public void UpdateFreeFileTypeOfModuleAsync(int groupID, int moduleID, object userState) {
+            if ((this.UpdateFreeFileTypeOfModuleOperationCompleted == null)) {
+                this.UpdateFreeFileTypeOfModuleOperationCompleted = new System.Threading.SendOrPostCallback(this.OnUpdateFreeFileTypeOfModuleOperationCompleted);
+            }
+            this.InvokeAsync("UpdateFreeFileTypeOfModule", new object[] {
+                        groupID,
+                        moduleID}, this.UpdateFreeFileTypeOfModuleOperationCompleted, userState);
+        }
+        
+        private void OnUpdateFreeFileTypeOfModuleOperationCompleted(object arg) {
+            if ((this.UpdateFreeFileTypeOfModuleCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.UpdateFreeFileTypeOfModuleCompleted(this, new UpdateFreeFileTypeOfModuleCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetTimeShiftedTvPartnerSettings", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public TimeShiftedTvPartnerSettingsResponse GetTimeShiftedTvPartnerSettings(string sWSUserName, string sWSPassword) {
+            object[] results = this.Invoke("GetTimeShiftedTvPartnerSettings", new object[] {
+                        sWSUserName,
+                        sWSPassword});
+            return ((TimeShiftedTvPartnerSettingsResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetTimeShiftedTvPartnerSettingsAsync(string sWSUserName, string sWSPassword) {
+            this.GetTimeShiftedTvPartnerSettingsAsync(sWSUserName, sWSPassword, null);
+        }
+        
+        /// <remarks/>
+        public void GetTimeShiftedTvPartnerSettingsAsync(string sWSUserName, string sWSPassword, object userState) {
+            if ((this.GetTimeShiftedTvPartnerSettingsOperationCompleted == null)) {
+                this.GetTimeShiftedTvPartnerSettingsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetTimeShiftedTvPartnerSettingsOperationCompleted);
+            }
+            this.InvokeAsync("GetTimeShiftedTvPartnerSettings", new object[] {
+                        sWSUserName,
+                        sWSPassword}, this.GetTimeShiftedTvPartnerSettingsOperationCompleted, userState);
+        }
+        
+        private void OnGetTimeShiftedTvPartnerSettingsOperationCompleted(object arg) {
+            if ((this.GetTimeShiftedTvPartnerSettingsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetTimeShiftedTvPartnerSettingsCompleted(this, new GetTimeShiftedTvPartnerSettingsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/UpdateTimeShiftedTvPartnerSettings", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status UpdateTimeShiftedTvPartnerSettings(string sWSUserName, string sWSPassword, TimeShiftedTvPartnerSettings settings) {
+            object[] results = this.Invoke("UpdateTimeShiftedTvPartnerSettings", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        settings});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void UpdateTimeShiftedTvPartnerSettingsAsync(string sWSUserName, string sWSPassword, TimeShiftedTvPartnerSettings settings) {
+            this.UpdateTimeShiftedTvPartnerSettingsAsync(sWSUserName, sWSPassword, settings, null);
+        }
+        
+        /// <remarks/>
+        public void UpdateTimeShiftedTvPartnerSettingsAsync(string sWSUserName, string sWSPassword, TimeShiftedTvPartnerSettings settings, object userState) {
+            if ((this.UpdateTimeShiftedTvPartnerSettingsOperationCompleted == null)) {
+                this.UpdateTimeShiftedTvPartnerSettingsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnUpdateTimeShiftedTvPartnerSettingsOperationCompleted);
+            }
+            this.InvokeAsync("UpdateTimeShiftedTvPartnerSettings", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        settings}, this.UpdateTimeShiftedTvPartnerSettingsOperationCompleted, userState);
+        }
+        
+        private void OnUpdateTimeShiftedTvPartnerSettingsOperationCompleted(object arg) {
+            if ((this.UpdateTimeShiftedTvPartnerSettingsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.UpdateTimeShiftedTvPartnerSettingsCompleted(this, new UpdateTimeShiftedTvPartnerSettingsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetCDNAdapters", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public CDNAdapterListResponse GetCDNAdapters(string sWSUserName, string sWSPassword) {
+            object[] results = this.Invoke("GetCDNAdapters", new object[] {
+                        sWSUserName,
+                        sWSPassword});
+            return ((CDNAdapterListResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetCDNAdaptersAsync(string sWSUserName, string sWSPassword) {
+            this.GetCDNAdaptersAsync(sWSUserName, sWSPassword, null);
+        }
+        
+        /// <remarks/>
+        public void GetCDNAdaptersAsync(string sWSUserName, string sWSPassword, object userState) {
+            if ((this.GetCDNAdaptersOperationCompleted == null)) {
+                this.GetCDNAdaptersOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetCDNAdaptersOperationCompleted);
+            }
+            this.InvokeAsync("GetCDNAdapters", new object[] {
+                        sWSUserName,
+                        sWSPassword}, this.GetCDNAdaptersOperationCompleted, userState);
+        }
+        
+        private void OnGetCDNAdaptersOperationCompleted(object arg) {
+            if ((this.GetCDNAdaptersCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetCDNAdaptersCompleted(this, new GetCDNAdaptersCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/DeleteCDNAdapter", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public Status DeleteCDNAdapter(string sWSUserName, string sWSPassword, int adapterId) {
+            object[] results = this.Invoke("DeleteCDNAdapter", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        adapterId});
+            return ((Status)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void DeleteCDNAdapterAsync(string sWSUserName, string sWSPassword, int adapterId) {
+            this.DeleteCDNAdapterAsync(sWSUserName, sWSPassword, adapterId, null);
+        }
+        
+        /// <remarks/>
+        public void DeleteCDNAdapterAsync(string sWSUserName, string sWSPassword, int adapterId, object userState) {
+            if ((this.DeleteCDNAdapterOperationCompleted == null)) {
+                this.DeleteCDNAdapterOperationCompleted = new System.Threading.SendOrPostCallback(this.OnDeleteCDNAdapterOperationCompleted);
+            }
+            this.InvokeAsync("DeleteCDNAdapter", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        adapterId}, this.DeleteCDNAdapterOperationCompleted, userState);
+        }
+        
+        private void OnDeleteCDNAdapterOperationCompleted(object arg) {
+            if ((this.DeleteCDNAdapterCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.DeleteCDNAdapterCompleted(this, new DeleteCDNAdapterCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/InsertCDNAdapter", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public CDNAdapterResponse InsertCDNAdapter(string sWSUserName, string sWSPassword, CDNAdapter adapter) {
+            object[] results = this.Invoke("InsertCDNAdapter", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        adapter});
+            return ((CDNAdapterResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void InsertCDNAdapterAsync(string sWSUserName, string sWSPassword, CDNAdapter adapter) {
+            this.InsertCDNAdapterAsync(sWSUserName, sWSPassword, adapter, null);
+        }
+        
+        /// <remarks/>
+        public void InsertCDNAdapterAsync(string sWSUserName, string sWSPassword, CDNAdapter adapter, object userState) {
+            if ((this.InsertCDNAdapterOperationCompleted == null)) {
+                this.InsertCDNAdapterOperationCompleted = new System.Threading.SendOrPostCallback(this.OnInsertCDNAdapterOperationCompleted);
+            }
+            this.InvokeAsync("InsertCDNAdapter", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        adapter}, this.InsertCDNAdapterOperationCompleted, userState);
+        }
+        
+        private void OnInsertCDNAdapterOperationCompleted(object arg) {
+            if ((this.InsertCDNAdapterCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.InsertCDNAdapterCompleted(this, new InsertCDNAdapterCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GenerateCDNSharedSecret", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public CDNAdapterResponse GenerateCDNSharedSecret(string sWSUserName, string sWSPassword, int adapterId) {
+            object[] results = this.Invoke("GenerateCDNSharedSecret", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        adapterId});
+            return ((CDNAdapterResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GenerateCDNSharedSecretAsync(string sWSUserName, string sWSPassword, int adapterId) {
+            this.GenerateCDNSharedSecretAsync(sWSUserName, sWSPassword, adapterId, null);
+        }
+        
+        /// <remarks/>
+        public void GenerateCDNSharedSecretAsync(string sWSUserName, string sWSPassword, int adapterId, object userState) {
+            if ((this.GenerateCDNSharedSecretOperationCompleted == null)) {
+                this.GenerateCDNSharedSecretOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGenerateCDNSharedSecretOperationCompleted);
+            }
+            this.InvokeAsync("GenerateCDNSharedSecret", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        adapterId}, this.GenerateCDNSharedSecretOperationCompleted, userState);
+        }
+        
+        private void OnGenerateCDNSharedSecretOperationCompleted(object arg) {
+            if ((this.GenerateCDNSharedSecretCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GenerateCDNSharedSecretCompleted(this, new GenerateCDNSharedSecretCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/SetCDNAdapter", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public CDNAdapterResponse SetCDNAdapter(string sWSUserName, string sWSPassword, CDNAdapter adapter, int adapterID) {
+            object[] results = this.Invoke("SetCDNAdapter", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        adapter,
+                        adapterID});
+            return ((CDNAdapterResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void SetCDNAdapterAsync(string sWSUserName, string sWSPassword, CDNAdapter adapter, int adapterID) {
+            this.SetCDNAdapterAsync(sWSUserName, sWSPassword, adapter, adapterID, null);
+        }
+        
+        /// <remarks/>
+        public void SetCDNAdapterAsync(string sWSUserName, string sWSPassword, CDNAdapter adapter, int adapterID, object userState) {
+            if ((this.SetCDNAdapterOperationCompleted == null)) {
+                this.SetCDNAdapterOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetCDNAdapterOperationCompleted);
+            }
+            this.InvokeAsync("SetCDNAdapter", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        adapter,
+                        adapterID}, this.SetCDNAdapterOperationCompleted, userState);
+        }
+        
+        private void OnSetCDNAdapterOperationCompleted(object arg) {
+            if ((this.SetCDNAdapterCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.SetCDNAdapterCompleted(this, new SetCDNAdapterCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/SendCDNAdapterConfiguration", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public CDNAdapterResponse SendCDNAdapterConfiguration(string sWSUserName, string sWSPassword, int adapterID) {
+            object[] results = this.Invoke("SendCDNAdapterConfiguration", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        adapterID});
+            return ((CDNAdapterResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void SendCDNAdapterConfigurationAsync(string sWSUserName, string sWSPassword, int adapterID) {
+            this.SendCDNAdapterConfigurationAsync(sWSUserName, sWSPassword, adapterID, null);
+        }
+        
+        /// <remarks/>
+        public void SendCDNAdapterConfigurationAsync(string sWSUserName, string sWSPassword, int adapterID, object userState) {
+            if ((this.SendCDNAdapterConfigurationOperationCompleted == null)) {
+                this.SendCDNAdapterConfigurationOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSendCDNAdapterConfigurationOperationCompleted);
+            }
+            this.InvokeAsync("SendCDNAdapterConfiguration", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        adapterID}, this.SendCDNAdapterConfigurationOperationCompleted, userState);
+        }
+        
+        private void OnSendCDNAdapterConfigurationOperationCompleted(object arg) {
+            if ((this.SendCDNAdapterConfigurationCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.SendCDNAdapterConfigurationCompleted(this, new SendCDNAdapterConfigurationCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetCDNPartnerSettings", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public CDNPartnerSettingsResponse GetCDNPartnerSettings(string sWSUserName, string sWSPassword) {
+            object[] results = this.Invoke("GetCDNPartnerSettings", new object[] {
+                        sWSUserName,
+                        sWSPassword});
+            return ((CDNPartnerSettingsResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetCDNPartnerSettingsAsync(string sWSUserName, string sWSPassword) {
+            this.GetCDNPartnerSettingsAsync(sWSUserName, sWSPassword, null);
+        }
+        
+        /// <remarks/>
+        public void GetCDNPartnerSettingsAsync(string sWSUserName, string sWSPassword, object userState) {
+            if ((this.GetCDNPartnerSettingsOperationCompleted == null)) {
+                this.GetCDNPartnerSettingsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetCDNPartnerSettingsOperationCompleted);
+            }
+            this.InvokeAsync("GetCDNPartnerSettings", new object[] {
+                        sWSUserName,
+                        sWSPassword}, this.GetCDNPartnerSettingsOperationCompleted, userState);
+        }
+        
+        private void OnGetCDNPartnerSettingsOperationCompleted(object arg) {
+            if ((this.GetCDNPartnerSettingsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetCDNPartnerSettingsCompleted(this, new GetCDNPartnerSettingsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/UpdateCDNPartnerSettings", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public CDNPartnerSettingsResponse UpdateCDNPartnerSettings(string sWSUserName, string sWSPassword, CDNPartnerSettings settings) {
+            object[] results = this.Invoke("UpdateCDNPartnerSettings", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        settings});
+            return ((CDNPartnerSettingsResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void UpdateCDNPartnerSettingsAsync(string sWSUserName, string sWSPassword, CDNPartnerSettings settings) {
+            this.UpdateCDNPartnerSettingsAsync(sWSUserName, sWSPassword, settings, null);
+        }
+        
+        /// <remarks/>
+        public void UpdateCDNPartnerSettingsAsync(string sWSUserName, string sWSPassword, CDNPartnerSettings settings, object userState) {
+            if ((this.UpdateCDNPartnerSettingsOperationCompleted == null)) {
+                this.UpdateCDNPartnerSettingsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnUpdateCDNPartnerSettingsOperationCompleted);
+            }
+            this.InvokeAsync("UpdateCDNPartnerSettings", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        settings}, this.UpdateCDNPartnerSettingsOperationCompleted, userState);
+        }
+        
+        private void OnUpdateCDNPartnerSettingsOperationCompleted(object arg) {
+            if ((this.UpdateCDNPartnerSettingsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.UpdateCDNPartnerSettingsCompleted(this, new UpdateCDNPartnerSettingsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetCDNAdapter", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public CDNAdapterResponse GetCDNAdapter(string sWSUserName, string sWSPassword, int adapterId) {
+            object[] results = this.Invoke("GetCDNAdapter", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        adapterId});
+            return ((CDNAdapterResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetCDNAdapterAsync(string sWSUserName, string sWSPassword, int adapterId) {
+            this.GetCDNAdapterAsync(sWSUserName, sWSPassword, adapterId, null);
+        }
+        
+        /// <remarks/>
+        public void GetCDNAdapterAsync(string sWSUserName, string sWSPassword, int adapterId, object userState) {
+            if ((this.GetCDNAdapterOperationCompleted == null)) {
+                this.GetCDNAdapterOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetCDNAdapterOperationCompleted);
+            }
+            this.InvokeAsync("GetCDNAdapter", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        adapterId}, this.GetCDNAdapterOperationCompleted, userState);
+        }
+        
+        private void OnGetCDNAdapterOperationCompleted(object arg) {
+            if ((this.GetCDNAdapterCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetCDNAdapterCompleted(this, new GetCDNAdapterCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetGroupDefaultCDNAdapter", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public CDNAdapterResponse GetGroupDefaultCDNAdapter(string sWSUserName, string sWSPassword, eAssetTypes assetType) {
+            object[] results = this.Invoke("GetGroupDefaultCDNAdapter", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        assetType});
+            return ((CDNAdapterResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetGroupDefaultCDNAdapterAsync(string sWSUserName, string sWSPassword, eAssetTypes assetType) {
+            this.GetGroupDefaultCDNAdapterAsync(sWSUserName, sWSPassword, assetType, null);
+        }
+        
+        /// <remarks/>
+        public void GetGroupDefaultCDNAdapterAsync(string sWSUserName, string sWSPassword, eAssetTypes assetType, object userState) {
+            if ((this.GetGroupDefaultCDNAdapterOperationCompleted == null)) {
+                this.GetGroupDefaultCDNAdapterOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetGroupDefaultCDNAdapterOperationCompleted);
+            }
+            this.InvokeAsync("GetGroupDefaultCDNAdapter", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        assetType}, this.GetGroupDefaultCDNAdapterOperationCompleted, userState);
+        }
+        
+        private void OnGetGroupDefaultCDNAdapterOperationCompleted(object arg) {
+            if ((this.GetGroupDefaultCDNAdapterCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetGroupDefaultCDNAdapterCompleted(this, new GetGroupDefaultCDNAdapterCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -7870,6 +8466,18 @@ namespace ConditionalAccess.TvinciAPI {
         
         private string media_idField;
         
+        private int eNABLE_CDVRField;
+        
+        private int eNABLE_CATCH_UPField;
+        
+        private long cHANNEL_CATCH_UP_BUFFERField;
+        
+        private int eNABLE_START_OVERField;
+        
+        private int eNABLE_TRICK_PLAYField;
+        
+        private int iS_RECORDEDField;
+        
         /// <remarks/>
         public long EPG_ID {
             get {
@@ -8079,6 +8687,66 @@ namespace ConditionalAccess.TvinciAPI {
             }
             set {
                 this.media_idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int ENABLE_CDVR {
+            get {
+                return this.eNABLE_CDVRField;
+            }
+            set {
+                this.eNABLE_CDVRField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int ENABLE_CATCH_UP {
+            get {
+                return this.eNABLE_CATCH_UPField;
+            }
+            set {
+                this.eNABLE_CATCH_UPField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long CHANNEL_CATCH_UP_BUFFER {
+            get {
+                return this.cHANNEL_CATCH_UP_BUFFERField;
+            }
+            set {
+                this.cHANNEL_CATCH_UP_BUFFERField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int ENABLE_START_OVER {
+            get {
+                return this.eNABLE_START_OVERField;
+            }
+            set {
+                this.eNABLE_START_OVERField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int ENABLE_TRICK_PLAY {
+            get {
+                return this.eNABLE_TRICK_PLAYField;
+            }
+            set {
+                this.eNABLE_TRICK_PLAYField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int IS_RECORDED {
+            get {
+                return this.iS_RECORDEDField;
+            }
+            set {
+                this.iS_RECORDEDField = value;
             }
         }
     }
@@ -8901,20 +9569,20 @@ namespace ConditionalAccess.TvinciAPI {
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(SendPasswordMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseWithPreviewModuleRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PreviewModuleCancelOrRefundRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseFailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(AddUserMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(AddDeviceMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(EmailNotificationRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(SendAdminTokenRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(AddUserMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CinepolisRenewalFailMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ChangePasswordMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PreviewModuleCancelOrRefundRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseWithPreviewModuleRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseFailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CinepolisPurchaseMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(WelcomeMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(ChangedPinMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CinepolisPurchaseMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(SendAdminTokenRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ChangePasswordMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(SendPasswordMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CinepolisRenewalFailMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(WelcomeMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(ForgotPasswordMailRequest))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
@@ -9094,18 +9762,215 @@ namespace ConditionalAccess.TvinciAPI {
     }
     
     /// <remarks/>
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseWithPreviewModuleRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PreviewModuleCancelOrRefundRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseFailRequest))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class SendPasswordMailRequest : MailRequestObj {
+    public partial class PurchaseMailRequest : MailRequestObj {
+        
+        private string m_sPurchaseDateField;
+        
+        private string m_sItemNameField;
+        
+        private string m_sPriceField;
+        
+        private string m_sTransactionNumberField;
+        
+        private string m_sPaymentMethodField;
+        
+        private string m_sTaxValField;
+        
+        private string m_sTaxSubtotalField;
+        
+        private string m_sTaxAmountField;
+        
+        private string m_sInvoiceNumField;
+        
+        private string m_sExternalTransationNumField;
+        
+        private string m_sAddressField;
+        
+        private string m_sUserEmailField;
+        
+        /// <remarks/>
+        public string m_sPurchaseDate {
+            get {
+                return this.m_sPurchaseDateField;
+            }
+            set {
+                this.m_sPurchaseDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sItemName {
+            get {
+                return this.m_sItemNameField;
+            }
+            set {
+                this.m_sItemNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sPrice {
+            get {
+                return this.m_sPriceField;
+            }
+            set {
+                this.m_sPriceField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sTransactionNumber {
+            get {
+                return this.m_sTransactionNumberField;
+            }
+            set {
+                this.m_sTransactionNumberField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sPaymentMethod {
+            get {
+                return this.m_sPaymentMethodField;
+            }
+            set {
+                this.m_sPaymentMethodField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sTaxVal {
+            get {
+                return this.m_sTaxValField;
+            }
+            set {
+                this.m_sTaxValField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sTaxSubtotal {
+            get {
+                return this.m_sTaxSubtotalField;
+            }
+            set {
+                this.m_sTaxSubtotalField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sTaxAmount {
+            get {
+                return this.m_sTaxAmountField;
+            }
+            set {
+                this.m_sTaxAmountField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sInvoiceNum {
+            get {
+                return this.m_sInvoiceNumField;
+            }
+            set {
+                this.m_sInvoiceNumField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sExternalTransationNum {
+            get {
+                return this.m_sExternalTransationNumField;
+            }
+            set {
+                this.m_sExternalTransationNumField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sAddress {
+            get {
+                return this.m_sAddressField;
+            }
+            set {
+                this.m_sAddressField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sUserEmail {
+            get {
+                return this.m_sUserEmailField;
+            }
+            set {
+                this.m_sUserEmailField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class PurchaseWithPreviewModuleRequest : PurchaseMailRequest {
+        
+        private string m_sPreviewModuleEndDateField;
+        
+        /// <remarks/>
+        public string m_sPreviewModuleEndDate {
+            get {
+                return this.m_sPreviewModuleEndDateField;
+            }
+            set {
+                this.m_sPreviewModuleEndDateField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class PreviewModuleCancelOrRefundRequest : PurchaseMailRequest {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class PurchaseFailRequest : PurchaseMailRequest {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class AddUserMailRequest : MailRequestObj {
         
         private string m_sTokenField;
         
-        private string m_sUsernameField;
+        private string m_sMasterUsernameField;
         
-        private string m_sPasswordField;
+        private string m_sNewUsernameField;
+        
+        private string m_sNewFirstNameField;
         
         /// <remarks/>
         public string m_sToken {
@@ -9118,22 +9983,32 @@ namespace ConditionalAccess.TvinciAPI {
         }
         
         /// <remarks/>
-        public string m_sUsername {
+        public string m_sMasterUsername {
             get {
-                return this.m_sUsernameField;
+                return this.m_sMasterUsernameField;
             }
             set {
-                this.m_sUsernameField = value;
+                this.m_sMasterUsernameField = value;
             }
         }
         
         /// <remarks/>
-        public string m_sPassword {
+        public string m_sNewUsername {
             get {
-                return this.m_sPasswordField;
+                return this.m_sNewUsernameField;
             }
             set {
-                this.m_sPasswordField = value;
+                this.m_sNewUsernameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sNewFirstName {
+            get {
+                return this.m_sNewFirstNameField;
+            }
+            set {
+                this.m_sNewFirstNameField = value;
             }
         }
     }
@@ -9342,13 +10217,13 @@ namespace ConditionalAccess.TvinciAPI {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class SendAdminTokenRequest : MailRequestObj {
+    public partial class ChangedPinMailRequest : MailRequestObj {
         
         private string m_sTokenField;
         
-        private string m_sIPField;
+        private string m_sSiteGuidField;
         
-        private string m_sDurationField;
+        private string m_sRuleNameField;
         
         /// <remarks/>
         public string m_sToken {
@@ -9361,330 +10236,24 @@ namespace ConditionalAccess.TvinciAPI {
         }
         
         /// <remarks/>
-        public string m_sIP {
+        public string m_sSiteGuid {
             get {
-                return this.m_sIPField;
+                return this.m_sSiteGuidField;
             }
             set {
-                this.m_sIPField = value;
+                this.m_sSiteGuidField = value;
             }
         }
         
         /// <remarks/>
-        public string m_sDuration {
+        public string m_sRuleName {
             get {
-                return this.m_sDurationField;
+                return this.m_sRuleNameField;
             }
             set {
-                this.m_sDurationField = value;
+                this.m_sRuleNameField = value;
             }
         }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class AddUserMailRequest : MailRequestObj {
-        
-        private string m_sTokenField;
-        
-        private string m_sMasterUsernameField;
-        
-        private string m_sNewUsernameField;
-        
-        private string m_sNewFirstNameField;
-        
-        /// <remarks/>
-        public string m_sToken {
-            get {
-                return this.m_sTokenField;
-            }
-            set {
-                this.m_sTokenField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sMasterUsername {
-            get {
-                return this.m_sMasterUsernameField;
-            }
-            set {
-                this.m_sMasterUsernameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sNewUsername {
-            get {
-                return this.m_sNewUsernameField;
-            }
-            set {
-                this.m_sNewUsernameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sNewFirstName {
-            get {
-                return this.m_sNewFirstNameField;
-            }
-            set {
-                this.m_sNewFirstNameField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class CinepolisRenewalFailMailRequest : MailRequestObj {
-        
-        private string m_sPurchaseDateField;
-        
-        private string m_sItemNameField;
-        
-        /// <remarks/>
-        public string m_sPurchaseDate {
-            get {
-                return this.m_sPurchaseDateField;
-            }
-            set {
-                this.m_sPurchaseDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sItemName {
-            get {
-                return this.m_sItemNameField;
-            }
-            set {
-                this.m_sItemNameField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class ChangePasswordMailRequest : MailRequestObj {
-        
-        private string m_sTokenField;
-        
-        /// <remarks/>
-        public string m_sToken {
-            get {
-                return this.m_sTokenField;
-            }
-            set {
-                this.m_sTokenField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PreviewModuleCancelOrRefundRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseWithPreviewModuleRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseFailRequest))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class PurchaseMailRequest : MailRequestObj {
-        
-        private string m_sPurchaseDateField;
-        
-        private string m_sItemNameField;
-        
-        private string m_sPriceField;
-        
-        private string m_sTransactionNumberField;
-        
-        private string m_sPaymentMethodField;
-        
-        private string m_sTaxValField;
-        
-        private string m_sTaxSubtotalField;
-        
-        private string m_sTaxAmountField;
-        
-        private string m_sInvoiceNumField;
-        
-        private string m_sExternalTransationNumField;
-        
-        private string m_sAddressField;
-        
-        private string m_sUserEmailField;
-        
-        /// <remarks/>
-        public string m_sPurchaseDate {
-            get {
-                return this.m_sPurchaseDateField;
-            }
-            set {
-                this.m_sPurchaseDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sItemName {
-            get {
-                return this.m_sItemNameField;
-            }
-            set {
-                this.m_sItemNameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sPrice {
-            get {
-                return this.m_sPriceField;
-            }
-            set {
-                this.m_sPriceField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sTransactionNumber {
-            get {
-                return this.m_sTransactionNumberField;
-            }
-            set {
-                this.m_sTransactionNumberField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sPaymentMethod {
-            get {
-                return this.m_sPaymentMethodField;
-            }
-            set {
-                this.m_sPaymentMethodField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sTaxVal {
-            get {
-                return this.m_sTaxValField;
-            }
-            set {
-                this.m_sTaxValField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sTaxSubtotal {
-            get {
-                return this.m_sTaxSubtotalField;
-            }
-            set {
-                this.m_sTaxSubtotalField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sTaxAmount {
-            get {
-                return this.m_sTaxAmountField;
-            }
-            set {
-                this.m_sTaxAmountField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sInvoiceNum {
-            get {
-                return this.m_sInvoiceNumField;
-            }
-            set {
-                this.m_sInvoiceNumField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sExternalTransationNum {
-            get {
-                return this.m_sExternalTransationNumField;
-            }
-            set {
-                this.m_sExternalTransationNumField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sAddress {
-            get {
-                return this.m_sAddressField;
-            }
-            set {
-                this.m_sAddressField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sUserEmail {
-            get {
-                return this.m_sUserEmailField;
-            }
-            set {
-                this.m_sUserEmailField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class PreviewModuleCancelOrRefundRequest : PurchaseMailRequest {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class PurchaseWithPreviewModuleRequest : PurchaseMailRequest {
-        
-        private string m_sPreviewModuleEndDateField;
-        
-        /// <remarks/>
-        public string m_sPreviewModuleEndDate {
-            get {
-                return this.m_sPreviewModuleEndDateField;
-            }
-            set {
-                this.m_sPreviewModuleEndDateField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class PurchaseFailRequest : PurchaseMailRequest {
     }
     
     /// <remarks/>
@@ -9750,7 +10319,73 @@ namespace ConditionalAccess.TvinciAPI {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class WelcomeMailRequest : MailRequestObj {
+    public partial class SendAdminTokenRequest : MailRequestObj {
+        
+        private string m_sTokenField;
+        
+        private string m_sIPField;
+        
+        private string m_sDurationField;
+        
+        /// <remarks/>
+        public string m_sToken {
+            get {
+                return this.m_sTokenField;
+            }
+            set {
+                this.m_sTokenField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sIP {
+            get {
+                return this.m_sIPField;
+            }
+            set {
+                this.m_sIPField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sDuration {
+            get {
+                return this.m_sDurationField;
+            }
+            set {
+                this.m_sDurationField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class ChangePasswordMailRequest : MailRequestObj {
+        
+        private string m_sTokenField;
+        
+        /// <remarks/>
+        public string m_sToken {
+            get {
+                return this.m_sTokenField;
+            }
+            set {
+                this.m_sTokenField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class SendPasswordMailRequest : MailRequestObj {
         
         private string m_sTokenField;
         
@@ -9795,13 +10430,46 @@ namespace ConditionalAccess.TvinciAPI {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class ChangedPinMailRequest : MailRequestObj {
+    public partial class CinepolisRenewalFailMailRequest : MailRequestObj {
+        
+        private string m_sPurchaseDateField;
+        
+        private string m_sItemNameField;
+        
+        /// <remarks/>
+        public string m_sPurchaseDate {
+            get {
+                return this.m_sPurchaseDateField;
+            }
+            set {
+                this.m_sPurchaseDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sItemName {
+            get {
+                return this.m_sItemNameField;
+            }
+            set {
+                this.m_sItemNameField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class WelcomeMailRequest : MailRequestObj {
         
         private string m_sTokenField;
         
-        private string m_sSiteGuidField;
+        private string m_sUsernameField;
         
-        private string m_sRuleNameField;
+        private string m_sPasswordField;
         
         /// <remarks/>
         public string m_sToken {
@@ -9814,22 +10482,22 @@ namespace ConditionalAccess.TvinciAPI {
         }
         
         /// <remarks/>
-        public string m_sSiteGuid {
+        public string m_sUsername {
             get {
-                return this.m_sSiteGuidField;
+                return this.m_sUsernameField;
             }
             set {
-                this.m_sSiteGuidField = value;
+                this.m_sUsernameField = value;
             }
         }
         
         /// <remarks/>
-        public string m_sRuleName {
+        public string m_sPassword {
             get {
-                return this.m_sRuleNameField;
+                return this.m_sPasswordField;
             }
             set {
-                this.m_sRuleNameField = value;
+                this.m_sPasswordField = value;
             }
         }
     }
@@ -12796,6 +13464,503 @@ namespace ConditionalAccess.TvinciAPI {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class CDNPartnerSettings {
+        
+        private System.Nullable<int> defaultVodAdapterField;
+        
+        private System.Nullable<int> defaultEpgAdapterField;
+        
+        private System.Nullable<int> defaultRecordingAdapterField;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<int> DefaultVodAdapter {
+            get {
+                return this.defaultVodAdapterField;
+            }
+            set {
+                this.defaultVodAdapterField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<int> DefaultEpgAdapter {
+            get {
+                return this.defaultEpgAdapterField;
+            }
+            set {
+                this.defaultEpgAdapterField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<int> DefaultRecordingAdapter {
+            get {
+                return this.defaultRecordingAdapterField;
+            }
+            set {
+                this.defaultRecordingAdapterField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class CDNPartnerSettingsResponse {
+        
+        private Status statusField;
+        
+        private CDNPartnerSettings cDNPartnerSettingsField;
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public CDNPartnerSettings CDNPartnerSettings {
+            get {
+                return this.cDNPartnerSettingsField;
+            }
+            set {
+                this.cDNPartnerSettingsField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class CDNAdapterResponse {
+        
+        private Status statusField;
+        
+        private CDNAdapter adapterField;
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public CDNAdapter Adapter {
+            get {
+                return this.adapterField;
+            }
+            set {
+                this.adapterField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class CDNAdapter {
+        
+        private int idField;
+        
+        private string nameField;
+        
+        private bool isActiveField;
+        
+        private string adapterUrlField;
+        
+        private string baseUrlField;
+        
+        private string aliasField;
+        
+        private string sharedSecretField;
+        
+        private CDNAdapterSettings[] settingsField;
+        
+        /// <remarks/>
+        public int ID {
+            get {
+                return this.idField;
+            }
+            set {
+                this.idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Name {
+            get {
+                return this.nameField;
+            }
+            set {
+                this.nameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public bool IsActive {
+            get {
+                return this.isActiveField;
+            }
+            set {
+                this.isActiveField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string AdapterUrl {
+            get {
+                return this.adapterUrlField;
+            }
+            set {
+                this.adapterUrlField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string BaseUrl {
+            get {
+                return this.baseUrlField;
+            }
+            set {
+                this.baseUrlField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Alias {
+            get {
+                return this.aliasField;
+            }
+            set {
+                this.aliasField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string SharedSecret {
+            get {
+                return this.sharedSecretField;
+            }
+            set {
+                this.sharedSecretField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public CDNAdapterSettings[] Settings {
+            get {
+                return this.settingsField;
+            }
+            set {
+                this.settingsField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class CDNAdapterSettings {
+        
+        private string keyField;
+        
+        private string valueField;
+        
+        /// <remarks/>
+        public string key {
+            get {
+                return this.keyField;
+            }
+            set {
+                this.keyField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string value {
+            get {
+                return this.valueField;
+            }
+            set {
+                this.valueField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class CDNAdapterListResponse {
+        
+        private Status statusField;
+        
+        private CDNAdapter[] adaptersField;
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public CDNAdapter[] Adapters {
+            get {
+                return this.adaptersField;
+            }
+            set {
+                this.adaptersField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class TimeShiftedTvPartnerSettings {
+        
+        private System.Nullable<bool> isCatchUpEnabledField;
+        
+        private System.Nullable<bool> isCdvrEnabledField;
+        
+        private System.Nullable<bool> isStartOverEnabledField;
+        
+        private System.Nullable<bool> isTrickPlayEnabledField;
+        
+        private System.Nullable<bool> isRecordingScheduleWindowEnabledField;
+        
+        private System.Nullable<long> catchUpBufferLengthField;
+        
+        private System.Nullable<long> trickPlayBufferLengthField;
+        
+        private System.Nullable<long> recordingScheduleWindowField;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<bool> IsCatchUpEnabled {
+            get {
+                return this.isCatchUpEnabledField;
+            }
+            set {
+                this.isCatchUpEnabledField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<bool> IsCdvrEnabled {
+            get {
+                return this.isCdvrEnabledField;
+            }
+            set {
+                this.isCdvrEnabledField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<bool> IsStartOverEnabled {
+            get {
+                return this.isStartOverEnabledField;
+            }
+            set {
+                this.isStartOverEnabledField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<bool> IsTrickPlayEnabled {
+            get {
+                return this.isTrickPlayEnabledField;
+            }
+            set {
+                this.isTrickPlayEnabledField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<bool> IsRecordingScheduleWindowEnabled {
+            get {
+                return this.isRecordingScheduleWindowEnabledField;
+            }
+            set {
+                this.isRecordingScheduleWindowEnabledField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<long> CatchUpBufferLength {
+            get {
+                return this.catchUpBufferLengthField;
+            }
+            set {
+                this.catchUpBufferLengthField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<long> TrickPlayBufferLength {
+            get {
+                return this.trickPlayBufferLengthField;
+            }
+            set {
+                this.trickPlayBufferLengthField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<long> RecordingScheduleWindow {
+            get {
+                return this.recordingScheduleWindowField;
+            }
+            set {
+                this.recordingScheduleWindowField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class TimeShiftedTvPartnerSettingsResponse {
+        
+        private Status statusField;
+        
+        private TimeShiftedTvPartnerSettings settingsField;
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public TimeShiftedTvPartnerSettings Settings {
+            get {
+                return this.settingsField;
+            }
+            set {
+                this.settingsField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class RegistrySettings {
+        
+        private string keyField;
+        
+        private string valueField;
+        
+        /// <remarks/>
+        public string key {
+            get {
+                return this.keyField;
+            }
+            set {
+                this.keyField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string value {
+            get {
+                return this.valueField;
+            }
+            set {
+                this.valueField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class RegistryResponse {
+        
+        private Status statusField;
+        
+        private RegistrySettings[] registrySettingsField;
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public RegistrySettings[] registrySettings {
+            get {
+                return this.registrySettingsField;
+            }
+            set {
+                this.registrySettingsField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class ExternalEntitlement {
         
         private long purchaseIdField;
@@ -14063,6 +15228,422 @@ namespace ConditionalAccess.TvinciAPI {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((bool)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetAllRegistryCompletedEventHandler(object sender, GetAllRegistryCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetAllRegistryCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetAllRegistryCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public RegistryResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((RegistryResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetGroupIdByUsernamePasswordCompletedEventHandler(object sender, GetGroupIdByUsernamePasswordCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetGroupIdByUsernamePasswordCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetGroupIdByUsernamePasswordCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public int Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((int)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void InitializeFreeItemsUpdateCompletedEventHandler(object sender, InitializeFreeItemsUpdateCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class InitializeFreeItemsUpdateCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal InitializeFreeItemsUpdateCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public bool Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((bool)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void UpdateFreeFileTypeOfModuleCompletedEventHandler(object sender, UpdateFreeFileTypeOfModuleCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class UpdateFreeFileTypeOfModuleCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal UpdateFreeFileTypeOfModuleCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public bool Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((bool)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetTimeShiftedTvPartnerSettingsCompletedEventHandler(object sender, GetTimeShiftedTvPartnerSettingsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetTimeShiftedTvPartnerSettingsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetTimeShiftedTvPartnerSettingsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public TimeShiftedTvPartnerSettingsResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((TimeShiftedTvPartnerSettingsResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void UpdateTimeShiftedTvPartnerSettingsCompletedEventHandler(object sender, UpdateTimeShiftedTvPartnerSettingsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class UpdateTimeShiftedTvPartnerSettingsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal UpdateTimeShiftedTvPartnerSettingsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetCDNAdaptersCompletedEventHandler(object sender, GetCDNAdaptersCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetCDNAdaptersCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetCDNAdaptersCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public CDNAdapterListResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((CDNAdapterListResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void DeleteCDNAdapterCompletedEventHandler(object sender, DeleteCDNAdapterCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class DeleteCDNAdapterCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal DeleteCDNAdapterCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public Status Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((Status)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void InsertCDNAdapterCompletedEventHandler(object sender, InsertCDNAdapterCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class InsertCDNAdapterCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal InsertCDNAdapterCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public CDNAdapterResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((CDNAdapterResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GenerateCDNSharedSecretCompletedEventHandler(object sender, GenerateCDNSharedSecretCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GenerateCDNSharedSecretCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GenerateCDNSharedSecretCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public CDNAdapterResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((CDNAdapterResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void SetCDNAdapterCompletedEventHandler(object sender, SetCDNAdapterCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class SetCDNAdapterCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal SetCDNAdapterCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public CDNAdapterResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((CDNAdapterResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void SendCDNAdapterConfigurationCompletedEventHandler(object sender, SendCDNAdapterConfigurationCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class SendCDNAdapterConfigurationCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal SendCDNAdapterConfigurationCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public CDNAdapterResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((CDNAdapterResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetCDNPartnerSettingsCompletedEventHandler(object sender, GetCDNPartnerSettingsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetCDNPartnerSettingsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetCDNPartnerSettingsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public CDNPartnerSettingsResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((CDNPartnerSettingsResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void UpdateCDNPartnerSettingsCompletedEventHandler(object sender, UpdateCDNPartnerSettingsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class UpdateCDNPartnerSettingsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal UpdateCDNPartnerSettingsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public CDNPartnerSettingsResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((CDNPartnerSettingsResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetCDNAdapterCompletedEventHandler(object sender, GetCDNAdapterCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetCDNAdapterCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetCDNAdapterCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public CDNAdapterResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((CDNAdapterResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    public delegate void GetGroupDefaultCDNAdapterCompletedEventHandler(object sender, GetGroupDefaultCDNAdapterCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.34209")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetGroupDefaultCDNAdapterCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetGroupDefaultCDNAdapterCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public CDNAdapterResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((CDNAdapterResponse)(this.results[0]));
             }
         }
     }
