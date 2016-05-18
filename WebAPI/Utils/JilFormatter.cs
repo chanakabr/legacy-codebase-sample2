@@ -135,16 +135,13 @@ namespace WebAPI.Utils
             {
                 if (type == typeof(StatusWrapper) && ((StatusWrapper)value).Result.GetType().IsSubclassOf(typeof(KalturaOTTObject)))
                 {
-                    var result = ((StatusWrapper)value).Result;
-                    if (result.GetType().IsSubclassOf(typeof(KalturaOTTObject)))
+                    StatusWrapper statusWrapper = ((StatusWrapper)value);
+                    KalturaOTTObject result = (KalturaOTTObject)statusWrapper.Result;
+                    Dictionary<string, string> oldStandardProperties = OldStandardAttribute.getOldMembers(result.GetType());
+                    if (oldStandardProperties != null)
                     {
-                        Dictionary<string, string> oldStandardProperties = OldStandardAttribute.getOldMembers(result.GetType());
-                        if (oldStandardProperties != null)
-                        {
-                            dynamic oldStandardObject = new OldStandardObject((KalturaOTTObject)result);
-                            JSON.SerializeDynamic(oldStandardObject, streamWriter, _jilOptions);
-                            return Task.FromResult(writeStream);
-                        }
+                        dynamic oldStandardObject = new OldStandardObject((KalturaOTTObject)result);
+                        statusWrapper.Result = oldStandardObject;
                     }
                 }
                 JSON.Serialize(value, streamWriter, _jilOptions);
