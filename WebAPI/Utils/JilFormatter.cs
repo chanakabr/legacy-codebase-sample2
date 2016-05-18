@@ -37,10 +37,38 @@ namespace WebAPI.Utils
             foreach (PropertyInfo property in properties)
             {
                 string name = getApiName(property);
-                _fields[name] = property.GetValue(ottObject);
+                object value = property.GetValue(ottObject);
+
+                if (property.PropertyType.IsSubclassOf(typeof(KalturaOTTObject)))
+                {
+                    value = new OldStandardObject((KalturaOTTObject)value);
+                }
+                else if (property.PropertyType.IsArray || property.PropertyType.IsGenericType)
+                {
+                    if (property.PropertyType.GetGenericArguments().Count() == 1 && (property.PropertyType.GetGenericArguments()[0].IsSubclassOf(typeof(KalturaOTTObject))))
+                    {
+                        var array = new List<OldStandardObject>();
+                        foreach(KalturaOTTObject item in (IEnumerable<KalturaOTTObject>)value)
+                        {
+                            array.Add(new OldStandardObject(item));
+                        }
+                        value = array;
+                    }
+                    else if (property.PropertyType.GetGenericArguments().Count() == 2 && property.PropertyType.GetGenericArguments()[1].IsSubclassOf(typeof(KalturaOTTObject)))
+                    {
+                        var dictionary = new Dictionary<string, OldStandardObject>();
+                        foreach(KeyValuePair<string, KalturaOTTObject> item in (IDictionary<string, KalturaOTTObject>)value)
+                        {
+                            dictionary.Add(item.Key, new OldStandardObject(item.Value));
+                        }
+                        value = dictionary;
+                    }
+                }
+
+                _fields[name] = value;
                 if (oldStandardProperties.ContainsKey(name))
                 {
-                    _fields[oldStandardProperties[name]] = _fields[name];
+                    _fields[oldStandardProperties[name]] = value;
                 }
             }
         }
