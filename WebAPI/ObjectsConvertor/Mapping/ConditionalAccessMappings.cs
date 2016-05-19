@@ -235,6 +235,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #endregion
 
+            #region Household Quota
+            Mapper.CreateMap<WebAPI.ConditionalAccess.DomainQuotaResponse, KalturaHouseholdQuota>()
+               .ForMember(dest => dest.AvailableQuota, opt => opt.MapFrom(src => src.AvailableQuota))
+               .ForMember(dest => dest.TotalQuota, opt => opt.MapFrom(src => src.TotalQuota));
+               
+            #endregion
+
         }
 
         #region Recording Help Methods

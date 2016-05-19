@@ -12,8 +12,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/inbox/action")]
-    public class InboxController : ApiController
+    [RoutePrefix("_service/inboxMessage/action")]
+    public class InboxMessageController : ApiController
     {
 
         /// <summary>
@@ -21,7 +21,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
-        /// 
+        /// Message identifier required = 8019
         /// </remarks>
         /// <param name="id">message id</param>        
         [Route("get"), HttpPost]
@@ -55,7 +55,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
-        /// 
+        /// message identifier required = 8019, user inbox message not exist = 8020,
         /// </remarks>
         /// <param name="pager">Page size and index</param>        
         /// <param name="filter">filter</param>        

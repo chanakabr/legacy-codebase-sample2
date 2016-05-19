@@ -163,6 +163,89 @@ namespace WebAPI.Controllers
 
             return response;
         }
-    
+
+        /// <summary>
+        /// Removes a payment method of the household. 
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes:  
+        /// Payment method not set for household = 6048, PaymentMethodIsUsedByHousehold = 3041, Error removing payment gateway household payment method = 6057,
+        /// PaymentGatewayNotExist = 6008, PaymentGatewayNotSetForHousehold = 6007,
+        /// </remarks>
+        /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
+        /// <param name="payment_method_id">Payment method Identifier</param>
+        /// <returns></returns>
+        [Route("removePaymentMethod"), HttpPost]
+        [ApiAuthorize]
+        public bool RemovePaymentMethod(int payment_gateway_id, int payment_method_id)
+        {
+            bool response = false;
+
+            if (payment_method_id <= 0)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "payment_method_id not valid");
+            }
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                string userID = KS.GetFromRequest().UserId;
+
+                // get domain id      
+                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+                // call client
+                response = ClientsManager.ConditionalAccessClient().RemovePaymentMethodHouseholdPaymentGateway(payment_gateway_id, groupId, userID, domainId, payment_method_id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Force remove of a payment method of the household. 
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes:  
+        /// Payment method not set for household = 6048, Error removing payment gateway household payment method = 6057,
+        /// PaymentGatewayNotExist = 6008, PaymentGatewayNotSetForHousehold = 6007
+        /// </remarks>
+        /// <param name="payment_gateway_id">Payment Gateway Identifier</param> 
+        /// <param name="payment_method_id">Payment method Identifier</param>
+        /// <returns></returns>
+        [Route("forceRemovePaymentMethod"), HttpPost]
+        [ApiAuthorize]
+        public bool ForceRemovePaymentMethod(int payment_gateway_id, int payment_method_id)
+        {
+            bool response = false;
+
+            if (payment_method_id <= 0)
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "payment_method_id not valid");
+            }
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                string userID = KS.GetFromRequest().UserId;
+
+                // get domain id      
+                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+                // call client
+                response = ClientsManager.ConditionalAccessClient().RemovePaymentMethodHouseholdPaymentGateway(payment_gateway_id, groupId, userID, domainId, payment_method_id, true);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
     }
 }
