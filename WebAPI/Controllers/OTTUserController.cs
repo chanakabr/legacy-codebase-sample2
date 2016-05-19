@@ -232,7 +232,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Send a new password by user name.        
+        /// Send an e-mail with URL to enable the user to set new password.
         /// </summary>        
         /// <param name="partnerId">Partner Identifier</param>
         /// <param name="username">user name</param>
@@ -265,7 +265,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Renew the user's password without validating the existing password.
+        /// Renew the user's password without validating the existing password, used internally after validating token that sent as part of URL in e-mail.
         /// </summary>        
         /// <param name="partnerId">Partner Identifier</param>
         /// <param name="username">user name</param>
@@ -297,7 +297,7 @@ namespace WebAPI.Controllers
             }
             return response;
         }
-
+        
         /// <summary>
         /// Returns the user associated with a temporary reset token.
         /// </summary>        
@@ -305,7 +305,6 @@ namespace WebAPI.Controllers
         /// <param name="token">token</param>
         /// <remarks>Possible status codes: 2000 = User does not exist</remarks>
         [Route("validateToken"), HttpPost]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
         public KalturaOTTUser validateToken(int partnerId, string token)
         {
             KalturaOTTUser response = null;

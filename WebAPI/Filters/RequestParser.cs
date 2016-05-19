@@ -249,7 +249,7 @@ namespace WebAPI.Filters
                                     }
                                     else if (t.IsSubclassOf(typeof(KalturaOTTObject)))
                                     {
-                                        var res = buildObject(t, reqParams[name].ToObject<Dictionary<string, object>>(), name, actionContext);
+                                        var res = buildObject(t, reqParams[name].ToObject<Dictionary<string, object>>(), actionContext);
                                         methodParams.Add(res);
                                     }
                                     else
@@ -396,7 +396,7 @@ namespace WebAPI.Filters
 
                             foreach (var kv in (Dictionary<string, object>)paramsGrouped[name])
                             {
-                                ((IList)res).Add(buildObject(type.GetGenericArguments()[0], (Dictionary<string, object>)kv.Value, name, actionContext));
+                                ((IList)res).Add(buildObject(type.GetGenericArguments()[0], (Dictionary<string, object>)kv.Value, actionContext));
                             }
                         }
                         //if Dictionary
@@ -410,7 +410,7 @@ namespace WebAPI.Filters
                             res = Activator.CreateInstance(makeme);
                             foreach (var kv in (Dictionary<string, object>)paramsGrouped[name])
                             {
-                                ((IDictionary)res).Add(actionParam.Name, buildObject(type.GetGenericArguments()[0], (Dictionary<string, object>)kv.Value, name, actionContext));
+                                ((IDictionary)res).Add(actionParam.Name, buildObject(type.GetGenericArguments()[0], (Dictionary<string, object>)kv.Value, actionContext));
                             }
                         }
 
@@ -435,7 +435,7 @@ namespace WebAPI.Filters
 
                 if (paramsGrouped.ContainsKey(name)) // object 
                 {
-                    var res = buildObject(actionParam.ParameterType, (Dictionary<string, object>)paramsGrouped[name], actionParam.Name, actionContext);
+                    var res = buildObject(actionParam.ParameterType, (Dictionary<string, object>)paramsGrouped[name], actionContext);
                     serviceArguments.Add(res);
                     continue;
                 }
@@ -461,7 +461,7 @@ namespace WebAPI.Filters
             return dataMember.Name;
         }
 
-        private object buildObject(Type type, Dictionary<string, object> parameters, string name, HttpActionContext actionContext)
+        private KalturaOTTObject buildObject(Type type, Dictionary<string, object> parameters, HttpActionContext actionContext)
         {
             // if objectType was specified, we will use it only if the anotation type is it's base type
             if (parameters.ContainsKey("objectType"))
@@ -491,7 +491,7 @@ namespace WebAPI.Filters
 
             var classProperties = type.GetProperties();
             Dictionary<string, string> oldStandardProperties = OldStandardAttribute.getOldMembers(type);
-            object instance = Activator.CreateInstance(type);
+            KalturaOTTObject instance = (KalturaOTTObject)Activator.CreateInstance(type);
             foreach (PropertyInfo property in classProperties)
             {
                 var parameterName = getApiName(property);
@@ -531,7 +531,19 @@ namespace WebAPI.Filters
                         }
                         else // list
                         {
-                            res = buildObject(property.PropertyType.GetGenericArguments()[0], (Dictionary<string, object>)parameters[parameterName], name, actionContext);
+                            JArray array = (JArray)parameters[parameterName];
+                            Type itemType = property.PropertyType.GetGenericArguments()[0];
+
+                            Type listType = typeof(List<>).MakeGenericType(itemType);
+                            dynamic list = Activator.CreateInstance(listType);
+
+                            foreach (JToken item in array)
+                            {
+                                var itemObject = buildObject(itemType, item.ToObject<Dictionary<string, object>>(), actionContext);
+                                list.Add((dynamic)Convert.ChangeType(itemObject, itemType));
+                            }
+
+                            res = list;
                         }
                     }
 
@@ -539,8 +551,8 @@ namespace WebAPI.Filters
                     else if (property.PropertyType.GetGenericArguments().Count() == 2 &&
                         dictType.GetGenericArguments().Length == type.GetGenericArguments().Length &&
                         dictType.MakeGenericType(type.GetGenericArguments()) == property.PropertyType)
-                    {
-                        res = buildObject(property.PropertyType.GetGenericArguments()[0], (Dictionary<string, object>)parameters[parameterName], name, actionContext);
+                    {   
+                        res = buildObject(property.PropertyType.GetGenericArguments()[0], (Dictionary<string, object>)parameters[parameterName], actionContext);
                     }
 
                     property.SetValue(instance, res, null);
@@ -548,7 +560,7 @@ namespace WebAPI.Filters
                 }
 
                 //If object
-                var classRes = buildObject(property.PropertyType, (Dictionary<string, object>)parameters[parameterName], name, actionContext);
+                var classRes = buildObject(property.PropertyType, (Dictionary<string, object>)parameters[parameterName], actionContext);
                 property.SetValue(instance, classRes, null);
                 continue;
 

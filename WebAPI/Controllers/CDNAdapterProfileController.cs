@@ -12,8 +12,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/cDNAdapterProfile/action")]
-    public class CDNAdapterProfileController : ApiController
+    [RoutePrefix("_service/cdnAdapterProfile/action")]
+    public class CdnAdapterProfileController : ApiController
     {
         /// <summary>
         /// Returns all CDN adapters for partner

@@ -123,7 +123,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "paymentMethod")]
         [JsonProperty("paymentMethod")]
         [XmlElement(ElementName = "paymentMethod", IsNullable = true)]
-        public KalturaPaymentMethod paymentMethod { get; set; }
+        public KalturaPaymentMethodType paymentMethod { get; set; }
 
         /// <summary>
         ///Payment Method Extra Details
