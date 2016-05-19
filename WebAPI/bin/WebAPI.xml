@@ -243,7 +243,7 @@
             BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, 
             RecommendationEngineNotExist = 4007, ExternalChannelNotExist = 4011</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.CDNAdapterProfileController.List">
+        <member name="M:WebAPI.Controllers.CdnAdapterProfileController.List">
             <summary>
             Returns all CDN adapters for partner
             </summary>
@@ -251,7 +251,7 @@
             
             </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.CDNAdapterProfileController.Delete(System.Int32)">
+        <member name="M:WebAPI.Controllers.CdnAdapterProfileController.Delete(System.Int32)">
             <summary>
             Delete CDN adapter by CDN adapter id
             </summary>
@@ -260,7 +260,7 @@
             </remarks>
             <param name="adapterId">CDN adapter identifier</param>
         </member>
-        <member name="M:WebAPI.Controllers.CDNAdapterProfileController.Add(WebAPI.Models.API.KalturaCDNAdapterProfile)">
+        <member name="M:WebAPI.Controllers.CdnAdapterProfileController.Add(WebAPI.Models.API.KalturaCDNAdapterProfile)">
             <summary>
             Insert new CDN adapter for partner
             </summary>
@@ -270,7 +270,7 @@
             </remarks>
             <param name="adapter">CDN adapter object</param>
         </member>
-        <member name="M:WebAPI.Controllers.CDNAdapterProfileController.Update(System.Int32,WebAPI.Models.API.KalturaCDNAdapterProfile)">
+        <member name="M:WebAPI.Controllers.CdnAdapterProfileController.Update(System.Int32,WebAPI.Models.API.KalturaCDNAdapterProfile)">
             <summary>
             Update CDN adapter details
             </summary>
@@ -280,7 +280,7 @@
             <param name="adapterId">CDN adapter id to update</param>       
             <param name="adapter">CDN adapter Object</param>       
         </member>
-        <member name="M:WebAPI.Controllers.CDNAdapterProfileController.GenerateSharedSecret(System.Int32)">
+        <member name="M:WebAPI.Controllers.CdnAdapterProfileController.GenerateSharedSecret(System.Int32)">
             <summary>
             Generate CDN adapter shared secret
             </summary>
@@ -5380,7 +5380,7 @@
         </member>
         <member name="M:WebAPI.Controllers.OttUserController.sendPassword(System.Int32,System.String)">
             <summary>
-            Send a new password by user name.        
+            Send an e-mail with URL to enable the user to set new password.
             </summary>        
             <param name="partnerId">Partner Identifier</param>
             <param name="username">user name</param>
@@ -5388,16 +5388,24 @@
         </member>
         <member name="M:WebAPI.Controllers.OttUserController.resetPassword(System.Int32,System.String,System.String)">
             <summary>
-            Renew the user's password without validating the existing password.
+            Renew the user's password without validating the existing password, used internally after validating token that sent as part of URL in e-mail.
             </summary>        
             <param name="partnerId">Partner Identifier</param>
             <param name="username">user name</param>
             <param name="password">new password</param>
             <remarks>Possible status codes: User does not exist = 2000</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.OttUserController.validateToken(System.Int32,System.String)">
+        <member name="M:WebAPI.Controllers.OttUserController.UpdateLoginDataByToken(System.Int32,System.String,System.String)">
             <summary>
             Returns the user associated with a temporary reset token.
+            </summary>        
+            <param name="partnerId">Partner Identifier</param>
+            <param name="token">token</param>
+            <remarks>Possible status codes: 2000 = User does not exist</remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.OttUserController.validateToken(System.Int32,System.String)">
+            <summary>
+            Returns the user associated with a temporary reset token that sent over e-mail.
             </summary>        
             <param name="partnerId">Partner Identifier</param>
             <param name="token">token</param>

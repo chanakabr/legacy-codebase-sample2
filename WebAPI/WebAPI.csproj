@@ -2012,7 +2012,7 @@
     <Compile Include="Controllers\HouseholdController.cs" />
     <Compile Include="Models\API\KalturaParentalRule.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaEntitlement.cs" />
-    <Compile Include="Models\ConditionalAccess\KalturaPaymentMethod.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaPaymentMethodType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaTransactionType.cs" />
     <Compile Include="Models\Users\KalturaCountry.cs" />
     <Compile Include="Models\Users\KalturaLoginPin.cs" />

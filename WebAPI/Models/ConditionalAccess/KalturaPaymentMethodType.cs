@@ -6,7 +6,7 @@ using System.Web;
 namespace WebAPI.Models.ConditionalAccess
 {
     [Serializable]
-    public enum KalturaPaymentMethod
+    public enum KalturaPaymentMethodType
     {
         unknown,
         credit_card,
