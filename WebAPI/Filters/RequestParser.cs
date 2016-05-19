@@ -276,9 +276,13 @@ namespace WebAPI.Filters
                                             //if Dictionary
                                             else if (t.GetGenericArguments().Count() == 2)
                                             {
-                                                // TODO
+                                                res = buildObject(t.GetGenericArguments()[0], reqParams[name].ToObject<Dictionary<string, object>>(), actionContext);
                                             }
                                             methodParams.Add(res);
+                                        }
+                                        else
+                                        {
+                                            methodParams.Add(reqParams[name].ToObject(t));
                                         }
                                     }
                                     else
@@ -568,8 +572,8 @@ namespace WebAPI.Filters
                     else if (property.PropertyType.GetGenericArguments().Count() == 2 &&
                         dictType.GetGenericArguments().Length == type.GetGenericArguments().Length &&
                         dictType.MakeGenericType(type.GetGenericArguments()) == property.PropertyType)
-                    {   
-                        // TODO
+                    {
+                        res = buildObject(property.PropertyType.GetGenericArguments()[0], (Dictionary<string, object>)parameters[parameterName], actionContext);
                     }
 
                     property.SetValue(instance, res, null);
@@ -577,7 +581,7 @@ namespace WebAPI.Filters
                 }
 
                 //If object
-                var classRes = buildObject(property.PropertyType, (Dictionary<string, object>)parameters[parameterName], actionContext);
+                var classRes = buildObject(property.PropertyType, ((JObject)parameters[parameterName]).ToObject<Dictionary<string, object>>(), actionContext);
                 property.SetValue(instance, classRes, null);
                 continue;
 
