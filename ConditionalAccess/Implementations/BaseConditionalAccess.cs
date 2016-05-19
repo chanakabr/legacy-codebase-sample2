@@ -12063,17 +12063,21 @@ namespace ConditionalAccess
            string sRefferer, string sCountryCode, string sLanguageCode, string sDeviceName, string sCouponCode)
         {
             int fileMainStreamingCoID = 0;
-            return GetLicensedLinks(sSiteGuid, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCountryCode, sLanguageCode, sDeviceName, sCouponCode, eObjectType.Media, ref fileMainStreamingCoID);
+            int mediaId = 0;
+            return GetLicensedLinks(sSiteGuid, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCountryCode, sLanguageCode, sDeviceName, sCouponCode, eObjectType.Media, 
+                ref fileMainStreamingCoID, ref mediaId);
         }
 
         public virtual LicensedLinkResponse GetLicensedLinks(string sSiteGuid, Int32 nMediaFileID, string sBasicLink, string sUserIP,
            string sRefferer, string sCountryCode, string sLanguageCode, string sDeviceName, string sCouponCode, ref int fileMainStreamingCoID)
         {
-            return GetLicensedLinks(sSiteGuid, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCountryCode, sLanguageCode, sDeviceName, sCouponCode, eObjectType.Media, ref fileMainStreamingCoID);
+            int mediaId = 0;
+            return GetLicensedLinks(sSiteGuid, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCountryCode, sLanguageCode, sDeviceName, sCouponCode, eObjectType.Media, 
+                ref fileMainStreamingCoID, ref mediaId);
         }
 
         public virtual LicensedLinkResponse GetLicensedLinks(string sSiteGuid, Int32 nMediaFileID, string sBasicLink, string sUserIP,
-            string sRefferer, string sCountryCode, string sLanguageCode, string sDeviceName, string sCouponCode, eObjectType eLinkType, ref int fileMainStreamingCoID)
+            string sRefferer, string sCountryCode, string sLanguageCode, string sDeviceName, string sCouponCode, eObjectType eLinkType, ref int fileMainStreamingCoID, ref int mediaId)
         {
             LicensedLinkResponse res = new LicensedLinkResponse();
 
@@ -12108,6 +12112,7 @@ namespace ConditionalAccess
                             if (TryGetFileUrlLinks(nMediaFileID, sUserIP, sSiteGuid, ref fileMainUrl, ref fileAltUrl, ref fileMainStreamingCoID,
                                 ref fileAltStreamingCoID, ref nMediaID))
                             {
+                                mediaId = nMediaID;
                                 Dictionary<string, string> licensedLinkParams = GetLicensedLinkParamsDict(sSiteGuid, nMediaFileID.ToString(),
                                     fileMainUrl, sUserIP, sCountryCode, sLanguageCode, sDeviceName, sCouponCode);
 
@@ -12142,12 +12147,34 @@ namespace ConditionalAccess
                                                 }
                                             }
 
-                                            // get device type - TODO
-                                            string deviceType = "";
+                                            // get adapter
+                                            var adapterResponse = Utils.GetRelevantCDNByStremingCompanyId(m_nGroupID, fileMainStreamingCoID);
 
-                                            res = GetLicensedLinkWithAdapter(fileMainStreamingCoID, sSiteGuid, licensedLinkParams[CDNTokenizers.Constants.URL], deviceType, nMediaID,
-                                                nMediaFileID, sUserIP, eLinkType, licensedLinkParams);
+                                            // if adapter response is not null and is adapter (has an adapter url) - call the adapter
+                                            if (adapterResponse.Adapter != null && !string.IsNullOrEmpty(adapterResponse.Adapter.AdapterUrl))
+                                            {
+                                                // get device type
+                                                string deviceType = Utils.GetDeviceTyprByUDID(m_nGroupID, sDeviceName);
+                                                if (deviceType == null)
+                                                {
+                                                    res.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed to get device type");
+                                                }
 
+                                                var link = CDNAdapterController.GetInstance().GetVodLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGuid, licensedLinkParams[CDNTokenizers.Constants.URL],
+                                                    deviceType, nMediaID, nMediaFileID, sUserIP);
+                                     
+                                                if (link != null)
+                                                {
+                                                    res.mainUrl = link.Url;
+                                                    res.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                                                }
+                                            }
+                                            else
+                                            {
+                                                res.mainUrl = GetLicensedLink(fileMainStreamingCoID, licensedLinkParams);
+                                                res.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                                            }
+                                            
                                             if (res != null && res.Status != null && res.Status.Code == (int)eResponseStatus.OK)
                                             {
 
@@ -12273,109 +12300,6 @@ namespace ConditionalAccess
             }
 
             return res;
-        }
-
-        private LicensedLinkResponse GetLicensedLinkWithAdapter(int fileStreamingCompanyId, string userId, string url, string deviceType, int assetId, int contentId, string userIp,
-            eObjectType linkType, Dictionary<string, string> paramsDict)
-        {
-            LicensedLinkResponse response = new LicensedLinkResponse()
-            {
-                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
-            };
-
-            TvinciAPI.API api = new TvinciAPI.API();
-            string sWSUserName = string.Empty;
-            string sWSPass = string.Empty;
-
-            api.Url = Utils.GetWSURL("api_ws");
-            
-            Utils.GetWSCredentials(m_nGroupID, eWSModules.API, ref sWSUserName, ref sWSPass);
-
-            if (string.IsNullOrEmpty(api.Url) || string.IsNullOrEmpty(sWSUserName) || string.IsNullOrEmpty(sWSPass))
-            {
-                log.ErrorFormat("GetLicensedLink: missing WS API credentials or url. groupId = {0}", m_nGroupID);
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Could not connect to another WS");
-                return response;
-            }
-
-            TvinciAPI.CDNAdapterResponse adapterResponse = null;
-
-            try
-            {
-                // if nStreamingCompany is 0 - call api service for getting the default adapter / streaming company
-                if (fileStreamingCompanyId == 0)
-                {
-                    adapterResponse = api.GetGroupDefaultCDNAdapter(sWSUserName, sWSPass, ConditionalAccess.TvinciAPI.eAssetTypes.MEDIA);
-                }
-                // else - call api service for getting the adapter / streaming company with the nStreamingCompany ID                
-                else
-                {
-                    adapterResponse = api.GetCDNAdapter(sWSUserName, sWSPass, fileStreamingCompanyId);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("GetLicensedLink: failed calling WS API. groupId = {0}", m_nGroupID, ex);
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed to connect to another WS");
-                return response;
-            }
-
-            if (adapterResponse == null || adapterResponse.Status == null)
-            {
-                log.ErrorFormat("GetLicensedLink: failed to get adapter response from WS API. groupId = {0}, adapterId = {1}", fileStreamingCompanyId, m_nGroupID);
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Could not get response from another WS");
-                return response;
-            }
-            if (adapterResponse.Status.Code != (int)eResponseStatus.OK)
-            {
-                log.DebugFormat("GetLicensedLink: got error adapter response from WS API. groupId = {0}, adapterId = {1}, status.code = {2}, status.message = {3}",
-                    fileStreamingCompanyId, m_nGroupID, adapterResponse.Status.Code, adapterResponse.Status.Message);
-                response.Status = new ApiObjects.Response.Status(adapterResponse.Status.Code, adapterResponse.Status.Message);
-                return response;
-            }
-
-            // TODO
-            int actionType = 0, programId = 1;
-            string recordingId = "2";
-            long startTimeSeconds = 3;
-
-            // if adapter response is not null and is adapter (has an adapter url) - call the adapter
-            if (adapterResponse.Adapter != null && !string.IsNullOrEmpty(adapterResponse.Adapter.AdapterUrl))
-            {
-                LinkResult link = null;
-
-                switch (linkType)
-                {
-                    case eObjectType.Media:
-                        link = CDNAdapterController.GetInstance().GetVodLink(m_nGroupID, adapterResponse.Adapter.ID, userId, url, deviceType, assetId, contentId, userIp);
-                        break;
-                    case eObjectType.EPG:
-                        link = CDNAdapterController.GetInstance().GetEpgLink(m_nGroupID, adapterResponse.Adapter.ID, userId, url, deviceType, programId, assetId, contentId, startTimeSeconds, actionType, userIp);
-                        break;
-                    case eObjectType.Recording:
-                        link = CDNAdapterController.GetInstance().GetRecordingLink(m_nGroupID, adapterResponse.Adapter.ID, userId, url, deviceType, recordingId, userIp);
-                        break;
-                    default:
-                        {
-                            log.ErrorFormat("GetLicensedLinks: failed to get link - unknown link type");
-                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "failed to get link - unknown link type");
-                            return response;
-                        }
-                }
-
-                
-                if (link != null)
-                {
-                    response.mainUrl = link.Url;
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                }
-            }
-            else
-            {
-                response.mainUrl = GetLicensedLink(fileStreamingCompanyId, paramsDict);
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-            }
-            return response;
         }
 
         private ApiObjects.Response.Status ConcurrencyResponseToResponseStatus(TvinciDomains.DomainResponseStatus mediaConcurrencyResponse)
