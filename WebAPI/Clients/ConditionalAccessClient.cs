@@ -1389,6 +1389,7 @@ namespace WebAPI.Clients
 
             // convert response
             response = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaHouseholdQuota>(webServiceResponse);
+            response.HouseholdId = domainId;
 
             return response;
         }
