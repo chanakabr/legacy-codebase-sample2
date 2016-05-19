@@ -351,6 +351,13 @@
             <returns></returns>
             <remarks>Possible status codes: CDN partner settings not found = 5025</remarks>   
         </member>
+        <member name="M:WebAPI.Controllers.HouseholdQuotaController.Get">
+            <summary>
+            Returns the household's quota data
+            </summary>
+            <returns></returns>
+            <remarks>Possible status codes: BadRequest = 500003</remarks>     
+        </member>
         <member name="M:WebAPI.Controllers.InboxMessageController.Get(System.String)">
             <summary>
             TBD
@@ -2743,6 +2750,21 @@
         <member name="P:WebAPI.Models.Catalog.KalturaAssetBookmarks.Bookmarks">
             <summary>
             List of bookmarks
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaHouseholdQuota.HouseholdId">
+            <summary>
+            Household identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaHouseholdQuota.TotalQuota">
+            <summary>
+            Total quota that is allocated to the household
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaHouseholdQuota.AvailableQuota">
+            <summary>
+            Available quota that household has remaining
             </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaRecording.Id">
@@ -5421,17 +5443,9 @@
             <param name="password">new password</param>
             <remarks>Possible status codes: User does not exist = 2000</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.OttUserController.UpdateLoginDataByToken(System.Int32,System.String,System.String)">
-            <summary>
-            Returns the user associated with a temporary reset token.
-            </summary>        
-            <param name="partnerId">Partner Identifier</param>
-            <param name="token">token</param>
-            <remarks>Possible status codes: 2000 = User does not exist</remarks>
-        </member>
         <member name="M:WebAPI.Controllers.OttUserController.validateToken(System.Int32,System.String)">
             <summary>
-            Returns the user associated with a temporary reset token that sent over e-mail.
+            Returns the user associated with a temporary reset token.
             </summary>        
             <param name="partnerId">Partner Identifier</param>
             <param name="token">token</param>
@@ -13568,6 +13582,15 @@
         <member name="M:WebAPI.ConditionalAccess.module.RecoverRecordingMessagesAsync(System.String,System.String,System.Object)">
             <remarks/>
         </member>
+        <member name="M:WebAPI.ConditionalAccess.module.GetDomainQuota(System.String,System.String,System.String,System.Int64)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.GetDomainQuotaAsync(System.String,System.String,System.String,System.Int64)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.ConditionalAccess.module.GetDomainQuotaAsync(System.String,System.String,System.String,System.Int64,System.Object)">
+            <remarks/>
+        </member>
         <member name="M:WebAPI.ConditionalAccess.module.RemovePaymentMethodHouseholdPaymentGateway(System.String,System.String,System.Int32,System.String,System.Int32,System.Int32,System.Boolean)">
             <remarks/>
         </member>
@@ -14429,6 +14452,9 @@
         <member name="E:WebAPI.ConditionalAccess.module.RecoverRecordingMessagesCompleted">
             <remarks/>
         </member>
+        <member name="E:WebAPI.ConditionalAccess.module.GetDomainQuotaCompleted">
+            <remarks/>
+        </member>
         <member name="E:WebAPI.ConditionalAccess.module.RemovePaymentMethodHouseholdPaymentGatewayCompleted">
             <remarks/>
         </member>
@@ -14807,6 +14833,9 @@
         <member name="T:WebAPI.ConditionalAccess.RetrieveQuotaNPVRCommand">
             <remarks/>
         </member>
+        <member name="T:WebAPI.ConditionalAccess.CancelSeriesNPVRCommand">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.ConditionalAccess.DeleteNPVRCommand">
             <remarks/>
         </member>
@@ -14814,9 +14843,6 @@
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.RecordNPVRCommand">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.ConditionalAccess.CancelSeriesNPVRCommand">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.RecordSeriesByProgramIdNPVRCommand">
@@ -16034,6 +16060,18 @@
         <member name="P:WebAPI.ConditionalAccess.PermittedMediaContainer.PPVCode">
             <remarks/>
         </member>
+        <member name="T:WebAPI.ConditionalAccess.DomainQuotaResponse">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.DomainQuotaResponse.Status">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.DomainQuotaResponse.AvailableQuota">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.DomainQuotaResponse.TotalQuota">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.ConditionalAccess.OrderObj">
             <remarks/>
         </member>
@@ -16695,6 +16733,15 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.ConditionalAccess.RecoverRecordingMessagesCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.GetDomainQuotaCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.ConditionalAccess.GetDomainQuotaCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.ConditionalAccess.GetDomainQuotaCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.ConditionalAccess.RemovePaymentMethodHouseholdPaymentGatewayCompletedEventHandler">

@@ -247,10 +247,39 @@ namespace WebAPI.Filters
                                             methodParams.Add(null);
                                         }
                                     }
-                                    else if (t.IsSubclassOf(typeof(KalturaOTTObject)))
+                                    else if (OldStandardAttribute.isCurrentRequestOldVersion())
                                     {
-                                        var res = buildObject(t, reqParams[name].ToObject<Dictionary<string, object>>(), actionContext);
-                                        methodParams.Add(res);
+                                        if (t.IsSubclassOf(typeof(KalturaOTTObject)))
+                                        {
+                                            KalturaOTTObject res = buildObject(t, reqParams[name].ToObject<Dictionary<string, object>>(), actionContext);
+                                            methodParams.Add(res);
+                                        }
+                                        else if (t.IsArray || t.IsGenericType) // array or list
+                                        {
+                                            Type dictType = typeof(SerializableDictionary<,>);
+                                            object res = null;
+
+                                            if (t.GetGenericArguments().Count() == 1)
+                                            {
+                                                // if nullable
+                                                if (t.GetGenericTypeDefinition() == typeof(Nullable<>))
+                                                {
+                                                    Type underlyingType = Nullable.GetUnderlyingType(t);
+                                                    res = Convert.ChangeType(reqParams[name], underlyingType);
+                                                }
+                                                else // list
+                                                {
+                                                    res = buildList(t, (JArray)reqParams[name], actionContext);
+                                                }
+                                            }
+
+                                            //if Dictionary
+                                            else if (t.GetGenericArguments().Count() == 2)
+                                            {
+                                                // TODO
+                                            }
+                                            methodParams.Add(res);
+                                        }
                                     }
                                     else
                                     {
@@ -531,19 +560,7 @@ namespace WebAPI.Filters
                         }
                         else // list
                         {
-                            JArray array = (JArray)parameters[parameterName];
-                            Type itemType = property.PropertyType.GetGenericArguments()[0];
-
-                            Type listType = typeof(List<>).MakeGenericType(itemType);
-                            dynamic list = Activator.CreateInstance(listType);
-
-                            foreach (JToken item in array)
-                            {
-                                var itemObject = buildObject(itemType, item.ToObject<Dictionary<string, object>>(), actionContext);
-                                list.Add((dynamic)Convert.ChangeType(itemObject, itemType));
-                            }
-
-                            res = list;
+                            res = buildList(property.PropertyType, (JArray)parameters[parameterName], actionContext);
                         }
                     }
 
@@ -552,7 +569,7 @@ namespace WebAPI.Filters
                         dictType.GetGenericArguments().Length == type.GetGenericArguments().Length &&
                         dictType.MakeGenericType(type.GetGenericArguments()) == property.PropertyType)
                     {   
-                        res = buildObject(property.PropertyType.GetGenericArguments()[0], (Dictionary<string, object>)parameters[parameterName], actionContext);
+                        // TODO
                     }
 
                     property.SetValue(instance, res, null);
@@ -567,6 +584,21 @@ namespace WebAPI.Filters
             }
 
             return instance;
+        }
+
+        private dynamic buildList(Type type, JArray array, HttpActionContext actionContext)
+        {
+            Type itemType = type.GetGenericArguments()[0];
+            Type listType = typeof(List<>).MakeGenericType(itemType);
+            dynamic list = Activator.CreateInstance(listType);
+
+            foreach (JToken item in array)
+            {
+                var itemObject = buildObject(itemType, item.ToObject<Dictionary<string, object>>(), actionContext);
+                list.Add((dynamic)Convert.ChangeType(itemObject, itemType));
+            }
+
+            return list;
         }
 
         private void setElementByPath(Dictionary<string, object> array, List<string> path, object value)
