@@ -91,7 +91,11 @@ namespace Catalog
                 {
                     definitions.shouldSearchEpg = true;
                     definitions.shouldSearchMedia = true;
-                    definitions.shouldSearchRecordings = true;
+
+                    // except recodrings. FOR NOW
+                    // TEMPORARY UNTIL REST IS FIXED
+                    // FOR NOW ONLY
+                    definitions.shouldSearchRecordings = false;
                 }
                 else
                 {
