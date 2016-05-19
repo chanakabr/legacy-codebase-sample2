@@ -227,7 +227,7 @@ namespace WebAPI.Filters
                                         var names = t.GetEnumNames().ToList();
                                         if (names.Contains(paramAsString))
                                         {
-                                            methodParams.Add(Enum.Parse(t, paramAsString));
+                                            methodParams.Add(Enum.Parse(t, paramAsString, true));
                                         }
                                     }
                                     // nullable enum
@@ -239,7 +239,7 @@ namespace WebAPI.Filters
                                             var names = u.GetEnumNames().ToList();
                                             if (names.Contains(paramAsString))
                                             {
-                                                methodParams.Add(Enum.Parse(u, paramAsString));
+                                                methodParams.Add(Enum.Parse(u, paramAsString, true));
                                             }
                                         }
                                         else
@@ -276,7 +276,7 @@ namespace WebAPI.Filters
                                             //if Dictionary
                                             else if (t.GetGenericArguments().Count() == 2)
                                             {
-                                                res = buildObject(t.GetGenericArguments()[0], reqParams[name].ToObject<Dictionary<string, object>>(), actionContext);
+                                                res = buildDictionary(t, reqParams[name].ToObject<Dictionary<string, object>>(), actionContext);
                                             }
                                             methodParams.Add(res);
                                         }
@@ -400,7 +400,7 @@ namespace WebAPI.Filters
                     {
                         //XXX: We support only string enums here...
 
-                        var eValue = Enum.Parse(actionParam.ParameterType, paramsGrouped[name].ToString());
+                        var eValue = Enum.Parse(actionParam.ParameterType, paramsGrouped[name].ToString(), true);
                         serviceArguments.Add(eValue);
                         continue;
                     }
@@ -544,7 +544,7 @@ namespace WebAPI.Filters
 
                 if (property.PropertyType.IsEnum)
                 {
-                    var eValue = Enum.Parse(property.PropertyType, parameters[parameterName].ToString());
+                    var eValue = Enum.Parse(property.PropertyType, parameters[parameterName].ToString(), true);
                     property.SetValue(instance, eValue, null);
                     continue;
                 }
@@ -573,7 +573,7 @@ namespace WebAPI.Filters
                         dictType.GetGenericArguments().Length == type.GetGenericArguments().Length &&
                         dictType.MakeGenericType(type.GetGenericArguments()) == property.PropertyType)
                     {
-                        res = buildObject(property.PropertyType.GetGenericArguments()[0], (Dictionary<string, object>)parameters[parameterName], actionContext);
+                        res = buildDictionary(property.PropertyType, (Dictionary<string, object>)parameters[parameterName], actionContext);
                     }
 
                     property.SetValue(instance, res, null);
@@ -598,11 +598,27 @@ namespace WebAPI.Filters
 
             foreach (JToken item in array)
             {
-                var itemObject = buildObject(itemType, item.ToObject<Dictionary<string, object>>(), actionContext);
-                list.Add((dynamic)Convert.ChangeType(itemObject, itemType));
+                if (itemType.IsSubclassOf(typeof(KalturaOTTObject)))
+                {
+                    var itemObject = buildObject(itemType, item.ToObject<Dictionary<string, object>>(), actionContext);
+                    list.Add((dynamic)Convert.ChangeType(itemObject, itemType));
+                }
+                else
+                {
+                    list.Add((dynamic)Convert.ChangeType(item, itemType));
+                }
             }
 
             return list;
+        }
+
+        private dynamic buildDictionary(Type type, Dictionary<string, object> dictionary, HttpActionContext actionContext)
+        {
+            dynamic res = Activator.CreateInstance(type);
+
+            // TODO
+
+            return res;
         }
 
         private void setElementByPath(Dictionary<string, object> array, List<string> path, object value)
