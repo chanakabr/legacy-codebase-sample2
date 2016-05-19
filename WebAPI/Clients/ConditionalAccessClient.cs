@@ -1351,5 +1351,46 @@ namespace WebAPI.Clients
 
             return true;
         }
+
+        internal KalturaHouseholdQuota GetDomainQuota(int groupId, string userId, long domainId)
+        {
+            DomainQuotaResponse webServiceResponse = null;
+
+            // get group ID
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    webServiceResponse = ConditionalAccess.GetDomainQuota(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, domainId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. WS address: {0}, exception: {1}", ConditionalAccess.Url, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (webServiceResponse == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (webServiceResponse.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(webServiceResponse.Status.Code, webServiceResponse.Status.Message);
+            }
+
+            KalturaHouseholdQuota response = null;
+
+            // convert response
+            response = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaHouseholdQuota>(webServiceResponse);
+
+            return response;
+        }
     }
 }
