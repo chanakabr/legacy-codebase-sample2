@@ -2438,6 +2438,7 @@ namespace DAL
                 sp.AddParameter("@isActive", adapter.IsActive);
                 DataTable dt = CreateDataTable(adapter.Settings);
                 sp.AddDataTableParameter("@KeyValueList", dt);
+                sp.AddParameter("@keysValuesIsExists", adapter.Settings.Count);
 
                 DataSet ds = sp.ExecuteDataSet();
 
