@@ -26,6 +26,8 @@ namespace WebAPI.Controllers
     [RoutePrefix("_service/ottUser/action")]
     [OldStandard("register", "add")]
     [OldStandard("updateLoginData", "changePassword")]
+    [OldStandard("setPassword", "resetPassword")]
+    [OldStandard("resetPassword", "sendPassword")]
     public class OttUserController : ApiController
     {
         /// <summary>
@@ -237,8 +239,9 @@ namespace WebAPI.Controllers
         /// <param name="partnerId">Partner Identifier</param>
         /// <param name="username">user name</param>
         /// <remarks></remarks>
-        [Route("sendPassword"), HttpPost]
-        public bool sendPassword(int partnerId, string username)
+        [Route("resetPassword"), HttpPost]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        public bool resetPassword(int partnerId, string username)
         {
             bool response = false;
 
@@ -265,15 +268,51 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
+        /// Renew the user's password after validating the token that sent as part of URL in e-mail.
+        /// </summary>        
+        /// <param name="partnerId">Partner Identifier</param>
+        /// <param name="token">Token that sent by e-mail</param>
+        /// <param name="password">New password</param>
+        /// <remarks>Possible status codes: User does not exist = 2000</remarks>
+        [Route("setInitialPassword"), HttpPost]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
+        public KalturaOTTUser setInitialPassword(int partnerId, string token, string password)
+        {
+            KalturaOTTUser response = null;
+
+            if (string.IsNullOrEmpty(token))
+            {
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "token is empty");
+            }
+            try
+            {
+                // call client
+                response = ClientsManager.UsersClient().CheckPasswordToken(partnerId, token);
+                ClientsManager.UsersClient().RenewPassword(partnerId, response.Username, password);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new InternalServerErrorException();
+            }
+
+            return response;
+        }
+
+        /// <summary>
         /// Renew the user's password without validating the existing password, used internally after validating token that sent as part of URL in e-mail.
         /// </summary>        
         /// <param name="partnerId">Partner Identifier</param>
         /// <param name="username">user name</param>
         /// <param name="password">new password</param>
         /// <remarks>Possible status codes: User does not exist = 2000</remarks>
-        [Route("resetPassword"), HttpPost]
-        [ValidationException(SchemaValidationType.ACTION_NAME)]
-        public bool resetPassword(int partnerId, string username, string password)
+        [Route("setPassword"), HttpPost]
+        [Obsolete("Please use setInitialPassword instead")]
+        public bool setPassword(int partnerId, string username, string password)
         {
             bool response = false;
 
@@ -305,6 +344,7 @@ namespace WebAPI.Controllers
         /// <param name="token">token</param>
         /// <remarks>Possible status codes: 2000 = User does not exist</remarks>
         [Route("validateToken"), HttpPost]
+        [Obsolete("Please use setInitialPassword instead")]
         public KalturaOTTUser validateToken(int partnerId, string token)
         {
             KalturaOTTUser response = null;
@@ -531,18 +571,19 @@ namespace WebAPI.Controllers
         /// Activate the account by activation token
         /// </summary>
         /// <param name="partnerId">The partner ID</param>
-        /// <param name="activation_token">Activation token of the user</param>
+        /// <param name="activationToken">Activation token of the user</param>
         /// <param name="username">Username of the user to activate</param>
         /// <returns></returns>
         [Route("activate"), HttpPost]
         [ValidationException(SchemaValidationType.ACTION_NAME)]
-        public Models.Users.KalturaOTTUser Activate(int partnerId, string username, string activation_token)
+        [OldStandard("activationToken", "activation_token")]
+        public Models.Users.KalturaOTTUser Activate(int partnerId, string username, string activationToken)
         {
             Models.Users.KalturaOTTUser response = null;
 
             try
             {
-                response = ClientsManager.UsersClient().ActivateAccount(partnerId, username, activation_token);
+                response = ClientsManager.UsersClient().ActivateAccount(partnerId, username, activationToken);
             }
             catch (ClientException ex)
             {
@@ -559,6 +600,7 @@ namespace WebAPI.Controllers
         /// <param name="username">Username of the user to activate</param>
         /// <returns></returns>
         [Route("resendActivationToken"), HttpPost]
+        [ValidationException(SchemaValidationType.ACTION_NAME)]
         public bool ResendActivationToken(int partnerId, string username)
         {
             bool response = false;
