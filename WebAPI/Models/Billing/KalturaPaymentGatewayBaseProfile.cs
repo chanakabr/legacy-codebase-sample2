@@ -14,7 +14,7 @@ namespace WebAPI.Models.Billing
     /// Payment gateway base profile
     /// </summary>
     [OldStandard("isDefault", "is_default")]
-    [OldStandard("selectedBy", "selectedBy")]
+    [OldStandard("selectedBy", "selected_by")]
     [OldStandard("paymentMethods", "payment_methods")]
     public class KalturaPaymentGatewayBaseProfile : KalturaOTTObject
     {

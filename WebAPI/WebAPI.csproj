@@ -449,6 +449,7 @@
     <Content Include="testmeDoc\actions\cdnadapterprofile.add.html" />
     <Content Include="testmeDoc\actions\cdnadapterprofile.delete.html" />
     <Content Include="testmeDoc\actions\cdnadapterprofile.list.html" />
+    <Content Include="testmeDoc\actions\cdnadapterprofile.update.html" />
     <Content Include="testmeDoc\actions\cdnpartnersettings.get.html" />
     <Content Include="testmeDoc\actions\cdnpartnersettings.update.html" />
     <Content Include="testmeDoc\actions\cdvradapterprofile.add.html" />
@@ -1067,6 +1068,7 @@
     <Content Include="testme\json\cdnadapterprofile-add-action-info.json" />
     <Content Include="testme\json\cdnadapterprofile-delete-action-info.json" />
     <Content Include="testme\json\cdnadapterprofile-list-action-info.json" />
+    <Content Include="testme\json\cdnadapterprofile-update-action-info.json" />
     <Content Include="testme\json\cdnpartnersettings-actions.json" />
     <Content Include="testme\json\cdnpartnersettings-get-action-info.json" />
     <Content Include="testme\json\cdnpartnersettings-update-action-info.json" />

@@ -3397,27 +3397,27 @@
             Kaltura bookmark data
             </summary>
         </member>
-        <member name="F:WebAPI.Models.Catalog.KalturaPlayerAssetData.action">
+        <member name="P:WebAPI.Models.Catalog.KalturaPlayerAssetData.action">
             <summary>
             Action
             </summary>
         </member>
-        <member name="F:WebAPI.Models.Catalog.KalturaPlayerAssetData.location">
+        <member name="P:WebAPI.Models.Catalog.KalturaPlayerAssetData.location">
             <summary>
             Location
             </summary>
         </member>
-        <member name="F:WebAPI.Models.Catalog.KalturaPlayerAssetData.averageBitRate">
+        <member name="P:WebAPI.Models.Catalog.KalturaPlayerAssetData.averageBitRate">
             <summary>
             Average Bitrate
             </summary>
         </member>
-        <member name="F:WebAPI.Models.Catalog.KalturaPlayerAssetData.totalBitRate">
+        <member name="P:WebAPI.Models.Catalog.KalturaPlayerAssetData.totalBitRate">
             <summary>
             Total Bitrate
             </summary>
         </member>
-        <member name="F:WebAPI.Models.Catalog.KalturaPlayerAssetData.currentBitRate">
+        <member name="P:WebAPI.Models.Catalog.KalturaPlayerAssetData.currentBitRate">
             <summary>
             Current Bitrate
             </summary>
