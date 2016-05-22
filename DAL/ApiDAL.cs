@@ -3484,7 +3484,7 @@ namespace DAL
             return res;
         }
 
-        public static CDNAdapter GetCDNAdapter(int adapterId)
+        public static CDNAdapter GetCDNAdapter(int adapterId, bool shouldGetOnlyActive = true)
         {
             CDNAdapter adapterResponse = null;
             try
@@ -3492,6 +3492,10 @@ namespace DAL
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CDNAdapter");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@id", adapterId);
+                if (!shouldGetOnlyActive)
+                {
+                    sp.AddParameter("@shouldGetOnlyActive", 0);
+                }
 
                 DataSet ds = sp.ExecuteDataSet();
 
@@ -3667,6 +3671,10 @@ namespace DAL
                 sp.AddParameter("@isActive", adapter.IsActive);
                 DataTable dt = CreateDataTableFromCdnDynamicData(adapter.Settings);
                 sp.AddDataTableParameter("@KeyValueList", dt);
+                if (adapter.Settings != null && adapter.Settings.Count > 0)
+                {
+                    sp.AddParameter("@keysValueListExists", 1);
+                }
 
                 DataSet ds = sp.ExecuteDataSet();
 
