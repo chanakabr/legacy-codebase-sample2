@@ -45,7 +45,7 @@ namespace Recordings
 
         #region Public Methods
         
-        public Status CheckQuotaByModel(int groupId, int quotaManagerModelId, long householdId, 
+        public Status CheckQuotaByModel(int groupId, int quotaManagerModelId, long householdId, bool isAggregative,
             List<Recording> newRecordings, List<Recording> currentRecordings)
         {
             Status status = new Status((int)eResponseStatus.OK);
@@ -63,13 +63,13 @@ namespace Recordings
             // If there wasn't an error previously
             if (shouldContinue)
             {
-                status = CheckQuotaByAvailableMinutes(groupId, householdId, minutesLeft, newRecordings);
+                status = CheckQuotaByAvailableMinutes(groupId, householdId, minutesLeft, newRecordings, isAggregative);
             }
 
             return status;
         }
 
-        public Status CheckQuotaByAvailableMinutes(int groupId, long householdId, int availableMinutes, List<Recording> newRecordings)
+        public Status CheckQuotaByAvailableMinutes(int groupId, long householdId, int availableMinutes, List<Recording> newRecordings, bool isAggregative)
         {
             Status status = new Status((int)eResponseStatus.OK);
 
@@ -85,14 +85,20 @@ namespace Recordings
 
                 currentEpgMinutes = (int)span.TotalMinutes;
 
-                minutesLeft -= currentEpgMinutes;
+                int tempMinutes = minutesLeft - currentEpgMinutes;
 
                 // Mark this, current-specific, recording as failed
-                if (minutesLeft < 0)
+                if (tempMinutes < 0)
                 {
                     recording.Status = new Status((int)eResponseStatus.DomainExceededQuota,
                         string.Format("Requested EPG exceeds domain's quota. EPG duration is {0} minutes and there are {1} minutes available.",
                         currentEpgMinutes, initialMinutesLeft));
+                }
+
+                // If we check each recording individually or not
+                if (isAggregative)
+                {
+                    minutesLeft = tempMinutes;
                 }
             }
 
@@ -122,7 +128,8 @@ namespace Recordings
             return response;
         }
 
-        internal Status CheckQuotaByTotalMinutes(int groupId, long householdId, int totalMinutes, List<Recording> newRecordings, List<Recording> currentRecordings)
+        internal Status CheckQuotaByTotalMinutes(int groupId, long householdId, int totalMinutes, bool isAggregative,
+            List<Recording> newRecordings, List<Recording> currentRecordings)
         {
             Status status = new Status((int)eResponseStatus.OK);
             bool shouldContinue = true;
@@ -145,7 +152,7 @@ namespace Recordings
             // If there wasn't an error previously
             if (shouldContinue)
             {
-                status = CheckQuotaByAvailableMinutes(groupId, householdId, minutesLeft, newRecordings);
+                status = CheckQuotaByAvailableMinutes(groupId, householdId, minutesLeft, newRecordings, isAggregative);
             }
 
             return status;

@@ -17081,7 +17081,7 @@ namespace ConditionalAccess
             try
             {
                 long domainID = 0;
-                recordingResponse = QueryRecords(userID, new List<long>() { epgID }, ref domainID);
+                recordingResponse = QueryRecords(userID, new List<long>() { epgID }, ref domainID, true);
                 if (recordingResponse.Status.Code != (int)eResponseStatus.OK || recordingResponse.TotalItems == 0)
                 {
                     log.DebugFormat("RecordingResponse status not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
@@ -17134,7 +17134,7 @@ namespace ConditionalAccess
             return recording;
         }
 
-        public RecordingResponse QueryRecords(string userID, List<long> epgIDs, ref long domainID)
+        public RecordingResponse QueryRecords(string userID, List<long> epgIDs, ref long domainID, bool isAggregative)
         {
             RecordingResponse response = new RecordingResponse();
             try
@@ -17217,7 +17217,8 @@ namespace ConditionalAccess
                     recording => recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK).ToList();
 
                 var temporaryStatus =
-                    QuotaManager.Instance.CheckQuotaByTotalMinutes(this.m_nGroupID, domainID, totalMinutes, recordingsToCheckQuota, currentRecordings);
+                    QuotaManager.Instance.CheckQuotaByTotalMinutes(this.m_nGroupID, domainID, totalMinutes, isAggregative, 
+                    recordingsToCheckQuota, currentRecordings);
 
                 if (temporaryStatus == null)
                 {
