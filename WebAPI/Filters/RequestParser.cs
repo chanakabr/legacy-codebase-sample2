@@ -569,11 +569,9 @@ namespace WebAPI.Filters
                     }
 
                     //if Dictionary
-                    else if (property.PropertyType.GetGenericArguments().Count() == 2 &&
-                        dictType.GetGenericArguments().Length == type.GetGenericArguments().Length &&
-                        dictType.MakeGenericType(type.GetGenericArguments()) == property.PropertyType)
+                    else if (property.PropertyType.GetGenericArguments().Count() == 2)
                     {
-                        res = buildDictionary(property.PropertyType, (Dictionary<string, object>)parameters[parameterName], actionContext);
+                        res = buildDictionary(property.PropertyType, ((JObject)parameters[parameterName]).ToObject<Dictionary<string, object>>(), actionContext);
                     }
 
                     property.SetValue(instance, res, null);
@@ -616,7 +614,21 @@ namespace WebAPI.Filters
         {
             dynamic res = Activator.CreateInstance(type);
 
-            // TODO
+            Type itemType = type.GetGenericArguments()[1];
+            foreach (string key in dictionary.Keys)
+            {
+                JToken item = (JToken)dictionary[key];
+
+                if (itemType.IsSubclassOf(typeof(KalturaOTTObject)))
+                {
+                    var itemObject = buildObject(itemType, item.ToObject<Dictionary<string, object>>(), actionContext);
+                    res.Add(key, (dynamic)Convert.ChangeType(itemObject, itemType));
+                }
+                else
+                {
+                    res.Add(key, (dynamic)Convert.ChangeType(dictionary[key], itemType));
+                }
+            }
 
             return res;
         }
