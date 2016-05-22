@@ -612,7 +612,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="IsActive" type="s:boolean" />
           <s:element minOccurs="0" maxOccurs="1" name="AdapterUrl" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="BaseUrl" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="Alias" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="SystemName" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="SharedSecret" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="Settings" type="tns:ArrayOfCDNAdapterSettings" />
         </s:sequence>
@@ -756,6 +756,46 @@
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="UpdateCDNPartnerSettingsResult" type="tns:CDNPartnerSettingsResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetCDNAdapter">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="adapterId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetCDNAdapterResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetCDNAdapterResult" type="tns:CDNAdapterResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetGroupDefaultCDNAdapter">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="assetType" type="tns:eAssetTypes" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:simpleType name="eAssetTypes">
+        <s:restriction base="s:string">
+          <s:enumeration value="UNKNOWN" />
+          <s:enumeration value="EPG" />
+          <s:enumeration value="NPVR" />
+          <s:enumeration value="MEDIA" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="GetGroupDefaultCDNAdapterResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetGroupDefaultCDNAdapterResult" type="tns:CDNAdapterResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -1769,14 +1809,6 @@
         </s:sequence>
       </s:complexType>
       <s:complexType name="ExtensionDataObject" />
-      <s:simpleType name="eAssetTypes">
-        <s:restriction base="s:string">
-          <s:enumeration value="UNKNOWN" />
-          <s:enumeration value="EPG" />
-          <s:enumeration value="NPVR" />
-          <s:enumeration value="MEDIA" />
-        </s:restriction>
-      </s:simpleType>
       <s:element name="GetAvailableFileTypes">
         <s:complexType>
           <s:sequence>
@@ -2108,33 +2140,11 @@
           <s:enumeration value="AddDeviceToDomain" />
         </s:restriction>
       </s:simpleType>
-      <s:complexType name="SendPasswordMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPassword" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="ForgotPasswordMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="ChangedPinMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sSiteGuid" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sRuleName" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -2146,6 +2156,47 @@
               <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sPassword" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="CinepolisRenewalFailMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="SendPasswordMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPassword" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ChangePasswordMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="SendAdminTokenRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sIP" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sDuration" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -2162,44 +2213,13 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="ChangePasswordMailRequest">
+      <s:complexType name="ChangedPinMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="CinepolisRenewalFailMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="AddUserMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewFirstName" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="SendAdminTokenRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sIP" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sDuration" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sSiteGuid" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sRuleName" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -2246,6 +2266,18 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
+      <s:complexType name="AddUserMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewFirstName" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
       <s:complexType name="PurchaseMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
@@ -2271,6 +2303,11 @@
           <s:extension base="tns:PurchaseMailRequest" />
         </s:complexContent>
       </s:complexType>
+      <s:complexType name="PreviewModuleCancelOrRefundRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:PurchaseMailRequest" />
+        </s:complexContent>
+      </s:complexType>
       <s:complexType name="PurchaseWithPreviewModuleRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:PurchaseMailRequest">
@@ -2278,11 +2315,6 @@
               <s:element minOccurs="0" maxOccurs="1" name="m_sPreviewModuleEndDate" type="s:string" />
             </s:sequence>
           </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="PreviewModuleCancelOrRefundRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:PurchaseMailRequest" />
         </s:complexContent>
       </s:complexType>
       <s:element name="SendMailTemplateResponse">
@@ -4580,6 +4612,18 @@
   <wsdl:message name="UpdateCDNPartnerSettingsSoapOut">
     <wsdl:part name="parameters" element="tns:UpdateCDNPartnerSettingsResponse" />
   </wsdl:message>
+  <wsdl:message name="GetCDNAdapterSoapIn">
+    <wsdl:part name="parameters" element="tns:GetCDNAdapter" />
+  </wsdl:message>
+  <wsdl:message name="GetCDNAdapterSoapOut">
+    <wsdl:part name="parameters" element="tns:GetCDNAdapterResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupDefaultCDNAdapterSoapIn">
+    <wsdl:part name="parameters" element="tns:GetGroupDefaultCDNAdapter" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupDefaultCDNAdapterSoapOut">
+    <wsdl:part name="parameters" element="tns:GetGroupDefaultCDNAdapterResponse" />
+  </wsdl:message>
   <wsdl:message name="TVAPI_GetTvinciGUIDSoapIn">
     <wsdl:part name="parameters" element="tns:TVAPI_GetTvinciGUID" />
   </wsdl:message>
@@ -5493,6 +5537,22 @@
   <wsdl:message name="GetCDNPartnerSettingsHttpPostOut">
     <wsdl:part name="Body" element="tns:CDNPartnerSettingsResponse" />
   </wsdl:message>
+  <wsdl:message name="GetCDNAdapterHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="adapterId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetCDNAdapterHttpPostOut">
+    <wsdl:part name="Body" element="tns:CDNAdapterResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupDefaultCDNAdapterHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="assetType" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupDefaultCDNAdapterHttpPostOut">
+    <wsdl:part name="Body" element="tns:CDNAdapterResponse" />
+  </wsdl:message>
   <wsdl:message name="InsertEPGScheduleHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -6400,6 +6460,14 @@
       <wsdl:input message="tns:UpdateCDNPartnerSettingsSoapIn" />
       <wsdl:output message="tns:UpdateCDNPartnerSettingsSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetCDNAdapter">
+      <wsdl:input message="tns:GetCDNAdapterSoapIn" />
+      <wsdl:output message="tns:GetCDNAdapterSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupDefaultCDNAdapter">
+      <wsdl:input message="tns:GetGroupDefaultCDNAdapterSoapIn" />
+      <wsdl:output message="tns:GetGroupDefaultCDNAdapterSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="TVAPI_GetTvinciGUID">
       <wsdl:input message="tns:TVAPI_GetTvinciGUIDSoapIn" />
       <wsdl:output message="tns:TVAPI_GetTvinciGUIDSoapOut" />
@@ -6985,6 +7053,14 @@
     <wsdl:operation name="GetCDNPartnerSettings">
       <wsdl:input message="tns:GetCDNPartnerSettingsHttpPostIn" />
       <wsdl:output message="tns:GetCDNPartnerSettingsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCDNAdapter">
+      <wsdl:input message="tns:GetCDNAdapterHttpPostIn" />
+      <wsdl:output message="tns:GetCDNAdapterHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupDefaultCDNAdapter">
+      <wsdl:input message="tns:GetGroupDefaultCDNAdapterHttpPostIn" />
+      <wsdl:output message="tns:GetGroupDefaultCDNAdapterHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="InsertEPGSchedule">
       <wsdl:input message="tns:InsertEPGScheduleHttpPostIn" />
@@ -7586,6 +7662,24 @@
     </wsdl:operation>
     <wsdl:operation name="UpdateCDNPartnerSettings">
       <soap:operation soapAction="http://api.tvinci.com/UpdateCDNPartnerSettings" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCDNAdapter">
+      <soap:operation soapAction="http://api.tvinci.com/GetCDNAdapter" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupDefaultCDNAdapter">
+      <soap:operation soapAction="http://api.tvinci.com/GetGroupDefaultCDNAdapter" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -9000,6 +9094,24 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetCDNAdapter">
+      <soap12:operation soapAction="http://api.tvinci.com/GetCDNAdapter" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupDefaultCDNAdapter">
+      <soap12:operation soapAction="http://api.tvinci.com/GetGroupDefaultCDNAdapter" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="TVAPI_GetTvinciGUID">
       <soap12:operation soapAction="http://api.tvinci.com/TVAPI_GetTvinciGUID" style="document" />
       <wsdl:input>
@@ -10310,6 +10422,24 @@
     </wsdl:operation>
     <wsdl:operation name="GetCDNPartnerSettings">
       <http:operation location="/GetCDNPartnerSettings" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCDNAdapter">
+      <http:operation location="/GetCDNAdapter" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupDefaultCDNAdapter">
+      <http:operation location="/GetGroupDefaultCDNAdapter" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>

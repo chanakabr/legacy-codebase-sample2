@@ -76,7 +76,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:     
-        /// Adapter NameRequired = 5005, AdapterUrlRequired = 5013, AliasMustBeUnique = 5019, AliasRequired = 5020
+        /// Adapter NameRequired = 5005, AdapterUrlRequired = 5013, SystemNameMustBeUnique = 5019, SystemNameRequired = 5020
         /// </remarks>
         /// <param name="adapter">CDN adapter object</param>
         [Route("add"), HttpPost]
@@ -104,7 +104,7 @@ namespace WebAPI.Controllers
         /// Update CDN adapter details
         /// </summary>
         /// <remarks>
-        /// Possible status codes: AdapterNotExists = 10000, NameRequired = 5005, AdapterUrlRequired = 5013, AliasMustBeUnique = 5019, AliasRequired = 5020
+        /// Possible status codes: AdapterNotExists = 10000, NameRequired = 5005, AdapterUrlRequired = 5013, SystemNameMustBeUnique = 5019, SystemNameRequired = 5020
         /// </remarks>
         /// <param name="adapterId">CDN adapter id to update</param>       
         /// <param name="adapter">CDN adapter Object</param>       

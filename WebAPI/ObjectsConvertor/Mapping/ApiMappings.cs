@@ -285,7 +285,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.BaseUrl, opt => opt.MapFrom(src => src.BaseUrl))
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive.HasValue ? src.IsActive.Value : true))
                .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertCDNAdapterSettings(src.Settings)))
-               .ForMember(dest => dest.Alias, opt => opt.MapFrom(src => src.SystemName))
+               .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
                .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret));
 
             Mapper.CreateMap<WebAPI.Api.CDNAdapter, KalturaCDNAdapterProfile>()
@@ -295,7 +295,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.BaseUrl, opt => opt.MapFrom(src => src.BaseUrl))
               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
               .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertCDNAdapterSettings(src.Settings)))
-              .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.Alias))
+              .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.SystemName))
               .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret));
 
             #endregion
