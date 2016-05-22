@@ -19,7 +19,7 @@
 	<script type="text/javascript">
 		kTestMe.registerService("announcement", "announcement", "", false);
 		kTestMe.registerService("apptoken", "appToken", "", false);
-		kTestMe.registerService("cdnadapterprofile", "cDNAdapterProfile", "", false);
+		kTestMe.registerService("cdnadapterprofile", "cdnAdapterProfile", "", false);
 		kTestMe.registerService("cdnpartnersettings", "cdnPartnerSettings", "", false);
 		kTestMe.registerService("cdvradapterprofile", "cDVRAdapterProfile", "", false);
 		kTestMe.registerService("channel", "channel", "", false);
@@ -35,6 +35,7 @@
 		kTestMe.registerService("ppv", "ppv", "", false);
 		kTestMe.registerService("recommendationprofile", "recommendationProfile", "", false);
 		kTestMe.registerService("recording", "recording", "", false);
+		kTestMe.registerService("session", "session", "", false);
 		kTestMe.registerService("userassetslistitem", "userAssetsListItem", "", false);
 	</script>
 	<script type="text/javascript">
@@ -89,8 +90,8 @@
 <body class="body-bg">
 	<ul id="kmcSubMenu">
 		<li class="active"><a href="#">Test Console</a></li>
-		<li><a href="../testmeDoc/index.php">API Documentation</a></li>
-		<li><a href="../xsdDoc/index.php">XML Schema</a></li>
+		<li><a href="../testmeDoc/">API Documentation</a></li>
+		<li><a href="../xsdDoc/">XML Schema</a></li>
 		<li><a href="client-libs.php">API Client Libraries</a></li>
 	</ul>
 	<div class="left">
@@ -117,7 +118,7 @@
 				</div>
 				<div class="param">
 					<label for="apiVersion">apiVersion (string):</label>
-					<input type="text" name="apiVersion" size="30" class="" value="3.6.287.38025" />
+					<input type="text" name="apiVersion" size="30" class="" value="3.6.287.19599" />
 					<input id="chk-apiVersion" type="checkbox" checked="checked" />
 				</div>
 				<div class="param">
@@ -138,7 +139,7 @@
 							<option value="multirequest">Multirequest</option>
 							<option value="announcement" title="announcement">announcement</option>
 							<option value="apptoken" title="appToken">appToken</option>
-							<option value="cdnadapterprofile" title="cDNAdapterProfile">cDNAdapterProfile</option>
+							<option value="cdnadapterprofile" title="cdnAdapterProfile">cdnAdapterProfile</option>
 							<option value="cdnpartnersettings" title="cdnPartnerSettings">cdnPartnerSettings</option>
 							<option value="cdvradapterprofile" title="cDVRAdapterProfile">cDVRAdapterProfile</option>
 							<option value="channel" title="channel">channel</option>
@@ -154,6 +155,7 @@
 							<option value="ppv" title="ppv">ppv</option>
 							<option value="recommendationprofile" title="recommendationProfile">recommendationProfile</option>
 							<option value="recording" title="recording">recording</option>
+							<option value="session" title="session">session</option>
 							<option value="userassetslistitem" title="userAssetsListItem">userAssetsListItem</option>
 						</select>
 						<img src="images/help.png" class="service-help help" />

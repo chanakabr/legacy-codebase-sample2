@@ -69,20 +69,20 @@
 							<li class="action"><a href="actions/apptoken.add.html" target="main">add</a></li>
 							<li class="action"><a href="actions/apptoken.startSession.html" target="main">startSession</a></li>
 						</ul></li>
-					<li class="service" id="cdnadapterprofile">
-						<img class="tree-item" src="images/collapsed.gif" />
-						<a class="tree-content" href="services/cdnadapterprofile.html" target="main">cDNAdapterProfile</a>
-						<ul class="actions">
-							<li class="action"><a href="actions/cdnadapterprofile.add.html" target="main">add</a></li>
-							<li class="action"><a href="actions/cdnadapterprofile.delete.html" target="main">delete</a></li>
-							<li class="action"><a href="actions/cdnadapterprofile.list.html" target="main">list</a></li>
-						</ul></li>
 					<li class="service" id="cdvradapterprofile">
 						<img class="tree-item" src="images/collapsed.gif" />
 						<a class="tree-content" href="services/cdvradapterprofile.html" target="main">cDVRAdapterProfile</a>
 						<ul class="actions">
 							<li class="action"><a href="actions/cdvradapterprofile.add.html" target="main">add</a></li>
 							<li class="action"><a href="actions/cdvradapterprofile.delete.html" target="main">delete</a></li>
+						</ul></li>
+					<li class="service" id="cdnadapterprofile">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/cdnadapterprofile.html" target="main">cdnAdapterProfile</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/cdnadapterprofile.add.html" target="main">add</a></li>
+							<li class="action"><a href="actions/cdnadapterprofile.delete.html" target="main">delete</a></li>
+							<li class="action"><a href="actions/cdnadapterprofile.list.html" target="main">list</a></li>
 						</ul></li>
 					<li class="service" id="cdnpartnersettings">
 						<img class="tree-item" src="images/collapsed.gif" />
@@ -141,11 +141,17 @@
 						<img class="tree-item" src="images/collapsed.gif" />
 						<a class="tree-content" href="services/ottuser.html" target="main">ottUser</a>
 						<ul class="actions">
+							<li class="action"><a href="actions/ottuser.activate.html" target="main">activate</a></li>
 							<li class="action"><a href="actions/ottuser.delete.html" target="main">delete</a></li>
+							<li class="action"><a href="actions/ottuser.facebookLogin.html" target="main">facebookLogin</a></li>
+							<li class="action"><a href="actions/ottuser.login.html" target="main">login</a></li>
+							<li class="action"><a href="actions/ottuser.loginWithPin.html" target="main">loginWithPin</a></li>
 							<li class="action"><a href="actions/ottuser.register.html" target="main">register</a></li>
+							<li class="action"><a href="actions/ottuser.resendActivationToken.html" target="main">resendActivationToken</a></li>
 							<li class="action"><a href="actions/ottuser.resetPassword.html" target="main">resetPassword</a></li>
+							<li class="action"><a href="actions/ottuser.setInitialPassword.html" target="main">setInitialPassword</a></li>
 							<li class="action"><a href="actions/ottuser.update.html" target="main">update</a></li>
-							<li class="action"><a href="actions/ottuser.validateToken.html" target="main">validateToken</a></li>
+							<li class="action"><a href="actions/ottuser.updateLoginData.html" target="main">updateLoginData</a></li>
 						</ul></li>
 					<li class="service" id="paymentgateway">
 						<img class="tree-item" src="images/collapsed.gif" />
@@ -180,6 +186,12 @@
 							<li class="action"><a href="actions/recording.get.html" target="main">get</a></li>
 							<li class="action"><a href="actions/recording.getContext.html" target="main">getContext</a></li>
 							<li class="action"><a href="actions/recording.list.html" target="main">list</a></li>
+						</ul></li>
+					<li class="service" id="session">
+						<img class="tree-item" src="images/collapsed.gif" />
+						<a class="tree-content" href="services/session.html" target="main">session</a>
+						<ul class="actions">
+							<li class="action"><a href="actions/session.switchUser.html" target="main">switchUser</a></li>
 						</ul></li>
 					<li class="service" id="userassetslistitem">
 						<img class="tree-item" src="images/collapsed.gif" />
@@ -243,6 +255,8 @@
 					<li id="object_KalturaItemPriceListResponse"><a href="objects/KalturaItemPriceListResponse.html" target="main">KalturaItemPriceListResponse</a></li>
 					<li id="object_KalturaListFollowDataTvSeriesResponse"><a href="objects/KalturaListFollowDataTvSeriesResponse.html" target="main">KalturaListFollowDataTvSeriesResponse</a></li>
 					<li id="object_KalturaListResponse"><a href="objects/KalturaListResponse.html" target="main">KalturaListResponse</a></li>
+					<li id="object_KalturaLoginResponse"><a href="objects/KalturaLoginResponse.html" target="main">KalturaLoginResponse</a></li>
+					<li id="object_KalturaLoginSession"><a href="objects/KalturaLoginSession.html" target="main">KalturaLoginSession</a></li>
 					<li id="object_KalturaLongValue"><a href="objects/KalturaLongValue.html" target="main">KalturaLongValue</a></li>
 					<li id="object_KalturaMediaFile"><a href="objects/KalturaMediaFile.html" target="main">KalturaMediaFile</a></li>
 					<li id="object_KalturaMediaImage"><a href="objects/KalturaMediaImage.html" target="main">KalturaMediaImage</a></li>
@@ -255,7 +269,6 @@
 					<li id="object_KalturaPPVItemPriceDetails"><a href="objects/KalturaPPVItemPriceDetails.html" target="main">KalturaPPVItemPriceDetails</a></li>
 					<li id="object_KalturaParentalRule"><a href="objects/KalturaParentalRule.html" target="main">KalturaParentalRule</a></li>
 					<li id="object_KalturaParentalRuleListResponse"><a href="objects/KalturaParentalRuleListResponse.html" target="main">KalturaParentalRuleListResponse</a></li>
-					<li id="object_KalturaPaymentMethod"><a href="objects/KalturaPaymentMethod.html" target="main">KalturaPaymentMethod</a></li>
 					<li id="object_KalturaPersonalAsset"><a href="objects/KalturaPersonalAsset.html" target="main">KalturaPersonalAsset</a></li>
 					<li id="object_KalturaPersonalAssetListResponse"><a href="objects/KalturaPersonalAssetListResponse.html" target="main">KalturaPersonalAssetListResponse</a></li>
 					<li id="object_KalturaPersonalFollowFeed"><a href="objects/KalturaPersonalFollowFeed.html" target="main">KalturaPersonalFollowFeed</a></li>
@@ -317,7 +330,7 @@
 					<li id="object_KalturaInboxMessageStatus"><a href="enums/KalturaInboxMessageStatus.html" target="main">KalturaInboxMessageStatus</a></li>
 					<li id="object_KalturaInboxMessageType"><a href="enums/KalturaInboxMessageType.html" target="main">KalturaInboxMessageType</a></li>
 					<li id="object_KalturaParentalRuleType"><a href="enums/KalturaParentalRuleType.html" target="main">KalturaParentalRuleType</a></li>
-					<li id="object_KalturaPaymentMethod"><a href="enums/KalturaPaymentMethod.html" target="main">KalturaPaymentMethod</a></li>
+					<li id="object_KalturaPaymentMethodType"><a href="enums/KalturaPaymentMethodType.html" target="main">KalturaPaymentMethodType</a></li>
 					<li id="object_KalturaPositionOwner"><a href="enums/KalturaPositionOwner.html" target="main">KalturaPositionOwner</a></li>
 					<li id="object_KalturaPurchaseStatus"><a href="enums/KalturaPurchaseStatus.html" target="main">KalturaPurchaseStatus</a></li>
 					<li id="object_KalturaRecordingOrderBy"><a href="enums/KalturaRecordingOrderBy.html" target="main">KalturaRecordingOrderBy</a></li>

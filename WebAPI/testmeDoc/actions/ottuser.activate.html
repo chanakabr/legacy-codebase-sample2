@@ -10,13 +10,13 @@
 		<h2>Kaltura API</h2>
 		<table class="action">
 			<tr>
-				<th colspan="5" class="service_action_title">resetPassword.resetPassword</th>
+				<th colspan="5" class="service_action_title">activate.activate</th>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Description:</td>
 			</tr>
 			<tr>
-				<td class="description" colspan="5">Send an e-mail with URL to enable the user to set new password.</td>
+				<td class="description" colspan="5">Activate the account by activation token</td>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Input Params</td>
@@ -31,14 +31,21 @@
 			<tr>
 				<td>partnerId</td>
 				<td><a href="../objects/int.html">int</a></td>
-				<td>Partner Identifier</td>
+				<td>The partner ID</td>
 				<td>V</td>
 				<td></td>
 			</tr>
 			<tr>
 				<td>username</td>
 				<td><a href="../objects/string.html">string</a></td>
-				<td>user name</td>
+				<td>Username of the user to activate</td>
+				<td>V</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>activationToken</td>
+				<td><a href="../objects/string.html">string</a></td>
+				<td>Activation token of the user</td>
 				<td>V</td>
 				<td></td>
 			</tr>
@@ -46,7 +53,7 @@
 				<td colspan="5" class="title">Output Type</td>
 			</tr>
 			<tr>
-				<td colspan="5"><a href="../objects/bool.html">bool</a></td>
+				<td colspan="5"><a href="../objects/KalturaOTTUser.html">KalturaOTTUser</a></td>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Example HTTP Hit</td>
@@ -58,7 +65,8 @@
 				<div class="post_fields">
 [
 	partnerId: value,
-	username: "value"
+	username: "value",
+	activationToken: "value"
 ]
 				</pre></td>
 			</tr>

@@ -10,13 +10,13 @@
 		<h2>Kaltura API</h2>
 		<table class="action">
 			<tr>
-				<th colspan="5" class="service_action_title">resetPassword.resetPassword</th>
+				<th colspan="5" class="service_action_title">switchUser.switchUser</th>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Description:</td>
 			</tr>
 			<tr>
-				<td class="description" colspan="5">Send an e-mail with URL to enable the user to set new password.</td>
+				<td class="description" colspan="5">Switching the user in the session by generating a new session for a new user within the same household</td>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Input Params</td>
@@ -29,16 +29,9 @@
 				<th class="subtitle">Default Value</th>
 			</tr>
 			<tr>
-				<td>partnerId</td>
-				<td><a href="../objects/int.html">int</a></td>
-				<td>Partner Identifier</td>
-				<td>V</td>
-				<td></td>
-			</tr>
-			<tr>
-				<td>username</td>
+				<td>userIdToSwitch</td>
 				<td><a href="../objects/string.html">string</a></td>
-				<td>user name</td>
+				<td>The identifier of the user to change</td>
 				<td>V</td>
 				<td></td>
 			</tr>
@@ -46,7 +39,7 @@
 				<td colspan="5" class="title">Output Type</td>
 			</tr>
 			<tr>
-				<td colspan="5"><a href="../objects/bool.html">bool</a></td>
+				<td colspan="5"><a href="../objects/KalturaLoginSession.html">KalturaLoginSession</a></td>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Example HTTP Hit</td>
@@ -57,8 +50,7 @@
 				<pre>
 				<div class="post_fields">
 [
-	partnerId: value,
-	username: "value"
+	userIdToSwitch: "value"
 ]
 				</pre></td>
 			</tr>

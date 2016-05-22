@@ -10,13 +10,13 @@
 		<h2>Kaltura API</h2>
 		<table class="action">
 			<tr>
-				<th colspan="5" class="service_action_title">resetPassword.resetPassword</th>
+				<th colspan="5" class="service_action_title">updateLoginData.updateLoginData</th>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Description:</td>
 			</tr>
 			<tr>
-				<td class="description" colspan="5">Send an e-mail with URL to enable the user to set new password.</td>
+				<td class="description" colspan="5">Given a user name and existing password, change to a new password.</td>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Input Params</td>
@@ -29,16 +29,23 @@
 				<th class="subtitle">Default Value</th>
 			</tr>
 			<tr>
-				<td>partnerId</td>
-				<td><a href="../objects/int.html">int</a></td>
-				<td>Partner Identifier</td>
+				<td>username</td>
+				<td><a href="../objects/string.html">string</a></td>
+				<td>user name</td>
 				<td>V</td>
 				<td></td>
 			</tr>
 			<tr>
-				<td>username</td>
+				<td>oldPassword</td>
 				<td><a href="../objects/string.html">string</a></td>
-				<td>user name</td>
+				<td>old password</td>
+				<td>V</td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>newPassword</td>
+				<td><a href="../objects/string.html">string</a></td>
+				<td>new password</td>
 				<td>V</td>
 				<td></td>
 			</tr>
@@ -57,8 +64,9 @@
 				<pre>
 				<div class="post_fields">
 [
-	partnerId: value,
-	username: "value"
+	username: "value",
+	oldPassword: "value",
+	newPassword: "value"
 ]
 				</pre></td>
 			</tr>
