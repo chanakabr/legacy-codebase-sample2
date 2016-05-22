@@ -4735,6 +4735,7 @@
             <summary>
             Login response
             </summary>
+            
         </member>
         <member name="P:WebAPI.Models.Users.KalturaLoginSession.KS">
             <summary>
@@ -5426,7 +5427,7 @@
             Wrong username or password = 1011, User exists = 2014
             </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.OttUserController.sendPassword(System.Int32,System.String)">
+        <member name="M:WebAPI.Controllers.OttUserController.resetPassword(System.Int32,System.String)">
             <summary>
             Send an e-mail with URL to enable the user to set new password.
             </summary>        
@@ -5434,7 +5435,16 @@
             <param name="username">user name</param>
             <remarks></remarks>
         </member>
-        <member name="M:WebAPI.Controllers.OttUserController.resetPassword(System.Int32,System.String,System.String)">
+        <member name="M:WebAPI.Controllers.OttUserController.setInitialPassword(System.Int32,System.String,System.String)">
+            <summary>
+            Renew the user's password after validating the token that sent as part of URL in e-mail.
+            </summary>        
+            <param name="partnerId">Partner Identifier</param>
+            <param name="token">Token that sent by e-mail</param>
+            <param name="password">New password</param>
+            <remarks>Possible status codes: User does not exist = 2000</remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.OttUserController.setPassword(System.Int32,System.String,System.String)">
             <summary>
             Renew the user's password without validating the existing password, used internally after validating token that sent as part of URL in e-mail.
             </summary>        
@@ -5501,7 +5511,7 @@
             Activate the account by activation token
             </summary>
             <param name="partnerId">The partner ID</param>
-            <param name="activation_token">Activation token of the user</param>
+            <param name="activationToken">Activation token of the user</param>
             <param name="username">Username of the user to activate</param>
             <returns></returns>
         </member>

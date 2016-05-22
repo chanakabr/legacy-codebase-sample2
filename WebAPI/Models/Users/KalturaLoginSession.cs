@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Schema;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Users
@@ -12,6 +13,8 @@ namespace WebAPI.Models.Users
     /// <summary>
     /// Login response
     /// </summary>
+    /// 
+    [OldStandard("refreshToken", "refresh_token")]
     public class KalturaLoginSession : KalturaOTTObject
     {
         /// <summary>
@@ -25,9 +28,9 @@ namespace WebAPI.Models.Users
         /// <summary>
         /// Refresh Token
         /// </summary>
-        [DataMember(Name = "refresh_token")]
-        [JsonProperty("refresh_token")]
-        [XmlElement(ElementName = "refresh_token")]
+        [DataMember(Name = "refreshToken")]
+        [JsonProperty("refreshToken")]
+        [XmlElement(ElementName = "refreshToken")]
         public string RefreshToken { get; set; }
 
         
