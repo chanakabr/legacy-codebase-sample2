@@ -6,13 +6,16 @@ using System.Configuration;
 using System.Text.RegularExpressions;
 using KLogMonitor;
 using System.Reflection;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ODBCWrapper
 {
     public class Connection
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
+        private static List<string> db_Slaves = (!string.IsNullOrEmpty(TCMClient.Settings.Instance.GetValue<string>("DB_Slaves_IPs"))) ? TCMClient.Settings.Instance.GetValue<string>("DB_Slaves_List").Split(':').ToList<string>() : null;
+        
 
         public Connection()
         {
@@ -32,6 +35,7 @@ namespace ODBCWrapper
         static public string GetConnectionStringByKey(string sKey, bool bIsWritable)
         {
             string sRet = "";
+            string applicationIntent = (bIsWritable) ? "ReadWrite" : "ReadOnly";
 
             if (Utils.GetTcmConfigValue(sKey) != string.Empty)
             {
@@ -54,7 +58,53 @@ namespace ODBCWrapper
             {
                 if (!sRet.EndsWith(";")) sRet += ";";
                 if (!sRet.ToLower().Contains("multisubnetfailover")) sRet += "MultiSubNetFailover=Yes;";
-                if (!sRet.ToLower().Contains("applicationintent")) sRet += "ApplicationIntent=ReadWrite;";
+                if (!sRet.ToLower().Contains("applicationintent")) sRet += "ApplicationIntent=" + applicationIntent + ";";
+                
+                // route ReadOnly to slaves
+                if (db_Slaves != null && db_Slaves.Count > 0 && !bIsWritable)
+                {
+                    Random rnd = new Random();
+                    bool isSlaveOK = false;
+
+                    while (!isSlaveOK)
+                    {
+                        int rndIndex = rnd.Next(0, db_Slaves.Count);
+                        string slaveIP = db_Slaves[rndIndex];
+
+                        sRet = Regex.Replace(sRet, "AmazonSQL", slaveIP, RegexOptions.IgnoreCase);
+
+                        // check slave connection
+                        SqlConnection con = new SqlConnection(sRet);
+                        using (SqlDataAdapter da = new SqlDataAdapter())
+                        {
+                            using (SqlCommand command = new SqlCommand())
+                            {
+                                try
+                                {
+                                    con.Open();
+                                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                                    command.CommandText = "SP_Reset_Connection";
+                                    command.Connection = con;
+
+                                    SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
+                                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table })
+                                    {
+                                        int res = command.ExecuteNonQuery();
+                                    }
+
+                                    isSlaveOK = true;
+                                }
+                                catch (Exception ex)
+                                {
+                                    log.Error("Error while opening connection to DB", ex);
+
+                                    // clear current connection pool
+                                    System.Data.SqlClient.SqlConnection.ClearPool(con);
+                                }
+                            }
+                        }
+                    }
+                }
             }
             else
             {
