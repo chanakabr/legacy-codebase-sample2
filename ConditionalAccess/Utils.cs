@@ -4596,7 +4596,7 @@ namespace ConditionalAccess
             return response;
         }
 
-        internal static string GetDeviceTyprByUDID(int groupId, string udid)
+        internal static string GetDeviceTypeByUDID(int groupId, string udid)
         {
             string deviceType = string.Empty;
             try
@@ -4624,13 +4624,12 @@ namespace ConditionalAccess
             catch (Exception ex)
             {
                 log.ErrorFormat("GetDeviceTyprByUDID: failed calling WS API. groupId = {0}", groupId, ex);
-                return null;
             }
 
             return deviceType;
         }
 
-        internal static TvinciAPI.CDNAdapterResponse GetRelevantCDNByStremingCompanyId(int groupId, int fileStreamingCompanyId)
+        internal static TvinciAPI.CDNAdapterResponse GetRelevantCDN(int groupId, int fileStreamingCompanyId, ConditionalAccess.TvinciAPI.eAssetTypes assetType)
         {
             TvinciAPI.CDNAdapterResponse adapterResponse = null;
 
@@ -4646,7 +4645,7 @@ namespace ConditionalAccess
             {
                 log.ErrorFormat("GetLicensedLink: missing WS API credentials or url. groupId = {0}", groupId);
                 adapterResponse.Status.Code = (int)eResponseStatus.Error;
-                adapterResponse.Status.Message = "Could not connect to another WS";
+                adapterResponse.Status.Message = "Error";
                 return adapterResponse;
             }
 
@@ -4655,7 +4654,7 @@ namespace ConditionalAccess
                 // if nStreamingCompany is 0 - call api service for getting the default adapter / streaming company
                 if (fileStreamingCompanyId == 0)
                 {
-                    adapterResponse = api.GetGroupDefaultCDNAdapter(sWSUserName, sWSPass, ConditionalAccess.TvinciAPI.eAssetTypes.MEDIA);
+                    adapterResponse = api.GetGroupDefaultCDNAdapter(sWSUserName, sWSPass, assetType);
                 }
                 // else - call api service for getting the adapter / streaming company with the nStreamingCompany ID                
                 else
@@ -4667,7 +4666,7 @@ namespace ConditionalAccess
             {
                 log.ErrorFormat("GetLicensedLink: failed calling WS API. groupId = {0}", groupId, ex);
                 adapterResponse.Status.Code = (int)eResponseStatus.Error;
-                adapterResponse.Status.Message = "Failed to connect to another WS";
+                adapterResponse.Status.Message = "Error";
                 return adapterResponse;
             }
 
@@ -4675,7 +4674,7 @@ namespace ConditionalAccess
             {
                 log.ErrorFormat("GetLicensedLink: failed to get adapter response from WS API. groupId = {0}, adapterId = {1}", fileStreamingCompanyId, groupId);
                 adapterResponse.Status.Code = (int)eResponseStatus.Error;
-                adapterResponse.Status.Message = "Could not get response from another WS";
+                adapterResponse.Status.Message = "Error";
                 return adapterResponse;
             }
             if (adapterResponse.Status.Code != (int)eResponseStatus.OK)

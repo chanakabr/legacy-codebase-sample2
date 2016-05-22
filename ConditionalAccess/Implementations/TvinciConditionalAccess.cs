@@ -566,9 +566,10 @@ namespace ConditionalAccess
                 int fileMainStreamingCoID = 0; // CDN Streaming id
                 int mediaId = 0;
                 LicensedLinkResponse oLicensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode, 
-                    eObjectType.Media, ref fileMainStreamingCoID, ref mediaId);
+                    eObjectType.EPG, ref fileMainStreamingCoID, ref mediaId);
+                
                 //GetLicensedLink return empty link no need to continue
-                if (oLicensedLinkResponse == null || string.IsNullOrEmpty(oLicensedLinkResponse.mainUrl))
+                if (oLicensedLinkResponse == null || oLicensedLinkResponse.Status == null || oLicensedLinkResponse.Status.Code != (int)eResponseStatus.OK)
                 {
                     throw new Exception("GetLicensedLinks returned empty response.");
                 }
@@ -636,29 +637,23 @@ namespace ConditionalAccess
                 }
 
                 // get adapter
-                var adapterResponse = Utils.GetRelevantCDNByStremingCompanyId(m_nGroupID, fileMainStreamingCoID);
+                var adapterResponse = Utils.GetRelevantCDN(m_nGroupID, fileMainStreamingCoID, TvinciAPI.eAssetTypes.EPG);
 
                 // if adapter response is not null and is adapter (has an adapter url) - call the adapter
                 if (adapterResponse.Adapter != null && !string.IsNullOrEmpty(adapterResponse.Adapter.AdapterUrl))
                 {
                     // get device type
-                    string deviceType = Utils.GetDeviceTyprByUDID(m_nGroupID, sDEVICE_NAME);
-                    if (deviceType == null)
-                    {
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed to get device type");
-                    }
+                    string deviceType = Utils.GetDeviceTypeByUDID(m_nGroupID, sDEVICE_NAME);
 
                     int actionType = Utils.MapActionTypeForAdapter(eformat);
 
-                    // TODO - find the url
-                    string url1 = "";
-
-                    var link = CDNAdapterController.GetInstance().GetEpgLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGUID, url1, deviceType, nProgramId, mediaId, nMediaFileID,
+                    var link = CDNAdapterController.GetInstance().GetEpgLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGUID, sBasicLink, deviceType, nProgramId, mediaId, nMediaFileID,
                         TVinciShared.DateUtils.DateTimeToUnixTimestamp(scheduling.StartDate), actionType, sUserIP);
 
                     if (link != null)
                     {
                         response.mainUrl = link.Url;
+                        response.status = eLicensedLinkStatus.OK.ToString();
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     }
                 }
