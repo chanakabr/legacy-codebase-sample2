@@ -322,6 +322,18 @@ namespace Catalog.Request
             }
 
             bool isTerminateRequest = false;
+
+            if (string.IsNullOrEmpty(m_oMediaPlayRequestData.m_sAction))
+            {
+                oMediaMarkResponse = new MediaMarkResponse()
+                {
+                    status = new Status((int)eResponseStatus.Error,
+                        "m_sAction is null or empty")
+                };
+
+                return oMediaMarkResponse;
+            }
+
             if (Enum.TryParse(m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out mediaMarkAction))
             {
                 if (!Catalog.IsAnonymousUser(m_oMediaPlayRequestData.m_sSiteGuid))
