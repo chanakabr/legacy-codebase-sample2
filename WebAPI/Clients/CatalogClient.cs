@@ -1063,15 +1063,15 @@ namespace WebAPI.Clients
                 m_oMediaPlayRequestData = new MediaPlayRequestData()
                 {
                     m_eAssetType = CatalogAssetType,
-                    m_nLoc = PlayerAssetData.location,
+                    m_nLoc = PlayerAssetData.getLocation(),
                     m_nMediaFileID = (int)fileId,
                     m_sAssetID = assetId,
                     m_sAction = PlayerAssetData.action,
                     m_sSiteGuid = siteGuid,
                     m_sUDID = udid,
-                    m_nAvgBitRate = PlayerAssetData.averageBitRate,
-                    m_nCurrentBitRate = PlayerAssetData.currentBitRate,
-                    m_nTotalBitRate = PlayerAssetData.totalBitRate
+                    m_nAvgBitRate = PlayerAssetData.getAverageBitRate(),
+                    m_nCurrentBitRate = PlayerAssetData.getCurrentBitRate(),
+                    m_nTotalBitRate = PlayerAssetData.getTotalBitRate()
                 }
             };
             
