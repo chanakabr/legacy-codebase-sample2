@@ -20,7 +20,7 @@ namespace ODBCWrapper
         {
             m_sProcedureName = string.Format("{0}{1}", Utils.dBVersionPrefix, sProcedureName);
             m_Parameters = new Dictionary<string, object>();
-            m_bIsWritable = false;
+            m_bIsWritable = (sProcedureName.ToLower().StartsWith("get") && !sProcedureName.ToLower().StartsWith("getorinsert")) ? false : true;
         }
 
         public void SetWritable(bool bIsWritable)
@@ -55,6 +55,8 @@ namespace ODBCWrapper
             }
 
             m_Parameters.Add(key, value);
+
+            Utils.CheckDBReadWrite(key, value,  m_sProcedureName, m_bIsWritable, ref Utils.UseWritable);
         }
 
         /// <summary>
@@ -73,17 +75,23 @@ namespace ODBCWrapper
             {
                 m_Parameters.Add(sKey, DBNull.Value);
             }
+
+            Utils.CheckDBReadWrite(sKey, oValue, m_sProcedureName, m_bIsWritable, ref Utils.UseWritable);
         }
 
         public void AddXMLParameter<T>(string sKey, List<T> oListValue, string colName)
         {
             m_Parameters.Add(sKey, CreateXML<T>(oListValue, colName));
+
+            Utils.CheckDBReadWrite(sKey, oListValue, m_sProcedureName, m_bIsWritable, ref Utils.UseWritable);
         }
 
 
         public void AddIDListParameter<T>(string sKey, List<T> oListValue, string colName)
         {
             m_Parameters.Add(sKey, CreateDataTable<T>(oListValue, colName));
+
+            Utils.CheckDBReadWrite(sKey, oListValue, m_sProcedureName, m_bIsWritable, ref Utils.UseWritable);
         }
 
         public void AddKeyValueListParameter<T1, T2>(string sKey, Dictionary<T1, List<T2>> oListKeyValue, string colNameKey, string colNameValue)
@@ -125,6 +133,8 @@ namespace ODBCWrapper
             foreach (Int32 id in ids)
             {
                 table.Rows.Add(id);
+
+                Utils.CheckDBReadWrite(colName, id, m_sProcedureName, m_bIsWritable, ref Utils.UseWritable);
             }
             return table;
         }
@@ -243,7 +253,7 @@ namespace ODBCWrapper
             {
                 command.Parameters.Add(new SqlParameter(item, m_Parameters[item]));
             }
-            string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable);
+            string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
             if (sConn == "")
             {
                 log.ErrorFormat("Empty connection string. could not run query. m_sProcedureName: {0}", m_sProcedureName != null ? m_sProcedureName.ToString() : string.Empty);
@@ -261,16 +271,14 @@ namespace ODBCWrapper
                     SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
                     using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table })
                     {
-                        SqlDataReader reader = command.ExecuteReader();
-
-                        if (reader.HasRows)
+                        using (SqlDataReader reader = command.ExecuteReader())
                         {
-                            result = new DataTable();
-                            result.Load(reader);
+                            if (reader.HasRows)
+                            {
+                                result = new DataTable();
+                                result.Load(reader);
+                            }
                         }
-
-                        reader.Close();
-                        reader.Dispose();
                     }
                 }
                 catch (Exception ex)
@@ -297,7 +305,7 @@ namespace ODBCWrapper
             {
                 command.Parameters.Add(new SqlParameter(item, m_Parameters[item]));
             }
-            string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable);
+            string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
             if (sConn == "")
             {
                 log.ErrorFormat("Empty connection string. could not run query. m_sProcedureName: {0}", m_sProcedureName != null ? m_sProcedureName.ToString() : string.Empty);
@@ -351,7 +359,7 @@ namespace ODBCWrapper
             sqlReturnedValueParam.Direction = ParameterDirection.ReturnValue;
             command.Parameters.Add(sqlReturnedValueParam);
 
-            string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable);
+            string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
             if (sConn == "")
             {
                 log.ErrorFormat("Empty connection string. could not run query. m_sProcedureName: {0}", m_sProcedureName != null ? m_sProcedureName.ToString() : string.Empty);
@@ -405,7 +413,7 @@ namespace ODBCWrapper
             sqlReturnedValueParam.Direction = ParameterDirection.ReturnValue;
             command.Parameters.Add(sqlReturnedValueParam);
 
-            string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable);
+            string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
             if (sConn == "")
             {
                 log.ErrorFormat("Empty connection string. could not run query. m_sProcedureName: {0}", m_sProcedureName != null ? m_sProcedureName.ToString() : string.Empty);
@@ -452,7 +460,7 @@ namespace ODBCWrapper
                 command.Parameters.Add(new SqlParameter(item, m_Parameters[item]));
             }
 
-            string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable);
+            string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
             if (sConn == "")
             {
                 log.ErrorFormat("Empty connection string. could not run query. m_sProcedureName: {0}", m_sProcedureName != null ? m_sProcedureName.ToString() : string.Empty);
@@ -515,7 +523,7 @@ namespace ODBCWrapper
                     command.Parameters.Add(new SqlParameter(item, m_Parameters[item]));
                 }
             }
-            string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable);
+            string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
             if (sConn == "")
             {
                 log.ErrorFormat("Empty connection string. could not run query. m_sProcedureName: {0}", m_sProcedureName != null ? m_sProcedureName.ToString() : string.Empty);

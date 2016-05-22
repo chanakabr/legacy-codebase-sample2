@@ -6,6 +6,7 @@ using KLogMonitor;
 using System.Reflection;
 using System.Data.SqlClient;
 using System.Text.RegularExpressions;
+using System.Linq;
 
 namespace ODBCWrapper
 {
@@ -15,8 +16,10 @@ namespace ODBCWrapper
 
         private const string REGEX_TABLE_NAME = @"\bjoin\s+(?<Retrieve>[a-zA-Z\._\d]+)\b|\bfrom\s+(?<Retrieve>[a-zA-Z\._\d]+)\b|\bupdate\s+(?<Update>[a-zA-Z\._\d]+)\b|\binsert\s+(?:\binto\b)?\s+(?<Insert>[a-zA-Z\._\d]+)\b|\btruncate\s+table\s+(?<Delete>[a-zA-Z\._\d]+)\b|\bdelete\s+(?:\bfrom\b)?\s+(?<Delete>[a-zA-Z\._\d]+)\b";
         public static readonly DateTime FICTIVE_DATE = new DateTime(2000, 1, 1);
-
+        static List<string> dbWriteLockParams = (!string.IsNullOrEmpty(TCMClient.Settings.Instance.GetValue<string>("DB_WriteLock_Params"))) ? TCMClient.Settings.Instance.GetValue<string>("DB_WriteLock_Params").Split(';').ToList<string>() : null;
         static public string dBVersionPrefix = (!string.IsNullOrEmpty(TCMClient.Settings.Instance.GetValue<string>("DB_Settings.prefix"))) ? string.Concat("__", TCMClient.Settings.Instance.GetValue<string>("DB_Settings.prefix"), "__") : string.Empty;
+        [ThreadStatic]
+        public static bool UseWritable;
 
         static public string GetSafeStr(object o)
         {
@@ -982,6 +985,106 @@ namespace ODBCWrapper
             {
                 return res;
             }
+        }
+		
+		public static void CheckDBReadWrite(string sKey, object oValue, object executer, bool isWritable, ref bool useWriteable)
+        {
+            //Logger.Logger.Log("DBLock ", "m_bUseWritable is '" + useWriteable + "',For: " + executer, "ODBC_DBLock");
+            //m_bIsWritable || m_bUseWritable
+            if (!useWriteable)
+            {
+                Utils.UseWritable = ReadWriteLock(sKey, oValue, executer, isWritable);
+                //if (useWriteable) Logger.Logger.Log("DBLock ", "m_bUseWritable changed to '" + Utils.UseWritable + "', for: " + executer, "ODBC_DBLock");
+            }
+        }
+
+        public static bool ReadWriteLock(string sKey, object oValue, object executer, bool isWritable)
+        {
+            bool bRet = false;
+            try
+            {
+                string cbKeyPrefix = "DB_WriteLock_";
+
+                //Logger.Logger.Log("DBLock; Executer=" + executer + ", isWritable=" + isWritable, "none", "ODBC_Net");
+
+                if (dbWriteLockParams != null)
+                {
+
+                    if (dbWriteLockParams.Any(x => x.ToLower().Equals(sKey.ToLower().TrimStart('@'))))
+                    {
+                        //Couchbase.CouchbaseClient cbClient = CouchbaseManager.CouchbaseManager.GetInstance(CouchbaseManager.eCouchbaseBucket.CACHE);
+                        CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
+
+
+                        // ReadOnly request
+                        if (!isWritable)
+                        {
+                            try
+                            {
+                                if (oValue is System.Collections.IList)
+                                {
+                                    foreach (var val in (oValue as System.Collections.IList))
+                                    {
+                                        //Logger.Logger.Log("DBLock ", "Check lock for " + executer + ", Key: " + cbKeyPrefix + val, "ODBC_DBLock");
+                                        if (!string.IsNullOrEmpty(cbManager.Get<string>(cbKeyPrefix + val)))
+                                        {
+                                            //Logger.Logger.Log("DBLock ", "Key exist for " + executer + ", Key: " + cbKeyPrefix + val, "ODBC_DBLock");
+                                            bRet = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    //Logger.Logger.Log("DBLock ", "Check lock for " + executer + ", Key: " + cbKeyPrefix + oValue, "ODBC_DBLock");
+                                    bool b = !string.IsNullOrEmpty(cbManager.Get<string>(cbKeyPrefix + oValue.ToString()));
+                                    if (b)
+                                    {
+                                        //Logger.Logger.Log("DBLock ", "Key exist for " + executer + ", Key: " + cbKeyPrefix + oValue, "ODBC_DBLock");
+                                        bRet = true;
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                //Logger.Logger.Log("DBLock; Executer=" + executer + ", isWritable=" + isWritable, ex.ToString(), "ODBC_DBLock");
+                            }
+                        }
+
+                        // Write request
+                        else
+                        {
+                            try
+                            {
+                                if (oValue is System.Collections.IList)
+                                {
+                                    foreach (string val in oValue as IList<string>)
+                                    {
+                                        bool res = cbManager.Set(cbKeyPrefix + val, executer, (uint)TCMClient.Settings.Instance.GetValue<int>("DB_WriteLock_TTL"));
+                                        //Logger.Logger.Log("DBLock ", "Created (" + res + ") for " + executer + ", with Key: " + cbKeyPrefix + val, "ODBC_DBLock");
+                                    }
+                                }
+                                else
+                                {
+                                    bool res = cbManager.Set(cbKeyPrefix + oValue, executer, (uint)TCMClient.Settings.Instance.GetValue<int>("DB_WriteLock_TTL"));
+                                    //Logger.Logger.Log("DBLock ", "Created (" + res + ") for " + executer + ", with Key: " + cbKeyPrefix + oValue, "ODBC_DBLock");
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                //Logger.Logger.Log("DBLock; Executer=" + executer + ", isWritable=" + isWritable, ex.ToString(), "ODBC_DBLock");
+                            }
+
+                            bRet = true; // created a session lock for a write lock
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                //Logger.Logger.Log("DBLock", ex.ToString(), "ODBC_DBLock");
+            }
+            return bRet;
         }
     }
 }

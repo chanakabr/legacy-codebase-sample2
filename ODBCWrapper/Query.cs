@@ -208,6 +208,9 @@ namespace ODBCWrapper
 
             m_hashTable[table_ind] = value;
             table_ind++;
+
+            Utils.CheckDBReadWrite(parameterName, value, m_sOraStr, m_bIsWritable, ref Utils.UseWritable);
+
             return true;
         }
 
