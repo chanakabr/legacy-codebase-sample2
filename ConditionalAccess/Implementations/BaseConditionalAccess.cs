@@ -17854,15 +17854,30 @@ namespace ConditionalAccess
         public ApiObjects.TimeShiftedTv.DomainQuotaResponse GetDomainQuota(string userID, long domainID)
         {
             ApiObjects.TimeShiftedTv.DomainQuotaResponse response = new DomainQuotaResponse();
+
             try
             {
-
                 ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userID, ref domainID);
 
                 if (validationStatus.Code != (int)eResponseStatus.OK)
                 {
                     log.DebugFormat("User or Domain not valid, DomainID: {0}, UserID: {1}", domainID, userID);
                     response.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
+                    return response;
+                }
+
+                TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
+                if (accountSettings == null || !accountSettings.IsCdvrEnabled.HasValue || !accountSettings.IsCdvrEnabled.Value)
+                {
+                    log.DebugFormat("account CDVR not enabled, DomainID: {0}, UserID: {1}", domainID, userID);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AccountCdvrNotEnabled, eResponseStatus.AccountCdvrNotEnabled.ToString());
+                    return response;
+                }
+
+                if (!IsServiceAllowed(m_nGroupID, (int)domainID, eService.NPVR))
+                {
+                    log.DebugFormat("Premium Service not allowed, DomainID: {0}, UserID: {1}, Service: {2}", domainID, userID, eService.NPVR.ToString());
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ServiceNotAllowed, eResponseStatus.ServiceNotAllowed.ToString());
                     return response;
                 }
 
