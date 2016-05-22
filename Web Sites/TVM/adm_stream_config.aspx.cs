@@ -61,7 +61,7 @@ public partial class adm_stream_config : System.Web.UI.Page
     protected void FillTheTableEditor(ref DBTableWebEditor theTable, string sOrderBy)
     {
         Int32 nGroupID = LoginManager.GetLoginGroupID();
-        theTable += "select sc.status, sc.id as 'CDN ID', sc.alias, sc.STREAMING_COMPANY_NAME as 'Name' ,sc.id, case when sc.is_active is null then 1 else is_active end 'is_active', case when len(adapter_url)>0 then 'Yes' else 'No' end 'Is_Adapter' from streaming_companies sc where sc.status<>2 and";
+        theTable += "select sc.status, sc.id as 'CDN ID', sc.alias as 'SystemName', sc.STREAMING_COMPANY_NAME as 'Name' ,sc.id, case when sc.is_active is null then 1 else is_active end 'is_active', case when len(adapter_url)>0 then 'Yes' else 'No' end 'Is_Adapter' from streaming_companies sc where sc.status<>2 and";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("sc.group_id", "=", nGroupID);
         /*
         if (LoginManager.GetLoginGroupID() == 1)

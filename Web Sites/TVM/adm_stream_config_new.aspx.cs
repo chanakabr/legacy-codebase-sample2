@@ -47,7 +47,7 @@ public partial class adm_stream_config_new : System.Web.UI.Page
                 {
                     if (IsAliasExists(coll["1_val"], adapterId))
                     {
-                        Session["error_msg"] = "Alias must be unique";
+                        Session["error_msg"] = "System Name must be unique";
                     }
                     else
                     {
@@ -143,7 +143,7 @@ public partial class adm_stream_config_new : System.Web.UI.Page
         theRecord.AddRecord(dr_name);
 
         DataRecordShortTextField dr_alias = new DataRecordShortTextField("ltr", true, 60, 128);
-        dr_alias.Initialize("Alias", "adm_table_header_nbg", "FormInput", "ALIAS", true);
+        dr_alias.Initialize("SystemName", "adm_table_header_nbg", "FormInput", "ALIAS", true);
         theRecord.AddRecord(dr_alias);
 
         DataRecordShortTextField dr_adapter_url = new DataRecordShortTextField("ltr", true, 60, 128);
@@ -215,7 +215,7 @@ public partial class adm_stream_config_new : System.Web.UI.Page
                 res = true;
                 int existingAdapterId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "ID", 0);
                 string existingAdapterName = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "STREAMING_COMPANY_NAME", 0);
-                log.DebugFormat("Alias already exists for adaptr with id: {0}, name: {1}", existingAdapterId, existingAdapterName);
+                log.DebugFormat("SystemName already exists for adaptr with id: {0}, name: {1}", existingAdapterId, existingAdapterName);
             }
         }
         selectQuery.Finish();
