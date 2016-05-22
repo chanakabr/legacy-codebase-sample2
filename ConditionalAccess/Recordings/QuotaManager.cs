@@ -133,19 +133,19 @@ namespace Recordings
         {
             Status status = new Status((int)eResponseStatus.OK);
             bool shouldContinue = true;
-            HashSet<long> currentIds = new HashSet<long>();
+            HashSet<long> currentEPGIds = new HashSet<long>();
             int minutesLeft = totalMinutes;
 
             if (currentRecordings != null)
             {
                 foreach (var recording in currentRecordings)
                 {
-                    currentIds.Add(recording.Id);
+                    currentEPGIds.Add(recording.EpgId);
                 }
             }
 
             // Remove all recordings that already exist for the household
-            newRecordings.RemoveAll(recording => currentIds.Contains(recording.Id));
+            newRecordings.RemoveAll(recording => currentEPGIds.Contains(recording.EpgId));
 
             status = DeductRecordings(currentRecordings, ref shouldContinue, ref minutesLeft);
 
