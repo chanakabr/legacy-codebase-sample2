@@ -3650,7 +3650,7 @@ namespace DAL
             return adapterResponse;
         }
 
-        public static CDNAdapter SetCDNAdapter(int groupID, CDNAdapter adapter)
+        public static CDNAdapter SetCDNAdapter(int groupID, int adapterID, CDNAdapter adapter)
         {
             CDNAdapter adapterResponse = null;
             try
@@ -3658,7 +3658,7 @@ namespace DAL
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_CDNAdapter");
                 sp.SetConnectionKey("CONNECTION_STRING");
                 sp.AddParameter("@groupID", groupID);
-                sp.AddParameter("@ID", adapter.ID);
+                sp.AddParameter("@ID", adapterID);
                 sp.AddParameter("@name", adapter.Name);
                 sp.AddParameter("@alias", adapter.SystemName);
                 sp.AddParameter("@shared_secret", adapter.SharedSecret);
