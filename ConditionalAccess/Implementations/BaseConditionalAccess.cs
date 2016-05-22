@@ -17081,7 +17081,7 @@ namespace ConditionalAccess
             try
             {
                 long domainID = 0;
-                recordingResponse = QueryRecords(userID, new List<long>() { epgID }, ref domainID);
+                recordingResponse = QueryRecords(userID, new List<long>() { epgID }, ref domainID, true);
                 if (recordingResponse.Status.Code != (int)eResponseStatus.OK || recordingResponse.TotalItems == 0)
                 {
                     log.DebugFormat("RecordingResponse status not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
@@ -17134,7 +17134,7 @@ namespace ConditionalAccess
             return recording;
         }
 
-        public RecordingResponse QueryRecords(string userID, List<long> epgIDs, ref long domainID)
+        public RecordingResponse QueryRecords(string userID, List<long> epgIDs, ref long domainID, bool isAggregative)
         {
             RecordingResponse response = new RecordingResponse();
             try
@@ -17217,7 +17217,8 @@ namespace ConditionalAccess
                     recording => recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK).ToList();
 
                 var temporaryStatus =
-                    QuotaManager.Instance.CheckQuotaByTotalMinutes(this.m_nGroupID, domainID, totalMinutes, recordingsToCheckQuota, currentRecordings);
+                    QuotaManager.Instance.CheckQuotaByTotalMinutes(this.m_nGroupID, domainID, totalMinutes, isAggregative, 
+                    recordingsToCheckQuota, currentRecordings);
 
                 if (temporaryStatus == null)
                 {
@@ -17853,15 +17854,30 @@ namespace ConditionalAccess
         public ApiObjects.TimeShiftedTv.DomainQuotaResponse GetDomainQuota(string userID, long domainID)
         {
             ApiObjects.TimeShiftedTv.DomainQuotaResponse response = new DomainQuotaResponse();
+
             try
             {
-
                 ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userID, ref domainID);
 
                 if (validationStatus.Code != (int)eResponseStatus.OK)
                 {
                     log.DebugFormat("User or Domain not valid, DomainID: {0}, UserID: {1}", domainID, userID);
                     response.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
+                    return response;
+                }
+
+                TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
+                if (accountSettings == null || !accountSettings.IsCdvrEnabled.HasValue || !accountSettings.IsCdvrEnabled.Value)
+                {
+                    log.DebugFormat("account CDVR not enabled, DomainID: {0}, UserID: {1}", domainID, userID);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AccountCdvrNotEnabled, eResponseStatus.AccountCdvrNotEnabled.ToString());
+                    return response;
+                }
+
+                if (!IsServiceAllowed(m_nGroupID, (int)domainID, eService.NPVR))
+                {
+                    log.DebugFormat("Premium Service not allowed, DomainID: {0}, UserID: {1}, Service: {2}", domainID, userID, eService.NPVR.ToString());
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ServiceNotAllowed, eResponseStatus.ServiceNotAllowed.ToString());
                     return response;
                 }
 

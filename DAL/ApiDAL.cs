@@ -3443,7 +3443,7 @@ namespace DAL
                                 Name = ODBCWrapper.Utils.GetSafeStr(dr, "name"),
                                 BaseUrl = ODBCWrapper.Utils.GetSafeStr(dr, "base_url"),
                                 AdapterUrl = ODBCWrapper.Utils.GetSafeStr(dr, "adapter_url"),
-                                Alias = ODBCWrapper.Utils.GetSafeStr(dr, "alias"),
+                                SystemName = ODBCWrapper.Utils.GetSafeStr(dr, "alias"),
                                 IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active") == 0 ? false : true,
                                 SharedSecret = ODBCWrapper.Utils.GetSafeStr(dr, "shared_secret"),
 
@@ -3484,7 +3484,7 @@ namespace DAL
             return res;
         }
 
-        public static CDNAdapter GetCDNAdapter(int adapterId)
+        public static CDNAdapter GetCDNAdapter(int adapterId, bool shouldGetOnlyActive = true)
         {
             CDNAdapter adapterResponse = null;
             try
@@ -3492,6 +3492,10 @@ namespace DAL
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CDNAdapter");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@id", adapterId);
+                if (!shouldGetOnlyActive)
+                {
+                    sp.AddParameter("@shouldGetOnlyActive", 0);
+                }
 
                 DataSet ds = sp.ExecuteDataSet();
 
@@ -3514,7 +3518,7 @@ namespace DAL
                 adapterResponse = new CDNAdapter();
                 adapterResponse.BaseUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "base_url");
                 adapterResponse.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "adapter_url");
-                adapterResponse.Alias = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "alias");
+                adapterResponse.SystemName = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "alias");
                 adapterResponse.ID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
                 int is_Active = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active");
                 adapterResponse.IsActive = is_Active == 1 ? true : false;
@@ -3591,7 +3595,7 @@ namespace DAL
                 sp.AddParameter("@is_active", adapter.IsActive);
                 sp.AddParameter("@adapter_url", adapter.AdapterUrl);
                 sp.AddParameter("@base_url", adapter.BaseUrl);
-                sp.AddParameter("@alias", adapter.Alias);
+                sp.AddParameter("@alias", adapter.SystemName);
                 sp.AddParameter("@shared_secret", adapter.SharedSecret);
 
                 DataTable dt = CreateDataTableFromCdnDynamicData(adapter.Settings);
@@ -3650,7 +3654,7 @@ namespace DAL
             return adapterResponse;
         }
 
-        public static CDNAdapter SetCDNAdapter(int groupID, CDNAdapter adapter)
+        public static CDNAdapter SetCDNAdapter(int groupID, int adapterID, CDNAdapter adapter)
         {
             CDNAdapter adapterResponse = null;
             try
@@ -3658,15 +3662,19 @@ namespace DAL
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_CDNAdapter");
                 sp.SetConnectionKey("CONNECTION_STRING");
                 sp.AddParameter("@groupID", groupID);
-                sp.AddParameter("@ID", adapter.ID);
+                sp.AddParameter("@ID", adapterID);
                 sp.AddParameter("@name", adapter.Name);
-                sp.AddParameter("@alias", adapter.Alias);
+                sp.AddParameter("@alias", adapter.SystemName);
                 sp.AddParameter("@shared_secret", adapter.SharedSecret);
                 sp.AddParameter("@adapter_url", adapter.AdapterUrl);
                 sp.AddParameter("@base_url", adapter.BaseUrl);
                 sp.AddParameter("@isActive", adapter.IsActive);
                 DataTable dt = CreateDataTableFromCdnDynamicData(adapter.Settings);
                 sp.AddDataTableParameter("@KeyValueList", dt);
+                if (adapter.Settings != null && adapter.Settings.Count > 0)
+                {
+                    sp.AddParameter("@keysValueListExists", 1);
+                }
 
                 DataSet ds = sp.ExecuteDataSet();
 
@@ -3747,7 +3755,7 @@ namespace DAL
             try
             {
                 selectQuery = new DataSetSelectQuery();
-                selectQuery += string.Format("SELECT top(1) max(GROUP_ID) group_id FROM dbo.media_files with (nolock) WHERE STATUS = 1 and IS_ACTIVE = 1 and GROUP_ID IN (SELECT cast(iSNULL(id,0) as bigint) as ID FROM dbo.F_Get_GroupsTree(203))={0}", parentGroupId);
+                selectQuery += string.Format("SELECT top(1) max(GROUP_ID) group_id FROM dbo.media_files with (nolock) WHERE STATUS = 1 and IS_ACTIVE = 1 and GROUP_ID IN (SELECT cast(iSNULL(id,0) as bigint) as ID FROM dbo.F_Get_GroupsTree({0}))", parentGroupId);
                 selectQuery.SetCachedSec(0);
 
                 if (selectQuery.Execute("GetCdnRegularGroupIdQuery", true) != null)
