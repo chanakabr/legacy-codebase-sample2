@@ -3747,7 +3747,7 @@ namespace DAL
             try
             {
                 selectQuery = new DataSetSelectQuery();
-                selectQuery += string.Format("SELECT top(1) max(GROUP_ID) group_id FROM dbo.media_files with (nolock) WHERE STATUS = 1 and IS_ACTIVE = 1 and GROUP_ID IN (SELECT cast(iSNULL(id,0) as bigint) as ID FROM dbo.F_Get_GroupsTree(203))={0}", parentGroupId);
+                selectQuery += string.Format("SELECT top(1) max(GROUP_ID) group_id FROM dbo.media_files with (nolock) WHERE STATUS = 1 and IS_ACTIVE = 1 and GROUP_ID IN (SELECT cast(iSNULL(id,0) as bigint) as ID FROM dbo.F_Get_GroupsTree({0}))", parentGroupId);
                 selectQuery.SetCachedSec(0);
 
                 if (selectQuery.Execute("GetCdnRegularGroupIdQuery", true) != null)
