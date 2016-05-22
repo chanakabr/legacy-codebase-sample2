@@ -10,13 +10,13 @@
 		<h2>Kaltura API</h2>
 		<table class="action">
 			<tr>
-				<th colspan="5" class="service_action_title">resetPassword.resetPassword</th>
+				<th colspan="5" class="service_action_title">loginWithPin.loginWithPin</th>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Description:</td>
 			</tr>
 			<tr>
-				<td class="description" colspan="5">Send an e-mail with URL to enable the user to set new password.</td>
+				<td class="description" colspan="5">User sign-in via a time-expired sign-in PIN.</td>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Input Params</td>
@@ -36,17 +36,31 @@
 				<td></td>
 			</tr>
 			<tr>
-				<td>username</td>
+				<td>pin</td>
 				<td><a href="../objects/string.html">string</a></td>
-				<td>user name</td>
+				<td>pin code</td>
 				<td>V</td>
 				<td></td>
+			</tr>
+			<tr>
+				<td>udid</td>
+				<td><a href="../objects/string.html">string</a></td>
+				<td>Device UDID</td>
+				<td></td>
+				<td>1</td>
+			</tr>
+			<tr>
+				<td>secret</td>
+				<td><a href="../objects/string.html">string</a></td>
+				<td>Additional security parameter to validate the login</td>
+				<td></td>
+				<td>1</td>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Output Type</td>
 			</tr>
 			<tr>
-				<td colspan="5"><a href="../objects/bool.html">bool</a></td>
+				<td colspan="5"><a href="../objects/KalturaLoginResponse.html">KalturaLoginResponse</a></td>
 			</tr>
 			<tr>
 				<td colspan="5" class="title">Example HTTP Hit</td>
@@ -58,7 +72,9 @@
 				<div class="post_fields">
 [
 	partnerId: value,
-	username: "value"
+	pin: "value",
+	udid: "value",
+	secret: "value"
 ]
 				</pre></td>
 			</tr>

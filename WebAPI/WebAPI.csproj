@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -464,11 +464,17 @@
     <Content Include="testmeDoc\actions\householdlimitations.get.html" />
     <Content Include="testmeDoc\actions\ossadapterprofile.add.html" />
     <Content Include="testmeDoc\actions\ossadapterprofile.delete.html" />
+    <Content Include="testmeDoc\actions\ottuser.activate.html" />
     <Content Include="testmeDoc\actions\ottuser.delete.html" />
+    <Content Include="testmeDoc\actions\ottuser.facebookLogin.html" />
+    <Content Include="testmeDoc\actions\ottuser.login.html" />
+    <Content Include="testmeDoc\actions\ottuser.loginWithPin.html" />
     <Content Include="testmeDoc\actions\ottuser.register.html" />
+    <Content Include="testmeDoc\actions\ottuser.resendActivationToken.html" />
     <Content Include="testmeDoc\actions\ottuser.resetPassword.html" />
+    <Content Include="testmeDoc\actions\ottuser.setInitialPassword.html" />
     <Content Include="testmeDoc\actions\ottuser.update.html" />
-    <Content Include="testmeDoc\actions\ottuser.validateToken.html" />
+    <Content Include="testmeDoc\actions\ottuser.updateLoginData.html" />
     <Content Include="testmeDoc\actions\paymentgateway.delete.html" />
     <Content Include="testmeDoc\actions\paymentgatewayprofile.delete.html" />
     <Content Include="testmeDoc\actions\ppv.get.html" />
@@ -478,6 +484,7 @@
     <Content Include="testmeDoc\actions\recording.get.html" />
     <Content Include="testmeDoc\actions\recording.getContext.html" />
     <Content Include="testmeDoc\actions\recording.list.html" />
+    <Content Include="testmeDoc\actions\session.switchUser.html" />
     <Content Include="testmeDoc\actions\userassetslistitem.add.html" />
     <Content Include="testmeDoc\agpl.txt" />
     <Content Include="testmeDoc\css\main.css" />
@@ -497,7 +504,7 @@
     <Content Include="testmeDoc\enums\KalturaInboxMessageStatus.html" />
     <Content Include="testmeDoc\enums\KalturaInboxMessageType.html" />
     <Content Include="testmeDoc\enums\KalturaParentalRuleType.html" />
-    <Content Include="testmeDoc\enums\KalturaPaymentMethod.html" />
+    <Content Include="testmeDoc\enums\KalturaPaymentMethodType.html" />
     <Content Include="testmeDoc\enums\KalturaPositionOwner.html" />
     <Content Include="testmeDoc\enums\KalturaPurchaseStatus.html" />
     <Content Include="testmeDoc\enums\KalturaRecordingOrderBy.html" />
@@ -576,6 +583,8 @@
     <Content Include="testmeDoc\objects\KalturaItemPriceListResponse.html" />
     <Content Include="testmeDoc\objects\KalturaListFollowDataTvSeriesResponse.html" />
     <Content Include="testmeDoc\objects\KalturaListResponse.html" />
+    <Content Include="testmeDoc\objects\KalturaLoginResponse.html" />
+    <Content Include="testmeDoc\objects\KalturaLoginSession.html" />
     <Content Include="testmeDoc\objects\KalturaLongValue.html" />
     <Content Include="testmeDoc\objects\KalturaMediaFile.html" />
     <Content Include="testmeDoc\objects\KalturaMediaImage.html" />
@@ -587,7 +596,6 @@
     <Content Include="testmeDoc\objects\KalturaOTTUserType.html" />
     <Content Include="testmeDoc\objects\KalturaParentalRule.html" />
     <Content Include="testmeDoc\objects\KalturaParentalRuleListResponse.html" />
-    <Content Include="testmeDoc\objects\KalturaPaymentMethod.html" />
     <Content Include="testmeDoc\objects\KalturaPersonalAsset.html" />
     <Content Include="testmeDoc\objects\KalturaPersonalAssetListResponse.html" />
     <Content Include="testmeDoc\objects\KalturaPersonalFollowFeed.html" />
@@ -642,6 +650,7 @@
     <Content Include="testmeDoc\services\ppv.html" />
     <Content Include="testmeDoc\services\recommendationprofile.html" />
     <Content Include="testmeDoc\services\recording.html" />
+    <Content Include="testmeDoc\services\session.html" />
     <Content Include="testmeDoc\services\userassetslistitem.html" />
     <Content Include="testmeDoc\tracking.html" />
     <Content Include="testme\agpl.txt" />
@@ -1131,6 +1140,8 @@
     <Content Include="testme\json\KalturaItemPriceListResponse-subclasses.json" />
     <Content Include="testme\json\KalturaListFollowDataTvSeriesResponse-subclasses.json" />
     <Content Include="testme\json\KalturaListResponse-subclasses.json" />
+    <Content Include="testme\json\KalturaLoginResponse-subclasses.json" />
+    <Content Include="testme\json\KalturaLoginSession-subclasses.json" />
     <Content Include="testme\json\KalturaLongValue-subclasses.json" />
     <Content Include="testme\json\KalturaMediaFile-subclasses.json" />
     <Content Include="testme\json\KalturaMediaImage-subclasses.json" />
@@ -1142,7 +1153,6 @@
     <Content Include="testme\json\KalturaOTTUserType-subclasses.json" />
     <Content Include="testme\json\KalturaParentalRule-subclasses.json" />
     <Content Include="testme\json\KalturaParentalRuleListResponse-subclasses.json" />
-    <Content Include="testme\json\KalturaPaymentMethod-subclasses.json" />
     <Content Include="testme\json\KalturaPersonalAsset-subclasses.json" />
     <Content Include="testme\json\KalturaPersonalAssetListResponse-subclasses.json" />
     <Content Include="testme\json\KalturaPersonalFollowFeed-subclasses.json" />
@@ -1183,11 +1193,17 @@
     <Content Include="testme\json\ossadapterprofile-add-action-info.json" />
     <Content Include="testme\json\ossadapterprofile-delete-action-info.json" />
     <Content Include="testme\json\ottuser-actions.json" />
+    <Content Include="testme\json\ottuser-activate-action-info.json" />
     <Content Include="testme\json\ottuser-delete-action-info.json" />
+    <Content Include="testme\json\ottuser-facebookLogin-action-info.json" />
+    <Content Include="testme\json\ottuser-login-action-info.json" />
+    <Content Include="testme\json\ottuser-loginWithPin-action-info.json" />
     <Content Include="testme\json\ottuser-register-action-info.json" />
+    <Content Include="testme\json\ottuser-resendActivationToken-action-info.json" />
     <Content Include="testme\json\ottuser-resetPassword-action-info.json" />
+    <Content Include="testme\json\ottuser-setInitialPassword-action-info.json" />
     <Content Include="testme\json\ottuser-update-action-info.json" />
-    <Content Include="testme\json\ottuser-validateToken-action-info.json" />
+    <Content Include="testme\json\ottuser-updateLoginData-action-info.json" />
     <Content Include="testme\json\paymentgateway-actions.json" />
     <Content Include="testme\json\paymentgateway-delete-action-info.json" />
     <Content Include="testme\json\paymentgatewayprofile-actions.json" />
@@ -1202,6 +1218,8 @@
     <Content Include="testme\json\recording-get-action-info.json" />
     <Content Include="testme\json\recording-getContext-action-info.json" />
     <Content Include="testme\json\recording-list-action-info.json" />
+    <Content Include="testme\json\session-actions.json" />
+    <Content Include="testme\json\session-switchUser-action-info.json" />
     <Content Include="testme\json\userassetslistitem-actions.json" />
     <Content Include="testme\json\userassetslistitem-add-action-info.json" />
     <Content Include="testme\js\ace-builds\LICENSE" />
