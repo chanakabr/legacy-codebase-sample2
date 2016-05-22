@@ -109,6 +109,9 @@ namespace Recordings
             bool shouldContinue = false;
             status = DeductRecordings(recordings, ref shouldContinue, ref minutesLeft);
 
+            // Available quota cannot be negative. Minimum is 0
+            minutesLeft = Math.Max(0, minutesLeft);
+
             ApiObjects.TimeShiftedTv.DomainQuotaResponse response = new DomainQuotaResponse()
             {
                 Status = status,
@@ -123,8 +126,19 @@ namespace Recordings
         {
             Status status = new Status((int)eResponseStatus.OK);
             bool shouldContinue = true;
-
+            HashSet<long> currentIds = new HashSet<long>();
             int minutesLeft = totalMinutes;
+
+            if (currentRecordings != null)
+            {
+                foreach (var recording in currentRecordings)
+                {
+                    currentIds.Add(recording.Id);
+                }
+            }
+
+            // Remove all recordings that already exist for the household
+            newRecordings.RemoveAll(recording => currentIds.Contains(recording.Id));
 
             status = DeductRecordings(currentRecordings, ref shouldContinue, ref minutesLeft);
 
