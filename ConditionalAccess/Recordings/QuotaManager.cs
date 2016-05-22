@@ -79,6 +79,7 @@ namespace Recordings
             foreach (var recording in newRecordings)
             {
                 int currentEpgMinutes = 0;
+                int initialMinutesLeft = minutesLeft;
 
                 TimeSpan span = recording.EpgEndDate - recording.EpgStartDate;
 
@@ -91,7 +92,7 @@ namespace Recordings
                 {
                     recording.Status = new Status((int)eResponseStatus.DomainExceededQuota,
                         string.Format("Requested EPG exceeds domain's quota. EPG duration is {0} minutes and there are {1} minutes available.",
-                        minutesLeft, currentEpgMinutes));
+                        currentEpgMinutes, initialMinutesLeft));
                 }
             }
 
