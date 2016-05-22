@@ -3443,7 +3443,7 @@ namespace DAL
                                 Name = ODBCWrapper.Utils.GetSafeStr(dr, "name"),
                                 BaseUrl = ODBCWrapper.Utils.GetSafeStr(dr, "base_url"),
                                 AdapterUrl = ODBCWrapper.Utils.GetSafeStr(dr, "adapter_url"),
-                                Alias = ODBCWrapper.Utils.GetSafeStr(dr, "alias"),
+                                SystemName = ODBCWrapper.Utils.GetSafeStr(dr, "alias"),
                                 IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active") == 0 ? false : true,
                                 SharedSecret = ODBCWrapper.Utils.GetSafeStr(dr, "shared_secret"),
 
@@ -3514,7 +3514,7 @@ namespace DAL
                 adapterResponse = new CDNAdapter();
                 adapterResponse.BaseUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "base_url");
                 adapterResponse.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "adapter_url");
-                adapterResponse.Alias = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "alias");
+                adapterResponse.SystemName = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "alias");
                 adapterResponse.ID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
                 int is_Active = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "is_active");
                 adapterResponse.IsActive = is_Active == 1 ? true : false;
@@ -3591,7 +3591,7 @@ namespace DAL
                 sp.AddParameter("@is_active", adapter.IsActive);
                 sp.AddParameter("@adapter_url", adapter.AdapterUrl);
                 sp.AddParameter("@base_url", adapter.BaseUrl);
-                sp.AddParameter("@alias", adapter.Alias);
+                sp.AddParameter("@alias", adapter.SystemName);
                 sp.AddParameter("@shared_secret", adapter.SharedSecret);
 
                 DataTable dt = CreateDataTableFromCdnDynamicData(adapter.Settings);
@@ -3660,7 +3660,7 @@ namespace DAL
                 sp.AddParameter("@groupID", groupID);
                 sp.AddParameter("@ID", adapter.ID);
                 sp.AddParameter("@name", adapter.Name);
-                sp.AddParameter("@alias", adapter.Alias);
+                sp.AddParameter("@alias", adapter.SystemName);
                 sp.AddParameter("@shared_secret", adapter.SharedSecret);
                 sp.AddParameter("@adapter_url", adapter.AdapterUrl);
                 sp.AddParameter("@base_url", adapter.BaseUrl);
