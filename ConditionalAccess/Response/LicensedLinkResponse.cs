@@ -26,5 +26,11 @@ namespace ConditionalAccess
             this.altUrl = altUrl;
             this.status = status;
         }
+
+        public LicensedLinkResponse(string mainUrl, string altUrl, string status, int statusCode, string statusMessage):
+            this(mainUrl, altUrl, status)
+        {
+            Status = new ApiObjects.Response.Status(statusCode, statusMessage);
+        }
     }
 }

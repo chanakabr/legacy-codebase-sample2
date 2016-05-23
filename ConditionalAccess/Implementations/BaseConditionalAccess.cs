@@ -12086,204 +12086,158 @@ namespace ConditionalAccess
                 int[] mediaFiles = new int[1] { nMediaFileID };
                 int streamingCoID = 0;
 
-                if ((!string.IsNullOrEmpty(sBasicLink) && nMediaFileID > 0))
+                if (IsAlterBasicLink(sBasicLink, nMediaFileID))
                 {
-                    if (IsAlterBasicLink(sBasicLink, nMediaFileID))
+                    sBasicLink = Utils.GetBasicLink(m_nGroupID, mediaFiles, nMediaFileID, sBasicLink, out streamingCoID);
+                }
+
+                // validate parameters
+                if (string.IsNullOrEmpty(sBasicLink) || nMediaFileID <= 0)
+                {
+                    log.Debug("GetLicensedLinks - " + string.Format("input is invalid. user:{0}, MFID:{1}, device:{2}, link:{3}", sSiteGuid, nMediaFileID, sDeviceName, sBasicLink));
+
+                    res = new LicensedLinkResponse(GetErrorLicensedLink(sBasicLink), GetErrorLicensedLink(sBasicLink), eLicensedLinkStatus.InvalidInput.ToString(), (int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    return res;
+                }
+
+                MediaFileItemPricesContainer[] prices = GetItemsPrices(mediaFiles, sSiteGuid, sCouponCode, true, sCountryCode,
+                    sLanguageCode, sDeviceName, sUserIP);
+
+                if (prices != null && prices.Length > 0)
+                {
+                    int nMediaID = 0;
+                    List<int> lRuleIDS = new List<int>();
+                    TvinciDomains.DomainResponseStatus mediaConcurrencyResponse;
+
+                    string fileMainUrl = string.Empty;
+                    string fileAltUrl = string.Empty;
+                    int fileAltStreamingCoID = 0;
+
+                    // validate user suspension status
+                    if (IsUserSuspended(prices[0]))
                     {
-                        sBasicLink = Utils.GetBasicLink(m_nGroupID, mediaFiles, nMediaFileID, sBasicLink, out streamingCoID);
+                        log.Debug("GetLicensedLinks - " + string.Format("User is suspended. user:{0}, MFID:{1}", sSiteGuid, nMediaFileID));
+                        //returns empty url
+                        res = new LicensedLinkResponse(string.Empty, string.Empty, eLicensedLinkStatus.UserSuspended.ToString(), (int)eResponseStatus.UserSuspended, "User suspended");
+                        return res;
                     }
 
-                    MediaFileItemPricesContainer[] prices = GetItemsPrices(mediaFiles, sSiteGuid, sCouponCode, true, sCountryCode,
-                        sLanguageCode, sDeviceName, sUserIP);
-
-                    if (prices != null && prices.Length > 0)
+                    // validate file parameters
+                    if (!TryGetFileUrlLinks(nMediaFileID, sUserIP, sSiteGuid, ref fileMainUrl, ref fileAltUrl, ref fileMainStreamingCoID, ref fileAltStreamingCoID, ref nMediaID))
                     {
-                        int nMediaID = 0;
-                        List<int> lRuleIDS = new List<int>();
-                        TvinciDomains.DomainResponseStatus mediaConcurrencyResponse;
+                        log.Debug("GetLicensedLinks - " + string.Format("Failed to retrieve data from Catalog, user:{0}, MFID:{1}, link:{2}", sSiteGuid, nMediaFileID, sBasicLink));
+                        res = new LicensedLinkResponse(GetErrorLicensedLink(sBasicLink), GetErrorLicensedLink(sBasicLink), eLicensedLinkStatus.InvalidFileData.ToString(), (int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                        return res;
+                    }
 
-                        string fileMainUrl = string.Empty;
-                        string fileAltUrl = string.Empty;
-                        //int fileMainStreamingCoID = 0;
-                        int fileAltStreamingCoID = 0;
+                    // validate prices
+                    if (!IsFreeItem(prices[0]) && !IsItemPurchased(prices[0]))
+                    {
+                        log.Debug("GetLicensedLinks - " + string.Format("Price not valid, user:{0}, MFID:{1}, priceReason:{2}, price:{3}", sSiteGuid, nMediaFileID, prices[0].m_oItemPrices[0].m_PriceReason.ToString(), prices[0].m_oItemPrices[0].m_oPrice.m_dPrice));
+                        res = new LicensedLinkResponse(GetErrorLicensedLink(sBasicLink), GetErrorLicensedLink(sBasicLink), eLicensedLinkStatus.InvalidPrice.ToString(), (int)eResponseStatus.NotEntitled, "Not entitled");
+                        return res;
+                    }
 
-                        if (!IsUserSuspended(prices[0]))       //check that the user is not suspended
+                    string CdnStrID = string.Empty;
+                    bool bIsDynamic = Utils.GetStreamingUrlType(fileMainStreamingCoID, ref CdnStrID);
+
+                    // validate link
+                    if (!sBasicLink.ToLower().Trim().EndsWith(fileMainUrl.ToLower().Trim()) && !bIsDynamic)
+                    {
+                        log.Debug("GetLicensedLinks - " + string.Format("Error ValidateBaseLink, user:{0}, MFID:{1}, link:{2}", sSiteGuid, nMediaFileID, sBasicLink));
+                        res = new LicensedLinkResponse(GetErrorLicensedLink(sBasicLink), GetErrorLicensedLink(sBasicLink), eLicensedLinkStatus.InvalidBaseLink.ToString(), (int)eResponseStatus.InvalidBaseLink, "Invalid base link");
+                        return res;
+                    }
+
+
+
+                    int domainID = 0;
+                    mediaConcurrencyResponse = CheckMediaConcurrency(sSiteGuid, nMediaFileID, sDeviceName, prices, nMediaID, sUserIP, ref lRuleIDS, ref domainID);
+
+                    if (mediaConcurrencyResponse != TvinciDomains.DomainResponseStatus.OK)
+                    {
+                        log.Debug("GetLicensedLinks - " + string.Format("{0}, user:{1}, MFID:{2}", mediaConcurrencyResponse.ToString(), sSiteGuid, nMediaFileID));
+                        res = new LicensedLinkResponse(GetErrorLicensedLink(sBasicLink), GetErrorLicensedLink(sBasicLink), mediaConcurrencyResponse.ToString());
+                        res.Status = ConcurrencyResponseToResponseStatus(mediaConcurrencyResponse);
+                        return res;
+                    }
+
+                    if (IsItemPurchased(prices[0]))
+                    {
+                        HandlePlayUses(prices[0], sSiteGuid, nMediaFileID, sUserIP, sCountryCode, sLanguageCode, sDeviceName, sCouponCode);
+                    }
+
+                    if (eLinkType == eObjectType.EPG)
+                    {
+                        res.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        return res;
+                    }
+
+                    // get adapter
+                    var adapterResponse = Utils.GetRelevantCDN(m_nGroupID, fileMainStreamingCoID, TvinciAPI.eAssetTypes.MEDIA);
+
+                    // if adapter response is not null and is adapter (has an adapter url) - call the adapter
+                    if (adapterResponse.Adapter != null && !string.IsNullOrEmpty(adapterResponse.Adapter.AdapterUrl))
+                    {
+                        // get device type
+                        string deviceType = Utils.GetDeviceTypeByUDID(m_nGroupID, sDeviceName);
+
+                        var link = CDNAdapterController.GetInstance().GetVodLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGuid, fileMainUrl,
+                            deviceType, nMediaID, nMediaFileID, sUserIP);
+
+                        if (link != null)
                         {
-                            if (TryGetFileUrlLinks(nMediaFileID, sUserIP, sSiteGuid, ref fileMainUrl, ref fileAltUrl, ref fileMainStreamingCoID,
-                                ref fileAltStreamingCoID, ref nMediaID))
-                            {
-                                if (IsFreeItem(prices[0]) || IsItemPurchased(prices[0]))
-                                {
-                                    string CdnStrID = string.Empty;
-                                    bool bIsDynamic = Utils.GetStreamingUrlType(fileMainStreamingCoID, ref CdnStrID);
-
-                                    if (sBasicLink.ToLower().Trim().EndsWith(fileMainUrl.ToLower().Trim()) || bIsDynamic)
-                                    {
-                                        Dictionary<string, string> licensedLinkParams = GetLicensedLinkParamsDict(sSiteGuid, nMediaFileID.ToString(),
-                                            fileMainUrl, sUserIP, sCountryCode, sLanguageCode, sDeviceName, sCouponCode);
-
-                                        int domainID = 0;
-                                        mediaConcurrencyResponse = CheckMediaConcurrency(sSiteGuid, nMediaFileID, sDeviceName, prices, nMediaID, sUserIP, ref lRuleIDS, ref domainID);
-                                        if (mediaConcurrencyResponse == TvinciDomains.DomainResponseStatus.OK)
-                                        {
-                                            if (IsItemPurchased(prices[0]))
-                                            {
-                                                HandlePlayUses(prices[0], sSiteGuid, nMediaFileID, sUserIP, sCountryCode, sLanguageCode, sDeviceName, sCouponCode);
-                                            }
-
-                                            if (eLinkType == eObjectType.EPG)
-                                            {
-                                                res.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                                                return res;
-                                            }
-
-                                            // TO DO if dynamic call to right provider to get the URL
-                                            if (eLinkType == eObjectType.Media && bIsDynamic)
-                                            {
-                                                //call the right provider to get the link 
-                                                StreamingProvider.ILSProvider provider = StreamingProvider.LSProviderFactory.GetLSProvidernstance(CdnStrID);
-                                                if (provider != null)
-                                                {
-                                                    string vodUrl = provider.GenerateVODLink(sBasicLink);
-                                                    if (!string.IsNullOrEmpty(vodUrl))
-                                                    {
-                                                        licensedLinkParams[CDNTokenizers.Constants.URL] = vodUrl;
-                                                    }
-                                                }
-                                            }
-
-                                            // get adapter
-                                            var adapterResponse = Utils.GetRelevantCDN(m_nGroupID, fileMainStreamingCoID, TvinciAPI.eAssetTypes.MEDIA);
-
-                                            // if adapter response is not null and is adapter (has an adapter url) - call the adapter
-                                            if (adapterResponse.Adapter != null && !string.IsNullOrEmpty(adapterResponse.Adapter.AdapterUrl))
-                                            {
-                                                // get device type
-                                                string deviceType = Utils.GetDeviceTypeByUDID(m_nGroupID, sDeviceName);
-
-                                                var link = CDNAdapterController.GetInstance().GetVodLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGuid, fileMainUrl,
-                                                    deviceType, nMediaID, nMediaFileID, sUserIP);
-
-                                                if (link != null)
-                                                {
-                                                    res.mainUrl = link.Url;
-                                                }
-
-                                                link = CDNAdapterController.GetInstance().GetVodLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGuid, fileAltUrl,
-                                                    deviceType, nMediaID, nMediaFileID, sUserIP);
-
-                                                if (link != null)
-                                                {
-                                                    res.altUrl = link.Url;
-                                                }
-                                            }
-                                            else
-                                            {
-                                                res.mainUrl = GetLicensedLink(fileMainStreamingCoID, licensedLinkParams);
-                                                licensedLinkParams[CDNTokenizers.Constants.URL] = fileAltUrl;
-                                                res.altUrl = GetLicensedLink(fileAltStreamingCoID, licensedLinkParams);
-                                            }
-
-                                            if (!string.IsNullOrEmpty(res.mainUrl))
-                                            {
-                                                res.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                                                res.status = mediaConcurrencyResponse.ToString();
-                                            }
-
-                                            // create PlayCycle
-                                            CreatePlayCycle(sSiteGuid, nMediaFileID, sUserIP, sDeviceName, nMediaID, lRuleIDS, domainID);    
-                                        }
-                                        else
-                                        {
-                                            res.altUrl = GetErrorLicensedLink(sBasicLink);
-                                            res.mainUrl = GetErrorLicensedLink(sBasicLink);
-                                            res.status = mediaConcurrencyResponse.ToString();
-                                            res.Status = ConcurrencyResponseToResponseStatus(mediaConcurrencyResponse);
-
-                                            log.Debug("GetLicensedLinks - " + string.Format("{0}, user:{1}, MFID:{2}",
-                                                mediaConcurrencyResponse.ToString(), sSiteGuid, nMediaFileID));
-                                        }
-                                    }
-                                    else
-                                    {
-                                        res.altUrl = GetErrorLicensedLink(sBasicLink);
-                                        res.mainUrl = GetErrorLicensedLink(sBasicLink);
-                                        res.status = eLicensedLinkStatus.InvalidBaseLink.ToString();
-                                        res.Status.Code = (int)eResponseStatus.InvalidBaseLink;
-                                        res.Status.Message = "Invalid base link";
-
-                                        log.Debug("GetLicensedLinks - " + string.Format("Error ValidateBaseLink, user:{0}, MFID:{1}, link:{2}",
-                                            sSiteGuid, nMediaFileID, sBasicLink));
-                                    }
-                                }
-                                else
-                                {
-                                    res.altUrl = GetErrorLicensedLink(sBasicLink);
-                                    res.mainUrl = GetErrorLicensedLink(sBasicLink);
-                                    res.status = eLicensedLinkStatus.InvalidPrice.ToString();
-                                    res.Status.Code = (int)eResponseStatus.NotEntitled;
-                                    res.Status.Message = "Not entitled";
-
-
-                                    log.Debug("GetLicensedLinks - " + string.Format("Price not valid, user:{0}, MFID:{1}, priceReason:{2}, price:{3}", sSiteGuid,
-                                        nMediaFileID, prices[0].m_oItemPrices[0].m_PriceReason.ToString(), prices[0].m_oItemPrices[0].m_oPrice.m_dPrice));
-                                }
-                            }
-                            else
-                            {
-                                res.altUrl = GetErrorLicensedLink(sBasicLink);
-                                res.mainUrl = GetErrorLicensedLink(sBasicLink);
-                                res.status = eLicensedLinkStatus.InvalidFileData.ToString();
-                                res.Status.Code = (int)eResponseStatus.Error;
-                                res.Status.Message = eResponseStatus.Error.ToString();
-
-                                log.Debug("GetLicensedLinks - " + string.Format("Failed to retrieve data from Catalog, user:{0}, MFID:{1}, link:{2}",
-                                    sSiteGuid, nMediaFileID, sBasicLink));
-                            }
+                            res.mainUrl = link.Url;
                         }
-                        else //user is Suspended
+
+                        link = CDNAdapterController.GetInstance().GetVodLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGuid, fileAltUrl,
+                            deviceType, nMediaID, nMediaFileID, sUserIP);
+
+                        if (link != null)
                         {
-                            //returns empty url
-                            res.status = eLicensedLinkStatus.UserSuspended.ToString();
-                            res.Status.Code = (int)eResponseStatus.UserSuspended;
-                            res.Status.Message = "User suspended";
-
-
-                            log.Debug("GetLicensedLinks - " + string.Format("User is suspended. user:{0}, MFID:{1}", sSiteGuid, nMediaFileID));
+                            res.altUrl = link.Url;
                         }
                     }
                     else
                     {
-                        res.altUrl = GetErrorLicensedLink(sBasicLink);
-                        res.mainUrl = GetErrorLicensedLink(sBasicLink);
-                        res.status = eLicensedLinkStatus.InvalidPrice.ToString();
-                        res.Status.Code = (int)eResponseStatus.NotEntitled;
-                        res.Status.Message = "Not entitled";
+                        Dictionary<string, string> licensedLinkParams = GetLicensedLinkParamsDict(sSiteGuid, nMediaFileID.ToString(),
+                            fileMainUrl, sUserIP, sCountryCode, sLanguageCode, sDeviceName, sCouponCode);
 
+                        // TO DO if dynamic call to right provider to get the URL
+                        if (eLinkType == eObjectType.Media && bIsDynamic)
+                        {
+                            //call the right provider to get the link 
+                            StreamingProvider.ILSProvider provider = StreamingProvider.LSProviderFactory.GetLSProvidernstance(CdnStrID);
+                            if (provider != null)
+                            {
+                                string vodUrl = provider.GenerateVODLink(sBasicLink);
+                                if (!string.IsNullOrEmpty(vodUrl))
+                                {
+                                    licensedLinkParams[CDNTokenizers.Constants.URL] = vodUrl;
+                                }
+                            }
+                        }
 
-                        log.Debug("GetLicensedLinks - " + string.Format("Price is null. user:{0}, MFID:{1}", sSiteGuid, nMediaFileID));
+                        res.mainUrl = GetLicensedLink(fileMainStreamingCoID, licensedLinkParams);
+                        licensedLinkParams[CDNTokenizers.Constants.URL] = fileAltUrl;
+                        res.altUrl = GetLicensedLink(fileAltStreamingCoID, licensedLinkParams);
                     }
-                }
-                else
-                {
-                    res.altUrl = GetErrorLicensedLink(sBasicLink);
-                    res.mainUrl = GetErrorLicensedLink(sBasicLink);
-                    res.status = eLicensedLinkStatus.InvalidInput.ToString();
-                    res.Status.Code = (int)eResponseStatus.Error;
-                    res.Status.Message = eResponseStatus.Error.ToString();
 
+                    if (!string.IsNullOrEmpty(res.mainUrl))
+                    {
+                        res.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        res.status = mediaConcurrencyResponse.ToString();
+                    }
 
-                    log.Debug("GetLicensedLinks - " + string.Format("input is invalid. user:{0}, MFID:{1}, device:{2}, link:{3}",
-                        sSiteGuid, nMediaFileID, sDeviceName, sBasicLink));
+                    // create PlayCycle
+                    CreatePlayCycle(sSiteGuid, nMediaFileID, sUserIP, sDeviceName, nMediaID, lRuleIDS, domainID);
+
                 }
+
             }
             catch (Exception ex)
             {
-                res.altUrl = GetErrorLicensedLink(sBasicLink);
-                res.mainUrl = GetErrorLicensedLink(sBasicLink);
-                res.status = eLicensedLinkStatus.Error.ToString();
-                res.Status.Code = (int)eResponseStatus.Error;
-                res.Status.Message = eResponseStatus.Error.ToString();
+                res = new LicensedLinkResponse(GetErrorLicensedLink(sBasicLink), GetErrorLicensedLink(sBasicLink), eLicensedLinkStatus.Error.ToString(), (int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
                 #region Logging
                 StringBuilder sb = new StringBuilder("Exception at GetLicensedLinks. ");
