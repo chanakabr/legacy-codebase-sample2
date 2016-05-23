@@ -15097,12 +15097,28 @@ namespace ConditionalAccess
             log.DebugFormat("Renew transaction returned from billing. data: {0}", logString);
 
             if (transactionResponse == null ||
-                transactionResponse.Status == null ||
-                transactionResponse.Status.Code != (int)eResponseStatus.OK)
+                transactionResponse.Status == null)
             {
                 // PG returned error
-                log.Error("Received error from PG");
+                log.Error("Received error from Billing");
                 return false;
+            }
+
+            if (transactionResponse.Status.Code != (int)eResponseStatus.OK)
+            {
+                log.ErrorFormat("Received error from Billing.ProcessRenewal code:{0}, msg:{1}", transactionResponse.Status.Code, transactionResponse.Status.Message);
+
+                if (transactionResponse.Status.Code == (int)eResponseStatus.PaymentMethodNotSetForHousehold ||
+                    transactionResponse.Status.Code == (int)eResponseStatus.PaymentMethodNotExist ||
+                    transactionResponse.Status.Code == (int)eResponseStatus.PaymentGatewayNotExist)
+                {
+                    // renew subscription failed!
+                    return HandleRenewSubscriptionFailed(siteguid, purchaseId, logString, productId, subscription);
+                }
+                else
+                {
+                    return false;
+                }
             }
 
             switch (transactionResponse.State)
@@ -17748,7 +17764,7 @@ namespace ConditionalAccess
 
                 if (!force)
                 {
-                    DataSet ds = DAL.ConditionalAccessDAL.Get_RecurringSubscriptiosAndPendingPurchasesByPaymentMethod(groupId, (int)householdId, paymentGatewayId);
+                    DataSet ds = DAL.ConditionalAccessDAL.Get_RecurringSubscriptiosAndPendingPurchasesByPaymentMethod(groupId, (int)householdId, paymentMethodId);
                     if (ds == null || ds.Tables == null || ds.Tables.Count < 3 || ds.Tables[0].Rows == null || ds.Tables[1].Rows == null || ds.Tables[2].Rows == null)
                     {
                         status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Internal Error");
