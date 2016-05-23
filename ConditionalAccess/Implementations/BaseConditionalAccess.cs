@@ -17751,7 +17751,7 @@ namespace ConditionalAccess
 
                 if (!force)
                 {
-                    DataSet ds = DAL.ConditionalAccessDAL.Get_RecurringSubscriptiosAndPendingPurchasesByPaymentMethod(groupId, (int)householdId, paymentGatewayId);
+                    DataSet ds = DAL.ConditionalAccessDAL.Get_RecurringSubscriptiosAndPendingPurchasesByPaymentMethod(groupId, (int)householdId, paymentMethodId);
                     if (ds == null || ds.Tables == null || ds.Tables.Count < 3 || ds.Tables[0].Rows == null || ds.Tables[1].Rows == null || ds.Tables[2].Rows == null)
                     {
                         status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Internal Error");
