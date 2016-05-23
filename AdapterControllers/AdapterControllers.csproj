@@ -97,10 +97,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="Service References\CdnAdapter\AdapterControllers.CdnAdapter.AdapterStatus.datasource">
+    <None Include="Service References\CdnAdapter\AdapterControllers.CdnAdapter.AdapterStatus1.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\CdnAdapter\AdapterControllers.CdnAdapter.LinkResponse.datasource">
+    <None Include="Service References\CdnAdapter\AdapterControllers.CdnAdapter.LinkResponse1.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
     <None Include="Service References\CdnAdapter\Service.wsdl" />

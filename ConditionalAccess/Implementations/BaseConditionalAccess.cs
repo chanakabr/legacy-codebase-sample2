@@ -1,3 +1,4 @@
+using AdapterControllers;
 using AdapterControllers.CDVR;
 using ApiObjects;
 using ApiObjects.Billing;
@@ -1296,7 +1297,7 @@ namespace ConditionalAccess
                         TvinciPricing.Subscription theSub = Utils.GetSubscriptionBytProductCode(m_nGroupID, sProductCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, false);
                         string sSubscriptionCode = theSub.m_SubscriptionCode;
 
-                        TvinciPricing.Price p = Utils.GetSubscriptionFinalPrice(m_nGroupID, sSubscriptionCode, sSiteGUID, string.Empty, ref theReason, 
+                        TvinciPricing.Price p = Utils.GetSubscriptionFinalPrice(m_nGroupID, sSubscriptionCode, sSiteGUID, string.Empty, ref theReason,
                             ref theSub, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
 
                         if (theReason == PriceReason.ForPurchase)
@@ -1601,7 +1602,7 @@ namespace ConditionalAccess
                                             }
 
                                             #region Set start date and end date
-		
+
                                             // If we don't have a start or end date
                                             if (startDate == DateTime.MinValue ||
                                                 endDate == DateTime.MinValue)
@@ -2703,7 +2704,7 @@ namespace ConditionalAccess
                                     double endMS = double.Parse(receipt.receipt.expires_date);
 
                                     endDate = dt1970.AddMilliseconds(endMS);
-                                } 
+                                }
 
                                 #endregion
                             }
@@ -2737,7 +2738,7 @@ namespace ConditionalAccess
                                     {
                                         endDate = dt1970.AddMilliseconds(endMS);
                                     }
-                                } 
+                                }
 
                                 #endregion
                             }
@@ -6557,11 +6558,11 @@ namespace ConditionalAccess
                         if (thePPVModule != null)
                         {
                             TvinciPricing.Price p = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(nMediaFileID, thePPVModule, sSiteGUID, sCouponCode, m_nGroupID, ref theReason, ref relevantSub, ref relevantCol, ref relevantPP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-                            
+
                             if (theReason == PriceReason.ForPurchase || (theReason == PriceReason.SubscriptionPurchased && p.m_dPrice > 0))
                             {
                                 if (p.m_dPrice == dPrice && p.m_oCurrency.m_sCurrencyCD3 == sCurrency && p.m_dPrice > 0)
-                                {                                         
+                                {
                                     string sCustomData = GetCustomData(relevantSub, thePPVModule, relevantCamp, sSiteGUID, dPrice, sCurrency, nMediaFileID, nMediaID, sPPVModuleCode, sCampaignCode, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sOverrideEndDate);
                                     retVal = Utils.AddCustomData(sCustomData);
                                 }
@@ -9276,7 +9277,7 @@ namespace ConditionalAccess
                     sb.Append(string.Format("<{0}>1</{0}>", HISTORY));
                 }
             }
-            
+
             sb.Append("</customdata>");
             return sb.ToString();
         }
@@ -12062,17 +12063,21 @@ namespace ConditionalAccess
            string sRefferer, string sCountryCode, string sLanguageCode, string sDeviceName, string sCouponCode)
         {
             int fileMainStreamingCoID = 0;
-            return GetLicensedLinks(sSiteGuid, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCountryCode, sLanguageCode, sDeviceName, sCouponCode, eObjectType.Media, ref fileMainStreamingCoID);
+            int mediaId = 0;
+            return GetLicensedLinks(sSiteGuid, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCountryCode, sLanguageCode, sDeviceName, sCouponCode, eObjectType.Media,
+                ref fileMainStreamingCoID, ref mediaId);
         }
 
         public virtual LicensedLinkResponse GetLicensedLinks(string sSiteGuid, Int32 nMediaFileID, string sBasicLink, string sUserIP,
            string sRefferer, string sCountryCode, string sLanguageCode, string sDeviceName, string sCouponCode, ref int fileMainStreamingCoID)
         {
-            return GetLicensedLinks(sSiteGuid, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCountryCode, sLanguageCode, sDeviceName, sCouponCode, eObjectType.Media, ref fileMainStreamingCoID);
+            int mediaId = 0;
+            return GetLicensedLinks(sSiteGuid, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCountryCode, sLanguageCode, sDeviceName, sCouponCode, eObjectType.Media,
+                ref fileMainStreamingCoID, ref mediaId);
         }
 
         public virtual LicensedLinkResponse GetLicensedLinks(string sSiteGuid, Int32 nMediaFileID, string sBasicLink, string sUserIP,
-            string sRefferer, string sCountryCode, string sLanguageCode, string sDeviceName, string sCouponCode, eObjectType eLinkType, ref int fileMainStreamingCoID)
+            string sRefferer, string sCountryCode, string sLanguageCode, string sDeviceName, string sCouponCode, eObjectType eLinkType, ref int fileMainStreamingCoID, ref int mediaId)
         {
             LicensedLinkResponse res = new LicensedLinkResponse();
 
@@ -12107,9 +12112,6 @@ namespace ConditionalAccess
                             if (TryGetFileUrlLinks(nMediaFileID, sUserIP, sSiteGuid, ref fileMainUrl, ref fileAltUrl, ref fileMainStreamingCoID,
                                 ref fileAltStreamingCoID, ref nMediaID))
                             {
-                                Dictionary<string, string> licensedLinkParams = GetLicensedLinkParamsDict(sSiteGuid, nMediaFileID.ToString(),
-                                    fileMainUrl, sUserIP, sCountryCode, sLanguageCode, sDeviceName, sCouponCode);
-
                                 if (IsFreeItem(prices[0]) || IsItemPurchased(prices[0]))
                                 {
                                     string CdnStrID = string.Empty;
@@ -12117,6 +12119,9 @@ namespace ConditionalAccess
 
                                     if (sBasicLink.ToLower().Trim().EndsWith(fileMainUrl.ToLower().Trim()) || bIsDynamic)
                                     {
+                                        Dictionary<string, string> licensedLinkParams = GetLicensedLinkParamsDict(sSiteGuid, nMediaFileID.ToString(),
+                                            fileMainUrl, sUserIP, sCountryCode, sLanguageCode, sDeviceName, sCouponCode);
+
                                         int domainID = 0;
                                         mediaConcurrencyResponse = CheckMediaConcurrency(sSiteGuid, nMediaFileID, sDeviceName, prices, nMediaID, sUserIP, ref lRuleIDS, ref domainID);
                                         if (mediaConcurrencyResponse == TvinciDomains.DomainResponseStatus.OK)
@@ -12124,6 +12129,12 @@ namespace ConditionalAccess
                                             if (IsItemPurchased(prices[0]))
                                             {
                                                 HandlePlayUses(prices[0], sSiteGuid, nMediaFileID, sUserIP, sCountryCode, sLanguageCode, sDeviceName, sCouponCode);
+                                            }
+
+                                            if (eLinkType == eObjectType.EPG)
+                                            {
+                                                res.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                                                return res;
                                             }
 
                                             // TO DO if dynamic call to right provider to get the URL
@@ -12141,15 +12152,46 @@ namespace ConditionalAccess
                                                 }
                                             }
 
+                                            // get adapter
+                                            var adapterResponse = Utils.GetRelevantCDN(m_nGroupID, fileMainStreamingCoID, TvinciAPI.eAssetTypes.MEDIA);
 
-                                            res.mainUrl = GetLicensedLink(fileMainStreamingCoID, licensedLinkParams);
-                                            licensedLinkParams[CDNTokenizers.Constants.URL] = fileAltUrl;
-                                            res.altUrl = GetLicensedLink(fileAltStreamingCoID, licensedLinkParams);
-                                            res.status = mediaConcurrencyResponse.ToString();
-                                            res.Status = ConcurrencyResponseToResponseStatus(mediaConcurrencyResponse);
+                                            // if adapter response is not null and is adapter (has an adapter url) - call the adapter
+                                            if (adapterResponse.Adapter != null && !string.IsNullOrEmpty(adapterResponse.Adapter.AdapterUrl))
+                                            {
+                                                // get device type
+                                                string deviceType = Utils.GetDeviceTypeByUDID(m_nGroupID, sDeviceName);
+
+                                                var link = CDNAdapterController.GetInstance().GetVodLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGuid, fileMainUrl,
+                                                    deviceType, nMediaID, nMediaFileID, sUserIP);
+
+                                                if (link != null)
+                                                {
+                                                    res.mainUrl = link.Url;
+                                                }
+
+                                                link = CDNAdapterController.GetInstance().GetVodLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGuid, fileAltUrl,
+                                                    deviceType, nMediaID, nMediaFileID, sUserIP);
+
+                                                if (link != null)
+                                                {
+                                                    res.altUrl = link.Url;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                res.mainUrl = GetLicensedLink(fileMainStreamingCoID, licensedLinkParams);
+                                                licensedLinkParams[CDNTokenizers.Constants.URL] = fileAltUrl;
+                                                res.altUrl = GetLicensedLink(fileAltStreamingCoID, licensedLinkParams);
+                                            }
+
+                                            if (!string.IsNullOrEmpty(res.mainUrl))
+                                            {
+                                                res.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                                                res.status = mediaConcurrencyResponse.ToString();
+                                            }
 
                                             // create PlayCycle
-                                            CreatePlayCycle(sSiteGuid, nMediaFileID, sUserIP, sDeviceName, nMediaID, lRuleIDS, domainID);
+                                            CreatePlayCycle(sSiteGuid, nMediaFileID, sUserIP, sDeviceName, nMediaID, lRuleIDS, domainID);    
                                         }
                                         else
                                         {
@@ -12281,10 +12323,10 @@ namespace ConditionalAccess
                     res = new ApiObjects.Response.Status((int)eResponseStatus.ExceededLimit, "Exceeded limit");
                     break;
                 case ConditionalAccess.TvinciDomains.DomainResponseStatus.DeviceTypeNotAllowed:
-                   res = new ApiObjects.Response.Status((int)eResponseStatus.DeviceTypeNotAllowed, "Device type not allowed");
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.DeviceTypeNotAllowed, "Device type not allowed");
                     break;
                 case ConditionalAccess.TvinciDomains.DomainResponseStatus.DeviceNotInDomain:
-                    res = new ApiObjects.Response.Status((int)eResponseStatus.DeviceNotInDomain, "Device not in household"); 
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.DeviceNotInDomain, "Device not in household");
                     break;
                 case ConditionalAccess.TvinciDomains.DomainResponseStatus.DeviceAlreadyExists:
                     res = new ApiObjects.Response.Status((int)eResponseStatus.DeviceAlreadyExists, "Device already exists");
@@ -12293,7 +12335,7 @@ namespace ConditionalAccess
                     res = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     break;
                 case ConditionalAccess.TvinciDomains.DomainResponseStatus.DeviceExistsInOtherDomains:
-                    res = new ApiObjects.Response.Status((int) eResponseStatus.DeviceExistsInOtherDomains, "Device exists in other household");
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.DeviceExistsInOtherDomains, "Device exists in other household");
                     break;
                 case ConditionalAccess.TvinciDomains.DomainResponseStatus.ConcurrencyLimitation:
                     res = new ApiObjects.Response.Status((int)eResponseStatus.ConcurrencyLimitation, "Concurrency limitation");
@@ -13257,7 +13299,7 @@ namespace ConditionalAccess
                 bool couponFullDiscount = (priceReason == PriceReason.Free && !string.IsNullOrEmpty(coupon));
 
                 if (priceReason == PriceReason.ForPurchase ||
-                    entitleToPreview || 
+                    entitleToPreview ||
                     couponFullDiscount)
                 {
                     // item is for purchase
@@ -13985,7 +14027,7 @@ namespace ConditionalAccess
                                                   int productID, TvinciBilling.eTransactionType transactionType, string billingGuid, int contentId)
         {
             TransactionResponse response = new TransactionResponse();
-                                       
+
             try
             {
                 string userName = string.Empty;
@@ -14864,7 +14906,7 @@ namespace ConditionalAccess
             log.DebugFormat("Starting renewal process. data: {0}", logString);
 
             string customData = string.Empty;
-            long householdId = 0;            
+            long householdId = 0;
 
             string userIp = "1.1.1.1";
 
@@ -15162,7 +15204,7 @@ namespace ConditionalAccess
                 return false;
 
             }
-            
+
             if (numOfPayments > 0 && recurringNumber >= numOfPayments)
             {
                 // Subscription ended
@@ -16452,7 +16494,7 @@ namespace ConditionalAccess
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
             // log request
-            string logString = 
+            string logString =
                 string.Format("RecoredPPVEntitlement request: siteguid {0}, household {1}, price {2}, currency {3}, contentId {4}, productId {5}, coupon {6}, userIp {7}, paymentGatewayId {8}",
                 !string.IsNullOrEmpty(userId) ? userId : string.Empty, householdId, price, !string.IsNullOrEmpty(currency) ? currency : string.Empty,
                 contentId, productId, !string.IsNullOrEmpty(coupon) ? coupon : string.Empty, !string.IsNullOrEmpty(userIP) ? userIP : string.Empty, paymentGatewayId);
@@ -16505,7 +16547,7 @@ namespace ConditionalAccess
 
                 bool couponFullDiscount = (priceReason == PriceReason.Free) && !string.IsNullOrEmpty(coupon);
 
-                if (priceReason == PriceReason.ForPurchase || 
+                if (priceReason == PriceReason.ForPurchase ||
                     (priceReason == PriceReason.SubscriptionPurchased && mediaPrice.m_dPrice > 0) ||
                     couponFullDiscount)
                 {
@@ -16572,7 +16614,7 @@ namespace ConditionalAccess
                                 {
                                     log.ErrorFormat("Error while enqueue purchase record: {0}, data: {1}", status.Message, logString);
                                 }
-                                
+
                                 status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "OK");
                             }
                             else
@@ -16637,7 +16679,7 @@ namespace ConditionalAccess
         }
 
         private TransactionResponse RecordBillingTransaction(string userId, long householdId, int contentId, int productId, eTransactionType transactionType, string paymentDetails,
-            string paymentMethod, int paymentGatewayId, string billingGuid, string customData, string paymentGatewayReferenceID, 
+            string paymentMethod, int paymentGatewayId, string billingGuid, string customData, string paymentGatewayReferenceID,
             string paymentGatewayResponseCode, int state, string paymentMethodExternalID)
         {
             TransactionResponse response = new TransactionResponse();
@@ -16697,7 +16739,7 @@ namespace ConditionalAccess
             return response;
         }
 
-        public ApiObjects.Response.Status UpdateRecordedTransaction(long householdId, string paymentGatewayReferenceID, string paymentDetails, string paymentMethod, int paymentGatewayId, 
+        public ApiObjects.Response.Status UpdateRecordedTransaction(long householdId, string paymentGatewayReferenceID, string paymentDetails, string paymentMethod, int paymentGatewayId,
             string paymentMethodExternalId)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
@@ -16712,7 +16754,7 @@ namespace ConditionalAccess
                 InitializeBillingModule(ref wsBillingService, ref userName, ref password);
 
                 // call new billing method for charge adapter
-                var response = wsBillingService.UpdateRecordedTransaction(userName, password, (int)householdId, paymentGatewayReferenceID, paymentDetails, paymentMethod, paymentGatewayId, 
+                var response = wsBillingService.UpdateRecordedTransaction(userName, password, (int)householdId, paymentGatewayReferenceID, paymentDetails, paymentMethod, paymentGatewayId,
                     paymentMethodExternalId);
 
                 if (response != null)
@@ -16727,7 +16769,7 @@ namespace ConditionalAccess
             }
 
             return status;
-            
+
         }
 
         public CDVRAdapterResponseList GetCDVRAdapters()
@@ -16999,11 +17041,11 @@ namespace ConditionalAccess
 
                 CDVRAdapter responseAdpaterExternal = DAL.ConditionalAccessDAL.GetCDVRAdapterByExternalId(m_nGroupID, adapter.ExternalIdentifier);
 
-                if (responseAdpaterExternal != null && responseAdpaterExternal.ID != adapter.ID) 
+                if (responseAdpaterExternal != null && responseAdpaterExternal.ID != adapter.ID)
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExternalIdentifierMustBeUnique, ERROR_EXT_ID_ALREADY_IN_USE);
                     return response;
-                }                
+                }
                 bool isSetSucceeded = SendConfigurationToAdapter(m_nGroupID, responseAdpater);
                 if (!isSetSucceeded)
                 {
@@ -17044,7 +17086,7 @@ namespace ConditionalAccess
             try
             {
                 long domainID = 0;
-                recordingResponse = QueryRecords(userID, new List<long>() { epgID }, ref domainID);
+                recordingResponse = QueryRecords(userID, new List<long>() { epgID }, ref domainID, true);
                 if (recordingResponse.Status.Code != (int)eResponseStatus.OK || recordingResponse.TotalItems == 0)
                 {
                     log.DebugFormat("RecordingResponse status not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
@@ -17084,7 +17126,7 @@ namespace ConditionalAccess
             }
             catch (Exception ex)
             {
-                StringBuilder sb = new StringBuilder("Exception at Record. ");                
+                StringBuilder sb = new StringBuilder("Exception at Record. ");
                 sb.Append(String.Concat("userID: ", userID));
                 sb.Append(String.Concat(", epgID: ", epgID));
                 sb.Append(String.Concat(", Ex Msg: ", ex.Message));
@@ -17097,7 +17139,7 @@ namespace ConditionalAccess
             return recording;
         }
 
-        public RecordingResponse QueryRecords(string userID, List<long> epgIDs, ref long domainID)
+        public RecordingResponse QueryRecords(string userID, List<long> epgIDs, ref long domainID, bool isAggregative)
         {
             RecordingResponse response = new RecordingResponse();
             try
@@ -17180,7 +17222,8 @@ namespace ConditionalAccess
                     recording => recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK).ToList();
 
                 var temporaryStatus =
-                    QuotaManager.Instance.CheckQuotaByTotalMinutes(this.m_nGroupID, domainID, totalMinutes, recordingsToCheckQuota, currentRecordings);
+                    QuotaManager.Instance.CheckQuotaByTotalMinutes(this.m_nGroupID, domainID, totalMinutes, isAggregative,
+                    recordingsToCheckQuota, currentRecordings);
 
                 if (temporaryStatus == null)
                 {
@@ -17276,7 +17319,7 @@ namespace ConditionalAccess
                 }
             }
         }
-        
+
         public CDVRAdapterResponse SendConfigurationToAdapter(int adapterID)
         {
             CDVRAdapterResponse response = new CDVRAdapterResponse();
@@ -17345,7 +17388,7 @@ namespace ConditionalAccess
             return response;
         }
 
-        public RecordingResponse SerachDomainRecordings(string userID, long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses, 
+        public RecordingResponse SerachDomainRecordings(string userID, long domainID, List<ApiObjects.TstvRecordingStatus> recordingStatuses,
             string filter, int pageIndex, int pageSize, ApiObjects.SearchObjects.OrderObj orderBy)
         {
             RecordingResponse response = new RecordingResponse();
@@ -17372,7 +17415,7 @@ namespace ConditionalAccess
                     response.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
                     return response;
                 }
-                
+
                 Dictionary<long, long> recordingIdToDomainRecordingIdMap;
 
                 List<Recording> recordingsWithValidStatus =
@@ -17414,7 +17457,7 @@ namespace ConditionalAccess
             {
                 StringBuilder sb = new StringBuilder("Exception at SerachDomainRecordings. ");
                 sb.Append(String.Concat("userID: ", userID));
-                sb.Append(String.Concat("domainID: ", domainID));                
+                sb.Append(String.Concat("domainID: ", domainID));
                 sb.Append(", RecordingStatuses: ");
                 foreach (int recordingStatus in recordingStatuses)
                 {
@@ -17495,7 +17538,7 @@ namespace ConditionalAccess
 
             catch (Exception ex)
             {
-                StringBuilder sb = new StringBuilder("Exception at GetRecordingsByIDs. ");                
+                StringBuilder sb = new StringBuilder("Exception at GetRecordingsByIDs. ");
                 sb.Append("RecordingIDs: ");
                 if (recordingIDs != null)
                 {
@@ -17626,7 +17669,7 @@ namespace ConditionalAccess
             // Nothing to do
             if (epgIds == null || epgIds.Count == 0)
             {
-                return new ApiObjects.Response.Status((int)eResponseStatus.OK);;
+                return new ApiObjects.Response.Status((int)eResponseStatus.OK); ;
             }
 
             // In case an EPG was deleted - recording should be canceled as well
@@ -17769,7 +17812,7 @@ namespace ConditionalAccess
 
                 status = RemovePaymentMethodHouseholdInBilling(groupId, paymentGatewayId, siteGuid, householdId, paymentMethodId, force);
 
-                if (status.Code != (int) eResponseStatus.OK)
+                if (status.Code != (int)eResponseStatus.OK)
                     log.ErrorFormat("RemovePaymentMethodHouseholdPaymentGateway: Error removing payment method. groupID={0}, paymentGatewayId={1}, siteGuid= {2}, paymentMethodId {3}, error: ({4}) {5}", groupId, paymentGatewayId, siteGuid, paymentMethodId, status.Code, status.Message);
                 else
                     log.DebugFormat("RemovePaymentMethodHouseholdPaymentGateway: Removed payment method. groupID={0}, paymentGatewayId={1}, siteGuid= {2}, paymentMethodId {3}", groupId, paymentGatewayId, siteGuid, paymentMethodId);
@@ -17816,15 +17859,30 @@ namespace ConditionalAccess
         public ApiObjects.TimeShiftedTv.DomainQuotaResponse GetDomainQuota(string userID, long domainID)
         {
             ApiObjects.TimeShiftedTv.DomainQuotaResponse response = new DomainQuotaResponse();
+
             try
             {
-
                 ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userID, ref domainID);
 
                 if (validationStatus.Code != (int)eResponseStatus.OK)
                 {
                     log.DebugFormat("User or Domain not valid, DomainID: {0}, UserID: {1}", domainID, userID);
                     response.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
+                    return response;
+                }
+
+                TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
+                if (accountSettings == null || !accountSettings.IsCdvrEnabled.HasValue || !accountSettings.IsCdvrEnabled.Value)
+                {
+                    log.DebugFormat("account CDVR not enabled, DomainID: {0}, UserID: {1}", domainID, userID);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AccountCdvrNotEnabled, eResponseStatus.AccountCdvrNotEnabled.ToString());
+                    return response;
+                }
+
+                if (!IsServiceAllowed(m_nGroupID, (int)domainID, eService.NPVR))
+                {
+                    log.DebugFormat("Premium Service not allowed, DomainID: {0}, UserID: {1}, Service: {2}", domainID, userID, eService.NPVR.ToString());
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ServiceNotAllowed, eResponseStatus.ServiceNotAllowed.ToString());
                     return response;
                 }
 

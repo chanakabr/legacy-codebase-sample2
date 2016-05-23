@@ -13,7 +13,7 @@ namespace ApiObjects.CDNAdapter
         public bool IsActive { get; set; }
         public string AdapterUrl { get; set; }
         public string BaseUrl { get; set; }
-        public string Alias { get; set; }        
+        public string SystemName { get; set; }        
         public string SharedSecret { get; set; }        
 
         public List<CDNAdapterSettings> Settings { get; set; }
@@ -30,7 +30,7 @@ namespace ApiObjects.CDNAdapter
             this.IsActive = cdnAdapter.IsActive;
             this.AdapterUrl = cdnAdapter.AdapterUrl;
             this.BaseUrl = cdnAdapter.BaseUrl;
-            this.Alias = cdnAdapter.Alias;
+            this.SystemName = cdnAdapter.SystemName;
             this.SharedSecret = cdnAdapter.SharedSecret;
             this.Settings = cdnAdapter.Settings;            
         }

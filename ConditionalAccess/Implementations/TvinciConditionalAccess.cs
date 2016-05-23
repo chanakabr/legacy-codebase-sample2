@@ -13,6 +13,7 @@ using KLogMonitor;
 using ConditionalAccess.TvinciPricing;
 using ConditionalAccess.Response;
 using ApiObjects.Billing;
+using AdapterControllers;
 
 
 namespace ConditionalAccess
@@ -31,13 +32,14 @@ namespace ConditionalAccess
         {
         }
 
-        protected override string GetLicensedLink(int nStreamingCompany, Dictionary<string, string> dParams)
+        protected override string GetLicensedLink(int streamingCompany, Dictionary<string, string> dParams)
         {
+            string response = null;
 
-            CDNTokenizers.Tokenizers.ICDNTokenizer tokenizer = CDNTokenizers.CDNTokenizerFactory.GetTokenizerInstance(m_nGroupID, nStreamingCompany);
-            string sLicenseLink = tokenizer == null ? string.Empty : tokenizer.GenerateToken(dParams);
+            CDNTokenizers.Tokenizers.ICDNTokenizer tokenizer = CDNTokenizers.CDNTokenizerFactory.GetTokenizerInstance(m_nGroupID, streamingCompany);
+            response = tokenizer == null ? string.Empty : tokenizer.GenerateToken(dParams);
 
-            return sLicenseLink;
+            return response;
         }
 
         protected override bool GetUserCASubStatus(string sSiteGUID, ref UserCAStatus oUserCAStatus)
@@ -541,6 +543,7 @@ namespace ConditionalAccess
                     return response;
                 }
 
+                //TODO - comment and replace
                 if (eformat == eEPGFormatType.NPVR)
                 {
                     /*
@@ -561,9 +564,12 @@ namespace ConditionalAccess
                 }
                 int nProgramId = Int32.Parse(sProgramId);
                 int fileMainStreamingCoID = 0; // CDN Streaming id
-                LicensedLinkResponse oLicensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode, eObjectType.EPG, ref fileMainStreamingCoID);
+                int mediaId = 0;
+                LicensedLinkResponse oLicensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode, 
+                    eObjectType.EPG, ref fileMainStreamingCoID, ref mediaId);
+                
                 //GetLicensedLink return empty link no need to continue
-                if (oLicensedLinkResponse == null || string.IsNullOrEmpty(oLicensedLinkResponse.mainUrl))
+                if (oLicensedLinkResponse == null || oLicensedLinkResponse.Status == null || oLicensedLinkResponse.Status.Code != (int)eResponseStatus.OK)
                 {
                     throw new Exception("GetLicensedLinks returned empty response.");
                 }
@@ -630,25 +636,50 @@ namespace ConditionalAccess
                     return response;
                 }
 
-                //call the right provider to get the epg link 
+                // get adapter
+                var adapterResponse = Utils.GetRelevantCDN(m_nGroupID, fileMainStreamingCoID, TvinciAPI.eAssetTypes.EPG);
 
-                string CdnStrID = string.Empty;
-                bool bIsDynamic = Utils.GetStreamingUrlType(fileMainStreamingCoID, ref CdnStrID);
-                dURLParams.Add(EpgLinkConstants.IS_DYNAMIC, bIsDynamic);
-                dURLParams.Add(EpgLinkConstants.BASIC_LINK, sBasicLink);
-
-                StreamingProvider.ILSProvider provider = StreamingProvider.LSProviderFactory.GetLSProvidernstance(CdnStrID);
-                if (provider != null)
+                // if adapter response is not null and is adapter (has an adapter url) - call the adapter
+                if (adapterResponse.Adapter != null && !string.IsNullOrEmpty(adapterResponse.Adapter.AdapterUrl))
                 {
-                    string liveUrl = provider.GenerateEPGLink(dURLParams);
-                    if (!string.IsNullOrEmpty(liveUrl))
+                    // get device type
+                    string deviceType = Utils.GetDeviceTypeByUDID(m_nGroupID, sDEVICE_NAME);
+
+                    int actionType = Utils.MapActionTypeForAdapter(eformat);
+
+                    var link = CDNAdapterController.GetInstance().GetEpgLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGUID, sBasicLink, deviceType, nProgramId, mediaId, nMediaFileID,
+                        TVinciShared.DateUtils.DateTimeToUnixTimestamp(scheduling.StartDate), actionType, sUserIP);
+
+                    if (link != null)
                     {
-                        url = liveUrl;
+                        response.mainUrl = link.Url;
+                        response.status = eLicensedLinkStatus.OK.ToString();
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     }
                 }
-                response.Status.Code = (int)eResponseStatus.OK;
-                response.status = eLicensedLinkStatus.OK.ToString();
-                response.mainUrl = url;
+                else
+                {
+                    //call the right provider to get the epg link 
+                    string CdnStrID = string.Empty;
+
+                    bool bIsDynamic = Utils.GetStreamingUrlType(fileMainStreamingCoID, ref CdnStrID);
+                    dURLParams.Add(EpgLinkConstants.IS_DYNAMIC, bIsDynamic);
+                    dURLParams.Add(EpgLinkConstants.BASIC_LINK, sBasicLink);
+
+                    StreamingProvider.ILSProvider provider = StreamingProvider.LSProviderFactory.GetLSProvidernstance(CdnStrID);
+                    if (provider != null)
+                    {
+                        string liveUrl = provider.GenerateEPGLink(dURLParams);
+                        if (!string.IsNullOrEmpty(liveUrl))
+                        {
+                            url = liveUrl;
+                        }
+                    }
+                    response.Status.Code = (int)eResponseStatus.OK;
+                    response.status = eLicensedLinkStatus.OK.ToString();
+                    response.mainUrl = url;
+                }
+
                 return response;
 
             }
@@ -682,7 +713,6 @@ namespace ConditionalAccess
                 }
             }
         }
-
 
         protected override bool HandlePPVBillingSuccess(ref TransactionResponse response, string siteguid, long houseHoldId, Subscription relevantSub, double price, string currency,
                                                         string coupon, string userIp, string country, string deviceName, long billingTransactionId, string customData,

@@ -206,9 +206,6 @@ namespace AdapterControllers.CdnAdapter {
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int FailReasonField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string ProviderStatusCodeField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -224,19 +221,6 @@ namespace AdapterControllers.CdnAdapter {
             }
             set {
                 this.extensionDataField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int FailReason {
-            get {
-                return this.FailReasonField;
-            }
-            set {
-                if ((this.FailReasonField.Equals(value) != true)) {
-                    this.FailReasonField = value;
-                    this.RaisePropertyChanged("FailReason");
-                }
             }
         }
         
@@ -300,22 +284,22 @@ namespace AdapterControllers.CdnAdapter {
         System.Threading.Tasks.Task<AdapterControllers.CdnAdapter.AdapterStatus> SetConfigurationAsync(int adapterId, AdapterControllers.CdnAdapter.KeyValue[] settings, int partnerId, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetVodLink", ReplyAction="http://tempuri.org/IService/GetVodLinkResponse")]
-        AdapterControllers.CdnAdapter.LinkResponse GetVodLink(int adapterId, string url, string deviceType, int assetId, int contentId, long timeStamp, string signature);
+        AdapterControllers.CdnAdapter.LinkResponse GetVodLink(int adapterId, string userId, string url, string deviceType, int assetId, int contentId, string ip, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetVodLink", ReplyAction="http://tempuri.org/IService/GetVodLinkResponse")]
-        System.Threading.Tasks.Task<AdapterControllers.CdnAdapter.LinkResponse> GetVodLinkAsync(int adapterId, string url, string deviceType, int assetId, int contentId, long timeStamp, string signature);
+        System.Threading.Tasks.Task<AdapterControllers.CdnAdapter.LinkResponse> GetVodLinkAsync(int adapterId, string userId, string url, string deviceType, int assetId, int contentId, string ip, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetRecordingLink", ReplyAction="http://tempuri.org/IService/GetRecordingLinkResponse")]
-        AdapterControllers.CdnAdapter.LinkResponse GetRecordingLink(int adapterId, string url, string deviceType, string channelId, string recordingId, long timeStamp, string signature);
+        AdapterControllers.CdnAdapter.LinkResponse GetRecordingLink(int adapterId, string userId, string url, string deviceType, string recordingId, string ip, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetRecordingLink", ReplyAction="http://tempuri.org/IService/GetRecordingLinkResponse")]
-        System.Threading.Tasks.Task<AdapterControllers.CdnAdapter.LinkResponse> GetRecordingLinkAsync(int adapterId, string url, string deviceType, string channelId, string recordingId, long timeStamp, string signature);
+        System.Threading.Tasks.Task<AdapterControllers.CdnAdapter.LinkResponse> GetRecordingLinkAsync(int adapterId, string userId, string url, string deviceType, string recordingId, string ip, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetEpgLink", ReplyAction="http://tempuri.org/IService/GetEpgLinkResponse")]
-        AdapterControllers.CdnAdapter.LinkResponse GetEpgLink(int adapterId, string url, string deviceType, int programId, int assetId, int contentId, long startTimeSeconds, int actionType, long timeStamp, string signature);
+        AdapterControllers.CdnAdapter.LinkResponse GetEpgLink(int adapterId, string userId, string url, string deviceType, int programId, int assetId, int contentId, long startTimeSeconds, int actionType, string ip, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetEpgLink", ReplyAction="http://tempuri.org/IService/GetEpgLinkResponse")]
-        System.Threading.Tasks.Task<AdapterControllers.CdnAdapter.LinkResponse> GetEpgLinkAsync(int adapterId, string url, string deviceType, int programId, int assetId, int contentId, long startTimeSeconds, int actionType, long timeStamp, string signature);
+        System.Threading.Tasks.Task<AdapterControllers.CdnAdapter.LinkResponse> GetEpgLinkAsync(int adapterId, string userId, string url, string deviceType, int programId, int assetId, int contentId, long startTimeSeconds, int actionType, string ip, long timeStamp, string signature);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -353,28 +337,28 @@ namespace AdapterControllers.CdnAdapter {
             return base.Channel.SetConfigurationAsync(adapterId, settings, partnerId, timeStamp, signature);
         }
         
-        public AdapterControllers.CdnAdapter.LinkResponse GetVodLink(int adapterId, string url, string deviceType, int assetId, int contentId, long timeStamp, string signature) {
-            return base.Channel.GetVodLink(adapterId, url, deviceType, assetId, contentId, timeStamp, signature);
+        public AdapterControllers.CdnAdapter.LinkResponse GetVodLink(int adapterId, string userId, string url, string deviceType, int assetId, int contentId, string ip, long timeStamp, string signature) {
+            return base.Channel.GetVodLink(adapterId, userId, url, deviceType, assetId, contentId, ip, timeStamp, signature);
         }
         
-        public System.Threading.Tasks.Task<AdapterControllers.CdnAdapter.LinkResponse> GetVodLinkAsync(int adapterId, string url, string deviceType, int assetId, int contentId, long timeStamp, string signature) {
-            return base.Channel.GetVodLinkAsync(adapterId, url, deviceType, assetId, contentId, timeStamp, signature);
+        public System.Threading.Tasks.Task<AdapterControllers.CdnAdapter.LinkResponse> GetVodLinkAsync(int adapterId, string userId, string url, string deviceType, int assetId, int contentId, string ip, long timeStamp, string signature) {
+            return base.Channel.GetVodLinkAsync(adapterId, userId, url, deviceType, assetId, contentId, ip, timeStamp, signature);
         }
         
-        public AdapterControllers.CdnAdapter.LinkResponse GetRecordingLink(int adapterId, string url, string deviceType, string channelId, string recordingId, long timeStamp, string signature) {
-            return base.Channel.GetRecordingLink(adapterId, url, deviceType, channelId, recordingId, timeStamp, signature);
+        public AdapterControllers.CdnAdapter.LinkResponse GetRecordingLink(int adapterId, string userId, string url, string deviceType, string recordingId, string ip, long timeStamp, string signature) {
+            return base.Channel.GetRecordingLink(adapterId, userId, url, deviceType, recordingId, ip, timeStamp, signature);
         }
         
-        public System.Threading.Tasks.Task<AdapterControllers.CdnAdapter.LinkResponse> GetRecordingLinkAsync(int adapterId, string url, string deviceType, string channelId, string recordingId, long timeStamp, string signature) {
-            return base.Channel.GetRecordingLinkAsync(adapterId, url, deviceType, channelId, recordingId, timeStamp, signature);
+        public System.Threading.Tasks.Task<AdapterControllers.CdnAdapter.LinkResponse> GetRecordingLinkAsync(int adapterId, string userId, string url, string deviceType, string recordingId, string ip, long timeStamp, string signature) {
+            return base.Channel.GetRecordingLinkAsync(adapterId, userId, url, deviceType, recordingId, ip, timeStamp, signature);
         }
         
-        public AdapterControllers.CdnAdapter.LinkResponse GetEpgLink(int adapterId, string url, string deviceType, int programId, int assetId, int contentId, long startTimeSeconds, int actionType, long timeStamp, string signature) {
-            return base.Channel.GetEpgLink(adapterId, url, deviceType, programId, assetId, contentId, startTimeSeconds, actionType, timeStamp, signature);
+        public AdapterControllers.CdnAdapter.LinkResponse GetEpgLink(int adapterId, string userId, string url, string deviceType, int programId, int assetId, int contentId, long startTimeSeconds, int actionType, string ip, long timeStamp, string signature) {
+            return base.Channel.GetEpgLink(adapterId, userId, url, deviceType, programId, assetId, contentId, startTimeSeconds, actionType, ip, timeStamp, signature);
         }
         
-        public System.Threading.Tasks.Task<AdapterControllers.CdnAdapter.LinkResponse> GetEpgLinkAsync(int adapterId, string url, string deviceType, int programId, int assetId, int contentId, long startTimeSeconds, int actionType, long timeStamp, string signature) {
-            return base.Channel.GetEpgLinkAsync(adapterId, url, deviceType, programId, assetId, contentId, startTimeSeconds, actionType, timeStamp, signature);
+        public System.Threading.Tasks.Task<AdapterControllers.CdnAdapter.LinkResponse> GetEpgLinkAsync(int adapterId, string userId, string url, string deviceType, int programId, int assetId, int contentId, long startTimeSeconds, int actionType, string ip, long timeStamp, string signature) {
+            return base.Channel.GetEpgLinkAsync(adapterId, userId, url, deviceType, programId, assetId, contentId, startTimeSeconds, actionType, ip, timeStamp, signature);
         }
     }
 }

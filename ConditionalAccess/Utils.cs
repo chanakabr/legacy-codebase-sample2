@@ -4571,5 +4571,119 @@ namespace ConditionalAccess
             }
             return QuotaInMinutes;
         }
+
+        internal static int MapActionTypeForAdapter(eEPGFormatType eformat)
+        {
+            int response = -1;
+
+            switch (eformat)
+            {
+                case eEPGFormatType.Catchup:
+                    response = (int)CdnAdapterActionType.Catchup;
+                    break;
+                case eEPGFormatType.StartOver:
+                    response = (int)CdnAdapterActionType.StartOver;
+                    break;
+                case eEPGFormatType.LivePause:
+                    response = (int)CdnAdapterActionType.LivePause;
+                    break;
+                case eEPGFormatType.NPVR:
+                    break;
+                default:
+                    break;
+            }
+
+            return response;
+        }
+
+        internal static string GetDeviceTypeByUDID(int groupId, string udid)
+        {
+            string deviceType = string.Empty;
+            try
+            {
+                TvinciDomains.module domains = new TvinciDomains.module();
+                string sWSUserName = string.Empty;
+                string sWSPass = string.Empty;
+
+                domains.Url = Utils.GetWSURL("domains_ws");
+
+                Utils.GetWSCredentials(groupId, eWSModules.DOMAINS, ref sWSUserName, ref sWSPass);
+
+                if (string.IsNullOrEmpty(domains.Url) || string.IsNullOrEmpty(sWSUserName) || string.IsNullOrEmpty(sWSPass))
+                {
+                    log.ErrorFormat("GetDeviceTyprByUDID: missing WS Domains credentials or url. groupId = {0}", groupId);
+                    return null;
+                }
+
+                var device = domains.GetDeviceInfo(sWSUserName, sWSPass, udid, true);
+                if (device != null && device.m_oDevice != null)
+                {
+                    deviceType = device.m_oDevice.m_deviceBrandID.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("GetDeviceTyprByUDID: failed calling WS API. groupId = {0}", groupId, ex);
+            }
+
+            return deviceType;
+        }
+
+        internal static TvinciAPI.CDNAdapterResponse GetRelevantCDN(int groupId, int fileStreamingCompanyId, ConditionalAccess.TvinciAPI.eAssetTypes assetType)
+        {
+            TvinciAPI.CDNAdapterResponse adapterResponse = null;
+
+            TvinciAPI.API api = new TvinciAPI.API();
+            string sWSUserName = string.Empty;
+            string sWSPass = string.Empty;
+
+            api.Url = Utils.GetWSURL("api_ws");
+
+            Utils.GetWSCredentials(groupId, eWSModules.API, ref sWSUserName, ref sWSPass);
+
+            if (string.IsNullOrEmpty(api.Url) || string.IsNullOrEmpty(sWSUserName) || string.IsNullOrEmpty(sWSPass))
+            {
+                log.ErrorFormat("GetLicensedLink: missing WS API credentials or url. groupId = {0}", groupId);
+                adapterResponse.Status.Code = (int)eResponseStatus.Error;
+                adapterResponse.Status.Message = "Error";
+                return adapterResponse;
+            }
+
+            try
+            {
+                // if nStreamingCompany is 0 - call api service for getting the default adapter / streaming company
+                if (fileStreamingCompanyId == 0)
+                {
+                    adapterResponse = api.GetGroupDefaultCDNAdapter(sWSUserName, sWSPass, assetType);
+                }
+                // else - call api service for getting the adapter / streaming company with the nStreamingCompany ID                
+                else
+                {
+                    adapterResponse = api.GetCDNAdapter(sWSUserName, sWSPass, fileStreamingCompanyId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("GetLicensedLink: failed calling WS API. groupId = {0}", groupId, ex);
+                adapterResponse.Status.Code = (int)eResponseStatus.Error;
+                adapterResponse.Status.Message = "Error";
+                return adapterResponse;
+            }
+
+            if (adapterResponse == null || adapterResponse.Status == null)
+            {
+                log.ErrorFormat("GetLicensedLink: failed to get adapter response from WS API. groupId = {0}, adapterId = {1}", fileStreamingCompanyId, groupId);
+                adapterResponse.Status.Code = (int)eResponseStatus.Error;
+                adapterResponse.Status.Message = "Error";
+                return adapterResponse;
+            }
+            if (adapterResponse.Status.Code != (int)eResponseStatus.OK)
+            {
+                log.DebugFormat("GetLicensedLink: got error adapter response from WS API. groupId = {0}, adapterId = {1}, status.code = {2}, status.message = {3}",
+                    fileStreamingCompanyId, groupId, adapterResponse.Status.Code, adapterResponse.Status.Message);
+            }
+
+            return adapterResponse;
+        }
     }
 }

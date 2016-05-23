@@ -633,4 +633,11 @@ namespace ApiObjects
         Read = 1,
         Trashed = 2
     }
+
+    public enum CdnAdapterActionType
+    {
+        Catchup = 0,
+        StartOver = 1,
+        LivePause = 2,
+    }
 }

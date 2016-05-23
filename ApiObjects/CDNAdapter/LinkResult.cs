@@ -13,7 +13,5 @@ namespace ApiObjects
         public string ProviderStatusCode { get; set; }
 
         public string ProviderStatusMessage { get; set; }
-
-        public int FailReason { get; set; }
     }
 }
