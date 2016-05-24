@@ -257,5 +257,14 @@ namespace CachingProvider
             return false;
         }
 
+        public List<string> GetKeys()
+        {                        
+            List<string> keys = new List<string>();
+            foreach (var item in cache)
+            {                
+                keys.Add(item.Key);
+            }
+            return keys;
+        }
     }
 }

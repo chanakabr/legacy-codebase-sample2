@@ -17,7 +17,8 @@ namespace CachingProvider
         BaseModuleCache GetWithVersion<T>(string sKey);
         bool AddWithVersion<T>(string sKey, BaseModuleCache oValue);
         bool AddWithVersion<T>(string sKey, BaseModuleCache oValue, double nMinuteOffset);
-        bool SetWithVersion<T>(string sKey, BaseModuleCache oValue, double nMinuteOffset);      
+        bool SetWithVersion<T>(string sKey, BaseModuleCache oValue, double nMinuteOffset);
+        List<string> GetKeys();
         
         T Get<T>(string sKey) where T : class;
 

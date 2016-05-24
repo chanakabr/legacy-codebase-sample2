@@ -326,5 +326,10 @@ namespace CachingProvider
 
             return success;
         }
+
+        public override List<string> GetKeys()
+        {
+            return new List<string>();
+        }
     }
 }

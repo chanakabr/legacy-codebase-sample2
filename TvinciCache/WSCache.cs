@@ -144,5 +144,10 @@ namespace TvinciCache
                 instance = null;
             }
         }
+
+        public List<string> GetKeys()
+        {            
+            return cache.GetKeys();            
+        }
     }
 }

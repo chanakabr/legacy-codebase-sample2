@@ -38,5 +38,7 @@ namespace CachingProvider
         public abstract bool SetJson<T>(string sKey, T obj, double dCacheTT);
 
         public abstract bool GetJsonAsT<T>(string sKey, out T res) where T : class;
+
+        public abstract List<string> GetKeys();
     }
 }

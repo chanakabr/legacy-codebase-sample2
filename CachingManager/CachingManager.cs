@@ -201,5 +201,22 @@ namespace CachingManager
             return result;
         }
 
+        static public List<string> GetCachedKeys()
+        {
+            List<string> keys = new List<string>();
+            try
+            {
+                foreach (System.Collections.DictionaryEntry entry in System.Web.HttpRuntime.Cache)
+                {
+                    keys.Add(entry.Key.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("GetCachedKeys failed", ex);
+            }
+            return keys;
+        }
+
     }
 }
