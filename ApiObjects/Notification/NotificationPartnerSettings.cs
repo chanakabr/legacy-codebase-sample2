@@ -10,5 +10,13 @@ namespace ApiObjects.Notification
         public int? PushEndHour { get; set; }
         public bool? IsInboxEnabled { get; set; }
         public int? MessageTTL { get; set; }
+        public bool? AutomaticIssueFollowNotifications { get; set; }
+
+        public NotificationPartnerSettings()
+        {
+            // by default - AutomaticIssueFollowNotifications = true
+            if (!AutomaticIssueFollowNotifications.HasValue)
+                AutomaticIssueFollowNotifications = true;
+        }   
     }
 }

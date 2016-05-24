@@ -945,32 +945,32 @@ namespace DAL
             return newTransactionID;
         }
 
-        public static DataRowCollection Get_Announcement(int groupId, List<eAnnouncementRecipientsType> recipientsTypes, List<long> announcementIds, bool isAnd = false)
-        {
-            DataRowCollection rowCollection = null;
+        //public static DataRowCollection Get_Announcement(int groupId, List<eAnnouncementRecipientsType> recipientsTypes, List<long> announcementIds, bool isAnd = false)
+        //{
+        //    DataRowCollection rowCollection = null;
 
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAnnouncements");
-            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+        //    ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAnnouncements");
+        //    sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
 
-            sp.AddParameter("@group_id", groupId);
-            sp.AddParameter("@and", Convert.ToInt16(isAnd));
+        //    sp.AddParameter("@group_id", groupId);
+        //    sp.AddParameter("@and", Convert.ToInt16(isAnd));
 
-            if (announcementIds != null && announcementIds.Count > 0)
-                sp.AddIDListParameter<long>("@ids", announcementIds, "Id");
+        //    if (announcementIds != null && announcementIds.Count > 0)
+        //        sp.AddIDListParameter<long>("@ids", announcementIds, "Id");
 
-            if (recipientsTypes != null && recipientsTypes.Count > 0)
-                sp.AddIDListParameter<int>("@recipient_types", recipientsTypes.Cast<int>().ToList(), "Id");
+        //    if (recipientsTypes != null && recipientsTypes.Count > 0)
+        //        sp.AddIDListParameter<int>("@recipient_types", recipientsTypes.Cast<int>().ToList(), "Id");
 
-            DataSet ds = sp.ExecuteDataSet();
-            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
-            {
-                DataTable dt = ds.Tables[0];
-                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                    rowCollection = dt.Rows;
-            }
+        //    DataSet ds = sp.ExecuteDataSet();
+        //    if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+        //    {
+        //        DataTable dt = ds.Tables[0];
+        //        if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+        //            rowCollection = dt.Rows;
+        //    }
 
-            return rowCollection;
-        }
+        //    return rowCollection;
+        //}
 
         /// <summary>
         /// Retrieve userIds which follows the notification 

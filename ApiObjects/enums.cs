@@ -251,7 +251,7 @@ namespace ApiObjects
     public enum eOTTAssetTypes
     {
         None = 0,
-        Series= 1
+        Series = 1
     }
 
     public enum eAssetTypes
@@ -573,7 +573,7 @@ namespace ApiObjects
 
     public enum eFollowSeriesPlaceHolders
     {
-        MediaName= 0,
+        MediaName = 0,
         SeriesName = 1,
         CatalaogStartDate = 2,
         StartDate = 3,
