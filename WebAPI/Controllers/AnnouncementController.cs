@@ -28,7 +28,7 @@ namespace WebAPI.Controllers
         /// timezone parameter should be taken from the 'name of timezone' from: https://msdn.microsoft.com/en-us/library/ms912391(v=winembedded.11).aspx
         /// Recipients values: All, LoggedIn, Guests</param>
         /// <returns></returns>
-        /// <remarks>Possible status codes: AnnouncementMessageTooLong = 8010, AnnouncementMessageIsEmpty = 8004, AnnouncementInvalidStartTime = 8005,
+        /// <remarks>Possible status codes: AnnouncementMessageTooLong = 8010, AnnouncementMessageIsEmpty = 8004
         /// FeatureDisabled = 8009</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
@@ -72,7 +72,7 @@ namespace WebAPI.Controllers
         /// timezone parameter should be taken from the 'name of timezone' from: https://msdn.microsoft.com/en-us/library/ms912391(v=winembedded.11).aspx
         /// Recipients values: All, LoggedIn, Guests</param>
         /// <returns></returns>
-        /// <remarks>Possible status codes: AnnouncementMessageTooLong = 8010, AnnouncementMessageIsEmpty = 8004, AnnouncementInvalidStartTime = 8005, AnnouncementNotFound = 8006,
+        /// <remarks>Possible status codes: AnnouncementMessageTooLong = 8010, AnnouncementMessageIsEmpty = 8004, AnnouncementNotFound = 8006,
         /// AnnouncementUpdateNotAllowed = 8007, FeatureDisabled = 8009</remarks>
         [Route("update"), HttpPost]
         [ApiAuthorize]
