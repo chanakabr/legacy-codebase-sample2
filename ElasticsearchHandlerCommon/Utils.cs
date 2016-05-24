@@ -118,9 +118,10 @@ namespace ElasticsearchTasksCommon
                 storedProcedure.AddParameter("@GroupID", groupId);
                 storedProcedure.AddParameter("@MediaID", mediaID);
 
-                Task<DataSet> dataSetTask = Task<DataSet>.Factory.StartNew(() => storedProcedure.ExecuteDataSet());
-                dataSetTask.Wait();
-                DataSet dataSet = dataSetTask.Result;
+                DataSet dataSet = storedProcedure.ExecuteDataSet();
+                //Task<DataSet> dataSetTask = Task<DataSet>.Factory.StartNew(() => storedProcedure.ExecuteDataSet());
+                //dataSetTask.Wait();
+                //DataSet dataSet = dataSetTask.Result;
 
                 Catalog.Utils.BuildMediaFromDataSet(ref mediaTranslations, ref medias, group, dataSet);
 
