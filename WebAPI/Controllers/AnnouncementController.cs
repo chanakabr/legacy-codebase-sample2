@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.Http;
+using KLogMonitor;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -17,11 +19,13 @@ namespace WebAPI.Controllers
     [RoutePrefix("_service/announcement/action")]
     public class AnnouncementController : ApiController
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         /// <summary>
         /// Add a new future scheduled system announcment push notification
         /// </summary>
         /// <param name="announcement">The announcement to be added.
-        /// timezone param should be taken from the 'name of timezone' from: https://msdn.microsoft.com/en-us/library/ms912391(v=winembedded.11).aspx
+        /// timezone parameter should be taken from the 'name of timezone' from: https://msdn.microsoft.com/en-us/library/ms912391(v=winembedded.11).aspx
         /// Recipients values: All, LoggedIn, Guests</param>
         /// <returns></returns>
         /// <remarks>Possible status codes: AnnouncementMessageTooLong = 8010, AnnouncementMessageIsEmpty = 8004, AnnouncementInvalidStartTime = 8005,
@@ -34,6 +38,21 @@ namespace WebAPI.Controllers
 
             try
             {
+                // validate announcement is not empty
+                if (announcement == null)
+                {
+                    log.Error("announcement object is empty");
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "announcement object is empty");
+                }
+
+                // validate announcement start date
+                if (announcement.getStartTime() > 0 &&
+                    announcement.StartTime < Utils.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow))
+                {
+                    log.ErrorFormat("start time have passed. given time: {0}", Utils.Utils.UnixTimeStampToDateTime((long)announcement.StartTime));
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "start time have passed");
+                }
+
                 int groupId = KS.GetFromRequest().GroupId;
                 response = ClientsManager.NotificationClient().AddAnnouncement(groupId, announcement);
             }
@@ -47,10 +66,10 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Update an existing future system annoucement push notification. Annoucement can only be updated only before sending
+        /// Update an existing future system announcement push notification. Announcement can only be updated only before sending
         /// </summary>
         /// <param name="announcement">The announcement to update.
-        /// timezone param should be taken from the 'name of timezone' from: https://msdn.microsoft.com/en-us/library/ms912391(v=winembedded.11).aspx
+        /// timezone parameter should be taken from the 'name of timezone' from: https://msdn.microsoft.com/en-us/library/ms912391(v=winembedded.11).aspx
         /// Recipients values: All, LoggedIn, Guests</param>
         /// <returns></returns>
         /// <remarks>Possible status codes: AnnouncementMessageTooLong = 8010, AnnouncementMessageIsEmpty = 8004, AnnouncementInvalidStartTime = 8005, AnnouncementNotFound = 8006,
@@ -60,10 +79,26 @@ namespace WebAPI.Controllers
         public bool Update(KalturaAnnouncement announcement)
         {
             bool response = false;
-            
+
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
+
+                // validate announcement is not empty
+                if (announcement == null)
+                {
+                    log.Error("announcement object is empty");
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "announcement object is empty");
+                }
+
+                // validate announcement start date
+                if (announcement.getStartTime() > 0 &&
+                    announcement.StartTime < Utils.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow))
+                {
+                    log.ErrorFormat("start time have passed. given time: {0}", Utils.Utils.UnixTimeStampToDateTime((long)announcement.StartTime));
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "start time have passed");
+                }
+
                 response = ClientsManager.NotificationClient().UpdateAnnouncement(groupId, announcement);
             }
 
@@ -104,7 +139,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Delete an exisitng annoucnent. Annoucment cannot be delete while being sent.
+        /// Delete an existing announcing. Announcement cannot be delete while being sent.
         /// </summary>
         /// <param name="id">Id of the announcement.</param>
         /// <returns></returns>
@@ -130,7 +165,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// create system announcment 
+        /// create system announcement 
         /// </summary>       
         /// <returns></returns>
         /// <remarks>Possible status codes: FeatureDisabled = 8009, FailCreateAnnouncement = 8011</remarks>
