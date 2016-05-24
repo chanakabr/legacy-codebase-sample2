@@ -29,7 +29,7 @@ namespace WebAPI.Controllers
         /// Recipients values: All, LoggedIn, Guests</param>
         /// <returns></returns>
         /// <remarks>Possible status codes: AnnouncementMessageTooLong = 8010, AnnouncementMessageIsEmpty = 8004
-        /// FeatureDisabled = 8009</remarks>
+        /// AnnouncementInvalidTimezone = 8008, FeatureDisabled = 8009</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
         public bool Add(KalturaAnnouncement announcement)
@@ -73,7 +73,7 @@ namespace WebAPI.Controllers
         /// Recipients values: All, LoggedIn, Guests</param>
         /// <returns></returns>
         /// <remarks>Possible status codes: AnnouncementMessageTooLong = 8010, AnnouncementMessageIsEmpty = 8004, AnnouncementNotFound = 8006,
-        /// AnnouncementUpdateNotAllowed = 8007, FeatureDisabled = 8009</remarks>
+        /// AnnouncementUpdateNotAllowed = 8007, AnnouncementInvalidTimezone = 8008, FeatureDisabled = 8009</remarks>
         [Route("update"), HttpPost]
         [ApiAuthorize]
         public bool Update(KalturaAnnouncement announcement)
