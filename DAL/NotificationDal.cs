@@ -927,7 +927,7 @@ namespace DAL
             return ret;
         }
 
-        public static int Insert_Announcement(int groupId, string announcementName, string externalAnnouncementId, int messageType, int announcementRecipientsType, string followPhrase = null, string followReference = null)
+        public static int Insert_Announcement(int groupId, string announcementName, string externalAnnouncementId, int messageType, int announcementRecipientsType, string followPhrase = null, string followReference = null, bool? automaticSending = null)
         {
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("Insert_Announcement");
             spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -940,6 +940,7 @@ namespace DAL
             spInsert.AddParameter("@created_at", DateTime.UtcNow);
             spInsert.AddParameter("@follow_phrase", followPhrase);
             spInsert.AddParameter("@follow_reference", followReference);
+            spInsert.AddParameter("@automaticSending", automaticSending);
 
             int newTransactionID = spInsert.ExecuteReturnValue<int>();
             return newTransactionID;
@@ -1086,6 +1087,11 @@ namespace DAL
                     foreach (DataRow row in ds.Tables[0].Rows)
                     {
                         int recipientType = ODBCWrapper.Utils.GetIntSafeVal(row, "recipient_type");
+                        string automaticSending = ODBCWrapper.Utils.GetSafeStr(row, "automatic_sending");
+
+                        bool? automaticIssueFollowNotification = null;
+                        if (!string.IsNullOrEmpty(automaticSending))
+                            automaticIssueFollowNotification = bool.Parse(automaticSending);
 
                         dbAnnouncement = new DbAnnouncement()
                         {
@@ -1094,6 +1100,7 @@ namespace DAL
                             Name = ODBCWrapper.Utils.GetSafeStr(row, "name"),
                             FollowPhrase = ODBCWrapper.Utils.GetSafeStr(row, "follow_phrase"),
                             FollowReference = ODBCWrapper.Utils.GetSafeStr(row, "follow_reference"),
+                            AutomaticIssueFollowNotification = automaticIssueFollowNotification,
                             RecipientsType = Enum.IsDefined(typeof(eAnnouncementRecipientsType), recipientType) ? (eAnnouncementRecipientsType)recipientType : eAnnouncementRecipientsType.All
                         };
 
