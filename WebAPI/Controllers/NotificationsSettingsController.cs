@@ -15,7 +15,7 @@ namespace WebAPI.Controllers
     public class NotificationsSettingsController : ApiController
     {
         /// <summary>
-        /// Retrieve the notification settings.       
+        /// Retrieve the user’s notification settings.    
         /// </summary>    
         /// 
         /// <remarks>        
@@ -43,7 +43,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// update the notification settings.      
+        /// Update the user’s notification settings.      
         /// </summary>    
         /// 
         /// <remarks>        
