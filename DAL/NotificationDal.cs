@@ -1047,7 +1047,7 @@ namespace DAL
             return result;
         }
 
-        public static bool RemoveUserFollowNotification(int groupId, int userId, int notificationId)
+        public static bool RemoveUserFollowNotification(int groupId, int userId, long notificationId)
         {
             bool passed = false;
             string userNotificationItemKey = GetUserFollowsNotificationKey(groupId, userId, notificationId);
