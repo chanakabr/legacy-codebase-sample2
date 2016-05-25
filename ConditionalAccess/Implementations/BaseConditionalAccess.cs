@@ -17574,7 +17574,7 @@ namespace ConditionalAccess
                 //check External Identifier uniqueness 
                 CDVRAdapter responseAdpater = DAL.ConditionalAccessDAL.GetCDVRAdapterByExternalId(m_nGroupID, adapter.ExternalIdentifier);
 
-                if (responseAdpater != null && responseAdpater.ID > 0 && responseAdpater.ID != responseAdpater.ID)
+                if (responseAdpater != null && responseAdpater.ID > 0 && responseAdpater.ID != adapter.ID)
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExternalIdentifierMustBeUnique, ERROR_EXT_ID_ALREADY_IN_USE);
                     return response;
