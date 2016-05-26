@@ -21,7 +21,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
-        /// Message identifier required = 8019
+        /// User inbox messages not exist = 8020
         /// </remarks>
         /// <param name="id">message id</param>        
         [Route("get"), HttpPost]
