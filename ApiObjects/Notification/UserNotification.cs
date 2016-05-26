@@ -8,7 +8,9 @@ namespace ApiObjects.Notification
     {
         public int UserId { get; set; }
 
-        public List<UserDevice> Userdevices { get; set; }
+        public long CreateDateSec { get; set; }
+
+        public List<UserDevice> devices { get; set; }
 
         public List<Announcement> Announcements { get; set; }
 
@@ -20,7 +22,7 @@ namespace ApiObjects.Notification
         public UserNotification(int userId)
         {
             this.UserId = userId;
-            this.Userdevices = new List<UserDevice>();
+            this.devices = new List<UserDevice>();
             this.Announcements = new List<Announcement>();
             this.Settings = new UserNotificationSettings();
         }
