@@ -17,7 +17,7 @@ namespace WebAPI.Models.Notification
     public class KalturaPartnerNotificationSettings : KalturaOTTObject
     {
         /// <summary>
-        /// push notification enabled
+        /// Push notification capability is enabled for the account
         /// </summary>
         [DataMember(Name = "pushNotificationEnabled")]
         [JsonProperty("pushNotificationEnabled")]
@@ -25,7 +25,7 @@ namespace WebAPI.Models.Notification
         public bool? PushNotificationEnabled { get; set; }
 
         /// <summary>
-        /// push system announcements enabled
+        /// System announcement capability is enabled for the account
         /// </summary>
         [DataMember(Name = "pushSystemAnnouncementsEnabled")]
         [JsonProperty("pushSystemAnnouncementsEnabled")]
@@ -33,7 +33,7 @@ namespace WebAPI.Models.Notification
         public bool? PushSystemAnnouncementsEnabled { get; set; }
 
         /// <summary>
-        /// push start hour
+        /// Window start time (UTC) for send automated push messages
         /// </summary>
         [DataMember(Name = "pushStartHour")]
         [JsonProperty("pushStartHour")]
@@ -41,7 +41,7 @@ namespace WebAPI.Models.Notification
         public int? PushStartHour { get; set; }
 
         /// <summary>
-        /// push end hour
+        /// Window end time (UTC) for send automated push messages
         /// </summary>
         [DataMember(Name = "pushEndHour")]
         [JsonProperty("pushEndHour")]
@@ -57,11 +57,11 @@ namespace WebAPI.Models.Notification
         public bool? InboxEnabled { get; set; }
 
         /// <summary>
-        /// Inbox enabled
+        /// Message TTL in days
         /// </summary>
         [DataMember(Name = "messageTTL")]
         [JsonProperty("messageTTL")]
         [XmlElement(ElementName = "messageTTL", IsNullable = true)]
-        public int? MessageTTL { get; set; }
+        public int? MessageTTL { get; set; }       
     }
 }
