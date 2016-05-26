@@ -41,15 +41,15 @@ namespace WebAPI.Controllers
             return response;
         }
 
+
         /// <summary>
-        /// update the partner notification settings.      
-        /// </summary>    
+        /// Update the account notification settings
+        /// </summary>
+        /// <param name="settings">Account notification settings model</param>
         /// <remarks>        
         /// Possible status codes: 
         /// Push notification false = 8001, Invalid message ttl = 8018
-        /// </remarks>
-        /// <returns>The notification settings that apply for the partner</returns>
-        /// 
+        /// <returns></returns>
         [Route("update"), HttpPost]
         [ApiAuthorize]
         public bool Update(KalturaPartnerNotificationSettings settings)

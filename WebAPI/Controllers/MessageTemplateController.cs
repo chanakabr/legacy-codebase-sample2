@@ -12,7 +12,7 @@ namespace WebAPI.Controllers
     public class MessageTemplateController : ApiController
     {
         /// <summary>
-        /// Set message template for message notification 
+        /// Set the account’s push notifications and inbox messages templates
         /// </summary>
         /// <param name="message_template">The actual message with placeholders to be presented to the user</param>       
         /// <returns></returns>
@@ -51,7 +51,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        ///  Get message template
+        /// Retrieve a message template used in push notifications and inbox
         /// </summary>
         /// <param name="asset_Type">possible values: Asset type – Series</param>
         /// <returns></returns>     

@@ -15,7 +15,7 @@ namespace WebAPI.Models.Notification
     public class KalturaNotificationSettings : KalturaOTTObject
     {
         /// <summary>
-        /// push notification enabled
+        /// Specify if the user want to receive push notifications or not
         /// </summary>
         [DataMember(Name = "pushNotificationEnabled")]
         [JsonProperty("pushNotificationEnabled")]
@@ -23,7 +23,7 @@ namespace WebAPI.Models.Notification
         public bool? PushNotificationEnabled { get; set; }
 
         /// <summary>
-        /// push follow enabled
+        /// Specify if the user will be notified for followed content via push. (requires push_notification_enabled to be enabled)
         /// </summary>
         [DataMember(Name = "pushFollowEnabled")]
         [JsonProperty("pushFollowEnabled")]

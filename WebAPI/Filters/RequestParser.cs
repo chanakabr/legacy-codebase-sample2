@@ -265,7 +265,14 @@ namespace WebAPI.Filters
                                                 if (t.GetGenericTypeDefinition() == typeof(Nullable<>))
                                                 {
                                                     Type underlyingType = Nullable.GetUnderlyingType(t);
-                                                    res = Convert.ChangeType(reqParams[name], underlyingType);
+                                                    if (underlyingType.IsEnum)
+                                                    {
+                                                        res = Enum.Parse(underlyingType, reqParams[name].ToString(), true);
+                                                    }
+                                                    else
+                                                    {
+                                                        res = Convert.ChangeType(reqParams[name], underlyingType);
+                                                    }
                                                 }
                                                 else // list
                                                 {
@@ -560,7 +567,15 @@ namespace WebAPI.Filters
                         if (property.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
                         {
                             Type underlyingType = Nullable.GetUnderlyingType(property.PropertyType);
-                            res = Convert.ChangeType(parameters[parameterName], underlyingType);
+
+                            if (underlyingType.IsEnum)
+                            {
+                                res = Enum.Parse(underlyingType, parameters[parameterName].ToString(), true);
+                            }
+                            else
+                            {
+                                res = Convert.ChangeType(parameters[parameterName], underlyingType);
+                            }
                         }
                         else // list
                         {
