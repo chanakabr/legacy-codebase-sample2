@@ -74,7 +74,7 @@ namespace WebAPI.Models.General
             {
                 if (!value.HasValue)
                 {
-                    pageIndex = 1;
+                    pageIndex = DEFAULT_PAGE_INDEX;
                     return;
                 }
                 
