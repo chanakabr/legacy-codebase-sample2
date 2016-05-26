@@ -59,9 +59,9 @@ namespace WebAPI.Models.Notification
         /// <summary>
         /// Inbox enabled
         /// </summary>
-        [DataMember(Name = "messageTTL")]
-        [JsonProperty("messageTTL")]
-        [XmlElement(ElementName = "messageTTL", IsNullable = true)]
-        public int? MessageTTL { get; set; }
+        [DataMember(Name = "messageTTLDays")]
+        [JsonProperty("messageTTLDays")]
+        [XmlElement(ElementName = "messageTTLDays", IsNullable = true)]
+        public int? MessageTTLDays { get; set; }
     }
 }

@@ -63,6 +63,9 @@ namespace WebAPI.Controllers
             if (settings.PushEndHour.HasValue && (settings.PushEndHour.Value < 0 || settings.PushEndHour.Value > 24))
                 throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal push end hour");
 
+            if (settings.MessageTTLDays.HasValue && (settings.MessageTTLDays.Value < 1 || settings.MessageTTLDays.Value > 90))
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Illegal message TTL");
+
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
