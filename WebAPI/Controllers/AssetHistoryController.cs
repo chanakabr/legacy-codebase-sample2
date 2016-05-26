@@ -61,10 +61,11 @@ namespace WebAPI.Controllers
                 filter = new KalturaAssetHistoryFilter();
             }
 
-            // validate and convert filter status
-            eWatchStatus filterStatusHelper = eWatchStatus.All;
-            if (filter.filter_status != null)
-                Enum.TryParse<eWatchStatus>(filter.filter_status.ToString(), out filterStatusHelper);
+            // validate and set filter status value if not provided
+            if (!filter.filter_status.HasValue)
+            {
+                filter.filter_status = KalturaWatchStatus.all;
+            }
 
             // days - default value 7
             if (filter.days == null || (filter.days.HasValue && filter.days.Value == 0))
@@ -73,7 +74,7 @@ namespace WebAPI.Controllers
             {
                 // call client
                 response = ClientsManager.CatalogClient().WatchHistory(groupId, userId.ToString(), udid,
-                    language, pager.getPageIndex(), pager.PageSize, filterStatusHelper, filter.getDays(), filter.filter_types != null ?
+                    language, pager.getPageIndex(), pager.PageSize, filter.filter_status.Value, filter.getDays(), filter.filter_types != null ?
                     filter.filter_types.Select(x => x.value).ToList() : null, filter.with.Select(x=> x.type).ToList());
             }
             catch (ClientException ex)

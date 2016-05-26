@@ -202,6 +202,27 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
+        // KalturaWatchStatus to eWatchStatus
+        public static eWatchStatus ConvertKalturaWatchStatus(KalturaWatchStatus watchStatus)
+        {
+            eWatchStatus result;
+            switch (watchStatus)
+            {
+                case KalturaWatchStatus.progress:
+                    result = eWatchStatus.Progress;
+                    break;
+                case KalturaWatchStatus.done:
+                    result = eWatchStatus.Done;
+                    break;
+                case KalturaWatchStatus.all:
+                    result = eWatchStatus.All;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown watch status");                    
+            }
+            return result;
+        }
+
         private static int GetPictureWidth(string size)
         {
             string[] sizeArr = size.ToLower().Split('x');

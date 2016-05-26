@@ -17,6 +17,7 @@ using WebAPI.Managers.Models;
 using WebAPI.Models.Users;
 using KLogMonitor;
 using WebAPI.ClientManagers;
+using WebAPI.ObjectsConvertor.Mapping;
 
 namespace WebAPI.Clients
 {
@@ -231,7 +232,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaWatchHistoryAssetWrapper WatchHistory(int groupId, string siteGuid, string udid, string language, int pageIndex, int? pageSize, eWatchStatus filterStatus, int days, List<int> assetTypes, List<KalturaCatalogWith> withList)
+        public KalturaWatchHistoryAssetWrapper WatchHistory(int groupId, string siteGuid, string udid, string language, int pageIndex, int? pageSize, KalturaWatchStatus watchStatus, int days, List<int> assetTypes, List<KalturaCatalogWith> withList)
         {
             KalturaWatchHistoryAssetWrapper finalResults = new KalturaWatchHistoryAssetWrapper();
 
@@ -256,7 +257,7 @@ namespace WebAPI.Clients
                 m_nPageIndex = pageIndex,
                 m_nPageSize = pageSize.Value,
                 AssetTypes = assetTypes,
-                FilterStatus = filterStatus,
+                FilterStatus = CatalogMappings.ConvertKalturaWatchStatus(watchStatus),
                 NumOfDays = days,
                 OrderDir = OrderDir.DESC
             };
