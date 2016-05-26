@@ -48,7 +48,7 @@ namespace WebAPI.Controllers
         /// <param name="settings">Account notification settings model</param>
         /// <remarks>        
         /// Possible status codes: 
-        /// Push notification false = 8001, Invalid message ttl = 8018
+        /// Push notification false = 8001
         /// <returns></returns>
         [Route("update"), HttpPost]
         [ApiAuthorize]
