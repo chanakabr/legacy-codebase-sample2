@@ -195,12 +195,9 @@ namespace TvinciImporter.WSCatalog {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="BaseRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
     [System.SerializableAttribute()]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TvinciImporter.WSCatalog.BaseEpg))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TvinciImporter.WSCatalog.EPGProgramsByScidsRequest))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TvinciImporter.WSCatalog.EPGProgramsByProgramsIdentefierRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TvinciImporter.WSCatalog.BaseChannelRequest))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TvinciImporter.WSCatalog.ExternalChannelRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TvinciImporter.WSCatalog.InternalChannelRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TvinciImporter.WSCatalog.ExternalChannelRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TvinciImporter.WSCatalog.ChannelsContainingMediaRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TvinciImporter.WSCatalog.MediaMarkRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TvinciImporter.WSCatalog.MediaHitRequest))]
@@ -254,6 +251,9 @@ namespace TvinciImporter.WSCatalog {
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TvinciImporter.WSCatalog.AssetsBookmarksRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TvinciImporter.WSCatalog.BundleMediaRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TvinciImporter.WSCatalog.MediasProtocolRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TvinciImporter.WSCatalog.BaseEpg))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TvinciImporter.WSCatalog.EPGProgramsByScidsRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TvinciImporter.WSCatalog.EPGProgramsByProgramsIdentefierRequest))]
     public partial class BaseRequest : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
         
         [System.NonSerializedAttribute()]
@@ -598,97 +598,10 @@ namespace TvinciImporter.WSCatalog {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="BaseEpg", Namespace="http://schemas.datacontract.org/2004/07/Catalog")]
-    [System.SerializableAttribute()]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TvinciImporter.WSCatalog.EPGProgramsByScidsRequest))]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TvinciImporter.WSCatalog.EPGProgramsByProgramsIdentefierRequest))]
-    public partial class BaseEpg : TvinciImporter.WSCatalog.BaseRequest {
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int durationField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private TvinciImporter.WSCatalog.Language eLangField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public int duration {
-            get {
-                return this.durationField;
-            }
-            set {
-                if ((this.durationField.Equals(value) != true)) {
-                    this.durationField = value;
-                    this.RaisePropertyChanged("duration");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public TvinciImporter.WSCatalog.Language eLang {
-            get {
-                return this.eLangField;
-            }
-            set {
-                if ((this.eLangField.Equals(value) != true)) {
-                    this.eLangField = value;
-                    this.RaisePropertyChanged("eLang");
-                }
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="EPGProgramsByScidsRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
-    [System.SerializableAttribute()]
-    public partial class EPGProgramsByScidsRequest : TvinciImporter.WSCatalog.BaseEpg {
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string[] scidsField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string[] scids {
-            get {
-                return this.scidsField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.scidsField, value) != true)) {
-                    this.scidsField = value;
-                    this.RaisePropertyChanged("scids");
-                }
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="EPGProgramsByProgramsIdentefierRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
-    [System.SerializableAttribute()]
-    public partial class EPGProgramsByProgramsIdentefierRequest : TvinciImporter.WSCatalog.BaseEpg {
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string[] pidsField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string[] pids {
-            get {
-                return this.pidsField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.pidsField, value) != true)) {
-                    this.pidsField = value;
-                    this.RaisePropertyChanged("pids");
-                }
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="BaseChannelRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
     [System.SerializableAttribute()]
-    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TvinciImporter.WSCatalog.ExternalChannelRequest))]
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(TvinciImporter.WSCatalog.InternalChannelRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TvinciImporter.WSCatalog.ExternalChannelRequest))]
     public partial class BaseChannelRequest : TvinciImporter.WSCatalog.BaseRequest {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -751,6 +664,45 @@ namespace TvinciImporter.WSCatalog {
                 if ((this.typeField.Equals(value) != true)) {
                     this.typeField = value;
                     this.RaisePropertyChanged("type");
+                }
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="InternalChannelRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
+    [System.SerializableAttribute()]
+    public partial class InternalChannelRequest : TvinciImporter.WSCatalog.BaseChannelRequest {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool m_bIgnoreDeviceRuleIDField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private TvinciImporter.WSCatalog.OrderObj orderField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool m_bIgnoreDeviceRuleID {
+            get {
+                return this.m_bIgnoreDeviceRuleIDField;
+            }
+            set {
+                if ((this.m_bIgnoreDeviceRuleIDField.Equals(value) != true)) {
+                    this.m_bIgnoreDeviceRuleIDField = value;
+                    this.RaisePropertyChanged("m_bIgnoreDeviceRuleID");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public TvinciImporter.WSCatalog.OrderObj order {
+            get {
+                return this.orderField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.orderField, value) != true)) {
+                    this.orderField = value;
+                    this.RaisePropertyChanged("order");
                 }
             }
         }
@@ -822,45 +774,6 @@ namespace TvinciImporter.WSCatalog {
                 if ((object.ReferenceEquals(this.utcOffsetField, value) != true)) {
                     this.utcOffsetField = value;
                     this.RaisePropertyChanged("utcOffset");
-                }
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="InternalChannelRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
-    [System.SerializableAttribute()]
-    public partial class InternalChannelRequest : TvinciImporter.WSCatalog.BaseChannelRequest {
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private bool m_bIgnoreDeviceRuleIDField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private TvinciImporter.WSCatalog.OrderObj orderField;
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public bool m_bIgnoreDeviceRuleID {
-            get {
-                return this.m_bIgnoreDeviceRuleIDField;
-            }
-            set {
-                if ((this.m_bIgnoreDeviceRuleIDField.Equals(value) != true)) {
-                    this.m_bIgnoreDeviceRuleIDField = value;
-                    this.RaisePropertyChanged("m_bIgnoreDeviceRuleID");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public TvinciImporter.WSCatalog.OrderObj order {
-            get {
-                return this.orderField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.orderField, value) != true)) {
-                    this.orderField = value;
-                    this.RaisePropertyChanged("order");
                 }
             }
         }
@@ -3118,6 +3031,9 @@ namespace TvinciImporter.WSCatalog {
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string requestIdField;
         
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private TvinciImporter.WSCatalog.KeyValuePairOfeAssetTypeslongHVR2FNfI[] specificAssetsField;
+        
         [System.Runtime.Serialization.DataMemberAttribute()]
         public int[] assetTypes {
             get {
@@ -3205,6 +3121,19 @@ namespace TvinciImporter.WSCatalog {
                 if ((object.ReferenceEquals(this.requestIdField, value) != true)) {
                     this.requestIdField = value;
                     this.RaisePropertyChanged("requestId");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public TvinciImporter.WSCatalog.KeyValuePairOfeAssetTypeslongHVR2FNfI[] specificAssets {
+            get {
+                return this.specificAssetsField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.specificAssetsField, value) != true)) {
+                    this.specificAssetsField = value;
+                    this.RaisePropertyChanged("specificAssets");
                 }
             }
         }
@@ -3437,21 +3366,91 @@ namespace TvinciImporter.WSCatalog {
         }
     }
     
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="Language", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects")]
-    public enum Language : int {
+    [System.Runtime.Serialization.DataContractAttribute(Name="BaseEpg", Namespace="http://schemas.datacontract.org/2004/07/Catalog")]
+    [System.SerializableAttribute()]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TvinciImporter.WSCatalog.EPGProgramsByScidsRequest))]
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TvinciImporter.WSCatalog.EPGProgramsByProgramsIdentefierRequest))]
+    public partial class BaseEpg : TvinciImporter.WSCatalog.BaseRequest {
         
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        English = 0,
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int durationField;
         
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Hebrew = 1,
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private TvinciImporter.WSCatalog.Language eLangField;
         
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Russian = 2,
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int duration {
+            get {
+                return this.durationField;
+            }
+            set {
+                if ((this.durationField.Equals(value) != true)) {
+                    this.durationField = value;
+                    this.RaisePropertyChanged("duration");
+                }
+            }
+        }
         
-        [System.Runtime.Serialization.EnumMemberAttribute()]
-        Arabic = 3,
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public TvinciImporter.WSCatalog.Language eLang {
+            get {
+                return this.eLangField;
+            }
+            set {
+                if ((this.eLangField.Equals(value) != true)) {
+                    this.eLangField = value;
+                    this.RaisePropertyChanged("eLang");
+                }
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="EPGProgramsByScidsRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
+    [System.SerializableAttribute()]
+    public partial class EPGProgramsByScidsRequest : TvinciImporter.WSCatalog.BaseEpg {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string[] scidsField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string[] scids {
+            get {
+                return this.scidsField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.scidsField, value) != true)) {
+                    this.scidsField = value;
+                    this.RaisePropertyChanged("scids");
+                }
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="EPGProgramsByProgramsIdentefierRequest", Namespace="http://schemas.datacontract.org/2004/07/Catalog.Request")]
+    [System.SerializableAttribute()]
+    public partial class EPGProgramsByProgramsIdentefierRequest : TvinciImporter.WSCatalog.BaseEpg {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string[] pidsField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string[] pids {
+            get {
+                return this.pidsField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.pidsField, value) != true)) {
+                    this.pidsField = value;
+                    this.RaisePropertyChanged("pids");
+                }
+            }
+        }
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
@@ -4266,6 +4265,64 @@ namespace TvinciImporter.WSCatalog {
         EntitledAssets = 2,
     }
     
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="KeyValuePairOfeAssetTypeslongHVR2FNfI", Namespace="http://schemas.datacontract.org/2004/07/System.Collections.Generic")]
+    [System.SerializableAttribute()]
+    public partial struct KeyValuePairOfeAssetTypeslongHVR2FNfI : System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        private TvinciImporter.WSCatalog.eAssetTypes keyField;
+        
+        private long valueField;
+        
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true)]
+        public TvinciImporter.WSCatalog.eAssetTypes key {
+            get {
+                return this.keyField;
+            }
+            set {
+                if ((this.keyField.Equals(value) != true)) {
+                    this.keyField = value;
+                    this.RaisePropertyChanged("key");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute(IsRequired=true)]
+        public long value {
+            get {
+                return this.valueField;
+            }
+            set {
+                if ((this.valueField.Equals(value) != true)) {
+                    this.valueField = value;
+                    this.RaisePropertyChanged("value");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="eWatchStatus", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects")]
     public enum eWatchStatus : int {
@@ -4387,6 +4444,23 @@ namespace TvinciImporter.WSCatalog {
                 propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
             }
         }
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="Language", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects")]
+    public enum Language : int {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        English = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Hebrew = 1,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Russian = 2,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Arabic = 3,
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -7476,6 +7550,9 @@ namespace TvinciImporter.WSCatalog {
         private string IS_ACTIVEField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int IS_RECORDEDField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int LIKE_COUNTERField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -7719,6 +7796,19 @@ namespace TvinciImporter.WSCatalog {
                 if ((object.ReferenceEquals(this.IS_ACTIVEField, value) != true)) {
                     this.IS_ACTIVEField = value;
                     this.RaisePropertyChanged("IS_ACTIVE");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int IS_RECORDED {
+            get {
+                return this.IS_RECORDEDField;
+            }
+            set {
+                if ((this.IS_RECORDEDField.Equals(value) != true)) {
+                    this.IS_RECORDEDField = value;
+                    this.RaisePropertyChanged("IS_RECORDED");
                 }
             }
         }
@@ -11139,7 +11229,7 @@ namespace TvinciImporter.WSCatalog {
         EpgChannel = 3,
         
         [System.Runtime.Serialization.EnumMemberAttribute()]
-        Recordning = 4,
+        Recording = 4,
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -11149,50 +11239,104 @@ namespace TvinciImporter.WSCatalog {
         [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/IngestAdiData", ReplyAction="urn:Iservice/IngestAdiDataResponse")]
         TvinciImporter.WSCatalog.Response IngestAdiData(TvinciImporter.WSCatalog.Feeder request);
         
+        [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/IngestAdiData", ReplyAction="urn:Iservice/IngestAdiDataResponse")]
+        System.Threading.Tasks.Task<TvinciImporter.WSCatalog.Response> IngestAdiDataAsync(TvinciImporter.WSCatalog.Feeder request);
+        
         [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/IngestTvinciData", ReplyAction="urn:Iservice/IngestTvinciDataResponse")]
         TvinciImporter.WSCatalog.Response IngestTvinciData(TvinciImporter.WSCatalog.Feeder request);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/IngestTvinciData", ReplyAction="urn:Iservice/IngestTvinciDataResponse")]
+        System.Threading.Tasks.Task<TvinciImporter.WSCatalog.Response> IngestTvinciDataAsync(TvinciImporter.WSCatalog.Feeder request);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/IngestKalturaEpg", ReplyAction="urn:Iservice/IngestKalturaEpgResponse")]
         TvinciImporter.WSCatalog.Response IngestKalturaEpg(TvinciImporter.WSCatalog.Feeder request);
         
+        [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/IngestKalturaEpg", ReplyAction="urn:Iservice/IngestKalturaEpgResponse")]
+        System.Threading.Tasks.Task<TvinciImporter.WSCatalog.Response> IngestKalturaEpgAsync(TvinciImporter.WSCatalog.Feeder request);
+        
         [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/GetResponse", ReplyAction="urn:Iservice/GetResponseResponse")]
         TvinciImporter.WSCatalog.BaseResponse GetResponse(TvinciImporter.WSCatalog.BaseRequest request);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/GetResponse", ReplyAction="urn:Iservice/GetResponseResponse")]
+        System.Threading.Tasks.Task<TvinciImporter.WSCatalog.BaseResponse> GetResponseAsync(TvinciImporter.WSCatalog.BaseRequest request);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/GetMediasByIDs", ReplyAction="urn:Iservice/GetMediasByIDsResponse")]
         TvinciImporter.WSCatalog.MediaResponse GetMediasByIDs(TvinciImporter.WSCatalog.MediasProtocolRequest mediaRequest);
         
+        [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/GetMediasByIDs", ReplyAction="urn:Iservice/GetMediasByIDsResponse")]
+        System.Threading.Tasks.Task<TvinciImporter.WSCatalog.MediaResponse> GetMediasByIDsAsync(TvinciImporter.WSCatalog.MediasProtocolRequest mediaRequest);
+        
         [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/UpdateChannel", ReplyAction="urn:Iservice/UpdateChannelResponse")]
         bool UpdateChannel(int nGroupId, int nChannelId);
         
+        [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/UpdateChannel", ReplyAction="urn:Iservice/UpdateChannelResponse")]
+        System.Threading.Tasks.Task<bool> UpdateChannelAsync(int nGroupId, int nChannelId);
+        
         [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/UpdateIndex", ReplyAction="urn:Iservice/UpdateIndexResponse")]
-        bool UpdateIndex(int[] objectIDs, int groupId, TvinciImporter.WSCatalog.eAction action);
+        bool UpdateIndex(int[] lMediaIds, int nGroupId, TvinciImporter.WSCatalog.eAction eAction);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/UpdateIndex", ReplyAction="urn:Iservice/UpdateIndexResponse")]
+        System.Threading.Tasks.Task<bool> UpdateIndexAsync(int[] lMediaIds, int nGroupId, TvinciImporter.WSCatalog.eAction eAction);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/UpdateChannelIndex", ReplyAction="urn:Iservice/UpdateChannelIndexResponse")]
         bool UpdateChannelIndex(int[] lChannelIds, int nGroupId, TvinciImporter.WSCatalog.eAction eAction);
         
+        [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/UpdateChannelIndex", ReplyAction="urn:Iservice/UpdateChannelIndexResponse")]
+        System.Threading.Tasks.Task<bool> UpdateChannelIndexAsync(int[] lChannelIds, int nGroupId, TvinciImporter.WSCatalog.eAction eAction);
+        
         [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/GetProgramsByIDs", ReplyAction="urn:Iservice/GetProgramsByIDsResponse")]
         TvinciImporter.WSCatalog.EpgProgramResponse GetProgramsByIDs(TvinciImporter.WSCatalog.EpgProgramDetailsRequest programRequest);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/GetProgramsByIDs", ReplyAction="urn:Iservice/GetProgramsByIDsResponse")]
+        System.Threading.Tasks.Task<TvinciImporter.WSCatalog.EpgProgramResponse> GetProgramsByIDsAsync(TvinciImporter.WSCatalog.EpgProgramDetailsRequest programRequest);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/UpdateOperator", ReplyAction="urn:Iservice/UpdateOperatorResponse")]
         bool UpdateOperator(int nGroupID, int nOperatorID, int nSubscriptionID, long lChannelID, TvinciImporter.WSCatalog.eOperatorEvent oe);
         
+        [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/UpdateOperator", ReplyAction="urn:Iservice/UpdateOperatorResponse")]
+        System.Threading.Tasks.Task<bool> UpdateOperatorAsync(int nGroupID, int nOperatorID, int nSubscriptionID, long lChannelID, TvinciImporter.WSCatalog.eOperatorEvent oe);
+        
         [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/UpdateEpgIndex", ReplyAction="urn:Iservice/UpdateEpgIndexResponse")]
         bool UpdateEpgIndex(int[] lEpgIds, int nGroupId, TvinciImporter.WSCatalog.eAction eAction);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/UpdateEpgIndex", ReplyAction="urn:Iservice/UpdateEpgIndexResponse")]
+        System.Threading.Tasks.Task<bool> UpdateEpgIndexAsync(int[] lEpgIds, int nGroupId, TvinciImporter.WSCatalog.eAction eAction);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/UpdateEpgChannelIndex", ReplyAction="urn:Iservice/UpdateEpgChannelIndexResponse")]
         bool UpdateEpgChannelIndex(int[] lEpgChannelIds, int nGroupId, TvinciImporter.WSCatalog.eAction eAction);
         
+        [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/UpdateEpgChannelIndex", ReplyAction="urn:Iservice/UpdateEpgChannelIndexResponse")]
+        System.Threading.Tasks.Task<bool> UpdateEpgChannelIndexAsync(int[] lEpgChannelIds, int nGroupId, TvinciImporter.WSCatalog.eAction eAction);
+        
         [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/RebuildIndex", ReplyAction="urn:Iservice/RebuildIndexResponse")]
         bool RebuildIndex(int groupId, TvinciImporter.WSCatalog.eObjectType type, bool switchIndexAlias, bool deleteOldIndices, System.Nullable<System.DateTime> startDate, System.Nullable<System.DateTime> endDate);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/RebuildIndex", ReplyAction="urn:Iservice/RebuildIndexResponse")]
+        System.Threading.Tasks.Task<bool> RebuildIndexAsync(int groupId, TvinciImporter.WSCatalog.eObjectType type, bool switchIndexAlias, bool deleteOldIndices, System.Nullable<System.DateTime> startDate, System.Nullable<System.DateTime> endDate);
         
         [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/RebuildGroup", ReplyAction="urn:Iservice/RebuildGroupResponse")]
         bool RebuildGroup(int nGroupId, bool rebuild);
         
+        [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/RebuildGroup", ReplyAction="urn:Iservice/RebuildGroupResponse")]
+        System.Threading.Tasks.Task<bool> RebuildGroupAsync(int nGroupId, bool rebuild);
+        
         [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/GetGroup", ReplyAction="urn:Iservice/GetGroupResponse")]
         string GetGroup(int nGroupId);
         
+        [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/GetGroup", ReplyAction="urn:Iservice/GetGroupResponse")]
+        System.Threading.Tasks.Task<string> GetGroupAsync(int nGroupId);
+        
         [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/UpdateRecordingsIndex", ReplyAction="urn:Iservice/UpdateRecordingsIndexResponse")]
         bool UpdateRecordingsIndex(long[] recordingsIds, int groupId, TvinciImporter.WSCatalog.eAction action);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/UpdateRecordingsIndex", ReplyAction="urn:Iservice/UpdateRecordingsIndexResponse")]
+        System.Threading.Tasks.Task<bool> UpdateRecordingsIndexAsync(long[] recordingsIds, int groupId, TvinciImporter.WSCatalog.eAction action);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/RebuildEpgChannel", ReplyAction="urn:Iservice/RebuildEpgChannelResponse")]
+        bool RebuildEpgChannel(int groupId, int epgChannelID, System.DateTime fromDate, System.DateTime toDate, bool duplicates);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="urn:Iservice/RebuildEpgChannel", ReplyAction="urn:Iservice/RebuildEpgChannelResponse")]
+        System.Threading.Tasks.Task<bool> RebuildEpgChannelAsync(int groupId, int epgChannelID, System.DateTime fromDate, System.DateTime toDate, bool duplicates);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -11226,64 +11370,136 @@ namespace TvinciImporter.WSCatalog {
             return base.Channel.IngestAdiData(request);
         }
         
+        public System.Threading.Tasks.Task<TvinciImporter.WSCatalog.Response> IngestAdiDataAsync(TvinciImporter.WSCatalog.Feeder request) {
+            return base.Channel.IngestAdiDataAsync(request);
+        }
+        
         public TvinciImporter.WSCatalog.Response IngestTvinciData(TvinciImporter.WSCatalog.Feeder request) {
             return base.Channel.IngestTvinciData(request);
+        }
+        
+        public System.Threading.Tasks.Task<TvinciImporter.WSCatalog.Response> IngestTvinciDataAsync(TvinciImporter.WSCatalog.Feeder request) {
+            return base.Channel.IngestTvinciDataAsync(request);
         }
         
         public TvinciImporter.WSCatalog.Response IngestKalturaEpg(TvinciImporter.WSCatalog.Feeder request) {
             return base.Channel.IngestKalturaEpg(request);
         }
         
+        public System.Threading.Tasks.Task<TvinciImporter.WSCatalog.Response> IngestKalturaEpgAsync(TvinciImporter.WSCatalog.Feeder request) {
+            return base.Channel.IngestKalturaEpgAsync(request);
+        }
+        
         public TvinciImporter.WSCatalog.BaseResponse GetResponse(TvinciImporter.WSCatalog.BaseRequest request) {
             return base.Channel.GetResponse(request);
+        }
+        
+        public System.Threading.Tasks.Task<TvinciImporter.WSCatalog.BaseResponse> GetResponseAsync(TvinciImporter.WSCatalog.BaseRequest request) {
+            return base.Channel.GetResponseAsync(request);
         }
         
         public TvinciImporter.WSCatalog.MediaResponse GetMediasByIDs(TvinciImporter.WSCatalog.MediasProtocolRequest mediaRequest) {
             return base.Channel.GetMediasByIDs(mediaRequest);
         }
         
+        public System.Threading.Tasks.Task<TvinciImporter.WSCatalog.MediaResponse> GetMediasByIDsAsync(TvinciImporter.WSCatalog.MediasProtocolRequest mediaRequest) {
+            return base.Channel.GetMediasByIDsAsync(mediaRequest);
+        }
+        
         public bool UpdateChannel(int nGroupId, int nChannelId) {
             return base.Channel.UpdateChannel(nGroupId, nChannelId);
         }
         
-        public bool UpdateIndex(int[] objectIDs, int groupId, TvinciImporter.WSCatalog.eAction action) {
-            return base.Channel.UpdateIndex(objectIDs, groupId, action);
+        public System.Threading.Tasks.Task<bool> UpdateChannelAsync(int nGroupId, int nChannelId) {
+            return base.Channel.UpdateChannelAsync(nGroupId, nChannelId);
+        }
+        
+        public bool UpdateIndex(int[] lMediaIds, int nGroupId, TvinciImporter.WSCatalog.eAction eAction) {
+            return base.Channel.UpdateIndex(lMediaIds, nGroupId, eAction);
+        }
+        
+        public System.Threading.Tasks.Task<bool> UpdateIndexAsync(int[] lMediaIds, int nGroupId, TvinciImporter.WSCatalog.eAction eAction) {
+            return base.Channel.UpdateIndexAsync(lMediaIds, nGroupId, eAction);
         }
         
         public bool UpdateChannelIndex(int[] lChannelIds, int nGroupId, TvinciImporter.WSCatalog.eAction eAction) {
             return base.Channel.UpdateChannelIndex(lChannelIds, nGroupId, eAction);
         }
         
+        public System.Threading.Tasks.Task<bool> UpdateChannelIndexAsync(int[] lChannelIds, int nGroupId, TvinciImporter.WSCatalog.eAction eAction) {
+            return base.Channel.UpdateChannelIndexAsync(lChannelIds, nGroupId, eAction);
+        }
+        
         public TvinciImporter.WSCatalog.EpgProgramResponse GetProgramsByIDs(TvinciImporter.WSCatalog.EpgProgramDetailsRequest programRequest) {
             return base.Channel.GetProgramsByIDs(programRequest);
+        }
+        
+        public System.Threading.Tasks.Task<TvinciImporter.WSCatalog.EpgProgramResponse> GetProgramsByIDsAsync(TvinciImporter.WSCatalog.EpgProgramDetailsRequest programRequest) {
+            return base.Channel.GetProgramsByIDsAsync(programRequest);
         }
         
         public bool UpdateOperator(int nGroupID, int nOperatorID, int nSubscriptionID, long lChannelID, TvinciImporter.WSCatalog.eOperatorEvent oe) {
             return base.Channel.UpdateOperator(nGroupID, nOperatorID, nSubscriptionID, lChannelID, oe);
         }
         
+        public System.Threading.Tasks.Task<bool> UpdateOperatorAsync(int nGroupID, int nOperatorID, int nSubscriptionID, long lChannelID, TvinciImporter.WSCatalog.eOperatorEvent oe) {
+            return base.Channel.UpdateOperatorAsync(nGroupID, nOperatorID, nSubscriptionID, lChannelID, oe);
+        }
+        
         public bool UpdateEpgIndex(int[] lEpgIds, int nGroupId, TvinciImporter.WSCatalog.eAction eAction) {
             return base.Channel.UpdateEpgIndex(lEpgIds, nGroupId, eAction);
+        }
+        
+        public System.Threading.Tasks.Task<bool> UpdateEpgIndexAsync(int[] lEpgIds, int nGroupId, TvinciImporter.WSCatalog.eAction eAction) {
+            return base.Channel.UpdateEpgIndexAsync(lEpgIds, nGroupId, eAction);
         }
         
         public bool UpdateEpgChannelIndex(int[] lEpgChannelIds, int nGroupId, TvinciImporter.WSCatalog.eAction eAction) {
             return base.Channel.UpdateEpgChannelIndex(lEpgChannelIds, nGroupId, eAction);
         }
         
+        public System.Threading.Tasks.Task<bool> UpdateEpgChannelIndexAsync(int[] lEpgChannelIds, int nGroupId, TvinciImporter.WSCatalog.eAction eAction) {
+            return base.Channel.UpdateEpgChannelIndexAsync(lEpgChannelIds, nGroupId, eAction);
+        }
+        
         public bool RebuildIndex(int groupId, TvinciImporter.WSCatalog.eObjectType type, bool switchIndexAlias, bool deleteOldIndices, System.Nullable<System.DateTime> startDate, System.Nullable<System.DateTime> endDate) {
             return base.Channel.RebuildIndex(groupId, type, switchIndexAlias, deleteOldIndices, startDate, endDate);
+        }
+        
+        public System.Threading.Tasks.Task<bool> RebuildIndexAsync(int groupId, TvinciImporter.WSCatalog.eObjectType type, bool switchIndexAlias, bool deleteOldIndices, System.Nullable<System.DateTime> startDate, System.Nullable<System.DateTime> endDate) {
+            return base.Channel.RebuildIndexAsync(groupId, type, switchIndexAlias, deleteOldIndices, startDate, endDate);
         }
         
         public bool RebuildGroup(int nGroupId, bool rebuild) {
             return base.Channel.RebuildGroup(nGroupId, rebuild);
         }
         
+        public System.Threading.Tasks.Task<bool> RebuildGroupAsync(int nGroupId, bool rebuild) {
+            return base.Channel.RebuildGroupAsync(nGroupId, rebuild);
+        }
+        
         public string GetGroup(int nGroupId) {
             return base.Channel.GetGroup(nGroupId);
         }
         
+        public System.Threading.Tasks.Task<string> GetGroupAsync(int nGroupId) {
+            return base.Channel.GetGroupAsync(nGroupId);
+        }
+        
         public bool UpdateRecordingsIndex(long[] recordingsIds, int groupId, TvinciImporter.WSCatalog.eAction action) {
             return base.Channel.UpdateRecordingsIndex(recordingsIds, groupId, action);
+        }
+        
+        public System.Threading.Tasks.Task<bool> UpdateRecordingsIndexAsync(long[] recordingsIds, int groupId, TvinciImporter.WSCatalog.eAction action) {
+            return base.Channel.UpdateRecordingsIndexAsync(recordingsIds, groupId, action);
+        }
+        
+        public bool RebuildEpgChannel(int groupId, int epgChannelID, System.DateTime fromDate, System.DateTime toDate, bool duplicates) {
+            return base.Channel.RebuildEpgChannel(groupId, epgChannelID, fromDate, toDate, duplicates);
+        }
+        
+        public System.Threading.Tasks.Task<bool> RebuildEpgChannelAsync(int groupId, int epgChannelID, System.DateTime fromDate, System.DateTime toDate, bool duplicates) {
+            return base.Channel.RebuildEpgChannelAsync(groupId, epgChannelID, fromDate, toDate, duplicates);
         }
     }
 }
