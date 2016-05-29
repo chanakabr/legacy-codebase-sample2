@@ -993,8 +993,7 @@ namespace ODBCWrapper
             //m_bIsWritable || m_bUseWritable
             if (!useWriteable)
             {                
-                //Utils.UseWritable = ReadWriteLock(sKey, oValue, executer, isWritable);
-                Utils.UseWritable = true;
+                Utils.UseWritable = ReadWriteLock(sKey, oValue, executer, isWritable);
 
                 //if (useWriteable) Logger.Logger.Log("DBLock ", "m_bUseWritable changed to '" + Utils.UseWritable + "', for: " + executer, "ODBC_DBLock");
             }
