@@ -99,15 +99,9 @@ public partial class adm_cdn_settings : System.Web.UI.Page
         DataRecordDropDownField dr_vodAdapters = new DataRecordDropDownField("cdn_settings", "vod_adapter_id", "id", "", null, 60, true);
         string sQuery = "select STREAMING_COMPANY_NAME as txt,id as id from streaming_companies where status=1 and ADAPTER_URL is not null and adapter_url <> '' and is_active=1 and group_id " + groups;
         dr_vodAdapters.SetSelectsQuery(sQuery);
-        dr_vodAdapters.Initialize("VOD CDN default adapter", "adm_table_header_nbg", "FormInput", "vod_adapter_id", false);
+        dr_vodAdapters.Initialize("Default adapter", "adm_table_header_nbg", "FormInput", "adapter_id", false);
         dr_vodAdapters.SetDefaultVal("---");
         theRecord.AddRecord(dr_vodAdapters);
-
-        DataRecordDropDownField dr_epgAdapters = new DataRecordDropDownField("cdn_settings", "epg_adapter_id", "id", "", null, 60, true);
-        dr_epgAdapters.SetSelectsQuery(sQuery);
-        dr_epgAdapters.Initialize("Live & catch-up CDN default adapter", "adm_table_header_nbg", "FormInput", "epg_adapter_id", false);
-        dr_epgAdapters.SetDefaultVal("---");
-        theRecord.AddRecord(dr_epgAdapters);
 
         DataRecordDropDownField dr_recordingAdapters = new DataRecordDropDownField("cdn_settings", "recording_adapter_id", "id", "", null, 60, true);
         dr_recordingAdapters.SetSelectsQuery(sQuery);
