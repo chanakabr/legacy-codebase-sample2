@@ -2354,7 +2354,6 @@ namespace ConditionalAccess
 
         internal static string GetBasicLink(int nGroupID, int[] nMediaFileIDs, int nMediaFileID, string sBasicLink, out int nStreamingCompanyID)
         {
-
             TvinciAPI.MeidaMaper[] mapper = GetMediaMapper(nGroupID, nMediaFileIDs);
             nStreamingCompanyID = 0;
             int mediaID = 0;
@@ -4629,7 +4628,7 @@ namespace ConditionalAccess
             return deviceType;
         }
 
-        internal static TvinciAPI.CDNAdapterResponse GetRelevantCDN(int groupId, int fileStreamingCompanyId, ConditionalAccess.TvinciAPI.eAssetTypes assetType)
+        internal static TvinciAPI.CDNAdapterResponse GetRelevantCDN(int groupId, int fileStreamingCompanyId, ConditionalAccess.TvinciAPI.eAssetTypes assetType, ref bool isDefaultAdapter)
         {
             TvinciAPI.CDNAdapterResponse adapterResponse = null;
 
@@ -4654,6 +4653,7 @@ namespace ConditionalAccess
                 // if nStreamingCompany is 0 - call api service for getting the default adapter / streaming company
                 if (fileStreamingCompanyId == 0)
                 {
+                    isDefaultAdapter = true;
                     adapterResponse = api.GetGroupDefaultCDNAdapter(sWSUserName, sWSPass, assetType);
                 }
                 // else - call api service for getting the adapter / streaming company with the nStreamingCompany ID                

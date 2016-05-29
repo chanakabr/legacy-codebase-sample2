@@ -12149,8 +12149,6 @@ namespace ConditionalAccess
                         return res;
                     }
 
-
-
                     int domainID = 0;
                     mediaConcurrencyResponse = CheckMediaConcurrency(sSiteGuid, nMediaFileID, sDeviceName, prices, nMediaID, sUserIP, ref lRuleIDS, ref domainID);
 
@@ -12174,7 +12172,8 @@ namespace ConditionalAccess
                     }
 
                     // get adapter
-                    var adapterResponse = Utils.GetRelevantCDN(m_nGroupID, fileMainStreamingCoID, TvinciAPI.eAssetTypes.MEDIA);
+                    bool isDefaultAdapter = false;
+                    var adapterResponse = Utils.GetRelevantCDN(m_nGroupID, fileMainStreamingCoID, TvinciAPI.eAssetTypes.MEDIA, ref isDefaultAdapter);
 
                     // if adapter response is not null and is adapter (has an adapter url) - call the adapter
                     if (adapterResponse.Adapter != null && !string.IsNullOrEmpty(adapterResponse.Adapter.AdapterUrl))
@@ -12182,21 +12181,20 @@ namespace ConditionalAccess
                         // get device type
                         string deviceType = Utils.GetDeviceTypeByUDID(m_nGroupID, sDeviceName);
 
-                        var link = CDNAdapterController.GetInstance().GetVodLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGuid, fileMainUrl,
-                            deviceType, nMediaID, nMediaFileID, sUserIP);
-
-                        if (link != null)
+                        // if the adapter is default - append the adapter's base url to the file urls
+                        if (isDefaultAdapter)
                         {
-                            res.mainUrl = link.Url;
+                            fileMainUrl = string.Format("{0}{1}", adapterResponse.Adapter.BaseUrl, fileMainUrl);
+                            fileAltUrl = string.Format("{0}{1}", adapterResponse.Adapter.BaseUrl, fileAltUrl);
                         }
 
-                        link = CDNAdapterController.GetInstance().GetVodLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGuid, fileAltUrl,
-                            deviceType, nMediaID, nMediaFileID, sUserIP);
+                        // main url
+                        var link = CDNAdapterController.GetInstance().GetVodLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGuid, fileMainUrl, deviceType, nMediaID, nMediaFileID, sUserIP);
+                        res.mainUrl = link != null ? link.Url : string.Empty;
 
-                        if (link != null)
-                        {
-                            res.altUrl = link.Url;
-                        }
+                        // alt url
+                        link = CDNAdapterController.GetInstance().GetVodLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGuid, fileAltUrl, deviceType, nMediaID, nMediaFileID, sUserIP);
+                        res.altUrl = link != null ? link.Url : string.Empty;
                     }
                     else
                     {

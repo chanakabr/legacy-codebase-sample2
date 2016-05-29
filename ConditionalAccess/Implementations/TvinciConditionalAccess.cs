@@ -637,7 +637,8 @@ namespace ConditionalAccess
                 }
 
                 // get adapter
-                var adapterResponse = Utils.GetRelevantCDN(m_nGroupID, fileMainStreamingCoID, TvinciAPI.eAssetTypes.EPG);
+                bool isDefaultAdapter = false;
+                var adapterResponse = Utils.GetRelevantCDN(m_nGroupID, fileMainStreamingCoID, TvinciAPI.eAssetTypes.EPG, ref isDefaultAdapter);
 
                 // if adapter response is not null and is adapter (has an adapter url) - call the adapter
                 if (adapterResponse.Adapter != null && !string.IsNullOrEmpty(adapterResponse.Adapter.AdapterUrl))
@@ -647,6 +648,13 @@ namespace ConditionalAccess
 
                     int actionType = Utils.MapActionTypeForAdapter(eformat);
 
+                    // if the adapter is default - append the adapter's base url to the file urls
+                    if (isDefaultAdapter)
+                    {
+                        sBasicLink = string.Format("{0}{1}", adapterResponse.Adapter.BaseUrl, sBasicLink);
+                    }
+
+                    // main url
                     var link = CDNAdapterController.GetInstance().GetEpgLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGUID, sBasicLink, deviceType, nProgramId, mediaId, nMediaFileID,
                         TVinciShared.DateUtils.DateTimeToUnixTimestamp(scheduling.StartDate), actionType, sUserIP);
 
