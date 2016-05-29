@@ -54,7 +54,9 @@ namespace ODBCWrapper
 				p.AddParameter(((Parameter)sOraStr).m_sParName , 
 					((Parameter)sOraStr).m_sType , 
 					((Parameter)sOraStr).m_sParVal);
-			}
+                Utils.CheckDBReadWrite(((Parameter)sOraStr).m_sParName, ((Parameter)sOraStr).m_sParVal, "DataSetInsertQuery", m_bIsWritable, ref Utils.UseWritable);
+			}            
+
 			return p;
 		}
 
