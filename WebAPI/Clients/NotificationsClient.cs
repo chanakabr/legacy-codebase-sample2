@@ -910,6 +910,26 @@ namespace WebAPI.Clients
             }
 
             return result;
-        }               
+        }
+
+        internal bool UpdateTopic(int groupId, string id, KalturaTopicAutomaticIssueNotification automaticIssueNotification)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal bool DeleteTopic(int groupId, int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal KalturaTopicResponse GetTopics(int groupId, int p1, int p2)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal KalturaTopic GetTopic(int groupId, int id)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

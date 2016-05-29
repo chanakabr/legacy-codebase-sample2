@@ -1793,6 +1793,9 @@
     <Compile Include="Controllers\PaymentMethodProfileController.cs" />
     <Compile Include="Controllers\RegistrySettingsController.cs" />
     <Compile Include="Controllers\TimeShiftedTvPartnerSettingsController.cs" />
+    <Compile Include="Controllers\TopicController.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Controllers\UserAssetsListItemController.cs" />
     <Compile Include="Controllers\VersionController.cs" />
     <Compile Include="Controllers\HouseholdLimitationsController.cs" />
@@ -1971,6 +1974,15 @@
     <Compile Include="Models\Notification\KalturaPartnerNotificationSettings.cs" />
     <Compile Include="Models\Notification\KalturaPersonalFollowFeed.cs" />
     <Compile Include="Models\Notification\KalturaPersonalFollowFeedResponse.cs" />
+    <Compile Include="Models\Notification\KalturaTopic.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Models\Notification\KalturaTopicAutomaticIssueNotification.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Models\Notification\KalturaTopicResponse.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Models\Partner\KalturaBillingPartnerConfiguration.cs">
       <SubType>Code</SubType>
     </Compile>
