@@ -9,22 +9,22 @@
             Add a new future scheduled system announcment push notification
             </summary>
             <param name="announcement">The announcement to be added.
-            timezone param should be taken from the 'name of timezone' from: https://msdn.microsoft.com/en-us/library/ms912391(v=winembedded.11).aspx
+            timezone parameter should be taken from the 'name of timezone' from: https://msdn.microsoft.com/en-us/library/ms912391(v=winembedded.11).aspx
             Recipients values: All, LoggedIn, Guests</param>
             <returns></returns>
-            <remarks>Possible status codes: AnnouncementMessageTooLong = 8010, AnnouncementMessageIsEmpty = 8004, AnnouncementInvalidStartTime = 8005,
-            FeatureDisabled = 8009</remarks>
+            <remarks>Possible status codes: AnnouncementMessageTooLong = 8010, AnnouncementMessageIsEmpty = 8004
+            AnnouncementInvalidTimezone = 8008, FeatureDisabled = 8009</remarks>
         </member>
         <member name="M:WebAPI.Controllers.AnnouncementController.Update(WebAPI.Models.Notifications.KalturaAnnouncement)">
             <summary>
-            Update an existing future system annoucement push notification. Annoucement can only be updated only before sending
+            Update an existing future system announcement push notification. Announcement can only be updated only before sending
             </summary>
             <param name="announcement">The announcement to update.
-            timezone param should be taken from the 'name of timezone' from: https://msdn.microsoft.com/en-us/library/ms912391(v=winembedded.11).aspx
+            timezone parameter should be taken from the 'name of timezone' from: https://msdn.microsoft.com/en-us/library/ms912391(v=winembedded.11).aspx
             Recipients values: All, LoggedIn, Guests</param>
             <returns></returns>
-            <remarks>Possible status codes: AnnouncementMessageTooLong = 8010, AnnouncementMessageIsEmpty = 8004, AnnouncementInvalidStartTime = 8005, AnnouncementNotFound = 8006,
-            AnnouncementUpdateNotAllowed = 8007, FeatureDisabled = 8009</remarks>
+            <remarks>Possible status codes: AnnouncementMessageTooLong = 8010, AnnouncementMessageIsEmpty = 8004, AnnouncementNotFound = 8006,
+            AnnouncementUpdateNotAllowed = 8007, AnnouncementInvalidTimezone = 8008, FeatureDisabled = 8009</remarks>
         </member>
         <member name="M:WebAPI.Controllers.AnnouncementController.UpdateStatus(System.Int64,System.Boolean)">
             <summary>
@@ -37,7 +37,7 @@
         </member>
         <member name="M:WebAPI.Controllers.AnnouncementController.Delete(System.Int64)">
             <summary>
-            Delete an exisitng annoucnent. Annoucment cannot be delete while being sent.
+            Delete an existing announcing. Announcement cannot be delete while being sent.
             </summary>
             <param name="id">Id of the announcement.</param>
             <returns></returns>
@@ -45,7 +45,7 @@
         </member>
         <member name="M:WebAPI.Controllers.AnnouncementController.CreateAnnouncement">
             <summary>
-            create system announcment 
+            create system announcement 
             </summary>       
             <returns></returns>
             <remarks>Possible status codes: FeatureDisabled = 8009, FailCreateAnnouncement = 8011</remarks>
@@ -266,7 +266,7 @@
             </summary>
             <remarks>
             Possible status codes:     
-            Adapter NameRequired = 5005, AdapterUrlRequired = 5013, AliasMustBeUnique = 5019, AliasRequired = 5020
+            Adapter NameRequired = 5005, AdapterUrlRequired = 5013, SystemNameMustBeUnique = 5019, SystemNameRequired = 5020
             </remarks>
             <param name="adapter">CDN adapter object</param>
         </member>
@@ -275,7 +275,7 @@
             Update CDN adapter details
             </summary>
             <remarks>
-            Possible status codes: AdapterNotExists = 10000, NameRequired = 5005, AdapterUrlRequired = 5013, AliasMustBeUnique = 5019, AliasRequired = 5020
+            Possible status codes: AdapterNotExists = 10000, AdapterIdentifierRequired = 10001, NameRequired = 5005, AdapterUrlRequired = 5013, SystemNameMustBeUnique = 5019, SystemNameRequired = 5020
             </remarks>
             <param name="adapterId">CDN adapter id to update</param>       
             <param name="adapter">CDN adapter Object</param>       
@@ -364,7 +364,7 @@
             </summary>
             <remarks>
             Possible status codes:       
-            Message identifier required = 8019
+            User inbox messages not exist = 8020
             </remarks>
             <param name="id">message id</param>        
         </member>
@@ -392,7 +392,7 @@
         </member>
         <member name="M:WebAPI.Controllers.MessageTemplateController.Set(WebAPI.Models.Notification.KalturaMessageTemplate)">
             <summary>
-            Set message template for message notification 
+            Set the account’s push notifications and inbox messages templates
             </summary>
             <param name="message_template">The actual message with placeholders to be presented to the user</param>       
             <returns></returns>
@@ -402,7 +402,7 @@
         </member>
         <member name="M:WebAPI.Controllers.MessageTemplateController.Get(WebAPI.Models.General.KalturaOTTAssetType)">
             <summary>
-             Get message template
+            Retrieve a message template used in push notifications and inbox
             </summary>
             <param name="asset_Type">possible values: Asset type – Series</param>
             <returns></returns>     
@@ -564,20 +564,10 @@
             <returns>The notification settings that apply for the partner</returns>
             
         </member>
-        <member name="M:WebAPI.Controllers.NotificationsPartnerSettingsController.Update(WebAPI.Models.Notification.KalturaPartnerNotificationSettings)">
-            <summary>
-            update the partner notification settings.      
-            </summary>    
-            <remarks>        
-            Possible status codes: 
-            Push notification false = 8001, Invalid message ttl = 8018
-            </remarks>
-            <returns>The notification settings that apply for the partner</returns>
-            
-        </member>
+        <!-- Badly formed XML comment ignored for member "M:WebAPI.Controllers.NotificationsPartnerSettingsController.Update(WebAPI.Models.Notification.KalturaPartnerNotificationSettings)" -->
         <member name="M:WebAPI.Controllers.NotificationsSettingsController.Get">
             <summary>
-            Retrieve the notification settings.       
+            Retrieve the user’s notification settings.    
             </summary>    
             
             <remarks>        
@@ -587,7 +577,7 @@
         </member>
         <member name="M:WebAPI.Controllers.NotificationsSettingsController.Update(WebAPI.Models.Notification.KalturaNotificationSettings)">
             <summary>
-            update the notification settings.      
+            Update the user’s notification settings.      
             </summary>    
             
             <remarks>        
@@ -660,6 +650,46 @@
             </summary>
             <returns></returns>
             <remarks>Possible status codes: BadRequest = 500003, TimeShiftedTvPartnerSettingsNotSent = 5023, TimeShiftedTvPartnerSettingsNegativeBufferSent = 5024</remarks>   
+        </member>
+        <member name="M:WebAPI.Controllers.TopicController.Get(System.Int32)">
+            <summary>
+            TBD
+            </summary>
+            <remarks>
+            Possible status codes:       
+            
+            </remarks>
+            <param name="id">topic id</param>        
+        </member>
+        <member name="M:WebAPI.Controllers.TopicController.List(WebAPI.Models.General.KalturaFilterPager)">
+            <summary>
+            TBD
+            </summary>
+            <remarks>
+            Possible status codes:       
+            </remarks>
+            <param name="pager">Page size and index</param>        
+        </member>
+        <member name="M:WebAPI.Controllers.TopicController.Delete(System.Int32)">
+            <summary>
+            TBD
+            </summary>
+            <remarks>
+            Possible status codes:  
+            
+            </remarks>
+            <param name="id">Topic identifier</param>
+        </member>
+        <member name="M:WebAPI.Controllers.TopicController.UpdateStatus(System.String,WebAPI.Models.Notification.KalturaTopicAutomaticIssueNotification)">
+            <summary>
+            TBD
+            </summary>
+            <remarks>
+            Possible status codes:       
+            
+            </remarks>
+            <param name="id"></param>        
+            <param name="automaticIssueNotification"></param>        
         </member>
         <member name="M:WebAPI.Controllers.UserAssetsListItemController.Add(WebAPI.Models.Users.KalturaUserAssetsListItem)">
             <summary>
@@ -3422,6 +3452,11 @@
             Current Bitrate
             </summary>
         </member>
+        <member name="T:WebAPI.Models.Notification.KalturaInboxMessageTypeHolder">
+            <summary>
+            Holder object for inbox message type enum
+            </summary>    
+        </member>
         <member name="T:WebAPI.Models.Notification.KalturaInboxMessageResponse">
             <summary>
             List of inbox message.
@@ -3495,23 +3530,38 @@
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaInboxMessageFilter.CreatedAtGreaterThanOrEqual">
             <summary>
-            TODO:
+            createdAtGreaterThanOrEqual
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaInboxMessageFilter.CreatedAtLessThanOrEqual">
             <summary>
-            TODO:
+            createdAtLessThanOrEqual
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaMessageTemplate.Message">
              <summary>
-            The actual message with placeholders to be presented to the user
+            The message template with placeholders
              </summary>
         </member>
+        <!-- Badly formed XML comment ignored for member "P:WebAPI.Models.Notification.KalturaMessageTemplate.DateFormat" -->
         <member name="P:WebAPI.Models.Notification.KalturaMessageTemplate.AssetType">
             <summary>
-            OTT asset type
-            Possible values: Series
+            Template type. Possible values: Series
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaMessageTemplate.Sound">
+            <summary>
+            Sound file name to play upon message arrival to the device (if supported by target device)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaMessageTemplate.Action">
+            <summary>
+            an optional action
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaMessageTemplate.URL">
+            <summary>
+            URL template for deep linking. Example - /app/location/{mediaId}
             </summary>
         </member>
         <member name="T:WebAPI.Models.Notification.KalturaListFollowDataTvSeriesResponse">
@@ -3536,32 +3586,32 @@
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaNotificationSettings.PushNotificationEnabled">
             <summary>
-            push notification enabled
+            Specify if the user want to receive push notifications or not
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaNotificationSettings.PushFollowEnabled">
             <summary>
-            push follow enabled
+            Specify if the user will be notified for followed content via push. (requires push_notification_enabled to be enabled)
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaPartnerNotificationSettings.PushNotificationEnabled">
             <summary>
-            push notification enabled
+            Push notification capability is enabled for the account
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaPartnerNotificationSettings.PushSystemAnnouncementsEnabled">
             <summary>
-            push system announcements enabled
+            System announcement capability is enabled for the account
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaPartnerNotificationSettings.PushStartHour">
             <summary>
-            push start hour
+            Window start time (UTC) for send automated push messages
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaPartnerNotificationSettings.PushEndHour">
             <summary>
-            push end hour
+            Window end time (UTC) for send automated push messages
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaPartnerNotificationSettings.InboxEnabled">
@@ -3569,9 +3619,14 @@
             Inbox enabled
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notification.KalturaPartnerNotificationSettings.MessageTTL">
+        <member name="P:WebAPI.Models.Notification.KalturaPartnerNotificationSettings.MessageTTLDays">
             <summary>
-            Inbox enabled
+            Message TTL in days
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaPartnerNotificationSettings.AutomaticIssueFollowNotification">
+            <summary>
+            Automatic issue follow notification
             </summary>
         </member>
         <member name="T:WebAPI.Models.Notification.KalturaPersonalFollowFeedResponse">
@@ -3580,6 +3635,27 @@
             </summary>
         </member>
         <!-- Badly formed XML comment ignored for member "P:WebAPI.Models.Notification.KalturaPersonalFollowFeedResponse.PersonalFollowFeed" -->
+        <member name="P:WebAPI.Models.Notification.KalturaTopic.Id">
+            <summary>
+            message id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaTopic.Message">
+            <summary>
+            message
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaTopic.AutomaticIssueNotification">
+            <summary>
+            automaticIssueNotification
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaTopicResponse">
+            <summary>
+            List of inbox message.
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "P:WebAPI.Models.Notification.KalturaTopicResponse.Topics" -->
         <member name="T:WebAPI.Models.Partner.KalturaBillingPartnerConfig">
             <summary>
             Partner billing configuration
@@ -6065,6 +6141,24 @@
         <member name="M:WebAPI.Api.API.UpdateCDNPartnerSettingsAsync(System.String,System.String,WebAPI.Api.CDNPartnerSettings,System.Object)">
             <remarks/>
         </member>
+        <member name="M:WebAPI.Api.API.GetCDNAdapter(System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetCDNAdapterAsync(System.String,System.String,System.Int32)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetCDNAdapterAsync(System.String,System.String,System.Int32,System.Object)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetGroupDefaultCDNAdapter(System.String,System.String,WebAPI.Api.eAssetTypes)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetGroupDefaultCDNAdapterAsync(System.String,System.String,WebAPI.Api.eAssetTypes)">
+            <remarks/>
+        </member>
+        <member name="M:WebAPI.Api.API.GetGroupDefaultCDNAdapterAsync(System.String,System.String,WebAPI.Api.eAssetTypes,System.Object)">
+            <remarks/>
+        </member>
         <member name="M:WebAPI.Api.API.TVAPI_GetTvinciGUID(System.String,System.String,WebAPI.Api.InitializationObject)">
             <remarks/>
         </member>
@@ -7302,6 +7396,12 @@
             <remarks/>
         </member>
         <member name="E:WebAPI.Api.API.UpdateCDNPartnerSettingsCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.GetCDNAdapterCompleted">
+            <remarks/>
+        </member>
+        <member name="E:WebAPI.Api.API.GetGroupDefaultCDNAdapterCompleted">
             <remarks/>
         </member>
         <member name="E:WebAPI.Api.API.TVAPI_GetTvinciGUIDCompleted">
@@ -8744,16 +8844,31 @@
         <member name="P:WebAPI.Api.PurchaseMailRequest.m_sUserEmail">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Api.PreviewModuleCancelOrRefundRequest">
-            <remarks/>
-        </member>
         <member name="T:WebAPI.Api.PurchaseWithPreviewModuleRequest">
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.PurchaseWithPreviewModuleRequest.m_sPreviewModuleEndDate">
             <remarks/>
         </member>
+        <member name="T:WebAPI.Api.PreviewModuleCancelOrRefundRequest">
+            <remarks/>
+        </member>
         <member name="T:WebAPI.Api.PurchaseFailRequest">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.AddUserMailRequest">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.AddUserMailRequest.m_sToken">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.AddUserMailRequest.m_sMasterUsername">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.AddUserMailRequest.m_sNewUsername">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.AddUserMailRequest.m_sNewFirstName">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.AddDeviceMailRequest">
@@ -8807,46 +8922,16 @@
         <member name="P:WebAPI.Api.EmailNotificationRequest.m_startDate">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Api.SendAdminTokenRequest">
+        <member name="T:WebAPI.Api.ChangedPinMailRequest">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.SendAdminTokenRequest.m_sToken">
+        <member name="P:WebAPI.Api.ChangedPinMailRequest.m_sToken">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.SendAdminTokenRequest.m_sIP">
+        <member name="P:WebAPI.Api.ChangedPinMailRequest.m_sSiteGuid">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.SendAdminTokenRequest.m_sDuration">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.AddUserMailRequest">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.AddUserMailRequest.m_sToken">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.AddUserMailRequest.m_sMasterUsername">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.AddUserMailRequest.m_sNewUsername">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.AddUserMailRequest.m_sNewFirstName">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.CinepolisRenewalFailMailRequest">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.CinepolisRenewalFailMailRequest.m_sPurchaseDate">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.CinepolisRenewalFailMailRequest.m_sItemName">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.ChangePasswordMailRequest">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ChangePasswordMailRequest.m_sToken">
+        <member name="P:WebAPI.Api.ChangedPinMailRequest.m_sRuleName">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.CinepolisPurchaseMailRequest">
@@ -8864,34 +8949,22 @@
         <member name="P:WebAPI.Api.CinepolisPurchaseMailRequest.m_sUsername">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Api.WelcomeMailRequest">
+        <member name="T:WebAPI.Api.SendAdminTokenRequest">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.WelcomeMailRequest.m_sToken">
+        <member name="P:WebAPI.Api.SendAdminTokenRequest.m_sToken">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.WelcomeMailRequest.m_sUsername">
+        <member name="P:WebAPI.Api.SendAdminTokenRequest.m_sIP">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.WelcomeMailRequest.m_sPassword">
+        <member name="P:WebAPI.Api.SendAdminTokenRequest.m_sDuration">
             <remarks/>
         </member>
-        <member name="T:WebAPI.Api.ChangedPinMailRequest">
+        <member name="T:WebAPI.Api.ChangePasswordMailRequest">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.ChangedPinMailRequest.m_sToken">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ChangedPinMailRequest.m_sSiteGuid">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ChangedPinMailRequest.m_sRuleName">
-            <remarks/>
-        </member>
-        <member name="T:WebAPI.Api.ForgotPasswordMailRequest">
-            <remarks/>
-        </member>
-        <member name="P:WebAPI.Api.ForgotPasswordMailRequest.m_sToken">
+        <member name="P:WebAPI.Api.ChangePasswordMailRequest.m_sToken">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.SendPasswordMailRequest">
@@ -8904,6 +8977,33 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.SendPasswordMailRequest.m_sPassword">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.CinepolisRenewalFailMailRequest">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.CinepolisRenewalFailMailRequest.m_sPurchaseDate">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.CinepolisRenewalFailMailRequest.m_sItemName">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.WelcomeMailRequest">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.WelcomeMailRequest.m_sToken">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.WelcomeMailRequest.m_sUsername">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.WelcomeMailRequest.m_sPassword">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.ForgotPasswordMailRequest">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.ForgotPasswordMailRequest.m_sToken">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.RateMediaObject">
@@ -9767,7 +9867,7 @@
         <member name="P:WebAPI.Api.CDNAdapter.BaseUrl">
             <remarks/>
         </member>
-        <member name="P:WebAPI.Api.CDNAdapter.Alias">
+        <member name="P:WebAPI.Api.CDNAdapter.SystemName">
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.CDNAdapter.SharedSecret">
@@ -10452,6 +10552,24 @@
             <remarks/>
         </member>
         <member name="P:WebAPI.Api.UpdateCDNPartnerSettingsCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetCDNAdapterCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetCDNAdapterCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.GetCDNAdapterCompletedEventArgs.Result">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetGroupDefaultCDNAdapterCompletedEventHandler">
+            <remarks/>
+        </member>
+        <member name="T:WebAPI.Api.GetGroupDefaultCDNAdapterCompletedEventArgs">
+            <remarks/>
+        </member>
+        <member name="P:WebAPI.Api.GetGroupDefaultCDNAdapterCompletedEventArgs.Result">
             <remarks/>
         </member>
         <member name="T:WebAPI.Api.TVAPI_GetTvinciGUIDCompletedEventHandler">

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Http;
+﻿using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -12,8 +8,8 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/inboxMessage/action")]
-    public class InboxMessageController : ApiController
+    [RoutePrefix("_service/topic/action")]
+    public class TopicController : ApiController
     {
 
         /// <summary>
@@ -21,27 +17,26 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
-        /// User inbox messages not exist = 8020
+        /// 
         /// </remarks>
-        /// <param name="id">message id</param>        
+        /// <param name="id">topic id</param>        
         [Route("get"), HttpPost]
         [ApiAuthorize]
-        public KalturaInboxMessage Get(string id)
+        public KalturaTopic Get(int id)
         {
-            KalturaInboxMessage response = null;
+            KalturaTopic response = null;
 
             // parameters validation
-            if (string.IsNullOrEmpty(id))
+            if (id <= 0)
             {
-                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "id cannot be empty");
+                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "Topic id is illegal");
             }
 
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
-                string userId = KS.GetFromRequest().UserId;
                 // call client                
-                response = ClientsManager.NotificationClient().GetInboxMessage(groupId, userId, id);
+                response = ClientsManager.NotificationClient().GetTopic(groupId, id);
             }
             catch (ClientException ex)
             {
@@ -55,15 +50,13 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
-        /// message identifier required = 8019, user inbox message not exist = 8020,
         /// </remarks>
         /// <param name="pager">Page size and index</param>        
-        /// <param name="filter">filter</param>        
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaInboxMessageResponse List(KalturaFilterPager pager = null, KalturaInboxMessageFilter filter = null)
+        public KalturaTopicResponse List(KalturaFilterPager pager = null)
         {
-            KalturaInboxMessageResponse response = null;
+            KalturaTopicResponse response = null;
 
             try
             {
@@ -73,21 +66,8 @@ namespace WebAPI.Controllers
                 if (pager == null)
                     pager = new KalturaFilterPager();
 
-                if (filter == null)
-                    filter = new KalturaInboxMessageFilter() { TypeIn = new List<KalturaInboxMessageTypeHolder>() };
-
-                if (!filter.CreatedAtGreaterThanOrEqual.HasValue)
-                {
-                    filter.CreatedAtGreaterThanOrEqual = 0;
-                }
-
-                if (!filter.CreatedAtLessThanOrEqual.HasValue)
-                {
-                    filter.CreatedAtLessThanOrEqual = 0;
-                }
-
                 // call client                
-                response = ClientsManager.NotificationClient().GetInboxMessages(groupId, userId, pager.getPageSize(), pager.getPageIndex(), filter.TypeIn, filter.CreatedAtGreaterThanOrEqual.Value, filter.CreatedAtLessThanOrEqual.Value);
+                response = ClientsManager.NotificationClient().GetTopics(groupId, pager.getPageSize(), pager.getPageIndex());
             }
             catch (ClientException ex)
             {
@@ -100,14 +80,44 @@ namespace WebAPI.Controllers
         /// TBD
         /// </summary>
         /// <remarks>
+        /// Possible status codes:  
+        /// 
+        /// </remarks>
+        /// <param name="id">Topic identifier</param>
+        [Route("delete"), HttpPost]
+        [ApiAuthorize]
+        public bool Delete(int id)
+        {
+            bool response = false;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                response = ClientsManager.NotificationClient().DeleteTopic(groupId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+
+        /// <summary>
+        /// TBD
+        /// </summary>
+        /// <remarks>
         /// Possible status codes:       
         /// 
         /// </remarks>
         /// <param name="id"></param>        
-        /// <param name="status"></param>        
+        /// <param name="automaticIssueNotification"></param>        
         [Route("updateStatus"), HttpPost]
         [ApiAuthorize]
-        public bool UpdateStatus(string id, KalturaInboxMessageStatus status)
+        public bool UpdateStatus(string id, KalturaTopicAutomaticIssueNotification automaticIssueNotification)
         {
             bool response = false;
 
@@ -117,7 +127,7 @@ namespace WebAPI.Controllers
                 string userId = KS.GetFromRequest().UserId;
 
                 // call client                
-                response = ClientsManager.NotificationClient().UpdateInboxMessage(groupId, userId, id, status);
+                response = ClientsManager.NotificationClient().UpdateTopic(groupId, id, automaticIssueNotification);
             }
             catch (ClientException ex)
             {
