@@ -12,20 +12,12 @@ namespace WebAPI.Models.API
     public class KalturaCDNPartnerSettings : KalturaOTTObject
     {
         /// <summary>
-        /// Default VOD CDN adapter identifier
+        /// Default CDN adapter identifier
         /// </summary>
-        [DataMember(Name = "defaultVodAdapterId")]
-        [JsonProperty("defaultVodAdapterId")]
-        [XmlElement(ElementName = "defaultVodAdapterId", IsNullable = true)]
-        public int? DefaultVodAdapterId { get; set; }
-
-        /// <summary>
-        /// Default live and catch-up CDN adapter identifier
-        /// </summary>
-        [DataMember(Name = "defaultEpgAdapterId")]
-        [JsonProperty("defaultEpgAdapterId")]
-        [XmlElement(ElementName = "defaultEpgAdapterId", IsNullable = true)]
-        public int? DefaultEpgAdapterId { get; set; }
+        [DataMember(Name = "defaultAdapterId")]
+        [JsonProperty("defaultAdapterId")]
+        [XmlElement(ElementName = "defaultAdapterId", IsNullable = true)]
+        public int? DefaultAdapterId { get; set; }
 
         /// <summary>
         /// Default recording CDN adapter identifier

@@ -738,8 +738,7 @@
       </s:complexType>
       <s:complexType name="CDNPartnerSettings">
         <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="DefaultVodAdapter" nillable="true" type="s:int" />
-          <s:element minOccurs="1" maxOccurs="1" name="DefaultEpgAdapter" nillable="true" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="DefaultAdapter" nillable="true" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="DefaultRecordingAdapter" nillable="true" type="s:int" />
         </s:sequence>
       </s:complexType>

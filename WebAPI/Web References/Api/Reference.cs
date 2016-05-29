@@ -13466,31 +13466,18 @@ namespace WebAPI.Api {
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class CDNPartnerSettings {
         
-        private System.Nullable<int> defaultVodAdapterField;
-        
-        private System.Nullable<int> defaultEpgAdapterField;
+        private System.Nullable<int> defaultAdapterField;
         
         private System.Nullable<int> defaultRecordingAdapterField;
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
-        public System.Nullable<int> DefaultVodAdapter {
+        public System.Nullable<int> DefaultAdapter {
             get {
-                return this.defaultVodAdapterField;
+                return this.defaultAdapterField;
             }
             set {
-                this.defaultVodAdapterField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
-        public System.Nullable<int> DefaultEpgAdapter {
-            get {
-                return this.defaultEpgAdapterField;
-            }
-            set {
-                this.defaultEpgAdapterField = value;
+                this.defaultAdapterField = value;
             }
         }
         
