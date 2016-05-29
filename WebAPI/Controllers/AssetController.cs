@@ -349,9 +349,9 @@ namespace WebAPI.Controllers
         /// Return list of media assets that are related to a provided asset ID (of type VOD). Returned assets can be within multi VOD asset types or be of same type as the provided asset. Response is ordered by relevancy. On-demand, per asset enrichment is supported. Maximum number of returned assets – 20, using paging <br />        
         /// </summary>        
         /// <param name="media_id">The ID of the asset for which to return related assets</param>
-        /// <param name="filter_types">The type of related assets to return. Possible values: ALL – include all VOD asset types ; any media type ID (according to media type IDs defined dynamically in the system). If ommited – return assets of same asset type as the provided asset type. </param>        
+        /// <param name="filter_types">List of type of related assets to return. Possible values: 0 - for EPG ; any media type ID (according to media type IDs defined dynamically in the system). If omitted – return assets of same asset type as the provided asset type. </param>        
         /// <param name="pager">Paging filter - Page number to return. If omitted returns first page. Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted – 5 is used. Value greater than 50 will set to 50</param>
-        /// <param name="filter">Valid KSQL expression. If provided – the filter is applied on the resultset and further reduce it</param>
+        /// <param name="filter">Valid KSQL expression. If provided – the filter is applied on the result set and further reduce it</param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <param name="language">3 letter code (ISO 639-2) that represent the user language. If provided – may be used to further fine tune the returned collection. If omitted – partner’s default language is used</param>        
