@@ -9,9 +9,16 @@ namespace QueueWrapper
 {
     public class CatalogQueue : BaseQueue
     {
-        public CatalogQueue()
+        public CatalogQueue(bool isLegacy = false)
         {
-            this.Implementation = new RabbitQueue(Enums.ConfigType.IndexingDataConfig, true);
+            Enums.ConfigType config = Enums.ConfigType.IndexingDataConfig;
+
+            if (isLegacy)
+            {
+                config = Enums.ConfigType.DefaultConfig;
+            }
+
+            this.Implementation = new RabbitQueue(config, true);
         }
 
         public override bool Enqueue(QueueObject record, string sRouteKey)
