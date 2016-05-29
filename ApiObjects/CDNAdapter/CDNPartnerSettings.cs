@@ -9,9 +9,7 @@ namespace ApiObjects
 {
     public class CDNPartnerSettings
     {
-        public int? DefaultVodAdapter { get; set; }
-
-        public int? DefaultEpgAdapter { get; set; }
+        public int? DefaultAdapter { get; set; }
 
         public int? DefaultRecordingAdapter { get; set; }
     }

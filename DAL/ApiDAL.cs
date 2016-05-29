@@ -3716,15 +3716,14 @@ namespace DAL
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
             {
                 response = new CDNPartnerSettings();
-                response.DefaultVodAdapter = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "vod_adapter_id");
-                response.DefaultEpgAdapter = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "epg_adapter_id");
+                response.DefaultAdapter = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "adapter_id");
                 response.DefaultRecordingAdapter = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "recording_adapter_id");
             }
 
             return response;
         }
 
-        public static CDNPartnerSettings UpdateCdnSettings(int groupId, int? defaultVodAdapterId, int? defaultEpgAdapterId, int? defaultRecordingAdapterId)
+        public static CDNPartnerSettings UpdateCdnSettings(int groupId, int? defaultVodAdapterId, int? defaultRecordingAdapterId)
         {
             CDNPartnerSettings response = null;
             try
@@ -3732,8 +3731,7 @@ namespace DAL
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateCdnSettings");
                 sp.SetConnectionKey("CONNECTION_STRING");
                 sp.AddParameter("@groupId", groupId);
-                sp.AddParameter("@VodAdapterId", defaultVodAdapterId);
-                sp.AddParameter("@EpgAdapterId", defaultEpgAdapterId);
+                sp.AddParameter("@AdapterId", defaultVodAdapterId);
                 sp.AddParameter("@RecordingAdapterId", defaultRecordingAdapterId);
 
                 DataSet ds = sp.ExecuteDataSet();
