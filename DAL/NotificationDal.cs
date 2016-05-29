@@ -1866,5 +1866,18 @@ namespace DAL
 
             return null;
         }
+
+        public static bool DeleteAnnouncement(int groupId, long announcementId)
+        {
+            int affectedRows = 0;
+
+            ODBCWrapper.StoredProcedure spInsertUserNotification = new ODBCWrapper.StoredProcedure("Delete_Announcement");
+            spInsertUserNotification.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            spInsertUserNotification.AddParameter("@announcement_id", announcementId);
+            spInsertUserNotification.AddParameter("@group_id", groupId);
+            affectedRows = spInsertUserNotification.ExecuteReturnValue<int>();
+
+            return affectedRows > 0;
+        }
     }
 }
