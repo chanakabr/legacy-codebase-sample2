@@ -976,9 +976,9 @@ namespace DAL
         /// Retrieve userIds which follows the notification 
         /// </summary>
         /// <param name="groupId"></param>
-        /// <param name="notificationId"></param>
+        /// <param name="aanouncementId"></param>
         /// <returns></returns>
-        public static List<int> GetUsersFollowNotificationView(int groupId, int notificationId)
+        public static List<int> GetUsersFollowNotificationView(int groupId, int aanouncementId)
         {
             List<int> userIds = null;
             try
@@ -986,8 +986,8 @@ namespace DAL
                 // prepare view request
                 ViewManager viewManager = new ViewManager("notification", "get_users_notification")
                 {
-                    startKey = new object[] { groupId, notificationId },
-                    endKey = new object[] { groupId, notificationId },
+                    startKey = new object[] { groupId, aanouncementId },
+                    endKey = new object[] { groupId, aanouncementId },
                     staleState = ViewStaleState.False
                 };
 
@@ -996,7 +996,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while trying to get users follows notification. GID: {0}, notification ID: {1}, ex: {2}", groupId, notificationId, ex);
+                log.ErrorFormat("Error while trying to get users follows notification. GID: {0}, notification ID: {1}, ex: {2}", groupId, aanouncementId, ex);
             }
 
             return userIds;
