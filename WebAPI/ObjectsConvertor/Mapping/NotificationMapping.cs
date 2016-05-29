@@ -335,5 +335,24 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
             return result;
         }
+
+        internal static eMessageCategory ConvertInboxMessageType(KalturaInboxMessageTypeHolder inboxMessageTypeHolder)
+        {
+            eMessageCategory messageCategory = eMessageCategory.SystemAnnouncement;
+
+            switch (inboxMessageTypeHolder.type)
+            {
+                case KalturaInboxMessageType.SystemAnnouncement:
+                    messageCategory = eMessageCategory.SystemAnnouncement;
+                    break;
+                case KalturaInboxMessageType.Followed:
+                    messageCategory = eMessageCategory.Followed;
+                    break;
+                default:
+                    break;
+            }
+
+            return messageCategory;
+        }
     }
 }

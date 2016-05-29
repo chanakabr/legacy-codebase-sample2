@@ -780,7 +780,7 @@ namespace WebAPI.Clients
             return ret;
         }
 
-        internal KalturaInboxMessageResponse GetInboxMessages(int groupId, string userID, int pageSize, int pageIndex, List<KalturaInboxMessageType> typeIn, long createdAtGreaterThanOrEqual, long createdAtLessThanOrEqual)
+        internal KalturaInboxMessageResponse GetInboxMessages(int groupId, string userID, int pageSize, int pageIndex, List<KalturaInboxMessageTypeHolder> typeIn, long createdAtGreaterThanOrEqual, long createdAtLessThanOrEqual)
         {
             InboxMessageResponse response = null;
             List<KalturaInboxMessage> result = null;
@@ -788,11 +788,12 @@ namespace WebAPI.Clients
 
             if (typeIn == null || typeIn.Count == 0)
             {
-                typeIn = new List<KalturaInboxMessageType>() { KalturaInboxMessageType.Followed, KalturaInboxMessageType.SystemAnnouncement };
+                typeIn = new List<KalturaInboxMessageTypeHolder>();
+                typeIn.Add( new KalturaInboxMessageTypeHolder(){ type =  KalturaInboxMessageType.Followed});
+                typeIn.Add( new KalturaInboxMessageTypeHolder(){ type =  KalturaInboxMessageType.SystemAnnouncement});
             }
 
             List<eMessageCategory> convertedtypeIn = typeIn.Select(x => NotificationMapping.ConvertInboxMessageType(x)).ToList();
-
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -909,6 +910,6 @@ namespace WebAPI.Clients
             }
 
             return result;
-        }
+        }               
     }
 }

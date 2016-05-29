@@ -74,7 +74,7 @@ namespace WebAPI.Controllers
                     pager = new KalturaFilterPager();
 
                 if (filter == null)
-                    filter = new KalturaInboxMessageFilter() { TypeIn = new List<KalturaInboxMessageType>() };
+                    filter = new KalturaInboxMessageFilter() { TypeIn = new List<KalturaInboxMessageTypeHolder>() };
 
                 if (!filter.CreatedAtGreaterThanOrEqual.HasValue)
                 {

@@ -18,10 +18,10 @@ namespace WebAPI.Models.Notification
         [JsonProperty(PropertyName = "typeIn")]
         [XmlArray(ElementName = "typeIn", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
-        public List<KalturaInboxMessageType> TypeIn { get; set; }
+        public List<KalturaInboxMessageTypeHolder> TypeIn { get; set; }
 
         /// <summary>
-        /// TODO:
+        /// createdAtGreaterThanOrEqual
         /// </summary>
         [DataMember(Name = "createdAtGreaterThanOrEqual")]
         [JsonProperty(PropertyName = "createdAtGreaterThanOrEqual")]
@@ -29,7 +29,7 @@ namespace WebAPI.Models.Notification
         public long? CreatedAtGreaterThanOrEqual { get; set; }
 
         /// <summary>
-        /// TODO:
+        /// createdAtLessThanOrEqual
         /// </summary>
         [DataMember(Name = "createdAtLessThanOrEqual")]
         [JsonProperty(PropertyName = "createdAtLessThanOrEqual")]
