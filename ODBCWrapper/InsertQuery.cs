@@ -76,6 +76,9 @@ namespace ODBCWrapper
 
             m_hashTable[table_ind] = value;
             table_ind++;
+
+            Utils.CheckDBReadWrite(parameterName, value, "InsertQuery", m_bIsWritable, ref Utils.UseWritable);
+
             return true;
         }
 
@@ -175,8 +178,7 @@ namespace ODBCWrapper
             {
                 p.AddParameter(((Parameter)sOraStr).m_sParName,
                     ((Parameter)sOraStr).m_sType,
-                    ((Parameter)sOraStr).m_sParVal);
-                Utils.CheckDBReadWrite(((Parameter)sOraStr).m_sParName, ((Parameter)sOraStr).m_sParVal, "InsertQuery", m_bIsWritable, ref Utils.UseWritable);
+                    ((Parameter)sOraStr).m_sParVal);                
             }
             else
                 p.m_sOraStr.Append(" ").Append(sOraStr);            

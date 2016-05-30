@@ -20,7 +20,7 @@ namespace ODBCWrapper
         private Int32 m_nTop;
         protected Int32 m_nLockTimeOut;
         protected string m_sConnectionKey;
-        protected static bool m_bIsWritable;
+        protected bool m_bIsWritable;
         static public Int32 GetSequence(string sSeqName)
         {
             Int32 nRet = -1;
@@ -207,8 +207,9 @@ namespace ODBCWrapper
                 value = DBNull.Value;
 
             m_hashTable[table_ind] = value;
-            table_ind++;            
+            table_ind++;
 
+            Utils.CheckDBReadWrite(parameterName, value, "Query", m_bIsWritable, ref Utils.UseWritable);
             return true;
         }
 
@@ -218,8 +219,7 @@ namespace ODBCWrapper
             {
                 p.AddParameter(((Parameter)sOraStr).m_sParName,
                     ((Parameter)sOraStr).m_sType,
-                    ((Parameter)sOraStr).m_sParVal);
-                Utils.CheckDBReadWrite(((Parameter)sOraStr).m_sParName, ((Parameter)sOraStr).m_sParVal, "Query", m_bIsWritable, ref Utils.UseWritable);
+                    ((Parameter)sOraStr).m_sParVal);                
                 sOraStr = null;
             }
             else

@@ -20,8 +20,7 @@ namespace ODBCWrapper
 			{
 				p.AddParameter(((Parameter)sOraStr).m_sParName , 
 					((Parameter)sOraStr).m_sType , 
-					((Parameter)sOraStr).m_sParVal);
-                Utils.CheckDBReadWrite(((Parameter)sOraStr).m_sParName, ((Parameter)sOraStr).m_sParVal, "DataSetSelectQuery", m_bIsWritable, ref Utils.UseWritable);
+					((Parameter)sOraStr).m_sParVal);                
 			}
 			else
 				p.m_sOraStr.Append(" ").Append(sOraStr);            
