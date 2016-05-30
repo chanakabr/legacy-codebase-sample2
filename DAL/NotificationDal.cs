@@ -662,10 +662,10 @@ namespace DAL
             {
                 sp.AddParameter("@messageTTL", settings.MessageTTL.Value);
             }
-            if (settings.AutomaticIssueFollowNotifications.HasValue)
-            {
-                sp.AddParameter("@automaticIssueFollowNotifications", settings.AutomaticIssueFollowNotifications.Value);
-            }
+            //if (settings.AutomaticIssueFollowNotifications.HasValue)
+            //{
+            //    sp.AddParameter("@automaticIssueFollowNotifications", settings.AutomaticIssueFollowNotifications.Value);
+            //}
             return sp.ExecuteReturnValue<bool>();
         }
 
