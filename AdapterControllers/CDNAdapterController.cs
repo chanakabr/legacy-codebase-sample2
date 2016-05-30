@@ -206,8 +206,7 @@ namespace AdapterControllers
                 throw new KalturaException("CDN adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
 
-            CdnAdapter.ServiceClient adapterClient = new CdnAdapter.ServiceClient(string.Empty, adapter.AdapterUrl);
-
+            CdnAdapter.ServiceClient adapterClient = new CdnAdapter.ServiceClient();
             adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(adapter.AdapterUrl);
 
             //set unixTimestamp
@@ -268,8 +267,7 @@ namespace AdapterControllers
                 throw new KalturaException("CDN adapter has no URL", (int)eResponseStatus.AdapterUrlRequired);
             }
 
-            CdnAdapter.ServiceClient adapterClient = new CdnAdapter.ServiceClient(string.Empty, adapter.AdapterUrl);
-
+            CdnAdapter.ServiceClient adapterClient = new CdnAdapter.ServiceClient();
             adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(adapter.AdapterUrl);
 
             //set unixTimestamp
