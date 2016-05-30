@@ -249,40 +249,46 @@
     <None Include="obj\Release\DesignTimeResolveAssemblyReferencesInput.cache" />
     <None Include="obj\Release\ResolveAssemblyReference.cache" />
     <None Include="Properties\DataSources\ApiObjects.Notification.FollowTemplateResponse.datasource" />
+    <None Include="Properties\DataSources\ApiObjects.Notification.InboxMessageResponse1.datasource" />
     <None Include="Properties\DataSources\ApiObjects.Notification.MessageTemplateResponse.datasource" />
     <None Include="Properties\DataSources\ApiObjects.Notification.NotificationPartnerSettingsResponse.datasource" />
     <None Include="Properties\DataSources\ApiObjects.Notification.NotificationSettingsResponse.datasource" />
+    <None Include="Properties\DataSources\ApiObjects.Response.IdListResponse1.datasource" />
+    <None Include="Properties\DataSources\ApiObjects.Response.IdsResponse1.datasource" />
     <None Include="Properties\DataSources\ApiObjects.Response.Status.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <None Include="Service References\Notification_WCF\NotificationService.wsdl" />
-    <None Include="Service References\Notification_WCF\NotificationService.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notification_WCF\NotificationService1.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notification_WCF\NotificationService2.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notification_WCF\NotificationService3.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notification_WCF\NotificationService4.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notification_WCF\NotificationService5.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notification_WCF\NotificationService6.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notification_WCF\NotificationService7.xsd">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="Service References\Notification_WCF\NotificationService12.wsdl" />
     <None Include="Service References\Notification_WCF\NotificationService81.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notification_WCF\NotificationService811.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notification_WCF\NotificationService812.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notification_WCF\NotificationService813.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notification_WCF\NotificationService814.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notification_WCF\NotificationService815.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notification_WCF\NotificationService816.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notification_WCF\NotificationService817.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notification_WCF\NotificationService818.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notification_WCF\NotificationService819.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\Notification_WCF\TvinciImporter.Notification_WCF.AddMessageAnnouncementResponse.datasource">
@@ -574,9 +580,9 @@
     <Content Include="obj\Release\TvinciImporter.csproj.FileListAbsolute.txt" />
     <Content Include="obj\Release\TvinciImporter.dll" />
     <Content Include="obj\Release\TvinciImporter.pdb" />
+    <None Include="Service References\Notification_WCF\NotificationService12.disco" />
     <None Include="Web References\WS_ConditionalAccess\module.disco" />
     <None Include="Service References\WSCatalog\Service2.disco" />
-    <None Include="Service References\Notification_WCF\NotificationService.disco" />
     <None Include="Service References\WSCatalog\Service1.disco" />
     <None Include="Service References\WSCatalog\Reference.svcmap">
       <Generator>WCF Proxy Generator</Generator>
