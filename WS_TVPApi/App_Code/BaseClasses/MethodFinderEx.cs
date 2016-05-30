@@ -95,7 +95,8 @@ public partial class MethodFinder
                         }
                         else
                         {
-                            Product = ser.GetType().GetMethod("Deserialize").MakeGenericMethod(TargetType).Invoke(ser, new object[] { DeserializationTarget });
+                            Product = ser.GetType().GetMethod("Deserialize", new Type[] { typeof(string) }).
+                                MakeGenericMethod(TargetType).Invoke(ser, new object[] { DeserializationTarget });
                         }
                     }
                     catch (Exception ex)
