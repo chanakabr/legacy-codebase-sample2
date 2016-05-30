@@ -75,7 +75,7 @@ namespace WebAPI.Controllers
 
                     if (asset.FileIds != null)
                     {
-                        // Run on all file IDs and map them to respone asset
+                        // Run on all file IDs and map them to response asset
                         foreach (var file in asset.FileIds)
                         {
                             fileToPersonalAsset.Add(file, responseAsset);
@@ -152,16 +152,23 @@ namespace WebAPI.Controllers
                     var task = Task.Factory.StartNew(() =>
                     {
                         HttpContext.Current = ctx;
-                       
+
                         // get all phrases.
-                        List<string> phrases;
-                        var resp = ClientsManager.NotificationClient().GetUserTvSeriesFollows(groupId, userID, 1000, 0, null);
-                        if (resp != null && resp.FollowDataList != null && resp.FollowDataList.Count > 0)
+                        //List<string> followingPhrases;
+                        var userTvSeries = ClientsManager.NotificationClient().GetUserTvSeriesFollows(groupId, userID, 1000, 0, null);
+                        if (userTvSeries != null && userTvSeries.FollowDataList != null && userTvSeries.FollowDataList.Count > 0)
                         {
-                            phrases = resp.FollowDataList.Select(x => x.FollowPhrase).ToList();
-                            
+                            //followingPhrases = userTvSeries.FollowDataList.Select(x => x.FollowPhrase).ToList();
+
                             // Call catalog
-                            followingAssets = ClientsManager.CatalogClient().GetAssetsFollowing(userID, groupId, assets, phrases);
+                            //followingAssets = ClientsManager.CatalogClient().GetAssetsFollowing(userID, groupId, assets, followingPhrases);
+                            followingAssets = new List<KalturaSlimAsset>();
+                            foreach (var item in userTvSeries.FollowDataList)
+                            {
+                                var asset = assets.Where(x => x.Id == item.AssetId).FirstOrDefault();
+                                if (asset != null)
+                                    followingAssets.Add(new KalturaSlimAsset() { Type = KalturaAssetType.media, Id = asset.Id.ToString() });
+                            }
                         }
                     });
 
