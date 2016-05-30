@@ -125,14 +125,7 @@
                                         <td>
                                             <asp:Label ID="lblError" Text="" runat="server" Visible="false" ForeColor="Red"></asp:Label>
                                         </td>
-                                    </tr>
-                                    <tr>
-                                        <td width="100%" nowrap="" class="horizon_line_space">
-                                            <span>
-                                                <label style="color: red;">*</label>
-                                                see <a style="color: #0080ff;" tabindex="2000" href="#">push notification guide</a> for sample messages, message size and rules and use of place-holders fields. and Date formats</span>
-                                        </td>
-                                    </tr>
+                                    </tr>                                   
                                 </table>
 
                             </td>
