@@ -672,7 +672,7 @@ namespace DAL
         public static NotificationPartnerSettings GetNotificationPartnerSettings(int groupID)
         {
             NotificationPartnerSettings settings = null;
-            bool? automaticIssueFollowNotification = null;
+            bool? automaticIssueFollowNotification = true;
 
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_NotificationPartnerSettings");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
@@ -1917,7 +1917,7 @@ namespace DAL
 
         public static List<KeyValuePair<object, int>> GetAmountOfSubscribersPerAnnouncement(int groupId)
         {
-            List<KeyValuePair<object,int>> result = null;
+            List<KeyValuePair<object, int>> result = null;
             try
             {
 
