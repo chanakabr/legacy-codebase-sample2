@@ -23,7 +23,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "filterTypes")]
         [XmlArray(ElementName = "filterTypes", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
-        public KalturaIntegerValue[] filter_types { get; set; }
+        public List<KalturaIntegerValue> filter_types { get; set; }
 
         /// <summary>
         /// Which type of recently watched media to include in the result – those that finished watching, those that are in progress or both.
