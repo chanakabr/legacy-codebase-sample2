@@ -640,4 +640,13 @@ namespace ApiObjects
         StartOver = 1,
         LivePause = 2,
     }
+
+    public enum TopicAutomaticIssueNotification
+    {
+        Default = 0,
+        Yes = 1,
+        No = 2
+    }
+
+
 }
