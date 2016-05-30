@@ -20,10 +20,11 @@ namespace ODBCWrapper
 			{
 				p.AddParameter(((Parameter)sOraStr).m_sParName , 
 					((Parameter)sOraStr).m_sType , 
-					((Parameter)sOraStr).m_sParVal);
+					((Parameter)sOraStr).m_sParVal);                
 			}
 			else
-				p.m_sOraStr.Append(" ").Append(sOraStr);
+				p.m_sOraStr.Append(" ").Append(sOraStr);            
+
 			return p;
 		}
 

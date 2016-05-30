@@ -28,6 +28,8 @@ namespace DAL
         private const string SP_UPDATE_NOTIFICATION_MESSAGE_VIEW_STATUS = "UpdateNotificationMessageViewStatus";
         private const int NUM_OF_INSERT_TRIES = 10;
         private const int SLEEP_BETWEEN_RETRIES_MILLI = 1000;
+        private const string CB_DESIGN_DOC_NOTIFICATION = "notification";
+        private const string CB_DESIGN_DOC_INBOX = "inbox";
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.NOTIFICATION);
@@ -660,18 +662,29 @@ namespace DAL
             {
                 sp.AddParameter("@messageTTL", settings.MessageTTL.Value);
             }
+            //if (settings.AutomaticIssueFollowNotifications.HasValue)
+            //{
+            //    sp.AddParameter("@automaticIssueFollowNotifications", settings.AutomaticIssueFollowNotifications.Value);
+            //}
             return sp.ExecuteReturnValue<bool>();
         }
 
         public static NotificationPartnerSettings GetNotificationPartnerSettings(int groupID)
         {
             NotificationPartnerSettings settings = null;
+            bool? automaticIssueFollowNotification = true;
+
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_NotificationPartnerSettings");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             sp.AddParameter("@groupID", groupID);
             DataTable dt = sp.Execute();
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
+                string automaticSending = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "automatic_sending");
+
+                if (!string.IsNullOrEmpty(automaticSending))
+                    automaticIssueFollowNotification = bool.Parse(automaticSending);
+
                 settings = new NotificationPartnerSettings()
                 {
                     IsPushNotificationEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "push_notification_enabled") == 1 ? true : false,
@@ -679,7 +692,8 @@ namespace DAL
                     PushStartHour = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "push_start_hour"),
                     PushEndHour = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "push_end_hour"),
                     IsInboxEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "is_inbox_enable") == 1 ? true : false,
-                    MessageTTL = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "message_ttl")
+                    MessageTTL = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "message_ttl"),
+                    AutomaticIssueFollowNotifications = automaticIssueFollowNotification
                 };
             }
 
@@ -984,7 +998,7 @@ namespace DAL
             try
             {
                 // prepare view request
-                ViewManager viewManager = new ViewManager("notification", "get_users_notification")
+                ViewManager viewManager = new ViewManager(CB_DESIGN_DOC_NOTIFICATION, "get_users_notification")
                 {
                     startKey = new object[] { groupId, aanouncementId },
                     endKey = new object[] { groupId, aanouncementId },
@@ -1601,7 +1615,7 @@ namespace DAL
                     endKey = new object[] { groupId, userId, 0, "\uefff" };
 
                 // prepare view request
-                ViewManager viewManager = new ViewManager("inbox", "get_user_messages")
+                ViewManager viewManager = new ViewManager(CB_DESIGN_DOC_INBOX, "get_user_messages")
                 {
                     startKey = startKey,
                     endKey = endKey,
@@ -1781,7 +1795,7 @@ namespace DAL
             {
 
                 // prepare view request
-                ViewManager viewManager = new ViewManager("inbox", "get_system_messages")
+                ViewManager viewManager = new ViewManager(CB_DESIGN_DOC_INBOX, "get_system_messages")
                 {
                     startKey = new object[] { groupId, fromDate },
                     endKey = new object[] { groupId, "\uefff" },
@@ -1867,6 +1881,27 @@ namespace DAL
             return null;
         }
 
+        public static bool UpdateAnnouncement(int groupId, int announcementId, bool? automaticSending = null)
+        {
+            int rowCount = 0;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_Announcement");
+                sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@announcementId", announcementId);
+                //sp.AddParameter("@automaticSending", automaticSending.HasValue ? automaticSending.Value : null);
+
+                rowCount = sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                //log.ErrorFormat("Error at Update_PaymentGatewayPaymentMethod. paymentMethodId: {0}, name = {1}", paymentMethodId, !string.IsNullOrEmpty(name) ? name : string.Empty, ex);
+            }
+
+            return rowCount > 0;
+        }
+
         public static bool DeleteAnnouncement(int groupId, long announcementId)
         {
             int affectedRows = 0;
@@ -1878,6 +1913,32 @@ namespace DAL
             affectedRows = spInsertUserNotification.ExecuteReturnValue<int>();
 
             return affectedRows > 0;
+        }
+
+        public static List<KeyValuePair<object, int>> GetAmountOfSubscribersPerAnnouncement(int groupId)
+        {
+            List<KeyValuePair<object, int>> result = null;
+            try
+            {
+
+                // prepare view request
+                ViewManager viewManager = new ViewManager(CB_DESIGN_DOC_NOTIFICATION, "amount_of_subscribers")
+                {
+                    staleState = ViewStaleState.False,
+                    groupLevel = 2,
+                    inclusiveEnd = true,
+                    reduce = true
+                };
+
+                // execute request
+                result = cbManager.ViewKeyValuePairs<int>(viewManager);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to get amount of subscribers per announcement. GID: {0}, ex: {1}", groupId, ex);
+            }
+
+            return result;
         }
     }
 }
