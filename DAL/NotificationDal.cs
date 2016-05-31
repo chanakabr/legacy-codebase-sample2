@@ -658,9 +658,9 @@ namespace DAL
             {
                 sp.AddParameter("@isInboxEnabled", settings.IsInboxEnabled.Value);
             }
-            if (settings.MessageTTL.HasValue)
+            if (settings.MessageTTLDays.HasValue)
             {
-                sp.AddParameter("@messageTTL", settings.MessageTTL.Value);
+                sp.AddParameter("@messageTTL", settings.MessageTTLDays.Value);
             }
             if (settings.AutomaticIssueFollowNotifications.HasValue)
             {
@@ -692,7 +692,7 @@ namespace DAL
                     PushStartHour = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "push_start_hour"),
                     PushEndHour = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "push_end_hour"),
                     IsInboxEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "is_inbox_enable") == 1 ? true : false,
-                    MessageTTL = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "message_ttl"),
+                    MessageTTLDays = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "message_ttl"),
                     AutomaticIssueFollowNotifications = automaticIssueFollowNotification
                 };
             }
