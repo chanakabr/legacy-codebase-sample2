@@ -7729,7 +7729,7 @@ namespace ConditionalAccess
             {
                 if (sSubscriptions != null && sSubscriptions.Length > 0)
                 {
-                    ret = new SubscriptionsPricesContainer[sSubscriptions.Length];
+                    List<SubscriptionsPricesContainer> resp = new List<SubscriptionsPricesContainer>();                    
 
                     for (int i = 0; i < sSubscriptions.Length; i++)
                     {
@@ -7745,18 +7745,16 @@ namespace ConditionalAccess
                         {
                             p = Utils.GetSubscriptionFinalPrice(m_nGroupID, sSubCode, sUserGUID, sCouponCode, ref theReason, ref s, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty, sIP);
                         }
-
-                        if (p == null)
-                        {
-                            ret[i] = null;
-                        }
-                        else
+                        
+                        if (p != null)
                         {
                             SubscriptionsPricesContainer cont = new SubscriptionsPricesContainer();
                             cont.Initialize(sSubCode, p, theReason);
-                            ret[i] = cont;
+                            resp.Add(cont);
                         }
                     }
+
+                    ret = resp.ToArray();
                 }
             }
             catch (Exception ex)
