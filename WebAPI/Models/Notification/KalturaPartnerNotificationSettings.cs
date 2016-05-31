@@ -71,5 +71,14 @@ namespace WebAPI.Models.Notification
         [JsonProperty("automaticIssueFollowNotification")]
         [XmlElement(ElementName = "automaticIssueFollowNotification", IsNullable = true)]
         public bool? AutomaticIssueFollowNotification { get; set; }
+
+         /// <summary>
+        /// Topic expiration duration in days
+        /// </summary>
+        [DataMember(Name = "topicExpirationDurationDays")]
+        [JsonProperty("topicExpirationDurationDays")]
+        [XmlElement(ElementName = "topicExpirationDurationDays", IsNullable = true)]
+        public int? TopicExpirationDurationDays { get; set; }
+        
     }
 }

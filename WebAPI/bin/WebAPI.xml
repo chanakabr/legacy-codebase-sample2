@@ -3619,6 +3619,16 @@
             Message TTL in days
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Notification.KalturaPartnerNotificationSettings.AutomaticIssueFollowNotification">
+            <summary>
+            Automatic issue follow notification
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaPartnerNotificationSettings.TopicExpirationDurationDays">
+            <summary>
+            Topic expiration duration in days
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Notification.KalturaPersonalFollowFeedResponse">
             <summary>
             List of message follow data.

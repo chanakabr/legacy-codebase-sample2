@@ -19,8 +19,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.PushStartHour, opt => opt.MapFrom(src => src.PushStartHour))
                  .ForMember(dest => dest.PushEndHour, opt => opt.MapFrom(src => src.PushEndHour))
                  .ForMember(dest => dest.InboxEnabled, opt => opt.MapFrom(src => src.IsInboxEnabled))
-                 .ForMember(dest => dest.MessageTTLDays, opt => opt.MapFrom(src => src.MessageTTL))
+                 .ForMember(dest => dest.MessageTTLDays, opt => opt.MapFrom(src => src.MessageTTLDays))
                  .ForMember(dest => dest.AutomaticIssueFollowNotification, opt => opt.MapFrom(src => src.AutomaticIssueFollowNotifications))
+                 .ForMember(dest => dest.TopicExpirationDurationDays, opt => opt.MapFrom(src => src.TopicExpirationDurationDays))
                  ;
 
             //KalturaPartnerNotificationSettings TO NotificationPartnerSettings
@@ -30,8 +31,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.PushStartHour, opt => opt.MapFrom(src => src.PushStartHour))
                  .ForMember(dest => dest.PushEndHour, opt => opt.MapFrom(src => src.PushEndHour))
                  .ForMember(dest => dest.IsInboxEnabled, opt => opt.MapFrom(src => src.InboxEnabled))
-                 .ForMember(dest => dest.MessageTTL, opt => opt.MapFrom(src => src.MessageTTLDays))
+                 .ForMember(dest => dest.MessageTTLDays, opt => opt.MapFrom(src => src.MessageTTLDays))
                  .ForMember(dest => dest.AutomaticIssueFollowNotifications, opt => opt.MapFrom(src => src.AutomaticIssueFollowNotification))
+                 .ForMember(dest => dest.TopicExpirationDurationDays, opt => opt.MapFrom(src => src.TopicExpirationDurationDays))
                  ;
 
             Mapper.CreateMap<UserNotificationSettings, KalturaNotificationSettings>()

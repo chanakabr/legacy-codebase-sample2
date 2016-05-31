@@ -893,13 +893,16 @@ namespace WebAPI.Notifications {
         private System.Nullable<bool> IsPushSystemAnnouncementsEnabledField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private System.Nullable<int> MessageTTLField;
+        private System.Nullable<int> MessageTTLDaysField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Nullable<int> PushEndHourField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Nullable<int> PushStartHourField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Nullable<int> TopicExpirationDurationDaysField;
         
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
@@ -964,14 +967,14 @@ namespace WebAPI.Notifications {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public System.Nullable<int> MessageTTL {
+        public System.Nullable<int> MessageTTLDays {
             get {
-                return this.MessageTTLField;
+                return this.MessageTTLDaysField;
             }
             set {
-                if ((this.MessageTTLField.Equals(value) != true)) {
-                    this.MessageTTLField = value;
-                    this.RaisePropertyChanged("MessageTTL");
+                if ((this.MessageTTLDaysField.Equals(value) != true)) {
+                    this.MessageTTLDaysField = value;
+                    this.RaisePropertyChanged("MessageTTLDays");
                 }
             }
         }
@@ -998,6 +1001,19 @@ namespace WebAPI.Notifications {
                 if ((this.PushStartHourField.Equals(value) != true)) {
                     this.PushStartHourField = value;
                     this.RaisePropertyChanged("PushStartHour");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Nullable<int> TopicExpirationDurationDays {
+            get {
+                return this.TopicExpirationDurationDaysField;
+            }
+            set {
+                if ((this.TopicExpirationDurationDaysField.Equals(value) != true)) {
+                    this.TopicExpirationDurationDaysField = value;
+                    this.RaisePropertyChanged("TopicExpirationDurationDays");
                 }
             }
         }
