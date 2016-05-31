@@ -18,6 +18,7 @@ namespace ODBCWrapper
         public static readonly DateTime FICTIVE_DATE = new DateTime(2000, 1, 1);
         static List<string> dbWriteLockParams = (!string.IsNullOrEmpty(TCMClient.Settings.Instance.GetValue<string>("DB_WriteLock_Params"))) ? TCMClient.Settings.Instance.GetValue<string>("DB_WriteLock_Params").Split(';').ToList<string>() : null;
         static public string dBVersionPrefix = (!string.IsNullOrEmpty(TCMClient.Settings.Instance.GetValue<string>("DB_Settings.prefix"))) ? string.Concat("__", TCMClient.Settings.Instance.GetValue<string>("DB_Settings.prefix"), "__") : string.Empty;
+        static bool UseReadWriteLockMechanism = TCMClient.Settings.Instance.GetValue<bool>("DB_WriteLock_Use");
         [ThreadStatic]
         public static bool UseWritable;
 
@@ -992,8 +993,8 @@ namespace ODBCWrapper
             //Logger.Logger.Log("DBLock ", "m_bUseWritable is '" + useWriteable + "',For: " + executer, "ODBC_DBLock");
             //m_bIsWritable || m_bUseWritable
             if (!useWriteable)
-            {                
-                Utils.UseWritable = ReadWriteLock(sKey, oValue, executer, isWritable);                
+            {
+                Utils.UseWritable = ReadWriteLock(sKey, oValue, executer, isWritable);
 
                 //if (useWriteable) Logger.Logger.Log("DBLock ", "m_bUseWritable changed to '" + Utils.UseWritable + "', for: " + executer, "ODBC_DBLock");
             }
@@ -1001,6 +1002,11 @@ namespace ODBCWrapper
 
         public static bool ReadWriteLock(string sKey, object oValue, object executer, bool isWritable)
         {
+            if (!UseReadWriteLockMechanism)
+            {
+                return true;
+            }
+
             bool bRet = false;
             try
             {
