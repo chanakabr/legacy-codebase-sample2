@@ -96,7 +96,7 @@ namespace DAL
 
             if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
             {
-                object objectUrl = dataSet.Tables[0].Rows[0];
+                object objectUrl = dataSet.Tables[0].Rows[0]["Catalog_URL"];
 
                 if (objectUrl != null && objectUrl != DBNull.Value)
                 {
