@@ -641,7 +641,7 @@ namespace ApiObjects
         LivePause = 2,
     }
 
-    public enum TopicAutomaticIssueNotification
+    public enum eTopicAutomaticIssueNotification
     {
         Default = 0,
         Yes = 1,
