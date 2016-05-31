@@ -18,7 +18,7 @@ namespace Ingest.Importers
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private const string DATES_FORMAT = "dd/MM/yyyy hh:mm:ss";
+        private const string DATES_FORMAT = "dd/MM/yyyy HH:mm:ss";
         private const string MANDATORY_ERROR_FORMAT = "{0} with code '{1}': {3} failed - '{2}' is mandatory.\n";
         private const string FORMAT_ERROR_FORMAT = "{0} with code '{1}': {3} failed - wrong format of '{2}'.\n";
         private const string MISSING_ATTRIBUTE_ERROR_FORMAT = "{0} with code '{1}': {4} failed - missing attribute '{2}' for '{3}'.\n";
