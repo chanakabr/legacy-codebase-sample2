@@ -4849,7 +4849,7 @@ namespace TvinciImporter
 
             try
             {
-                string sWSURL = GetCatalogUrl(nGroupId);
+                string sWSURL = GetCatalogUrlByParameters(nGroupId, eObjectType.Channel, eAction.Update);
 
                 if (!string.IsNullOrEmpty(sWSURL))
                 {
@@ -4911,6 +4911,7 @@ namespace TvinciImporter
 
             return sLuceneURL;
         }
+
         /// <summary>
         /// Gets all catalog urls releated to the given group id
         /// </summary>
@@ -4938,6 +4939,26 @@ namespace TvinciImporter
             return sCatalogURL;
         }
 
+        /// <summary>
+        /// Gets all catalog urls releated to the given group id
+        /// </summary>
+        /// <param name="groupid"></param>
+        /// <returns>Concatenated urls from DB</returns>
+        private static string GetCatalogUrlByParameters(int groupId, eObjectType? objectType, eAction? action)
+        {
+            string catalogURL = GetConfigVal("WS_Catalog");
+
+            try
+            {
+                catalogURL = DAL.ImporterImpDAL.Get_CatalogUrlByParameters(groupId, objectType, action);
+            }
+            catch (Exception ex)
+            {
+                log.Error("GetCatalogUrlByAction - GroupID : " + groupId + ", error : " + ex.Message, ex);
+            }
+
+            return catalogURL;
+        }
 
         #endregion
 
@@ -5259,7 +5280,7 @@ namespace TvinciImporter
 
                 if (lMediaIds != null && lMediaIds.Count > 0 && nParentGroupID > 0)
                 {
-                    string sWSURL = GetCatalogUrl(nParentGroupID);
+                    string sWSURL = GetCatalogUrlByParameters(nParentGroupID, eObjectType.Media, eAction);
 
                     if (!string.IsNullOrEmpty(sWSURL))
                     {
@@ -5343,7 +5364,8 @@ namespace TvinciImporter
 
                     if (lChannelIds != null && lChannelIds.Count > 0 && nParentGroupID > 0)
                     {
-                        string sWSURL = GetCatalogUrl(nParentGroupID);
+                        string sWSURL = GetCatalogUrlByParameters(nParentGroupID, eObjectType.Channel, eAction);
+
                         if (!string.IsNullOrEmpty(sWSURL))
                         {
                             string[] arrAddresses = sWSURL.Split(';');
@@ -5429,7 +5451,7 @@ namespace TvinciImporter
             try
             {
                 int nParentGroupID = DAL.UtilsDal.GetParentGroupID(nGroupID);
-                string sWSURL = GetCatalogUrl(nParentGroupID);
+                string sWSURL = GetCatalogUrlByParameters(nParentGroupID, eObjectType.Unknown, eAction.Update);
 
                 if (!string.IsNullOrEmpty(sWSURL))
                 {
@@ -5544,7 +5566,7 @@ namespace TvinciImporter
                 {
                     wsCatalog = GetWCFSvc("WS_Catalog");
 
-                    string sWSURL = GetCatalogUrl(parentGroupID);
+                    string sWSURL = GetCatalogUrlByParameters(groupId, eObjectType.EPG, action);
 
                     if (!string.IsNullOrEmpty(sWSURL))
                     {
@@ -5690,7 +5712,7 @@ namespace TvinciImporter
                     wsCatalog = GetWCFSvc("WS_Catalog");
                     if (epgChannels != null && epgChannels.Count > 0 && nParentGroupID > 0)
                     {
-                        string sWSURL = GetCatalogUrl(nParentGroupID);
+                        string sWSURL = GetCatalogUrlByParameters(nParentGroupID, eObjectType.EpgChannel, eAction);
 
                         if (!string.IsNullOrEmpty(sWSURL))
                         {
