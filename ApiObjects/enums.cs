@@ -88,15 +88,15 @@ namespace ApiObjects
         [EnumMember]
         Unknown = -1,
         [EnumMember]
-        Media,
+        Media = 0,
         [EnumMember]
-        Channel,
+        Channel = 1,
         [EnumMember]
-        EPG,
+        EPG = 2,
         [EnumMember]
-        EpgChannel,
+        EpgChannel = 3,
         [EnumMember]
-        Recording
+        Recording = 4
     }
 
     [Serializable]
@@ -113,15 +113,15 @@ namespace ApiObjects
     public enum eAction
     {
         [EnumMember]
-        Off,
+        Off = 0,
         [EnumMember]
-        On,
+        On = 1,
         [EnumMember]
-        Update,
+        Update = 2,
         [EnumMember]
-        Delete,
+        Delete = 3,
         [EnumMember]
-        Rebuild
+        Rebuild = 4
     }
 
     [Serializable]

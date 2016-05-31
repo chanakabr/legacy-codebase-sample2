@@ -65,6 +65,46 @@ namespace DAL
             
             return dt;
         }
-           
+
+        public static string Get_CatalogUrlByParameters(int groupId, ApiObjects.eObjectType? objectType, ApiObjects.eAction? action)
+        {
+            string url = string.Empty;
+            
+            ODBCWrapper.StoredProcedure spCatalogURL = new ODBCWrapper.StoredProcedure("Get_CatalogUrlByParameters");
+            spCatalogURL.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spCatalogURL.AddParameter("@GroupID", groupId);
+
+            if (objectType != null && objectType.HasValue)
+            {
+                spCatalogURL.AddParameter("@ObjectType", (int)objectType);
+            }
+            else
+            {
+                spCatalogURL.AddParameter("@ObjectType", int.MinValue);
+            }
+
+            if (action != null && action.HasValue)
+            {
+                spCatalogURL.AddParameter("@Action", (int)action);
+            }
+            else
+            {
+                spCatalogURL.AddParameter("@Action", int.MinValue);
+            }
+
+            DataSet dataSet = spCatalogURL.ExecuteDataSet();
+
+            if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0 && dataSet.Tables[0].Rows.Count > 0)
+            {
+                object objectUrl = dataSet.Tables[0].Rows[0]["Catalog_URL"];
+
+                if (objectUrl != null && objectUrl != DBNull.Value)
+                {
+                    url = Convert.ToString(objectUrl);
+                }
+            }
+
+            return url;
+        }
     }
 }
