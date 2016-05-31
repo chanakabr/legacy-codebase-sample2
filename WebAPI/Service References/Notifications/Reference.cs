@@ -881,6 +881,9 @@ namespace WebAPI.Notifications {
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Nullable<bool> AutomaticIssueFollowNotificationsField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Nullable<bool> IsInboxEnabledField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -905,6 +908,19 @@ namespace WebAPI.Notifications {
             }
             set {
                 this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Nullable<bool> AutomaticIssueFollowNotifications {
+            get {
+                return this.AutomaticIssueFollowNotificationsField;
+            }
+            set {
+                if ((this.AutomaticIssueFollowNotificationsField.Equals(value) != true)) {
+                    this.AutomaticIssueFollowNotificationsField = value;
+                    this.RaisePropertyChanged("AutomaticIssueFollowNotifications");
+                }
             }
         }
         
