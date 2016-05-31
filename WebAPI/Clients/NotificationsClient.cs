@@ -941,7 +941,29 @@ namespace WebAPI.Clients
 
         internal bool DeleteTopic(int groupId, int id)
         {
-            throw new NotImplementedException();
+            Status response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Notification.DeleteAnnouncement(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, id);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while DeleteAnnouncement.  groupID: {0}, id: {1}, exception: {2}", groupId, id, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
         }
 
         internal KalturaTopicResponse GetTopics(int groupId, int p1, int p2)
