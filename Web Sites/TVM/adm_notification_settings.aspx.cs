@@ -123,7 +123,13 @@ public partial class adm_notification_settings : System.Web.UI.Page
             DataRecordShortIntField drTTL = new DataRecordShortIntField(true, 6, 6, 0, 90);
             drTTL.Initialize("Inbox message TTL(days)", "adm_table_header_nbg", "FormInput", "message_ttl", false);
             theRecord.AddRecord(drTTL);
+
+            DataRecordCheckBoxField drAutomaticallyIssueNotification = new DataRecordCheckBoxField(true);
+            drAutomaticallyIssueNotification.Initialize("Automatically issue follow notification ", "adm_table_header_nbg", "FormInput", "automatic_sending", false);
+            drAutomaticallyIssueNotification.SetDefault(1);
+            theRecord.AddRecord(drAutomaticallyIssueNotification);
             
+
             sTable = theRecord.GetTableHTML("adm_notification_settings.aspx?submited=1");
         }
         return sTable;
