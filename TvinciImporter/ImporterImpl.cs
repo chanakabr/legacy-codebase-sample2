@@ -5768,8 +5768,7 @@ namespace TvinciImporter
 
             return isUpdateIndexSucceeded;
         }
-
-
+        
         public static DateTime? ExtractDate(string sDate, string format)
         {
             DateTime? result = null;
@@ -5826,9 +5825,42 @@ namespace TvinciImporter
             return result;
         }
 
+        static public Dictionary<string, int> GetAmountOfSubscribersPerAnnouncement(int groupID)
+        {
+            Dictionary<string, int> response = null;
+            try
+            {
+                //Call Notifications WCF service
+                string sWSURL = GetConfigVal("NotificationService");
+                Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
+                if (!string.IsNullOrEmpty(sWSURL))
+                    service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
 
+                string sIP = "1.1.1.1";
+                string sWSUserName = "";
+                string sWSPass = "";
+                int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupID);
+                TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "", "notifications", sIP, ref sWSUserName, ref sWSPass);
 
+                response = service.GetAmountOfSubscribersPerAnnouncement(sWSUserName, sWSPass);
+                if (response == null)
+                {
+                    log.DebugFormat("GetAmountOfSubscribersPerAnnouncement is empty");
+                }
+                return response;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetAmountOfSubscribersPerAnnouncement ex:{0}", ex);
 
+                return null;
+            }
+        }
+
+        public static ApiObjects.Response.Status SetTopicSettings(int groupId, int id, bool? automaticSending)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 
