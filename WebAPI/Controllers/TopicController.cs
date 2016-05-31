@@ -117,7 +117,7 @@ namespace WebAPI.Controllers
         /// <param name="automaticIssueNotification"></param>        
         [Route("updateStatus"), HttpPost]
         [ApiAuthorize]
-        public bool UpdateStatus(string id, KalturaTopicAutomaticIssueNotification automaticIssueNotification)
+        public bool UpdateStatus(int id, KalturaTopicAutomaticIssueNotification automaticIssueNotification)
         {
             bool response = false;
 

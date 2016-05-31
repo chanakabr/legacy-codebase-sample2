@@ -912,9 +912,31 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal bool UpdateTopic(int groupId, string id, KalturaTopicAutomaticIssueNotification automaticIssueNotification)
+        internal bool UpdateTopic(int groupId, int id, KalturaTopicAutomaticIssueNotification automaticIssueNotification)
         {
-            throw new NotImplementedException();
+            Status response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+           
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Notification.UpdateAnnouncement(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, id, NotificationMapping.ConvertAutomaticIssueNotification(automaticIssueNotification));
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while UpdateTopic.  groupID: {0}, id: {1}, exception: {2}", groupId, id, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
         }
 
         internal bool DeleteTopic(int groupId, int id)

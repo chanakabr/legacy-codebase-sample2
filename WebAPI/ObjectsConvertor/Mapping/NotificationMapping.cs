@@ -354,5 +354,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             return messageCategory;
         }
+
+        internal static eTopicAutomaticIssueNotification ConvertAutomaticIssueNotification(KalturaTopicAutomaticIssueNotification automaticIssueNotification)
+        {
+            switch (automaticIssueNotification)
+            {
+                case KalturaTopicAutomaticIssueNotification.Yes:
+                    return eTopicAutomaticIssueNotification.Yes;
+                case KalturaTopicAutomaticIssueNotification.No:
+                    return eTopicAutomaticIssueNotification.No;
+                case KalturaTopicAutomaticIssueNotification.Default:
+                default:
+                    return eTopicAutomaticIssueNotification.Default;
+            }
+        }
     }
 }

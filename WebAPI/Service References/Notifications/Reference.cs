@@ -2705,6 +2705,20 @@ namespace WebAPI.Notifications {
         Followed = 1,
     }
     
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="eTopicAutomaticIssueNotification", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects")]
+    public enum eTopicAutomaticIssueNotification : int {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Default = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Yes = 1,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        No = 2,
+    }
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="Notifications.INotificationService")]
     public interface INotificationService {
@@ -2896,6 +2910,26 @@ namespace WebAPI.Notifications {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetInboxMessages", ReplyAction="http://tempuri.org/INotificationService/GetInboxMessagesResponse")]
         System.Threading.Tasks.Task<WebAPI.Notifications.InboxMessageResponse> GetInboxMessagesAsync(string sWSUserName, string sWSPassword, int userId, int pageSize, int pageIndex, System.Collections.Generic.List<WebAPI.Notifications.eMessageCategory> messageCategorys, long CreatedAtGreaterThanOrEqual, long CreatedAtLessThanOrEqual);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/DeleteAnnouncement", ReplyAction="http://tempuri.org/INotificationService/DeleteAnnouncementResponse")]
+        WebAPI.Notifications.Status DeleteAnnouncement(string sWSUserName, string sWSPassword, long announcementId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/DeleteAnnouncement", ReplyAction="http://tempuri.org/INotificationService/DeleteAnnouncementResponse")]
+        System.Threading.Tasks.Task<WebAPI.Notifications.Status> DeleteAnnouncementAsync(string sWSUserName, string sWSPassword, long announcementId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetAmountOfSubscribersPerAnnouncement", ReplyAction="http://tempuri.org/INotificationService/GetAmountOfSubscribersPerAnnouncementResp" +
+            "onse")]
+        System.Collections.Generic.Dictionary<string, int> GetAmountOfSubscribersPerAnnouncement(string sWSUserName, string sWSPassword);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetAmountOfSubscribersPerAnnouncement", ReplyAction="http://tempuri.org/INotificationService/GetAmountOfSubscribersPerAnnouncementResp" +
+            "onse")]
+        System.Threading.Tasks.Task<System.Collections.Generic.Dictionary<string, int>> GetAmountOfSubscribersPerAnnouncementAsync(string sWSUserName, string sWSPassword);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateAnnouncement", ReplyAction="http://tempuri.org/INotificationService/UpdateAnnouncementResponse")]
+        WebAPI.Notifications.Status UpdateAnnouncement(string sWSUserName, string sWSPassword, int announcementId, WebAPI.Notifications.eTopicAutomaticIssueNotification topicAutomaticIssueNotification);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateAnnouncement", ReplyAction="http://tempuri.org/INotificationService/UpdateAnnouncementResponse")]
+        System.Threading.Tasks.Task<WebAPI.Notifications.Status> UpdateAnnouncementAsync(string sWSUserName, string sWSPassword, int announcementId, WebAPI.Notifications.eTopicAutomaticIssueNotification topicAutomaticIssueNotification);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -3171,6 +3205,30 @@ namespace WebAPI.Notifications {
         
         public System.Threading.Tasks.Task<WebAPI.Notifications.InboxMessageResponse> GetInboxMessagesAsync(string sWSUserName, string sWSPassword, int userId, int pageSize, int pageIndex, System.Collections.Generic.List<WebAPI.Notifications.eMessageCategory> messageCategorys, long CreatedAtGreaterThanOrEqual, long CreatedAtLessThanOrEqual) {
             return base.Channel.GetInboxMessagesAsync(sWSUserName, sWSPassword, userId, pageSize, pageIndex, messageCategorys, CreatedAtGreaterThanOrEqual, CreatedAtLessThanOrEqual);
+        }
+        
+        public WebAPI.Notifications.Status DeleteAnnouncement(string sWSUserName, string sWSPassword, long announcementId) {
+            return base.Channel.DeleteAnnouncement(sWSUserName, sWSPassword, announcementId);
+        }
+        
+        public System.Threading.Tasks.Task<WebAPI.Notifications.Status> DeleteAnnouncementAsync(string sWSUserName, string sWSPassword, long announcementId) {
+            return base.Channel.DeleteAnnouncementAsync(sWSUserName, sWSPassword, announcementId);
+        }
+        
+        public System.Collections.Generic.Dictionary<string, int> GetAmountOfSubscribersPerAnnouncement(string sWSUserName, string sWSPassword) {
+            return base.Channel.GetAmountOfSubscribersPerAnnouncement(sWSUserName, sWSPassword);
+        }
+        
+        public System.Threading.Tasks.Task<System.Collections.Generic.Dictionary<string, int>> GetAmountOfSubscribersPerAnnouncementAsync(string sWSUserName, string sWSPassword) {
+            return base.Channel.GetAmountOfSubscribersPerAnnouncementAsync(sWSUserName, sWSPassword);
+        }
+        
+        public WebAPI.Notifications.Status UpdateAnnouncement(string sWSUserName, string sWSPassword, int announcementId, WebAPI.Notifications.eTopicAutomaticIssueNotification topicAutomaticIssueNotification) {
+            return base.Channel.UpdateAnnouncement(sWSUserName, sWSPassword, announcementId, topicAutomaticIssueNotification);
+        }
+        
+        public System.Threading.Tasks.Task<WebAPI.Notifications.Status> UpdateAnnouncementAsync(string sWSUserName, string sWSPassword, int announcementId, WebAPI.Notifications.eTopicAutomaticIssueNotification topicAutomaticIssueNotification) {
+            return base.Channel.UpdateAnnouncementAsync(sWSUserName, sWSPassword, announcementId, topicAutomaticIssueNotification);
         }
     }
 }
