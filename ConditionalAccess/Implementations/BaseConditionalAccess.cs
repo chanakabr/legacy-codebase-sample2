@@ -12198,7 +12198,7 @@ namespace ConditionalAccess
                         link = CDNAdapterController.GetInstance().GetVodLink(m_nGroupID, adapterResponse.Adapter.ID, sSiteGuid, fileAltUrl, deviceType, nMediaID, nMediaFileID, sUserIP);
                         res.altUrl = link != null ? link.Url : string.Empty;
                     }
-                    else if (string.IsNullOrEmpty(CdnStrID))
+                    else if (!string.IsNullOrEmpty(CdnStrID))
                     {
                         Dictionary<string, string> licensedLinkParams = GetLicensedLinkParamsDict(sSiteGuid, nMediaFileID.ToString(),
                             fileMainUrl, sUserIP, sCountryCode, sLanguageCode, sDeviceName, sCouponCode);
