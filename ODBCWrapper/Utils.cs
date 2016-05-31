@@ -20,7 +20,7 @@ namespace ODBCWrapper
         static public string dBVersionPrefix = (!string.IsNullOrEmpty(TCMClient.Settings.Instance.GetValue<string>("DB_Settings.prefix"))) ? string.Concat("__", TCMClient.Settings.Instance.GetValue<string>("DB_Settings.prefix"), "__") : string.Empty;
         static bool UseReadWriteLockMechanism = TCMClient.Settings.Instance.GetValue<bool>("DB_WriteLock_Use");
         [ThreadStatic]
-        public static bool UseWritable = true;
+        public static bool UseWritable;
 
         static public string GetSafeStr(object o)
         {
@@ -992,7 +992,7 @@ namespace ODBCWrapper
         {
             //Logger.Logger.Log("DBLock ", "m_bUseWritable is '" + useWriteable + "',For: " + executer, "ODBC_DBLock");
             //m_bIsWritable || m_bUseWritable
-            if (UseReadWriteLockMechanism && !useWriteable)
+            if (!useWriteable)
             {
                 Utils.UseWritable = ReadWriteLock(sKey, oValue, executer, isWritable);
 
@@ -1002,6 +1002,11 @@ namespace ODBCWrapper
 
         public static bool ReadWriteLock(string sKey, object oValue, object executer, bool isWritable)
         {
+            if (!UseReadWriteLockMechanism)
+            {
+                return true;
+            }
+
             bool bRet = false;
             try
             {
