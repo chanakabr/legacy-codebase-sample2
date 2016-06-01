@@ -1600,7 +1600,8 @@ namespace ElasticSearch.Searcher
                 // and user has no entitlements:
                 // create an empty, dummy query
                 if (!entitlementSearchDefinitions.shouldGetFreeAssets &&
-                    this.SubscriptionsQuery.IsEmpty() && specificAssetsTerm.Filter.FilterSettings.IsEmpty())
+                    (this.SubscriptionsQuery == null ||
+                    (this.SubscriptionsQuery.IsEmpty() && specificAssetsTerm.Filter.FilterSettings.IsEmpty())))
                 {
                     result.AddChild(new ESTerm(true)
                     {
