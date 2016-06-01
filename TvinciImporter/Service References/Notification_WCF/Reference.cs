@@ -1545,6 +1545,15 @@ namespace TvinciImporter.Notification_WCF {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetAmountOfSubscribersPerAnnouncement", ReplyAction="http://tempuri.org/INotificationService/GetAmountOfSubscribersPerAnnouncementResp" +
             "onse")]
         System.Collections.Generic.Dictionary<string, int> GetAmountOfSubscribersPerAnnouncement(string sWSUserName, string sWSPassword);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateAnnouncement", ReplyAction="http://tempuri.org/INotificationService/UpdateAnnouncementResponse")]
+        ApiObjects.Response.Status UpdateAnnouncement(string sWSUserName, string sWSPassword, int announcementId, ApiObjects.eTopicAutomaticIssueNotification topicAutomaticIssueNotification);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetAnnouncement", ReplyAction="http://tempuri.org/INotificationService/GetAnnouncementResponse")]
+        ApiObjects.Notification.AnnouncementsResponse GetAnnouncement(string sWSUserName, string sWSPassword, int id);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetAnnouncements", ReplyAction="http://tempuri.org/INotificationService/GetAnnouncementsResponse")]
+        ApiObjects.Notification.AnnouncementsResponse GetAnnouncements(string sWSUserName, string sWSPassword, int pageSize, int pageIndex);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -1704,6 +1713,18 @@ namespace TvinciImporter.Notification_WCF {
         
         public System.Collections.Generic.Dictionary<string, int> GetAmountOfSubscribersPerAnnouncement(string sWSUserName, string sWSPassword) {
             return base.Channel.GetAmountOfSubscribersPerAnnouncement(sWSUserName, sWSPassword);
+        }
+        
+        public ApiObjects.Response.Status UpdateAnnouncement(string sWSUserName, string sWSPassword, int announcementId, ApiObjects.eTopicAutomaticIssueNotification topicAutomaticIssueNotification) {
+            return base.Channel.UpdateAnnouncement(sWSUserName, sWSPassword, announcementId, topicAutomaticIssueNotification);
+        }
+        
+        public ApiObjects.Notification.AnnouncementsResponse GetAnnouncement(string sWSUserName, string sWSPassword, int id) {
+            return base.Channel.GetAnnouncement(sWSUserName, sWSPassword, id);
+        }
+        
+        public ApiObjects.Notification.AnnouncementsResponse GetAnnouncements(string sWSUserName, string sWSPassword, int pageSize, int pageIndex) {
+            return base.Channel.GetAnnouncements(sWSUserName, sWSPassword, pageSize, pageIndex);
         }
     }
 }
