@@ -671,6 +671,10 @@ namespace DAL
             {
                 sp.AddParameter("@automaticSending", settings.AutomaticIssueFollowNotifications.Value);
             }
+            if (settings.TopicExpirationDurationDays.HasValue)
+            {
+                sp.AddParameter("@topicCleanupExpirationDays", settings.TopicExpirationDurationDays.Value);
+            }
             return sp.ExecuteReturnValue<bool>();
         }
 
@@ -706,7 +710,8 @@ namespace DAL
                         IsInboxEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "is_inbox_enable") == 1 ? true : false,
                         MessageTTLDays = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "message_ttl"),
                         AutomaticIssueFollowNotifications = automaticIssueFollowNotification,
-                        PartnerId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "group_id")
+                        PartnerId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "group_id"),
+                        TopicExpirationDurationDays = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "topic_cleanup_expiration_days")
                     });
                 }
             }
