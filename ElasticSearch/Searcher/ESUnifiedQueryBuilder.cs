@@ -1691,8 +1691,9 @@ namespace ElasticSearch.Searcher
                 // if we want ONLY ENTITLED assets
                 // and user has no entitlements:
                 // create an empty, dummy query
-                if (!entitlementSearchDefinitions.shouldGetFreeAssets &&
-                    this.SubscriptionsQuery.IsEmpty() && specificAssetsTerm.Filter.FilterSettings.IsEmpty())
+                if (!entitlementSearchDefinitions.shouldGetFreeAssets && 
+                    (this.SubscriptionsQuery == null || 
+                    (this.SubscriptionsQuery.IsEmpty() && specificAssetsTerm.Filter.FilterSettings.IsEmpty())))
                 {
                     result.AddChild(new ESTerm(true)
                     {
