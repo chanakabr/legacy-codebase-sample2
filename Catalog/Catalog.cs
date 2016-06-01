@@ -2330,9 +2330,6 @@ namespace Catalog
                     ApiObjects.CeleryIndexingData data = new CeleryIndexingData(group.m_nParentGroupID,
                         ids, updatedObjectType, action, DateTime.Now);
 
-                    int delaySeconds = TVinciShared.WS_Utils.GetTcmIntValue("UPDATE_INDEX_DELAY");
-                    data.ETA = DateTime.UtcNow.AddSeconds(delaySeconds);
-
                     var queue = new CatalogQueue();
 
                     isUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", group.m_nParentGroupID, updatedObjectType.ToString()));
@@ -2366,9 +2363,6 @@ namespace Catalog
                 {
                     ApiObjects.CeleryIndexingData data = new CeleryIndexingData(group.m_nParentGroupID,
                         ids, objectType, action, DateTime.Now);
-
-                    int delaySeconds = TVinciShared.WS_Utils.GetTcmIntValue("UPDATE_INDEX_DELAY");
-                    data.ETA = DateTime.UtcNow.AddSeconds(delaySeconds);
 
                     var queue = new CatalogQueue();
 
