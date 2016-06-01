@@ -4,6 +4,7 @@ namespace ApiObjects.Notification
 {
     public class NotificationPartnerSettings
     {
+        public int PartnerId { get; set; }
         public bool? IsPushNotificationEnabled { get; set; }
         public bool? IsPushSystemAnnouncementsEnabled { get; set; }
         public int? PushStartHour { get; set; }

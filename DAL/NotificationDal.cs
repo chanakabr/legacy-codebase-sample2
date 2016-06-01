@@ -59,6 +59,11 @@ namespace DAL
             return string.Format("system_inbox:{0}:{1}", groupId, messageId);
         }
 
+        private static string GetNotificationCleanupKey()
+        {
+            return "notification_cleanup";
+        }
+
         /// <summary>
         /// Insert one notification request to notifications_requests table
         /// by calling InsertNotifictaionRequest stored procedure.
@@ -669,32 +674,41 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static NotificationPartnerSettings GetNotificationPartnerSettings(int groupID)
+        public static List<NotificationPartnerSettings> GetNotificationPartnerSettings(int groupID)
         {
-            NotificationPartnerSettings settings = null;
+            List<NotificationPartnerSettings> settings = null;
             bool automaticIssueFollowNotification = true;
 
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_NotificationPartnerSettings");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
-            sp.AddParameter("@groupID", groupID);
+
+            if (groupID > 0)
+                sp.AddParameter("@groupID", groupID);
+            else
+                sp.AddParameter("@groupID", null);
+
             DataTable dt = sp.Execute();
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
-                string automaticSending = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "automatic_sending");
-
-                if (!string.IsNullOrEmpty(automaticSending))
-                    automaticIssueFollowNotification = automaticSending.Equals("1");
-
-                settings = new NotificationPartnerSettings()
+                foreach (var row in dt.Rows)
                 {
-                    IsPushNotificationEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "push_notification_enabled") == 1 ? true : false,
-                    IsPushSystemAnnouncementsEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "push_system_announcements_enabled") == 1 ? true : false,
-                    PushStartHour = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "push_start_hour"),
-                    PushEndHour = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "push_end_hour"),
-                    IsInboxEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "is_inbox_enable") == 1 ? true : false,
-                    MessageTTLDays = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "message_ttl"),
-                    AutomaticIssueFollowNotifications = automaticIssueFollowNotification
-                };
+                    string automaticSending = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "automatic_sending");
+
+                    if (!string.IsNullOrEmpty(automaticSending))
+                        automaticIssueFollowNotification = automaticSending.Equals("1");
+
+                    settings.Add(new NotificationPartnerSettings()
+                    {
+                        IsPushNotificationEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "push_notification_enabled") == 1 ? true : false,
+                        IsPushSystemAnnouncementsEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "push_system_announcements_enabled") == 1 ? true : false,
+                        PushStartHour = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "push_start_hour"),
+                        PushEndHour = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "push_end_hour"),
+                        IsInboxEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "is_inbox_enable") == 1 ? true : false,
+                        MessageTTLDays = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "message_ttl"),
+                        AutomaticIssueFollowNotifications = automaticIssueFollowNotification,
+                        PartnerId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "group_id")
+                    });
+                }
             }
 
             return settings;
@@ -1891,7 +1905,7 @@ namespace DAL
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@announcementId", announcementId);
                 if (automaticSending.HasValue)
-                    sp.AddParameter("@automaticSending", automaticSending.Value );
+                    sp.AddParameter("@automaticSending", automaticSending.Value);
                 else
                     sp.AddParameter("@automaticSending", DBNull.Value);
 
@@ -1942,6 +1956,106 @@ namespace DAL
             }
 
             return result;
+        }
+
+        public static bool SetLastNotificationCleanupDate(long lastCleanupDateSec)
+        {
+            bool result = false;
+            try
+            {
+                int numOfTries = 0;
+                while (!result && numOfTries < NUM_OF_INSERT_TRIES)
+                {
+                    result = cbManager.Set(GetNotificationCleanupKey(), lastCleanupDateSec);
+
+                    if (!result)
+                    {
+                        numOfTries++;
+                        log.ErrorFormat("Error while setting notification last cleanup date. number of tries: {0}/{1}. Last Cleanup Date: {2}",
+                            numOfTries,
+                            NUM_OF_INSERT_TRIES,
+                            lastCleanupDateSec);
+
+                        Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
+                    }
+                    else
+                    {
+                        // log success on retry
+                        if (numOfTries > 0)
+                        {
+                            numOfTries++;
+                            log.DebugFormat("successfully set notification last cleanup date. number of tries: {0}/{1}. Last Cleanup Date {2}",
+                            numOfTries,
+                            NUM_OF_INSERT_TRIES,
+                            lastCleanupDateSec);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while setting notification last cleanup date. Last Cleanup Date: {0}, ex: {1}", lastCleanupDateSec, ex);
+            }
+
+            return result;
+        }
+
+        public static long GetLastNotificationCleanupDate(ref bool isDocumentExist)
+        {
+            long lastCleanupDateSec = 0;
+            Couchbase.IO.ResponseStatus status = Couchbase.IO.ResponseStatus.None;
+            isDocumentExist = true;
+
+            try
+            {
+                bool result = false;
+                int numOfTries = 0;
+                while (!result && numOfTries < NUM_OF_INSERT_TRIES)
+                {
+                    lastCleanupDateSec = cbManager.Get<long>(GetNotificationCleanupKey(), out status);
+
+                    if (lastCleanupDateSec == 0)
+                    {
+                        if (status == Couchbase.IO.ResponseStatus.KeyNotFound)
+                        {
+                            // key doesn't exist - don't try again
+                            log.DebugFormat("document wasn't found. key: {0}", GetNotificationCleanupKey());
+                            isDocumentExist = false;
+                            break;
+                        }
+                        else
+                        {
+                            numOfTries++;
+                            log.ErrorFormat("Error while getting document. number of tries: {0}/{1}. key: {2}",
+                                numOfTries,
+                                NUM_OF_INSERT_TRIES,
+                                GetNotificationCleanupKey());
+
+                            Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
+                        }
+                    }
+                    else
+                    {
+                        result = true;
+
+                        // log success on retry
+                        if (numOfTries > 0)
+                        {
+                            numOfTries++;
+                            log.DebugFormat("successfully received document. number of tries: {0}/{1}. key {2}",
+                            numOfTries,
+                            NUM_OF_INSERT_TRIES,
+                            GetNotificationCleanupKey());
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to get document. key: {0}, ex: {1}", GetNotificationCleanupKey(), ex);
+            }
+
+            return lastCleanupDateSec;
         }
     }
 }
