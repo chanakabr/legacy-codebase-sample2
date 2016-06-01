@@ -352,7 +352,7 @@ public partial class adm_channels_media : System.Web.UI.Page
         else if (OrderBy == -9)
             retVal = " m.like_counter ";
         else if (OrderBy == -8)
-            retVal = "((m.VOTES_SUM/( case when m.VOTES_COUNT=0 then 1 else m.VOTES_COUNT end))) {$@!#}, m.VOTES_COUNT {$@!#}";
+            retVal = " ((m.VOTES_SUM/( case when m.VOTES_COUNT=0 then 1 else m.VOTES_COUNT end))) {$@!#}, m.VOTES_COUNT {$@!#}";
         else if (OrderBy == -7)
             retVal = " m.VIEWS ";
         //else if (m_nOrderBy == -6)
