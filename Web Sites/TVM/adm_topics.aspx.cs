@@ -101,10 +101,13 @@ public partial class adm_topics : System.Web.UI.Page
         DataTable dt = GetAllAnnouncements(nGroupID);
         theTable.FillDataTable(dt);
 
-        //theTable.AddHiddenField("ID");
+        theTable.AddOrderByColumn("ID","a.ID");
         theTable.AddHiddenField("group_id");
         theTable.AddHiddenField("status");
         theTable.AddHiddenField("announcementId");
+        theTable.AddOrderByColumn("name", "a.name");
+        theTable.AddOrderByColumn("automatic sending", "automatic_sending");
+        theTable.AddOrderByColumn("subscribers", "amountOfSubscribers");
 
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {
@@ -167,7 +170,7 @@ public partial class adm_topics : System.Web.UI.Page
         selectQuery += "  from announcements a   ";
         selectQuery += "  where a.status <> 2  And a.recipient_type = 3 And";
         selectQuery += ODBCWrapper.Parameter.NEW_PARAM("a.group_id", "=", groupId);
-        selectQuery += " order by id desc ";
+        selectQuery += " order by name desc ";
 
         if (selectQuery.Execute("query", true) != null)
         {
@@ -200,7 +203,7 @@ public partial class adm_topics : System.Web.UI.Page
                 }
             }
         }
-        dt.Columns["amountOfSubscribers"].ColumnName = "subscribers amount";
+        dt.Columns["amountOfSubscribers"].ColumnName = "subscribers";
         return dt;
     }
 

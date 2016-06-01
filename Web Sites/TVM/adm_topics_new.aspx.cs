@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects;
+using System;
 using System.Collections.Specialized;
 using System.Web;
 using TvinciImporter;
@@ -6,6 +7,7 @@ using TVinciShared;
 
 public partial class adm_topics_new : System.Web.UI.Page
 {
+    private const string NOTIFICATIONS_CONNECTION = "notifications_connection";
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected string m_sLangMenu;
@@ -47,7 +49,7 @@ public partial class adm_topics_new : System.Web.UI.Page
                     id = int.Parse(Session["announcement_id"].ToString());
                 }
                 int groupId = LoginManager.GetLoginGroupID();
-                bool? automaticSending = GetPageData();
+                var automaticSending = GetPageData();
 
                 result = ImporterImpl.SetTopicSettings(groupId, id, automaticSending);
 
@@ -183,7 +185,7 @@ public partial class adm_topics_new : System.Web.UI.Page
 
     public void GetHeader()
     {
-        Response.Write(PageUtils.GetPreHeader() + ": Topic: " + PageUtils.GetTableSingleVal("announcements", "NAME", int.Parse(Session["announcement_id"].ToString())).ToString());
+        Response.Write(PageUtils.GetPreHeader() + ": Topic: " + PageUtils.GetTableSingleVal("announcements", "NAME", int.Parse(Session["announcement_id"].ToString()), NOTIFICATIONS_CONNECTION).ToString());
     }
 
     protected void GetMainMenu()
@@ -216,12 +218,7 @@ public partial class adm_topics_new : System.Web.UI.Page
 
         string sBack = "adm_topics.aspx?search_save=1";
         DBRecordWebEditor theRecord = new DBRecordWebEditor("announcements", "adm_table_pager", sBack, "", "ID", announcementId, sBack, "");
-        theRecord.SetConnectionKey("notifications_connection");
-
-        DataRecordShortTextField dr_name = new DataRecordShortTextField("ltr", false, 60, 256);
-        dr_name.Initialize("Name", "adm_table_header_nbg", "FormInput", "name", false);
-        theRecord.AddRecord(dr_name);
-
+        theRecord.SetConnectionKey(NOTIFICATIONS_CONNECTION);
 
         DataRecordDropDownField automaticSendingDropDown = new DataRecordDropDownField("", "automatic_sending", "id", "", null, 60, true);
         string automaticSendingQuery = "select 0 as id, 'No' as txt UNION ALL select 1 as id, 'Yes' as txt";
@@ -235,22 +232,22 @@ public partial class adm_topics_new : System.Web.UI.Page
         return sTable;
     }
 
-    private bool? GetPageData()
+    private eTopicAutomaticIssueNotification GetPageData()
     {
-        bool? isAutomaticSending = null;
+        eTopicAutomaticIssueNotification isAutomaticSending = eTopicAutomaticIssueNotification.Default;
 
         NameValueCollection nvc = Request.Form;
 
-        if (!string.IsNullOrEmpty(nvc["1_val"]))
+        if (!string.IsNullOrEmpty(nvc["0_val"]))
         {
-            var automaticSendingStr = nvc["1_val"];
+            var automaticSendingStr = nvc["0_val"];
             switch (automaticSendingStr)
             {
                 case "1":
-                    isAutomaticSending = true;
+                    isAutomaticSending = eTopicAutomaticIssueNotification.Yes;
                     break;
                 case "0":
-                    isAutomaticSending = false;
+                    isAutomaticSending = eTopicAutomaticIssueNotification.No;
                     break;
                 default:
                     break;
