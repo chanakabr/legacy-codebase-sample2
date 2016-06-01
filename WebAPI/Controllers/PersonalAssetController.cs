@@ -69,16 +69,33 @@ namespace WebAPI.Controllers
                         Files = new List<KalturaItemPrice>()
                     };
 
-                    // pair example: Key = Media.875638 Value = new and empty personal asset data
-                    assetIdToPersonalAsset.Add(string.Format("{0}.{1}", asset.Type.ToString().ToLower(), asset.Id),
-                        responseAsset);
+                    string dictionaryKey = string.Format("{0}.{1}", asset.Type.ToString().ToLower(), asset.Id);
+
+                    if (assetIdToPersonalAsset.ContainsKey(dictionaryKey))
+                    {
+                        throw new BadRequestException(
+                            (int)WebAPI.Managers.Models.StatusCode.BadRequest, 
+                            string.Format("Duplicate asset: Id = {0} type = {1}", asset.Id, asset.Type));
+                    }
+                    else
+                    {
+                        // pair example: Key = Media.875638 Value = new and empty personal asset data
+                        assetIdToPersonalAsset.Add(dictionaryKey, responseAsset);
+                    }
 
                     if (asset.FileIds != null)
                     {
                         // Run on all file IDs and map them to response asset
                         foreach (var file in asset.FileIds)
                         {
-                            fileToPersonalAsset.Add(file, responseAsset);
+                            if (fileToPersonalAsset.ContainsKey(file))
+                            {
+                                throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, string.Format("Duplicate file Id: {0}", file));
+                            }
+                            else
+                            {
+                                fileToPersonalAsset.Add(file, responseAsset);
+                            }
                         }
                     }
 
