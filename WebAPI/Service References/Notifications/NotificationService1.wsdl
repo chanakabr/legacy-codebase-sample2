@@ -217,6 +217,18 @@
   <wsdl:message name="INotificationService_UpdateAnnouncement_OutputMessage">
     <wsdl:part name="parameters" element="tns:UpdateAnnouncementResponse" />
   </wsdl:message>
+  <wsdl:message name="INotificationService_GetAnnouncement_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetAnnouncement" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_GetAnnouncement_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetAnnouncementResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_GetAnnouncements_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetAnnouncements" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_GetAnnouncements_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetAnnouncementsResponse" />
+  </wsdl:message>
   <wsdl:portType name="INotificationService">
     <wsdl:operation name="AddNotificationRequest">
       <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/AddNotificationRequest" message="tns:INotificationService_AddNotificationRequest_InputMessage" />
@@ -353,6 +365,14 @@
     <wsdl:operation name="UpdateAnnouncement">
       <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/UpdateAnnouncement" message="tns:INotificationService_UpdateAnnouncement_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/UpdateAnnouncementResponse" message="tns:INotificationService_UpdateAnnouncement_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAnnouncement">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/GetAnnouncement" message="tns:INotificationService_GetAnnouncement_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/GetAnnouncementResponse" message="tns:INotificationService_GetAnnouncement_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAnnouncements">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/GetAnnouncements" message="tns:INotificationService_GetAnnouncements_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/GetAnnouncementsResponse" message="tns:INotificationService_GetAnnouncements_OutputMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="BasicHttpBinding_INotificationService" type="tns:INotificationService">
@@ -656,6 +676,24 @@
     </wsdl:operation>
     <wsdl:operation name="UpdateAnnouncement">
       <soap:operation soapAction="http://tempuri.org/INotificationService/UpdateAnnouncement" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAnnouncement">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/GetAnnouncement" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAnnouncements">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/GetAnnouncements" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>

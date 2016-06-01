@@ -3640,7 +3640,12 @@
             message id
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notification.KalturaTopic.Message">
+        <member name="P:WebAPI.Models.Notification.KalturaTopic.Name">
+            <summary>
+            message
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaTopic.SubscribersAmount">
             <summary>
             message
             </summary>

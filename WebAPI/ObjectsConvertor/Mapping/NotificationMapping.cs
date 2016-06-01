@@ -122,7 +122,25 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.State, opt => opt.MapFrom(src => ConvertInboxMessageStatus(src.Status)))
                  .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
                  ;
+
+            //DbAnnouncement to KalturaTopic
+            Mapper.CreateMap<DbAnnouncement, KalturaTopic>()
+                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                 .ForMember(dest => dest.SubscribersAmount, opt => opt.MapFrom(src => src.SubscribersAmount))
+                 .ForMember(dest => dest.AutomaticIssueNotification, opt => opt.MapFrom(src => ConvertAutomaticIssueNotification(src.AutomaticIssueFollowNotification)))
+                 ;
+
+            //KalturaTopic TO DbAnnouncement
+            Mapper.CreateMap<KalturaTopic, DbAnnouncement>()
+                  .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
+                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                 .ForMember(dest => dest.SubscribersAmount, opt => opt.MapFrom(src => src.SubscribersAmount))
+                 .ForMember(dest => dest.AutomaticIssueFollowNotification, opt => opt.MapFrom(src => ConvertAutomaticIssueNotification(src.AutomaticIssueNotification)))
+                 ;
         }
+
+
 
         public static eMessageState ConvertInboxMessageStatus(KalturaInboxMessageStatus kalturaInboxMessageStatus)
         {
@@ -371,6 +389,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 default:
                     return eTopicAutomaticIssueNotification.Default;
             }
+        }
+
+        private static eTopicAutomaticIssueNotification ConvertAutomaticIssueNotification(bool? automaticIssueFollowNotification)
+        {
+            if (automaticIssueFollowNotification.HasValue)
+            {
+                if (automaticIssueFollowNotification.Value)
+                    return eTopicAutomaticIssueNotification.Yes;
+                else
+                    return eTopicAutomaticIssueNotification.No;
+            }
+            else
+                return eTopicAutomaticIssueNotification.Default;
         }
     }
 }

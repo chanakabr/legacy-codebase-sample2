@@ -19,10 +19,18 @@ namespace WebAPI.Models.Notification
         /// <summary>
         /// message
         /// </summary>
-        [DataMember(Name = "message")]
-        [JsonProperty("message")]
-        [XmlElement(ElementName = "message")]
-        public string Message { get; set; }
+        [DataMember(Name = "mesnamesage")]
+        [JsonProperty("name")]
+        [XmlElement(ElementName = "name")]
+        public string Name { get; set; }
+
+        /// <summary>
+        /// message
+        /// </summary>
+        [DataMember(Name = "subscribersAmount")]
+        [JsonProperty("subscribersAmount")]
+        [XmlElement(ElementName = "subscribersAmount")]
+        public string SubscribersAmount { get; set; }
 
         /// <summary>
         /// automaticIssueNotification

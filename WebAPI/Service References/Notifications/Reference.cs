@@ -2735,6 +2735,256 @@ namespace WebAPI.Notifications {
         No = 2,
     }
     
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="AnnouncementsResponse", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification")]
+    [System.SerializableAttribute()]
+    public partial class AnnouncementsResponse : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<WebAPI.Notifications.DbAnnouncement> AnnouncementsField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private WebAPI.Notifications.Status StatusField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int TotalCountField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<WebAPI.Notifications.DbAnnouncement> Announcements {
+            get {
+                return this.AnnouncementsField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.AnnouncementsField, value) != true)) {
+                    this.AnnouncementsField = value;
+                    this.RaisePropertyChanged("Announcements");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public WebAPI.Notifications.Status Status {
+            get {
+                return this.StatusField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.StatusField, value) != true)) {
+                    this.StatusField = value;
+                    this.RaisePropertyChanged("Status");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int TotalCount {
+            get {
+                return this.TotalCountField;
+            }
+            set {
+                if ((this.TotalCountField.Equals(value) != true)) {
+                    this.TotalCountField = value;
+                    this.RaisePropertyChanged("TotalCount");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="DbAnnouncement", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification")]
+    [System.SerializableAttribute()]
+    public partial class DbAnnouncement : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Nullable<bool> AutomaticIssueFollowNotificationField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string ExternalIdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string FollowPhraseField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string FollowReferenceField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int IDField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string NameField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private WebAPI.Notifications.eAnnouncementRecipientsType RecipientsTypeField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int SubscribersAmountField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private long lastMessageSentDateSecField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Nullable<bool> AutomaticIssueFollowNotification {
+            get {
+                return this.AutomaticIssueFollowNotificationField;
+            }
+            set {
+                if ((this.AutomaticIssueFollowNotificationField.Equals(value) != true)) {
+                    this.AutomaticIssueFollowNotificationField = value;
+                    this.RaisePropertyChanged("AutomaticIssueFollowNotification");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string ExternalId {
+            get {
+                return this.ExternalIdField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.ExternalIdField, value) != true)) {
+                    this.ExternalIdField = value;
+                    this.RaisePropertyChanged("ExternalId");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string FollowPhrase {
+            get {
+                return this.FollowPhraseField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.FollowPhraseField, value) != true)) {
+                    this.FollowPhraseField = value;
+                    this.RaisePropertyChanged("FollowPhrase");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string FollowReference {
+            get {
+                return this.FollowReferenceField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.FollowReferenceField, value) != true)) {
+                    this.FollowReferenceField = value;
+                    this.RaisePropertyChanged("FollowReference");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int ID {
+            get {
+                return this.IDField;
+            }
+            set {
+                if ((this.IDField.Equals(value) != true)) {
+                    this.IDField = value;
+                    this.RaisePropertyChanged("ID");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Name {
+            get {
+                return this.NameField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.NameField, value) != true)) {
+                    this.NameField = value;
+                    this.RaisePropertyChanged("Name");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public WebAPI.Notifications.eAnnouncementRecipientsType RecipientsType {
+            get {
+                return this.RecipientsTypeField;
+            }
+            set {
+                if ((this.RecipientsTypeField.Equals(value) != true)) {
+                    this.RecipientsTypeField = value;
+                    this.RaisePropertyChanged("RecipientsType");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int SubscribersAmount {
+            get {
+                return this.SubscribersAmountField;
+            }
+            set {
+                if ((this.SubscribersAmountField.Equals(value) != true)) {
+                    this.SubscribersAmountField = value;
+                    this.RaisePropertyChanged("SubscribersAmount");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public long lastMessageSentDateSec {
+            get {
+                return this.lastMessageSentDateSecField;
+            }
+            set {
+                if ((this.lastMessageSentDateSecField.Equals(value) != true)) {
+                    this.lastMessageSentDateSecField = value;
+                    this.RaisePropertyChanged("lastMessageSentDateSec");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="Notifications.INotificationService")]
     public interface INotificationService {
@@ -2946,6 +3196,18 @@ namespace WebAPI.Notifications {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateAnnouncement", ReplyAction="http://tempuri.org/INotificationService/UpdateAnnouncementResponse")]
         System.Threading.Tasks.Task<WebAPI.Notifications.Status> UpdateAnnouncementAsync(string sWSUserName, string sWSPassword, int announcementId, WebAPI.Notifications.eTopicAutomaticIssueNotification topicAutomaticIssueNotification);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetAnnouncement", ReplyAction="http://tempuri.org/INotificationService/GetAnnouncementResponse")]
+        WebAPI.Notifications.AnnouncementsResponse GetAnnouncement(string sWSUserName, string sWSPassword, int id);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetAnnouncement", ReplyAction="http://tempuri.org/INotificationService/GetAnnouncementResponse")]
+        System.Threading.Tasks.Task<WebAPI.Notifications.AnnouncementsResponse> GetAnnouncementAsync(string sWSUserName, string sWSPassword, int id);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetAnnouncements", ReplyAction="http://tempuri.org/INotificationService/GetAnnouncementsResponse")]
+        WebAPI.Notifications.AnnouncementsResponse GetAnnouncements(string sWSUserName, string sWSPassword, int pageSize, int pageIndex);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetAnnouncements", ReplyAction="http://tempuri.org/INotificationService/GetAnnouncementsResponse")]
+        System.Threading.Tasks.Task<WebAPI.Notifications.AnnouncementsResponse> GetAnnouncementsAsync(string sWSUserName, string sWSPassword, int pageSize, int pageIndex);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -3245,6 +3507,22 @@ namespace WebAPI.Notifications {
         
         public System.Threading.Tasks.Task<WebAPI.Notifications.Status> UpdateAnnouncementAsync(string sWSUserName, string sWSPassword, int announcementId, WebAPI.Notifications.eTopicAutomaticIssueNotification topicAutomaticIssueNotification) {
             return base.Channel.UpdateAnnouncementAsync(sWSUserName, sWSPassword, announcementId, topicAutomaticIssueNotification);
+        }
+        
+        public WebAPI.Notifications.AnnouncementsResponse GetAnnouncement(string sWSUserName, string sWSPassword, int id) {
+            return base.Channel.GetAnnouncement(sWSUserName, sWSPassword, id);
+        }
+        
+        public System.Threading.Tasks.Task<WebAPI.Notifications.AnnouncementsResponse> GetAnnouncementAsync(string sWSUserName, string sWSPassword, int id) {
+            return base.Channel.GetAnnouncementAsync(sWSUserName, sWSPassword, id);
+        }
+        
+        public WebAPI.Notifications.AnnouncementsResponse GetAnnouncements(string sWSUserName, string sWSPassword, int pageSize, int pageIndex) {
+            return base.Channel.GetAnnouncements(sWSUserName, sWSPassword, pageSize, pageIndex);
+        }
+        
+        public System.Threading.Tasks.Task<WebAPI.Notifications.AnnouncementsResponse> GetAnnouncementsAsync(string sWSUserName, string sWSPassword, int pageSize, int pageIndex) {
+            return base.Channel.GetAnnouncementsAsync(sWSUserName, sWSPassword, pageSize, pageIndex);
         }
     }
 }

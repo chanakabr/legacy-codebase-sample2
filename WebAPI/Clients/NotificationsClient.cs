@@ -966,14 +966,83 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaTopicResponse GetTopics(int groupId, int p1, int p2)
-        {
-            throw new NotImplementedException();
-        }
 
         internal KalturaTopic GetTopic(int groupId, int id)
         {
-            throw new NotImplementedException();
+            AnnouncementsResponse response = null;
+            KalturaTopic result = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Notification.GetAnnouncement(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, id);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetTopic.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Announcements != null && response.Announcements.Count > 0)
+            {
+                result = AutoMapper.Mapper.Map<KalturaTopic>(response.Announcements[0]);
+            }
+
+            return result;
+        }
+
+        internal KalturaTopicResponse GetTopics(int groupId, int pageSize, int pageIndex)
+        {
+            AnnouncementsResponse response = null;
+            List<KalturaTopic> result = null;
+            KalturaTopicResponse ret = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Notification.GetAnnouncements(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, pageSize, pageIndex);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetTopics.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Announcements != null && response.Announcements.Count > 0)
+            {
+                result = Mapper.Map<List<KalturaTopic>>(response.Announcements);
+            }
+            ret = new KalturaTopicResponse() { Topics = result, TotalCount = response.TotalCount };
+
+            return ret;
         }
     }
 }
