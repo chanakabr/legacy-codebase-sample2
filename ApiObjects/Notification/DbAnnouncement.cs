@@ -11,5 +11,6 @@ namespace ApiObjects.Notification
         public string FollowReference { get; set; }
         public bool? AutomaticIssueFollowNotification { get; set; }
         public long lastMessageSentDateSec { get; set; }
+        public int SubscribersAmount{ get; set; }
     }
 }
