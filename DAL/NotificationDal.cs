@@ -1133,7 +1133,8 @@ namespace DAL
                             FollowPhrase = ODBCWrapper.Utils.GetSafeStr(row, "follow_phrase"),
                             FollowReference = ODBCWrapper.Utils.GetSafeStr(row, "follow_reference"),
                             AutomaticIssueFollowNotification = automaticIssueFollowNotification,
-                            RecipientsType = Enum.IsDefined(typeof(eAnnouncementRecipientsType), recipientType) ? (eAnnouncementRecipientsType)recipientType : eAnnouncementRecipientsType.All
+                            RecipientsType = Enum.IsDefined(typeof(eAnnouncementRecipientsType), recipientType) ? (eAnnouncementRecipientsType)recipientType : eAnnouncementRecipientsType.All,
+                            LastMessageSentDateSec = ODBCWrapper.Utils.DateTimeToUnixTimestamp(ODBCWrapper.Utils.GetDateSafeVal(row, "last_message_sent_date_sec"))
                         };
 
                         result.Add(dbAnnouncement);
