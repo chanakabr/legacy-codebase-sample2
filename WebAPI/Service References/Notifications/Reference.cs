@@ -2853,6 +2853,9 @@ namespace WebAPI.Notifications {
         private int IDField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private long LastMessageSentDateSecField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string NameField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -2860,9 +2863,6 @@ namespace WebAPI.Notifications {
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int SubscribersAmountField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private long lastMessageSentDateSecField;
         
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
@@ -2940,6 +2940,19 @@ namespace WebAPI.Notifications {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
+        public long LastMessageSentDateSec {
+            get {
+                return this.LastMessageSentDateSecField;
+            }
+            set {
+                if ((this.LastMessageSentDateSecField.Equals(value) != true)) {
+                    this.LastMessageSentDateSecField = value;
+                    this.RaisePropertyChanged("LastMessageSentDateSec");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public string Name {
             get {
                 return this.NameField;
@@ -2974,19 +2987,6 @@ namespace WebAPI.Notifications {
                 if ((this.SubscribersAmountField.Equals(value) != true)) {
                     this.SubscribersAmountField = value;
                     this.RaisePropertyChanged("SubscribersAmount");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public long lastMessageSentDateSec {
-            get {
-                return this.lastMessageSentDateSecField;
-            }
-            set {
-                if ((this.lastMessageSentDateSecField.Equals(value) != true)) {
-                    this.lastMessageSentDateSecField = value;
-                    this.RaisePropertyChanged("lastMessageSentDateSec");
                 }
             }
         }

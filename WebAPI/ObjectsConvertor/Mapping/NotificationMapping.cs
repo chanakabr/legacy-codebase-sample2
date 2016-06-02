@@ -128,7 +128,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                  .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                  .ForMember(dest => dest.SubscribersAmount, opt => opt.MapFrom(src => src.SubscribersAmount))
-                 .ForMember(dest => dest.LastMessageSentDateSec, opt => opt.MapFrom(src => src.lastMessageSentDateSec))
+                 .ForMember(dest => dest.LastMessageSentDateSec, opt => opt.MapFrom(src => src.LastMessageSentDateSec))
                  .ForMember(dest => dest.AutomaticIssueNotification, opt => opt.MapFrom(src => ConvertAutomaticIssueNotification(src.AutomaticIssueFollowNotification)))
                  ;
 
@@ -137,7 +137,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
                  .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                  .ForMember(dest => dest.SubscribersAmount, opt => opt.MapFrom(src => src.SubscribersAmount))
-                 .ForMember(dest => dest.lastMessageSentDateSec, opt => opt.MapFrom(src => src.LastMessageSentDateSec))
+                 .ForMember(dest => dest.LastMessageSentDateSec, opt => opt.MapFrom(src => src.LastMessageSentDateSec))
                  .ForMember(dest => dest.AutomaticIssueFollowNotification, opt => opt.MapFrom(src => ConvertAutomaticIssueNotification(src.AutomaticIssueNotification)))
                  ;
         }

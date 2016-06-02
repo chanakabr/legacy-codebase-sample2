@@ -3673,6 +3673,11 @@
             automaticIssueNotification
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Notification.KalturaTopic.LastMessageSentDateSec">
+            <summary>
+            lastMessageSentDateSec
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Notification.KalturaTopicResponse">
             <summary>
             List of inbox message.
