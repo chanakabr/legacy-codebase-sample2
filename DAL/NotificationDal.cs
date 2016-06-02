@@ -1900,7 +1900,7 @@ namespace DAL
             return null;
         }
 
-        public static bool UpdateAnnouncement(int groupId, int announcementId, bool? automaticSending)
+        public static bool UpdateAnnouncement(int groupId, int announcementId, bool? automaticSending, DateTime? lastMessageSentDate = null)
         {
             int rowCount = 0;
             try
@@ -1913,6 +1913,9 @@ namespace DAL
                     sp.AddParameter("@automaticSending", automaticSending.Value);
                 else
                     sp.AddParameter("@automaticSending", DBNull.Value);
+
+                if (lastMessageSentDate.HasValue)
+                    sp.AddParameter("@last_message_sent_date_sec", lastMessageSentDate.Value);
 
                 rowCount = sp.ExecuteReturnValue<int>();
             }
