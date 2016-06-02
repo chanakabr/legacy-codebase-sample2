@@ -554,6 +554,24 @@
             </remarks>
             <returns></returns>
         </member>
+        <member name="M:WebAPI.Controllers.NotificationController.InitiateCleanup">
+            <summary>
+            TBD
+            </summary>        
+            <remarks>
+            
+            </remarks>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.NotificationController.GetLastCleanupDate">
+            <summary>
+            TBD
+            </summary>        
+            <remarks>
+            
+            </remarks>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.NotificationsPartnerSettingsController.Get">
             <summary>
             Retrieve the partner notification settings.       

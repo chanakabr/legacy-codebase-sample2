@@ -1044,5 +1044,66 @@ namespace WebAPI.Clients
 
             return ret;
         }
+
+        internal bool DeleteAnnouncementsOlderThan(int groupId)
+        {
+            Status response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Notification.DeleteAnnouncementsOlderThan(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while DeleteAnnouncementsOlderThan.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        internal long GetNotificationLastCleanupDate(int groupId)
+        {
+            NotificationCleanupResponse response = null;
+
+            // get group ID
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    response = Notification.GetNotificationLastCleanupDate(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetNotificationLastCleanupDate.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null || response.LastCleanupDate == 0)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            return response.LastCleanupDate;
+        }
     }
 }

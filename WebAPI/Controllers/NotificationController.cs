@@ -46,5 +46,61 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        /// <summary>
+        /// TBD
+        /// </summary>        
+        /// <remarks>
+        /// 
+        /// </remarks>
+        /// <returns></returns>
+        [Route("initiateCleanup"), HttpPost]
+        [ApiAuthorize]
+        public bool InitiateCleanup()
+        {
+            bool response = false;
+
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+
+                response = ClientsManager.NotificationClient().DeleteAnnouncementsOlderThan(groupId);
+            }
+
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// TBD
+        /// </summary>        
+        /// <remarks>
+        /// 
+        /// </remarks>
+        /// <returns></returns>
+        [Route("getLastCleanupDate"), HttpPost]
+        [ApiAuthorize]
+        public long GetLastCleanupDate()
+        {
+            long response = 0;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                response = ClientsManager.NotificationClient().GetNotificationLastCleanupDate(groupId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
     }
 }

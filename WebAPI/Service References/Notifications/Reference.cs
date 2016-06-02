@@ -896,6 +896,9 @@ namespace WebAPI.Notifications {
         private System.Nullable<int> MessageTTLDaysField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int PartnerIdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private System.Nullable<int> PushEndHourField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -975,6 +978,19 @@ namespace WebAPI.Notifications {
                 if ((this.MessageTTLDaysField.Equals(value) != true)) {
                     this.MessageTTLDaysField = value;
                     this.RaisePropertyChanged("MessageTTLDays");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int PartnerId {
+            get {
+                return this.PartnerIdField;
+            }
+            set {
+                if ((this.PartnerIdField.Equals(value) != true)) {
+                    this.PartnerIdField = value;
+                    this.RaisePropertyChanged("PartnerId");
                 }
             }
         }
@@ -2985,6 +3001,67 @@ namespace WebAPI.Notifications {
         }
     }
     
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="NotificationCleanupResponse", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification")]
+    [System.SerializableAttribute()]
+    public partial class NotificationCleanupResponse : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private long LastCleanupDateField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private WebAPI.Notifications.Status StatusField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public long LastCleanupDate {
+            get {
+                return this.LastCleanupDateField;
+            }
+            set {
+                if ((this.LastCleanupDateField.Equals(value) != true)) {
+                    this.LastCleanupDateField = value;
+                    this.RaisePropertyChanged("LastCleanupDate");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public WebAPI.Notifications.Status Status {
+            get {
+                return this.StatusField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.StatusField, value) != true)) {
+                    this.StatusField = value;
+                    this.RaisePropertyChanged("Status");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="Notifications.INotificationService")]
     public interface INotificationService {
@@ -3208,6 +3285,18 @@ namespace WebAPI.Notifications {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetAnnouncements", ReplyAction="http://tempuri.org/INotificationService/GetAnnouncementsResponse")]
         System.Threading.Tasks.Task<WebAPI.Notifications.AnnouncementsResponse> GetAnnouncementsAsync(string sWSUserName, string sWSPassword, int pageSize, int pageIndex);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/DeleteAnnouncementsOlderThan", ReplyAction="http://tempuri.org/INotificationService/DeleteAnnouncementsOlderThanResponse")]
+        WebAPI.Notifications.Status DeleteAnnouncementsOlderThan(string sWSUserName, string sWSPassword);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/DeleteAnnouncementsOlderThan", ReplyAction="http://tempuri.org/INotificationService/DeleteAnnouncementsOlderThanResponse")]
+        System.Threading.Tasks.Task<WebAPI.Notifications.Status> DeleteAnnouncementsOlderThanAsync(string sWSUserName, string sWSPassword);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetNotificationLastCleanupDate", ReplyAction="http://tempuri.org/INotificationService/GetNotificationLastCleanupDateResponse")]
+        WebAPI.Notifications.NotificationCleanupResponse GetNotificationLastCleanupDate(string sWSUserName, string sWSPassword);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetNotificationLastCleanupDate", ReplyAction="http://tempuri.org/INotificationService/GetNotificationLastCleanupDateResponse")]
+        System.Threading.Tasks.Task<WebAPI.Notifications.NotificationCleanupResponse> GetNotificationLastCleanupDateAsync(string sWSUserName, string sWSPassword);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -3523,6 +3612,22 @@ namespace WebAPI.Notifications {
         
         public System.Threading.Tasks.Task<WebAPI.Notifications.AnnouncementsResponse> GetAnnouncementsAsync(string sWSUserName, string sWSPassword, int pageSize, int pageIndex) {
             return base.Channel.GetAnnouncementsAsync(sWSUserName, sWSPassword, pageSize, pageIndex);
+        }
+        
+        public WebAPI.Notifications.Status DeleteAnnouncementsOlderThan(string sWSUserName, string sWSPassword) {
+            return base.Channel.DeleteAnnouncementsOlderThan(sWSUserName, sWSPassword);
+        }
+        
+        public System.Threading.Tasks.Task<WebAPI.Notifications.Status> DeleteAnnouncementsOlderThanAsync(string sWSUserName, string sWSPassword) {
+            return base.Channel.DeleteAnnouncementsOlderThanAsync(sWSUserName, sWSPassword);
+        }
+        
+        public WebAPI.Notifications.NotificationCleanupResponse GetNotificationLastCleanupDate(string sWSUserName, string sWSPassword) {
+            return base.Channel.GetNotificationLastCleanupDate(sWSUserName, sWSPassword);
+        }
+        
+        public System.Threading.Tasks.Task<WebAPI.Notifications.NotificationCleanupResponse> GetNotificationLastCleanupDateAsync(string sWSUserName, string sWSPassword) {
+            return base.Channel.GetNotificationLastCleanupDateAsync(sWSUserName, sWSPassword);
         }
     }
 }
