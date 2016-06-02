@@ -444,7 +444,8 @@ namespace ApiObjects
     public enum eSetupTask
     {
         BuildIPToCountry,
-        InitializeFreeItemUpdateQueue
+        InitializeFreeItemUpdateQueue,
+        NotificationCleanupIteration
     }
 
 
