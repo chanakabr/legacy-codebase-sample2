@@ -6125,18 +6125,16 @@ namespace Catalog
                     emptyRequest = true;
                 }
 
-                if (definitions.mediaTypes != null)
+                if (channel.m_nChannelTypeID == (int)ChannelType.Automatic &&
+                    definitions.mediaTypes != null && definitions.mediaTypes.Count > 0)
                 {
-                    if (definitions.mediaTypes.Count > 0)
-                    {
-                        // If there is at least one media type - it is not an empty request
-                        emptyRequest = false;
+                    // If there is at least one media type - it is not an empty request
+                    emptyRequest = false;
 
-                        // if it contains ONLY 0 - it means search all
-                        if (definitions.mediaTypes.Count == 1 && definitions.mediaTypes.Contains(0))
-                        {
-                            definitions.mediaTypes.Remove(0);
-                        }
+                    // if it contains ONLY 0 - it means search all
+                    if (definitions.mediaTypes.Count == 1 && definitions.mediaTypes.Contains(0))
+                    {
+                        definitions.mediaTypes.Remove(0);
                     }
                 }
 
