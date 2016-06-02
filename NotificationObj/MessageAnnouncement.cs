@@ -31,6 +31,8 @@ namespace NotificationObj
         [DataMember]
         public string MessageReference { get; set; }
 
+        public MessageAnnouncement() { }
+
         public MessageAnnouncement(string name, string msg, bool enabled, long startTime, string timezone, eAnnouncementRecipientsType recipients, eAnnouncementStatus status = eAnnouncementStatus.NotSent, string messageReference = null, int announcementId = 0)
         {
             Name = name;
