@@ -1123,7 +1123,7 @@ namespace DAL
 
                         bool? automaticIssueFollowNotification = null;
                         if (!string.IsNullOrEmpty(automaticSending))
-                            automaticIssueFollowNotification = bool.Parse(automaticSending);
+                            automaticIssueFollowNotification = automaticSending.Equals("1");
 
                         dbAnnouncement = new DbAnnouncement()
                         {
