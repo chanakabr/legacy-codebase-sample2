@@ -385,7 +385,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     return eTopicAutomaticIssueNotification.Yes;
                 case KalturaTopicAutomaticIssueNotification.No:
                     return eTopicAutomaticIssueNotification.No;
-                case KalturaTopicAutomaticIssueNotification.Default:
+                case KalturaTopicAutomaticIssueNotification.Inherit:
                 default:
                     return eTopicAutomaticIssueNotification.Default;
             }
