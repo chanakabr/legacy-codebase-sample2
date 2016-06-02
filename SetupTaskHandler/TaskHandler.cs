@@ -35,15 +35,31 @@ namespace SetupTaskHandler
                 switch (request.Mission.Value)
                 {
                     case ApiObjects.eSetupTask.BuildIPToCountry:
-                    {
-                        var worker = new IPToCountryIndexBuilder();
-                        success = worker.BuildIndex();
-                        break;
-                    }
+                        {
+                            var worker = new IPToCountryIndexBuilder();
+                            success = worker.BuildIndex();
+                            break;
+                        }
+                    case ApiObjects.eSetupTask.NotificationCleanupIteration:
+                        {
+                            //Call Notifications WCF service
+                            string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("NotificationService");
+                            using (NotificationWS.NotificationServiceClient service = new NotificationWS.NotificationServiceClient())
+                            {
+
+                                if (!string.IsNullOrEmpty(sWSURL))
+                                    service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
+
+
+                                var status = service.DeleteAnnouncementsOlderThan(string.Empty, string.Empty);
+                            }
+
+                            break;
+                        }
                     default:
-                    {
-                        break;
-                    }
+                        {
+                            break;
+                        }
                 }
 
                 if (!success)
