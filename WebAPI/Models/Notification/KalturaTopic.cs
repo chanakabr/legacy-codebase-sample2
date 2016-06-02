@@ -40,5 +40,13 @@ namespace WebAPI.Models.Notification
         [XmlElement(ElementName = "automaticIssueNotification")]
         public KalturaTopicAutomaticIssueNotification AutomaticIssueNotification { get; set; }
 
+        /// <summary>
+        /// lastMessageSentDateSec
+        /// </summary>
+        [DataMember(Name = "lastMessageSentDateSec")]
+        [JsonProperty("lastMessageSentDateSec")]
+        [XmlElement(ElementName = "lastMessageSentDateSec")]
+        public long LastMessageSentDateSec { get; set; }
+
     }
 }
