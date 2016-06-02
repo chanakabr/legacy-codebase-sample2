@@ -108,6 +108,7 @@ public partial class adm_topics : System.Web.UI.Page
         theTable.AddOrderByColumn("name", "a.name");
         theTable.AddOrderByColumn("automatic sending", "automatic_sending");
         theTable.AddOrderByColumn("subscribers", "amountOfSubscribers");
+        theTable.AddOrderByColumn("last sent date sec", "last_message_sent_date_sec");
 
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {
@@ -165,7 +166,7 @@ public partial class adm_topics : System.Web.UI.Page
         DataTable dt = null;
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
         selectQuery.SetConnectionKey("notifications_connection");
-        selectQuery += "select a.ID, a.name , a.group_id, a.status ";
+        selectQuery += "select a.ID, a.name , a.group_id, a.status, a.last_message_sent_date_sec ";
         selectQuery += ",CASE WHEN automatic_sending is null THEN  'Inherit' WHEN automatic_sending = 1 THEN  'Yes' WHEN automatic_sending = 0 THEN  'No'  end as 'automatic sending'";
         selectQuery += "  from announcements a   ";
         selectQuery += "  where a.status <> 2  And a.recipient_type = 3 And";
