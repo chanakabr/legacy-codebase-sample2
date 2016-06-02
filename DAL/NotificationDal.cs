@@ -680,7 +680,7 @@ namespace DAL
 
         public static List<NotificationPartnerSettings> GetNotificationPartnerSettings(int groupID)
         {
-            List<NotificationPartnerSettings> settings = null;
+            List<NotificationPartnerSettings> settings = new List<NotificationPartnerSettings>();
             bool automaticIssueFollowNotification = true;
 
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_NotificationPartnerSettings");
