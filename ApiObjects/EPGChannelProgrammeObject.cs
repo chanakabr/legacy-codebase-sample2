@@ -21,7 +21,7 @@ namespace ApiObjects
         Current
     }
 
-    [XmlType("EPGChannelProgrammeObject", Namespace = "http://example.com/schemas/EPGChannelProgrammeObject1")]
+    [XmlType("EPGChannelProgrammeObject", Namespace = "http://api.tvinci.com/schemas/EPGChannelProgrammeObject1")]
     public class EPGChannelProgrammeObject
     {
 
