@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using System.Xml.Serialization;
 
 namespace ApiObjects
 {
@@ -19,6 +20,8 @@ namespace ApiObjects
         Hours,
         Current
     }
+
+    [XmlType("EPGChannelProgrammeObject", Namespace = "http://example.com/schemas/EPGChannelProgrammeObject1")]
     public class EPGChannelProgrammeObject
     {
 
