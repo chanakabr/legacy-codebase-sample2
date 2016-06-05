@@ -1084,7 +1084,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = Notification.GetNotificationLastCleanupDate(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password);
+                    response = Notification.GetNotificationLastCleanupDate(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password);
                 }
             }
             catch (Exception ex)
