@@ -1222,16 +1222,17 @@ namespace ConditionalAccess
                 }
             }
 
+            if (s == null)
+            {
+                theReason = PriceReason.UnKnown;
+                return null;
+            }
+
             isGeoCommerceBlock = IsGeoBlock(nGroupID, s.n_GeoCommerceID, sClientIP);
 
             if (!isGeoCommerceBlock)
             {
                 theSub = TVinciShared.ObjectCopier.Clone<TvinciPricing.Subscription>((TvinciPricing.Subscription)(s));
-                if (s == null)
-                {
-                    theReason = PriceReason.UnKnown;
-                    return null;
-                }
 
                 if (s.m_oSubscriptionPriceCode != null)
                     p = TVinciShared.ObjectCopier.Clone<TvinciPricing.Price>((TvinciPricing.Price)(s.m_oSubscriptionPriceCode.m_oPrise));
