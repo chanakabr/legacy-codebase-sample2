@@ -4177,14 +4177,17 @@ namespace ConditionalAccess
                     int cdvr = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_cdvr", -1);
                     int startOver = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_start_over", -1);
                     int trickPlay = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_trick_play", -1);
-                    int catchUpBuffer = ODBCWrapper.Utils.GetIntSafeVal(dr, "catch_up_buffer", -1);
-                    int trickPlayBuffer = ODBCWrapper.Utils.GetIntSafeVal(dr, "trick_play_buffer", -1);
-                    int recordingScheduleWindowBuffer = ODBCWrapper.Utils.GetIntSafeVal(dr, "recording_schedule_window_buffer", -1);
+                    long catchUpBuffer = ODBCWrapper.Utils.GetIntSafeVal(dr, "catch_up_buffer", -1);
+                    long trickPlayBuffer = ODBCWrapper.Utils.GetIntSafeVal(dr, "trick_play_buffer", -1);
+                    long recordingScheduleWindowBuffer = ODBCWrapper.Utils.GetIntSafeVal(dr, "recording_schedule_window_buffer", -1);
                     int recordingScheduleWindow = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_schedule_window", -1);
+                    long paddingAfterProgramEnded = ODBCWrapper.Utils.GetIntSafeVal(dr, "padding_after_program_ended", -1);
+                    long paddingBeforeProgramStarted = ODBCWrapper.Utils.GetIntSafeVal(dr, "padding_beofre_program_started", -1);
+
                     if (catchup > -1 && cdvr > -1 && startOver > -1 && trickPlay > -1 && catchUpBuffer > -1 && trickPlayBuffer > -1)
                     {
                         settings = new TimeShiftedTvPartnerSettings(catchup == 1, cdvr == 1, startOver == 1, trickPlay == 1, recordingScheduleWindow == 1,
-                            catchUpBuffer, trickPlayBuffer, recordingScheduleWindowBuffer);
+                            catchUpBuffer, trickPlayBuffer, recordingScheduleWindowBuffer, paddingAfterProgramEnded, paddingBeforeProgramStarted);
                     }
                 }
             }
@@ -4439,10 +4442,11 @@ namespace ConditionalAccess
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     return response;
                 }
-
-                // validate recording schedule window
+                
+                // validate recording schedule window according to the paddedStartDate
+                DateTime paddedStartDate = epgStartDate.AddSeconds(accountSettings.PaddingBeforeProgramStarted.HasValue ? (-1) * accountSettings.PaddingBeforeProgramStarted.Value : 0);
                 if (accountSettings.IsRecordingScheduleWindowEnabled.HasValue && accountSettings.IsRecordingScheduleWindowEnabled.Value &&
-                    accountSettings.RecordingScheduleWindow.HasValue && epgStartDate.AddMinutes(accountSettings.RecordingScheduleWindow.Value) < DateTime.UtcNow)
+                    accountSettings.RecordingScheduleWindow.HasValue && paddedStartDate.AddMinutes(accountSettings.RecordingScheduleWindow.Value) < DateTime.UtcNow)
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramNotInRecordingScheduleWindow, eResponseStatus.ProgramNotInRecordingScheduleWindow.ToString());
                     return response;
@@ -4685,6 +4689,18 @@ namespace ConditionalAccess
             }
 
             return adapterResponse;
+        }
+
+        internal static void UpdateRecordingsWithPadding(ref RecordingResponse recordingsResponse, long paddingBeforeProgramStarted, long paddingAfterProgramEnded)
+        {
+            if (recordingsResponse != null && recordingsResponse.Recordings != null)
+            {
+                foreach (Recording recording in recordingsResponse.Recordings)
+                {
+                    recording.EpgStartDate.AddSeconds((-1) * paddingBeforeProgramStarted);
+                    recording.EpgEndDate.AddSeconds(paddingAfterProgramEnded);
+                }
+            }
         }
     }
 }
