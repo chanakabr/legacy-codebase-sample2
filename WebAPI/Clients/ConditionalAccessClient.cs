@@ -283,7 +283,10 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            prices = AutoMapper.Mapper.Map<List<KalturaSubscriptionPrice>>(response.SubscriptionsPrices);
+            if (response.SubscriptionsPrices != null && response.SubscriptionsPrices.Length > 0)
+            {
+                prices = AutoMapper.Mapper.Map<List<KalturaSubscriptionPrice>>(response.SubscriptionsPrices);
+            }
 
             return prices;
         }
