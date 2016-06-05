@@ -3831,7 +3831,7 @@ namespace Catalog
             ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery()
             {
                 PageIndex = 0,
-                PageSize = 0
+                PageSize = 1
             };
             filteredQuery.Filter = new ElasticSearch.Searcher.QueryFilter();
 
@@ -4091,7 +4091,7 @@ namespace Catalog
             ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery()
             {
                 PageIndex = 0,
-                PageSize = 0
+                PageSize = 1
             };
             filteredQuery.Filter = new ElasticSearch.Searcher.QueryFilter();
 
@@ -4239,7 +4239,7 @@ namespace Catalog
             ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery()
             {
                 PageIndex = 0,
-                PageSize = 0
+                PageSize = 1
             };
             filteredQuery.Filter = new ElasticSearch.Searcher.QueryFilter();
 
