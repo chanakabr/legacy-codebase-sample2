@@ -67,6 +67,8 @@ namespace Catalog
         internal static readonly string STAT_ACTION_RATE_VALUE_FIELD = "rate_value";
         internal static readonly string STAT_SLIDING_WINDOW_FACET_NAME = "sliding_window";
         private const string USE_OLD_IMAGE_SERVER_KEY = "USE_OLD_IMAGE_SERVER";
+        private static readonly long UNIX_TIME_1980 = DateUtils.DateTimeToUnixTimestamp(new DateTime(1980, 1, 1, 0, 0, 0));
+
 
         private static readonly HashSet<string> reservedUnifiedSearchStringFields = new HashSet<string>()
 		            {
@@ -3831,7 +3833,7 @@ namespace Catalog
             ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery()
             {
                 PageIndex = 0,
-                PageSize = 0
+                PageSize = 1
             };
             filteredQuery.Filter = new ElasticSearch.Searcher.QueryFilter();
 
@@ -4091,7 +4093,7 @@ namespace Catalog
             ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery()
             {
                 PageIndex = 0,
-                PageSize = 0
+                PageSize = 1
             };
             filteredQuery.Filter = new ElasticSearch.Searcher.QueryFilter();
 
@@ -4239,7 +4241,7 @@ namespace Catalog
             ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery()
             {
                 PageIndex = 0,
-                PageSize = 0
+                PageSize = 1
             };
             filteredQuery.Filter = new ElasticSearch.Searcher.QueryFilter();
 
@@ -5803,28 +5805,16 @@ namespace Catalog
                     if (searchKeyLowered == "start_date")
                     {
                         definitions.defaultStartDate = false;
-                        leaf.valueType = typeof(DateTime);
-
-                        long epoch = Convert.ToInt64(leaf.value);
-
-                        leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
+                        GetLeafDate(ref leaf);
                     }
                     else if (searchKeyLowered == "end_date")
                     {
                         definitions.defaultEndDate = false;
-                        leaf.valueType = typeof(DateTime);
-
-                        long epoch = Convert.ToInt64(leaf.value);
-
-                        leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
+                        GetLeafDate(ref leaf);
                     }
                     else if (searchKeyLowered == "update_date")
                     {
-                        leaf.valueType = typeof(DateTime);
-
-                        long epoch = Convert.ToInt64(leaf.value);
-
-                        leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
+                        GetLeafDate(ref leaf);
                     }
                     else if (searchKeyLowered == "geo_block")
                     {
@@ -6020,6 +6010,19 @@ namespace Catalog
             }
 
             #endregion
+        }
+
+        private static void GetLeafDate(ref BooleanLeaf leaf)
+        {
+            leaf.valueType = typeof(DateTime);
+            long epoch = Convert.ToInt64(leaf.value);
+
+            // if the epoch time is greater then 1980 - it's a date, otherwise it's relative (to now) time in seconds
+            if (epoch > UNIX_TIME_1980)
+                leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
+            else
+                leaf.value = DateTime.UtcNow.AddSeconds(epoch);
+
         }
 
         public static UnifiedSearchDefinitions BuildInternalChannelSearchObject(GroupsCacheManager.Channel channel, InternalChannelRequest request, Group group)
@@ -6738,6 +6741,16 @@ namespace Catalog
             {
                 log.Error(ex.Message, ex);
             }
+        }
+
+        public static Status ClearStatistics(int groupId, DateTime until)
+        {
+            Status status = null;
+
+            var wrapper = new ElasticsearchWrapper();
+            status = wrapper.DeleteStatistics(groupId, until);
+
+            return status;
         }
     }
 }

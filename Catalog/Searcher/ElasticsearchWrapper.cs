@@ -2168,6 +2168,132 @@ namespace Catalog
 
             return result;
         }
+
+        public ApiObjects.Response.Status DeleteStatistics(int groupId, DateTime until)
+        {
+            ApiObjects.Response.Status status = null;
+
+            try
+            {
+                var api = new ElasticSearch.Common.ElasticSearchApi();
+
+                string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(groupId);
+                string type = ElasticSearch.Common.Utils.ES_STATS_TYPE;
+
+                #region Build Query
+
+                string date = until.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
+
+                ESRange dateRange = new ESRange(false)
+                {
+                    Key = "action_date"
+                };
+
+                dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LT, date));
+
+                ESTerm typeTerm = new ESTerm(false)
+                {
+                    Key = "action",
+                    Value = "mediahit"
+                };
+
+                BaseFilterCompositeType filter = new FilterCompositeType(CutWith.AND);
+                filter.AddChild(dateRange);
+                filter.AddChild(typeTerm);
+
+                QueryFilter queryFilter = new QueryFilter()
+                {
+                    FilterSettings = filter
+                };
+
+                BoolQuery boolQuery = new BoolQuery();
+                boolQuery.AddChild(typeTerm, CutWith.AND);
+                boolQuery.AddChild(dateRange, CutWith.AND);
+
+                FilteredQuery filteredQuery = new FilteredQuery(true)
+                {
+                    PageIndex = 0,
+                    PageSize = 0,
+                    Query = boolQuery
+                };
+
+                filteredQuery.ReturnFields.Clear();
+                filteredQuery.ReturnFields.Add("\"_id\"");
+
+                #endregion
+
+                string query = filteredQuery.ToString();
+
+                string searchResults = api.Search(index, type, ref query);
+
+                List<string> documents = GetDocumentIds(searchResults);
+
+                List<ESBulkRequestObj<string>> lBulkObj = new List<ESBulkRequestObj<string>>();           
+                int sizeOfBulk = 500;
+
+                foreach (var document in documents)
+                {
+                        lBulkObj.Add(new ESBulkRequestObj<string>()
+                        {
+                            docID = document,
+                            index = index,
+                            type = type,
+                            Operation = eOperation.delete
+                        });
+
+                        if (lBulkObj.Count >= sizeOfBulk)
+                        {
+                            Task<List<ESBulkRequestObj<string>>> t = Task<List<ESBulkRequestObj<string>>>.Factory.StartNew(() => api.CreateBulkIndexRequest(lBulkObj));
+                            t.Wait();
+                            lBulkObj = new List<ESBulkRequestObj<string>>();
+                        }
+                }
+
+                if (lBulkObj.Count > 0)
+                {
+                    Task<List<ESBulkRequestObj<string>>> t = Task<List<ESBulkRequestObj<string>>>.Factory.StartNew(() => api.CreateBulkIndexRequest(lBulkObj));
+                    t.Wait();
+                }
+
+                status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK);
+            }
+            catch (Exception ex)
+            {
+                status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ex.Message);
+            }
+
+            return status;
+        }
+
+        private static List<string> GetDocumentIds(string originalString)
+        {
+            List<string> result = new List<string>();
+
+            try
+            {
+                var jsonObj = JObject.Parse(originalString);
+
+                if (jsonObj != null)
+                {
+                    JToken tempToken;
+                    int totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
+
+                    if (totalItems > 0)
+                    {
+                        foreach (var item in jsonObj.SelectToken("hits.hits"))
+                        {
+                            result.Add(((tempToken = item.SelectToken("_id")) == null ? string.Empty : (string)tempToken));
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error - " + string.Format("Json Deserialization failed for ElasticSearch search request. Execption={0}", ex.Message), ex);
+            }
+
+            return result;
+        }
     }
 
     class AssetDocCompare : IEqualityComparer<ElasticSearchApi.ESAssetDocument>
