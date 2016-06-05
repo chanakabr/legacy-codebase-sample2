@@ -344,15 +344,17 @@ namespace TVinciShared
             HttpContext.Current.Response.Write(sRet);
         }
 
-        static public object GetTableSingleVal(string sTable, string sFieldName, Int32 nID)
+        static public object GetTableSingleVal(string sTable, string sFieldName, Int32 nID, string connectionString = null)
         {
-            return GetTableSingleVal(sTable, sFieldName, "id", "=", nID);
+            return GetTableSingleVal(sTable, sFieldName, "id", "=", nID, connectionString);
         }
 
-        static public object GetTableSingleVal(string sTable, string sFieldName, string sWhereField, string sWhereSign, object sWhereVal)
+        static public object GetTableSingleVal(string sTable, string sFieldName, string sWhereField, string sWhereSign, object sWhereVal, string connectionString = null)
         {
             object oRet = null;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            if (!string.IsNullOrEmpty(connectionString))
+                selectQuery.SetConnectionKey(connectionString);
             selectQuery += "select " + sFieldName + " from " + sTable + " WITH (nolock) where ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM(sWhereField, sWhereSign, sWhereVal);
             if (selectQuery.Execute("query", true) != null)
@@ -1626,7 +1628,7 @@ namespace TVinciShared
             string baseUrl = string.Empty;
             int ratioId = 0;
             int version = 0;
-            
+
             if (!groupId.HasValue)
             {
                 groupId = LoginManager.GetLoginGroupID();

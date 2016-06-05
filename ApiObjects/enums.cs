@@ -446,7 +446,8 @@ namespace ApiObjects
     public enum eSetupTask
     {
         BuildIPToCountry,
-        InitializeFreeItemUpdateQueue
+        InitializeFreeItemUpdateQueue,
+        NotificationCleanupIteration
     }
 
 
@@ -643,7 +644,7 @@ namespace ApiObjects
         LivePause = 2,
     }
 
-    public enum TopicAutomaticIssueNotification
+    public enum eTopicAutomaticIssueNotification
     {
         Default = 0,
         Yes = 1,

@@ -5791,7 +5791,6 @@ namespace TvinciImporter
             return isUpdateIndexSucceeded;
         }
 
-
         public static DateTime? ExtractDate(string sDate, string format)
         {
             DateTime? result = null;
@@ -5848,9 +5847,70 @@ namespace TvinciImporter
             return result;
         }
 
+        static public Dictionary<string, int> GetAmountOfSubscribersPerAnnouncement(int groupID)
+        {
+            Dictionary<string, int> response = null;
+            try
+            {
+                //Call Notifications WCF service
+                string sWSURL = GetConfigVal("NotificationService");
+                Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
+                if (!string.IsNullOrEmpty(sWSURL))
+                    service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
 
+                string sIP = "1.1.1.1";
+                string sWSUserName = "";
+                string sWSPass = "";
+                int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupID);
+                TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "", "notifications", sIP, ref sWSUserName, ref sWSPass);
 
+                response = service.GetAmountOfSubscribersPerAnnouncement(sWSUserName, sWSPass);
+                if (response == null)
+                {
+                    log.DebugFormat("GetAmountOfSubscribersPerAnnouncement is empty");
+                }
+                return response;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetAmountOfSubscribersPerAnnouncement ex:{0}", ex);
 
+                return null;
+            }
+        }
+
+        public static ApiObjects.Response.Status SetTopicSettings(int groupId, int id, eTopicAutomaticIssueNotification topicAutomaticIssueNotification)
+        {
+            ApiObjects.Response.Status status = null;
+            try
+            {
+                //Call Notifications WCF service
+                string sWSURL = GetConfigVal("NotificationService");
+                Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
+                if (!string.IsNullOrEmpty(sWSURL))
+                    service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
+
+                string sIP = "1.1.1.1";
+                string sWSUserName = "";
+                string sWSPass = "";
+                int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);
+                TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "", "notifications", sIP, ref sWSUserName, ref sWSPass);
+
+                status = service.UpdateAnnouncement(sWSUserName, sWSPass, id, topicAutomaticIssueNotification);
+                if (status != null && status.Code != (int)ApiObjects.Response.eResponseStatus.OK)
+                {
+                    log.ErrorFormat("Failed to SetTopicSettings. GID: {0}, announcementId: {1}, topicAutomaticIssueNotification: {2}", groupId, id, topicAutomaticIssueNotification.ToString());
+                    return new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed to SetTopicSettings. GID: {0}, announcementId: {1}, topicAutomaticIssueNotification: {2}, ex: {3}", groupId, id, topicAutomaticIssueNotification.ToString(), ex);
+                return new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
+            }
+
+            return status;
+        }
     }
 }
 
