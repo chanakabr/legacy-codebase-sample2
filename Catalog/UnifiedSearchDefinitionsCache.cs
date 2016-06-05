@@ -177,115 +177,9 @@ namespace Catalog
 
                 if (definitions.entitlementSearchDefinitions != null)
                 {
-                    int[] fileTypes = null;
-
-                    if (request.m_oFilter != null)
-                    {
-                        fileTypes = request.m_oFilter.fileTypes;
-                    }
-
-                    var entitlementSearchDefinitions = definitions.entitlementSearchDefinitions;
-
-                    List<int> epgChannelIds = new List<int>();
-                    List<int> freeEpgChannelIds = null;
-                    List<int> purchasedEpgChannelIds = null;
-
-                    // TODO: Maybe we won't use this (getting free assets) method eventually!
-                    if (entitlementSearchDefinitions.shouldGetFreeAssets)
-                    {
-                        entitlementSearchDefinitions.freeAssets =
-                            EntitledAssetsUtils.GetFreeAssets(parentGroupID, request.m_sSiteGuid, out freeEpgChannelIds);
-                    }
-
-                    if (entitlementSearchDefinitions.shouldGetPurchasedAssets)
-                    {
-
-                        entitlementSearchDefinitions.entitledPaidForAssets =
-                           EntitledAssetsUtils.GetUserPPVAssets(parentGroupID, request.m_sSiteGuid, request.domainId, fileTypes, out purchasedEpgChannelIds);
-                    }
-
-                    if (freeEpgChannelIds != null)
-                    {
-                        epgChannelIds.AddRange(freeEpgChannelIds);
-                    }
-
-                    if (purchasedEpgChannelIds != null)
-                    {
-                        epgChannelIds.AddRange(purchasedEpgChannelIds);
-                    }
-
-                    string[] entitlementMediaTypes = null;
-
-                    // If there are no specific media types, the utility method still needs a "0" to indicate "all"
-                    if (definitions.shouldSearchMedia && definitions.mediaTypes.Count == 0)
-                    {
-                        entitlementMediaTypes = new string[] { "0" };
-                    }
-                    else
-                    {
-                        // If there are specific media types, use them
-                        var selectedMediaTypes = definitions.mediaTypes.Select(t => t.ToString());
-
-                        // Also add linear channel media type so that we get them in the next search
-                        if (definitions.shouldSearchEpg)
-                        {
-                            selectedMediaTypes = selectedMediaTypes.Union(group.linearChannelMediaTypes.Select(t => t.ToString()));
-                        }
-
-                        entitlementMediaTypes = selectedMediaTypes.ToArray();
-                    }
-
-                    if (entitlementSearchDefinitions.shouldGetPurchasedAssets)
-                    {
-                        entitlementSearchDefinitions.subscriptionSearchObjects =
-                            EntitledAssetsUtils.GetUserSubscriptionSearchObjects(request, parentGroupID, request.m_sSiteGuid, request.domainId, fileTypes,
-                            request.order, entitlementMediaTypes, definitions.deviceRuleId);
-                    }
-
-                    if (group.groupMediaFileTypeToFileType != null && entitlementSearchDefinitions.shouldGetFreeAssets)
-                    {
-                        // Convert the file type that we received in request (taken from groups_media_type)
-                        // into the file type that the media file knows (based on the table media_files)
-                        entitlementSearchDefinitions.fileTypes = new List<int>();
-
-                        if (fileTypes != null)
-                        {
-                            foreach (var fileType in fileTypes)
-                            {
-                                entitlementSearchDefinitions.fileTypes.Add(group.groupMediaFileTypeToFileType[fileType]);
-                            }
-                        }
-                    }
-
-                    // TODO: Maybe this will be the method that gets the FREE epg channel IDs
-                    var entitledChannelIds =
-                        EntitledAssetsUtils.GetUserEntitledEpgChannelIds(parentGroupID, request.m_sSiteGuid, definitions, group.linearChannelMediaTypes);
-
-                    epgChannelIds.AddRange(entitledChannelIds);
-
-                    entitlementSearchDefinitions.epgChannelIds = epgChannelIds;
-
-                    /* Not sure if we need this if I add is_free member to ES index
-                    // edge case - user is not entitled to anything!
-                    if ((definitions.freeAssets == null || definitions.freeAssets.Count == 0) &&
-                        (definitions.entitledPaidForAssets == null || definitions.entitledPaidForAssets.Count == 0) &&
-                        definitions.subscriptionSearchObjects.Count == 0)
-                    {
-                        // Make sure that all lists in dictionaries are empty
-                        bool entitledToAnything = 
-                            definitions.freeAssets.Values.Any(item => item.Count > 0) || definitions.entitledPaidForAssets.Values.Any(item => item.Count > 0);
-
-                        if (!entitledToAnything)
-                        {
-                            // If user is not entitled to anything, add a dummy media, so that it will filter everything out
-                            definitions.freeAssets.Add(eAssetTypes.MEDIA, new List<string>()
-                            {
-                                int.MinValue.ToString()
-                            });
-                        }
-                    }
-                     */
+                    BuildEntitlementSearchDefinitions(definitions, request, request.order, parentGroupID, group);
                 }
+
                 #endregion
             }
             catch (Exception ex)
@@ -331,6 +225,121 @@ namespace Catalog
             }
 
             return result;
+        }
+
+        public static void BuildEntitlementSearchDefinitions(UnifiedSearchDefinitions definitions,
+            BaseRequest request,
+            OrderObj order,
+            int parentGroupID, Group group)
+        {
+            int[] fileTypes = null;
+
+            if (request.m_oFilter != null)
+            {
+                fileTypes = request.m_oFilter.fileTypes;
+            }
+
+            var entitlementSearchDefinitions = definitions.entitlementSearchDefinitions;
+
+            List<int> epgChannelIds = new List<int>();
+            List<int> freeEpgChannelIds = null;
+            List<int> purchasedEpgChannelIds = null;
+
+            // TODO: Maybe we won't use this (getting free assets) method eventually!
+            if (entitlementSearchDefinitions.shouldGetFreeAssets)
+            {
+                entitlementSearchDefinitions.freeAssets =
+                    EntitledAssetsUtils.GetFreeAssets(parentGroupID, request.m_sSiteGuid, out freeEpgChannelIds);
+            }
+
+            if (entitlementSearchDefinitions.shouldGetPurchasedAssets)
+            {
+
+                entitlementSearchDefinitions.entitledPaidForAssets =
+                   EntitledAssetsUtils.GetUserPPVAssets(parentGroupID, request.m_sSiteGuid, request.domainId, fileTypes, out purchasedEpgChannelIds);
+            }
+
+            if (freeEpgChannelIds != null)
+            {
+                epgChannelIds.AddRange(freeEpgChannelIds);
+            }
+
+            if (purchasedEpgChannelIds != null)
+            {
+                epgChannelIds.AddRange(purchasedEpgChannelIds);
+            }
+
+            string[] entitlementMediaTypes = null;
+
+            // If there are no specific media types, the utility method still needs a "0" to indicate "all"
+            if (definitions.shouldSearchMedia && definitions.mediaTypes.Count == 0)
+            {
+                entitlementMediaTypes = new string[] { "0" };
+            }
+            else
+            {
+                // If there are specific media types, use them
+                var selectedMediaTypes = definitions.mediaTypes.Select(t => t.ToString());
+
+                // Also add linear channel media type so that we get them in the next search
+                if (definitions.shouldSearchEpg)
+                {
+                    selectedMediaTypes = selectedMediaTypes.Union(group.linearChannelMediaTypes.Select(t => t.ToString()));
+                }
+
+                entitlementMediaTypes = selectedMediaTypes.ToArray();
+            }
+
+            if (entitlementSearchDefinitions.shouldGetPurchasedAssets)
+            {
+                entitlementSearchDefinitions.subscriptionSearchObjects =
+                    EntitledAssetsUtils.GetUserSubscriptionSearchObjects(request, parentGroupID, request.m_sSiteGuid, request.domainId, fileTypes,
+                    order, entitlementMediaTypes, definitions.deviceRuleId);
+            }
+
+            if (group.groupMediaFileTypeToFileType != null && entitlementSearchDefinitions.shouldGetFreeAssets)
+            {
+                // Convert the file type that we received in request (taken from groups_media_type)
+                // into the file type that the media file knows (based on the table media_files)
+                entitlementSearchDefinitions.fileTypes = new List<int>();
+
+                if (fileTypes != null)
+                {
+                    foreach (var fileType in fileTypes)
+                    {
+                        entitlementSearchDefinitions.fileTypes.Add(group.groupMediaFileTypeToFileType[fileType]);
+                    }
+                }
+            }
+
+            // TODO: Maybe this will be the method that gets the FREE epg channel IDs
+            var entitledChannelIds =
+                EntitledAssetsUtils.GetUserEntitledEpgChannelIds(parentGroupID, request.m_sSiteGuid, definitions, group.linearChannelMediaTypes);
+
+            epgChannelIds.AddRange(entitledChannelIds);
+
+            entitlementSearchDefinitions.epgChannelIds = epgChannelIds;
+
+            /* Not sure if we need this if I add is_free member to ES index
+            // edge case - user is not entitled to anything!
+            if ((definitions.freeAssets == null || definitions.freeAssets.Count == 0) &&
+                (definitions.entitledPaidForAssets == null || definitions.entitledPaidForAssets.Count == 0) &&
+                definitions.subscriptionSearchObjects.Count == 0)
+            {
+                // Make sure that all lists in dictionaries are empty
+                bool entitledToAnything = 
+                    definitions.freeAssets.Values.Any(item => item.Count > 0) || definitions.entitledPaidForAssets.Values.Any(item => item.Count > 0);
+
+                if (!entitledToAnything)
+                {
+                    // If user is not entitled to anything, add a dummy media, so that it will filter everything out
+                    definitions.freeAssets.Add(eAssetTypes.MEDIA, new List<string>()
+                    {
+                        int.MinValue.ToString()
+                    });
+                }
+            }
+             */
         }
 
         #endregion
