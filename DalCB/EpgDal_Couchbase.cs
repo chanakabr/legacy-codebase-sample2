@@ -547,8 +547,8 @@ namespace DalCB
                 try
                 {
                     bRes = (dtExpiresAt.HasValue) ?
-                        cbManager.SetJson(sDocID, JsonConvert.SerializeObject(epg, Formatting.None), (uint)(dtExpiresAt.Value - DateTime.UtcNow).TotalSeconds) :
-                        cbManager.SetJson(sDocID, JsonConvert.SerializeObject(epg, Formatting.None));
+                        cbManager.Set(sDocID, JsonConvert.SerializeObject(epg, Formatting.None), (uint)(dtExpiresAt.Value - DateTime.UtcNow).TotalSeconds) :
+                        cbManager.Set(sDocID, JsonConvert.SerializeObject(epg, Formatting.None));
                 }
                 catch (Exception ex)
                 {
