@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using System.Xml.Serialization;
 
 namespace ApiObjects
 {
@@ -254,6 +255,7 @@ namespace ApiObjects
         Series = 1
     }
 
+    [XmlType("eAssetTypes", Namespace = "http://api.tvinci.com/schemas/eAssetTypes1")]
     public enum eAssetTypes
     {
         UNKNOWN = -1,

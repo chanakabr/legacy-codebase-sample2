@@ -321,6 +321,10 @@ namespace EpgIngest
                     #region Insert EpgProgram to CB
                     string epgID = string.Empty;
                     bool isMainLang = epg.Value.Language.ToLower() == m_Channels.mainlang.ToLower() ? true : false;
+                    if (epg.Value.EpgID <= 0)
+                    {
+                        log.ErrorFormat("epgId is {0} for epg with identifier {1} and coguid {2}", epg.Value.EpgID, epg.Value.EpgIdentifier, epg.Value.CoGuid);
+                    }
                     bool bInsert = oEpgBL.InsertEpg(epg.Value, isMainLang, out epgID);
                     #endregion
 
