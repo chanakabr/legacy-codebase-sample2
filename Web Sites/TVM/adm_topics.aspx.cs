@@ -122,7 +122,7 @@ public partial class adm_topics : System.Web.UI.Page
             DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_remove.aspx", "Delete", "STATUS=1;STATUS=3");
             linkColumn.AddQueryStringValue("id", "field=id");
             linkColumn.AddQueryStringValue("db", "notifications_connection");
-            linkColumn.AddQueryStringValue("table", "message_announcements");
+            linkColumn.AddQueryStringValue("table", "announcements");
             linkColumn.AddQueryStringValue("confirm", "true");
             linkColumn.AddQueryStringValue("main_menu", "14");
             linkColumn.AddQueryStringValue("sub_menu", "2");
