@@ -1125,6 +1125,11 @@ namespace DAL
                         if (!string.IsNullOrEmpty(automaticSending))
                             automaticIssueFollowNotification = automaticSending.Equals("1");
 
+                        DateTime? lastMessageSentDate = ODBCWrapper.Utils.GetNullableDateSafeVal(row, "last_message_sent_date_sec");
+                        long lastMessageSentDateSec = 0;
+                        if (lastMessageSentDate != null)
+                            lastMessageSentDateSec = ODBCWrapper.Utils.DateTimeToUnixTimestamp((DateTime)lastMessageSentDate);
+
                         dbAnnouncement = new DbAnnouncement()
                         {
                             ID = ODBCWrapper.Utils.GetIntSafeVal(row, "id"),
@@ -1134,7 +1139,7 @@ namespace DAL
                             FollowReference = ODBCWrapper.Utils.GetSafeStr(row, "follow_reference"),
                             AutomaticIssueFollowNotification = automaticIssueFollowNotification,
                             RecipientsType = Enum.IsDefined(typeof(eAnnouncementRecipientsType), recipientType) ? (eAnnouncementRecipientsType)recipientType : eAnnouncementRecipientsType.All,
-                            LastMessageSentDateSec = ODBCWrapper.Utils.DateTimeToUnixTimestamp(ODBCWrapper.Utils.GetDateSafeVal(row, "last_message_sent_date_sec"))
+                            LastMessageSentDateSec = lastMessageSentDateSec
                         };
 
                         result.Add(dbAnnouncement);
