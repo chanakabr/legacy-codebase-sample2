@@ -5911,6 +5911,62 @@ namespace TvinciImporter
 
             return status;
         }
+
+        public static bool DeleteAnnouncement(int groupId, int announcementId)
+        {
+            bool result = false;
+
+            string logData = string.Format("GID:{0}, AnnouncementId: {1}", groupId, announcementId);
+            try
+            {
+                //Call Notifications WCF service
+                string sWSURL = GetConfigVal("NotificationService");
+                Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
+                if (!string.IsNullOrEmpty(sWSURL))
+                    service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
+
+                string sIP = "1.1.1.1";
+                string sWSUserName = "";
+                string sWSPass = "";
+                int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);
+                TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "", "notifications", sIP, ref sWSUserName, ref sWSPass);
+
+                if (string.IsNullOrEmpty(sWSUserName))
+                {
+                    log.ErrorFormat("DeleteAnnouncement failed - sWSUserName is empty. {0}", logData);
+                    return false;
+                }
+
+                if (string.IsNullOrEmpty(sWSPass))
+                {
+                    log.ErrorFormat("DeleteAnnouncement failed - sWSPass is empty. {0}", logData);
+                    return false;
+                }
+
+                if (string.IsNullOrEmpty(sWSURL))
+                {
+                    log.ErrorFormat("DeleteAnnouncement failed - sWSURL is empty. {0}", logData);
+                    return false;
+                }
+
+                var response = service.DeleteAnnouncement(sWSUserName, sWSPass, announcementId);
+                if (response == null || response.Code != (int)ApiObjects.Response.eResponseStatus.OK)
+                {
+                    log.ErrorFormat("Failed to DeleteAnnouncement. {0}", logData);
+                }
+                else
+                {
+                    result = true;
+                    log.DebugFormat("Succeeded DeleteAnnouncement. {0}", logData);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed to DeleteAnnouncement. {0}, ex:{0}", logData, ex);
+            }
+
+            return result;
+        }
     }
 }
 
