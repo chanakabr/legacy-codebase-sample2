@@ -13,8 +13,6 @@ namespace SetupTaskHandler
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        #region ITaskHandler Members
-
         public string HandleTask(string data)
         {
             string result = "failure";
@@ -35,31 +33,32 @@ namespace SetupTaskHandler
                 switch (request.Mission.Value)
                 {
                     case ApiObjects.eSetupTask.BuildIPToCountry:
-                        {
-                            var worker = new IPToCountryIndexBuilder();
-                            success = worker.BuildIndex();
-                            break;
-                        }
+
+                        var worker = new IPToCountryIndexBuilder();
+                        success = worker.BuildIndex();
+                        break;
+
                     case ApiObjects.eSetupTask.NotificationCleanupIteration:
+
+                        //Call Notifications WCF service
+                        string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("NotificationService");
+                        using (NotificationWS.NotificationServiceClient service = new NotificationWS.NotificationServiceClient())
                         {
-                            //Call Notifications WCF service
-                            string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("NotificationService");
-                            using (NotificationWS.NotificationServiceClient service = new NotificationWS.NotificationServiceClient())
-                            {
+                            if (!string.IsNullOrEmpty(sWSURL))
+                                service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
+                            else
+                                log.ErrorFormat("NotificationCleanupIteration: Couldn't find WS_Notifications URL");
 
-                                if (!string.IsNullOrEmpty(sWSURL))
-                                    service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
-
-
-                                var status = service.DeleteAnnouncementsOlderThan(string.Empty, string.Empty);
-                            }
-
-                            break;
+                            var status = service.DeleteAnnouncementsOlderThan(string.Empty, string.Empty);
+                            if (status != null && status.Code == (int)ApiObjects.Response.eResponseStatus.OK)
+                                log.Debug("NotificationCleanupIteration: Successfully run cleanup notifications");
+                            else
+                                log.Error("NotificationCleanupIteration: Error received when trying to run cleanup notifications");
                         }
+                        break;
+
                     default:
-                        {
-                            break;
-                        }
+                        break;
                 }
 
                 if (!success)
@@ -79,7 +78,5 @@ namespace SetupTaskHandler
 
             return result;
         }
-
-        #endregion
     }
 }
