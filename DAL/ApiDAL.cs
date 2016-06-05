@@ -3391,8 +3391,7 @@ namespace DAL
             return dr;
         }
 
-        public static bool UpdateTimeShiftedTvPartnerSettings(int groupID, bool? isCatchupAllowed, bool? isCdvrEnabled, bool? isStartOverEnabled, bool? isTrickPlayEnabled, bool? isRecordingScheduleWindowEnabled,
-                                                                long? catchUpBufferLength, long? trickPlayBufferLength, long? recordingScheduleWindowBuffer)
+        public static bool UpdateTimeShiftedTvPartnerSettings(int groupID, ApiObjects.TimeShiftedTv.TimeShiftedTvPartnerSettings settings)
         {
             bool isUpdated = false;
             try
@@ -3400,14 +3399,16 @@ namespace DAL
                 ODBCWrapper.StoredProcedure spUpdateTimeShiftedTvPartnerSettings = new ODBCWrapper.StoredProcedure("UpdateTimeShiftedTvPartnerSettings");
                 spUpdateTimeShiftedTvPartnerSettings.SetConnectionKey("MAIN_CONNECTION_STRING");
                 spUpdateTimeShiftedTvPartnerSettings.AddParameter("@GroupID", groupID);
-                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@AllowCatchUp", isCatchupAllowed);
-                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@AllowCdvr", isCdvrEnabled);
-                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@AllowStartOver", isStartOverEnabled);
-                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@AllowTrickPlay", isTrickPlayEnabled);
-                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@CatchUpBuffer", catchUpBufferLength);
-                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@TrickPlayBuffer", trickPlayBufferLength);
-                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@RecordingScheduleWindowBuffer", recordingScheduleWindowBuffer);
-                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@EnableRecordingScheduleWindow", isRecordingScheduleWindowEnabled);
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@AllowCatchUp", settings.IsCatchUpEnabled);
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@AllowCdvr", settings.IsCdvrEnabled);
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@AllowStartOver", settings.IsStartOverEnabled);
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@AllowTrickPlay", settings.IsTrickPlayEnabled);
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@CatchUpBuffer", settings.CatchUpBufferLength);
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@TrickPlayBuffer", settings.TrickPlayBufferLength);
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@RecordingScheduleWindowBuffer", settings.RecordingScheduleWindow);
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@EnableRecordingScheduleWindow", settings.IsRecordingScheduleWindowEnabled);
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@PaddingBeforeProgramStarted", settings.PaddingBeforeProgramStarted);
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@PaddingAfterProgramEnded", settings.PaddingAfterProgramEnded);
 
                 isUpdated = spUpdateTimeShiftedTvPartnerSettings.ExecuteReturnValue<bool>();
             }
