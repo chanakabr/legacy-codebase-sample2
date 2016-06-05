@@ -103,9 +103,19 @@ public partial class adm_time_shifted_tv_settings : System.Web.UI.Page
         dr_scheduleWindow.Initialize("Enable Recording Schedule Window ", "adm_table_header_nbg", "FormInput", "enable_recording_schedule_window", false);
         theRecord.AddRecord(dr_scheduleWindow);
 
-        DataRecordShortIntField dr_scheduleWindowBuffer = new DataRecordShortIntField(true, 9, 9, 0);
+        DataRecordShortIntField dr_scheduleWindowBuffer = new DataRecordShortIntField(true, 9, 9);
         dr_scheduleWindowBuffer.Initialize("Recording Schedule Window Length", "adm_table_header_nbg", "FormInput", "recording_schedule_window_buffer", false);
         theRecord.AddRecord(dr_scheduleWindowBuffer);
+
+        DataRecordShortIntField dr_paddingBeforeProgramStarts = new DataRecordShortIntField(true, 9, 9, 0);
+        dr_paddingBeforeProgramStarts.Initialize("Padding Before Program Stars", "adm_table_header_nbg", "FormInput", "padding_before_program_starts", false);
+        dr_paddingBeforeProgramStarts.SetDefault(0);
+        theRecord.AddRecord(dr_paddingBeforeProgramStarts);
+
+        DataRecordShortIntField dr_paddingAfterProgramEnds = new DataRecordShortIntField(true, 9, 9, 0);
+        dr_paddingAfterProgramEnds.Initialize("Padding After Program Ends", "adm_table_header_nbg", "FormInput", "padding_after_program_ends", false);
+        dr_paddingBeforeProgramStarts.SetDefault(0);
+        theRecord.AddRecord(dr_paddingAfterProgramEnds);
 
         DataRecordDropDownField dr_adapters = new DataRecordDropDownField("time_shifted_tv_settings", "adapter_id", "id", "", null, 60, true);
         string sQuery = "select name as txt,id as id from conditionalAccess..cdvr_adapters where status=1 and is_active=1 and group_id=" + groupID;
