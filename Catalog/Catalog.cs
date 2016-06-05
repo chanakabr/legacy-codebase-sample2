@@ -6289,6 +6289,11 @@ namespace Catalog
 
                 Catalog.UpdateNodeTreeFields(request, ref requestFilterTree, definitions, group);
 
+                if (definitions.entitlementSearchDefinitions != null)
+                {
+                    UnifiedSearchDefinitionsCache.BuildEntitlementSearchDefinitions(definitions, request, request.order, group.m_nParentGroupID, group);
+                }
+
                 if (initialTree != null)
                 {
                     List<BooleanPhraseNode> rootNodes = new List<BooleanPhraseNode>();
