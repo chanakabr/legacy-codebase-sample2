@@ -6739,6 +6739,16 @@ namespace Catalog
                 log.Error(ex.Message, ex);
             }
         }
+
+        public static Status ClearStatistics(int groupId, DateTime until)
+        {
+            Status status = null;
+
+            var wrapper = new ElasticsearchWrapper();
+            status = wrapper.DeleteStatistics(groupId, until);
+
+            return status;
+        }
     }
 }
 
