@@ -84,5 +84,21 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "recordingScheduleWindow", IsNullable = true)]
         public long? RecordingScheduleWindow { get; set; }
 
+        /// <summary>
+        /// Indicates how long (in seconds) before the program starts the recording will begin
+        /// </summary>
+        [DataMember(Name = "paddingBeforeProgramStarts")]
+        [JsonProperty("paddingBeforeProgramStarts")]
+        [XmlElement(ElementName = "paddingBeforeProgramStarts", IsNullable = true)]
+        public long? PaddingBeforeProgramStarts { get; set; }
+
+        /// <summary>
+        /// Indicates how long (in seconds) after the program ends the recording will end
+        /// </summary>
+        [DataMember(Name = "paddingAfterProgramEnds")]
+        [JsonProperty("paddingAfterProgramEnds")]
+        [XmlElement(ElementName = "paddingAfterProgramEnds", IsNullable = true)]
+        public long? PaddingAfterProgramEnds { get; set; }
+
     }
 }
