@@ -17,8 +17,8 @@ namespace ApiObjects.TimeShiftedTv
         public long? CatchUpBufferLength { get; set; }
         public long? TrickPlayBufferLength { get; set; }
         public long? RecordingScheduleWindow { get; set; }
-        public long? PaddingAfterProgramEnded { get; set; }
-        public long? PaddingBeforeProgramStarted { get; set; }        
+        public long? PaddingAfterProgramEnds { get; set; }
+        public long? PaddingBeforeProgramStarts { get; set; }        
 
 
         public TimeShiftedTvPartnerSettings()
@@ -26,7 +26,7 @@ namespace ApiObjects.TimeShiftedTv
         }
 
         public TimeShiftedTvPartnerSettings(bool? isCatchUpEnabled, bool? isCdvrEnabled, bool? isStartOverEnabled, bool? isTrickPlayEnabled, bool? isRecordingScheduleWindowEnabled,
-            long? catchUpBufferLength, long? trickPlayBufferLength, long? recordingScheduleWindowBuffer, long? paddingAfterProgramEnded, long? paddingBeforeProgramStarted)
+            long? catchUpBufferLength, long? trickPlayBufferLength, long? recordingScheduleWindowBuffer, long? paddingAfterProgramEnds, long? paddingBeforeProgramStarts)
         {
             this.IsCatchUpEnabled = isCatchUpEnabled;
             this.IsCdvrEnabled = isCdvrEnabled;
@@ -36,8 +36,8 @@ namespace ApiObjects.TimeShiftedTv
             this.TrickPlayBufferLength = trickPlayBufferLength;
             this.RecordingScheduleWindow = recordingScheduleWindowBuffer;
             this.IsRecordingScheduleWindowEnabled = isRecordingScheduleWindowEnabled;
-            this.PaddingAfterProgramEnded = paddingAfterProgramEnded;
-            this.PaddingBeforeProgramStarted = paddingBeforeProgramStarted;
+            this.PaddingAfterProgramEnds = paddingAfterProgramEnds;
+            this.PaddingBeforeProgramStarts = paddingBeforeProgramStarts;
         }
 
         public override string ToString()
@@ -51,8 +51,8 @@ namespace ApiObjects.TimeShiftedTv
             sb.Append(string.Format("CatchUpBufferLength: {0}, ", CatchUpBufferLength.HasValue ? CatchUpBufferLength.Value.ToString() : "Null"));
             sb.Append(string.Format("TrickPlayBufferLength: {0}, ", TrickPlayBufferLength.HasValue ? TrickPlayBufferLength.Value.ToString() : "Null"));
             sb.Append(string.Format("RecordingScheduleWindowBuffer: {0}, ", RecordingScheduleWindow.HasValue ? RecordingScheduleWindow.Value.ToString() : "Null"));
-            sb.Append(string.Format("PaddingAfterRecord: {0}, ", PaddingAfterProgramEnded.HasValue ? PaddingAfterProgramEnded.Value.ToString() : "Null"));
-            sb.Append(string.Format("PaddingBeforeRecord: {0}, ", PaddingBeforeProgramStarted.HasValue ? PaddingBeforeProgramStarted.Value.ToString() : "Null"));
+            sb.Append(string.Format("PaddingAfterRecord: {0}, ", PaddingAfterProgramEnds.HasValue ? PaddingAfterProgramEnds.Value.ToString() : "Null"));
+            sb.Append(string.Format("PaddingBeforeRecord: {0}, ", PaddingBeforeProgramStarts.HasValue ? PaddingBeforeProgramStarts.Value.ToString() : "Null"));
                         
             return sb.ToString();
         }

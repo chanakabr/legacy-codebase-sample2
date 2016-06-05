@@ -17190,10 +17190,10 @@ namespace ConditionalAccess
                 ValidateEpgForRecording(userID, domainID, ref response, epgs, validEpgsForRecording);
 
                 // update recordings start\end dates with padding
-                if ((accountSettings.PaddingBeforeProgramStarted.HasValue && accountSettings.PaddingBeforeProgramStarted.Value > 0)
-                    || (accountSettings.PaddingAfterProgramEnded.HasValue && accountSettings.PaddingAfterProgramEnded.Value > 0))
+                if ((accountSettings.PaddingBeforeProgramStarts.HasValue && accountSettings.PaddingBeforeProgramStarts.Value > 0)
+                    || (accountSettings.PaddingAfterProgramEnds.HasValue && accountSettings.PaddingAfterProgramEnds.Value > 0))
                 {
-                    Utils.UpdateRecordingsWithPadding(ref response, accountSettings.PaddingBeforeProgramStarted.Value, accountSettings.PaddingAfterProgramEnded.Value);
+                    Utils.UpdateRecordingsWithPadding(ref response, accountSettings.PaddingBeforeProgramStarts.Value, accountSettings.PaddingAfterProgramEnds.Value);
                 }
 
                 int totalMinutes = Utils.GetQuota(this.m_nGroupID, domainID);

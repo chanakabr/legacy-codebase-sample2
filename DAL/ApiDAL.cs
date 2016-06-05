@@ -3407,8 +3407,8 @@ namespace DAL
                 spUpdateTimeShiftedTvPartnerSettings.AddParameter("@TrickPlayBuffer", settings.TrickPlayBufferLength);
                 spUpdateTimeShiftedTvPartnerSettings.AddParameter("@RecordingScheduleWindowBuffer", settings.RecordingScheduleWindow);
                 spUpdateTimeShiftedTvPartnerSettings.AddParameter("@EnableRecordingScheduleWindow", settings.IsRecordingScheduleWindowEnabled);
-                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@PaddingBeforeProgramStarted", settings.PaddingBeforeProgramStarted);
-                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@PaddingAfterProgramEnded", settings.PaddingAfterProgramEnded);
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@PaddingBeforeProgramStarts", settings.PaddingBeforeProgramStarts);
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@PaddingAfterProgramEnds", settings.PaddingAfterProgramEnds);
 
                 isUpdated = spUpdateTimeShiftedTvPartnerSettings.ExecuteReturnValue<bool>();
             }

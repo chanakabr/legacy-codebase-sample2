@@ -4181,13 +4181,13 @@ namespace ConditionalAccess
                     long trickPlayBuffer = ODBCWrapper.Utils.GetIntSafeVal(dr, "trick_play_buffer", -1);
                     long recordingScheduleWindowBuffer = ODBCWrapper.Utils.GetIntSafeVal(dr, "recording_schedule_window_buffer", -1);
                     int recordingScheduleWindow = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_schedule_window", -1);
-                    long paddingAfterProgramEnded = ODBCWrapper.Utils.GetIntSafeVal(dr, "padding_after_program_ended", 0);
-                    long paddingBeforeProgramStarted = ODBCWrapper.Utils.GetIntSafeVal(dr, "padding_beofre_program_started", 0);
+                    long paddingAfterProgramEnds = ODBCWrapper.Utils.GetIntSafeVal(dr, "padding_after_program_ends", 0);
+                    long paddingBeforeProgramStarts = ODBCWrapper.Utils.GetIntSafeVal(dr, "padding_beofre_program_starts", 0);
 
                     if (catchup > -1 && cdvr > -1 && startOver > -1 && trickPlay > -1 && catchUpBuffer > -1 && trickPlayBuffer > -1)
                     {
                         settings = new TimeShiftedTvPartnerSettings(catchup == 1, cdvr == 1, startOver == 1, trickPlay == 1, recordingScheduleWindow == 1,
-                            catchUpBuffer, trickPlayBuffer, recordingScheduleWindowBuffer, paddingAfterProgramEnded, paddingBeforeProgramStarted);
+                            catchUpBuffer, trickPlayBuffer, recordingScheduleWindowBuffer, paddingAfterProgramEnds, paddingBeforeProgramStarts);
                     }
                 }
             }
@@ -4444,7 +4444,7 @@ namespace ConditionalAccess
                 }
                 
                 // validate recording schedule window according to the paddedStartDate
-                DateTime paddedStartDate = epgStartDate.AddSeconds(accountSettings.PaddingBeforeProgramStarted.HasValue ? (-1) * accountSettings.PaddingBeforeProgramStarted.Value : 0);
+                DateTime paddedStartDate = epgStartDate.AddSeconds(accountSettings.PaddingBeforeProgramStarts.HasValue ? (-1) * accountSettings.PaddingBeforeProgramStarts.Value : 0);
                 if (accountSettings.IsRecordingScheduleWindowEnabled.HasValue && accountSettings.IsRecordingScheduleWindowEnabled.Value &&
                     accountSettings.RecordingScheduleWindow.HasValue && paddedStartDate.AddMinutes(accountSettings.RecordingScheduleWindow.Value) < DateTime.UtcNow)
                 {
