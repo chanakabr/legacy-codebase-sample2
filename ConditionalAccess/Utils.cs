@@ -4177,12 +4177,12 @@ namespace ConditionalAccess
                     int cdvr = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_cdvr", -1);
                     int startOver = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_start_over", -1);
                     int trickPlay = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_trick_play", -1);
-                    long catchUpBuffer = ODBCWrapper.Utils.GetIntSafeVal(dr, "catch_up_buffer", -1);
-                    long trickPlayBuffer = ODBCWrapper.Utils.GetIntSafeVal(dr, "trick_play_buffer", -1);
-                    long recordingScheduleWindowBuffer = ODBCWrapper.Utils.GetIntSafeVal(dr, "recording_schedule_window_buffer", -1);
+                    long catchUpBuffer = ODBCWrapper.Utils.GetLongSafeVal(dr, "catch_up_buffer", -1);
+                    long trickPlayBuffer = ODBCWrapper.Utils.GetLongSafeVal(dr, "trick_play_buffer", -1);
+                    long recordingScheduleWindowBuffer = ODBCWrapper.Utils.GetLongSafeVal(dr, "recording_schedule_window_buffer", -1);
                     int recordingScheduleWindow = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_schedule_window", -1);
-                    long paddingAfterProgramEnds = ODBCWrapper.Utils.GetIntSafeVal(dr, "padding_after_program_ends", 0);
-                    long paddingBeforeProgramStarts = ODBCWrapper.Utils.GetIntSafeVal(dr, "padding_beofre_program_starts", 0);
+                    long paddingAfterProgramEnds = ODBCWrapper.Utils.GetLongSafeVal(dr, "padding_after_program_ends", 0);
+                    long paddingBeforeProgramStarts = ODBCWrapper.Utils.GetLongSafeVal(dr, "padding_beofre_program_starts", 0);
 
                     if (catchup > -1 && cdvr > -1 && startOver > -1 && trickPlay > -1 && catchUpBuffer > -1 && trickPlayBuffer > -1)
                     {
