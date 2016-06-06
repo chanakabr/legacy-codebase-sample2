@@ -1881,7 +1881,7 @@ namespace DAL
             return null;
         }
 
-        public static bool UpdateAnnouncement(int groupId, int announcementId, bool? automaticSending = null)
+        public static bool UpdateAnnouncement(int groupId, int announcementId, bool? automaticSending, DateTime? lastMessageSentDate = null)
         {
             int rowCount = 0;
             try
@@ -1890,13 +1890,19 @@ namespace DAL
                 sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@announcementId", announcementId);
-                //sp.AddParameter("@automaticSending", automaticSending.HasValue ? automaticSending.Value : null);
+                if (automaticSending.HasValue)
+                    sp.AddParameter("@automaticSending", automaticSending.Value);
+                else
+                    sp.AddParameter("@automaticSending", DBNull.Value);
+
+                if (lastMessageSentDate.HasValue)
+                    sp.AddParameter("@lastMessageSentDateSec", lastMessageSentDate.Value);
 
                 rowCount = sp.ExecuteReturnValue<int>();
             }
             catch (Exception ex)
             {
-                //log.ErrorFormat("Error at Update_PaymentGatewayPaymentMethod. paymentMethodId: {0}, name = {1}", paymentMethodId, !string.IsNullOrEmpty(name) ? name : string.Empty, ex);
+                log.ErrorFormat("Error at UpdateAnnouncement. announcementId: {0}, automaticSending{ {1}", announcementId, automaticSending.HasValue ? automaticSending.Value.ToString() : string.Empty, ex);
             }
 
             return rowCount > 0;
