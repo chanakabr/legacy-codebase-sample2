@@ -4182,7 +4182,7 @@ namespace ConditionalAccess
                     long recordingScheduleWindowBuffer = ODBCWrapper.Utils.GetLongSafeVal(dr, "recording_schedule_window_buffer", -1);
                     int recordingScheduleWindow = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_schedule_window", -1);
                     long paddingAfterProgramEnds = ODBCWrapper.Utils.GetLongSafeVal(dr, "padding_after_program_ends", 0);
-                    long paddingBeforeProgramStarts = ODBCWrapper.Utils.GetLongSafeVal(dr, "padding_beofre_program_starts", 0);
+                    long paddingBeforeProgramStarts = ODBCWrapper.Utils.GetLongSafeVal(dr, "padding_before_program_starts", 0);
 
                     if (catchup > -1 && cdvr > -1 && startOver > -1 && trickPlay > -1 && catchUpBuffer > -1 && trickPlayBuffer > -1)
                     {
