@@ -24,7 +24,7 @@ namespace ImageUploadHandler
 
             try
             {
-                log.InfoFormat("Image upload request. data={0}", data);
+                log.DebugFormat("Image upload request. data={0}", data);
 
                 RemoteImageUploadRequest request = JsonConvert.DeserializeObject<RemoteImageUploadRequest>(data);
 

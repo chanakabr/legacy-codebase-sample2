@@ -24,7 +24,7 @@ namespace RecordingTaskHandler
 
             try
             {
-                log.InfoFormat("starting recording task. data={0}", data);
+                log.DebugFormat("starting recording task. data={0}", data);
 
                 RecordingTaskRequest request = JsonConvert.DeserializeObject<RecordingTaskHandler.RecordingTaskRequest>(data);
 

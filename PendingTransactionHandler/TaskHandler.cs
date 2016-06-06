@@ -26,7 +26,7 @@ namespace PendingTransactionHandler
 
             try
             {
-                log.InfoFormat("starting pending charge request. data={0}", data);
+                log.DebugFormat("starting pending charge request. data={0}", data);
                 
                 PendingTransactionRequest request = JsonConvert.DeserializeObject<PendingTransactionRequest>(data);
 

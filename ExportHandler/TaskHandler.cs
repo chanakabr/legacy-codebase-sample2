@@ -22,7 +22,7 @@ namespace ExportHandler
 
             try
             {
-                log.InfoFormat("Export request. data={0}", data);
+                log.DebugFormat("Export request. data={0}", data);
 
                 // build request object
                 ExportRequest request = JsonConvert.DeserializeObject<ExportRequest>(data);

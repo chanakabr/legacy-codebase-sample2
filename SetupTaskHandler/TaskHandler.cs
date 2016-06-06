@@ -19,7 +19,7 @@ namespace SetupTaskHandler
 
             try
             {
-                log.InfoFormat("starting setup task. data={0}", data);
+                log.DebugFormat("starting setup task. data={0}", data);
 
                 SetupTaskRequest request = JsonConvert.DeserializeObject<SetupTaskRequest>(data);
 
