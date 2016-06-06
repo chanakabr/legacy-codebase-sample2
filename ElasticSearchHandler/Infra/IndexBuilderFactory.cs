@@ -11,12 +11,32 @@ namespace ElasticSearchHandler.IndexBuilders
         {
             AbstractIndexBuilder result = null;
 
+            string urlV1 = ElasticSearchTaskUtils.GetTcmConfigValue("ES_URL_V1");
+            string urlV2 = ElasticSearchTaskUtils.GetTcmConfigValue("ES_URL_V2");
+
             switch (eType)
             {
                 case ApiObjects.eObjectType.Media:
                 case ApiObjects.eObjectType.Channel:
-                    result = new MediaIndexBuilderV1(nGroupID);
+                {
+                    if (!string.IsNullOrEmpty(urlV2))
+                    {
+                        if (!string.IsNullOrEmpty(urlV1))
+                        {
+                            result = new DualMediaIndexBuilder(nGroupID);
+                        }
+                        else
+                        {
+                            result = new MediaIndexBuilderV2(nGroupID);
+                        }
+                    }
+                    else
+                    {
+                        result = new MediaIndexBuilderV1(nGroupID);
+                    }
+
                     break;
+                }
                 case ApiObjects.eObjectType.EPG:
                     result = new EpgIndexBuilderV1(nGroupID);
                     break;
