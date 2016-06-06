@@ -2038,8 +2038,12 @@ namespace TvinciImporter
                 }
                 else
                 {
-                    log.DebugFormat("Error while creating new EpgPic, thumb {0}", thumb);
+                    log.ErrorFormat("Error while creating new EpgPic, thumb {0}", thumb);
                 }
+            }
+            else
+            {
+                log.DebugFormat("EpgPic exists, thumb {0}, picId {1}", thumb, picId);
             }
 
             return picId;
