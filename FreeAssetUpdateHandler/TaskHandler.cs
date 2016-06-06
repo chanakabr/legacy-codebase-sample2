@@ -25,7 +25,7 @@ namespace FreeAssetUpdateHandler
                 log.DebugFormat("starting free asset index update handler request. data={0}", data);
                 
                 FreeAssetUpdateRequest request = JsonConvert.DeserializeObject<FreeAssetUpdateRequest>(data);
-                ElasticSearchHandler.Updaters.IUpdateable updater = ElasticSearchHandler.Updaters.UpdaterFactory.CreateUpdater(request.group_id, request.type);
+                ElasticSearchHandler.Updaters.IElasticSearchUpdater updater = ElasticSearchHandler.Updaters.UpdaterFactory.CreateUpdater(request.group_id, request.type);
 
                 if (updater != null)
                 {
