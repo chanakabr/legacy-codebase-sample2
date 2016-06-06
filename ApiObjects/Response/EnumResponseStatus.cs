@@ -141,6 +141,7 @@ namespace ApiObjects.Response
         ProgramDoesntExist = 4022,
         ActionNotRecognized = 4023,
         InvalidAssetId = 4024,
+        CountryNotFound = 4025,
 
         // Api 5000 - 5999
         NoPinDefined = 5001,
