@@ -181,6 +181,20 @@ public partial class adm_generic_confirm : System.Web.UI.Page
 
     protected void Remove()
     {
+        if (m_sTable == "announcements")
+        {
+            bool result = RemoveAnnouncement(LoginManager.GetLoginGroupID(), m_nID);
+            
+            // write log?
+
+            if (Session["LastContentPage"].ToString().IndexOf("?") == -1)
+                Response.Write("<script>document.location.href='" + Session["LastContentPage"].ToString() + "?search_save=1&confirmed_id=" + m_nID + "'</script>");
+            else
+                Response.Write("<script>document.location.href='" + Session["LastContentPage"].ToString() + "&search_save=1&confirmed_id=" + m_nID + "'</script>");
+
+            return;
+            
+        }
         bool bIsPublished = false;
         ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery(m_sTable);
         updateQuery.SetConnectionKey(m_sDB);
@@ -422,6 +436,11 @@ public partial class adm_generic_confirm : System.Web.UI.Page
             Response.Write("<script>document.location.href='" + Session["LastContentPage"].ToString() + "?search_save=1&confirmed_id=" + m_nID + "'</script>");
         else
             Response.Write("<script>document.location.href='" + Session["LastContentPage"].ToString() + "&search_save=1&confirmed_id=" + m_nID + "'</script>");
+    }
+
+    private bool RemoveAnnouncement(int groupId, int announcementId)
+    {
+        return ImporterImpl.DeleteAnnouncement(groupId, announcementId);        
     }
 
     private string GetWSURL(string sKey)

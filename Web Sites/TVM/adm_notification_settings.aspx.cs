@@ -34,7 +34,7 @@ public partial class adm_notification_settings : System.Web.UI.Page
 
     public void GetHeader()
     {
-        Response.Write(PageUtils.GetPreHeader() + ": Notification Settings");        
+        Response.Write(PageUtils.GetPreHeader() + ": Notification Settings");
     }
 
     static protected Int32 GetMainLang(ref string sMainLang, ref string sCode)
@@ -74,7 +74,7 @@ public partial class adm_notification_settings : System.Web.UI.Page
 
         object groupId = LoginManager.GetLoginGroupID();
         bool push = true;
-        bool push_sa = true;        
+        bool push_sa = true;
         int tableID = GetNotificationSettingsID(ODBCWrapper.Utils.GetIntSafeVal(groupId), ref push, ref push_sa);
         // check ig groupid is parent , if so show page with all filed else (not parent show a message)
         bool isParentGroup = IsParentGroup(ODBCWrapper.Utils.GetIntSafeVal(groupId));
@@ -106,7 +106,7 @@ public partial class adm_notification_settings : System.Web.UI.Page
             push_system_announcements_enabled.Initialize("Push system announcements enabled", "adm_table_header_nbg", "FormInput", "push_system_announcements_enabled", false);
             push_system_announcements_enabled.SetValue(push_sa ? "1" : "0");
             theRecord.AddRecord(push_system_announcements_enabled);
-            
+
             DataRecordShortIntField dr_start_time = new DataRecordShortIntField(true, 6, 6, 0, 24);
             dr_start_time.Initialize("Push start hour", "adm_table_header_nbg", "FormInput", "push_start_hour", false);
             theRecord.AddRecord(dr_start_time);
@@ -117,13 +117,22 @@ public partial class adm_notification_settings : System.Web.UI.Page
 
             DataRecordCheckBoxField is_inbox_enable = new DataRecordCheckBoxField(true);
             is_inbox_enable.Initialize("Inbox enabled", "adm_table_header_nbg", "FormInput", "is_inbox_enable", false);
-            is_inbox_enable.SetDefault(0);            
+            is_inbox_enable.SetDefault(0);
             theRecord.AddRecord(is_inbox_enable);
 
             DataRecordShortIntField drTTL = new DataRecordShortIntField(true, 6, 6, 0, 90);
             drTTL.Initialize("Inbox message TTL(days)", "adm_table_header_nbg", "FormInput", "message_ttl", false);
             theRecord.AddRecord(drTTL);
-            
+
+            DataRecordCheckBoxField drAutomaticallyIssueNotification = new DataRecordCheckBoxField(true);
+            drAutomaticallyIssueNotification.Initialize("Automatically issue follow notification ", "adm_table_header_nbg", "FormInput", "automatic_sending", false);
+            drAutomaticallyIssueNotification.SetDefault(1);
+            theRecord.AddRecord(drAutomaticallyIssueNotification);
+
+            DataRecordShortIntField drTopicCeanup = new DataRecordShortIntField(true, 6, 6, 0, 365);
+            drTopicCeanup.Initialize("Topic cleanup expiration(days)", "adm_table_header_nbg", "FormInput", "topic_cleanup_expiration_days", false);
+            theRecord.AddRecord(drTopicCeanup);
+
             sTable = theRecord.GetTableHTML("adm_notification_settings.aspx?submited=1");
         }
         return sTable;
