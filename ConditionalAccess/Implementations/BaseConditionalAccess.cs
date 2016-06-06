@@ -17169,8 +17169,82 @@ namespace ConditionalAccess
                     // if no other users assign to this record id - ask adapter to cancel
                     DataTable dt = ConditionalAccessDAL.GetExistingRecordingsByRecordingID(m_nGroupID, recordID);
                     if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                    {                        
-                        var currentStatus = RecordingsManager.Instance.CancelRecording(m_nGroupID,  ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "epg_id",0));                     
+                    {
+                        if ((ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "countUsers", 0)) == 0)
+                        {
+                            var currentStatus = RecordingsManager.Instance.CancelRecording(m_nGroupID, ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "epg_id", 0));
+                        }
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder("Exception at Record. ");
+                sb.Append(String.Concat("userID: ", userID));
+                sb.Append(String.Concat(", recordID: ", recordID));
+                sb.Append(String.Concat(", Ex Msg: ", ex.Message));
+                sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
+                sb.Append(String.Concat(", Stack Trace: ", ex.StackTrace));
+
+                log.Error(sb.ToString(), ex);
+            }
+
+            return recording;
+        }
+
+
+        public Recording DeleteRecord(string userID, long domainID, long recordID)
+        {
+            Recording recording = new Recording() { Id = recordID };
+            try
+            {
+                ConditionalAccess.TvinciDomains.Domain domain;
+                ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userID, ref domainID, out domain);
+
+                if (validationStatus.Code != (int)eResponseStatus.OK)
+                {
+                    log.DebugFormat("User or Domain not valid, DomainID: {0}, UserID: {1}", domainID, userID);
+                    recording.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
+                    return recording;
+                }
+
+                // user is OK - see if user sign to recordID
+                recording = ValidateRecordID(domainID, recordID);
+                if (recording == null || recording.Status == null || recording.Status.Code != (int)eResponseStatus.OK)
+                {
+                    log.DebugFormat("recording status not valid, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", recordID, domainID, userID, recording != null ? recording.ToString() : string.Empty);
+                    recording = new Recording()
+                    {
+                        Id = recordID,
+                        Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingNotFound, eResponseStatus.RecordingNotFound.ToString())
+                    };
+
+                    return recording;
+                }
+
+                if (recording.Id == 0 || !Utils.IsValidRecordingStatusForDelete(recording.RecordingStatus))
+                {
+                    log.DebugFormat("Recording ID is 0 or RecordingStatus not valid, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", recordID, domainID, userID, recording.ToString());
+                    recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingStatusNotValid, recording.RecordingStatus.ToString());
+                }
+                else
+                {
+                    // delete recording id from domian
+                    bool res = ConditionalAccessDAL.DeleteRecording(m_nGroupID, recordID, domainID);
+                    if (res)
+                    {
+                        recording.RecordingStatus = TstvRecordingStatus.Deleted;
+                        recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    }
+                    // if no other users assign to this record id - ask adapter to cancel
+                    DataTable dt = ConditionalAccessDAL.GetExistingRecordingsByRecordingID(m_nGroupID, recordID);
+                    if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                    {
+                        if ((ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "countUsers", 0)) == 0)
+                        {
+                            var currentStatus = RecordingsManager.Instance.CancelRecording(m_nGroupID, ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "epg_id", 0));
+                        }
                     }
                 }
             }
@@ -18012,6 +18086,8 @@ namespace ConditionalAccess
             }
 
             return response;
-        }       
+        }
+
+      
     }
 }

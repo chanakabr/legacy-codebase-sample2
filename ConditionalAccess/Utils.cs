@@ -4709,5 +4709,27 @@ namespace ConditionalAccess
 
             return adapterResponse;
         }
+
+        internal static bool IsValidRecordingStatusForDelete(TstvRecordingStatus recordingStatus)
+        {
+            bool res = false;
+            switch (recordingStatus)
+            {
+                case TstvRecordingStatus.Recorded:                
+                    res = true;
+                    break;
+
+                case TstvRecordingStatus.Recording:
+                case TstvRecordingStatus.Scheduled:
+                case TstvRecordingStatus.Deleted:
+                case TstvRecordingStatus.Failed:
+                case TstvRecordingStatus.Canceled:
+                default:
+                    res = false;
+                    break;
+            }
+
+            return res;
+        }
     }
 }

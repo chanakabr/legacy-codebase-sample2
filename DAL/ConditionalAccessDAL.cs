@@ -2979,5 +2979,16 @@ namespace DAL
             return dt;
 
         }
+
+        public static bool DeleteRecording(int groupID, long recordID, long domainID)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteRecording");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@DomainID", domainID);
+            sp.AddParameter("@RecordID", recordID);
+
+            return sp.ExecuteReturnValue<bool>();
+        }
     }
 }
