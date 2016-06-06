@@ -55,7 +55,19 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
-                // call client                
+                // validate paddingBeforeProgramStarts
+                if (settings.PaddingBeforeProgramStarts.HasValue && settings.PaddingBeforeProgramStarts.Value < 0)
+                {
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "paddingBeforeProgramStarts can not be negative");
+                }
+
+                // validate paddingAfterProgramEnds
+                if (settings.PaddingAfterProgramEnds.HasValue && settings.PaddingAfterProgramEnds.Value < 0)
+                {
+                    throw new BadRequestException((int)WebAPI.Managers.Models.StatusCode.BadRequest, "paddingAfterProgramEnds can not be negative");
+                }
+
+                // call client
                 response = ClientsManager.ApiClient().UpdateTimeShiftedTvPartnerSettings(groupId, settings);
             }
             catch (ClientException ex)

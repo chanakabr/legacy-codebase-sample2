@@ -43,7 +43,9 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Query record options for programs
+        /// Return recording information and status for collection of program for a user.
+        /// Specify per programs if it can be recorded or not.
+        /// If program record request was already issued – return recording status
         /// </summary>
         /// <param name="filter">Filter parameters for filtering out the result</param>
         /// <returns></returns>

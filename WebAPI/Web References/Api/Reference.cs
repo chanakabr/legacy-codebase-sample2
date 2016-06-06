@@ -27,6 +27,7 @@ namespace WebAPI.Api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Web.Services.WebServiceBindingAttribute(Name="APISoap", Namespace="http://api.tvinci.com/")]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(EPGChannelProgrammeObject))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(BaseObject))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(BaseCacheObject))]
     public partial class API : System.Web.Services.Protocols.SoapHttpClientProtocol {
@@ -4362,12 +4363,12 @@ namespace WebAPI.Api {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetProgramDetails", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public EPGChannelProgrammeObject GetProgramDetails(string sWSUserName, string sWSPass, int nProgramId) {
+        public EPGChannelProgrammeObject1 GetProgramDetails(string sWSUserName, string sWSPass, int nProgramId) {
             object[] results = this.Invoke("GetProgramDetails", new object[] {
                         sWSUserName,
                         sWSPass,
                         nProgramId});
-            return ((EPGChannelProgrammeObject)(results[0]));
+            return ((EPGChannelProgrammeObject1)(results[0]));
         }
         
         /// <remarks/>
@@ -8318,7 +8319,489 @@ namespace WebAPI.Api {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(TypeName="EpgPicture", Namespace="http://api.tvinci.com/")]
+    public partial class EpgPicture1 {
+        
+        private ExtensionDataObject extensionDataField;
+        
+        private int picHeightField;
+        
+        private int picIDField;
+        
+        private int picWidthField;
+        
+        private string ratioField;
+        
+        private string urlField;
+        
+        /// <remarks/>
+        public ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int PicHeight {
+            get {
+                return this.picHeightField;
+            }
+            set {
+                this.picHeightField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int PicID {
+            get {
+                return this.picIDField;
+            }
+            set {
+                this.picIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int PicWidth {
+            get {
+                return this.picWidthField;
+            }
+            set {
+                this.picWidthField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Ratio {
+            get {
+                return this.ratioField;
+            }
+            set {
+                this.ratioField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Url {
+            get {
+                return this.urlField;
+            }
+            set {
+                this.urlField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class ExtensionDataObject {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(TypeName="EPGDictionary", Namespace="http://api.tvinci.com/")]
+    public partial class EPGDictionary1 {
+        
+        private ExtensionDataObject extensionDataField;
+        
+        private string keyField;
+        
+        private string valueField;
+        
+        /// <remarks/>
+        public ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Key {
+            get {
+                return this.keyField;
+            }
+            set {
+                this.keyField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Value {
+            get {
+                return this.valueField;
+            }
+            set {
+                this.valueField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(TypeName="EPGChannelProgrammeObject", Namespace="http://api.tvinci.com/")]
+    public partial class EPGChannelProgrammeObject1 {
+        
+        private ExtensionDataObject extensionDataField;
+        
+        private long cHANNEL_CATCH_UP_BUFFERField;
+        
+        private string cREATE_DATEField;
+        
+        private string dESCRIPTIONField;
+        
+        private int eNABLE_CATCH_UPField;
+        
+        private int eNABLE_CDVRField;
+        
+        private int eNABLE_START_OVERField;
+        
+        private int eNABLE_TRICK_PLAYField;
+        
+        private string eND_DATEField;
+        
+        private string ePG_CHANNEL_IDField;
+        
+        private long ePG_IDField;
+        
+        private string ePG_IDENTIFIERField;
+        
+        private EPGDictionary1[] ePG_MetaField;
+        
+        private EpgPicture1[] ePG_PICTURESField;
+        
+        private EPGDictionary1[] ePG_TAGSField;
+        
+        private string gROUP_IDField;
+        
+        private string iS_ACTIVEField;
+        
+        private int iS_RECORDEDField;
+        
+        private int lIKE_COUNTERField;
+        
+        private string nAMEField;
+        
+        private int pIC_IDField;
+        
+        private string pIC_URLField;
+        
+        private string pUBLISH_DATEField;
+        
+        private string sTART_DATEField;
+        
+        private string sTATUSField;
+        
+        private string uPDATER_IDField;
+        
+        private string uPDATE_DATEField;
+        
+        private string media_idField;
+        
+        /// <remarks/>
+        public ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long CHANNEL_CATCH_UP_BUFFER {
+            get {
+                return this.cHANNEL_CATCH_UP_BUFFERField;
+            }
+            set {
+                this.cHANNEL_CATCH_UP_BUFFERField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string CREATE_DATE {
+            get {
+                return this.cREATE_DATEField;
+            }
+            set {
+                this.cREATE_DATEField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string DESCRIPTION {
+            get {
+                return this.dESCRIPTIONField;
+            }
+            set {
+                this.dESCRIPTIONField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int ENABLE_CATCH_UP {
+            get {
+                return this.eNABLE_CATCH_UPField;
+            }
+            set {
+                this.eNABLE_CATCH_UPField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int ENABLE_CDVR {
+            get {
+                return this.eNABLE_CDVRField;
+            }
+            set {
+                this.eNABLE_CDVRField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int ENABLE_START_OVER {
+            get {
+                return this.eNABLE_START_OVERField;
+            }
+            set {
+                this.eNABLE_START_OVERField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int ENABLE_TRICK_PLAY {
+            get {
+                return this.eNABLE_TRICK_PLAYField;
+            }
+            set {
+                this.eNABLE_TRICK_PLAYField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string END_DATE {
+            get {
+                return this.eND_DATEField;
+            }
+            set {
+                this.eND_DATEField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string EPG_CHANNEL_ID {
+            get {
+                return this.ePG_CHANNEL_IDField;
+            }
+            set {
+                this.ePG_CHANNEL_IDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long EPG_ID {
+            get {
+                return this.ePG_IDField;
+            }
+            set {
+                this.ePG_IDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string EPG_IDENTIFIER {
+            get {
+                return this.ePG_IDENTIFIERField;
+            }
+            set {
+                this.ePG_IDENTIFIERField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable=false)]
+        public EPGDictionary1[] EPG_Meta {
+            get {
+                return this.ePG_MetaField;
+            }
+            set {
+                this.ePG_MetaField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public EpgPicture1[] EPG_PICTURES {
+            get {
+                return this.ePG_PICTURESField;
+            }
+            set {
+                this.ePG_PICTURESField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable=false)]
+        public EPGDictionary1[] EPG_TAGS {
+            get {
+                return this.ePG_TAGSField;
+            }
+            set {
+                this.ePG_TAGSField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string GROUP_ID {
+            get {
+                return this.gROUP_IDField;
+            }
+            set {
+                this.gROUP_IDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string IS_ACTIVE {
+            get {
+                return this.iS_ACTIVEField;
+            }
+            set {
+                this.iS_ACTIVEField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int IS_RECORDED {
+            get {
+                return this.iS_RECORDEDField;
+            }
+            set {
+                this.iS_RECORDEDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int LIKE_COUNTER {
+            get {
+                return this.lIKE_COUNTERField;
+            }
+            set {
+                this.lIKE_COUNTERField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string NAME {
+            get {
+                return this.nAMEField;
+            }
+            set {
+                this.nAMEField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int PIC_ID {
+            get {
+                return this.pIC_IDField;
+            }
+            set {
+                this.pIC_IDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string PIC_URL {
+            get {
+                return this.pIC_URLField;
+            }
+            set {
+                this.pIC_URLField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string PUBLISH_DATE {
+            get {
+                return this.pUBLISH_DATEField;
+            }
+            set {
+                this.pUBLISH_DATEField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string START_DATE {
+            get {
+                return this.sTART_DATEField;
+            }
+            set {
+                this.sTART_DATEField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string STATUS {
+            get {
+                return this.sTATUSField;
+            }
+            set {
+                this.sTATUSField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string UPDATER_ID {
+            get {
+                return this.uPDATER_IDField;
+            }
+            set {
+                this.uPDATER_IDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string UPDATE_DATE {
+            get {
+                return this.uPDATE_DATEField;
+            }
+            set {
+                this.uPDATE_DATEField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string media_id {
+            get {
+                return this.media_idField;
+            }
+            set {
+                this.media_idField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/schemas/EPGChannelProgrammeObject1")]
     public partial class EpgPicture {
         
         private int picWidthField;
@@ -8387,7 +8870,7 @@ namespace WebAPI.Api {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/schemas/EPGChannelProgrammeObject1")]
     public partial class EPGDictionary {
         
         private string keyField;
@@ -8421,7 +8904,7 @@ namespace WebAPI.Api {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/schemas/EPGChannelProgrammeObject1")]
     public partial class EPGChannelProgrammeObject {
         
         private long ePG_IDField;
@@ -10819,15 +11302,6 @@ namespace WebAPI.Api {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class ExtensionDataObject {
-    }
-    
-    /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(UnifiedSearchResult))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
@@ -10840,7 +11314,7 @@ namespace WebAPI.Api {
         
         private string assetIdField;
         
-        private eAssetTypes assetTypeField;
+        private eAssetTypes1 assetTypeField;
         
         private System.DateTime m_dUpdateDateField;
         
@@ -10865,7 +11339,7 @@ namespace WebAPI.Api {
         }
         
         /// <remarks/>
-        public eAssetTypes AssetType {
+        public eAssetTypes1 AssetType {
             get {
                 return this.assetTypeField;
             }
@@ -10888,8 +11362,8 @@ namespace WebAPI.Api {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public enum eAssetTypes {
+    [System.Xml.Serialization.XmlTypeAttribute(TypeName="eAssetTypes", Namespace="http://api.tvinci.com/")]
+    public enum eAssetTypes1 {
         
         /// <remarks/>
         UNKNOWN,
@@ -13754,6 +14228,10 @@ namespace WebAPI.Api {
         
         private System.Nullable<long> recordingScheduleWindowField;
         
+        private System.Nullable<long> paddingAfterProgramEndsField;
+        
+        private System.Nullable<long> paddingBeforeProgramStartsField;
+        
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
         public System.Nullable<bool> IsCatchUpEnabled {
@@ -13839,6 +14317,28 @@ namespace WebAPI.Api {
             }
             set {
                 this.recordingScheduleWindowField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<long> PaddingAfterProgramEnds {
+            get {
+                return this.paddingAfterProgramEndsField;
+            }
+            set {
+                this.paddingAfterProgramEndsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<long> PaddingBeforeProgramStarts {
+            get {
+                return this.paddingBeforeProgramStartsField;
+            }
+            set {
+                this.paddingBeforeProgramStartsField = value;
             }
         }
     }
@@ -14774,6 +15274,25 @@ namespace WebAPI.Api {
         
         /// <remarks/>
         Add,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.34281")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/schemas/eAssetTypes1")]
+    public enum eAssetTypes {
+        
+        /// <remarks/>
+        UNKNOWN,
+        
+        /// <remarks/>
+        EPG,
+        
+        /// <remarks/>
+        NPVR,
+        
+        /// <remarks/>
+        MEDIA,
     }
     
     /// <remarks/>
@@ -17479,10 +17998,10 @@ namespace WebAPI.Api {
         }
         
         /// <remarks/>
-        public EPGChannelProgrammeObject Result {
+        public EPGChannelProgrammeObject1 Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((EPGChannelProgrammeObject)(this.results[0]));
+                return ((EPGChannelProgrammeObject1)(this.results[0]));
             }
         }
     }

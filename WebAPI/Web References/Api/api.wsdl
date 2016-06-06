@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://api.tvinci.com/" xmlns:s1="http://api.tvinci.com/AbstractTypes" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://api.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://api.tvinci.com/" xmlns:s1="http://api.tvinci.com/schemas/eAssetTypes1" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:s2="http://api.tvinci.com/schemas/EPGChannelProgrammeObject1" xmlns:s3="http://api.tvinci.com/AbstractTypes" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://api.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://api.tvinci.com/">
+      <s:import namespace="http://api.tvinci.com/schemas/eAssetTypes1" />
+      <s:import namespace="http://api.tvinci.com/schemas/EPGChannelProgrammeObject1" />
       <s:element name="MessageRecovery">
         <s:complexType>
           <s:sequence>
@@ -561,6 +563,8 @@
           <s:element minOccurs="1" maxOccurs="1" name="CatchUpBufferLength" nillable="true" type="s:long" />
           <s:element minOccurs="1" maxOccurs="1" name="TrickPlayBufferLength" nillable="true" type="s:long" />
           <s:element minOccurs="1" maxOccurs="1" name="RecordingScheduleWindow" nillable="true" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="PaddingAfterProgramEnds" nillable="true" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="PaddingBeforeProgramStarts" nillable="true" type="s:long" />
         </s:sequence>
       </s:complexType>
       <s:element name="UpdateTimeShiftedTvPartnerSettings">
@@ -779,18 +783,10 @@
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="assetType" type="tns:eAssetTypes" />
+            <s:element minOccurs="1" maxOccurs="1" name="assetType" type="s1:eAssetTypes" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:simpleType name="eAssetTypes">
-        <s:restriction base="s:string">
-          <s:enumeration value="UNKNOWN" />
-          <s:enumeration value="EPG" />
-          <s:enumeration value="NPVR" />
-          <s:enumeration value="MEDIA" />
-        </s:restriction>
-      </s:simpleType>
       <s:element name="GetGroupDefaultCDNAdapterResponse">
         <s:complexType>
           <s:sequence>
@@ -1808,6 +1804,14 @@
         </s:sequence>
       </s:complexType>
       <s:complexType name="ExtensionDataObject" />
+      <s:simpleType name="eAssetTypes">
+        <s:restriction base="s:string">
+          <s:enumeration value="UNKNOWN" />
+          <s:enumeration value="EPG" />
+          <s:enumeration value="NPVR" />
+          <s:enumeration value="MEDIA" />
+        </s:restriction>
+      </s:simpleType>
       <s:element name="GetAvailableFileTypes">
         <s:complexType>
           <s:sequence>
@@ -2868,7 +2872,7 @@
       </s:element>
       <s:complexType name="RecordedEPGChannelProgrammeObject">
         <s:complexContent mixed="false">
-          <s:extension base="tns:EPGChannelProgrammeObject">
+          <s:extension base="s2:EPGChannelProgrammeObject">
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="RecordingID" type="s:string" />
               <s:element minOccurs="1" maxOccurs="1" name="IsAssetProtected" type="s:boolean" />
@@ -2877,62 +2881,6 @@
             </s:sequence>
           </s:extension>
         </s:complexContent>
-      </s:complexType>
-      <s:complexType name="EPGChannelProgrammeObject">
-        <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="EPG_ID" type="s:long" />
-          <s:element minOccurs="0" maxOccurs="1" name="EPG_CHANNEL_ID" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="EPG_IDENTIFIER" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="NAME" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="DESCRIPTION" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="START_DATE" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="END_DATE" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="PIC_URL" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="PIC_ID" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="STATUS" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="IS_ACTIVE" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="GROUP_ID" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="UPDATER_ID" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="UPDATE_DATE" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="PUBLISH_DATE" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="CREATE_DATE" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="LIKE_COUNTER" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="EPG_TAGS" type="tns:ArrayOfEPGDictionary" />
-          <s:element minOccurs="0" maxOccurs="1" name="EPG_Meta" type="tns:ArrayOfEPGDictionary" />
-          <s:element minOccurs="0" maxOccurs="1" name="EPG_PICTURES" type="tns:ArrayOfEpgPicture" />
-          <s:element minOccurs="0" maxOccurs="1" name="media_id" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="ENABLE_CDVR" type="s:int" />
-          <s:element minOccurs="1" maxOccurs="1" name="ENABLE_CATCH_UP" type="s:int" />
-          <s:element minOccurs="1" maxOccurs="1" name="CHANNEL_CATCH_UP_BUFFER" type="s:long" />
-          <s:element minOccurs="1" maxOccurs="1" name="ENABLE_START_OVER" type="s:int" />
-          <s:element minOccurs="1" maxOccurs="1" name="ENABLE_TRICK_PLAY" type="s:int" />
-          <s:element minOccurs="1" maxOccurs="1" name="IS_RECORDED" type="s:int" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="ArrayOfEPGDictionary">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="EPGDictionary" type="tns:EPGDictionary" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="EPGDictionary">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="Key" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="Value" type="s:string" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="ArrayOfEpgPicture">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="EpgPicture" nillable="true" type="tns:EpgPicture" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="EpgPicture">
-        <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="PicWidth" type="s:int" />
-          <s:element minOccurs="1" maxOccurs="1" name="PicHeight" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="Ratio" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="PicID" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="Url" type="s:string" />
-        </s:sequence>
       </s:complexType>
       <s:element name="GetNpvrRulesResponse">
         <s:complexType>
@@ -3027,6 +2975,65 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:complexType name="EPGChannelProgrammeObject">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ExtensionData" type="tns:ExtensionDataObject" />
+          <s:element minOccurs="1" maxOccurs="1" name="CHANNEL_CATCH_UP_BUFFER" type="s:long" />
+          <s:element minOccurs="0" maxOccurs="1" name="CREATE_DATE" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="DESCRIPTION" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="ENABLE_CATCH_UP" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="ENABLE_CDVR" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="ENABLE_START_OVER" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="ENABLE_TRICK_PLAY" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="END_DATE" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="EPG_CHANNEL_ID" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="EPG_ID" type="s:long" />
+          <s:element minOccurs="0" maxOccurs="1" name="EPG_IDENTIFIER" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="EPG_Meta" type="tns:ArrayOfEPGDictionary" />
+          <s:element minOccurs="0" maxOccurs="1" name="EPG_PICTURES" type="tns:ArrayOfEpgPicture" />
+          <s:element minOccurs="0" maxOccurs="1" name="EPG_TAGS" type="tns:ArrayOfEPGDictionary" />
+          <s:element minOccurs="0" maxOccurs="1" name="GROUP_ID" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="IS_ACTIVE" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="IS_RECORDED" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="LIKE_COUNTER" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="NAME" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="PIC_ID" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="PIC_URL" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="PUBLISH_DATE" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="START_DATE" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="STATUS" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="UPDATER_ID" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="UPDATE_DATE" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="media_id" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfEPGDictionary">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="EPGDictionary" type="tns:EPGDictionary" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="EPGDictionary">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ExtensionData" type="tns:ExtensionDataObject" />
+          <s:element minOccurs="0" maxOccurs="1" name="Key" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Value" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfEpgPicture">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="EpgPicture" nillable="true" type="tns:EpgPicture" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="EpgPicture">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ExtensionData" type="tns:ExtensionDataObject" />
+          <s:element minOccurs="1" maxOccurs="1" name="PicHeight" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="PicID" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="PicWidth" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Ratio" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Url" type="s:string" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="GetMediaConcurrencyRules">
         <s:complexType>
           <s:sequence>
@@ -4430,6 +4437,74 @@
       <s:element name="RecommendationEngineResponse" nillable="true" type="tns:RecommendationEngineResponse" />
       <s:element name="ExternalChannelResponseList" nillable="true" type="tns:ExternalChannelResponseList" />
     </s:schema>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://api.tvinci.com/schemas/eAssetTypes1">
+      <s:simpleType name="eAssetTypes">
+        <s:restriction base="s:string">
+          <s:enumeration value="UNKNOWN" />
+          <s:enumeration value="EPG" />
+          <s:enumeration value="NPVR" />
+          <s:enumeration value="MEDIA" />
+        </s:restriction>
+      </s:simpleType>
+    </s:schema>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://api.tvinci.com/schemas/EPGChannelProgrammeObject1">
+      <s:complexType name="EPGChannelProgrammeObject">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="EPG_ID" type="s:long" />
+          <s:element minOccurs="0" maxOccurs="1" name="EPG_CHANNEL_ID" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="EPG_IDENTIFIER" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="NAME" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="DESCRIPTION" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="START_DATE" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="END_DATE" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="PIC_URL" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="PIC_ID" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="STATUS" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="IS_ACTIVE" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="GROUP_ID" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="UPDATER_ID" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="UPDATE_DATE" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="PUBLISH_DATE" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="CREATE_DATE" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="LIKE_COUNTER" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="EPG_TAGS" type="s2:ArrayOfEPGDictionary" />
+          <s:element minOccurs="0" maxOccurs="1" name="EPG_Meta" type="s2:ArrayOfEPGDictionary" />
+          <s:element minOccurs="0" maxOccurs="1" name="EPG_PICTURES" type="s2:ArrayOfEpgPicture" />
+          <s:element minOccurs="0" maxOccurs="1" name="media_id" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="ENABLE_CDVR" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="ENABLE_CATCH_UP" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="CHANNEL_CATCH_UP_BUFFER" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="ENABLE_START_OVER" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="ENABLE_TRICK_PLAY" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="IS_RECORDED" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfEPGDictionary">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="EPGDictionary" type="s2:EPGDictionary" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="EPGDictionary">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Key" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Value" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfEpgPicture">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="EpgPicture" nillable="true" type="s2:EpgPicture" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="EpgPicture">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="PicWidth" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="PicHeight" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Ratio" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="PicID" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Url" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+    </s:schema>
     <s:schema targetNamespace="http://api.tvinci.com/AbstractTypes">
       <s:import namespace="http://schemas.xmlsoap.org/soap/encoding/" />
       <s:complexType name="StringArray">
@@ -5616,8 +5691,8 @@
   <wsdl:message name="GetChannelsMediaIDsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nChannels" type="s1:StringArray" />
-    <wsdl:part name="nFileTypeIDs" type="s1:StringArray" />
+    <wsdl:part name="nChannels" type="s3:StringArray" />
+    <wsdl:part name="nFileTypeIDs" type="s3:StringArray" />
     <wsdl:part name="bWithCache" type="s:string" />
     <wsdl:part name="sDevice" type="s:string" />
   </wsdl:message>
@@ -5627,8 +5702,8 @@
   <wsdl:message name="GetChannelsAssetsIDsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nChannels" type="s1:StringArray" />
-    <wsdl:part name="nFileTypeIDs" type="s1:StringArray" />
+    <wsdl:part name="nChannels" type="s3:StringArray" />
+    <wsdl:part name="nFileTypeIDs" type="s3:StringArray" />
     <wsdl:part name="bWithCache" type="s:string" />
     <wsdl:part name="sDevice" type="s:string" />
     <wsdl:part name="activeAssets" type="s:string" />
@@ -5656,7 +5731,7 @@
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="nChannelID" type="s:string" />
-    <wsdl:part name="nFileTypeIDs" type="s1:StringArray" />
+    <wsdl:part name="nFileTypeIDs" type="s3:StringArray" />
     <wsdl:part name="bWithCache" type="s:string" />
     <wsdl:part name="sDevice" type="s:string" />
   </wsdl:message>
@@ -5666,8 +5741,8 @@
   <wsdl:message name="DoesMediaBelongToChannelsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nChannels" type="s1:StringArray" />
-    <wsdl:part name="nFileTypeIDs" type="s1:StringArray" />
+    <wsdl:part name="nChannels" type="s3:StringArray" />
+    <wsdl:part name="nFileTypeIDs" type="s3:StringArray" />
     <wsdl:part name="nMediaID" type="s:string" />
     <wsdl:part name="bWithCache" type="s:string" />
     <wsdl:part name="sDevice" type="s:string" />
@@ -5687,7 +5762,7 @@
   <wsdl:message name="MapMediaFilesHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nMediaFileIDs" type="s1:StringArray" />
+    <wsdl:part name="nMediaFileIDs" type="s3:StringArray" />
   </wsdl:message>
   <wsdl:message name="MapMediaFilesHttpPostOut">
     <wsdl:part name="Body" element="tns:ArrayOfMeidaMaper" />
@@ -5904,7 +5979,7 @@
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="nSubscriptionCode" type="s:string" />
-    <wsdl:part name="nFileTypeIDs" type="s1:StringArray" />
+    <wsdl:part name="nFileTypeIDs" type="s3:StringArray" />
     <wsdl:part name="nMediaID" type="s:string" />
     <wsdl:part name="sDevice" type="s:string" />
   </wsdl:message>
@@ -5915,7 +5990,7 @@
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="nCollectionCode" type="s:string" />
-    <wsdl:part name="nFileTypeIDs" type="s1:StringArray" />
+    <wsdl:part name="nFileTypeIDs" type="s3:StringArray" />
     <wsdl:part name="nMediaID" type="s:string" />
     <wsdl:part name="sDevice" type="s:string" />
   </wsdl:message>
@@ -5949,7 +6024,7 @@
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="nSubscriptionCode" type="s:string" />
-    <wsdl:part name="nFileTypeIDs" type="s1:StringArray" />
+    <wsdl:part name="nFileTypeIDs" type="s3:StringArray" />
     <wsdl:part name="sDevice" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetSubscriptionMediaIdsHttpPostOut">
@@ -5959,7 +6034,7 @@
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
     <wsdl:part name="nCollectionCode" type="s:string" />
-    <wsdl:part name="nFileTypeIDs" type="s1:StringArray" />
+    <wsdl:part name="nFileTypeIDs" type="s3:StringArray" />
     <wsdl:part name="sDevice" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetCollectionMediaIdsHttpPostOut">
@@ -6256,7 +6331,7 @@
   <wsdl:message name="UpdateCacheHttpPostIn">
     <wsdl:part name="groupId" type="s:string" />
     <wsdl:part name="bucket" type="s:string" />
-    <wsdl:part name="keys" type="s1:StringArray" />
+    <wsdl:part name="keys" type="s3:StringArray" />
   </wsdl:message>
   <wsdl:message name="UpdateCacheHttpPostOut">
     <wsdl:part name="Body" element="tns:boolean" />
