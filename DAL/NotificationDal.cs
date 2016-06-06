@@ -1921,7 +1921,7 @@ namespace DAL
                     sp.AddParameter("@automaticSending", DBNull.Value);
 
                 if (lastMessageSentDate.HasValue)
-                    sp.AddParameter("@last_message_sent_date_sec", lastMessageSentDate.Value);
+                    sp.AddParameter("@lastMessageSentDateSec", lastMessageSentDate.Value);
 
                 rowCount = sp.ExecuteReturnValue<int>();
             }
