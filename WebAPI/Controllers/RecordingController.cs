@@ -166,5 +166,36 @@ namespace WebAPI.Controllers
             return response;
         }
 
+
+        /// <summary>
+        /// Returns recording cancel object by internal identifier
+        /// </summary>
+        /// <param name="id">Recording identifier</param>
+        /// <returns></returns>
+        /// <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
+        /// UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043 </remarks>
+        [Route("cancel"), HttpPost]
+        [ApiAuthorize]
+        public KalturaRecording Cancel(long id)
+        {
+            KalturaRecording response = null;
+
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                string userId = KS.GetFromRequest().UserId;
+                long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+                // call client                
+                response = ClientsManager.ConditionalAccessClient().CancelRecord(groupId, userId, domainId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return response;
+        }
+
+
+
     }
 }
