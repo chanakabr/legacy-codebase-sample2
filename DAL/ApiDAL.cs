@@ -3409,6 +3409,8 @@ namespace DAL
                 spUpdateTimeShiftedTvPartnerSettings.AddParameter("@EnableRecordingScheduleWindow", settings.IsRecordingScheduleWindowEnabled);
                 spUpdateTimeShiftedTvPartnerSettings.AddParameter("@PaddingBeforeProgramStarts", settings.PaddingBeforeProgramStarts);
                 spUpdateTimeShiftedTvPartnerSettings.AddParameter("@PaddingAfterProgramEnds", settings.PaddingAfterProgramEnds);
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@ProtectionPeriod", settings.ProtectionPeriod);
+                spUpdateTimeShiftedTvPartnerSettings.AddParameter("@ProtectionQuotaPercentage", settings.ProtectionQuotaPercentage);
 
                 isUpdated = spUpdateTimeShiftedTvPartnerSettings.ExecuteReturnValue<bool>();
             }
