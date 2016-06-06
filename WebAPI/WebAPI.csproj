@@ -339,6 +339,9 @@
     <None Include="Service References\Catalog\Service74.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\Catalog\Service75.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\Catalog\Service8.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -1784,6 +1787,7 @@
     <Compile Include="Controllers\CDNAdapterProfileController.cs" />
     <Compile Include="Controllers\CDVRAdapterProfileController.cs" />
     <Compile Include="Controllers\CDNPartnerSettingsController.cs" />
+    <Compile Include="Controllers\SystemController.cs" />
     <Compile Include="Controllers\HouseholdQuotaController.cs" />
     <Compile Include="Controllers\InboxMessageController.cs" />
     <Compile Include="Controllers\MessageTemplateController.cs" />

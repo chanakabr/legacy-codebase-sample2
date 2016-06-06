@@ -28,7 +28,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "name")]
         [JsonProperty("name")]
         [XmlElement(ElementName = "name")]
-        public int? Name { get; set; }
+        public string Name { get; set; }
 
         /// <summary>
         /// Country code
@@ -36,6 +36,6 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "code")]
         [JsonProperty("code")]
         [XmlElement(ElementName = "code")]
-        public int? Code { get; set; }
+        public string Code { get; set; }
     }
 }

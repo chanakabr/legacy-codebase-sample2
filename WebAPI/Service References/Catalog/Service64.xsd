@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd15" namespace="http://schemas.datacontract.org/2004/07/Catalog.Request" />
-  <xs:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/Catalog.Response" />
-  <xs:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd5" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
-  <xs:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/ApiObjects" />
+  <xs:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/Catalog.Request" />
+  <xs:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd7" namespace="http://schemas.datacontract.org/2004/07/Catalog.Response" />
+  <xs:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd4" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+  <xs:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd5" namespace="http://schemas.datacontract.org/2004/07/ApiObjects" />
   <xs:element name="IngestAdiData">
     <xs:complexType>
       <xs:sequence>
@@ -117,9 +117,9 @@
   <xs:element name="UpdateIndex">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q5="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="objectIDs" nillable="true" type="q5:ArrayOfint" />
-        <xs:element minOccurs="0" name="groupId" type="xs:int" />
-        <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="action" type="q6:eAction" />
+        <xs:element xmlns:q5="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="lMediaIds" nillable="true" type="q5:ArrayOfint" />
+        <xs:element minOccurs="0" name="nGroupId" type="xs:int" />
+        <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="eAction" type="q6:eAction" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -194,11 +194,27 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <xs:element name="UpdateEpgChannelIndex">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q14="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="lEpgChannelIds" nillable="true" type="q14:ArrayOfint" />
+        <xs:element minOccurs="0" name="nGroupId" type="xs:int" />
+        <xs:element xmlns:q15="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="eAction" type="q15:eAction" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UpdateEpgChannelIndexResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="UpdateEpgChannelIndexResult" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="RebuildIndex">
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" name="groupId" type="xs:int" />
-        <xs:element xmlns:q14="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="type" type="q14:eObjectType" />
+        <xs:element xmlns:q16="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="type" type="q16:eObjectType" />
         <xs:element minOccurs="0" name="switchIndexAlias" type="xs:boolean" />
         <xs:element minOccurs="0" name="deleteOldIndices" type="xs:boolean" />
         <xs:element minOccurs="0" name="startDate" nillable="true" type="xs:dateTime" />
@@ -239,6 +255,40 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" name="GetGroupResult" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UpdateRecordingsIndex">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q17="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="recordingsIds" nillable="true" type="q17:ArrayOflong" />
+        <xs:element minOccurs="0" name="groupId" type="xs:int" />
+        <xs:element xmlns:q18="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="action" type="q18:eAction" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UpdateRecordingsIndexResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="UpdateRecordingsIndexResult" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RebuildEpgChannel">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="groupId" type="xs:int" />
+        <xs:element minOccurs="0" name="epgChannelID" type="xs:int" />
+        <xs:element minOccurs="0" name="fromDate" type="xs:dateTime" />
+        <xs:element minOccurs="0" name="toDate" type="xs:dateTime" />
+        <xs:element minOccurs="0" name="duplicates" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RebuildEpgChannelResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="RebuildEpgChannelResult" type="xs:boolean" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
